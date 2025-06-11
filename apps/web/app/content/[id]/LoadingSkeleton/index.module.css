@@ -1,0 +1,28 @@
+.container{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.container div{
+    background: #ccc;
+    border-radius: 20px;
+}
+
+.heading{
+    height: 40px;
+    margin-bottom: 20px;
+}
+
+.text{
+    height: 30px;
+}
+
+.text:nth-child(5n){
+    width: 50%;
+    margin-bottom: 20px;
+}
+.text:nth-child(4n){
+    width: 80%;
+}

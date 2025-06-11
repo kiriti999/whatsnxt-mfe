@@ -1,0 +1,33 @@
+.container {
+    min-width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px;
+}
+
+.card {
+    flex: 1 1 300px;
+    max-width: 400px;
+    height: 292px;
+    border-radius: 20px;
+    background: linear-gradient(100deg,
+            rgba(255, 255, 255, 0) 40%,
+            rgba(255, 255, 255, 0.2) 50%,
+            rgba(255, 255, 255, 0) 60%) #d0d0d094;
+    background-size: 200% 100%;
+    background-position-x: 180%;
+    animation: 1.2s loading ease-in-out infinite;
+}
+
+.defaultLoadingCardStyle {
+    display: grid;
+    grid-template-columns: auto auto auto;
+    grid-gap: 10px;
+}
+
+@keyframes loading {
+    to {
+        background-position-x: -20%;
+    }
+}

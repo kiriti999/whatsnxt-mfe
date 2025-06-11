@@ -1,72 +1,112 @@
-import React from 'react';
-import styles from './AboutUs.module.css';
-import { IconArtboard, IconBook, IconDeviceLaptop } from '@tabler/icons-react';
-import { Box, Grid, Group, GridCol, Text, ThemeIcon } from '@mantine/core';
+import React, { Suspense } from 'react';
+import { Text, Badge, Title, Stack, Paper, Container } from '@mantine/core';
+import { MantineLoader } from '@whatsnxt/core-ui';
 
 const AboutUs = () => {
 
-  const features = [
-    { icon: <IconArtboard size={20} />, text: "Live Training" },
-    { icon: <IconDeviceLaptop size={20} />, text: "Remote Learning" },
-    { icon: <IconBook size={20} />, text: "Rich Tutorials" }
-  ];
   return (
-    <div className={`${styles['about-area']} ptb-50`}>
-      <div className="container">
-        <div className="row align-items-center">
 
-          <div className="col-lg-12 col-md-12">
-            <div className={styles['about-content']}>
-              <span className={`sub-title ${styles['sub-title']}`}>
-                ABOUT ME
-              </span>
-              <h2>
+    <Suspense fallback={<MantineLoader />}>
+      <Container size={'xl'} py="xl">
+
+        <Paper shadow="sm" p="xl" radius="md">
+          <Stack gap="xl" align="center">
+
+            <Stack gap="lg" ta="center">
+
+              <Badge
+                size="lg"
+                variant="light"
+                color="blue"
+                styles={{
+                  root: {
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em',
+                    fontSize: '0.75rem',
+                    fontWeight: 600
+                  }
+                }}
+              >
+                About Me
+              </Badge>
+
+              <Title
+                order={2}
+                size="h2"
+                fw={700}
+                ta="center"
+                style={{
+                  lineHeight: 1.3,
+                  fontSize: 'clamp(1.5rem, 4vw, 2.2rem)'
+                }}
+              >
                 I am Kiriti Komaragiri, the Founder and CTO of WhatsNxt.
-              </h2>
-              <p>
+              </Title>
+
+              <Text
+                size="lg"
+                lh={1.7}
+                ta="center"
+                c="dimmed"
+                style={{
+                  fontSize: '1.1rem',
+                  maxWidth: '900px',
+                  margin: '0 auto'
+                }}
+              >
                 With over 12 years of experience in software development, I am
                 deeply committed to creating a learning platform that empowers
-                individuals and provides a clear pathway to career advancement.
-                My expertise spans both high-level and low-level architectural
-                design, with extensive hands-on experience in technologies like
-                Next.js, Java, Docker, AWS, Node.js, and MongoDB.
-              </p>
-              <p>
+                individuals and provides a clear pathway to career advancement on different categories through rich quality arcticles, tutorials and engaging video courses.
+              </Text>
+              {/* <p>
                 At WhatsNxt, my vision is to offer the best learning experience—one
                 that not only meets industry demands but also delivers practical,
                 real-world skills. My goal is to support learners at every stage
-                of their journey, from foundational skills to advanced expertise,
-                making the path to a successful career both accessible and engaging.
-              </p>
-              <p>
-                Join me at WhatsNxt, where learning is designed to inspire growth
-                and open doors to new opportunities.
-              </p>
+                of their journey, from foundational skills to advanced expertise.
+              </p> */}
+              <Text
+                size="lg"
+                lh={1.7}
+                ta="center"
+                c="dimmed"
+                style={{
+                  fontSize: '1.1rem',
+                  maxWidth: '900px',
+                  margin: '0 auto'
+                }}
+              >
+                At WhatsNxt, my vision is to provide with high-quality blogs that deliver practical knowledge,
+                real-world examples, videos, and brain teasers. This approach
+                ensures users can quickly grasp essential concepts without sifting through
+                unnecessary details. To enhance this experience, I've introduced an article
+                series feature, providing an organized learning journey that guides users
+                through various topics. Ultimately, I aim to create a platform where users
+                can access concise, engaging, and effective content for rapid learning.
+              </Text>
 
-              <Box w="100%">
-                <Grid gutter={{ base: 'sm', sm: 'md', lg: 'xl' }}>
-                  {features.map((feature, index) => (
-                    <GridCol key={index} span={{ base: 12, xs: 6, sm: 4 }}>
-                      <Group>
-                        <ThemeIcon
-                          radius="xl"
-                          variant="transparent"
-                          color="#fe4a55"
-                        >
-                          {feature.icon}
-                        </ThemeIcon>
-                        <Text fw={500}>{feature.text}</Text>
-                      </Group>
-                    </GridCol>
-                  ))}
-                </Grid>
-              </Box>
-            </div>
-          </div>
-        </div>
-      </div>
+              <Text
+                size="lg"
+                lh={1.7}
+                ta="center"
+                c="dimmed"
+                style={{
+                  fontSize: '1.1rem',
+                  maxWidth: '900px',
+                  margin: '0 auto'
+                }}
+              >
+                My goal is to support learners at every stage
+                of their journey, from foundational skills to advanced expertise.
+              </Text>
 
-    </div>
+            </Stack>
+          </Stack>
+        </Paper>
+
+      </Container>
+    </Suspense>
+
+
   );
 };
 

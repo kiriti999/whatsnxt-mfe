@@ -1,0 +1,211 @@
+'use client';
+import { useEffect, useState, useCallback } from 'react';
+import { AnalyticsAPI } from '../../../api/v1/blog/analyticsApi';
+import { usePathname } from 'next/navigation';
+import SidebarPost from '../../../components/Blog/sidebar';
+import { Comment, CommentContextProvider, CommentReplyContextProvider } from '@whatsnxt/comments';
+import BlogContent from '../../../components/Blog/Content/Blog';
+import SidebarHeadings from '../../../components/Blog/sidebar-headings';
+import { WindowCheck } from '@whatsnxt/core-util';
+import StickyHeader from '@/components/Blog/Content/StickyHeader';
+import { SkeletonBlogContent } from '@whatsnxt/core-ui';
+import useAuth from '../../../hooks/Authentication/useAuth';
+import { Box, Container, Grid, GridCol, Stack } from '@mantine/core';
+import { useMediaQuery } from '@mantine/hooks';
+import { calculateTotalViews } from '@/utils/pageViews';
+import useCommentHandlers from '@whatsnxt/comments/src/hooks/useCommentHandlers';
+
+const initialProps = {
+  title: '',
+  description: '',
+  categoryName: [],
+  tutorial: false,
+};
+
+interface CommentNode {
+  id: string;
+  text: string;
+  email: string;
+  parents: string[];
+  items: CommentNode[];
+  likes: number;
+  dislikes: number;
+  hasLiked: boolean;
+  hasDisliked: boolean;
+  hasFlagged: boolean;
+  author: string;
+  updatedAt: string;
+  totalReply: number;
+}
+
+export interface PostSlugResponse {
+  _id: string;
+  title: string;
+  slug: string;
+  description: string;
+  categoryId: string;
+  categoryName: string;
+  timeToRead: string;
+  imageUrl: string;
+  subCategory: string | null;
+  nestedSubCategory: string | null;
+  published: boolean;
+  listed: boolean;
+}
+
+interface BlogContentDetailsProps {
+  details: PostSlugResponse;
+}
+
+async function fetchViews() {
+  return await AnalyticsAPI.fetchViews();
+}
+
+function BlogContentDetails({ details }: BlogContentDetailsProps) {
+  const isMobile = useMediaQuery('(max-width: 768px)');
+  const [contentId, setContentId] = useState('');
+  const [item, setItem] = useState(initialProps) as any;
+  const [itemHeadings, setItemHeadings] = useState<
+    { ref: HTMLElement; text: string; id: string }[]
+  >([]);
+  const [activeHeadingRef, setActiveHeadingRef] = useState<HTMLElement | null>(
+    null
+  );
+  const [loading, setLoading] = useState(true);
+  const [comments, setComments] = useState<{ id: number; items: CommentNode[] }>({
+    id: 1,
+    items: [],
+  });
+  const [views, setViews] = useState(0);
+  const { user } = useAuth();
+  const email = user?.email;
+  const userId = user?.id;
+
+  const onHeadingsExtracted = useCallback(
+    (headings: { ref: HTMLElement; text: string; id: string }[]) => {
+      setItemHeadings(headings);
+    },
+    []
+  );
+
+  const setActiveHeading = useCallback((headingRef: HTMLElement) => {
+    setActiveHeadingRef(headingRef);
+  }, []);
+
+  const {
+    handleInsertNode,
+    handleEditNode,
+    handleDeleteNode,
+    handleComments,
+    handleSubComment
+  } = useCommentHandlers({
+    contentId,
+    comments,
+    setComments
+  });
+
+  const [url, setUrl] = useState<string>('');
+  const pathName = usePathname();
+
+  useEffect(() => {
+    if (!WindowCheck()) return;
+    setUrl(window?.location.href ?? '');
+  }, []);
+
+  useEffect(() => {
+    if (details._id) {
+      setItem(details);
+      setContentId(details._id);
+      setLoading(false);
+    }
+  }, [details._id]);
+
+  // analytics
+  // useEffect(() => {
+  //   (async () => {
+  //     const totalViews = await calculateTotalViews(fetchViews, pathName);
+  //     setViews(totalViews);
+  //   })();
+  // }, [pathName]);
+
+  return (
+    <Container fluid>
+      <Box>
+        {loading ? (
+          <SkeletonBlogContent />
+        ) : (
+          <>
+            {itemHeadings.length > 0 && isMobile && <StickyHeader titles={itemHeadings} />}
+            <Box>
+              <Grid gutter={'xl'}>
+                {!isMobile && itemHeadings.length > 0 && (
+                  <GridCol span={{ base: 12, md: 2.2 }} mb={'xl'}>
+                    <Box pos="sticky" top={0}>
+                      <SidebarHeadings
+                        headings={itemHeadings}
+                        activeHeadingRef={activeHeadingRef}
+                      />
+                    </Box>
+                  </GridCol>
+                )}
+                <GridCol span={itemHeadings.length > 0 ? { base: 12, md: 7.5 } : { base: 12, md: 9 }} >
+                  <BlogContent
+                    url={url}
+                    views={views}
+                    title={item.title}
+                    thumbnailUrn={item.imageUrl}
+                    updatedAt={item.updatedAt}
+                    timeToRead={item.timeToRead}
+                    loading={loading}
+                    contentFormat={item.contentFormat}
+                    description={item.description}
+                    onHeadingsExtracted={onHeadingsExtracted}
+                    setActiveHeading={setActiveHeading}
+                  />
+                </GridCol>
+
+                <GridCol span={itemHeadings.length > 0 ? { base: 12, md: 2.3 } : { base: 12, md: 3 }}>
+                  <Box pos="sticky" top={0}>
+                    <Box mt={itemHeadings.length > 1 ? 'lg' : 0}>
+                      <SidebarPost />
+                    </Box>
+                  </Box>
+                </GridCol>
+              </Grid>
+
+              <Stack m={0}>
+                <CommentReplyContextProvider
+                  email={email}
+                  contentId={contentId}
+                  handleComments={handleComments}
+                  comments={comments}
+                >
+                  <CommentContextProvider>
+                    <Comment
+                      userId={userId}
+                      email={email}
+                      comment={comments}
+                      item={item}
+                      root={true}
+                      rootDepth={1}
+                      contentId={contentId}
+                      setComments={setComments}
+                      handleInsertNode={handleInsertNode}
+                      handleEditNode={handleEditNode}
+                      handleDeleteNode={handleDeleteNode}
+                      handleComments={handleComments}
+                      handleSubComment={handleSubComment}
+                    />
+                  </CommentContextProvider>
+                </CommentReplyContextProvider>
+              </Stack>
+
+            </Box>
+          </>
+        )}
+      </Box>
+    </Container>
+  );
+}
+
+export default BlogContentDetails;

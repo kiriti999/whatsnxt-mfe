@@ -1,3 +1,4 @@
+import { removeUploadedAssetsList, updateUploadedAssets } from '@/utils/blogWorker/workerWithLocalStorage';
 import { manageWorker } from '../../../utils/worker/manageWorker';
 import { addUploadedAsset, removeAllUploadedAsset } from '../../../utils/worker/workerWithLocalStorage';
 import { notifications } from '@mantine/notifications';
@@ -7,7 +8,7 @@ const replaceImageLinksOnContentPreview = async ({ file, timestamp, editor, temp
     const { state } = editor.view;
     const { doc, tr } = state;
     // this below code will replace temporary created url with new cloudinary link on editor 
-    doc.descendants((node, position) => {
+    doc.descendants((node: { attrs: { src: any; }; }, position: any) => {
         if (node.attrs.src === tempUrl) {
             tr.setNodeMarkup(position, undefined, { ...node.attrs, src: imageUrl });
         }
@@ -24,7 +25,7 @@ const removeTempImageFromEditor = ({ editor, tempUrl }) => {
     const { state } = editor.view;
     const { doc, tr } = state;
     // this code remove image from the editor that match with tempUrl
-    doc.descendants((node, position) => {
+    doc.descendants((node: { attrs: { src: any; }; nodeSize: any; }, position: any) => {
         if (node.attrs.src === tempUrl) {
             tr.delete(position, position + node.nodeSize);
         }
@@ -120,12 +121,12 @@ export const extractPublicIdsFromLinks = (links: string[]) => {
 
 const mediaTypes = ['image', 'video', 'raw'];
 
-export const extractPublicIdsAndTypeFromLinks = (links) => {
-    return links.map(link => {
+export const extractPublicIdsAndTypeFromLinks = (links: any[]) => {
+    return links.map((link: string) => {
         const parts = link.split('/');
         const lastPart = parts.slice(-2).join('/');
         const publicId = lastPart.split('.')[0]; // Join the parts back together with '/'
-        const type = parts.find(part => mediaTypes.includes(part)) || 'image'; // Get the type (e.g., video, image)
+        const type = parts.find((part: string) => mediaTypes.includes(part)) || 'image'; // Get the type (e.g., video, image)
 
         return {
             publicId,
@@ -133,3 +134,29 @@ export const extractPublicIdsAndTypeFromLinks = (links) => {
         };
     });
 };
+
+export const cloudinaryAssetsUploadCleanup = ({ content }: any) => {
+    const cloudinaryLinksFromContent = extractCloudinaryLinksFromContent(content);
+    const usedPublicIdsInEditor = extractPublicIdsFromLinks([...cloudinaryLinksFromContent]);
+    removeUploadedAssetsList(usedPublicIdsInEditor)
+
+    return cloudinaryLinksFromContent ? extractPublicIdsAndTypeFromLinks([...cloudinaryLinksFromContent]) : []
+}
+
+
+export const cloudinaryAssetsUploadCleanupForUpdate = ({ oldContent, newContent }: any) => {
+    const cloudinaryLinksNew = newContent ? extractCloudinaryLinksFromContent(newContent) : null;
+    const cloudinaryLinksPrev = oldContent ? extractCloudinaryLinksFromContent(oldContent) : null;
+
+    const usedPublicIdsInNewEditor = cloudinaryLinksNew ? extractPublicIdsFromLinks([...cloudinaryLinksNew]) : [];
+    const usedPublicIdsInPrevEditor = cloudinaryLinksPrev ? extractPublicIdsAndTypeFromLinks([...cloudinaryLinksPrev]) : [];
+
+    removeUploadedAssetsList(usedPublicIdsInNewEditor)
+    // get the public IDs that are in the old editor but not in the updated editor
+    const publicIdsNotInUpdatedEditor = usedPublicIdsInPrevEditor.filter(({publicId }) => !usedPublicIdsInNewEditor.includes(publicId));
+    // store it to on local storage so on cleanup it will be removed 
+    updateUploadedAssets(publicIdsNotInUpdatedEditor)
+
+    return cloudinaryLinksNew ? extractPublicIdsAndTypeFromLinks([...cloudinaryLinksNew]) : []
+}
+

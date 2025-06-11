@@ -1,0 +1,248 @@
+
+.contact-info {
+  padding-right: 15px;
+}
+
+.contact-info .sub-title {
+  display: block;
+  text-transform: uppercase;
+  color: #fe4a55;
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.contact-info h2 {
+  margin-bottom: 12px;
+  font-size: 36px;
+  font-weight: 800;
+}
+
+.contact-info ul {
+  padding-left: 0;
+  list-style-type: none;
+  margin-top: 35px;
+  margin-bottom: 0;
+}
+
+.contact-info ul li {
+  position: relative;
+  margin-bottom: 35px;
+  padding-left: 100px;
+}
+
+.contact-info ul li .icon {
+  width: 75px;
+  height: 85px;
+  background-color: #f8f9f8;
+  border-radius: 3px;
+  position: absolute;
+  text-align: center;
+  left: 0;
+  font-size: 40px;
+  color: #fe4a55;
+  transition: 0.5s;
+  top: 0;
+}
+
+.contact-info ul li .icon i {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.contact-info ul li h3 {
+  margin-bottom: 8px;
+  font-size: 24px;
+  font-weight: 800;
+}
+
+.contact-info ul li p {
+  font-weight: 600;
+  max-width: 300px;
+  margin-bottom: 0;
+  margin-top: 2px;
+}
+
+.contact-info ul li:hover .icon {
+  background-color: #fe4a55;
+  color: #ffffff;
+}
+
+.contact-info ul li:last-child {
+  margin-bottom: 0;
+}
+
+.contact-form {
+  overflow: hidden;
+  padding: 35px;
+  margin-left: 15px;
+  border-radius: 5px;
+  background-color: #fe4a55;
+  background-image: url(/images/register-shape.jpg);
+  background-position: center center;
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+
+.contact-form h2 {
+  margin-bottom: 0;
+  color: #ffffff;
+  font-size: 33px;
+  font-weight: 800;
+}
+
+.contact-form p {
+  color: #ffffff;
+  margin-top: 10px;
+  margin-bottom: 0;
+}
+
+.contact-form form {
+  margin-top: 25px;
+}
+
+.contact-form form .form-group {
+  margin-bottom: 20px;
+}
+
+.contact-form form input,
+.contact-form form textarea {
+  display: block;
+  width: 100%;
+  border: none;
+  color: #ffffff;
+  background-color: #c22b34;
+  height: 50px;
+  padding-left: 15px;
+  border-radius: 5px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.contact-form form input::-moz-placeholder,
+.contact-form form textarea::-moz-placeholder {
+  color: #cdcdcd;
+  -moz-transition: 0.5s;
+  transition: 0.5s;
+}
+
+.contact-form form input::placeholder,
+.contact-form form textarea::placeholder {
+  color: #cdcdcd;
+  transition: 0.5s;
+}
+
+.contact-form form input:focus::-moz-placeholder,
+.contact-form form textarea:focus::-moz-placeholder {
+  color: transparent;
+}
+
+.contact-form form input:focus::placeholder,
+.contact-form form textarea:focus::placeholder {
+  color: transparent;
+}
+
+.contact-form form textarea {
+  height: auto !important;
+  padding-top: 15px;
+}
+
+.contact-form form .default-btn {
+  background-color: #221638;
+  margin-top: 5px;
+  padding: 12px 30px;
+}
+
+.contact-form form .default-btn span {
+  background-color: #ffffff;
+}
+
+.contact-form form .default-btn:hover {
+  color: #fe4a55;
+}
+
+.contact-form form .invalid-feedback {
+  color: #ffffff;
+}
+
+@media only screen and (max-width: 767px) {
+  .contact-info {
+    text-align: center;
+  }
+  .contact-info .sub-title {
+    font-size: 13px;
+    margin-bottom: 10px;
+  }
+  .contact-info h2 {
+    font-size: 25px;
+  }
+  .contact-info ul li {
+    padding-right: 0;
+    padding-left: 0;
+  }
+  .contact-info ul li .icon {
+    width: 60px;
+    height: 60px;
+    left: 0;
+    position: relative;
+    font-size: 30px;
+    top: 0;
+    margin-left: auto;
+    margin-bottom: 17px;
+    margin-right: auto;
+  }
+  .contact-info ul li h3 {
+    font-size: 18px;
+  }
+  .contact-info ul li p {
+    max-width: 100%;
+  }
+  .contact-form {
+    text-align: center;
+    padding: 25px 15px;
+    margin-left: 0;
+    margin-top: 30px;
+  }
+  .contact-form h2 {
+    font-size: 25px;
+  }
+  .contact-form form input, .contact-form form textarea {
+    height: 48px;
+    font-size: 14.5px;
+  }
+}
+
+@media only screen and (min-width: 768px) and (max-width: 991px) {
+  .contact-info .sub-title {
+    font-size: 13px;
+  }
+  .contact-info ul li h3 {
+    font-size: 19px;
+  }
+  .contact-form {
+    margin-left: 0;
+    margin-top: 35px;
+  }
+  .contact-form h2 {
+    font-size: 30px;
+  }
+}
+
+@media only screen and (min-width: 992px) and (max-width: 1199px) {
+  .contact-info h2 {
+    font-size: 30px;
+    margin-bottom: 10px;
+  }
+  .contact-info ul li h3 {
+    font-size: 20px;
+  }
+  .contact-form {
+    padding: 30px;
+  }
+  .contact-form h2 {
+    font-size: 30px;
+  }
+}

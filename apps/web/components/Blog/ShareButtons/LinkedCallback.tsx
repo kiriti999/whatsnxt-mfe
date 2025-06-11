@@ -1,0 +1,111 @@
+'use client';
+
+import { useSearchParams, useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import React from 'react';
+import { notifications } from '@mantine/notifications';
+import { Container, Text } from '@mantine/core';
+import { MantineLoader } from '@whatsnxt/core-ui';
+import { useMutation } from '@apollo/client';
+import { HANDLE_CALLBACK_MUTATION, SHARE_POST_MUTATION } from '../../api/gqlQueries/linkedInCallbackQuery';
+
+const LinkedInCallback = () => {
+    const searchParams = useSearchParams();
+    const router = useRouter();
+    const [redirectUrl, setRedirectUrl] = useState('');
+
+    // GraphQL Mutations
+    const [callback] = useMutation(HANDLE_CALLBACK_MUTATION);
+    const [sharePost] = useMutation(SHARE_POST_MUTATION);
+
+    useEffect(() => {
+        const authCode = searchParams.get('code'); // Get the authorization code from URL
+        if (authCode) {
+            exchangeAuthCodeAndShare(authCode);
+        }
+    }, [searchParams]);
+
+    const exchangeAuthCodeAndShare = async (authCode: string) => {
+        try {
+            // Retrieve data from localStorage
+            const shareData = JSON.parse(localStorage.getItem('linkedinShareData') || '{}');
+            const { url, title, thumbnailUrn, description, email, media } = shareData;
+
+            setRedirectUrl(url);
+
+            if (!url || !description || !title || !email) {
+                console.error('Missing share data in localStorage.');
+                throw new Error('Unable to retrieve data for sharing. Please try again.');
+            }
+
+
+            // 🔹 Step 1: Exchange authorization code for tokens
+            await callback({
+                variables: { code: authCode },
+            });
+            console.log('LinkedIn authorization successful. Token saved.');
+
+            // 🔹 Step 2: Share the post after token exchange
+            const { data } = await sharePost({
+                variables: {
+                    url,
+                    title,
+                    email,
+                    text: description,
+                    thumbnailUrn,
+                    media: media?.filter(Boolean) ?? [], // Ensure media is non-nullable
+                },
+            });
+
+            if (data?.shareLinkedInPost) {
+                console.log('Post shared successfully.');
+                // Notify success
+                notifications.show({
+                    title: 'Success',
+                    message: 'Post shared to the company page on LinkedIn!',
+                    color: 'green',
+                });
+
+                // Clear localStorage after sharing the post
+                localStorage.removeItem('linkedinShareData');
+
+                router.push(url);
+            }
+
+        } catch (error) {
+            console.error('Failed to share post after authorization:', error);
+            notifications.show({
+                title: 'Error',
+                message: error.message || 'Failed to share the post on LinkedIn',
+                color: 'red',
+                autoClose: 3000,
+            });
+            router.push(redirectUrl);
+        }
+    };
+
+    return (
+        <Container
+            style={{
+                width: '90%',
+                maxWidth: '50rem',
+                height: '60vh',
+                maxHeight: '30rem',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                alignItems: 'center',
+                textAlign: 'center',
+                margin: '0 auto',
+                padding: '1rem',
+            }}
+        >
+            <Text mt="md" size="lg" fw={500}>
+                Processing LinkedIn authorization and sharing post...
+            </Text>
+            <MantineLoader size="lg" />
+        </Container>
+    );
+};
+
+export default LinkedInCallback;

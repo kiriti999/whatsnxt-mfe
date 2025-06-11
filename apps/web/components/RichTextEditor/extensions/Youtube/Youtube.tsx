@@ -1,6 +1,6 @@
 import React from "react";
 import { Editor } from "@tiptap/react";
-import { NumberInput, ActionIcon, Flex, Paper, TextInput, Group } from "@mantine/core";
+import { ActionIcon, TextInput, Group } from "@mantine/core";
 import { IconBrandYoutubeFilled } from "@tabler/icons-react";
 
 interface YoutubeBarProps {

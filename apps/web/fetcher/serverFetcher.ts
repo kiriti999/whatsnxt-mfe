@@ -18,7 +18,7 @@ interface FetcherOptions {
     cache?: RequestCache;
 }
 
-export const serverFetcher = async (URL: string, options: FetcherOptions = {}): Promise<any> => {
+export const serverFetcher = async (BASEURL: string, URL: string, options: FetcherOptions = {}): Promise<any> => {
     try {
         const tokenKeyName = process.env.NEXT_PUBLIC_COOKIES_ACCESS_TOKEN || 'whatsnxt_access_token';
         const cookieStore = await cookies();
@@ -40,7 +40,7 @@ export const serverFetcher = async (URL: string, options: FetcherOptions = {}): 
             fetchOptions.body = JSON.stringify(options.body);
         }
 
-        const URI = `${API_CONFIG.baseUrl}${URL}`
+        const URI = BASEURL ? `${BASEURL}${URL}` : `${API_CONFIG.baseUrl}${URL}`;
         console.log(' serverFetcher :: URI:', URI);
         console.log(' serverFetcher :: token present:', !!token);
 
@@ -64,8 +64,19 @@ export const serverFetcher = async (URL: string, options: FetcherOptions = {}): 
 // Specific function for getting post by slug
 export const getCourseBySlugServer = async (slug: string): Promise<any> => {
     try {
+        const BASEURL = process.env.BFF_BLOG_HOST_API as string;
+        return await serverFetcher(BASEURL, `/course/slug/${slug}`, {
+            cache: 'force-cache', // Cache published posts
+        });
+    } catch (error) {
+        console.error(`Failed to fetch post with slug: ${slug}`, error);
+    }
+};
 
-        return await serverFetcher(`/course/slug/${slug}`, {
+export const getPostBySlugServer = async (slug: string): Promise<any> => {
+    try {
+        const BASEURL = process.env.BFF_BLOG_HOST_API as string;
+        return await serverFetcher(BASEURL, `/post/slug/${slug}`, {
             cache: 'force-cache', // Cache published posts
         });
     } catch (error) {

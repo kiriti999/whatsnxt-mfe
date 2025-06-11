@@ -9,7 +9,7 @@ export const fetchUserFromCookies = (): AuthenticatedUserType | null => {
 
 // Check if access token exists
 export const isAuthenticated = (): boolean => {
-  const isAuthenticated = getCookie(process.env.NEXT_PUBLIC_COOKIES_ACCESS_TOKEN);
+  const isAuthenticated = getCookie(process.env.NEXT_PUBLIC_COOKIES_ACCESS_TOKEN as string);
   return !!isAuthenticated;
 };
 

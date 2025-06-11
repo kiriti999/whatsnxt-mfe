@@ -1,4 +1,4 @@
-import { useMemo, type Dispatch, type SetStateAction } from "react";
+import { type Dispatch, type SetStateAction } from "react";
 import type { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import { notifications } from "@mantine/notifications";
 import { CourseBuilderAPI } from "../../../../api/v1/courses/course-builder/course-builder-api";

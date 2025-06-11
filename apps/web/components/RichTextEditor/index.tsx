@@ -12,9 +12,10 @@ const Tiptap = dynamic(() => import('./Tiptap'), {
 type TipTapEditorProps = {
   content: string;
   onChange: (content: string) => void;
+  onWordCountChange?: (wordCount: number) => void;
 };
 
 
 export const RichTextEditor = (props: TipTapEditorProps) => {
-  return <Tiptap content={props.content} onChange={props.onChange} />
+  return <Tiptap content={props.content} onChange={props.onChange} onWordCountChange={onWordCountChange} />
 };

@@ -1,4 +1,15 @@
-import { createContext, useState, ReactNode, Dispatch, SetStateAction, useEffect } from "react";
+import {
+    createContext,
+    useState,
+    ReactNode,
+    Dispatch,
+    SetStateAction,
+    useEffect,
+    useCallback,
+} from 'react';
+import useAuth from '../hooks/Authentication/useAuth';
+import { getUploadedAssets } from '../utils/worker/workerWithLocalStorage';
+import { deleteDataWebWorker } from '../components/RichTextEditor/common';
 
 // ** Defaults
 interface ProgressEntry {
@@ -8,10 +19,12 @@ interface ProgressEntry {
 }
 
 interface TiptapManageContextProps {
-    courseId: string;
+    courseId?: string;
     progressList: ProgressEntry[];
     setProgressList: Dispatch<SetStateAction<ProgressEntry[]>>;
-    updateProgress: (entry: ProgressEntry) => void; isAssetsUploading: boolean
+    userId?: string | '';
+    updateProgress: (entry: ProgressEntry) => void;
+    isAssetsUploading: boolean;
 }
 
 const defaultProvider: TiptapManageContextProps = {
@@ -19,20 +32,23 @@ const defaultProvider: TiptapManageContextProps = {
     progressList: [],
     setProgressList: () => { },
     updateProgress: () => { },
-    isAssetsUploading: false
+    isAssetsUploading: false,
+    userId: '',
 };
 
 const TiptapManageContext = createContext(defaultProvider);
 
 interface TiptapManageContextProviderProps {
     children: ReactNode;
-    courseId: string;
+    courseId?: string;
     setIsAssetsUploading: Dispatch<SetStateAction<boolean>>
     isAssetsUploading: boolean
 }
 
 const TiptapManageContextProvider = ({ isAssetsUploading, children, courseId, setIsAssetsUploading }: TiptapManageContextProviderProps) => {
     const [progressList, setProgressList] = useState<ProgressEntry[]>([]);
+    const [userId, setUserId] = useState('');
+    const { user } = useAuth();
 
     useEffect(() => {
         if (progressList.length > 0) {
@@ -41,6 +57,33 @@ const TiptapManageContextProvider = ({ isAssetsUploading, children, courseId, se
             setIsAssetsUploading(false)
         }
     }, [progressList])
+
+    useEffect(() => {
+        if (user) {
+            (async function () {
+                const userId = user?.id
+                // @ts-ignore
+                setUserId(userId);
+            })();
+        }
+
+    }, [user]);
+
+
+    // delete ids on unload
+    useEffect(() => {
+        return () => {
+            // calls on unload
+            deleteUnusedAssets()
+        }
+    }, [])
+
+    const deleteUnusedAssets = useCallback(async () => {
+        if (getUploadedAssets() && getUploadedAssets().length > 0) {
+            await deleteDataWebWorker({ assetsList: getUploadedAssets() })
+        }
+    }, [])
+
 
     const updateProgress = ({ fileName, timestamp, progress, isCompleted = false }) => {
 

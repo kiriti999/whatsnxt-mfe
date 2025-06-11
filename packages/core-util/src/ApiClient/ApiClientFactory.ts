@@ -2,7 +2,7 @@
 import xior from 'xior';
 import Cookie from 'js-cookie';
 
-export type ApiClientType = 'auth' | 'bff';
+export type ApiClientType = 'auth' | 'bff' | 'blog';
 
 interface ApiClientConfig {
     baseURL: string;
@@ -46,7 +46,7 @@ const authErrorHandler = async (error: any) => {
 
         // For network errors or other non-response errors
         return Promise.reject(error);
-    } catch (e) {
+    } catch (e: any) {
         console.info(`ErrorHandler Exception:: message: ${e.message}`);
         return Promise.reject(e);
     }
@@ -130,6 +130,14 @@ const getApiConfig = (type: ApiClientType): ApiClientConfig => {
             return {
                 ...baseConfig,
                 baseURL: process.env.NEXT_PUBLIC_BFF_HOST_API!, // Keep your original env var
+                requestInterceptor: bffRequestInterceptor,
+                errorHandler: bffErrorHandler,
+            };
+
+        case 'blog':
+            return {
+                ...baseConfig,
+                baseURL: process.env.NEXT_PUBLIC_BLOG_HOST_API!, // Keep your original env var
                 requestInterceptor: bffRequestInterceptor,
                 errorHandler: bffErrorHandler,
             };
@@ -222,6 +230,7 @@ const createApiClient = (type: ApiClientType) => {
 // Create specific client instances
 export const authXiorInstance = createApiClient('auth');
 export const bffXiorInstance = createApiClient('bff');
+export const blogXiorInstance = createApiClient('blog');
 
 // Generic API client wrapper
 const createApiMethods = (xiorInstance: any) => ({
@@ -275,4 +284,9 @@ export const authApiClient = {
 export const bffApiClient = {
     ...createApiMethods(bffXiorInstance),
     xiorInstance: bffXiorInstance
+};
+
+export const blogApiClient = {
+    ...createApiMethods(blogXiorInstance),
+    xiorInstance: blogXiorInstance
 };

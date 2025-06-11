@@ -8,7 +8,7 @@ import { createTheme, DEFAULT_THEME, MantineProvider, TypographyStylesProvider }
 import { Notifications } from '@mantine/notifications';
 import Layout from '../Layout';
 import FilterStore from '../../context/filterStore';
-import store from '../../store/store';
+import { store } from '../../store/store';
 import { IconAddressBook, IconBell, IconBook2, IconCertificate, IconHistoryToggle, IconPasswordUser, IconUserEdit } from '@tabler/icons-react';
 import { CourseManageContextProvider } from '../../context/CourseManageContext';
 import { AuthProvider } from '../../context/Authentication/AuthContext';
@@ -41,8 +41,8 @@ export default function CoursesMicrofrontend({ children, user }: { children: Rea
     links: [
       { title: 'Home', url: `${domain}/`, linkType: '_self' },
       { title: 'Courses', url: `${domain}/courses`, linkType: '_self' },
-      { title: 'Blogs', url: `https://blog.whatsnxt.in/blogs`, linkType: '_blank' },
-      { title: 'Tutorials', url: `https://blog.whatsnxt.in/tutorials`, linkType: '_blank' },
+      { title: 'Blogs', url: `${domain}/blogs`, linkType: 'self' },
+      { title: 'Tutorials', url: `${domain}/tutorials`, linkType: 'self' },
     ],
     loginMenuLinks: [
       { title: 'My Courses', url: `${domain}/my-courses`, icon: IconCertificate },

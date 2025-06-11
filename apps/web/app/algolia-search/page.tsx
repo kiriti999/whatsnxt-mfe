@@ -1,5 +1,5 @@
 import React from 'react'
-import AlgoliaSearchComponent from '../_component/algolia-search/algolia-search'
+import AlgoliaSearchComponent from '../../components/Algolia-search/algolia-search'
 import { serverFetcher } from '../../fetcher/serverFetcher'
 
 

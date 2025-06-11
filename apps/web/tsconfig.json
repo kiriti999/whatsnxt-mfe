@@ -5,7 +5,24 @@
       {
         "name": "next"
       }
-    ]
+    ],
+    "paths": {
+      "@/*": [
+        "./*"
+      ],
+      "@/api/*": [
+        "./api/v1/blog/*"
+      ],
+      "@/types/*": [
+        "./types/*"
+      ],
+      "@/utils/*": [
+        "./utils/*"
+      ],
+      "@/components*": [
+        "./components*"
+      ]
+    }
   },
   "include": [
     "**/*.ts",

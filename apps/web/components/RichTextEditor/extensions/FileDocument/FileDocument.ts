@@ -46,13 +46,11 @@ export const FileDocument = Node.create({
                     if (aTag) {
                         const href = aTag.getAttribute('href'); // Corrected to 'href'
                         const name = aTag.textContent; // Get the text content for the name
-                        // console.log("Parsing HTML:", { href, name }, dom);
                         return {
                             src: href,
                             name: name,
                         };
                     }
-                    // console.log("No <a> tag found in", dom);
                     return {};
                 },
             },
@@ -60,7 +58,6 @@ export const FileDocument = Node.create({
     },
 
     renderHTML({ HTMLAttributes }) {
-        // console.log("Rendering HTML:", HTMLAttributes);
         return [
             "div",
             { class: "file-wrapper", "data-type": "file" },
@@ -75,10 +72,8 @@ export const FileDocument = Node.create({
         ];
     },
 
-    // @ts-ignore
     addNodeView() {
         return ({ node }) => {
-            // console.log("Adding Node View:", node.attrs);
             const wrapper = document.createElement("div");
             wrapper.classList.add("file-wrapper");
             wrapper.dataset.type = "file";

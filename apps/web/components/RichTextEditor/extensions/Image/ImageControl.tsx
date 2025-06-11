@@ -5,7 +5,7 @@ import { IconPhoto } from '@tabler/icons-react';
 import { Button } from '@mantine/core';
 
 // Custom Image button component
-const ImageControl = ({ editor }) => {
+const ImageControl = ({ editor }: any) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { courseId, updateProgress } = useContext(TiptapManageContext);
 

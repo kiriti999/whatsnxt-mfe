@@ -1,5 +1,5 @@
 import { useContext, useRef } from "react";
-import { IconPhoto, IconVideo } from '@tabler/icons-react';
+import { IconVideo } from '@tabler/icons-react';
 import styles from "../../Tiptap/Tiptap.module.css";
 import { uploadEditorDataWebWorker } from '../../common';
 import { TiptapManageContext } from '../../../../context/TiptapManageContext';

@@ -1,0 +1,45 @@
+.custom_button {
+    font-size: 0.8rem;
+    /* Maps to fz */
+    padding: 0.5rem;
+    /* Maps to p */
+    width: 5rem;
+    /* Matches inline style */
+    border: 1px solid gray;
+    /* Default outline style for variant="outline" */
+    background-color: transparent;
+    /* Transparent background for outline variant */
+    cursor: pointer;
+    color: #000;
+    transition: all 0.2s ease;
+    /* Smooth hover effect */
+
+    /* Disabled state */
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.custom_button:hover {
+    border-color: #fe4a55;
+    /* Custom hover effect for outline variant */
+    color: #fe4a55;
+}
+
+
+.mobile_only {
+    display: block;
+}
+
+.desktop_only {
+    display: none;
+}
+
+@media (min-width: 768px) {
+    .mobile_only {
+        display: none;
+    }
+
+    .desktop_only {
+        display: block;
+    }
+}

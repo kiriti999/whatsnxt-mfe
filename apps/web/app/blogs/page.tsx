@@ -1,10 +1,22 @@
-import React from 'react'
-import Blog from '../_component/blog/blog'
+import React, { Suspense } from 'react';
 
-function Page() {
+import Content from '../../components/Blog/Content/Content';
+import { MantineLoader } from '@whatsnxt/core-ui';
+import { Container } from '@mantine/core';
+
+export const metadata = {
+    title:
+        'Blogs | whatsnxt blogs and tutorials - Online skill development and learning',
+};
+
+const BlogPage = () => {
     return (
-        <Blog />
-    )
-}
+        <Suspense fallback={<MantineLoader />}>
+            <Container fluid>
+                <Content type="blog" />
+            </Container>
+        </Suspense>
+    );
+};
 
-export default Page
+export default BlogPage;

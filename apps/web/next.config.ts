@@ -84,6 +84,7 @@ const nextConfig = {
             '350555049939-53jicjsuep5l1c3rsdhe2u63n40ndqeb.apps.googleusercontent.com',
         GOOGLE_CLIENT_SECRET: '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',
         NEXT_PUBLIC_MFE_HOST: process.env.MFE_HOST,
+        NEXT_PUBLIC_BLOG_HOST_API: process.env.BFF_BLOG_HOST_API,
         NEXT_PUBLIC_BFF_HOST_API: process.env.BFF_HOST_API,
         NEXT_PUBLIC_BFF_HOST_AUTH_API: process.env.BFF_HOST_AUTH_API,
         NEXT_PUBLIC_BFF_VERSION: process.env.BFF_VERSION,

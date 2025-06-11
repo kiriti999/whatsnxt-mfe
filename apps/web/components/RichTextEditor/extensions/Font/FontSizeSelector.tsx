@@ -1,5 +1,6 @@
 import React from 'react';
 import { useEditor } from '@tiptap/react';
+import { Select } from '@mantine/core';
 
 declare module '@tiptap/core' {
   interface Commands<ReturnType> {
@@ -21,37 +22,84 @@ interface FontSizeSelectorProps {
 }
 
 export const FontSizeSelector: React.FC<FontSizeSelectorProps> = ({ editor }) => {
-  const handleFontSizeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const fontSize = e.target.value.replace('px', '');
+  const fontSizeOptions = [
+    { value: '12px', label: '12px' },
+    { value: '13px', label: '13px' },
+    { value: '14px', label: '14px' },
+    { value: '15px', label: '15px' },
+    { value: '16px', label: '16px' },
+    { value: '17px', label: '17px' },
+    { value: '18px', label: '18px' },
+    { value: '19px', label: '19px' },
+    { value: '20px', label: '20px' },
+    { value: '21px', label: '21px' },
+    { value: '23px', label: '23px' },
+    { value: '24px', label: '24px' },
+    { value: '32px', label: '32px' },
+  ];
 
-    if (editor) {
-      editor.chain().focus().setFontSize(fontSize).run();
+  // Get current font size from editor
+  const currentFontSize = React.useMemo(() => {
+    if (!editor) return '16px';
+
+    try {
+      const textStyle = editor.getAttributes('textStyle');
+      const fontSize = textStyle?.fontSize;
+
+      if (fontSize && typeof fontSize === 'string') {
+        return fontSize.includes('px') ? fontSize : `${fontSize}px`;
+      }
+      return '16px';
+    } catch (e) {
+      console.error('Error getting font size:', e);
+      return '16px';
+    }
+  }, [editor]);
+
+  const handleFontSizeChange = (value: string | null) => {
+    console.log('Font size change called with:', value);
+
+    if (!value || !editor) {
+      console.log('No value or editor:', { value, editor: !!editor });
+      return;
+    }
+
+    try {
+      // Make sure we have a string and not undefined/null
+      const valueStr = String(value);
+      const fontSize = valueStr.replace('px', '');
+
+      console.log('Setting font size to:', fontSize);
+
+      if (fontSize) {
+        editor.chain().focus().setFontSize(fontSize).run();
+      }
+    } catch (e) {
+      console.error('Error setting font size:', e);
     }
   };
 
   return (
-    <select
-      // Note: Had to add inline styles as styles from css modules are not working
-      style={{
-        fontSize: '12px',
-        padding: '2px 0px',
-        height: '25.2px',
-        width: 'auto',
-        border: '1px solid #ccc',
-        borderRadius: '4px',
-        cursor: 'pointer'
-      }}
+    <Select
+      value={currentFontSize}
       onChange={handleFontSizeChange}
-      defaultValue="16px"
+      data={fontSizeOptions}
+      placeholder="Font size"
       aria-label="Font Size"
-    >
-      <option value="12px">12</option>
-      <option value="14px">14</option>
-      <option value="16px">16</option>
-      <option value="18px">18</option>
-      <option value="24px">24</option>
-      <option value="32px">32</option>
-    </select>
+      size="xs"
+      styles={(theme) => ({
+        input: {
+          width: '70px',
+          minWidth: '70px',
+          padding: '0 8px',
+        },
+        rightSection: {
+          pointerEvents: 'none',
+        },
+      })}
+      allowDeselect={false}
+      comboboxProps={{ width: 'auto', position: 'bottom' }}
+    />
   );
 };
 
