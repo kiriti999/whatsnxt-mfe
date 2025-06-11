@@ -1,0 +1,88 @@
+
+.profile-quizzes .title {
+  background-color: #f8f9f8;
+  color: #221638;
+  text-align: center;
+  margin-bottom: 30px;
+  font-weight: 800;
+  padding: 15px 0;
+  font-size: 22px;
+}
+
+.profile-quizzes .table {
+  margin-bottom: 30px;
+}
+
+.profile-quizzes .table thead {
+  background-color: #221638;
+  color: #ffffff;
+}
+
+.profile-quizzes .table thead tr th {
+  white-space: nowrap;
+  vertical-align: middle;
+  border: none;
+  font-size: 18px;
+  font-weight: 800;
+  padding-top: 14px;
+  padding-bottom: 14px;
+  padding-left: 25px;
+  padding-right: 25px;
+}
+
+.profile-quizzes .table tbody tr td {
+  vertical-align: middle;
+  white-space: nowrap;
+  color: #606060;
+  border: none;
+  font-size: 16px;
+  font-weight: 600;
+  padding-top: 15px;
+  padding-bottom: 14px;
+  padding-left: 25px;
+  padding-right: 25px;
+}
+
+.profile-quizzes .table tbody tr td a {
+  display: inline-block;
+  color: #606060;
+}
+
+.profile-quizzes .table tbody tr td a:hover {
+  color: #fe4a55;
+}
+
+.profile-quizzes .table tbody tr td .progress {
+  display: inline-block;
+  border-radius: 30px;
+  height: auto;
+  padding: 4px 12px 3.5px;
+  background-color: #221638;
+  overflow: unset;
+  margin-left: 5px;
+  position: relative;
+  top: -2px;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.profile-quizzes .table tbody tr td .progress.completed {
+  background-color: #539a00;
+}
+
+.profile-quizzes .table tbody tr td .progress.pending {
+  background-color: #ffc107;
+}
+
+.profile-quizzes .table tbody tr td .progress.passed {
+  background-color: #007bff;
+}
+
+.profile-quizzes .table tbody tr td .progress.failed {
+  background-color: #dc3545;
+}
+
+.profile-quizzes .table tbody tr:nth-of-type(odd) {
+  background-color: #f8f9f8;
+}

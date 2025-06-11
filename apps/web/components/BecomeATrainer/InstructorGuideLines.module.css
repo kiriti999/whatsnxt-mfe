@@ -1,0 +1,133 @@
+
+.apply-instructor-image h2 {
+  margin-bottom: 18px;
+  font-size: 36px;
+  font-weight: 800;
+}
+
+.apply-instructor-image img {
+  border-radius: 5px;
+}
+
+.apply-instructor-content {
+  background-color: #f8f9f8;
+  border-radius: 5px;
+  padding: 30px;
+}
+
+.apply-instructor-content .react-tabs__tab-list {
+  border-bottom-color: #d8d8d8;
+  margin-bottom: 35px;
+  border-width: 1.5px;
+}
+
+.apply-instructor-content .react-tabs__tab-list .react-tabs__tab {
+  margin-right: 50px;
+  margin-bottom: -1.5px;
+  background-color: transparent;
+  color: #606060;
+  border: none;
+  padding: 0 0 10px;
+  position: relative;
+  font-weight: 800;
+}
+
+.apply-instructor-content .react-tabs__tab-list .react-tabs__tab .react-tabs__tab.active-tab::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 0;
+  transition: 0.5s;
+  height: 1.5px;
+  background-color: #fe4a55;
+}
+
+.apply-instructor-content .react-tabs__tab-list .react-tabs__tab:hover,
+.apply-instructor-content .react-tabs__tab-list .react-tabs__tab.react-tabs__tab--selected {
+  color: #221638;
+}
+
+.apply-instructor-content .react-tabs__tab-list .react-tabs__tab:hover::before,
+.apply-instructor-content .react-tabs__tab-list .react-tabs__tab.react-tabs__tab--selected::before {
+  width: 40%;
+}
+
+.apply-instructor-content .react-tabs__tab-list .react-tabs__tab:last-child {
+  margin-right: 0;
+}
+
+.apply-instructor-content h3 {
+  margin-bottom: 13px;
+  font-size: 24px;
+  font-weight: 800;
+}
+
+.apply-instructor-content h3:not(:first-child) {
+  margin-top: 30px;
+}
+
+@media only screen and (max-width: 767px) {
+  .apply-instructor-image {
+    text-align: center;
+  }
+  .apply-instructor-image h2 {
+    margin-bottom: 20px;
+    font-size: 25px;
+  }
+  .apply-instructor-image img {
+    width: 100%;
+  }
+  .apply-instructor-content {
+    padding: 10px 20px 20px;
+    margin-top: 30px;
+  }
+  .apply-instructor-content .react-tabs__tab-list {
+    margin-bottom: 30px;
+  }
+  .apply-instructor-content .react-tabs__tab-list .react-tabs__tab {
+    margin-right: 15px;
+    margin-top: 10px;
+    padding: 0 0 5px;
+    font-size: 15px;
+  }
+}
+
+@media only screen and (min-width: 768px) and (max-width: 991px) {
+  .apply-instructor-image h2 {
+    margin-bottom: 25px;
+    font-size: 30px;
+    text-align: center;
+  }
+  .apply-instructor-image img {
+    width: 100%;
+  }
+  .apply-instructor-content {
+    padding: 25px;
+    margin-top: 30px;
+  }
+  .apply-instructor-content .react-tabs__tab-list .react-tabs__tab {
+    margin-right: 35px;
+    font-size: 17px;
+  }
+  .apply-instructor-content h3 {
+    font-size: 20px;
+  }
+}
+
+@media only screen and (min-width: 992px) and (max-width: 1199px) {
+  .apply-instructor-image h2 {
+    font-size: 30px;
+  }
+  .apply-instructor-content {
+    padding: 20px;
+  }
+  .apply-instructor-content .react-tabs__tab-list .react-tabs__tab {
+    margin-right: 30px;
+    padding: 0 0 8px;
+    font-size: 16px;
+  }
+  .apply-instructor-content h3 {
+    font-size: 20px;
+  }
+}

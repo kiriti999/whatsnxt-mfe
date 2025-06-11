@@ -1,0 +1,20 @@
+/* AddQuestionStyle.module.css */
+.chatgptKeyContainer {
+    margin-top: 2rem;
+}
+
+.chatgptText {
+    margin: 0;
+    font-size: 0.875rem;
+    /* Equivalent to Mantine's 'sm' size */
+}
+
+.chatgptTitle {
+    font-size: 1rem;
+    /* Equivalent to Mantine's order={6} */
+}
+
+.chatgptFlex {
+    display: flex;
+    gap: 0.5rem;
+}

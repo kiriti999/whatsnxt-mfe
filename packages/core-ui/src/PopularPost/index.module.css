@@ -1,0 +1,28 @@
+.card {
+  background-color: var(--mantine-color-body);
+  width: 100%;
+  cursor: pointer;
+}
+
+.title {
+  font-weight: bold;
+  font-size: 0.9rem;
+  font-family:
+    Greycliff CF,
+    var(--mantine-font-family);
+  line-height: 1.2;
+}
+
+.body {
+  padding: var(--mantine-spacing-xs);
+}
+
+.author{
+  flex-wrap: nowrap;
+}
+
+@media only screen and (max-width: 1300px) {
+  .author{
+    flex-wrap: wrap;
+  }
+}

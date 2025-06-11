@@ -1,0 +1,14 @@
+.search-results {
+    width: calc(100%);
+    position: absolute;
+    top: 50px;
+    z-index: 999;
+    max-height: 80vh;
+    overflow: hidden;
+    overflow-y: auto;
+    border-radius: 5px;
+}
+
+.search-results a:not(:last-child) {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.25);
+}

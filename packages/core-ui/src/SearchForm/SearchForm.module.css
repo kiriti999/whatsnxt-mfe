@@ -1,0 +1,17 @@
+.search-box {
+    position: relative;
+    width: 100%;
+    border-radius: 5px;
+}
+
+.search-icon {
+    position: absolute;
+    top: 20%;
+    right: 1rem;
+}
+
+@media (min-width: 992px) and (max-width: 1000px) {
+    .search-box {
+      display: none;
+    }
+}

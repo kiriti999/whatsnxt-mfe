@@ -1,0 +1,19 @@
+import React from 'react';
+import { serverFetcher } from '../../../../fetcher/serverFetcher';
+import CourseInvoice from '../../../../components/CourseInvoice';
+
+const CourseInvoicePage = async props => {
+    const params = await props.params;
+    try {
+        const response = await serverFetcher(`/orders/${params.id}`);
+        console.log(response, 'response');
+        return (
+            <CourseInvoice order={response} />
+        );
+    } catch (err) {
+        console.log(err, 'error in InvoicePage');
+        return <></>;
+    }
+};
+
+export default CourseInvoicePage;

@@ -11,9 +11,9 @@
     "**/*.ts",
     "**/*.tsx",
     "next-env.d.ts",
-    "next.config.js",
+    "next.config.ts",
     ".next/types/**/*.ts"
-  ],
+, "api/v1/comment/index.js"  ],
   "exclude": [
     "node_modules"
   ]

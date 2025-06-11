@@ -1,0 +1,16 @@
+// templates/mfe-page.hbs
+
+import React from 'react';
+import MFeComponent from '{{ mfeImportPath }}'; // Update with your actual import path
+
+const {{ properCase routeName }} = () => {
+  return (
+    <div>
+      {/* Your route-specific content here */}
+      <h1>{{ properCase routeName }} Page</h1>
+      <MFeComponent />
+    </div>
+  );
+};
+
+export default {{ properCase routeName }};

@@ -1,0 +1,35 @@
+@media (min-width: 0px) {
+    .navbar-brand {
+        min-width: 100px;
+        max-width: 150px;
+        width: 100%;
+        height: auto;
+    }
+}
+
+@media (min-width: 576px) {
+    .navbar-brand {
+        min-width: 100px;
+        max-width: 250px;
+        width: 100%;
+        height: auto;
+    }
+}
+
+@media (min-width: 768px) {
+    .navbar-brand {
+        min-width: 100px;
+        max-width: 250px;
+        width: 100%;
+        height: auto;
+    }
+}
+
+@media (min-width: 992px) {
+    .navbar-brand {
+        min-width: 175px;
+        max-width: 100%;
+        width: 100%;
+        height: auto;
+    }
+}

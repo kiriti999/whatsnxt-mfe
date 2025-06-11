@@ -1,0 +1,31 @@
+.btn-google {
+    display: flex;
+    align-items: center;
+    color: #ffffff;
+    margin: 0 auto;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 10px;
+    background-color: rgb(0, 69, 206);
+    transition: all 0.3s;
+}
+
+
+.checkboxIcon {
+    margin-bottom: 5.82031px !important;
+}
+
+.btn-google:hover {
+    background-color: #000;
+}
+
+.btn-google span {
+    font-size: 22px;
+    font-weight: 600;
+    padding-left: 10px;
+}
+
+.btn-google img {
+    width: 1.5rem;
+    height: 1.5rem;
+}

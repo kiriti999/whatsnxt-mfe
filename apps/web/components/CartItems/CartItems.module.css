@@ -1,0 +1,248 @@
+.cart-items table tbody tr td.product-thumbnail a {
+    display: block;
+}
+
+table tbody tr td.product-thumbnail a img {
+    width: 80px;
+}
+
+.cart-items table tbody tr td.product-name a {
+    display: inline-block;
+}
+
+table tbody tr td.product-subtotal .remove {
+    color: red;
+    position: relative;
+    top: -1px;
+    font-size: 18px;
+    background-color: transparent;
+    border: none;
+}
+
+.cart-items table tbody tr td.product-quantity .input-counter {
+    max-width: 130px;
+    min-width: 130px;
+    text-align: center;
+    display: inline-block;
+    position: relative;
+}
+
+.cart-items table tbody tr td.product-quantity .input-counter span {
+    position: absolute;
+    top: 0;
+    background-color: transparent;
+    cursor: pointer;
+    color: #d0d0d0;
+    width: 40px;
+    height: 100%;
+    line-height: 50px;
+    transition: 0.5s;
+    font-size: 22px;
+}
+
+.cart-items table tbody tr td.product-quantity .input-counter span.minus-btn {
+    left: 0;
+}
+
+.cart-items table tbody tr td.product-quantity .input-counter span.plus-btn {
+    right: 0;
+}
+
+.cart-items table tbody tr td.product-quantity .input-counter span:hover {
+    color: #fe4a55;
+}
+
+.cart-items table tbody tr td.product-quantity .input-counter input {
+    height: 45px;
+    color: #221638;
+    outline: 0;
+    display: block;
+    border: none;
+    background-color: #f8f8f8;
+    text-align: center;
+    width: 100%;
+    font-size: 17px;
+    font-weight: 600;
+}
+
+.cart-items table tbody tr td.product-quantity .input-counter input::-moz-placeholder {
+    color: #221638;
+}
+
+.cart-items table tbody tr td.product-quantity .input-counter input::placeholder {
+    color: #221638;
+}
+
+.cart-items table tbody tr td.product-subtotal {
+    overflow: hidden;
+}
+
+
+.cart-buttons {
+    margin-top: 30px;
+}
+
+.cart-buttons .shopping-coupon-code {
+    position: relative;
+    max-width: 530px;
+}
+
+.cart-buttons .shopping-coupon-code button {
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: 50px;
+    background: #221638;
+    color: #ffffff;
+    border: none;
+    padding: 0 25px;
+    line-height: 48px;
+    outline: 0;
+    transition: 0.5s;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.cart-buttons .shopping-coupon-code button:hover {
+    background-color: #fe4a55;
+}
+
+.cart-totals {
+    background: #ffffff;
+    padding: 40px;
+    max-width: 500px;
+    box-shadow: 0 2px 48px 0 rgba(0, 0, 0, 0.08);
+    border-radius: 5px;
+    margin-top: 60px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.cart-totals h3 {
+    margin-bottom: 25px;
+    font-size: 24px;
+    font-weight: 800;
+}
+
+.cart-totals ul {
+    padding-left: 0;
+    margin: 0 0 25px;
+    list-style-type: none;
+}
+
+.cart-totals ul li {
+    border: 1px solid #eaedff;
+    padding: 10px 15px;
+    color: #221638;
+    overflow: hidden;
+    font-weight: 700;
+}
+
+.cart-totals ul li:first-child {
+    border-bottom: none;
+}
+
+.cart-totals ul li:last-child {
+    font-size: 20px;
+    border-top: none;
+}
+
+.cart-totals ul li:last-child span {
+    color: #221638;
+    font-weight: 600;
+}
+
+.cart-totals ul li span {
+    float: right;
+    color: #606060;
+    font-weight: normal;
+}
+
+.cart-highlight-border {
+    border: red 1px solid !important;
+}
+
+@media only screen and (max-width: 767px) {
+    .cart-items table thead tr th {
+        font-size: 14.5px;
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+
+    .cart-items table thead tr th:first-child {
+        padding-left: 0;
+    }
+
+    .cart-items table tbody tr td {
+        font-size: 14.5px;
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+
+    .cart-items table tbody tr td:first-child {
+        padding-left: 0;
+    }
+
+    .cart-buttons .shopping-coupon-code {
+        text-align: center;
+    }
+
+    .cart-buttons .shopping-coupon-code button {
+        position: relative;
+        right: 0;
+        top: 0;
+        height: auto;
+        padding: 12px 25px;
+        line-height: initial;
+        font-size: 15px;
+        border-radius: 5px;
+        margin-top: 15px;
+    }
+
+    .cart-buttons .text-right {
+        text-align: center !important;
+        margin-top: 15px;
+    }
+
+    .cart-totals {
+        padding: 20px;
+        max-width: 100%;
+        margin-top: 40px;
+    }
+
+    .cart-totals h3 {
+        font-size: 18px;
+    }
+
+    .cart-totals ul {
+        margin-bottom: 20px;
+    }
+
+    .cart-totals ul li:last-child {
+        font-size: 18px;
+    }
+}
+
+@media only screen and (min-width: 768px) and (max-width: 991px) {
+    .cart-items table thead tr th {
+        font-size: 14px;
+    }
+
+    .cart-totals h3 {
+        font-size: 20px;
+    }
+
+    .cart-totals h3:last-child {
+        font-size: 18px;
+    }
+}
+
+@media only screen and (min-width: 992px) and (max-width: 1199px) {
+    .cart-totals h3 {
+        font-size: 22px;
+    }
+}
+
+.cursor {
+    cursor: pointer;
+}

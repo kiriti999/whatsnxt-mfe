@@ -1,0 +1,23 @@
+{
+  "name": "@whatsnxt/comments",
+  "version": "0.0.1",
+  "main": "./index.tsx",
+  "types": "./index.tsx",
+  "license": "MIT",
+  "scripts": {
+    "lint": "eslint \"**/*.ts*\""
+  },
+  "dependencies": {
+    "styled-components": "^6.1.13"
+  },
+  "devDependencies": {
+    "@types/node": "18.15.11",
+    "@types/react": "18.2.42",
+    "@types/react-dom": "18.0.7",
+    "eslint": "9.17.0",
+    "knip": "^5.31.0",
+    "postcss": "8.4.31",
+    "postcss-simple-vars": "7.0.1",
+    "ts-prune": "0.10.3"
+  }
+}

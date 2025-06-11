@@ -1,0 +1,44 @@
+.container {
+    padding: 20px;
+}
+
+.syllabus {
+    border-left: 1px solid rgb(230, 226, 226);
+    height: 100%;
+    padding-left: 1rem;
+}
+
+@media (max-width: 992px) {
+    .syllabus {
+        border: none;
+    }
+
+    .syllabus h3 {
+        display: none;
+    }
+}
+
+.left-side .tabs {
+    margin-top: 1rem;
+}
+
+.left-side .tabs .tabs-panel {
+    padding-top: 1rem;
+}
+
+.left-side .author-block {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 0.785rem;
+}
+
+.left-side .author-block img {
+    border-radius: 50%;
+    margin: 0;
+}
+
+.videos-container {
+    list-style: none;
+    margin: 0 !important;
+}

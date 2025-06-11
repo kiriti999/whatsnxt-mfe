@@ -1,0 +1,13 @@
+.stack {
+    gap: 0;
+}
+
+.title {
+    font-weight: 600;
+    margin-bottom: 0.2rem;
+}
+
+.text {
+    margin: 0;
+    font-size: 0.875rem;
+}

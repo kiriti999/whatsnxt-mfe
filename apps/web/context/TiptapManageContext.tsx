@@ -1,0 +1,86 @@
+import { createContext, useState, ReactNode, Dispatch, SetStateAction, useEffect } from "react";
+
+// ** Defaults
+interface ProgressEntry {
+    fileName: string;
+    timestamp: string;
+    progress: number;
+}
+
+interface TiptapManageContextProps {
+    courseId: string;
+    progressList: ProgressEntry[];
+    setProgressList: Dispatch<SetStateAction<ProgressEntry[]>>;
+    updateProgress: (entry: ProgressEntry) => void; isAssetsUploading: boolean
+}
+
+const defaultProvider: TiptapManageContextProps = {
+    courseId: '',
+    progressList: [],
+    setProgressList: () => { },
+    updateProgress: () => { },
+    isAssetsUploading: false
+};
+
+const TiptapManageContext = createContext(defaultProvider);
+
+interface TiptapManageContextProviderProps {
+    children: ReactNode;
+    courseId: string;
+    setIsAssetsUploading: Dispatch<SetStateAction<boolean>>
+    isAssetsUploading: boolean
+}
+
+const TiptapManageContextProvider = ({ isAssetsUploading, children, courseId, setIsAssetsUploading }: TiptapManageContextProviderProps) => {
+    const [progressList, setProgressList] = useState<ProgressEntry[]>([]);
+
+    useEffect(() => {
+        if (progressList.length > 0) {
+            setIsAssetsUploading(true)
+        } else {
+            setIsAssetsUploading(false)
+        }
+    }, [progressList])
+
+    const updateProgress = ({ fileName, timestamp, progress, isCompleted = false }) => {
+
+        setProgressList(prevProgressList => {
+            const existingProgressIndex = prevProgressList.findIndex(item => item.timestamp === timestamp);
+
+            if (existingProgressIndex !== -1) {
+                // Update existing progress
+                const updatedProgressList = [...prevProgressList];
+                if (isCompleted) {
+                    // Remove entry if upload is complete
+                    updatedProgressList.splice(existingProgressIndex, 1);
+                } else {
+                    // update entry if upload is complete
+                    updatedProgressList[existingProgressIndex].progress = progress;
+                }
+                return updatedProgressList;
+            } else {
+                // Add new progress entry
+                if (fileName && !isCompleted) {
+                    return [...prevProgressList, { fileName, timestamp, progress }]
+                }
+
+                return [...prevProgressList]
+            }
+        });
+    };
+
+    const contextValue = {
+        courseId,
+        setProgressList,
+        progressList,
+        updateProgress, isAssetsUploading
+    };
+
+    return (
+        <TiptapManageContext.Provider value={contextValue}>
+            {children}
+        </TiptapManageContext.Provider>
+    );
+};
+
+export { TiptapManageContext, TiptapManageContextProvider };

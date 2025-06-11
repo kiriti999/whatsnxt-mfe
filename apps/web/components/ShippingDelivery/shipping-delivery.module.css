@@ -1,0 +1,81 @@
+
+.terms-of-service-content img {
+  border-radius: 5px;
+  display: block;
+  width: 100%;
+  margin-bottom: 30px;
+}
+
+.terms-of-service-content h3 {
+  margin-bottom: 15px;
+  margin-top: 25px;
+  font-size: 22px;
+  font-weight: 800;
+}
+
+.terms-of-service-content .blockquote,
+.terms-of-service-content blockquote {
+  margin-bottom: 30px;
+  background-color: #e6f2f5;
+  text-align: left !important;
+  padding: 25px !important;
+}
+
+.terms-of-service-content .blockquote p,
+.terms-of-service-content blockquote p {
+  margin-bottom: 0;
+  line-height: 1.8;
+  font-size: 16px !important;
+  font-weight: normal;
+}
+
+.terms-of-service-content .blockquote::after,
+.terms-of-service-content blockquote::after {
+  display: none;
+}
+
+.terms-of-service-content .blockquote::before,
+.terms-of-service-content blockquote::before {
+  display: none;
+}
+
+.terms-of-service-content ol,
+.terms-of-service-content ul {
+  margin-top: 20px;
+}
+
+.terms-of-service-content ol li,
+.terms-of-service-content ul li {
+  margin-bottom: 10px;
+  color: #606060;
+  font-size: 16px;
+  line-height: 1.8;
+}
+
+@media only screen and (max-width: 767px) {
+  .terms-of-service-content img {
+    margin-bottom: 25px;
+  }
+  .terms-of-service-content h3 {
+    margin-bottom: 12px;
+    font-size: 18px;
+  }
+  .terms-of-service-content ul li, .terms-of-service-content ol li {
+    font-size: 14.5px;
+  }
+  .terms-of-service-content .blockquote p, .terms-of-service-content blockquote p {
+    font-size: 15px !important;
+  }
+}
+
+@media only screen and (min-width: 768px) and (max-width: 991px) {
+  .terms-of-service-content h3 {
+    font-size: 19px;
+  }
+}
+
+@media only screen and (min-width: 992px) and (max-width: 1199px) {
+  .terms-of-service-content h3 {
+    font-size: 20px;
+  }
+}

@@ -1,0 +1,1359 @@
+.main-banner-content-style-two h1 {
+    margin-bottom: 20px;
+    font-size: 60px;
+    font-weight: 800;
+}
+
+.main-banner-content-style-two p {
+    max-width: 580px;
+    line-height: 1.8;
+    font-weight: 600;
+    font-size: 16px;
+}
+
+.main-banner-content-style-two .default-btn {
+    margin-top: 10px;
+}
+
+.main-banner {
+    position: relative;
+    z-index: 1;
+    /* background-image: url(/images/gray-bg.jpg); */
+    background-position: bottom right;
+    background-size: cover;
+    background-repeat: no-repeat;
+    padding-top: 100px;
+}
+
+.main-banner .container-fluid {
+    max-width: 1395px;
+}
+
+.main-banner .container-fluid .row {
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.main-banner .container-fluid .row .col-lg-6 {
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.main-banner-content {
+    max-width: 595px;
+    position: relative;
+    top: -60px;
+    padding-right: 30px;
+}
+
+.main-banner-content h1 {
+    margin-bottom: 25px;
+    font-size: 48px;
+    font-weight: 800;
+}
+
+.main-banner-content p {
+    max-width: 450px;
+    line-height: 1.8;
+    font-weight: 600;
+    font-size: 17px;
+}
+
+.main-banner-content .default-btn {
+    margin-top: 10px;
+}
+
+.main-banner-courses-list {
+    position: relative;
+    z-index: 1;
+}
+
+.main-banner-courses-list .row {
+    margin-left: -15px !important;
+    margin-right: -15px !important;
+}
+
+.main-banner-courses-list .row .col-lg-6 {
+    padding-left: 15px !important;
+    padding-right: 15px !important;
+}
+
+.main-banner-courses-list .row .col-lg-6:nth-child(1) .single-courses-box {
+    margin-top: 90px;
+}
+
+.main-banner-courses-list .single-courses-box {
+    margin-bottom: 0;
+}
+
+.main-banner-courses-list .single-courses-box .courses-content {
+    padding: 20px;
+}
+
+.banner-shape1 {
+    position: absolute;
+    left: 0;
+    bottom: 30px;
+    z-index: -1;
+    text-align: center;
+    right: 0;
+}
+
+.banner-shape1 img {
+    animation: moveleftbounce 4s linear infinite;
+}
+
+.banner-shape2 {
+    position: absolute;
+    left: -85px;
+    top: 17px;
+    z-index: -1;
+    right: 0;
+    text-align: center;
+}
+
+.banner-shape2 img {
+    animation: movebounce 5s linear infinite;
+}
+
+.banner-shape3 {
+    position: absolute;
+    left: -40px;
+    top: -35px;
+    z-index: -2;
+    right: 0;
+    text-align: center;
+}
+
+.banner-shape3 img {
+    animation-name: rotateme;
+    animation-duration: 50s;
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
+}
+
+.banner-section {
+    position: relative;
+    z-index: 1;
+    /* background-image: url(/images/banner-bg.jpg); */
+    background-position: center center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    padding-top: 60px;
+    padding-bottom: 60px;
+}
+
+.banner-section .container-fluid {
+    max-width: 1395px;
+}
+
+.banner-content h1 {
+    color: #ffffff;
+    margin-bottom: 20px;
+    font-size: 48px;
+    font-weight: 800;
+}
+
+.banner-content p {
+    max-width: 450px;
+    color: #d2d2d2;
+    font-weight: 600;
+    font-size: 17px;
+}
+
+.banner-content .default-btn {
+    margin-top: 15px;
+}
+
+.banner-content .default-btn span {
+    background-color: #ffffff;
+}
+
+.banner-content .default-btn:hover {
+    color: #221638;
+}
+
+.banner-image {
+    position: relative;
+    z-index: 1;
+}
+
+.banner-shape4 {
+    position: absolute;
+    z-index: -1;
+    top: 0;
+    left: 40px;
+    right: 0;
+    text-align: center;
+}
+
+.banner-shape4 img {
+    animation: moveleftbounce 4s linear infinite;
+}
+
+.banner-shape5 {
+    position: absolute;
+    z-index: -1;
+    right: 24.5%;
+    bottom: 10.5%;
+    text-align: center;
+}
+
+.banner-shape5 img {
+    animation: movescale 4s linear infinite;
+}
+
+.banner-shape6 {
+    position: absolute;
+    z-index: -1;
+    left: 12%;
+    bottom: 8%;
+}
+
+.banner-shape6 img {
+    animation: movebounce 4s linear infinite;
+}
+
+.banner-shape7 {
+    position: absolute;
+    z-index: -1;
+    top: 30%;
+    left: -12%;
+}
+
+.banner-shape7 img {
+    animation: moveleftbounce 8s linear infinite;
+}
+
+.banner-wrapper-area {
+    position: relative;
+    z-index: 1;
+    background-color: #f8f9f8;
+    padding-top: 40px;
+}
+
+.banner-wrapper-area .divider {
+    background-color: #f5f7fa;
+    top: auto;
+    bottom: 0;
+}
+
+.banner-wrapper-content h1 {
+    margin-bottom: 18px;
+    font-size: 48px;
+    font-weight: 800;
+}
+
+.banner-wrapper-content p {
+    font-size: 17px;
+}
+
+.banner-wrapper-content form {
+    margin-top: 25px;
+    position: relative;
+}
+
+.banner-wrapper-content form label {
+    position: absolute;
+    display: inline-block;
+    margin-bottom: 0;
+    left: 15px;
+    top: 13px;
+    color: #fe4a55;
+    line-height: 1;
+    font-size: 22px;
+}
+
+.banner-wrapper-content form .input-search {
+    display: block;
+    width: 100%;
+    height: 48px;
+    border: 1px solid #eee8e2;
+    border-radius: 5px;
+    transition: 0.5s;
+    color: #221638;
+    font-size: 16px;
+    font-weight: 400;
+    padding-left: 50px;
+    padding-top: 1px;
+    padding-bottom: 0;
+    padding-right: 0;
+}
+
+.banner-wrapper-content form .input-search::-moz-placeholder {
+    color: #999999;
+    -moz-transition: 0.5s;
+    transition: 0.5s;
+}
+
+.banner-wrapper-content form .input-search::placeholder {
+    color: #999999;
+    transition: 0.5s;
+}
+
+.banner-wrapper-content form .input-search:focus {
+    border-color: #fe4a55;
+}
+
+.banner-wrapper-content form .input-search:focus::-moz-placeholder {
+    color: transparent;
+}
+
+.banner-wrapper-content form .input-search:focus::placeholder {
+    color: transparent;
+}
+
+.banner-wrapper-content form button {
+    position: absolute;
+    right: 0;
+    border-radius: 0 5px 5px 0;
+    height: 48px;
+    background-color: #fe4a55;
+    color: #ffffff;
+    border: none;
+    transition: 0.5s;
+    padding-top: 0;
+    padding-bottom: 0;
+    padding-left: 25px;
+    padding-right: 25px;
+    top: 0;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.banner-wrapper-content form button:hover {
+    background-color: #221638;
+    color: #ffffff;
+}
+
+.banner-wrapper-content .popular-search-list {
+    padding-left: 0;
+    list-style-type: none;
+    margin-bottom: 0;
+    margin-top: 20px;
+}
+
+.banner-wrapper-content .popular-search-list li {
+    display: inline-block;
+    margin-right: 12px;
+    color: #606060;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.banner-wrapper-content .popular-search-list li:last-child {
+    margin-right: 0;
+}
+
+.banner-wrapper-content .popular-search-list li a {
+    display: block;
+    color: #221638;
+    font-weight: 700;
+    text-decoration: underline;
+}
+
+.banner-wrapper-content .popular-search-list li a:hover {
+    color: #fe4a55;
+}
+
+.banner-wrapper-image {
+    text-align: center;
+}
+
+.banner-inner-area {
+    margin-top: 50px;
+    border-radius: 10px;
+}
+
+.banner-inner-area .row {
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.banner-inner-area .row .col-lg-4 {
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.banner-inner-area .row .col-lg-4:last-child .single-banner-box {
+    border-right: none;
+}
+
+.banner-inner-area .row .col-lg-4:nth-child(1) .single-banner-box {
+    border-radius: 10px 0 0 10px;
+}
+
+.banner-inner-area .row .col-lg-4:nth-child(3) .single-banner-box {
+    border-radius: 0 10px 10px 0;
+}
+
+.single-banner-box {
+    border-right: 1px solid #eeeeee;
+    background-color: #ffffff;
+    padding: 30px 30px 30px 90px;
+    position: relative;
+}
+
+.single-banner-box .icon {
+    position: absolute;
+    left: 30px;
+    top: 50%;
+    transform: translateY(-50%);
+    line-height: 1;
+    transition: 0.5s;
+    font-size: 45px;
+}
+
+.single-banner-box .icon i {
+    font-size: 40px;
+}
+
+.single-banner-box h3 {
+    margin-bottom: 5px;
+    font-size: 21px;
+    font-weight: 700;
+}
+
+.single-banner-box:hover .icon {
+    color: #fe4a55;
+}
+
+.banner-shape8 {
+    position: absolute;
+    z-index: -1;
+    right: 5%;
+    bottom: 7%;
+}
+
+.banner-shape8 img {
+    animation-name: rotateme;
+    animation-duration: 50s;
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
+}
+
+.banner-shape9 {
+    position: absolute;
+    z-index: -1;
+    top: 5%;
+    right: 15%;
+}
+
+.banner-shape9 img {
+    animation: movescale 4s linear infinite;
+}
+
+.banner-shape10 {
+    position: absolute;
+    z-index: -1;
+    bottom: 30px;
+    left: 35px;
+}
+
+.banner-shape10 img {
+    animation: movebounce 5s linear infinite;
+}
+
+.banner-wrapper {
+    height: 1000px;
+    position: relative;
+    z-index: 1;
+    background-color: #221638;
+    background-position: top center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    /* background-image: url(/images/main-banner1.jpg); */
+}
+
+.banner-wrapper::before {
+    height: 512px;
+    width: 100%;
+    position: absolute;
+    content: "";
+    left: 0;
+    bottom: 0;
+    z-index: 1;
+    background-position: center center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    /* background-image: url(/images/banner-shape11.png); */
+}
+
+.banner-wrapper-text {
+    position: relative;
+    z-index: 2;
+    max-width: 590px;
+    margin-left: auto;
+    margin-top: -200px;
+}
+
+.banner-wrapper-text h1 {
+    margin-bottom: 22px;
+    color: #ffffff;
+    font-size: 48px;
+    font-weight: 800;
+}
+
+.banner-wrapper-text p {
+    color: #ffffff;
+    max-width: 500px;
+    font-size: 16.5px;
+}
+
+.banner-wrapper-text .default-btn {
+    margin-top: 10px;
+}
+
+.home-banner-area {
+    background-color: #fe4a55;
+    background-position: center center;
+    background-size: cover;
+    /* background-image: url(/images/main-banner2.jpg); */
+    background-repeat: no-repeat;
+    margin-bottom: 50px;
+    margin-top: 25px;
+    padding-top: 70px;
+    padding-bottom: 70px;
+    padding-left: 40px;
+    padding-right: 40px;
+}
+
+.home-banner-area h1 {
+    margin-bottom: 12px;
+    max-width: 600px;
+    color: #ffffff;
+    font-size: 48px;
+    font-weight: 800;
+}
+
+.home-banner-area p {
+    max-width: 500px;
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 18px;
+}
+
+.banner-shape11 {
+    position: absolute;
+    z-index: -1;
+    right: 21%;
+    bottom: 24%;
+}
+
+.banner-shape11 img {
+    animation: movebounce 5s linear infinite;
+}
+
+.banner-shape12 {
+    position: absolute;
+    z-index: -1;
+    right: 19%;
+    top: 14%;
+}
+
+.banner-shape12 img {
+    animation: movescale 4s linear infinite;
+}
+
+.banner-shape13 {
+    position: absolute;
+    z-index: -1;
+    bottom: 5%;
+    left: 4%;
+}
+
+.banner-shape13 img {
+    animation-name: rotateme;
+    animation-duration: 100s;
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
+}
+
+.main-banner-wrapper {
+    position: relative;
+    z-index: 2;
+    background-color: #eae1d6;
+    padding-bottom: 120px;
+}
+
+.main-banner-wrapper .container-fluid {
+    max-width: 1395px;
+}
+
+.main-banner-wrapper-content {
+    position: relative;
+    top: 80px;
+}
+
+.main-banner-wrapper-content h1 {
+    margin-bottom: 18px;
+    font-size: 52px;
+    font-weight: 800;
+}
+
+.main-banner-wrapper-content p {
+    font-weight: 600;
+    font-size: 17px;
+}
+
+.main-banner-wrapper-content .default-btn {
+    margin-top: 10px;
+}
+
+.banner-shape14 {
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: -1;
+}
+
+.banner-shape14 img {
+    animation: movebounce 4s linear infinite;
+}
+
+.banner-shape15 {
+    position: absolute;
+    left: 0;
+    bottom: -10px;
+    z-index: -1;
+}
+
+.banner-shape15 img {
+    animation: movebounce 4s linear infinite;
+}
+
+.banner-shape16 {
+    position: absolute;
+    left: 130px;
+    bottom: -25px;
+    z-index: -1;
+}
+
+.banner-shape16 img {
+    animation-name: rotateme;
+    animation-duration: 50s;
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
+}
+
+.banner-shape17 {
+    position: absolute;
+    right: 0;
+    bottom: -10px;
+    z-index: -1;
+}
+
+.banner-shape17 img {
+    animation: movebounce 4s linear infinite;
+}
+
+.banner-shape18 {
+    position: absolute;
+    right: 400px;
+    bottom: 0;
+    z-index: -1;
+}
+
+.banner-shape18 img {
+    animation: moveleftbounce 4s linear infinite;
+}
+
+.hero-banner-area {
+    position: relative;
+    z-index: 1;
+    background-color: #fffaf3;
+    padding-bottom: 200px;
+}
+
+.hero-banner-area .container-fluid {
+    max-width: 1395px;
+}
+
+.hero-banner-area .divider {
+    top: auto;
+    bottom: 0;
+    background: #f5f7fa;
+}
+
+.hero-banner-content {
+    position: relative;
+}
+
+.hero-banner-content h1 {
+    margin-bottom: 25px;
+    font-size: 45px;
+    font-weight: 800;
+}
+
+.hero-banner-content p {
+    padding-right: 50px;
+    line-height: 1.8;
+    font-weight: 600;
+    font-size: 17px;
+}
+
+.hero-banner-content .default-btn {
+    margin-top: 10px;
+}
+
+.hero-banner-image {
+    text-align: center;
+}
+
+.banner-shape19 {
+    position: absolute;
+    z-index: -1;
+    left: 40%;
+    bottom: 30%;
+}
+
+.banner-shape19 img {
+    animation-name: rotateme;
+    animation-duration: 30s;
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
+}
+
+@media only screen and (max-width: 767px) {
+    .main-banner-content-style-two {
+        text-align: center;
+    }
+
+    .main-banner-content-style-two h1 {
+        margin-bottom: 15px;
+        font-size: 28px;
+    }
+
+    .main-banner-content-style-two p {
+        max-width: 100%;
+        font-weight: 500;
+        font-size: 15px;
+    }
+
+    .main-banner-content-style-two .default-btn {
+        margin-top: 5px;
+    }
+}
+
+@media only screen and (min-width: 768px) and (max-width: 991px) {
+    .main-banner-content-style-two {
+        text-align: center;
+    }
+
+    .main-banner-content-style-two h1 {
+        margin-bottom: 15px;
+        font-size: 37px;
+    }
+
+    .main-banner-content-style-two p {
+        margin: 0 auto 10px;
+        max-width: 515px;
+        font-size: 15px;
+    }
+}
+
+@media only screen and (min-width: 992px) and (max-width: 1199px) {
+    .main-banner-content-style-two h1 {
+        font-size: 45px;
+    }
+
+    .main-banner-content-style-two p {
+        max-width: 100%;
+    }
+}
+
+@media only screen and (max-width: 767px) {
+    .main-banner {
+        padding-top: 70px;
+    }
+
+    .main-banner .container-fluid {
+        max-width: 100%;
+    }
+
+    .main-banner-content {
+        max-width: 100%;
+        text-align: center;
+        top: 0;
+        padding-right: 0;
+    }
+
+    .main-banner-content p {
+        max-width: 100%;
+        font-weight: 500;
+        font-size: 15px;
+    }
+
+    .main-banner-content h1 {
+        margin-bottom: 15px;
+        font-size: 28px;
+    }
+
+    .main-banner-content .default-btn {
+        margin-top: 5px;
+    }
+
+    .main-banner-courses-list .row .col-lg-6:nth-child(1) .single-courses-box {
+        margin-top: 0;
+    }
+
+    .main-banner-courses-list .single-courses-box {
+        margin-top: 30px !important;
+    }
+
+    .banner-section {
+        padding-top: 100px;
+        padding-bottom: 80px;
+    }
+
+    .banner-section .container-fluid {
+        max-width: 100%;
+    }
+
+    .banner-content {
+        text-align: center;
+    }
+
+    .banner-content p {
+        max-width: 100%;
+        font-weight: 500;
+        font-size: 15px;
+    }
+
+    .banner-content h1 {
+        margin-bottom: 12px;
+        font-size: 28px;
+        line-height: 1.4;
+    }
+
+    .banner-content .default-btn {
+        margin-top: 5px;
+    }
+
+    .banner-image {
+        margin-top: 30px;
+    }
+
+    .banner-shape1,
+    .banner-shape2,
+    .banner-shape3,
+    .banner-shape4,
+    .banner-shape5,
+    .banner-shape6,
+    .banner-shape7,
+    .banner-shape8,
+    .banner-shape9,
+    .banner-shape10,
+    .banner-shape11,
+    .banner-shape12,
+    .banner-shape13 {
+        display: none;
+    }
+
+    .banner-wrapper-area {
+        padding-top: 100px;
+    }
+
+    .banner-wrapper-content {
+        text-align: center;
+    }
+
+    .banner-wrapper-content p {
+        max-width: 100%;
+        font-weight: 500;
+        font-size: 15px;
+    }
+
+    .banner-wrapper-content h1 {
+        margin-bottom: 12px;
+        font-size: 28px;
+    }
+
+    .banner-wrapper-content form .input-search {
+        font-size: 15px;
+    }
+
+    .banner-wrapper-content form button {
+        font-size: 14px;
+        height: auto;
+        border-radius: 5px;
+        margin-top: 15px;
+        position: relative;
+        padding-left: 25px;
+        padding-right: 25px;
+        padding-top: 10px;
+        padding-bottom: 10px;
+    }
+
+    .banner-wrapper-content .popular-search-list {
+        margin-top: 17px;
+    }
+
+    .banner-wrapper-content .popular-search-list li {
+        font-size: 14px;
+        margin-right: 10px;
+        margin-top: 3px;
+    }
+
+    .banner-wrapper-image {
+        margin-top: 30px;
+    }
+
+    .banner-inner-area .row .col-lg-4:last-child .single-banner-box {
+        border-bottom: none;
+    }
+
+    .single-banner-box {
+        padding: 25px;
+        text-align: center;
+        border-radius: 0 !important;
+        border-right: none;
+        border-bottom: 1px solid #eeeeee;
+    }
+
+    .single-banner-box .icon {
+        position: relative;
+        left: 0;
+        top: 0;
+        transform: unset;
+        font-size: 35px;
+        margin-bottom: 15px;
+    }
+
+    .single-banner-box h3 {
+        margin-bottom: 8px;
+        font-size: 18px;
+    }
+
+    .banner-wrapper {
+        height: auto;
+        padding-top: 120px;
+        padding-bottom: 100px;
+    }
+
+    .banner-wrapper::before {
+        display: none;
+    }
+
+    .banner-wrapper-text {
+        max-width: 100%;
+        text-align: center;
+        margin-top: 0;
+        margin-left: 0;
+    }
+
+    .banner-wrapper-text p {
+        max-width: 100%;
+        font-weight: 500;
+        font-size: 15px;
+    }
+
+    .banner-wrapper-text h1 {
+        margin-bottom: 15px;
+        font-size: 28px;
+    }
+
+    .banner-wrapper-text .default-btn {
+        margin-top: 5px;
+    }
+
+    .main-banner-wrapper {
+        padding-top: 80px;
+        padding-bottom: 80px;
+    }
+
+    .main-banner-wrapper .container-fluid {
+        max-width: 100%;
+    }
+
+    .main-banner-wrapper-content {
+        top: 0;
+        text-align: center;
+    }
+
+    .main-banner-wrapper-content h1 {
+        margin-bottom: 15px;
+        font-size: 30px;
+    }
+
+    .main-banner-wrapper-content p {
+        font-weight: 500;
+        font-size: 15px;
+    }
+
+    .main-banner-wrapper-content .default-btn {
+        margin-top: 5px;
+    }
+
+    .main-banner-wrapper-image {
+        margin-top: 30px;
+    }
+
+    .banner-shape14,
+    .banner-shape15,
+    .banner-shape16,
+    .banner-shape17,
+    .banner-shape18 {
+        display: none;
+    }
+
+    .main-banner-area {
+        border-top: 1px solid #eeeeee;
+        padding-top: 60px;
+        padding-bottom: 60px;
+    }
+
+    .main-banner-area .container-fluid {
+        max-width: 100%;
+    }
+
+    .main-banner-image-style-two {
+        margin-top: 30px;
+    }
+}
+
+@media only screen and (min-width: 576px) and (max-width: 767px) {
+    .main-banner .container-fluid {
+        max-width: 540px;
+    }
+
+    .banner-section .container-fluid {
+        max-width: 540px;
+    }
+
+    .main-banner-wrapper .container-fluid {
+        max-width: 540px;
+    }
+
+    .main-banner-area .container-fluid {
+        max-width: 540px;
+    }
+}
+
+@media only screen and (min-width: 768px) and (max-width: 991px) {
+    .main-banner .container-fluid {
+        max-width: 720px;
+    }
+
+    .main-banner-content {
+        max-width: 595px;
+        top: 0;
+        padding-right: 0;
+        text-align: center;
+        margin: 0 auto;
+    }
+
+    .main-banner-content h1 {
+        margin-bottom: 15px;
+        font-size: 35px;
+    }
+
+    .main-banner-content p {
+        max-width: 515px;
+        font-size: 15px;
+        margin: 0 auto 10px;
+    }
+
+    .main-banner-courses-list {
+        margin-top: 10px;
+    }
+
+    .main-banner-courses-list .single-courses-box {
+        margin-top: 30px !important;
+    }
+
+    .banner-shape1,
+    .banner-shape2,
+    .banner-shape3,
+    .banner-shape4,
+    .banner-shape5,
+    .banner-shape6,
+    .banner-shape7,
+    .banner-shape8,
+    .banner-shape9,
+    .banner-shape10,
+    .banner-shape11,
+    .banner-shape12,
+    .banner-shape13 {
+        display: none;
+    }
+
+    .banner-section {
+        padding-top: 110px;
+        padding-bottom: 100px;
+    }
+
+    .banner-section .container-fluid {
+        max-width: 720px;
+    }
+
+    .banner-content {
+        text-align: center;
+    }
+
+    .banner-content h1 {
+        font-size: 35px;
+    }
+
+    .banner-content p {
+        font-size: 16px;
+        max-width: 535px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .banner-image {
+        margin-top: 30px;
+    }
+
+    .banner-wrapper-area {
+        padding-top: 100px;
+    }
+
+    .banner-wrapper-area .divider {
+        display: block;
+    }
+
+    .banner-wrapper-content {
+        text-align: center;
+    }
+
+    .banner-wrapper-content h1 {
+        margin-bottom: 18px;
+        font-size: 32px;
+    }
+
+    .banner-wrapper-content p {
+        font-size: 16px;
+        max-width: 550px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .banner-wrapper-content form {
+        max-width: 550px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .banner-wrapper-image {
+        margin-top: 30px;
+    }
+
+    .single-banner-box {
+        border-radius: 0 !important;
+        padding: 25px 20px 25px 80px;
+    }
+
+    .single-banner-box h3 {
+        font-size: 19px;
+    }
+
+    .single-banner-box .icon {
+        left: 20px;
+        font-size: 40px;
+    }
+
+    .banner-inner-area .col-lg-4:nth-child(2) .single-banner-box {
+        border-right: none;
+    }
+
+    .banner-inner-area .col-lg-4:nth-child(3) .single-banner-box {
+        border-top: 1px solid #eeeeee;
+    }
+
+    .banner-wrapper {
+        height: 920px;
+    }
+
+    .banner-wrapper-text {
+        margin-top: -150px;
+        max-width: 510px;
+    }
+
+    .banner-wrapper-text h1 {
+        margin-bottom: 20px;
+        font-size: 38px;
+    }
+
+    .banner-wrapper-text p {
+        font-size: 16px;
+        line-height: 1.8;
+    }
+
+    .main-banner-wrapper {
+        padding-top: 100px;
+        padding-bottom: 100px;
+    }
+
+    .main-banner-wrapper .container-fluid {
+        max-width: 768px;
+    }
+
+    .main-banner-wrapper-content {
+        top: 0;
+        max-width: 595px;
+        text-align: center;
+        margin: 0 auto;
+    }
+
+    .main-banner-wrapper-content h1 {
+        margin-bottom: 15px;
+        font-size: 38px;
+    }
+
+    .main-banner-wrapper-content p {
+        max-width: 515px;
+        font-size: 15.5px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .main-banner-wrapper-image {
+        margin-top: 30px;
+    }
+
+    .banner-shape14,
+    .banner-shape15,
+    .banner-shape16,
+    .banner-shape17,
+    .banner-shape18 {
+        display: none;
+    }
+
+    .main-banner-area {
+        border-top: 1px solid #eeeeee;
+        padding-top: 80px;
+        padding-bottom: 80px;
+    }
+
+    .main-banner-area .container-fluid {
+        max-width: 720px;
+    }
+
+    .main-banner-image-style-two {
+        text-align: center;
+        margin-top: 30px;
+    }
+}
+
+@media only screen and (min-width: 992px) and (max-width: 1199px) {
+    .main-banner {
+        padding-top: 170px;
+    }
+
+    .main-banner .container-fluid {
+        max-width: 850px;
+    }
+
+    .main-banner .col-lg-6 {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+
+    .main-banner-content {
+        top: 0;
+        padding-right: 0;
+        margin-bottom: 60px;
+        max-width: 605px;
+    }
+
+    .main-banner-content p {
+        max-width: 565px;
+    }
+
+    .main-banner-courses-list .row .col-lg-6 {
+        flex: 0 0 50%;
+        max-width: 50%;
+    }
+
+    .main-banner-courses-list .row .col-lg-6:nth-child(1) .single-courses-box {
+        margin-top: 0;
+    }
+
+    .main-banner-courses-list .row .col-lg-6:nth-child(2) .single-courses-box {
+        margin-top: -60px;
+    }
+
+    .banner-section {
+        padding-top: 150px;
+    }
+
+    .banner-section .container-fluid {
+        max-width: 800px;
+    }
+
+    .banner-section .col-lg-5,
+    .banner-section .col-lg-7 {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+
+    .main-banner-wrapper {
+        padding-bottom: 100px;
+    }
+
+    .main-banner-wrapper .container-fluid {
+        max-width: 960px;
+    }
+
+    .main-banner-wrapper-content {
+        top: 50px;
+    }
+
+    .main-banner-wrapper-content h1 {
+        font-size: 45px;
+    }
+
+    .main-banner-wrapper-content p {
+        font-size: 16px;
+    }
+
+    .banner-shape14,
+    .banner-shape15,
+    .banner-shape16,
+    .banner-shape17,
+    .banner-shape18 {
+        display: none;
+    }
+
+    .main-banner-area .container-fluid {
+        max-width: 960px;
+    }
+}
+
+@media only screen and (min-width: 1200px) and (max-width: 1355px) {
+    .main-banner .container-fluid {
+        max-width: 1165px;
+    }
+
+    .banner-section .container-fluid {
+        max-width: 1165px;
+    }
+
+    .main-banner-courses-list .single-courses-box .courses-content h3 {
+        font-size: 22px;
+    }
+}
+
+@media only screen and (min-width: 1550px) {
+    .main-banner .container-fluid {
+        max-width: 1480px;
+    }
+
+    .banner-section .container-fluid {
+        max-width: 1500px;
+    }
+
+    .main-banner-wrapper .container-fluid {
+        max-width: 1480px;
+    }
+
+    .main-banner-wrapper-content h1 {
+        font-size: 55px;
+    }
+
+    .main-banner-area .container-fluid {
+        max-width: 1480px;
+    }
+}

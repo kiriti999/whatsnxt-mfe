@@ -1,0 +1,94 @@
+.container {
+    width: 100%;
+    max-width: 700px;
+    min-height: 70vh;
+    margin: 40px auto;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+    border-radius: 15px;
+    overflow: hidden;
+}
+
+.container input {
+    cursor: pointer;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 10px 8px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.3);
+}
+
+.header>div,
+.header>div h4 {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.btns button {
+    padding: 5px 7px !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+}
+
+.btns input {
+    transform: scale(1.5);
+    margin-left: 5px;
+}
+
+.notifications {
+    padding: 10px;
+}
+
+.notifications ul {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    list-style: none;
+    padding: 0;
+}
+
+.notification {
+    width: 100%;
+    position: relative;
+    padding: 10px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    display: flex;
+    gap: 10px;
+    cursor: pointer;
+}
+
+.icon {
+    width: 40px;
+    height: 40px;
+    background: #056700;
+    border-radius: 5px;
+    padding: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.icon svg {
+    font-size: 35px;
+    color: #fff;
+}
+
+.notification.unseen {
+    background: rgba(254, 74, 86, 0.05);
+}
+
+.notification.unseen .icon {
+    background: #fe4a55;
+}
+
+.notification.selected {
+    background: rgba(0, 0, 255, 0.1);
+}

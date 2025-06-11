@@ -1,0 +1,18 @@
+import '@module-federation/nextjs-mf/src/include-defaults';
+import {{componentName}}Component from './{{componentName}}.component'
+
+export async function getServerSideProps(context: any) {
+  return {
+    props: {
+      
+    },
+  };
+}
+export default function {{componentName}}ComponentMF() {
+  return (
+    <div>
+    <{{componentName}}Component />
+    
+    </div>
+  );
+}

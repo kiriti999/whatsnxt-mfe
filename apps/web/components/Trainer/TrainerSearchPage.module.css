@@ -1,0 +1,26 @@
+.container {
+    width: 100%;
+    padding: 15px;
+  }
+  
+  .top {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin-bottom: 20px;
+  }
+  
+  .cards {
+    width: 100%;
+    display: flex;
+    gap: 25px;
+    justify-content: center;
+    flex-direction: column;
+  }
+  
+  @media screen and (min-width: 1199px) {
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+  }

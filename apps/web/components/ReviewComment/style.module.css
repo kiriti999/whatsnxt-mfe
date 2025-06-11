@@ -1,0 +1,12 @@
+.spacing {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.update-review-btn {
+    background-color: #fe4a55;
+    color: "white";
+    border-color: #fe4a55;
+    border-radius: 25px;
+}

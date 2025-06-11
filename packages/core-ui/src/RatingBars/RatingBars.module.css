@@ -1,0 +1,106 @@
+/* Add these styles for RatingBars */
+
+.rating-count {
+    margin-top: 10px;
+    margin-bottom: 20px;
+}
+
+.rating-count span {
+    display: block;
+    font-size: 16px;
+    color: #606060;
+}
+
+.rating {
+    display: flex;
+    flex-direction: column;
+}
+
+.bar-container {
+    width: 100%;
+    background-color: #f1f1f1;
+    text-align: center;
+    color: #ffffff;
+    border-radius: 5px;
+}
+
+.rating-bar {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.star {
+    text-wrap: nowrap;
+}
+
+.middle {
+    width: 100%;
+    max-width: 300px;
+}
+
+.side {
+    float: left;
+    width: 10%;
+    font-size: 16px;
+    font-weight: 700;
+    margin-top: 1px;
+}
+
+.middle {
+    margin-top: 1px;
+    float: left;
+    width: 80%;
+}
+
+.right {
+    text-align: right;
+}
+
+.bar-container {
+    width: 100%;
+    background-color: #f1f1f1;
+    text-align: center;
+    color: #ffffff;
+    border-radius: 5px;
+}
+
+.bar {
+    width: 100%;
+    height: 18px;
+}
+
+.bar-5 {
+    width: 100%;
+    height: 18px;
+    background-color: #4caf50;
+    border-radius: 5px;
+}
+
+.bar-4 {
+    width: 75%;
+    height: 18px;
+    background-color: #2196f3;
+    border-radius: 5px;
+}
+
+.bar-3 {
+    width: 50%;
+    height: 18px;
+    background-color: #00bcd4;
+    border-radius: 5px;
+}
+
+.bar-2 {
+    width: 25%;
+    height: 18px;
+    background-color: #ff9800;
+    border-radius: 5px;
+}
+
+.bar-1 {
+    width: 0;
+    height: 18px;
+    background-color: #f44336;
+    border-radius: 5px;
+}

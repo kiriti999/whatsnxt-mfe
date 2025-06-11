@@ -1,0 +1,46 @@
+const path = require("path");
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const nodeExternals = require('webpack-node-externals')
+
+let config = {
+  entry:  path.resolve(__dirname, "index.tsx"),
+  output: {
+    globalObject: "this",
+    path: path.resolve(__dirname, "dist"),
+    filename: "index.js",
+    library: "comments",
+    libraryTarget: "umd"
+  },
+  externals: {
+    react: "react",
+    "react-dom": "react-dom"
+  },
+  resolve: {
+    extensions: [".tsx", ".ts"]
+  },
+  plugins: [new MiniCssExtractPlugin()],
+  module: {
+    rules: [
+      {
+        test: /\.tsx?$/,
+        loader: "ts-loader",
+        exclude: /node_modules/
+      },
+      { 
+        test: /\.css$/,
+        use: [MiniCssExtractPlugin.loader, "css-loader"],
+        exclude: /node_modules/
+      },
+    ]
+  },
+  target: 'node',
+  externalsPresets: { node: true }, // in order to ignore built-in modules like path, fs, etc.
+  externals: [nodeExternals()], // in order to ignore all modules in node_modules folder
+};
+
+module.exports = (env, argv) => {
+  if (argv.mode === "development") {
+    config.devtool = "eval-cheap-source-map";
+  }
+  return config;
+};

@@ -1,0 +1,43 @@
+.container{
+    width: 100%;
+    max-width: 500px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 30px 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.25);
+    margin: auto;
+    margin-top: 20px;
+    border-radius: 20px;
+}
+
+.img{
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 2px solid rgba(0, 0, 0, 0.7);
+}
+
+.name{
+    font-size: 25px;
+    font-weight: 700;
+}
+
+.email{
+    font-size: 20px;
+    font-weight: 500;
+}
+
+.link a{
+    font-size: 22px;
+    color: rgb(38, 38, 255);
+}
+
+.btns{
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    margin-top: 15px;
+}

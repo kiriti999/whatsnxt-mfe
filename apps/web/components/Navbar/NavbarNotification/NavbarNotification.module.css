@@ -1,0 +1,28 @@
+ .notification-btn {
+     position: relative;
+     line-height: 1;
+ }
+
+ .notification-btn a {
+     display: inline-block;
+     position: relative;
+     color: #221638;
+ }
+
+ .notification-item-count {
+    position: absolute;
+    top: -1px;
+    right: -3px;
+    background-color: #fe4a55;
+    color: white;
+    border-radius: 50%;
+    height: 14px;
+    font-size: 12px;
+    text-align: center;
+    line-height: 14px;
+    width: 14px;
+  }
+
+ .notification-btn a:hover {
+     color: #fe4a55;
+ }

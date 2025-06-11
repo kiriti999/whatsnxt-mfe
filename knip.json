@@ -1,0 +1,16 @@
+{
+    "ignore": [
+      "jest.config.js",
+      "**/jest.config.js",
+      "node_modules/jest/**",
+      "setupTests.ts",
+      "__mocks__/**",
+      "node_modules"
+    ],
+    "ignoreWorkspaces": ["packages", "node_modules"],
+    "ignoreDependencies": ["@whatsnxt/ui-packages", "node_modules"],
+    "workspaces": {
+      "packages/*": {}
+    }
+  }
+  

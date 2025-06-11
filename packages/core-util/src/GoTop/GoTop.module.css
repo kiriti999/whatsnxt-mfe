@@ -1,0 +1,44 @@
+.go-top {
+  position: fixed;
+  cursor: pointer;
+  bottom: -100px;
+  right: 15px;
+  color: #221638;
+  background-color: #ffffff;
+  z-index: 4;
+  width: 45px;
+  height: 45px;
+  opacity: 0;
+  visibility: hidden;
+  border-radius: 50%;
+  font-size: 40px;
+  transition: 0.9s;
+  display: flex;
+  align-items: center; /* Centers icon vertically */
+  justify-content: center; /* Centers icon horizontally */
+  box-shadow: 0px 3px 10px rgba(0, 0, 0, 0.1);
+  border: 1px solid #221638;
+}
+
+.go-top.active {
+  opacity: 1;
+  visibility: visible;
+  bottom: 15px;
+}
+
+.go-top:hover {
+  background-color: #fe4a55;
+  color: #ffffff;
+  border: none;
+  transition: 0.5s;
+  transform: translateY(-10px);
+}
+
+@media only screen and (max-width: 767px) {
+  .go-top {
+    right: 15px;
+    width: 40px;
+    height: 40px;
+    font-size: 35px;
+  }
+}
