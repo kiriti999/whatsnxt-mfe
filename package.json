@@ -5,12 +5,14 @@
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev --parallel --continue",
+    "dev:turbo": "cd apps/web && next dev --turbo -p 3001",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "check-types": "turbo run check-types",
     "find-deadcode": "ts-prune | grep -v -e 'export' -e 'used in module'",
     "knip": "knip",
-    "deploy": "vercel --prod -l"
+    "deploy": "vercel --prod -l",
+    "analyze": "ANALYZE=true next build"
   },
   "devDependencies": {
     "prettier": "^3.5.3",

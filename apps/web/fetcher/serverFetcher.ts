@@ -19,7 +19,6 @@ interface FetcherOptions {
 }
 
 export const serverFetcher = async (URL: string, options: FetcherOptions = {}): Promise<any> => {
-    console.log(' serverFetcher :: URL:', URL)
     try {
         const tokenKeyName = process.env.NEXT_PUBLIC_COOKIES_ACCESS_TOKEN || 'whatsnxt_access_token';
         const cookieStore = await cookies();
@@ -52,7 +51,6 @@ export const serverFetcher = async (URL: string, options: FetcherOptions = {}): 
 
         if (!response.ok) {
             console.error('🔍 Server Fetcher - Response not OK:', response.status, response.statusText);
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
 
         const data = await response.json();

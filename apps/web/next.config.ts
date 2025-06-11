@@ -18,7 +18,26 @@ const nextConfig = {
     productionBrowserSourceMaps: true,
     experimental: {
         optimizePackageImports: ['@mantine/core', '@mantine/hooks'],
-        serverComponentsExternalPackages: ['require-in-the-middle']
+        ...(process.argv.includes('--turbo') && {
+            rules: {
+                '*.svg': {
+                    loaders: ['@svgr/webpack'],
+                    as: '*.js',
+                },
+            },
+            resolveExtensions: [
+                '.mdx',
+                '.tsx',
+                '.ts',
+                '.jsx',
+                '.js',
+                '.mjs',
+                '.json',
+            ],
+            resolveAlias: {
+                // Add any aliases you need
+            },
+        }),
     },
     output: 'standalone',
     transpilePackages: [
