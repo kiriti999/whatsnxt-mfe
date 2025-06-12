@@ -15,8 +15,9 @@ export const fetchPopularCourses = async () => {
 };
 
 export const fetchCategoriesByCount = async () => {
-  const response = await serverFetcher(BASEURL, '/course/categories/categoryByCount') as any;
-  return response.categories;
+  const response = await serverFetcher(BASEURL, '/courses/categories/categoryByCount') as any;
+  console.log(' fetchCategoriesByCount :: response:', response)
+  return response?.data?.categoriesCount || [];
 };
 
 export const fetchCourseBySlug = async (slug: string): Promise<CourseType> => {

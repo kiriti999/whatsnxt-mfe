@@ -121,6 +121,11 @@ export const NavbarDesktop = ({ links, cartItems, loginMenuLinks, drawerOpened, 
                 Dashboard
               </Anchor>
             )}
+            {(isAdmin || isTrainer) && (
+              <Anchor href='/form' component={Link} className={classes.link}>
+                Write
+              </Anchor>
+            )}
 
             <Space w="md" />
             <Cart cartItems={cartItems} />

@@ -23,6 +23,7 @@ async function Page() {
         return []; // Return fallback value
       }),
     ]);
+    console.log(' Page :: categoriesResult:', categoriesResult)
 
     // Assign the results
     courses = coursesResult.courses || [];

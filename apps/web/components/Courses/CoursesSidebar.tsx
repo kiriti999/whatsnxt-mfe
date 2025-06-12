@@ -6,6 +6,7 @@ import { type CourseType, type Category } from '@whatsnxt/core-util';
 import styles from './Widget.module.css';
 
 const CoursesSidebar = ({ courses, categories }: { courses: CourseType[]; categories: Category[] }) => {
+  console.log(' CoursesSidebar :: courses, categories :', courses, categories)
   return (
     <div className={styles['widget-area']}>
       <div className={`${styles['widget']} ${styles['widget_recent_courses']}`}>
@@ -40,8 +41,8 @@ const CoursesSidebar = ({ courses, categories }: { courses: CourseType[]; catego
         <div className={styles['tagcloud']}>
           {categories?.length > 0 ? (
             categories.map((item, i) => (
-              <Link key={i} href={`/courses?category=${encodeURIComponent(item.name)}`}>
-                {item.name} <span className="tag-link-count">({item.count})</span>
+              <Link key={i} href={`/courses?category=${encodeURIComponent(item.categoryName)}`}>
+                {item.categoryName} <span className="tag-link-count">({item.count})</span>
               </Link>
             ))
           ) : (
