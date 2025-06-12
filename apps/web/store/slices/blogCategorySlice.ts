@@ -8,13 +8,15 @@ export interface BlogCategory {
 }
 
 export interface CategoryStoreState {
-  categories: BlogCategory[];
+  categories: BlogCategory[];      // ← For getCategories API
+  categoryCount: BlogCategory[];   // ← For getArticleCountByCategory API
   loading: boolean;
   error: string;
 }
 
 const initialState: CategoryStoreState = {
-  categories: [],
+  categories: [],      // ← For getCategories API
+  categoryCount: [],   // ← For getArticleCountByCategory API
   loading: true,
   error: '',
 };
@@ -26,7 +28,10 @@ export const getCategories = createAsyncThunk(
 
 export const getArticleCountByCategory = createAsyncThunk(
   'getArticleCountByCategory',
-  async () => await CategoryAPI.getArticleCountByCategory(),
+  async () => {
+    const data = await CategoryAPI.getArticleCountByCategory()
+    return data;
+  },
 );
 
 export const blogCategorySlice = createSlice({
@@ -44,7 +49,7 @@ export const blogCategorySlice = createSlice({
           state: { categories: any; loading: boolean; error: string },
           action: { payload: any },
         ) => {
-          state.categories = action.payload;
+          state.categories = action.payload;  // ← Goes to categories field
           state.loading = false;
           state.error = '';
         },
@@ -56,7 +61,7 @@ export const blogCategorySlice = createSlice({
           action: { error: { message: any } },
         ) => {
           state.loading = false;
-          state.categories = [];
+          state.categories = [];  // ← Reset categories field
           state.error = action.error.message;
         },
       )
@@ -69,10 +74,10 @@ export const blogCategorySlice = createSlice({
       .addCase(
         getArticleCountByCategory.fulfilled,
         (
-          state: { categories: any; loading: boolean; error: string },
+          state: { categoryCount: any; loading: boolean; error: string },
           action: { payload: any },
         ) => {
-          state.categories = action.payload;
+          state.categoryCount = action.payload;  // ← Goes to categoryCount field
           state.loading = false;
           state.error = '';
         },
@@ -80,14 +85,15 @@ export const blogCategorySlice = createSlice({
       .addCase(
         getArticleCountByCategory.rejected,
         (
-          state: { loading: boolean; categories: never[]; error: any },
+          state: { loading: boolean; categoryCount: never[]; error: any },
           action: { error: { message: any } },
         ) => {
           state.loading = false;
-          state.categories = [];
+          state.categoryCount = [];  // ← Reset categoryCount field
           state.error = action.error.message;
         },
       );
   },
 });
+
 export const blogCategoryReducer = blogCategorySlice.reducer;

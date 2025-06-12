@@ -8,7 +8,7 @@ export const CategoryAPI = {
 
   getArticleCountByCategory: async function () {
     const { data } = await blogApiClient.get('/category/getArticleCountByCategory');
-    return data.data ? data.data.categoriesCount : [];
+    return data ? data : [];
   },
 
   editCategory: async function ({

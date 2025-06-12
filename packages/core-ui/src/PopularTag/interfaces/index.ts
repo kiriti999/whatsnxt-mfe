@@ -1,5 +1,5 @@
 export interface IMemoStore {
-    categories: ICategory[];
+    categoryCount: ICategory[];
     loading: boolean;
     error: string;
 }

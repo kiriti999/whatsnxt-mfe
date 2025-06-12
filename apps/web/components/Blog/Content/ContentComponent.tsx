@@ -21,7 +21,6 @@ function ContentComponent(props: ContentProps) {
   const { type } = props;
   const isMobile = useMediaQuery('(max-width: 768px)');
   const content = useSelector((store: RootState) => store.content);
-  console.log(' ContentComponent :: content:', content);
   const totalCount = useSelector((store: RootState) => store.content.totalCount);
   const dispatch = useDispatch<AppDispatch>();
   const [recordsPerPage] = useState(5);

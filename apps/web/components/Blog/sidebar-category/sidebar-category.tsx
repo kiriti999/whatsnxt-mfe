@@ -8,14 +8,15 @@ import { PopularTag } from '@whatsnxt/core-ui';
 
 const SidebarPopularTags = React.memo(() => {
 
-  const store = useSelector((store: RootState) => {
+  const blogCategoryStore = useSelector((store: RootState) => {
     return store.blogCategory
   })
   const storeSidebar = useSelector((store: RootState) => {
     return store.sidebar
   })
   // Memoize the result of useSelector
-  const categoryStore = useMemo(() => store, [store]);
+  const categoryStore = useMemo(() => blogCategoryStore, [blogCategoryStore]);
+
   const sidebarStore = useMemo(() => storeSidebar, [storeSidebar]);
 
   const dispatch = useDispatch<AppDispatch>();
