@@ -31,22 +31,6 @@ function HomeContent(props: ContentProps) {
     const currentSelectedTag = useSelector((store: RootState) => store.content.currentTag);
     const currentArticles = useSelector((store: RootState) => store.content.articles);
 
-    // const {
-    //     data,
-    //     fetchNextPage,
-    //     hasNextPage,
-    //     isLoading, isFetching
-    // } = useInfiniteQuery<PostPage>({
-    //     queryKey: ['/blog-tutorial/lists'],
-    //     queryFn: ({ pageParam = 1 }: any) => ContentAPI.getPosts(pageParam, 10, type),
-    //     getNextPageParam: (lastPage, allPages) => {
-    //         const { totalRecords } = lastPage;
-    //         const nextOffset = allPages.length * 10;
-    //         return nextOffset < totalRecords ? allPages.length + 1 : undefined;
-    //     },
-    //     initialPageParam: undefined
-    // });
-
     const queryResult = useInfiniteQuery<PostPage>({
         queryKey: ['/blog-tutorial/lists', type],
         queryFn: ({ pageParam = 1 }: any) => ContentAPI.getPosts(pageParam, 10, type),

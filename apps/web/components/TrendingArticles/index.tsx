@@ -19,17 +19,6 @@ import { IconUser, IconEye, IconChevronLeft, IconChevronRight } from '@tabler/ic
 import '@mantine/carousel/styles.css';
 import { createExcerpt } from '@whatsnxt/core-util';
 
-// Add these styles to your global CSS or component styles
-const carouselStyles = `
-  .carousel-control[data-inactive] {
-    opacity: 0;
-    cursor: default;
-  }
-  
-  .carousel-indicator[data-active] {
-    width: 40px;
-  }
-`;
 
 interface Article {
   _id: string;
@@ -150,12 +139,13 @@ const TrendingArticles = ({ articles, total }: TrendingArticlesProps) => {
                   }}
                 >
                   <Card.Section>
-                    <Image
+                    <Image onClick={() => handleReadMore(article.slug)}
                       src={article.imageUrl || '/placeholder-article.jpg'}
                       height={180}
                       alt={article.title}
                       fit="cover"
                       style={{ objectFit: 'cover' }}
+                      fetchPriority='auto'
                     />
                   </Card.Section>
 
@@ -166,7 +156,7 @@ const TrendingArticles = ({ articles, total }: TrendingArticlesProps) => {
                     </Badge>
 
                     {/* Title */}
-                    <Title order={5} lineClamp={2} fw={600} size="sm" my={'xs'}>
+                    <Title order={5} lineClamp={2} fw={600} size="sm" my={'xs'} onClick={() => handleReadMore(article.slug)}>
                       {article.title}
                     </Title>
 

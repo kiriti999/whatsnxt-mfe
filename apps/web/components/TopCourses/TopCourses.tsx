@@ -113,6 +113,7 @@ const TopCourses = ({ courses, total }: { courses: any[], total: number }) => {
             </Box>
           </Grid.Col>
         </Grid>
+
       </Container>
 
       {nPages > 1 && (
