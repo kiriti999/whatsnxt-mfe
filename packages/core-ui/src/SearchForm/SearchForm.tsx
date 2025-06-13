@@ -17,6 +17,7 @@ export const SearchForm = ({
   return (
     // @ts-ignore
     <form ref={inputRef} className={styles['search-box']} onSubmit={handleSearch}>
+      
       <TextInput
         placeholder="Search"
         size="md"
@@ -25,6 +26,7 @@ export const SearchForm = ({
         // @ts-ignore
         onChange={onChangeSearch}
       />
+
       <ActionIcon
         type="submit"
         variant="transparent"
@@ -34,6 +36,7 @@ export const SearchForm = ({
       >
         <IconSearch size={18} />
       </ActionIcon>
+
       {SearchResultComponent && (
         <SearchResultComponent
           data={data}

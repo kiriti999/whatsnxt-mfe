@@ -27,7 +27,7 @@ export const addSection = ({ sections, setSections }) => {
 };
 
 export const createSection = async ({ index, sections, setSections, courseId }) => {
-    const newSectionTitle = `Section ${sections.filter((section) => !section.temp).length + 1}`;
+    const newSectionTitle = `Section ${sections.filter((section: { temp: any; }) => !section.temp).length + 1}`;
 
     try {
         const savedSection = await CourseBuilderAPI.addSection({
@@ -35,7 +35,7 @@ export const createSection = async ({ index, sections, setSections, courseId }) 
             sectionTitle: newSectionTitle,
         });
 
-        setSections((prevSections) => {
+        setSections((prevSections: any) => {
             const updatedSections = [...prevSections];
             updatedSections[index] = {
                 ...updatedSections[index],
@@ -84,7 +84,7 @@ export const deleteSection = async ({ index, sections, setSections, courseId, is
     }
 
     // Remove section locally
-    setSections(sections.filter((_, i) => i !== index));
+    setSections(sections.filter((_: any, i: any) => i !== index));
 
     // Call API to delete section in database
     try {
@@ -103,7 +103,7 @@ export const addLectureToSection = async ({ index, sections, setSections, course
 
     // Check if there is an unsaved lecture title
     const hasUnsavedLectureTitle = section.videos.some(
-        (lecture) => lecture.isUnsaved
+        (lecture: { isUnsaved: any; }) => lecture.isUnsaved
     );
 
     if (hasUnsavedLectureTitle) {
@@ -210,7 +210,7 @@ export const deleteLecture = async ({ sectionIndex, lectureIndex, sections, setS
     const updatedSections = [...sections];
     updatedSections[sectionIndex].videos = updatedSections[
         sectionIndex
-    ].videos.filter((_, i) => i !== lectureIndex);
+    ].videos.filter((_: any, i: any) => i !== lectureIndex);
     setSections(updatedSections);
 
     // Call API to delete video in database
@@ -229,7 +229,7 @@ export const deleteLecture = async ({ sectionIndex, lectureIndex, sections, setS
 };
 
 export const deleteCourse = async ({ courseWithSections, sections, courseId, router }) => {
-    const hasAnyVideos = sections.some(section => section.videos && section.videos.length > 0);
+    const hasAnyVideos = sections.some((section: { videos: string | any[]; }) => section.videos && section.videos.length > 0);
     if (hasAnyVideos) {
         notifications.show({
             position: 'bottom-left',
@@ -268,7 +268,7 @@ export const deleteCourse = async ({ courseWithSections, sections, courseId, rou
                     // const response = await CartAPI.deleteCartItem(id);
                     // console.log('Cart item deleted successfully:', response);
                     // TODO: When logged in as Student, if cart is deleted on the backend then front end should sync accordingly and should not break
-                    await deleteIndex(courseId, process.env.NEXT_PUBLIC_ALGOLIA_INDEX_NAME);
+                    await deleteIndex(courseId, 'course');
                     notifications.show({
                         position: 'bottom-left',
                         color: 'green',
@@ -298,16 +298,16 @@ export const deleteCourse = async ({ courseWithSections, sections, courseId, rou
     });
 }
 
-export const getVideoAndDocActions = (setSections) => {
+export const getVideoAndDocActions = (setSections: { (value: any): void; (arg0: { (prevSections: any): any; (prevSections: any): any; (prevSections: any): any; (prevSections: any): any; (prevSections: any): any; }): void; }) => {
     const onVideoUpload = (
         sectionId: string,
         lectureId: string,
         videoData: { videoUrl: string; videoDuration?: number; videoPublicId?: string; videoResourceType?: string }
     ) => {
-        setSections((prevSections) =>
-            prevSections.map((section) => {
+        setSections((prevSections: any[]) =>
+            prevSections.map((section: { _id: string; videos: any[]; }) => {
                 if (section._id === sectionId) {
-                    const updatedVideos = section.videos.map((video) => {
+                    const updatedVideos = section.videos.map((video: { _id: string; }) => {
                         if (video._id === lectureId) {
                             return { ...video, ...videoData }; // Update lecture with new video data
                         }
@@ -321,11 +321,11 @@ export const getVideoAndDocActions = (setSections) => {
     };
 
     const onRemoveVideo = (sectionId: string, lectureId: string) => {
-        setSections((prevSections) =>
-            prevSections.map((section) => {
+        setSections((prevSections: any[]) =>
+            prevSections.map((section: { _id: string; videos: any[]; }) => {
                 if (section._id === sectionId) {
                     // Update the specific lecture within the section
-                    const updatedVideos = section.videos.map((video) => {
+                    const updatedVideos = section.videos.map((video: { [x: string]: any; _id?: any; videoUrl?: any; videoPublicId?: any; videoResourceType?: any; videoDuration?: any; }) => {
                         if (video._id === lectureId) {
                             // Remove specific fields from the video object
                             const { videoUrl, videoPublicId, videoResourceType, videoDuration, ...remainingFields } = video;
@@ -345,10 +345,10 @@ export const getVideoAndDocActions = (setSections) => {
         lectureId: string,
         docData: { docUrl: string; docPublicId: string; docResourceType: string }
     ) => {
-        setSections((prevSections) =>
-            prevSections.map((section) => {
+        setSections((prevSections: any[]) =>
+            prevSections.map((section: { _id: string; videos: any[]; }) => {
                 if (section._id === sectionId) {
-                    const updatedVideos = section.videos.map((video) => {
+                    const updatedVideos = section.videos.map((video: { _id: string; }) => {
                         if (video._id === lectureId) {
                             return { ...video, ...docData }; // Update lecture with new document data
                         }
@@ -362,11 +362,11 @@ export const getVideoAndDocActions = (setSections) => {
     };
 
     const onRemoveDoc = (sectionId: string, lectureId: string) => {
-        setSections((prevSections) =>
-            prevSections.map((section) => {
+        setSections((prevSections: any[]) =>
+            prevSections.map((section: { _id: string; videos: any[]; }) => {
                 if (section._id === sectionId) {
                     // Update the specific lecture within the section
-                    const updatedVideos = section.videos.map((video) => {
+                    const updatedVideos = section.videos.map((video: { [x: string]: any; _id?: any; docUrl?: any; docPublicId?: any; docResourceType?: any; }) => {
                         if (video._id === lectureId) {
                             // Remove specific fields from the video object
                             const { docUrl, docPublicId, docResourceType, ...remainingFields } = video;
@@ -386,10 +386,10 @@ export const getVideoAndDocActions = (setSections) => {
         lectureId: string,
         linkAr: any,
     ) => {
-        setSections((prevSections) =>
-            prevSections.map((section) => {
+        setSections((prevSections: any[]) =>
+            prevSections.map((section: { _id: string; videos: any[]; }) => {
                 if (section._id === sectionId) {
-                    const updatedVideos = section.videos.map((video) => {
+                    const updatedVideos = section.videos.map((video: { _id: string; lectureLinks: any; }) => {
                         if (video._id === lectureId) {
                             video.lectureLinks = linkAr
                         }

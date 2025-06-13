@@ -16,7 +16,7 @@ export * from './src/Amount'
 export * from './src/CardComponent'
 export * from './src/NotFoundComponent'
 export * from './src/Footer'
-export * from './src/SearchResult'
+export * from './src/SearchBarResult'
 export * from './src/ShareOptions'
 
 export { default as PopularTag } from './src/PopularTag/index';

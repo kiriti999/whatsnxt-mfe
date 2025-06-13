@@ -15,6 +15,7 @@ import { AuthProvider } from '../../context/Authentication/AuthContext';
 import React from 'react';
 import { User } from '../Navbar/types';
 import { ModalsProvider } from '@mantine/modals';
+import SearchProvider from '@/context/SearchContext';
 
 const theme = createTheme({
   fontFamily: `Roboto, ${DEFAULT_THEME.fontFamily}`,
@@ -72,11 +73,13 @@ export default function CoursesMicrofrontend({ children, user }: { children: Rea
               <Notifications position="top-left" zIndex={1000} />
               <TypographyStylesProvider>
                 <ModalsProvider>
-                  <Layout user={user} {...headerProps}>
-                    <CourseManageContextProvider>
-                      {children}
-                    </CourseManageContextProvider>
-                  </Layout>
+                  <SearchProvider>
+                    <Layout user={user} {...headerProps}>
+                      <CourseManageContextProvider>
+                        {children}
+                      </CourseManageContextProvider>
+                    </Layout>
+                  </SearchProvider>
                 </ModalsProvider>
               </TypographyStylesProvider>
               <NextTopLoader

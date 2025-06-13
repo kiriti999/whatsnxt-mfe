@@ -1,0 +1,52 @@
+.overview-style {
+    display: -webkit-box;
+    font-size: 15px;
+    line-clamp: 4;
+    box-orient: 'vertical';
+    overflow: hidden;
+  }
+  
+  .whatsnxt-grid-sorting {
+    margin-bottom: 40px;
+  }
+  
+  .whatsnxt-grid-sorting .result-count p .count {
+    font-weight: 700;
+    color: #221638;
+  }
+  
+  .whatsnxt-grid-sorting .ordering {
+    text-align: right;
+  }
+  
+  .whatsnxt-grid-sorting .ordering label {
+    display: inline-block;
+    margin-bottom: 0;
+    color: #ababab;
+    margin-right: 5px;
+    font-size: 16px;
+    font-weight: 700;
+  }
+  
+  .whatsnxt-grid-sorting .ordering .form-select {
+    font-size: 15px;
+    padding: 10px 15px;
+  }
+  
+  @media only screen and (max-width: 767px) {
+    .whatsnxt-grid-sorting {
+      text-align: center;
+    }
+  
+    .whatsnxt-grid-sorting .result-count {
+      margin-bottom: 13px;
+    }
+  
+    .whatsnxt-grid-sorting .ordering {
+      text-align: center;
+    }
+  
+    .whatsnxt-grid-sorting .ordering label {
+      font-size: 14px;
+    }
+  }

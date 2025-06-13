@@ -25,7 +25,7 @@ export const SearchAPI = {
  */
 async function searchIndexedPost(title) {
   try {
-    const indexName = process.env.NEXT_PUBLIC_ALGOLIA_INDEX_NAME;
+    const indexName = process.env.NEXT_PUBLIC_ALGOLIA_COURSE_INDEX_NAME;
     const page = 0; // Default page
     const hitsPerPage = 10; // Number of results to fetch
 

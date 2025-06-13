@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
 import { useDispatch } from 'react-redux';
 import { Cart, Logo } from '@whatsnxt/core-ui';
 import { useMediaQuery } from '@mantine/hooks';
@@ -63,7 +62,7 @@ export const NavbarDesktop = ({ links, cartItems, loginMenuLinks, drawerOpened, 
         title: 'Cache invalidation success!',
         message: 'Complete cache has been cleared',
       });
-    } catch (error) {
+    } catch (error: any) {
       notifications.show({
         position: 'bottom-left',
         color: 'red',

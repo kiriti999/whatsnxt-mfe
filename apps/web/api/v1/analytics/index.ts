@@ -5,4 +5,8 @@ export const AnalyticsAPI = {
     const response = await bffApiClient.get('/analytics');
     return response.data;
   },
+  fetchViews: async function () {
+    const response = await bffApiClient.get('/analytics');
+    return response.data;
+  }
 };

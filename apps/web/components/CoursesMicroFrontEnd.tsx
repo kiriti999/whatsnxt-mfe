@@ -1,7 +1,28 @@
 import React, { ReactElement } from "react";
 import TopCourses from './TopCourses/TopCourses';
 import type { CourseType } from '@whatsnxt/core-util';
+import TrendingArticles from './TrendingArticles';
 
-export default function CoursesMicroFrontend({ courses, total }: { courses: CourseType[], total: number; }): ReactElement {
-  return <TopCourses courses={courses || []} total={total || 0} />;
+interface CoursesMicroFrontendProps {
+  courses: CourseType[];
+  total: number;
+  articles: any[]; // Add articles prop
+  totalArticles: number; // Add totalArticles prop
+}
+
+export default function CoursesMicroFrontend({
+  courses,
+  total,
+  articles,
+  totalArticles
+}: CoursesMicroFrontendProps): ReactElement {
+  return (
+    <>
+      <TopCourses courses={courses || []} total={total || 0} />
+      <TrendingArticles
+        articles={articles || []}
+        total={totalArticles || 0}
+      />
+    </>
+  );
 }

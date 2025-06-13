@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { deleteIndex, indexPost } from '@whatsnxt/core-util';
+import { deleteIndex, indexRecord } from '@whatsnxt/core-util';
 import { ActionIcon, Tooltip } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { CourseAPI } from '../../api/v1/courses/course/course';
@@ -58,7 +58,7 @@ const CoursePublishButton = ({
                         updatedAt: response.data.course.updatedAt,
                     };
                     console.log(' handlePublish :: record:', record)
-                    await indexPost(record, process.env.NEXT_PUBLIC_ALGOLIA_INDEX_NAME);
+                    await indexRecord(record, 'course');
                     notifications.show({
                         position: 'bottom-left',
                         title: 'Course Published successfully',
@@ -67,7 +67,7 @@ const CoursePublishButton = ({
                     });
                 } else {
                     // Remove from Algolia if unpublishing
-                    await deleteIndex(_id, process.env.NEXT_PUBLIC_ALGOLIA_INDEX_NAME);
+                    await deleteIndex(_id, 'course');
                     notifications.show({
                         position: 'bottom-left',
                         title: 'Course Unpublished successfully',

@@ -22,16 +22,17 @@ import {
   IconPlus,
 } from '@tabler/icons-react';
 import { HistoryAPI } from '../../../api/v1/index';
-import { indexPost, deleteIndex } from '../../../api/v1/algolia/algolia';
 import { deleteCloudinaryImage } from '../../../utils/blog-image-upload';
 import { useRouter } from 'next/navigation';
 import { useDebouncedValue } from '@mantine/hooks';
 import { downloadBase64File } from '@/utils/downloadFile';
+import { deleteIndex, indexRecord } from '@whatsnxt/core-util';
 
-const HistoryMUI = ({ open, close }) => {
+const HistoryMUI = ({ open, close }: any) => {
+  const tutorialIndex = 'tutorial';
+  const blogIndex = 'blog';
   const [modalOpen, setModalOpen] = useState(false);
   const [tutorialTitle, setTutorialTitle] = useState('');
-  const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [data, setData] = useState([]) as any;
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
@@ -87,7 +88,7 @@ const HistoryMUI = ({ open, close }) => {
     const public_id = rowData?.postImageAttributes?.public_id || null;
     if (deleteResult) {
       if (public_id) await deleteCloudinaryImage({ public_id });
-      await deleteIndex(rowData._id);
+      await deleteIndex(rowData._id, rowData?.tutorial ? 'tutorial' : 'blog');
       await load();
     }
   };
@@ -116,7 +117,7 @@ const HistoryMUI = ({ open, close }) => {
     }
   };
 
-  const createTutorial = async (list, tutorialTitle) => {
+  const createTutorial = async (list: string[], tutorialTitle: string) => {
     return await HistoryAPI.createTutorialFromBlogs(list, tutorialTitle)
   }
 
@@ -156,9 +157,9 @@ const HistoryMUI = ({ open, close }) => {
       const publishRes = await HistoryAPI.publishDraft(rowData._id, publish)
       await load();
       if (publish && publishRes) {
-        await indexPost(publishRes);
+        await indexRecord(publishRes, rowData.tutorial === 'tutorial' ? tutorialIndex : blogIndex);
       } else if (!publish) {
-        await deleteIndex(rowData._id);
+        await deleteIndex(rowData._id, rowData?.tutorial ? tutorialIndex : blogIndex);
       }
     } catch (error) {
       console.log('🚀 ~ handlePublishButtonClick ~ error:', error)

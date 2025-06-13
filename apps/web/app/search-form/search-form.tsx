@@ -1,29 +1,17 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import useSWR from 'swr';
-import { searchByKeyword } from '../../api/v1/blog/algolia/algolia';
 import Link from 'next/link';
 import { Skeleton } from '@mantine/core';
 import { Autocomplete, Group, Text, Container, Anchor, Box, Paper } from '@mantine/core';
+import { useAlgoliaSearch } from '@whatsnxt/core-util';
+import { useSearchContext } from '@/context/SearchContext';
 
-const fetcher = (query: any) =>
-  Promise.all([
-    searchByKeyword(query),
-    new Promise((res) => setTimeout(res, 600)),
-  ]).then(([res]) => res);
 
-const useAlgoliaSearch = (query: any) => {
-  const { data, error } = useSWR(query, fetcher);
-  return {
-    data: data?.hits || [],
-    isLoading: !error && !data,
-    isError: error,
-  };
-};
 
 const SearchForm = () => {
+  const { indexType } = useSearchContext();
   const [search, setSearch] = useState('');
-  const { data, isError, isLoading } = useAlgoliaSearch(search);
+  const { data, isLoading } = useAlgoliaSearch(indexType, search);
   const [show, setShow] = useState(true);
 
   const inputRef = useRef<HTMLFormElement | null>(null);
@@ -101,7 +89,7 @@ const SearchForm = () => {
             ) : (
               <Box>
                 {filteredData.length === 0 ? (
-                  <Text size="sm" color="dimmed">
+                  <Text size="sm" c="dimmed">
                     No search result available.
                   </Text>
                 ) : (

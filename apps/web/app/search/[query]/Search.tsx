@@ -4,9 +4,10 @@ import BlogCard from '../../../components/Blog/Cards/Blog';
 import TutorialCard from '../../../components/Blog/Cards/Tutorial';
 import styles from './Search.module.css';
 import CardSkeleton from '../../../components/Blog/Content/CardSkeleton';
-import { searchByKeyword } from '../../../api/v1/blog/algolia/algolia';
 import Pagination from '../../../components/Common/Pagination';
 import { Grid, Title } from '@mantine/core';
+import { algoliaSearchByKeyword } from '@whatsnxt/core-util';
+import { useSearchContext } from '@/context/SearchContext';
 
 function Search({ query }: any) {
   const [data, setData] = useState<any>(null);
@@ -14,12 +15,15 @@ function Search({ query }: any) {
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [nPages, setNPages] = useState(0);
+  const { indexType } = useSearchContext();
 
   useEffect(() => {
     const searchData = async () => {
       try {
         setLoading(true);
-        const res = await searchByKeyword(query, page - 1);
+        const res = await algoliaSearchByKeyword(indexType, query, page - 1, 10, {
+          searchableAttributes: ['title']
+        });
         setData(res.hits);
         setTotal(res.nbHits);
         setNPages(res.nbPages);

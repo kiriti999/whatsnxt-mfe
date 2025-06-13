@@ -56,7 +56,6 @@ export const serverFetcher = async (BASEURL: string, URL: string, options: Fetch
         }
 
         const data = await response.json();
-        console.log('🔍 Server Fetcher - Success, authenticated:', data._meta?.isAuthenticated);
 
         return data;
     } catch (error) {

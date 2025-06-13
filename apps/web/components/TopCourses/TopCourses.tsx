@@ -14,10 +14,9 @@ import {
 } from '@mantine/core';
 import Image from 'next/image';
 import { Amount, CardComponent } from '@whatsnxt/core-ui';
-import type { CourseType } from '@whatsnxt/core-util';
 import Pagination from '../../components/pagination/pagination';
 
-const TopCourses = ({ courses, total }: { courses: CourseType[], total: number }) => {
+const TopCourses = ({ courses, total }: { courses: any[], total: number }) => {
   const [recordsPerPage] = useState(8);
   const [currentPage, setCurrentPage] = useState(1);
   const indexOfLastRecord = currentPage * recordsPerPage;

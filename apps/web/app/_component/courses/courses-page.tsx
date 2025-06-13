@@ -5,9 +5,9 @@ import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
 import htmlReactParser from 'html-react-parser';
 import { Skeleton, Avatar, Text, Tooltip } from '@mantine/core';
-import { Amount, CardComponent, PageBanner, SortByComponent } from '@whatsnxt/core-ui';
+import { Amount, CardComponent, SortByComponent } from '@whatsnxt/core-ui';
 import type { CourseType, Category } from '@whatsnxt/core-util';
-import sortStyles from '../algolia-search/index.module.css';
+import sortStyles from './index.module.css';
 import CoursesSidebar from '../../../components/Courses/CoursesSidebar';
 import styles from '../../../components/Courses/Course.module.css';
 import Pagination from '../../../components/pagination/pagination';
@@ -36,7 +36,6 @@ export default function CoursePage({ courses, enrolled, categories }: { courses:
   coursesWithPopularity.forEach(course => {
     const data = analyticsData?.find(item => item.pagePath.includes(course.slug));
     course.popularity = data?.pageViews;
-    console.log(data, 'data77')
   })
 
   switch (sort) {

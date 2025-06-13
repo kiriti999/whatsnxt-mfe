@@ -9,12 +9,25 @@ const DynamicCoursesComponent = dynamic(() =>
   import('../../../components/CoursesMicroFrontEnd').then((courseMfe) => courseMfe)
 )
 
-function Home({ data }: { data: any }) {
+interface HomeProps {
+  data: {
+    courses: any[];
+    total: number;
+  };
+  articles: []
+}
+
+function Home({ data, articles }: HomeProps) {
   return (
     <div>
       <PartyTownScripts />
       <MainBanner />
-      <DynamicCoursesComponent courses={data?.courses} total={data?.total} />
+      <DynamicCoursesComponent
+        courses={data?.courses || []}
+        total={data?.total || 0}
+        articles={articles || []} // Access the articles array properly
+        totalArticles={articles?.length || 0} // Match the prop name
+      />
     </div>
   )
 }

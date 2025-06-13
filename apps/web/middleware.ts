@@ -29,7 +29,7 @@ const publicRoutes = [
   '/~partytown',
   '/content/search',
   '/search',
-  '/algolia-search',
+  '/course-search',
 ];
 
 // Dynamic routes that should be public (prefix matching)

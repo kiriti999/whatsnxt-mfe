@@ -2,7 +2,7 @@ import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Anchor, Skeleton } from '@mantine/core';
-import styles from './SearchResult.module.css';
+import styles from './SearchBarResult.module.css';
 
 export type SearchResultProps = {
   data: any[] | null;
@@ -13,7 +13,7 @@ export type SearchResultProps = {
   containerRef: React.RefObject<HTMLDivElement>;
 };
 
-export const SearchResult = ({ data, isLoading, search, show, setShow, containerRef }: SearchResultProps) => {
+export const SearchBarResult = ({ data, isLoading, search, show, setShow, containerRef }: SearchResultProps) => {
 
   return (
     <div className={styles['search-results']} ref={containerRef}>

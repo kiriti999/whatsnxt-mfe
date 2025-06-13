@@ -10,8 +10,8 @@ export const fetchCourses = async (limit = 30, offset = 0) => {
 };
 
 export const fetchPopularCourses = async () => {
-  const response = await serverFetcher(BASEURL, '/course/popularity') as any;
-  return response.enrolled;
+  const response = await serverFetcher(BASEURL, '/courses/popularity') as any;
+  return response?.enrolled || [];
 };
 
 export const fetchCategoriesByCount = async () => {

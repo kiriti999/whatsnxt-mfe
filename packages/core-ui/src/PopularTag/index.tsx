@@ -11,8 +11,6 @@ interface Props {
 
 export default function PopularTag(props: Props) {
     const { categoryStore, onClick } = props;
-    console.log(' PopularTag :: categoryStore:', categoryStore)
-    console.log(' PopularTag :: categoryStore:', categoryStore)
 
     return (
         <div className='widget widget_tag_cloud'>
