@@ -87,14 +87,14 @@ const CourseHistory = () => {
     staleTime: 0,
   });
 
-  const toggleCourse = (courseId) => {
+  const toggleCourse = (courseId: string | number) => {
     setExpandedCourse((prev) => ({
       ...prev,
       [courseId]: !prev[courseId]
     }))
   }
 
-  const toggleSection = (sectionId) => {
+  const toggleSection = (sectionId: string | number) => {
     setExpandedSection((prev) => ({
       ...prev,
       [sectionId]: !prev[sectionId]
@@ -115,11 +115,11 @@ const CourseHistory = () => {
     refetch();
   }
 
-  const handlePaginationChange = (e) => {
+  const handlePaginationChange = (e: any) => {
     setCurrentPage(e);
   };
 
-  const handleSearchChange = (event) => {
+  const handleSearchChange = (event: any) => {
     setSearchQuery(event.currentTarget.value);
     setCurrentPage(1);
   };
@@ -160,7 +160,7 @@ const CourseHistory = () => {
   const tableColumns = React.useMemo(() => [
     {
       header: 'Title',
-      accessor: (row) => (
+      accessor: (row: { _id: string | number; slug: any; courseName: any; title: any; }) => (
         <Link href={`/courses/${courseSlugs[row._id] ?? row.slug}`}>
           {courseTitles[row._id] ?? row?.courseName ?? row?.title}
         </Link>
@@ -168,7 +168,7 @@ const CourseHistory = () => {
     },
     {
       header: 'Status',
-      accessor: (row) => (
+      accessor: (row: { _id: string | number; status: any; }) => (
         <>
           {courseStatuses[row._id] ?? row.status}
         </>
@@ -176,7 +176,7 @@ const CourseHistory = () => {
     },
     {
       header: 'Actions',
-      accessor: (row) =>
+      accessor: (row: any) =>
         <ActionButtons
           row={row}
           handleCourseDeleteClick={handleCourseDeleteClick}
@@ -188,7 +188,7 @@ const CourseHistory = () => {
     },
     {
       header: '',
-      accessor: (row) =>
+      accessor: (row: { _id: string | number; }) =>
         <ActionIcon onClick={() => { toggleCourse(row._id) }} variant="filled" color="red" radius="md" size="sm">
           {expandedCourse[row._id] ?
             <IconChevronUp size={14} />
@@ -200,7 +200,7 @@ const CourseHistory = () => {
   ], [courseTitles, courseSlugs, courseStatuses, isMobile]);
 
   // For section level videos, we can also use a mobile-friendly approach
-  const renderVideoActions = (video, sectionId) => {
+  const renderVideoActions = (video: { isPublish: Boolean; _id: String; }, sectionId: String) => {
     if (!isMobile) {
       return (
         <Tooltip fz={'xs'}
@@ -332,24 +332,24 @@ const CourseHistory = () => {
                                                 <Menu.Dropdown>
                                                   <Menu.Item
                                                     leftSection={
-                                                      item?.videos.filter((x) => x.isPublish).length !== item?.videos.length ?
+                                                      item?.videos.filter((x: { isPublish: any; }) => x.isPublish).length !== item?.videos.length ?
                                                         <IconEye size={16} /> :
                                                         <IconEyeOff size={16} />
                                                     }
                                                     onClick={() => {
-                                                      item?.videos.filter((x) => x.isPublish).length !== item?.videos.length
+                                                      item?.videos.filter((x: { isPublish: any; }) => x.isPublish).length !== item?.videos.length
                                                         ? publishAllVideosInSection(item._id, false)
                                                         : publishAllVideosInSection(item._id, true);
                                                     }}
                                                     color={
-                                                      item?.videos.filter((x) => x.isPublish).length !== item?.videos.length
+                                                      item?.videos.filter((x: { isPublish: any; }) => x.isPublish).length !== item?.videos.length
                                                         ? "blue"
                                                         : "red"
                                                     }
                                                   >
                                                     <Group align="center" >
                                                       <span>
-                                                        {item?.videos.filter((x) => x.isPublish).length !== item?.videos.length ?
+                                                        {item?.videos.filter((x: { isPublish: any; }) => x.isPublish).length !== item?.videos.length ?
                                                           "Publish All" :
                                                           "Unpublish All"}
                                                       </span>
@@ -360,7 +360,7 @@ const CourseHistory = () => {
                                             ) : (
                                               <Tooltip fz={'xs'}
                                                 label={
-                                                  item?.videos.filter((x) => x.isPublish).length !== item?.videos.length
+                                                  item?.videos.filter((x: { isPublish: any; }) => x.isPublish).length !== item?.videos.length
                                                     ? "Publish All"
                                                     : "Unpublish All"
                                                 }
@@ -369,7 +369,7 @@ const CourseHistory = () => {
                                               >
                                                 <ActionIcon
                                                   onClick={() => {
-                                                    item?.videos.filter((x) => x.isPublish).length !== item?.videos.length
+                                                    item?.videos.filter((x: { isPublish: any; }) => x.isPublish).length !== item?.videos.length
                                                       ? publishAllVideosInSection(item._id, false)
                                                       : publishAllVideosInSection(item._id, true);
                                                   }}
@@ -377,12 +377,12 @@ const CourseHistory = () => {
                                                   size="sm"
                                                   variant="filled"
                                                   color={
-                                                    item?.videos.filter((x) => x.isPublish).length !== item?.videos.length
+                                                    item?.videos.filter((x: { isPublish: any; }) => x.isPublish).length !== item?.videos.length
                                                       ? "blue"
                                                       : "red"
                                                   }
                                                 >
-                                                  {item?.videos.filter((x) => x.isPublish).length !== item?.videos.length ? (
+                                                  {item?.videos.filter((x: { isPublish: any; }) => x.isPublish).length !== item?.videos.length ? (
                                                     <IconEye size={14} />
                                                   ) : (
                                                     <IconEyeOff size={14} />
@@ -415,7 +415,7 @@ const CourseHistory = () => {
                                                   </tr>
                                                 </thead>
                                                 <tbody>
-                                                  {item?.videos?.map((video, i) => (
+                                                  {item?.videos?.map((video: { _id: React.Key | null | undefined; name: string | number | bigint | boolean | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | Promise<string | number | bigint | boolean | React.ReactPortal | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | null | undefined> | null | undefined; }, i: number) => (
                                                     <tr key={video._id}>
                                                       <td>{i + 1}. {video.name}</td>
                                                       <td>

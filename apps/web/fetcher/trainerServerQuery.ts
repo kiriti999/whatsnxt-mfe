@@ -2,6 +2,8 @@
 
 import { serverFetcher } from './serverFetcher';
 
+const BASEURL = process.env.BFF_HOST_API as string;
+
 // Function to set application to pending
 export const fetchTrainerProfile = async (userId?: string) => {
     try {
@@ -16,7 +18,7 @@ export const fetchTrainerProfile = async (userId?: string) => {
 
 export const fetchTrainerDetails = async (trainerId: string) => {
     try {
-        const response = await serverFetcher(`/courses/trainer/get-details/${trainerId}`); // Automatically GET
+        const response = await serverFetcher(BASEURL, `/courses/trainer/get-details/${trainerId}`); // Automatically GET
         return response;
     } catch (error) {
         console.error('applyActions:: Error fetching trainer details with query:', error);

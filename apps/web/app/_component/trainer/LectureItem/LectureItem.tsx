@@ -30,7 +30,7 @@ import { CourseBuilderAPI } from "../../../../api/v1/courses/course-builder/cour
 import EditTextGroup from "./EditTextGroup";
 import { EditOrderIndex } from "./EditOrderIndex";
 import PreviewToggle from './PreviewToggle';
-import { deleteAssetWebWorker, uploadAssetWebWorker } from './assetUploader';
+import { deleteAssetWebWorker, uploadAssetWebWorker } from '../../../../utils/worker/assetManager';
 import LectureLinksComponent from './LectureLinks'
 import { assetType, LectureItemProps } from '../types';
 import { modals } from '@mantine/modals';

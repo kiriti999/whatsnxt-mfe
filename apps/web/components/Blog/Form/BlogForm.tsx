@@ -176,6 +176,7 @@ const BlogForm: React.FC<BlogFormProps> = ({ categories, edit }) => {
       if (response?.success) {
         if (edit) await HistoryAPI.publishDraft(edit.id, false);
         notifications.show({
+          position: 'bottom-left',
           title: `Blog ${edit ? 'Updated' : 'Created'}`,
           message: `Blog successfully ${edit ? 'updated' : 'created'}`,
           color: 'green',
@@ -184,10 +185,11 @@ const BlogForm: React.FC<BlogFormProps> = ({ categories, edit }) => {
       } else {
         throw new Error('Blog creation failed.');
       }
-    } catch (error) {
+    } catch (error: any) {
       notifications.show({
+        position: 'bottom-left',
         title: 'Error',
-        message: 'An error occurred while saving the blog',
+        message: error?.message || 'An error occurred while saving the blog',
         color: 'red',
       });
     } finally {

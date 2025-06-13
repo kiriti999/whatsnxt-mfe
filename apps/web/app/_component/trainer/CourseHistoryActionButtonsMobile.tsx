@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { ActionIcon, Group, Menu, Tooltip } from '@mantine/core';
-import { IconDotsVertical, IconEye, IconEdit, IconTrash } from '@tabler/icons-react';
+import { IconDotsVertical, IconEdit, IconTrash } from '@tabler/icons-react';
 import { useMediaQuery } from '@mantine/hooks';
 import Link from 'next/link';
 import CoursePublishButton from '../../../components/Courses/CoursePublishButton';

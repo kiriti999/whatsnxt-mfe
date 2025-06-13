@@ -37,7 +37,7 @@ const INIT_COURSE = {
 };
 
 const Main = ({ courseWithSections, courseId }) => {
-	console.log(' Main :: courseWithSections:', courseWithSections)
+	// console.log(' Main :: courseWithSections:', courseWithSections)
 	const router = useRouter();
 	const [course] = useState(INIT_COURSE);
 	const [imageUploading, setImageUploading] = useState(false);

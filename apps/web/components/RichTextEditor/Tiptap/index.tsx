@@ -637,7 +637,9 @@ export default function Tiptap({ content, onChange, onWordCountChange }: {
               <IconListNumbers size={16} />
             </Button>
             <Button size='xs' variant="outline" type="button">
-              <HardBreakControl editor={editor} />
+              <>
+                <HardBreakControl editor={editor} />
+              </>
             </Button>
           </Group>
 
@@ -732,106 +734,7 @@ export default function Tiptap({ content, onChange, onWordCountChange }: {
             <FileControl editor={editor} />
           </Group>
 
-          <Group gap={0}>
-            <Button size='xs' variant="subtle" type="button" onClick={() => editor.chain().focus().undo().run()}>
-              <IconArrowBackUp size={16} />
-            </Button>
-            <Button size='xs' variant="subtle" type="button" onClick={() => editor.chain().focus().redo().run()}>
-              <IconArrowForwardUp size={16} />
-            </Button>
-          </Group>
-
-          {/* Add Indent/Outdent buttons */}
-          <Group gap={0}>
-            <Tooltip label="Decrease indent">
-              <Button size='xs' variant="subtle" type="button" onClick={() => {
-                editor.chain().focus().run()
-                editor.commands.outdent()
-              }}>
-                <IconIndentDecrease size={16} />
-              </Button>
-            </Tooltip>
-            <Tooltip label="Increase indent">
-              <Button size='xs' variant="subtle" type="button" onClick={() => {
-                editor.chain().focus().run()
-                editor.commands.indent()
-              }}>
-                <IconIndentIncrease size={16} />
-              </Button>
-            </Tooltip>
-          </Group>
-
-          <Group>
-            <Select
-              placeholder="Font"
-              data={fontFamilies}
-              onChange={(value) => handleFontFamilyChange(value || "Arial")}
-              size="xs"
-              styles={{
-                root: {
-                  width: 'auto',
-                },
-                input: {
-                  width: '100px',
-                  minWidth: '100px',
-                  padding: '0 8px',
-                },
-              }}
-              comboboxProps={{ width: 'auto', position: 'bottom' }}
-            />
-          </Group>
-
-          {/* Color Selector */}
-          <Group>
-            <ColorInput
-              style={{ width: '70px' }}
-              value={editor.getAttributes('textStyle').color || '#000'}
-              onChange={(color) => handleColorChange(color)}
-              withPicker
-              size="xs"
-              withEyeDropper={false}
-            />
-          </Group>
-
-          {/* Table */}
-          <Group gap={0}>
-            <Button size='xs' variant="subtle" type="button" onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 3 }).run()}>
-              <IconTable size={16} />
-            </Button>
-            <Button size='xs' variant="subtle" type="button" onClick={() => editor.chain().focus().addRowAfter().run()}>
-              <IconPlus size={16} />
-            </Button>
-            <Button size='xs' variant="subtle" type="button" onClick={() => editor.chain().focus().deleteRow().run()}>
-              <IconMinus size={16} />
-            </Button>
-            <Button size='xs' variant="subtle" type="button" onClick={() => editor.chain().focus().addColumnAfter().run()}>
-              <IconColumns size={16} />
-            </Button>
-          </Group>
-
-          {/* alignment */}
-          <Group gap={0}>
-            <Button size='xs' variant="subtle" type="button" onClick={() => editor.chain().focus().setTextAlign("left").run()}>
-              <IconAlignLeft size={16} />
-            </Button>
-            <Button size='xs' variant="subtle" type="button" onClick={() => editor.chain().focus().setTextAlign("center").run()}>
-              <IconAlignCenter size={16} />
-            </Button>
-            <Button size='xs' variant="subtle" type="button" onClick={() => editor.chain().focus().setTextAlign("right").run()}>
-              <IconAlignRight size={16} />
-            </Button>
-          </Group>
-
-          <YoutubeUploader editor={editor} />
-
-          {/* uploads */}
-          <Group gap={0} style={{ display: 'flex', alignItems: 'center' }}>
-            <ImageControl editor={editor} />
-            <AudioControl editor={editor} />
-            <VideoControl editor={editor} />
-            <FileControl editor={editor} />
-          </Group>
-
+          {/* undo/redo */}
           <Group gap={0}>
             <Button size='xs' variant="subtle" type="button" onClick={() => editor.chain().focus().undo().run()}>
               <IconArrowBackUp size={16} />

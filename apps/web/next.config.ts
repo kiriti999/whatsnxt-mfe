@@ -1,49 +1,49 @@
 import bundleAnalyzer from '@next/bundle-analyzer';
-import path from 'path';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 const withBundleAnalyzer = bundleAnalyzer({
     enabled: process.env.ANALYZE === 'true',
 });
-
-
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
     reactStrictMode: true,
     compress: true,
     productionBrowserSourceMaps: true,
+
     experimental: {
         optimizePackageImports: ['@mantine/core', '@mantine/hooks'],
-        ...(process.argv.includes('--turbo') && {
-            rules: {
-                '*.svg': {
-                    loaders: ['@svgr/webpack'],
-                    as: '*.js',
-                },
-            },
-            resolveExtensions: [
-                '.mdx',
-                '.tsx',
-                '.ts',
-                '.jsx',
-                '.js',
-                '.mjs',
-                '.json',
-            ],
-            resolveAlias: {
-                // Add any aliases you need
-            },
-        }),
     },
+
+    // NEW: Stable Turbopack configuration (replaces experimental.turbo)
+    turbopack: {
+        rules: {
+            // Handle SVG files
+            '*.svg': {
+                loaders: ['@svgr/webpack'],
+                as: '*.js',
+            },
+        },
+        resolveExtensions: [
+            '.mdx',
+            '.tsx',
+            '.ts',
+            '.jsx',
+            '.js',
+            '.mjs',
+            '.json',
+        ],
+        resolveAlias: {
+            // Add any aliases you need
+        },
+    },
+
     output: 'standalone',
-    transpilePackages: [
-    ],
+    transpilePackages: [],
+
     images: {
-        // domains: ['ik.imagekit.io', 'res.cloudinary.com', 'mdbcdn.b-cdn.net'],
         remotePatterns: [
             {
                 protocol: 'https',
@@ -62,6 +62,7 @@ const nextConfig = {
             },
         ],
     },
+
     env: {
         JWT_SECRET: 'djhfghbdsgrasklkajsdgf',
         CLOUDINARY_UPLOAD_PRESET: 'whatsnxt',
@@ -74,8 +75,6 @@ const nextConfig = {
             'https://api.cloudinary.com/v1_1/cloudinary999/image/upload',
         RAZORPAY_KEY: 'rzp_test_XA4B2CfvFvPv5D',
         RAZORPAY_SECRET: 'SrkzJCpJMAGFbi4GJnrtBIUU',
-        // RAZORPAY_KEY: 'rzp_test_PeSRIJGukdxiAm',
-        // RAZORPAY_SECRET: 'YD5AJ4P2eQRexS19kS8RLLm7',
         RAZORPAY_LOGO: 'https://res.cloudinary.com/cloudinary999/image/upload/v1713640702/whatsnxt/logo.png',
         NEXT_PUBLIC_ALGOLIA_APP_ID: '9SA5PPC1N4',
         ALGOLIA_SEARCH_ADMIN_KEY: '183f7ddb740690df8b6fe7cd82008198',
@@ -97,69 +96,8 @@ const nextConfig = {
         NEXT_PUBLIC_COOKIES_USER_PROFILE: process.env.NEXT_PUBLIC_COOKIES_USER_PROFILE,
         NEXT_PUBLIC_COOKIES_USER_INFO: process.env.COOKIES_USER_INFO,
     },
-    // compiler: {
-    //   removeConsole: process.env.NODE_ENV === 'production',
-    // },
-    webpack: (config, { isServer, webpack, dev }) => {
-        if (!isServer) {
-            // don't resolve 'fs' module on the client to prevent this error on build --> Error: Can't resolve 'fs'
-            config.resolve.fallback = {
-                net: false,
-                tls: false,
-                fs: false,
-                child_process: false,
-                perf_hooks: false,
-                document: false,
-            };
-        }
-
-        if (!dev) {
-            config.cache = {
-                type: 'filesystem',
-                compression: 'gzip',
-                maxAge: 1000 * 60 * 60 * 24 * 30, // 30 days
-            }
-        }
-
-        if (dev) {
-            config.devtool = 'cheap-module-source-map'; // Faster development source maps
-            config.cache = {
-                type: 'memory', // Use memory cache for faster builds in development
-            };
-        } else {
-            config.devtool = false;
-            config.cache = {
-                type: 'filesystem',
-                cacheDirectory: path.resolve(__dirname, '.next/cache/webpack'),
-                compression: 'gzip', // Use gzip compression for cache files
-                buildDependencies: {
-                    config: [__filename],
-                },
-            };
-
-            // Handle large string serialization performance issue
-            config.optimization = {
-                ...config.optimization,
-                minimize: true,
-            };
-
-            config.plugins.push(
-                new webpack.DefinePlugin({
-                    'process.env.CACHE_MODE': JSON.stringify('optimized'),
-                })
-            );
-        }
-
-        config.module.rules.push({
-            test: /\.svg$/,
-            use: ['@svgr/webpack'],
-        });
-
-        return config;
-    },
 };
 
-// Apply bundle analyzer first, then Sentry
 const configWithBundleAnalyzer = withBundleAnalyzer(nextConfig);
 
 export default configWithBundleAnalyzer;

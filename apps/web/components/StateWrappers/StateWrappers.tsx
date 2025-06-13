@@ -42,8 +42,8 @@ export default function CoursesMicrofrontend({ children, user }: { children: Rea
     links: [
       { title: 'Home', url: `${domain}/`, linkType: '_self' },
       { title: 'Courses', url: `${domain}/courses`, linkType: '_self' },
-      { title: 'Blogs', url: `${domain}/blogs`, linkType: 'self' },
-      { title: 'Tutorials', url: `${domain}/tutorials`, linkType: 'self' },
+      { title: 'Blogs', url: `${domain}/blogs`, linkType: '_self' },
+      { title: 'Tutorials', url: `${domain}/tutorials`, linkType: '_self' },
     ],
     loginMenuLinks: [
       { title: 'My Courses', url: `${domain}/my-courses`, icon: IconCertificate },

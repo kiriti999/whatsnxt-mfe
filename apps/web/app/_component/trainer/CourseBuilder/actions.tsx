@@ -4,7 +4,7 @@ import { CourseBuilderAPI } from "../../../../api/v1/courses/course-builder/cour
 import type { Section } from "../types";
 import { deleteIndex } from "@whatsnxt/core-util";
 import { modals } from '@mantine/modals';
-import { deleteAssetWebWorker } from '../LectureItem/assetUploader';
+import { deleteAssetWebWorker } from '../../../../utils/worker/assetManager';
 
 export const handleCourseNameSave = async ({ courseId, newCourseName, setIsEditingCourseName }) => {
     try {

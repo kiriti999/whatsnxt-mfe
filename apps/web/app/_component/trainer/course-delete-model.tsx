@@ -3,7 +3,7 @@ import React from 'react';
 import { Button, Flex, Modal, Text } from '@mantine/core';
 import { CourseBuilderAPI } from '../../../api/v1/courses/course-builder/course-builder-api';
 import { notifications } from '@mantine/notifications';
-import { deleteAssetWebWorker } from './LectureItem/assetUploader';
+import { deleteAssetWebWorker } from '../../../utils/worker/assetManager';
 
 interface CourseDeleteModaProps {
     courseId: string;
@@ -14,9 +14,11 @@ interface CourseDeleteModaProps {
 }
 
 const CourseDeleteModal = ({ courseId, isModalOpen, modalClose, handleDeleteSuccess, courseImagePublicId }: CourseDeleteModaProps) => {
+
     const handleCourseDeleteConfirm = async () => {
+
         const { success } = await deleteAssetWebWorker({
-            assetsList: [{ publicId: courseImagePublicId, type: 'image' }],
+            assetsList: [{ publicId: 'courseImagePublicId', type: 'image' }],
         });
         if (success) {
             try {

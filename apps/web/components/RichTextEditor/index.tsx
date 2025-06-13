@@ -17,5 +17,5 @@ type TipTapEditorProps = {
 
 
 export const RichTextEditor = (props: TipTapEditorProps) => {
-  return <Tiptap content={props.content} onChange={props.onChange} onWordCountChange={onWordCountChange} />
+  return <Tiptap content={props.content} onChange={props.onChange} onWordCountChange={props.onWordCountChange} />
 };

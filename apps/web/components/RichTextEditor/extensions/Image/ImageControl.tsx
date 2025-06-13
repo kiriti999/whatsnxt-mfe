@@ -1,6 +1,6 @@
 import { useContext, useRef } from 'react';
 import { TiptapManageContext } from '../../../../context/TiptapManageContext';
-import { uploadEditorDataWebWorker } from '../../common';
+import { uploadDataWebWorker } from '../../common';
 import { IconPhoto } from '@tabler/icons-react';
 import { Button } from '@mantine/core';
 
@@ -17,7 +17,7 @@ const ImageControl = ({ editor }: any) => {
     if (file) {
       const tempUrl = URL.createObjectURL(file);
       editor.chain().focus().setImage({ src: tempUrl }).run();
-      uploadEditorDataWebWorker({
+      uploadDataWebWorker({
         file,
         tempUrl,
         editor,

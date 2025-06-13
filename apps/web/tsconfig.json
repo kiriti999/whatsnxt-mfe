@@ -30,7 +30,7 @@
     "next-env.d.ts",
     "next.config.ts",
     ".next/types/**/*.ts"
-, "api/v1/comment/index.js"  ],
+, "api/v1/comment/index.js", "utils/worker/deleteWorker.js", "utils/worker/uploadWorker.js"  ],
   "exclude": [
     "node_modules"
   ]

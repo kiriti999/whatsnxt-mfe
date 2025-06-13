@@ -156,19 +156,20 @@ export function AuthenticationForm(props: PaperProps) {
       mutationFn: async (formData: any) => await AuthAPI.createAccount(formData),
       onSuccess: async (response: any) => {
         if (checkSuccessResponse(response)) {
-          const getToken = await getCookieAccessToken()
+          // const getToken = await getCookieAccessToken()
           notifications.show({
             position: 'bottom-left',
-            title: 'Authentication Success',
-            message: 'User registered successfully',
+            title: 'Registration Success',
+            message: 'Login to continue',
             color: 'green',
+            autoClose: 5000
           });
-          const userObject = await fetchUser(getToken);
-          // const userObject = await ProfileAPI.getProfile(getToken);
-          dispatch({ type: 'UPDATE_USER_INFO', data: userObject });
-          dispatch({ type: 'UPDATE_USER_TOKEN', data: getToken });
-          await login(userObject, false)
-          router.push(redirectUrl);
+          // const userObject = await fetchUser(getToken);
+          // // const userObject = await ProfileAPI.getProfile(getToken);
+          // dispatch({ type: 'UPDATE_USER_INFO', data: userObject });
+          // dispatch({ type: 'UPDATE_USER_TOKEN', data: getToken });
+          // await login(userObject, false)
+          // router.push(redirectUrl);
         }
       },
       onError: (error) => {

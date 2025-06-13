@@ -2,7 +2,7 @@ import { useContext, useRef } from 'react';
 import { IconFilePlus } from '@tabler/icons-react';
 import styles from '../../Tiptap/Tiptap.module.css';
 import { TiptapManageContext } from '../../../../context/TiptapManageContext';
-import { uploadDataWebWorker } from '../../common';
+import { uploadDataWebWorker } from '../../common/index';
 
 const FileControl = ({ editor }: { editor: any }) => {
     const fileInputRef = useRef<HTMLInputElement>(null);

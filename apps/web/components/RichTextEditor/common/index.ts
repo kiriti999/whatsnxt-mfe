@@ -34,15 +34,16 @@ const removeTempImageFromEditor = ({ editor, tempUrl }) => {
     editor.view.dispatch(tr);
 }
 
-export const uploadEditorDataWebWorker = async ({ file, tempUrl, editor, courseId, type, setProgress }) => {
+export const uploadDataWebWorker = async ({ file, tempUrl, editor, folder, type, setProgress }: any) => {
     // create a new worker with upload worker script 
+    // @ts-ignore
     const worker = new Worker(new URL('../../../utils/worker/uploadWorker', import.meta.url));
     // upload assets using webworker
     try {
         const result = await manageWorker(worker, {
             file,
             fileKeyName: 'file',
-            folder: courseId,
+            folder,
             type,
         }, setProgress) as {
             secure_url: string; public_id: string; timestamp: number; resource_type: string
@@ -52,8 +53,8 @@ export const uploadEditorDataWebWorker = async ({ file, tempUrl, editor, courseI
         if (result) {
             const imageUrl = result?.secure_url;
             if (result?.public_id) {
-                // save public id with type to local storage
-                addUploadedAsset(result.public_id, result.resource_type)
+                // save public publicId with type to local storage
+                addUploadedAsset(result?.public_id, result.resource_type)
             }
 
             // replace uploaded new cloudinary link on editor 
@@ -62,15 +63,15 @@ export const uploadEditorDataWebWorker = async ({ file, tempUrl, editor, courseI
     } catch (error) {
         removeTempImageFromEditor({ editor, tempUrl });
         notifications.show({
-            position: 'bottom-left',
             title: 'Upload Failed error',
             message: 'Asset failed to upload',
             color: 'red'
         });
     }
+
 }
 
-export const deleteDataWebWorker = async ({ assetsList }) => {
+export const deleteDataWebWorker = async ({ assetsList }: any) => {
     // create a new worker with upload worker script 
     const worker = new Worker(new URL('../../../utils/worker/deleteWorker', import.meta.url));
     // delete assets using webworker
@@ -153,7 +154,7 @@ export const cloudinaryAssetsUploadCleanupForUpdate = ({ oldContent, newContent 
 
     removeUploadedAssetsList(usedPublicIdsInNewEditor)
     // get the public IDs that are in the old editor but not in the updated editor
-    const publicIdsNotInUpdatedEditor = usedPublicIdsInPrevEditor.filter(({publicId }) => !usedPublicIdsInNewEditor.includes(publicId));
+    const publicIdsNotInUpdatedEditor = usedPublicIdsInPrevEditor.filter(({ publicId }) => !usedPublicIdsInNewEditor.includes(publicId));
     // store it to on local storage so on cleanup it will be removed 
     updateUploadedAssets(publicIdsNotInUpdatedEditor)
 

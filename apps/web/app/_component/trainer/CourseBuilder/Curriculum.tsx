@@ -18,7 +18,6 @@ import {
 	updateSectionTitle,
 	getVideoAndDocActions
 } from "./actions";
-import { deleteAssetWebWorker } from "../LectureItem/assetUploader";
 import { CourseBuilderAPI } from "../../../../api/v1/courses/course-builder/course-builder-api";
 import { useDashboardContext } from "../../../../context/DashboardContext";
 

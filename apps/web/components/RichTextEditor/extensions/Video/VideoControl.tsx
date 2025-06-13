@@ -1,7 +1,7 @@
 import { useContext, useRef } from "react";
 import { IconVideo } from '@tabler/icons-react';
 import styles from "../../Tiptap/Tiptap.module.css";
-import { uploadEditorDataWebWorker } from '../../common';
+import { uploadDataWebWorker } from '../../common';
 import { TiptapManageContext } from '../../../../context/TiptapManageContext';
 import { Button } from '@mantine/core';
 
@@ -19,7 +19,7 @@ const VideoControl = ({ editor }: { editor: any }) => {
         if (file) {
             const tempUrl = URL.createObjectURL(file);
             editor.chain().focus().setVideo({ src: tempUrl }).run();
-            uploadEditorDataWebWorker({ file, tempUrl, editor, courseId, type: "video", setProgress: updateProgress })
+            uploadDataWebWorker({ file, tempUrl, editor, courseId, type: "video", setProgress: updateProgress })
         }
     };
 

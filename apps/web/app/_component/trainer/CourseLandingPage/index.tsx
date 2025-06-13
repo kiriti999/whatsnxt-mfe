@@ -32,7 +32,6 @@ type CourseLandingPageProps = {
 };
 
 const CourseLandingPage: React.FC<CourseLandingPageProps> = ({ id, courseData }) => {
-    console.log(' courseData:', courseData)
     const [isBrowser, setIsBrowser] = useState(false);
     const [isVisible, { open, close }] = useDisclosure(true);
 
