@@ -244,7 +244,7 @@ export function AuthenticationForm(props: PaperProps) {
 
   const handleGoogleLogin = () => {
     // Redirect to the backend's Google OAuth endpoint
-    const googleLoginUrl = `${process.env.NEXT_PUBLIC_BFF_HOST_API}/google-login`;
+    const googleLoginUrl = `${process.env.NEXT_PUBLIC_BFF_HOST_GOOGLE_API}/google-login`;
     window.location.href = googleLoginUrl;
   };
 

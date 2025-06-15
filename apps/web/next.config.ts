@@ -87,6 +87,7 @@ const nextConfig: NextConfig = {
         NEXT_PUBLIC_BLOG_HOST_API: process.env.BFF_BLOG_HOST_API,
         NEXT_PUBLIC_BFF_HOST_API: process.env.BFF_HOST_API,
         NEXT_PUBLIC_BFF_HOST_AUTH_API: process.env.BFF_HOST_AUTH_API,
+        NEXT_PUBLIC_BFF_HOST_GOOGLE_API: process.env.GOOGLE_LOGIN_URL,
         NEXT_PUBLIC_BFF_VERSION: process.env.BFF_VERSION,
         NEXT_PUBLIC_BFF_BLOG_HOST: process.env.BFF_BLOG_HOST,
         NEXT_PUBLIC_GRAPHQL_URL: process.env.GRAPHQL_URL,
