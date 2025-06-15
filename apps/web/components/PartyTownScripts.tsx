@@ -1,5 +1,5 @@
 // place all script to be loaded by PartyTown
-import { Partytown } from '@builder.io/partytown/react';
+import { Partytown } from "@qwik.dev/partytown/react";
 import Script from 'next/script';
 
 export default function PartyTownScripts() {

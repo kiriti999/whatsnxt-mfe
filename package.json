@@ -12,7 +12,8 @@
     "find-deadcode": "ts-prune | grep -v -e 'export' -e 'used in module'",
     "knip": "knip",
     "deploy": "vercel --prod -l",
-    "analyze": "ANALYZE=true next build"
+    "analyze": "ANALYZE=true next build",
+    "partytown": "npx partytown copylib apps/web/public/~partytown"
   },
   "devDependencies": {
     "@repo/eslint-config": "workspace:*",
@@ -31,7 +32,6 @@
   },
   "dependencies": {
     "@apollo/client": "^3.13.8",
-    "@builder.io/partytown": "^0.10.3",
     "@mantine/carousel": "^8.1.0",
     "@mantine/core": "8.1.0",
     "@mantine/hooks": "^8.1.0",
@@ -91,7 +91,7 @@
     "nextjs-toploader": "3.8.16",
     "postcss-preset-mantine": "1.15.0",
     "prosemirror-state": "^1.4.3",
-    "react": "^19.1.0",
+    "react": "link:@qwik.dev/partytown/react",
     "react-cookie-consent": "9.0.0",
     "react-dom": "^19.1.0",
     "react-hook-form": "7.57.0",
