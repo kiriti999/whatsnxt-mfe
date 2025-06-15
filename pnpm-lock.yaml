@@ -10,25 +10,25 @@ importers:
     dependencies:
       '@apollo/client':
         specifier: ^3.13.8
-        version: 3.13.8(@types/react@19.1.0)(graphql@16.11.0)(react-dom@19.1.0(react@@qwik.dev+partytown+react))(react@@qwik.dev+partytown+react)
+        version: 3.13.8(@types/react@19.1.0)(graphql@16.11.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/carousel':
         specifier: ^8.1.0
-        version: 8.1.0(@mantine/core@8.1.0(@mantine/hooks@8.1.0(react@@qwik.dev+partytown+react))(@types/react@19.1.0)(react-dom@19.1.0(react@@qwik.dev+partytown+react))(react@@qwik.dev+partytown+react))(@mantine/hooks@8.1.0(react@@qwik.dev+partytown+react))(embla-carousel-react@8.6.0(react@@qwik.dev+partytown+react))(embla-carousel@8.6.0)(react-dom@19.1.0(react@@qwik.dev+partytown+react))(react@@qwik.dev+partytown+react)
+        version: 8.1.0(@mantine/core@8.1.0(@mantine/hooks@8.1.0(react@19.1.0))(@types/react@19.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(@mantine/hooks@8.1.0(react@19.1.0))(embla-carousel-react@8.6.0(react@19.1.0))(embla-carousel@8.6.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/core':
         specifier: 8.1.0
-        version: 8.1.0(@mantine/hooks@8.1.0(react@@qwik.dev+partytown+react))(@types/react@19.1.0)(react-dom@19.1.0(react@@qwik.dev+partytown+react))(react@@qwik.dev+partytown+react)
+        version: 8.1.0(@mantine/hooks@8.1.0(react@19.1.0))(@types/react@19.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/hooks':
         specifier: ^8.1.0
-        version: 8.1.0(react@@qwik.dev+partytown+react)
+        version: 8.1.0(react@19.1.0)
       '@mantine/modals':
         specifier: ^8.1.0
-        version: 8.1.0(@mantine/core@8.1.0(@mantine/hooks@8.1.0(react@@qwik.dev+partytown+react))(@types/react@19.1.0)(react-dom@19.1.0(react@@qwik.dev+partytown+react))(react@@qwik.dev+partytown+react))(@mantine/hooks@8.1.0(react@@qwik.dev+partytown+react))(react-dom@19.1.0(react@@qwik.dev+partytown+react))(react@@qwik.dev+partytown+react)
+        version: 8.1.0(@mantine/core@8.1.0(@mantine/hooks@8.1.0(react@19.1.0))(@types/react@19.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(@mantine/hooks@8.1.0(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/notifications':
         specifier: 8.1.0
-        version: 8.1.0(@mantine/core@8.1.0(@mantine/hooks@8.1.0(react@@qwik.dev+partytown+react))(@types/react@19.1.0)(react-dom@19.1.0(react@@qwik.dev+partytown+react))(react@@qwik.dev+partytown+react))(@mantine/hooks@8.1.0(react@@qwik.dev+partytown+react))(react-dom@19.1.0(react@@qwik.dev+partytown+react))(react@@qwik.dev+partytown+react)
+        version: 8.1.0(@mantine/core@8.1.0(@mantine/hooks@8.1.0(react@19.1.0))(@types/react@19.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(@mantine/hooks@8.1.0(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/nprogress':
         specifier: 8.1.0
-        version: 8.1.0(@mantine/core@8.1.0(@mantine/hooks@8.1.0(react@@qwik.dev+partytown+react))(@types/react@19.1.0)(react-dom@19.1.0(react@@qwik.dev+partytown+react))(react@@qwik.dev+partytown+react))(@mantine/hooks@8.1.0(react@@qwik.dev+partytown+react))(react-dom@19.1.0(react@@qwik.dev+partytown+react))(react@@qwik.dev+partytown+react)
+        version: 8.1.0(@mantine/core@8.1.0(@mantine/hooks@8.1.0(react@19.1.0))(@types/react@19.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(@mantine/hooks@8.1.0(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@next/bundle-analyzer':
         specifier: ^15.3.3
         version: 15.3.3
@@ -37,16 +37,16 @@ importers:
         version: 0.11.1
       '@reduxjs/toolkit':
         specifier: ^2.8.2
-        version: 2.8.2(react-redux@9.2.0(@types/react@19.1.0)(react@@qwik.dev+partytown+react)(redux@5.0.1))(react@@qwik.dev+partytown+react)
+        version: 2.8.2(react-redux@9.2.0(@types/react@19.1.0)(react@19.1.0)(redux@5.0.1))(react@19.1.0)
       '@svgr/webpack':
         specifier: ^8.1.0
         version: 8.1.0(typescript@5.8.2)
       '@tabler/icons-react':
         specifier: ^3.34.0
-        version: 3.34.0(react@@qwik.dev+partytown+react)
+        version: 3.34.0(react@19.1.0)
       '@tanstack/react-query':
         specifier: 5.51.5
-        version: 5.51.5(react@@qwik.dev+partytown+react)
+        version: 5.51.5(react@19.1.0)
       '@tiptap/core':
         specifier: 2.10.4
         version: 2.10.4(@tiptap/pm@2.14.0)
@@ -118,7 +118,7 @@ importers:
         version: 2.10.4(@tiptap/core@2.10.4(@tiptap/pm@2.14.0))
       '@tiptap/react':
         specifier: 2.10.4
-        version: 2.10.4(@tiptap/core@2.10.4(@tiptap/pm@2.14.0))(@tiptap/pm@2.14.0)(react-dom@19.1.0(react@@qwik.dev+partytown+react))(react@@qwik.dev+partytown+react)
+        version: 2.10.4(@tiptap/core@2.10.4(@tiptap/pm@2.14.0))(@tiptap/pm@2.14.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@tiptap/starter-kit':
         specifier: 2.10.4
         version: 2.10.4
@@ -148,7 +148,7 @@ importers:
         version: 2.1.1
       cookies-next:
         specifier: ^6.0.0
-        version: 6.0.0(next@15.3.3(@babel/core@7.27.4)(react-dom@19.1.0(react@@qwik.dev+partytown+react))(react@@qwik.dev+partytown+react))(react@@qwik.dev+partytown+react)
+        version: 6.0.0(next@15.3.3(@babel/core@7.27.4)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react@19.1.0)
       extension-text-style,:
         specifier: link:@tiptap/extension-text-style,
         version: link:@tiptap/extension-text-style,
@@ -160,7 +160,7 @@ importers:
         version: 11.11.1
       html-react-parser:
         specifier: 5.1.10
-        version: 5.1.10(@types/react@19.1.0)(react@@qwik.dev+partytown+react)
+        version: 5.1.10(@types/react@19.1.0)(react@19.1.0)
       isomorphic-dompurify:
         specifier: 1.5.0
         version: 1.5.0
@@ -172,16 +172,16 @@ importers:
         version: 3.3.0
       material-react-table:
         specifier: ^3.2.1
-        version: 3.2.1(44sftevb3wukil6u2ealnnxwoe)
+        version: 3.2.1(k6vwsipzex4lm3ge7vboqznnia)
       next:
         specifier: ^15.3.3
-        version: 15.3.3(@babel/core@7.27.4)(react-dom@19.1.0(react@@qwik.dev+partytown+react))(react@@qwik.dev+partytown+react)
+        version: 15.3.3(@babel/core@7.27.4)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       next-redux-wrapper:
         specifier: 8.1.0
-        version: 8.1.0(next@15.3.3(@babel/core@7.27.4)(react-dom@19.1.0(react@@qwik.dev+partytown+react))(react@@qwik.dev+partytown+react))(react-redux@9.2.0(@types/react@19.1.0)(react@@qwik.dev+partytown+react)(redux@5.0.1))(react@@qwik.dev+partytown+react)
+        version: 8.1.0(next@15.3.3(@babel/core@7.27.4)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-redux@9.2.0(@types/react@19.1.0)(react@19.1.0)(redux@5.0.1))(react@19.1.0)
       nextjs-toploader:
         specifier: 3.8.16
-        version: 3.8.16(next@15.3.3(@babel/core@7.27.4)(react-dom@19.1.0(react@@qwik.dev+partytown+react))(react@@qwik.dev+partytown+react))(react-dom@19.1.0(react@@qwik.dev+partytown+react))(react@@qwik.dev+partytown+react)
+        version: 3.8.16(next@15.3.3(@babel/core@7.27.4)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       postcss-preset-mantine:
         specifier: 1.15.0
         version: 1.15.0(postcss@8.4.49)
@@ -189,32 +189,32 @@ importers:
         specifier: ^1.4.3
         version: 1.4.3
       react:
-        specifier: link:@qwik.dev/partytown/react
-        version: link:@qwik.dev/partytown/react
+        specifier: 19.1.0
+        version: 19.1.0
       react-cookie-consent:
         specifier: 9.0.0
-        version: 9.0.0(react@@qwik.dev+partytown+react)
+        version: 9.0.0(react@19.1.0)
       react-dom:
         specifier: ^19.1.0
-        version: 19.1.0(react@@qwik.dev+partytown+react)
+        version: 19.1.0(react@19.1.0)
       react-hook-form:
         specifier: 7.57.0
-        version: 7.57.0(react@@qwik.dev+partytown+react)
+        version: 7.57.0(react@19.1.0)
       react-loading-skeleton:
         specifier: ^3.5.0
-        version: 3.5.0(react@@qwik.dev+partytown+react)
+        version: 3.5.0(react@19.1.0)
       react-markdown:
         specifier: ^10.1.0
-        version: 10.1.0(@types/react@19.1.0)(react@@qwik.dev+partytown+react)
+        version: 10.1.0(@types/react@19.1.0)(react@19.1.0)
       react-player:
         specifier: ^2.16.0
-        version: 2.16.0(react@@qwik.dev+partytown+react)
+        version: 2.16.0(react@19.1.0)
       react-razorpay:
         specifier: 3.0.1
-        version: 3.0.1(react@@qwik.dev+partytown+react)
+        version: 3.0.1(react@19.1.0)
       react-redux:
         specifier: 9.2.0
-        version: 9.2.0(@types/react@19.1.0)(react@@qwik.dev+partytown+react)(redux@5.0.1)
+        version: 9.2.0(@types/react@19.1.0)(react@19.1.0)(redux@5.0.1)
       remark-gfm:
         specifier: ^4.0.1
         version: 4.0.1
@@ -223,10 +223,10 @@ importers:
         version: 7.5.2
       styled-components:
         specifier: ^6.1.19
-        version: 6.1.19(react-dom@19.1.0(react@@qwik.dev+partytown+react))(react@@qwik.dev+partytown+react)
+        version: 6.1.19(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       swr:
         specifier: 2.3.3
-        version: 2.3.3(react@@qwik.dev+partytown+react)
+        version: 2.3.3(react@19.1.0)
       webpack:
         specifier: 5.99.9
         version: 5.99.9
@@ -1845,14 +1845,14 @@ packages:
     resolution: {integrity: sha512-w0jluT718MrOKthRcr2xsjqzx+oEM7B7s/XXyfs19ll++hlId3fjTm+B2zrR3ijpANpkzBAr15j1XGVOMxpggQ==}
     engines: {node: '>=12'}
     peerDependencies:
-      react: 19.0.0
-      react-dom: 19.0.0
+      react: '>=16.8'
+      react-dom: '>=16.8'
 
   '@tanstack/react-virtual@3.11.2':
     resolution: {integrity: sha512-OuFzMXPF4+xZgx8UzJha0AieuMihhhaWG0tCqpp6tDzlFwOmNBPYMuLOtMJ1Tr4pXLHmgjcWhG6RlknY2oNTdQ==}
     peerDependencies:
-      react: 19.0.0
-      react-dom: 19.0.0
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+      react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
   '@tanstack/table-core@8.20.5':
     resolution: {integrity: sha512-P9dF7XbibHph2PFRz8gfBKEXEY/HJPOhym8CHmjF8y3q5mWpKx9xtZapXQUWCgkqvsK0R46Azuz+VaxD4Xl+Tg==}
@@ -5493,7 +5493,7 @@ snapshots:
       '@jridgewell/gen-mapping': 0.3.8
       '@jridgewell/trace-mapping': 0.3.25
 
-  '@apollo/client@3.13.8(@types/react@19.1.0)(graphql@16.11.0)(react-dom@19.1.0(react@@qwik.dev+partytown+react))(react@@qwik.dev+partytown+react)':
+  '@apollo/client@3.13.8(@types/react@19.1.0)(graphql@16.11.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
       '@graphql-typed-document-node/core': 3.2.0(graphql@16.11.0)
       '@wry/caches': 1.0.1
@@ -5504,14 +5504,14 @@ snapshots:
       hoist-non-react-statics: 3.3.2
       optimism: 0.18.1
       prop-types: 15.8.1
-      rehackt: 0.1.0(@types/react@19.1.0)(react@@qwik.dev+partytown+react)
+      rehackt: 0.1.0(@types/react@19.1.0)(react@19.1.0)
       symbol-observable: 4.0.0
       ts-invariant: 0.10.3
       tslib: 2.8.1
       zen-observable-ts: 1.2.5
     optionalDependencies:
-      react: link:@qwik.dev/partytown/react
-      react-dom: 19.1.0(react@@qwik.dev+partytown+react)
+      react: 19.1.0
+      react-dom: 19.1.0(react@19.1.0)
     transitivePeerDependencies:
       - '@types/react'
 
@@ -6294,17 +6294,17 @@ snapshots:
 
   '@emotion/memoize@0.9.0': {}
 
-  '@emotion/react@11.14.0(@types/react@19.1.0)(react@@qwik.dev+partytown+react)':
+  '@emotion/react@11.14.0(@types/react@19.1.0)(react@19.1.0)':
     dependencies:
       '@babel/runtime': 7.27.6
       '@emotion/babel-plugin': 11.13.5
       '@emotion/cache': 11.14.0
       '@emotion/serialize': 1.3.3
-      '@emotion/use-insertion-effect-with-fallbacks': 1.2.0(react@@qwik.dev+partytown+react)
+      '@emotion/use-insertion-effect-with-fallbacks': 1.2.0(react@19.1.0)
       '@emotion/utils': 1.4.2
       '@emotion/weak-memoize': 0.4.0
       hoist-non-react-statics: 3.3.2
-      react: link:@qwik.dev/partytown/react
+      react: 19.1.0
     optionalDependencies:
       '@types/react': 19.1.0
     transitivePeerDependencies:
@@ -6320,16 +6320,16 @@ snapshots:
 
   '@emotion/sheet@1.4.0': {}
 
-  '@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@19.1.0)(react@@qwik.dev+partytown+react))(@types/react@19.1.0)(react@@qwik.dev+partytown+react)':
+  '@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@19.1.0)(react@19.1.0))(@types/react@19.1.0)(react@19.1.0)':
     dependencies:
       '@babel/runtime': 7.27.6
       '@emotion/babel-plugin': 11.13.5
       '@emotion/is-prop-valid': 1.3.1
-      '@emotion/react': 11.14.0(@types/react@19.1.0)(react@@qwik.dev+partytown+react)
+      '@emotion/react': 11.14.0(@types/react@19.1.0)(react@19.1.0)
       '@emotion/serialize': 1.3.3
-      '@emotion/use-insertion-effect-with-fallbacks': 1.2.0(react@@qwik.dev+partytown+react)
+      '@emotion/use-insertion-effect-with-fallbacks': 1.2.0(react@19.1.0)
       '@emotion/utils': 1.4.2
-      react: link:@qwik.dev/partytown/react
+      react: 19.1.0
     optionalDependencies:
       '@types/react': 19.1.0
     transitivePeerDependencies:
@@ -6339,9 +6339,9 @@ snapshots:
 
   '@emotion/unitless@0.8.1': {}
 
-  '@emotion/use-insertion-effect-with-fallbacks@1.2.0(react@@qwik.dev+partytown+react)':
+  '@emotion/use-insertion-effect-with-fallbacks@1.2.0(react@19.1.0)':
     dependencies:
-      react: link:@qwik.dev/partytown/react
+      react: 19.1.0
 
   '@emotion/utils@1.4.2': {}
 
@@ -6404,18 +6404,18 @@ snapshots:
       '@floating-ui/core': 1.7.1
       '@floating-ui/utils': 0.2.9
 
-  '@floating-ui/react-dom@2.1.3(react-dom@19.1.0(react@@qwik.dev+partytown+react))(react@@qwik.dev+partytown+react)':
+  '@floating-ui/react-dom@2.1.3(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
       '@floating-ui/dom': 1.7.1
-      react: link:@qwik.dev/partytown/react
-      react-dom: 19.1.0(react@@qwik.dev+partytown+react)
+      react: 19.1.0
+      react-dom: 19.1.0(react@19.1.0)
 
-  '@floating-ui/react@0.26.28(react-dom@19.1.0(react@@qwik.dev+partytown+react))(react@@qwik.dev+partytown+react)':
+  '@floating-ui/react@0.26.28(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
-      '@floating-ui/react-dom': 2.1.3(react-dom@19.1.0(react@@qwik.dev+partytown+react))(react@@qwik.dev+partytown+react)
+      '@floating-ui/react-dom': 2.1.3(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@floating-ui/utils': 0.2.9
-      react: link:@qwik.dev/partytown/react
-      react-dom: 19.1.0(react@@qwik.dev+partytown+react)
+      react: 19.1.0
+      react-dom: 19.1.0(react@19.1.0)
       tabbable: 6.2.0
 
   '@floating-ui/utils@0.2.9': {}
@@ -6545,102 +6545,102 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.0
 
-  '@mantine/carousel@8.1.0(@mantine/core@8.1.0(@mantine/hooks@8.1.0(react@@qwik.dev+partytown+react))(@types/react@19.1.0)(react-dom@19.1.0(react@@qwik.dev+partytown+react))(react@@qwik.dev+partytown+react))(@mantine/hooks@8.1.0(react@@qwik.dev+partytown+react))(embla-carousel-react@8.6.0(react@@qwik.dev+partytown+react))(embla-carousel@8.6.0)(react-dom@19.1.0(react@@qwik.dev+partytown+react))(react@@qwik.dev+partytown+react)':
+  '@mantine/carousel@8.1.0(@mantine/core@8.1.0(@mantine/hooks@8.1.0(react@19.1.0))(@types/react@19.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(@mantine/hooks@8.1.0(react@19.1.0))(embla-carousel-react@8.6.0(react@19.1.0))(embla-carousel@8.6.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
-      '@mantine/core': 8.1.0(@mantine/hooks@8.1.0(react@@qwik.dev+partytown+react))(@types/react@19.1.0)(react-dom@19.1.0(react@@qwik.dev+partytown+react))(react@@qwik.dev+partytown+react)
-      '@mantine/hooks': 8.1.0(react@@qwik.dev+partytown+react)
+      '@mantine/core': 8.1.0(@mantine/hooks@8.1.0(react@19.1.0))(@types/react@19.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@mantine/hooks': 8.1.0(react@19.1.0)
       embla-carousel: 8.6.0
-      embla-carousel-react: 8.6.0(react@@qwik.dev+partytown+react)
-      react: link:@qwik.dev/partytown/react
-      react-dom: 19.1.0(react@@qwik.dev+partytown+react)
+      embla-carousel-react: 8.6.0(react@19.1.0)
+      react: 19.1.0
+      react-dom: 19.1.0(react@19.1.0)
 
-  '@mantine/core@8.1.0(@mantine/hooks@8.1.0(react@@qwik.dev+partytown+react))(@types/react@19.1.0)(react-dom@19.1.0(react@@qwik.dev+partytown+react))(react@@qwik.dev+partytown+react)':
+  '@mantine/core@8.1.0(@mantine/hooks@8.1.0(react@19.1.0))(@types/react@19.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
-      '@floating-ui/react': 0.26.28(react-dom@19.1.0(react@@qwik.dev+partytown+react))(react@@qwik.dev+partytown+react)
-      '@mantine/hooks': 8.1.0(react@@qwik.dev+partytown+react)
+      '@floating-ui/react': 0.26.28(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@mantine/hooks': 8.1.0(react@19.1.0)
       clsx: 2.1.1
-      react: link:@qwik.dev/partytown/react
-      react-dom: 19.1.0(react@@qwik.dev+partytown+react)
-      react-number-format: 5.4.4(react-dom@19.1.0(react@@qwik.dev+partytown+react))(react@@qwik.dev+partytown+react)
-      react-remove-scroll: 2.7.1(@types/react@19.1.0)(react@@qwik.dev+partytown+react)
-      react-textarea-autosize: 8.5.9(@types/react@19.1.0)(react@@qwik.dev+partytown+react)
+      react: 19.1.0
+      react-dom: 19.1.0(react@19.1.0)
+      react-number-format: 5.4.4(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      react-remove-scroll: 2.7.1(@types/react@19.1.0)(react@19.1.0)
+      react-textarea-autosize: 8.5.9(@types/react@19.1.0)(react@19.1.0)
       type-fest: 4.41.0
     transitivePeerDependencies:
       - '@types/react'
 
-  '@mantine/hooks@8.1.0(react@@qwik.dev+partytown+react)':
+  '@mantine/hooks@8.1.0(react@19.1.0)':
     dependencies:
-      react: link:@qwik.dev/partytown/react
+      react: 19.1.0
 
-  '@mantine/modals@8.1.0(@mantine/core@8.1.0(@mantine/hooks@8.1.0(react@@qwik.dev+partytown+react))(@types/react@19.1.0)(react-dom@19.1.0(react@@qwik.dev+partytown+react))(react@@qwik.dev+partytown+react))(@mantine/hooks@8.1.0(react@@qwik.dev+partytown+react))(react-dom@19.1.0(react@@qwik.dev+partytown+react))(react@@qwik.dev+partytown+react)':
+  '@mantine/modals@8.1.0(@mantine/core@8.1.0(@mantine/hooks@8.1.0(react@19.1.0))(@types/react@19.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(@mantine/hooks@8.1.0(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
-      '@mantine/core': 8.1.0(@mantine/hooks@8.1.0(react@@qwik.dev+partytown+react))(@types/react@19.1.0)(react-dom@19.1.0(react@@qwik.dev+partytown+react))(react@@qwik.dev+partytown+react)
-      '@mantine/hooks': 8.1.0(react@@qwik.dev+partytown+react)
-      react: link:@qwik.dev/partytown/react
-      react-dom: 19.1.0(react@@qwik.dev+partytown+react)
+      '@mantine/core': 8.1.0(@mantine/hooks@8.1.0(react@19.1.0))(@types/react@19.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@mantine/hooks': 8.1.0(react@19.1.0)
+      react: 19.1.0
+      react-dom: 19.1.0(react@19.1.0)
 
-  '@mantine/notifications@8.1.0(@mantine/core@8.1.0(@mantine/hooks@8.1.0(react@@qwik.dev+partytown+react))(@types/react@19.1.0)(react-dom@19.1.0(react@@qwik.dev+partytown+react))(react@@qwik.dev+partytown+react))(@mantine/hooks@8.1.0(react@@qwik.dev+partytown+react))(react-dom@19.1.0(react@@qwik.dev+partytown+react))(react@@qwik.dev+partytown+react)':
+  '@mantine/notifications@8.1.0(@mantine/core@8.1.0(@mantine/hooks@8.1.0(react@19.1.0))(@types/react@19.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(@mantine/hooks@8.1.0(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
-      '@mantine/core': 8.1.0(@mantine/hooks@8.1.0(react@@qwik.dev+partytown+react))(@types/react@19.1.0)(react-dom@19.1.0(react@@qwik.dev+partytown+react))(react@@qwik.dev+partytown+react)
-      '@mantine/hooks': 8.1.0(react@@qwik.dev+partytown+react)
-      '@mantine/store': 8.1.0(react@@qwik.dev+partytown+react)
-      react: link:@qwik.dev/partytown/react
-      react-dom: 19.1.0(react@@qwik.dev+partytown+react)
-      react-transition-group: 4.4.5(react-dom@19.1.0(react@@qwik.dev+partytown+react))(react@@qwik.dev+partytown+react)
+      '@mantine/core': 8.1.0(@mantine/hooks@8.1.0(react@19.1.0))(@types/react@19.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@mantine/hooks': 8.1.0(react@19.1.0)
+      '@mantine/store': 8.1.0(react@19.1.0)
+      react: 19.1.0
+      react-dom: 19.1.0(react@19.1.0)
+      react-transition-group: 4.4.5(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
 
-  '@mantine/nprogress@8.1.0(@mantine/core@8.1.0(@mantine/hooks@8.1.0(react@@qwik.dev+partytown+react))(@types/react@19.1.0)(react-dom@19.1.0(react@@qwik.dev+partytown+react))(react@@qwik.dev+partytown+react))(@mantine/hooks@8.1.0(react@@qwik.dev+partytown+react))(react-dom@19.1.0(react@@qwik.dev+partytown+react))(react@@qwik.dev+partytown+react)':
+  '@mantine/nprogress@8.1.0(@mantine/core@8.1.0(@mantine/hooks@8.1.0(react@19.1.0))(@types/react@19.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(@mantine/hooks@8.1.0(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
-      '@mantine/core': 8.1.0(@mantine/hooks@8.1.0(react@@qwik.dev+partytown+react))(@types/react@19.1.0)(react-dom@19.1.0(react@@qwik.dev+partytown+react))(react@@qwik.dev+partytown+react)
-      '@mantine/hooks': 8.1.0(react@@qwik.dev+partytown+react)
-      '@mantine/store': 8.1.0(react@@qwik.dev+partytown+react)
-      react: link:@qwik.dev/partytown/react
-      react-dom: 19.1.0(react@@qwik.dev+partytown+react)
+      '@mantine/core': 8.1.0(@mantine/hooks@8.1.0(react@19.1.0))(@types/react@19.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@mantine/hooks': 8.1.0(react@19.1.0)
+      '@mantine/store': 8.1.0(react@19.1.0)
+      react: 19.1.0
+      react-dom: 19.1.0(react@19.1.0)
 
-  '@mantine/store@8.1.0(react@@qwik.dev+partytown+react)':
+  '@mantine/store@8.1.0(react@19.1.0)':
     dependencies:
-      react: link:@qwik.dev/partytown/react
+      react: 19.1.0
 
   '@mui/core-downloads-tracker@7.1.1': {}
 
-  '@mui/icons-material@7.1.1(@mui/material@7.1.1(@emotion/react@11.14.0(@types/react@19.1.0)(react@@qwik.dev+partytown+react))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@19.1.0)(react@@qwik.dev+partytown+react))(@types/react@19.1.0)(react@@qwik.dev+partytown+react))(@types/react@19.1.0)(react-dom@19.1.0(react@@qwik.dev+partytown+react))(react@@qwik.dev+partytown+react))(@types/react@19.1.0)(react@@qwik.dev+partytown+react)':
+  '@mui/icons-material@7.1.1(@mui/material@7.1.1(@emotion/react@11.14.0(@types/react@19.1.0)(react@19.1.0))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@19.1.0)(react@19.1.0))(@types/react@19.1.0)(react@19.1.0))(@types/react@19.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(@types/react@19.1.0)(react@19.1.0)':
     dependencies:
       '@babel/runtime': 7.27.6
-      '@mui/material': 7.1.1(@emotion/react@11.14.0(@types/react@19.1.0)(react@@qwik.dev+partytown+react))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@19.1.0)(react@@qwik.dev+partytown+react))(@types/react@19.1.0)(react@@qwik.dev+partytown+react))(@types/react@19.1.0)(react-dom@19.1.0(react@@qwik.dev+partytown+react))(react@@qwik.dev+partytown+react)
-      react: link:@qwik.dev/partytown/react
+      '@mui/material': 7.1.1(@emotion/react@11.14.0(@types/react@19.1.0)(react@19.1.0))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@19.1.0)(react@19.1.0))(@types/react@19.1.0)(react@19.1.0))(@types/react@19.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      react: 19.1.0
     optionalDependencies:
       '@types/react': 19.1.0
 
-  '@mui/material@7.1.1(@emotion/react@11.14.0(@types/react@19.1.0)(react@@qwik.dev+partytown+react))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@19.1.0)(react@@qwik.dev+partytown+react))(@types/react@19.1.0)(react@@qwik.dev+partytown+react))(@types/react@19.1.0)(react-dom@19.1.0(react@@qwik.dev+partytown+react))(react@@qwik.dev+partytown+react)':
+  '@mui/material@7.1.1(@emotion/react@11.14.0(@types/react@19.1.0)(react@19.1.0))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@19.1.0)(react@19.1.0))(@types/react@19.1.0)(react@19.1.0))(@types/react@19.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
       '@babel/runtime': 7.27.6
       '@mui/core-downloads-tracker': 7.1.1
-      '@mui/system': 7.1.1(@emotion/react@11.14.0(@types/react@19.1.0)(react@@qwik.dev+partytown+react))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@19.1.0)(react@@qwik.dev+partytown+react))(@types/react@19.1.0)(react@@qwik.dev+partytown+react))(@types/react@19.1.0)(react@@qwik.dev+partytown+react)
+      '@mui/system': 7.1.1(@emotion/react@11.14.0(@types/react@19.1.0)(react@19.1.0))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@19.1.0)(react@19.1.0))(@types/react@19.1.0)(react@19.1.0))(@types/react@19.1.0)(react@19.1.0)
       '@mui/types': 7.4.3(@types/react@19.1.0)
-      '@mui/utils': 7.1.1(@types/react@19.1.0)(react@@qwik.dev+partytown+react)
+      '@mui/utils': 7.1.1(@types/react@19.1.0)(react@19.1.0)
       '@popperjs/core': 2.11.8
       '@types/react-transition-group': 4.4.12(@types/react@19.1.0)
       clsx: 2.1.1
       csstype: 3.1.3
       prop-types: 15.8.1
-      react: link:@qwik.dev/partytown/react
-      react-dom: 19.1.0(react@@qwik.dev+partytown+react)
+      react: 19.1.0
+      react-dom: 19.1.0(react@19.1.0)
       react-is: 19.1.0
-      react-transition-group: 4.4.5(react-dom@19.1.0(react@@qwik.dev+partytown+react))(react@@qwik.dev+partytown+react)
+      react-transition-group: 4.4.5(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
     optionalDependencies:
-      '@emotion/react': 11.14.0(@types/react@19.1.0)(react@@qwik.dev+partytown+react)
-      '@emotion/styled': 11.14.0(@emotion/react@11.14.0(@types/react@19.1.0)(react@@qwik.dev+partytown+react))(@types/react@19.1.0)(react@@qwik.dev+partytown+react)
+      '@emotion/react': 11.14.0(@types/react@19.1.0)(react@19.1.0)
+      '@emotion/styled': 11.14.0(@emotion/react@11.14.0(@types/react@19.1.0)(react@19.1.0))(@types/react@19.1.0)(react@19.1.0)
       '@types/react': 19.1.0
 
-  '@mui/private-theming@7.1.1(@types/react@19.1.0)(react@@qwik.dev+partytown+react)':
+  '@mui/private-theming@7.1.1(@types/react@19.1.0)(react@19.1.0)':
     dependencies:
       '@babel/runtime': 7.27.6
-      '@mui/utils': 7.1.1(@types/react@19.1.0)(react@@qwik.dev+partytown+react)
+      '@mui/utils': 7.1.1(@types/react@19.1.0)(react@19.1.0)
       prop-types: 15.8.1
-      react: link:@qwik.dev/partytown/react
+      react: 19.1.0
     optionalDependencies:
       '@types/react': 19.1.0
 
-  '@mui/styled-engine@7.1.1(@emotion/react@11.14.0(@types/react@19.1.0)(react@@qwik.dev+partytown+react))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@19.1.0)(react@@qwik.dev+partytown+react))(@types/react@19.1.0)(react@@qwik.dev+partytown+react))(react@@qwik.dev+partytown+react)':
+  '@mui/styled-engine@7.1.1(@emotion/react@11.14.0(@types/react@19.1.0)(react@19.1.0))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@19.1.0)(react@19.1.0))(@types/react@19.1.0)(react@19.1.0))(react@19.1.0)':
     dependencies:
       '@babel/runtime': 7.27.6
       '@emotion/cache': 11.14.0
@@ -6648,25 +6648,25 @@ snapshots:
       '@emotion/sheet': 1.4.0
       csstype: 3.1.3
       prop-types: 15.8.1
-      react: link:@qwik.dev/partytown/react
+      react: 19.1.0
     optionalDependencies:
-      '@emotion/react': 11.14.0(@types/react@19.1.0)(react@@qwik.dev+partytown+react)
-      '@emotion/styled': 11.14.0(@emotion/react@11.14.0(@types/react@19.1.0)(react@@qwik.dev+partytown+react))(@types/react@19.1.0)(react@@qwik.dev+partytown+react)
+      '@emotion/react': 11.14.0(@types/react@19.1.0)(react@19.1.0)
+      '@emotion/styled': 11.14.0(@emotion/react@11.14.0(@types/react@19.1.0)(react@19.1.0))(@types/react@19.1.0)(react@19.1.0)
 
-  '@mui/system@7.1.1(@emotion/react@11.14.0(@types/react@19.1.0)(react@@qwik.dev+partytown+react))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@19.1.0)(react@@qwik.dev+partytown+react))(@types/react@19.1.0)(react@@qwik.dev+partytown+react))(@types/react@19.1.0)(react@@qwik.dev+partytown+react)':
+  '@mui/system@7.1.1(@emotion/react@11.14.0(@types/react@19.1.0)(react@19.1.0))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@19.1.0)(react@19.1.0))(@types/react@19.1.0)(react@19.1.0))(@types/react@19.1.0)(react@19.1.0)':
     dependencies:
       '@babel/runtime': 7.27.6
-      '@mui/private-theming': 7.1.1(@types/react@19.1.0)(react@@qwik.dev+partytown+react)
-      '@mui/styled-engine': 7.1.1(@emotion/react@11.14.0(@types/react@19.1.0)(react@@qwik.dev+partytown+react))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@19.1.0)(react@@qwik.dev+partytown+react))(@types/react@19.1.0)(react@@qwik.dev+partytown+react))(react@@qwik.dev+partytown+react)
+      '@mui/private-theming': 7.1.1(@types/react@19.1.0)(react@19.1.0)
+      '@mui/styled-engine': 7.1.1(@emotion/react@11.14.0(@types/react@19.1.0)(react@19.1.0))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@19.1.0)(react@19.1.0))(@types/react@19.1.0)(react@19.1.0))(react@19.1.0)
       '@mui/types': 7.4.3(@types/react@19.1.0)
-      '@mui/utils': 7.1.1(@types/react@19.1.0)(react@@qwik.dev+partytown+react)
+      '@mui/utils': 7.1.1(@types/react@19.1.0)(react@19.1.0)
       clsx: 2.1.1
       csstype: 3.1.3
       prop-types: 15.8.1
-      react: link:@qwik.dev/partytown/react
+      react: 19.1.0
     optionalDependencies:
-      '@emotion/react': 11.14.0(@types/react@19.1.0)(react@@qwik.dev+partytown+react)
-      '@emotion/styled': 11.14.0(@emotion/react@11.14.0(@types/react@19.1.0)(react@@qwik.dev+partytown+react))(@types/react@19.1.0)(react@@qwik.dev+partytown+react)
+      '@emotion/react': 11.14.0(@types/react@19.1.0)(react@19.1.0)
+      '@emotion/styled': 11.14.0(@emotion/react@11.14.0(@types/react@19.1.0)(react@19.1.0))(@types/react@19.1.0)(react@19.1.0)
       '@types/react': 19.1.0
 
   '@mui/types@7.4.3(@types/react@19.1.0)':
@@ -6675,43 +6675,43 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.1.0
 
-  '@mui/utils@7.1.1(@types/react@19.1.0)(react@@qwik.dev+partytown+react)':
+  '@mui/utils@7.1.1(@types/react@19.1.0)(react@19.1.0)':
     dependencies:
       '@babel/runtime': 7.27.6
       '@mui/types': 7.4.3(@types/react@19.1.0)
       '@types/prop-types': 15.7.15
       clsx: 2.1.1
       prop-types: 15.8.1
-      react: link:@qwik.dev/partytown/react
+      react: 19.1.0
       react-is: 19.1.0
     optionalDependencies:
       '@types/react': 19.1.0
 
-  '@mui/x-date-pickers@8.5.2(sbnkurnfpv7zvwh5dzekh2knuy)':
+  '@mui/x-date-pickers@8.5.2(@emotion/react@11.14.0(@types/react@19.1.0)(react@19.1.0))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@19.1.0)(react@19.1.0))(@types/react@19.1.0)(react@19.1.0))(@mui/material@7.1.1(@emotion/react@11.14.0(@types/react@19.1.0)(react@19.1.0))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@19.1.0)(react@19.1.0))(@types/react@19.1.0)(react@19.1.0))(@types/react@19.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(@mui/system@7.1.1(@emotion/react@11.14.0(@types/react@19.1.0)(react@19.1.0))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@19.1.0)(react@19.1.0))(@types/react@19.1.0)(react@19.1.0))(@types/react@19.1.0)(react@19.1.0))(@types/react@19.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
       '@babel/runtime': 7.27.6
-      '@mui/material': 7.1.1(@emotion/react@11.14.0(@types/react@19.1.0)(react@@qwik.dev+partytown+react))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@19.1.0)(react@@qwik.dev+partytown+react))(@types/react@19.1.0)(react@@qwik.dev+partytown+react))(@types/react@19.1.0)(react-dom@19.1.0(react@@qwik.dev+partytown+react))(react@@qwik.dev+partytown+react)
-      '@mui/system': 7.1.1(@emotion/react@11.14.0(@types/react@19.1.0)(react@@qwik.dev+partytown+react))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@19.1.0)(react@@qwik.dev+partytown+react))(@types/react@19.1.0)(react@@qwik.dev+partytown+react))(@types/react@19.1.0)(react@@qwik.dev+partytown+react)
-      '@mui/utils': 7.1.1(@types/react@19.1.0)(react@@qwik.dev+partytown+react)
-      '@mui/x-internals': 8.5.2(@mui/system@7.1.1(@emotion/react@11.14.0(@types/react@19.1.0)(react@@qwik.dev+partytown+react))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@19.1.0)(react@@qwik.dev+partytown+react))(@types/react@19.1.0)(react@@qwik.dev+partytown+react))(@types/react@19.1.0)(react@@qwik.dev+partytown+react))(@types/react@19.1.0)(react@@qwik.dev+partytown+react)
+      '@mui/material': 7.1.1(@emotion/react@11.14.0(@types/react@19.1.0)(react@19.1.0))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@19.1.0)(react@19.1.0))(@types/react@19.1.0)(react@19.1.0))(@types/react@19.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@mui/system': 7.1.1(@emotion/react@11.14.0(@types/react@19.1.0)(react@19.1.0))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@19.1.0)(react@19.1.0))(@types/react@19.1.0)(react@19.1.0))(@types/react@19.1.0)(react@19.1.0)
+      '@mui/utils': 7.1.1(@types/react@19.1.0)(react@19.1.0)
+      '@mui/x-internals': 8.5.2(@mui/system@7.1.1(@emotion/react@11.14.0(@types/react@19.1.0)(react@19.1.0))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@19.1.0)(react@19.1.0))(@types/react@19.1.0)(react@19.1.0))(@types/react@19.1.0)(react@19.1.0))(@types/react@19.1.0)(react@19.1.0)
       '@types/react-transition-group': 4.4.12(@types/react@19.1.0)
       clsx: 2.1.1
       prop-types: 15.8.1
-      react: link:@qwik.dev/partytown/react
-      react-dom: 19.1.0(react@@qwik.dev+partytown+react)
-      react-transition-group: 4.4.5(react-dom@19.1.0(react@@qwik.dev+partytown+react))(react@@qwik.dev+partytown+react)
+      react: 19.1.0
+      react-dom: 19.1.0(react@19.1.0)
+      react-transition-group: 4.4.5(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
     optionalDependencies:
-      '@emotion/react': 11.14.0(@types/react@19.1.0)(react@@qwik.dev+partytown+react)
-      '@emotion/styled': 11.14.0(@emotion/react@11.14.0(@types/react@19.1.0)(react@@qwik.dev+partytown+react))(@types/react@19.1.0)(react@@qwik.dev+partytown+react)
+      '@emotion/react': 11.14.0(@types/react@19.1.0)(react@19.1.0)
+      '@emotion/styled': 11.14.0(@emotion/react@11.14.0(@types/react@19.1.0)(react@19.1.0))(@types/react@19.1.0)(react@19.1.0)
     transitivePeerDependencies:
       - '@types/react'
 
-  '@mui/x-internals@8.5.2(@mui/system@7.1.1(@emotion/react@11.14.0(@types/react@19.1.0)(react@@qwik.dev+partytown+react))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@19.1.0)(react@@qwik.dev+partytown+react))(@types/react@19.1.0)(react@@qwik.dev+partytown+react))(@types/react@19.1.0)(react@@qwik.dev+partytown+react))(@types/react@19.1.0)(react@@qwik.dev+partytown+react)':
+  '@mui/x-internals@8.5.2(@mui/system@7.1.1(@emotion/react@11.14.0(@types/react@19.1.0)(react@19.1.0))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@19.1.0)(react@19.1.0))(@types/react@19.1.0)(react@19.1.0))(@types/react@19.1.0)(react@19.1.0))(@types/react@19.1.0)(react@19.1.0)':
     dependencies:
       '@babel/runtime': 7.27.6
-      '@mui/system': 7.1.1(@emotion/react@11.14.0(@types/react@19.1.0)(react@@qwik.dev+partytown+react))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@19.1.0)(react@@qwik.dev+partytown+react))(@types/react@19.1.0)(react@@qwik.dev+partytown+react))(@types/react@19.1.0)(react@@qwik.dev+partytown+react)
-      '@mui/utils': 7.1.1(@types/react@19.1.0)(react@@qwik.dev+partytown+react)
-      react: link:@qwik.dev/partytown/react
+      '@mui/system': 7.1.1(@emotion/react@11.14.0(@types/react@19.1.0)(react@19.1.0))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@19.1.0)(react@19.1.0))(@types/react@19.1.0)(react@19.1.0))(@types/react@19.1.0)(react@19.1.0)
+      '@mui/utils': 7.1.1(@types/react@19.1.0)(react@19.1.0)
+      react: 19.1.0
       reselect: 5.1.1
     transitivePeerDependencies:
       - '@types/react'
@@ -6821,7 +6821,7 @@ snapshots:
     dependencies:
       dotenv: 16.5.0
 
-  '@reduxjs/toolkit@2.8.2(react-redux@9.2.0(@types/react@19.1.0)(react@@qwik.dev+partytown+react)(redux@5.0.1))(react@@qwik.dev+partytown+react)':
+  '@reduxjs/toolkit@2.8.2(react-redux@9.2.0(@types/react@19.1.0)(react@19.1.0)(redux@5.0.1))(react@19.1.0)':
     dependencies:
       '@standard-schema/spec': 1.0.0
       '@standard-schema/utils': 0.3.0
@@ -6830,8 +6830,8 @@ snapshots:
       redux-thunk: 3.1.0(redux@5.0.1)
       reselect: 5.1.1
     optionalDependencies:
-      react: link:@qwik.dev/partytown/react
-      react-redux: 9.2.0(@types/react@19.1.0)(react@@qwik.dev+partytown+react)(redux@5.0.1)
+      react: 19.1.0
+      react-redux: 9.2.0(@types/react@19.1.0)(react@19.1.0)(redux@5.0.1)
 
   '@remirror/core-constants@3.0.0': {}
 
@@ -6938,10 +6938,10 @@ snapshots:
     dependencies:
       tslib: 2.8.1
 
-  '@tabler/icons-react@3.34.0(react@@qwik.dev+partytown+react)':
+  '@tabler/icons-react@3.34.0(react@19.1.0)':
     dependencies:
       '@tabler/icons': 3.34.0
-      react: link:@qwik.dev/partytown/react
+      react: 19.1.0
 
   '@tabler/icons@3.34.0': {}
 
@@ -6951,22 +6951,22 @@ snapshots:
 
   '@tanstack/query-core@5.51.5': {}
 
-  '@tanstack/react-query@5.51.5(react@@qwik.dev+partytown+react)':
+  '@tanstack/react-query@5.51.5(react@19.1.0)':
     dependencies:
       '@tanstack/query-core': 5.51.5
-      react: link:@qwik.dev/partytown/react
+      react: 19.1.0
 
-  '@tanstack/react-table@8.20.6(react-dom@19.1.0(react@@qwik.dev+partytown+react))(react@@qwik.dev+partytown+react)':
+  '@tanstack/react-table@8.20.6(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
       '@tanstack/table-core': 8.20.5
-      react: link:@qwik.dev/partytown/react
-      react-dom: 19.1.0(react@@qwik.dev+partytown+react)
+      react: 19.1.0
+      react-dom: 19.1.0(react@19.1.0)
 
-  '@tanstack/react-virtual@3.11.2(react-dom@19.1.0(react@@qwik.dev+partytown+react))(react@@qwik.dev+partytown+react)':
+  '@tanstack/react-virtual@3.11.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
       '@tanstack/virtual-core': 3.11.2
-      react: link:@qwik.dev/partytown/react
-      react-dom: 19.1.0(react@@qwik.dev+partytown+react)
+      react: 19.1.0
+      react-dom: 19.1.0(react@19.1.0)
 
   '@tanstack/table-core@8.20.5': {}
 
@@ -7165,7 +7165,7 @@ snapshots:
       prosemirror-transform: 1.10.4
       prosemirror-view: 1.40.0
 
-  '@tiptap/react@2.10.4(@tiptap/core@2.10.4(@tiptap/pm@2.14.0))(@tiptap/pm@2.14.0)(react-dom@19.1.0(react@@qwik.dev+partytown+react))(react@@qwik.dev+partytown+react)':
+  '@tiptap/react@2.10.4(@tiptap/core@2.10.4(@tiptap/pm@2.14.0))(@tiptap/pm@2.14.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
       '@tiptap/core': 2.10.4(@tiptap/pm@2.14.0)
       '@tiptap/extension-bubble-menu': 2.10.4(@tiptap/core@2.10.4(@tiptap/pm@2.14.0))(@tiptap/pm@2.14.0)
@@ -7173,9 +7173,9 @@ snapshots:
       '@tiptap/pm': 2.14.0
       '@types/use-sync-external-store': 0.0.6
       fast-deep-equal: 3.1.3
-      react: link:@qwik.dev/partytown/react
-      react-dom: 19.1.0(react@@qwik.dev+partytown+react)
-      use-sync-external-store: 1.5.0(react@@qwik.dev+partytown+react)
+      react: 19.1.0
+      react-dom: 19.1.0(react@19.1.0)
+      use-sync-external-store: 1.5.0(react@19.1.0)
 
   '@tiptap/starter-kit@2.10.4':
     dependencies:
@@ -7945,11 +7945,11 @@ snapshots:
 
   cookie@1.0.2: {}
 
-  cookies-next@6.0.0(next@15.3.3(@babel/core@7.27.4)(react-dom@19.1.0(react@@qwik.dev+partytown+react))(react@@qwik.dev+partytown+react))(react@@qwik.dev+partytown+react):
+  cookies-next@6.0.0(next@15.3.3(@babel/core@7.27.4)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react@19.1.0):
     dependencies:
       cookie: 1.0.2
-      next: 15.3.3(@babel/core@7.27.4)(react-dom@19.1.0(react@@qwik.dev+partytown+react))(react@@qwik.dev+partytown+react)
-      react: link:@qwik.dev/partytown/react
+      next: 15.3.3(@babel/core@7.27.4)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      react: 19.1.0
 
   core-js-compat@3.43.0:
     dependencies:
@@ -8178,11 +8178,11 @@ snapshots:
 
   electron-to-chromium@1.5.167: {}
 
-  embla-carousel-react@8.6.0(react@@qwik.dev+partytown+react):
+  embla-carousel-react@8.6.0(react@19.1.0):
     dependencies:
       embla-carousel: 8.6.0
       embla-carousel-reactive-utils: 8.6.0(embla-carousel@8.6.0)
-      react: link:@qwik.dev/partytown/react
+      react: 19.1.0
 
   embla-carousel-reactive-utils@8.6.0(embla-carousel@8.6.0):
     dependencies:
@@ -8745,11 +8745,11 @@ snapshots:
 
   html-escaper@2.0.2: {}
 
-  html-react-parser@5.1.10(@types/react@19.1.0)(react@@qwik.dev+partytown+react):
+  html-react-parser@5.1.10(@types/react@19.1.0)(react@19.1.0):
     dependencies:
       domhandler: 5.0.3
       html-dom-parser: 5.0.8
-      react: link:@qwik.dev/partytown/react
+      react: 19.1.0
       react-property: 2.0.2
       style-to-js: 1.1.12
     optionalDependencies:
@@ -9233,19 +9233,19 @@ snapshots:
 
   markdown-table@3.0.4: {}
 
-  material-react-table@3.2.1(44sftevb3wukil6u2ealnnxwoe):
+  material-react-table@3.2.1(k6vwsipzex4lm3ge7vboqznnia):
     dependencies:
-      '@emotion/react': 11.14.0(@types/react@19.1.0)(react@@qwik.dev+partytown+react)
-      '@emotion/styled': 11.14.0(@emotion/react@11.14.0(@types/react@19.1.0)(react@@qwik.dev+partytown+react))(@types/react@19.1.0)(react@@qwik.dev+partytown+react)
-      '@mui/icons-material': 7.1.1(@mui/material@7.1.1(@emotion/react@11.14.0(@types/react@19.1.0)(react@@qwik.dev+partytown+react))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@19.1.0)(react@@qwik.dev+partytown+react))(@types/react@19.1.0)(react@@qwik.dev+partytown+react))(@types/react@19.1.0)(react-dom@19.1.0(react@@qwik.dev+partytown+react))(react@@qwik.dev+partytown+react))(@types/react@19.1.0)(react@@qwik.dev+partytown+react)
-      '@mui/material': 7.1.1(@emotion/react@11.14.0(@types/react@19.1.0)(react@@qwik.dev+partytown+react))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@19.1.0)(react@@qwik.dev+partytown+react))(@types/react@19.1.0)(react@@qwik.dev+partytown+react))(@types/react@19.1.0)(react-dom@19.1.0(react@@qwik.dev+partytown+react))(react@@qwik.dev+partytown+react)
-      '@mui/x-date-pickers': 8.5.2(sbnkurnfpv7zvwh5dzekh2knuy)
+      '@emotion/react': 11.14.0(@types/react@19.1.0)(react@19.1.0)
+      '@emotion/styled': 11.14.0(@emotion/react@11.14.0(@types/react@19.1.0)(react@19.1.0))(@types/react@19.1.0)(react@19.1.0)
+      '@mui/icons-material': 7.1.1(@mui/material@7.1.1(@emotion/react@11.14.0(@types/react@19.1.0)(react@19.1.0))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@19.1.0)(react@19.1.0))(@types/react@19.1.0)(react@19.1.0))(@types/react@19.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(@types/react@19.1.0)(react@19.1.0)
+      '@mui/material': 7.1.1(@emotion/react@11.14.0(@types/react@19.1.0)(react@19.1.0))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@19.1.0)(react@19.1.0))(@types/react@19.1.0)(react@19.1.0))(@types/react@19.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@mui/x-date-pickers': 8.5.2(@emotion/react@11.14.0(@types/react@19.1.0)(react@19.1.0))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@19.1.0)(react@19.1.0))(@types/react@19.1.0)(react@19.1.0))(@mui/material@7.1.1(@emotion/react@11.14.0(@types/react@19.1.0)(react@19.1.0))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@19.1.0)(react@19.1.0))(@types/react@19.1.0)(react@19.1.0))(@types/react@19.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(@mui/system@7.1.1(@emotion/react@11.14.0(@types/react@19.1.0)(react@19.1.0))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@19.1.0)(react@19.1.0))(@types/react@19.1.0)(react@19.1.0))(@types/react@19.1.0)(react@19.1.0))(@types/react@19.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@tanstack/match-sorter-utils': 8.19.4
-      '@tanstack/react-table': 8.20.6(react-dom@19.1.0(react@@qwik.dev+partytown+react))(react@@qwik.dev+partytown+react)
-      '@tanstack/react-virtual': 3.11.2(react-dom@19.1.0(react@@qwik.dev+partytown+react))(react@@qwik.dev+partytown+react)
+      '@tanstack/react-table': 8.20.6(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@tanstack/react-virtual': 3.11.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       highlight-words: 2.0.0
-      react: link:@qwik.dev/partytown/react
-      react-dom: 19.1.0(react@@qwik.dev+partytown+react)
+      react: 19.1.0
+      react-dom: 19.1.0(react@19.1.0)
 
   math-intrinsics@1.1.0: {}
 
@@ -9650,13 +9650,13 @@ snapshots:
 
   netmask@2.0.2: {}
 
-  next-redux-wrapper@8.1.0(next@15.3.3(@babel/core@7.27.4)(react-dom@19.1.0(react@@qwik.dev+partytown+react))(react@@qwik.dev+partytown+react))(react-redux@9.2.0(@types/react@19.1.0)(react@@qwik.dev+partytown+react)(redux@5.0.1))(react@@qwik.dev+partytown+react):
+  next-redux-wrapper@8.1.0(next@15.3.3(@babel/core@7.27.4)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-redux@9.2.0(@types/react@19.1.0)(react@19.1.0)(redux@5.0.1))(react@19.1.0):
     dependencies:
-      next: 15.3.3(@babel/core@7.27.4)(react-dom@19.1.0(react@@qwik.dev+partytown+react))(react@@qwik.dev+partytown+react)
-      react: link:@qwik.dev/partytown/react
-      react-redux: 9.2.0(@types/react@19.1.0)(react@@qwik.dev+partytown+react)(redux@5.0.1)
+      next: 15.3.3(@babel/core@7.27.4)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      react: 19.1.0
+      react-redux: 9.2.0(@types/react@19.1.0)(react@19.1.0)(redux@5.0.1)
 
-  next@15.3.3(@babel/core@7.27.4)(react-dom@19.1.0(react@@qwik.dev+partytown+react))(react@@qwik.dev+partytown+react):
+  next@15.3.3(@babel/core@7.27.4)(react-dom@19.1.0(react@19.1.0))(react@19.1.0):
     dependencies:
       '@next/env': 15.3.3
       '@swc/counter': 0.1.3
@@ -9664,9 +9664,9 @@ snapshots:
       busboy: 1.6.0
       caniuse-lite: 1.0.30001723
       postcss: 8.4.31
-      react: link:@qwik.dev/partytown/react
-      react-dom: 19.1.0(react@@qwik.dev+partytown+react)
-      styled-jsx: 5.1.6(@babel/core@7.27.4)(react@@qwik.dev+partytown+react)
+      react: 19.1.0
+      react-dom: 19.1.0(react@19.1.0)
+      styled-jsx: 5.1.6(@babel/core@7.27.4)(react@19.1.0)
     optionalDependencies:
       '@next/swc-darwin-arm64': 15.3.3
       '@next/swc-darwin-x64': 15.3.3
@@ -9681,13 +9681,13 @@ snapshots:
       - '@babel/core'
       - babel-plugin-macros
 
-  nextjs-toploader@3.8.16(next@15.3.3(@babel/core@7.27.4)(react-dom@19.1.0(react@@qwik.dev+partytown+react))(react@@qwik.dev+partytown+react))(react-dom@19.1.0(react@@qwik.dev+partytown+react))(react@@qwik.dev+partytown+react):
+  nextjs-toploader@3.8.16(next@15.3.3(@babel/core@7.27.4)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0):
     dependencies:
-      next: 15.3.3(@babel/core@7.27.4)(react-dom@19.1.0(react@@qwik.dev+partytown+react))(react@@qwik.dev+partytown+react)
+      next: 15.3.3(@babel/core@7.27.4)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       nprogress: 0.2.0
       prop-types: 15.8.1
-      react: link:@qwik.dev/partytown/react
-      react-dom: 19.1.0(react@@qwik.dev+partytown+react)
+      react: 19.1.0
+      react-dom: 19.1.0(react@19.1.0)
 
   no-case@2.3.2:
     dependencies:
@@ -10133,36 +10133,31 @@ snapshots:
       minimist: 1.2.8
       strip-json-comments: 2.0.1
 
-  react-cookie-consent@9.0.0(react@@qwik.dev+partytown+react):
+  react-cookie-consent@9.0.0(react@19.1.0):
     dependencies:
       js-cookie: 2.2.1
-      react: link:@qwik.dev/partytown/react
+      react: 19.1.0
 
   react-dom@19.1.0(react@19.1.0):
     dependencies:
       react: 19.1.0
       scheduler: 0.26.0
 
-  react-dom@19.1.0(react@@qwik.dev+partytown+react):
-    dependencies:
-      react: link:@qwik.dev/partytown/react
-      scheduler: 0.26.0
-
   react-fast-compare@3.2.2: {}
 
-  react-hook-form@7.57.0(react@@qwik.dev+partytown+react):
+  react-hook-form@7.57.0(react@19.1.0):
     dependencies:
-      react: link:@qwik.dev/partytown/react
+      react: 19.1.0
 
   react-is@16.13.1: {}
 
   react-is@19.1.0: {}
 
-  react-loading-skeleton@3.5.0(react@@qwik.dev+partytown+react):
+  react-loading-skeleton@3.5.0(react@19.1.0):
     dependencies:
-      react: link:@qwik.dev/partytown/react
+      react: 19.1.0
 
-  react-markdown@10.1.0(@types/react@19.1.0)(react@@qwik.dev+partytown+react):
+  react-markdown@10.1.0(@types/react@19.1.0)(react@19.1.0):
     dependencies:
       '@types/hast': 3.0.4
       '@types/mdast': 4.0.4
@@ -10171,7 +10166,7 @@ snapshots:
       hast-util-to-jsx-runtime: 2.3.6
       html-url-attributes: 3.0.1
       mdast-util-to-hast: 13.2.0
-      react: link:@qwik.dev/partytown/react
+      react: 19.1.0
       remark-parse: 11.0.0
       remark-rehype: 11.1.2
       unified: 11.0.5
@@ -10180,79 +10175,79 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  react-number-format@5.4.4(react-dom@19.1.0(react@@qwik.dev+partytown+react))(react@@qwik.dev+partytown+react):
+  react-number-format@5.4.4(react-dom@19.1.0(react@19.1.0))(react@19.1.0):
     dependencies:
-      react: link:@qwik.dev/partytown/react
-      react-dom: 19.1.0(react@@qwik.dev+partytown+react)
+      react: 19.1.0
+      react-dom: 19.1.0(react@19.1.0)
 
-  react-player@2.16.0(react@@qwik.dev+partytown+react):
+  react-player@2.16.0(react@19.1.0):
     dependencies:
       deepmerge: 4.3.1
       load-script: 1.0.0
       memoize-one: 5.2.1
       prop-types: 15.8.1
-      react: link:@qwik.dev/partytown/react
+      react: 19.1.0
       react-fast-compare: 3.2.2
 
   react-property@2.0.2: {}
 
-  react-razorpay@3.0.1(react@@qwik.dev+partytown+react):
+  react-razorpay@3.0.1(react@19.1.0):
     dependencies:
-      react: link:@qwik.dev/partytown/react
+      react: 19.1.0
 
-  react-redux@9.2.0(@types/react@19.1.0)(react@@qwik.dev+partytown+react)(redux@5.0.1):
+  react-redux@9.2.0(@types/react@19.1.0)(react@19.1.0)(redux@5.0.1):
     dependencies:
       '@types/use-sync-external-store': 0.0.6
-      react: link:@qwik.dev/partytown/react
-      use-sync-external-store: 1.5.0(react@@qwik.dev+partytown+react)
+      react: 19.1.0
+      use-sync-external-store: 1.5.0(react@19.1.0)
     optionalDependencies:
       '@types/react': 19.1.0
       redux: 5.0.1
 
-  react-remove-scroll-bar@2.3.8(@types/react@19.1.0)(react@@qwik.dev+partytown+react):
+  react-remove-scroll-bar@2.3.8(@types/react@19.1.0)(react@19.1.0):
     dependencies:
-      react: link:@qwik.dev/partytown/react
-      react-style-singleton: 2.2.3(@types/react@19.1.0)(react@@qwik.dev+partytown+react)
+      react: 19.1.0
+      react-style-singleton: 2.2.3(@types/react@19.1.0)(react@19.1.0)
       tslib: 2.8.1
     optionalDependencies:
       '@types/react': 19.1.0
 
-  react-remove-scroll@2.7.1(@types/react@19.1.0)(react@@qwik.dev+partytown+react):
+  react-remove-scroll@2.7.1(@types/react@19.1.0)(react@19.1.0):
     dependencies:
-      react: link:@qwik.dev/partytown/react
-      react-remove-scroll-bar: 2.3.8(@types/react@19.1.0)(react@@qwik.dev+partytown+react)
-      react-style-singleton: 2.2.3(@types/react@19.1.0)(react@@qwik.dev+partytown+react)
+      react: 19.1.0
+      react-remove-scroll-bar: 2.3.8(@types/react@19.1.0)(react@19.1.0)
+      react-style-singleton: 2.2.3(@types/react@19.1.0)(react@19.1.0)
       tslib: 2.8.1
-      use-callback-ref: 1.3.3(@types/react@19.1.0)(react@@qwik.dev+partytown+react)
-      use-sidecar: 1.1.3(@types/react@19.1.0)(react@@qwik.dev+partytown+react)
+      use-callback-ref: 1.3.3(@types/react@19.1.0)(react@19.1.0)
+      use-sidecar: 1.1.3(@types/react@19.1.0)(react@19.1.0)
     optionalDependencies:
       '@types/react': 19.1.0
 
-  react-style-singleton@2.2.3(@types/react@19.1.0)(react@@qwik.dev+partytown+react):
+  react-style-singleton@2.2.3(@types/react@19.1.0)(react@19.1.0):
     dependencies:
       get-nonce: 1.0.1
-      react: link:@qwik.dev/partytown/react
+      react: 19.1.0
       tslib: 2.8.1
     optionalDependencies:
       '@types/react': 19.1.0
 
-  react-textarea-autosize@8.5.9(@types/react@19.1.0)(react@@qwik.dev+partytown+react):
+  react-textarea-autosize@8.5.9(@types/react@19.1.0)(react@19.1.0):
     dependencies:
       '@babel/runtime': 7.27.6
-      react: link:@qwik.dev/partytown/react
-      use-composed-ref: 1.4.0(@types/react@19.1.0)(react@@qwik.dev+partytown+react)
-      use-latest: 1.3.0(@types/react@19.1.0)(react@@qwik.dev+partytown+react)
+      react: 19.1.0
+      use-composed-ref: 1.4.0(@types/react@19.1.0)(react@19.1.0)
+      use-latest: 1.3.0(@types/react@19.1.0)(react@19.1.0)
     transitivePeerDependencies:
       - '@types/react'
 
-  react-transition-group@4.4.5(react-dom@19.1.0(react@@qwik.dev+partytown+react))(react@@qwik.dev+partytown+react):
+  react-transition-group@4.4.5(react-dom@19.1.0(react@19.1.0))(react@19.1.0):
     dependencies:
       '@babel/runtime': 7.27.6
       dom-helpers: 5.2.1
       loose-envify: 1.4.0
       prop-types: 15.8.1
-      react: link:@qwik.dev/partytown/react
-      react-dom: 19.1.0(react@@qwik.dev+partytown+react)
+      react: 19.1.0
+      react-dom: 19.1.0(react@19.1.0)
 
   react@19.1.0: {}
 
@@ -10318,10 +10313,10 @@ snapshots:
     dependencies:
       jsesc: 3.0.2
 
-  rehackt@0.1.0(@types/react@19.1.0)(react@@qwik.dev+partytown+react):
+  rehackt@0.1.0(@types/react@19.1.0)(react@19.1.0):
     optionalDependencies:
       '@types/react': 19.1.0
-      react: link:@qwik.dev/partytown/react
+      react: 19.1.0
 
   remark-gfm@4.0.1:
     dependencies:
@@ -10718,24 +10713,10 @@ snapshots:
       stylis: 4.3.2
       tslib: 2.6.2
 
-  styled-components@6.1.19(react-dom@19.1.0(react@@qwik.dev+partytown+react))(react@@qwik.dev+partytown+react):
-    dependencies:
-      '@emotion/is-prop-valid': 1.2.2
-      '@emotion/unitless': 0.8.1
-      '@types/stylis': 4.2.5
-      css-to-react-native: 3.2.0
-      csstype: 3.1.3
-      postcss: 8.4.49
-      react: link:@qwik.dev/partytown/react
-      react-dom: 19.1.0(react@@qwik.dev+partytown+react)
-      shallowequal: 1.1.0
-      stylis: 4.3.2
-      tslib: 2.6.2
-
-  styled-jsx@5.1.6(@babel/core@7.27.4)(react@@qwik.dev+partytown+react):
+  styled-jsx@5.1.6(@babel/core@7.27.4)(react@19.1.0):
     dependencies:
       client-only: 0.0.1
-      react: link:@qwik.dev/partytown/react
+      react: 19.1.0
     optionalDependencies:
       '@babel/core': 7.27.4
 
@@ -10778,11 +10759,11 @@ snapshots:
       lower-case: 1.1.4
       upper-case: 1.1.3
 
-  swr@2.3.3(react@@qwik.dev+partytown+react):
+  swr@2.3.3(react@19.1.0):
     dependencies:
       dequal: 2.0.3
-      react: link:@qwik.dev/partytown/react
-      use-sync-external-store: 1.5.0(react@@qwik.dev+partytown+react)
+      react: 19.1.0
+      use-sync-external-store: 1.5.0(react@19.1.0)
 
   symbol-observable@4.0.0: {}
 
@@ -11071,43 +11052,43 @@ snapshots:
       querystringify: 2.2.0
       requires-port: 1.0.0
 
-  use-callback-ref@1.3.3(@types/react@19.1.0)(react@@qwik.dev+partytown+react):
+  use-callback-ref@1.3.3(@types/react@19.1.0)(react@19.1.0):
     dependencies:
-      react: link:@qwik.dev/partytown/react
+      react: 19.1.0
       tslib: 2.8.1
     optionalDependencies:
       '@types/react': 19.1.0
 
-  use-composed-ref@1.4.0(@types/react@19.1.0)(react@@qwik.dev+partytown+react):
+  use-composed-ref@1.4.0(@types/react@19.1.0)(react@19.1.0):
     dependencies:
-      react: link:@qwik.dev/partytown/react
+      react: 19.1.0
     optionalDependencies:
       '@types/react': 19.1.0
 
-  use-isomorphic-layout-effect@1.2.1(@types/react@19.1.0)(react@@qwik.dev+partytown+react):
+  use-isomorphic-layout-effect@1.2.1(@types/react@19.1.0)(react@19.1.0):
     dependencies:
-      react: link:@qwik.dev/partytown/react
+      react: 19.1.0
     optionalDependencies:
       '@types/react': 19.1.0
 
-  use-latest@1.3.0(@types/react@19.1.0)(react@@qwik.dev+partytown+react):
+  use-latest@1.3.0(@types/react@19.1.0)(react@19.1.0):
     dependencies:
-      react: link:@qwik.dev/partytown/react
-      use-isomorphic-layout-effect: 1.2.1(@types/react@19.1.0)(react@@qwik.dev+partytown+react)
+      react: 19.1.0
+      use-isomorphic-layout-effect: 1.2.1(@types/react@19.1.0)(react@19.1.0)
     optionalDependencies:
       '@types/react': 19.1.0
 
-  use-sidecar@1.1.3(@types/react@19.1.0)(react@@qwik.dev+partytown+react):
+  use-sidecar@1.1.3(@types/react@19.1.0)(react@19.1.0):
     dependencies:
       detect-node-es: 1.1.0
-      react: link:@qwik.dev/partytown/react
+      react: 19.1.0
       tslib: 2.8.1
     optionalDependencies:
       '@types/react': 19.1.0
 
-  use-sync-external-store@1.5.0(react@@qwik.dev+partytown+react):
+  use-sync-external-store@1.5.0(react@19.1.0):
     dependencies:
-      react: link:@qwik.dev/partytown/react
+      react: 19.1.0
 
   util-deprecate@1.0.2: {}
 
