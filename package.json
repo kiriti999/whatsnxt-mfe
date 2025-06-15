@@ -79,7 +79,7 @@
     "bootstrap": "5.3.3",
     "clsx": "2.1.1",
     "cookies-next": "^6.0.0",
-    "extension-text-style,": "link:@tiptap/extension-text-style,",
+    "extension-text-style,": "link:@tiptap/extension-text-style",
     "file-saver": "^2.0.5",
     "highlight.js": "^11.11.1",
     "html-react-parser": "5.1.10",
