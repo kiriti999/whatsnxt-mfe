@@ -7,7 +7,7 @@ import CardSkeleton from '../../../components/Blog/Content/CardSkeleton';
 import Pagination from '../../../components/Common/Pagination';
 import { Grid, Title } from '@mantine/core';
 import { algoliaSearchByKeyword } from '@whatsnxt/core-util';
-import { useSearchContext } from '@/context/SearchContext';
+import { useSearchContext } from '../../../context/SearchContext';
 
 function Search({ query }: any) {
   const [data, setData] = useState<any>(null);

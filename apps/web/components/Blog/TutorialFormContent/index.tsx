@@ -1,5 +1,5 @@
 'use client'
-import { CategoryAPI, ContentAPI } from '@/api/index';
+import { CategoryAPI, ContentAPI } from '../../../../web/api/v1';
 import { MantineLoader } from '@whatsnxt/core-ui';
 import { useSearchParams } from 'next/navigation';
 import React, { Suspense, useEffect, useMemo, useState } from 'react'

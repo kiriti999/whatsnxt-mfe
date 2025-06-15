@@ -1,4 +1,4 @@
-import { CloudinaryAPI } from '@/api/index';
+import { CloudinaryAPI } from '../../../web/api/v1';
 
 export const deleteAssets = async (assets: any, accessToken: string) => {
     return await CloudinaryAPI.deleteMultipleAssets(assets, accessToken)

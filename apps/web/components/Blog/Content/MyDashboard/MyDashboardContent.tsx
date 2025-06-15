@@ -1,5 +1,5 @@
 "use client"
-import { ContentAPI } from '@/api/index';
+import { ContentAPI } from '../../../../../web/api/v1';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { useSearchParams } from 'next/navigation';
 import React from 'react';

@@ -8,7 +8,7 @@ import {
 import { Title, Text, Flex, Box } from '@mantine/core';
 import { ShareOptions } from '@whatsnxt/core-ui';
 import GooglePageViews from '../GooglePageViews';
-import useAuth from '@/hooks/Authentication/useAuth';
+import useAuth from '../../../../hooks/Authentication/useAuth';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { useEffect, useRef } from 'react';
