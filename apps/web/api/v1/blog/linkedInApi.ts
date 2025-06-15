@@ -2,12 +2,40 @@ import { bffApiClient } from '@whatsnxt/core-util';
 
 export const LinkedInAPI = {
     /**
+     * Check if LinkedIn token exists
+     * @returns {Promise<boolean>} Whether token exists
+     */
+    checkToken: async function () {
+        try {
+            const { data } = await bffApiClient.get('/blog/linkedin/token-check');
+            return data.tokenAvailable || false;
+        } catch (error) {
+            console.error('Error checking LinkedIn token:', error);
+            return false;
+        }
+    },
+
+    /**
+     * Get LinkedIn authorization URL
+     * @returns {Promise<string>} Authorization URL
+     */
+    getAuthUrl: async function () {
+        try {
+            const { data } = await bffApiClient.get('/blog/linkedin/auth-url');
+            return data.authUrl;
+        } catch (error) {
+            console.error('Error fetching LinkedIn auth URL:', error);
+            throw error;
+        }
+    },
+
+    /**
      * Handle LinkedIn OAuth callback
      * @param {string} code - Authorization code from LinkedIn
      * @returns {Promise<any>} Response data
      */
     handleCallback: async function (code) {
-        const { data } = await bffApiClient.post('/linkedin/callback', { code });
+        const { data } = await bffApiClient.get(`/blog/linkedin/callback?code=${code}`);
         return data.data?.callback;
     },
 
@@ -23,7 +51,7 @@ export const LinkedInAPI = {
      * @returns {Promise<any>} Response data
      */
     sharePost: async function ({ url, title, email, text, thumbnailUrn, media }) {
-        const { data } = await bffApiClient.post('/linkedin/share', {
+        const { data } = await bffApiClient.post('/blog/linkedin/share', {
             url,
             title,
             email,
@@ -31,6 +59,6 @@ export const LinkedInAPI = {
             thumbnailUrn,
             media: media || [],
         });
-        return data.data?.shareLinkedInPost;
+        return data.data;
     },
 };

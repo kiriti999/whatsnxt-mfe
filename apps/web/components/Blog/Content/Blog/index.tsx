@@ -164,7 +164,6 @@ const BlogContent = ({
   onHeadingsExtracted,
   setActiveHeading,
 }: BlogContentProps) => {
-  console.log('description preview:', description?.substring(0, 100));
 
   const { user } = useAuth();
 

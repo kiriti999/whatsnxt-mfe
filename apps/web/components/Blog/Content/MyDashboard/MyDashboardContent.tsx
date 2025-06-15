@@ -21,7 +21,7 @@ export const DashboardContent: React.FC<{ type: ContentType }> = ({ type }) => {
     // Map URL status to filter value
     const getFilterFromStatus = (status: string | null): 'all' | 'draft' | 'published' => {
         switch (status) {
-            case 'drafts':
+            case 'draft':
                 return 'draft';
             case 'published':
                 return 'published';

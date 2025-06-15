@@ -6,7 +6,7 @@ import { fetchTrendingArticles } from '../fetcher/blogServerQuery';
 async function Page() {
   // Fetch data for CourseMicroFrontEnd
   const data = await fetchCourses(30, 0);
-  const articles = await fetchTrendingArticles(30, 0, 'both')
+  const articles = await fetchTrendingArticles(1, 15, 'both')
   return (
     <Home data={data} articles={articles} />
   );

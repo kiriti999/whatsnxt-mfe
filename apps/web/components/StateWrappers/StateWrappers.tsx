@@ -54,6 +54,16 @@ export default function CoursesMicrofrontend({ children, user }: { children: Rea
           { title: 'Edit Password', url: `${domain}/user/edit-password`, icon: IconPasswordUser },
         ]
       },
+      {
+        title: 'Blog',
+        url: '',
+        children: [
+          { title: 'History', url: `${domain}/history/table`, icon: IconAddressBook },
+          { title: 'My articles', url: `${domain}/content/my-dashboard?status=all`, icon: IconAddressBook },
+          { title: 'Draft articles', url: `${domain}/content/my-dashboard?status=draft`, icon: IconUserEdit },
+          { title: 'Published articles', url: `${domain}/content/my-dashboard?status=published`, icon: IconPasswordUser },
+        ]
+      },
       { title: 'My Bookings', url: `${domain}/my-bookings`, icon: IconBook2 },
       { title: 'Notifications', url: `${domain}/notifications`, icon: IconBell },
       { title: 'Purchase History', url: `${domain}/purchase-history`, icon: IconHistoryToggle },

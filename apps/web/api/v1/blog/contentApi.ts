@@ -59,7 +59,6 @@ export const ContentAPI = {
   },
 
   getComments: async function (payload: any) {
-    console.log('getComments:: payload:', payload)
     const queryParams = new URLSearchParams({
       id: payload.blogId,
       contentId: payload.contentId,

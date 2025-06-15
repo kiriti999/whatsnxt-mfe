@@ -4,7 +4,7 @@ import { useDispatch } from 'react-redux';
 import { Cart, Logo } from '@whatsnxt/core-ui';
 import { useMediaQuery } from '@mantine/hooks';
 import { Button, rem, Burger, Space, Anchor, Box, Tooltip, Menu } from '@mantine/core';
-import { IconLogin, IconLogout, IconSearch, IconX } from '@tabler/icons-react';
+import { IconLogin, IconLogout, IconSearch, IconX, IconChevronRight } from '@tabler/icons-react';
 import type { Link as NavLink, User } from '../types';
 import { NavbarNotification } from '../NavbarNotification/index';
 import Search from '../../Search';
@@ -111,7 +111,7 @@ export const NavbarDesktop = ({ links, cartItems, loginMenuLinks, drawerOpened, 
             <Box style={{ width: "43%", minWidth: 200 }}><Search /></Box>
           </Box>
 
-          <Space w="md" />
+          <Space w="md" mr={'xl'} />
           <Box style={{ alignItems: "center" }} h="100%" display={"flex"}>
             <Anchor href='/search-trainers' className={classes.link} component={Link}>
               Search Trainer
@@ -138,48 +138,83 @@ export const NavbarDesktop = ({ links, cartItems, loginMenuLinks, drawerOpened, 
             {isAuthenticated && <NavbarNotification user={user} />}
             <Space w="xl" />
 
+
             {isAuthenticated ? (
-              <Menu shadow="md" width={200} trigger="click-hover" openDelay={100} closeDelay={400}>
+              <Menu shadow="md" width={250} position="bottom-end" trigger="click-hover" openDelay={100} closeDelay={400} withArrow arrowPosition="center">
                 <Menu.Target>
                   <Button c='white' loading={loading} variant='filled'>{usernameLabel}</Button>
                 </Menu.Target>
                 <Menu.Dropdown>
-                  {loginMenuLinks.map((link, index) =>
-                    link.title === 'Profile' && link.children ? (
-                      <Menu.Item key={index}>
-                        <Tooltip
-                          label={userInfoData?.email}
-                          position="left"
-                          transitionProps={{ transition: 'scale-x', duration: 300 }}
-                        >
-                          <Menu.Label>{link.title}</Menu.Label>
-                        </Tooltip>
-                        {link.children.map((child, childIndex) => (
-                          <Menu.Item
-                            key={`profile-${childIndex}`}
-                            component="a"
-                            href={child.url}
-                            leftSection={<child.icon style={{ width: rem(14), height: rem(14) }} />}
-                          >
-                            {child.title}
-                          </Menu.Item>
-                        ))}
-                      </Menu.Item>
-                    ) : (
+                  {loginMenuLinks.map((link, index) => {
+                    // Handle Profile with Menu.Sub for proper submenu
+                    if (link.title === 'Profile' && link.children) {
+                      return (
+                        <Menu.Sub key={index}>
+                          <Menu.Sub.Target>
+                            <Menu.Sub.Item>
+                              {link.title}
+                            </Menu.Sub.Item>
+                          </Menu.Sub.Target>
+                          <Menu.Sub.Dropdown>
+                            {link.children.map((child, childIndex) => {
+                              const ChildIcon = child.icon;
+                              return (
+                                <Menu.Item
+                                  key={`profile-${childIndex}`}
+                                  component="a"
+                                  href={child.url}
+                                  leftSection={ChildIcon ? <ChildIcon style={{ width: rem(14), height: rem(14) }} /> : null}
+                                >
+                                  {child.title}
+                                </Menu.Item>
+                              );
+                            })}
+                          </Menu.Sub.Dropdown>
+                        </Menu.Sub>
+                      );
+                    }
+
+                    // Handle Blog with Menu.Sub for proper submenu
+                    if (link.title === 'Blog' && link.children) {
+                      return (
+                        <Menu.Sub key={index}>
+                          <Menu.Sub.Target>
+                            <Menu.Sub.Item>
+                              {link.title}
+                            </Menu.Sub.Item>
+                          </Menu.Sub.Target>
+                          <Menu.Sub.Dropdown>
+                            {link.children.map((child, childIndex) => {
+                              const ChildIcon = child.icon;
+                              return (
+                                <Menu.Item
+                                  key={`blog-${childIndex}`}
+                                  component="a"
+                                  href={child.url}
+                                  leftSection={ChildIcon ? <ChildIcon style={{ width: rem(14), height: rem(14) }} /> : null}
+                                >
+                                  {child.title}
+                                </Menu.Item>
+                              );
+                            })}
+                          </Menu.Sub.Dropdown>
+                        </Menu.Sub>
+                      );
+                    }
+
+                    // Handle regular menu items
+                    const LinkIcon = link.icon;
+                    return (
                       <Menu.Item
                         key={index}
                         component="a"
                         href={link.url}
-                        leftSection={<link.icon style={{ width: rem(14), height: rem(14) }} />}
+                        leftSection={LinkIcon ? <LinkIcon style={{ width: rem(14), height: rem(14) }} /> : null}
                       >
-                        <Menu shadow="md" width={200} trigger="click-hover" openDelay={100} closeDelay={400}>
-                          <Menu.Target>
-                            <span>{link.title}</span>
-                          </Menu.Target>
-                        </Menu>
+                        {link.title}
                       </Menu.Item>
-                    )
-                  )}
+                    );
+                  })}
 
                   {isAdmin && (
                     <Menu.Item>
@@ -199,8 +234,15 @@ export const NavbarDesktop = ({ links, cartItems, loginMenuLinks, drawerOpened, 
                 </Menu.Dropdown>
               </Menu>
             ) : (
-              <Button loading={loading} variant='filled' size={'sm'} component={Link} href="/authentication" c='white'
-                leftSection={<IconLogin style={{ width: rem(14), height: rem(14) }} />}>
+              <Button
+                loading={loading}
+                variant='filled'
+                size={'sm'}
+                component={Link}
+                href="/authentication"
+                c='white'
+                leftSection={<IconLogin style={{ width: rem(14), height: rem(14) }} />}
+              >
                 Login
               </Button>
             )}
