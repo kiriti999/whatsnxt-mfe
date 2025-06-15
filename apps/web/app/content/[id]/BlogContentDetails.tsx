@@ -7,12 +7,12 @@ import { BlogComment, CommentContextProvider, CommentReplyContextProvider } from
 import BlogContent from '../../../components/Blog/Content/Blog';
 import SidebarHeadings from '../../../components/Blog/sidebar-headings';
 import { WindowCheck } from '@whatsnxt/core-util';
-import StickyHeader from '@/components/Blog/Content/StickyHeader';
+import StickyHeader from '../../../components/Blog/Content/StickyHeader';
 import { SkeletonBlogContent } from '@whatsnxt/core-ui';
 import useAuth from '../../../hooks/Authentication/useAuth';
 import { Box, Container, Grid, GridCol, Stack } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
-import { calculateTotalViews } from '@/utils/pageViews';
+import { calculateTotalViews } from '../../../utils/pageViews';
 import useCommentHandlers from '@whatsnxt/blogcomments/src/hooks/useCommentHandlers';
 
 const initialProps = {

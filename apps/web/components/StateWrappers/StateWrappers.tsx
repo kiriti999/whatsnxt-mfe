@@ -15,7 +15,7 @@ import { AuthProvider } from '../../context/Authentication/AuthContext';
 import React from 'react';
 import { User } from '../Navbar/types';
 import { ModalsProvider } from '@mantine/modals';
-import SearchProvider from '@/context/SearchContext';
+import SearchProvider from '../../context/SearchContext';
 
 
 export default function CoursesMicrofrontend({ children, user }: { children: ReactNode, user: User }): JSX.Element {

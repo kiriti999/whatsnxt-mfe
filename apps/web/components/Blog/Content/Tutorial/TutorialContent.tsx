@@ -1,6 +1,6 @@
 import type { Dispatch, SetStateAction } from 'react';
 import { Box, Title } from '@mantine/core';
-import { useAddIdsToHeadings, useContentRefAndHeadings, useHandleScroll } from '@/hooks/useToc';
+import { useAddIdsToHeadings, useContentRefAndHeadings, useHandleScroll } from '../../../../hooks/useToc';
 import TutorialNavButtons from './NavButtons';
 
 type PROPS = {

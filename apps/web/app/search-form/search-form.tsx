@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { Skeleton } from '@mantine/core';
 import { Autocomplete, Group, Text, Container, Anchor, Box, Paper } from '@mantine/core';
 import { useAlgoliaSearch } from '@whatsnxt/core-util';
-import { useSearchContext } from '@/context/SearchContext';
+import { useSearchContext } from '../../context/SearchContext';
 
 
 

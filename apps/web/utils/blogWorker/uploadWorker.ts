@@ -1,4 +1,4 @@
-import { CloudinaryAPI } from '@/api/cloudinaryApi';
+import { CloudinaryAPI } from '../../api/v1/blog/cloudinaryApi';
 
 export const uploadApi = async (eventData: any) => {
   const { file, fileKeyName, folder, type } = eventData;

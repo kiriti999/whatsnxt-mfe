@@ -25,7 +25,7 @@ import { HistoryAPI } from '../../../api/v1/index';
 import { deleteCloudinaryImage } from '../../../utils/blog-image-upload';
 import { useRouter } from 'next/navigation';
 import { useDebouncedValue } from '@mantine/hooks';
-import { downloadBase64File } from '@/utils/downloadFile';
+import { downloadBase64File } from '../../../utils/downloadFile';
 import { deleteIndex, indexRecord } from '@whatsnxt/core-util';
 
 const HistoryMUI = ({ open, close }: any) => {

@@ -1,10 +1,10 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { notifications } from '@mantine/notifications';
-import { CategoryData } from '@/types/form';
-import { useSaved } from '@/hooks/saved';
-import { getCategoryId } from '@/utils/form';
-import type { Category, Detail, Tutorial } from '@/types/form';
+import { CategoryData } from '../../../types/form';
+import { useSaved } from '../../../hooks/saved';
+import { getCategoryId } from '../../../utils/form';
+import type { Category, Detail, Tutorial } from '../../../types/form';
 import { CloudinaryAPI, FormAPI, HistoryAPI } from '../../../api/v1/blog';
 import Pagination from '../../Common/Pagination';
 import { RichTextEditor } from '../../RichTextEditor';

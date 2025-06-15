@@ -2,7 +2,7 @@
 import { createExcerpt } from '@whatsnxt/core-util/src/GenerateMetaTags';
 import BlogContentDetails from './BlogContentDetails';
 import TutorialContentDetails from './TutorialContentDetails';
-import { getPostBySlugServer } from '@/fetcher/serverFetcher';
+import { getPostBySlugServer } from '../../../fetcher/serverFetcher';
 import React from 'react';
 
 const ContentPage = async (props: any) => {

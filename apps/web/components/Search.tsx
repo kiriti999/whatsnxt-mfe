@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation';
 import { SearchForm, SearchBarResult } from '@whatsnxt/core-ui';
 import { useAlgoliaSearch } from '@whatsnxt/core-util';
-import { useSearchContext } from '@/context/SearchContext';
+import { useSearchContext } from '../context/SearchContext';
 
 function Search() {
     const router = useRouter();
