@@ -65,7 +65,7 @@ export const PaymentButton: FC<PaymentButtonProps> = ({
       courseInfo,
       notes: {
         address: userInfo?.address,
-        gstDetails: `GST (18%): ₹${gstAmount.toFixed(2)}`,
+        gstDetails: `GST (0%): ₹${gstAmount.toFixed(2)}`,
       },
       prefill: {
         name: userInfo.name,
@@ -185,7 +185,7 @@ export const PaymentButton: FC<PaymentButtonProps> = ({
       <Box mb="md">
         <Stack>
           <Group justify="space-between" w="100%">
-            <Text size="sm" c="dimmed" m={0}>GST (18%):</Text>
+            <Text size="sm" c="dimmed" m={0}>GST (0%):</Text>
             <Text size="sm">₹{gstAmount.toFixed(2)}</Text>
           </Group>
           <Group justify="space-between" w="100%">
