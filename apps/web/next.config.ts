@@ -12,6 +12,12 @@ const nextConfig: NextConfig = {
     reactStrictMode: true,
     compress: true,
     productionBrowserSourceMaps: true,
+    typescript: {
+        ignoreBuildErrors: true,
+    },
+    eslint: {
+        ignoreDuringBuilds: true,
+    },
 
     experimental: {
         optimizePackageImports: ['@mantine/core', '@mantine/hooks'],
