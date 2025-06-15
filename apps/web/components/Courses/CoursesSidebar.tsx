@@ -40,8 +40,8 @@ const CoursesSidebar = ({ courses, categories }: { courses: CourseType[]; catego
         <div className={styles['tagcloud']}>
           {categories?.length > 0 ? (
             categories.map((item, i) => (
-              <Link key={i} href={`/courses?category=${encodeURIComponent(item.categoryName)}`}>
-                {item.categoryName} <span className="tag-link-count">({item.count})</span>
+              <Link key={i} href={`/courses?category=${encodeURIComponent(item.name)}`}>
+                {item.name} <span className="tag-link-count">({item.count})</span>
               </Link>
             ))
           ) : (
