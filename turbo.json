@@ -4,6 +4,22 @@
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
+      "env": [
+        "NODE_ENV",
+        "MFE_HOST",
+        "BFF_HOST_API",
+        "BFF_BLOG_HOST_API",
+        "BFF_HOST_AUTH_API",
+        "BFF_VERSION",
+        "GOOGLE_LOGIN_URL",
+        "ALGOLIA_COURSE_INDEX_NAME",
+        "ALGOLIA_BLOG_INDEX_NAME",
+        "ALGOLIA_TUTORIAL_INDEX_NAME",
+        "ALGOLIA_TUTORIAL_INDEX_NAME",
+        "COOKIES_USER_INFO",
+        "AXIOS_CLIENT",
+        "ADMIN_EMAIL"
+      ],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
       "outputs": [".next/**", "!.next/cache/**"]
     },
