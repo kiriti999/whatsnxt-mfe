@@ -23,7 +23,7 @@ import Link from 'next/link';
 import { fetchUser, checkSuccessResponse, getErrorMessageFromResponse, getCookieAccessToken } from '../../../utils/Utils';
 import { notifications } from '@mantine/notifications';
 import { CartAPI } from '../../../api/v1/cart/cart';
-import { AuthAPI } from '../../../api/v1/auth/auth';
+import { AuthAPI } from '../../../api/v1/auth';
 import { useMutation } from '@tanstack/react-query';
 import styles from './GuestCheckout.module.css';
 import useAuth from '../../../hooks/Authentication/useAuth';
@@ -102,12 +102,12 @@ export const GuestCheckoutComponent: FC<GuestCheckoutComponentProps> = () => {
 
   const otpSendHandler = useMutation(
     {
-      mutationFn: async (formData: any) => await AuthAPI.sendOtp(formData),
+      mutationFn: async (formData: any) => await AuthAPI.otp(formData),
       onSuccess: (response: any) => {
         if (checkSuccessResponse(response)) {
           setOtpSent(true);
           notifications.show({
-            position: 'bottom-left',
+            position: 'bottom-right',
             title: 'Registration',
             message: 'OTP sent to your email address',
             color: 'green',
@@ -115,7 +115,7 @@ export const GuestCheckoutComponent: FC<GuestCheckoutComponentProps> = () => {
           return;
         }
         notifications.show({
-          position: 'bottom-left',
+          position: 'bottom-right',
           title: 'Registration',
           message: 'Error on sending otp, try again!',
           color: 'red',
@@ -125,7 +125,7 @@ export const GuestCheckoutComponent: FC<GuestCheckoutComponentProps> = () => {
       },
       onError: (error) => {
         notifications.show({
-          position: 'bottom-left',
+          position: 'bottom-right',
           title: 'Registration',
           message: getErrorMessageFromResponse(error) ? getErrorMessageFromResponse(error) : 'Error on sending otp, try again!',
           color: 'red',
@@ -136,12 +136,12 @@ export const GuestCheckoutComponent: FC<GuestCheckoutComponentProps> = () => {
 
   const registerHandler = useMutation(
     {
-      mutationFn: async (formData: any) => await AuthAPI.register(formData),
+      mutationFn: async (formData: any) => await AuthAPI.createAccount(formData),
       onSuccess: async (response: any) => {
         if (checkSuccessResponse(response)) {
           const getToken = await getCookieAccessToken()
           notifications.show({
-            position: 'bottom-left',
+            position: 'bottom-right',
             title: 'Authentication Success',
             message: 'User registered successfully',
             color: 'green',
@@ -174,7 +174,7 @@ export const GuestCheckoutComponent: FC<GuestCheckoutComponentProps> = () => {
           // setError('otp', { type: 'manual', message: getErrorMessageFromResponse(error) })
 
           notifications.show({
-            position: 'bottom-left',
+            position: 'bottom-right',
             title: 'Authentication Error',
             message: getErrorMessageFromResponse(error),
             color: 'red',
@@ -201,7 +201,7 @@ export const GuestCheckoutComponent: FC<GuestCheckoutComponentProps> = () => {
       },
       onError: (error) => {
         notifications.show({
-          position: 'bottom-left',
+          position: 'bottom-right',
           title: 'Authentication Error',
           message: getErrorMessageFromResponse(error),
           color: 'red',

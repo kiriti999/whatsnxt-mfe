@@ -29,7 +29,18 @@ export const uploadAssetWebWorker = async ({
 
     return new Promise((resolve, reject) => {
         let worker: Worker;
+        let timeoutId: NodeJS.Timeout;
         const timestamp = Date.now();
+
+        // Cleanup function to clear timeout and terminate worker
+        const cleanup = () => {
+            if (timeoutId) {
+                clearTimeout(timeoutId);
+            }
+            if (worker) {
+                worker.terminate();
+            }
+        };
 
         try {
             // FIXED: Use different file extension to avoid worker loader
@@ -40,7 +51,7 @@ export const uploadAssetWebWorker = async ({
         } catch (error) {
             console.error('❌ [Turbopack] Failed to create upload worker:', error);
             notifications.show({
-                position: 'bottom-left',
+                position: 'bottom-right',
                 title: 'Upload Failed',
                 message: 'Failed to initialize upload worker',
                 color: 'red',
@@ -78,7 +89,7 @@ export const uploadAssetWebWorker = async ({
                         });
                     }
 
-                    worker.terminate();
+                    cleanup(); // Clear timeout and terminate worker
 
                     if (response && response.secure_url && response.public_id) {
                         resolve({
@@ -90,7 +101,7 @@ export const uploadAssetWebWorker = async ({
                     } else {
                         console.error('❌ Invalid upload response structure:', response);
                         notifications.show({
-                            position: 'bottom-left',
+                            position: 'bottom-right',
                             title: 'Upload Failed',
                             message: 'Invalid response from upload service',
                             color: 'red',
@@ -111,10 +122,10 @@ export const uploadAssetWebWorker = async ({
                         });
                     }
 
-                    worker.terminate();
+                    cleanup(); // Clear timeout and terminate worker
 
                     notifications.show({
-                        position: 'bottom-left',
+                        position: 'bottom-right',
                         title: 'Upload Failed',
                         message: typeof error === 'string' ? error : 'Resource failed to upload',
                         color: 'red',
@@ -130,10 +141,10 @@ export const uploadAssetWebWorker = async ({
 
         worker.onerror = (error) => {
             console.error('❌ [Turbopack] Upload worker error:', error);
-            worker.terminate();
+            cleanup(); // Clear timeout and terminate worker
 
             notifications.show({
-                position: 'bottom-left',
+                position: 'bottom-right',
                 title: 'Upload Failed',
                 message: 'Worker error occurred during upload',
                 color: 'red',
@@ -144,10 +155,10 @@ export const uploadAssetWebWorker = async ({
 
         worker.onmessageerror = (error) => {
             console.error('❌ [Turbopack] Upload worker message error:', error);
-            worker.terminate();
+            cleanup(); // Clear timeout and terminate worker
 
             notifications.show({
-                position: 'bottom-left',
+                position: 'bottom-right',
                 title: 'Upload Failed',
                 message: 'Data serialization error',
                 color: 'red',
@@ -170,10 +181,10 @@ export const uploadAssetWebWorker = async ({
 
         } catch (error) {
             console.error('❌ [Turbopack] Failed to send upload task:', error);
-            worker.terminate();
+            cleanup(); // Clear timeout and terminate worker
 
             notifications.show({
-                position: 'bottom-left',
+                position: 'bottom-right',
                 title: 'Upload Failed',
                 message: 'Failed to start upload process',
                 color: 'red',
@@ -184,12 +195,12 @@ export const uploadAssetWebWorker = async ({
 
         // Timeout protection
         const timeoutDuration = Math.max(60000, file.size / 1024 / 1024 * 10000);
-        setTimeout(() => {
+        timeoutId = setTimeout(() => {
             console.error('⏰ [Turbopack] Upload worker timeout');
-            worker.terminate();
+            cleanup(); // This will clear the timeout (though it's already fired) and terminate worker
 
             notifications.show({
-                position: 'bottom-left',
+                position: 'bottom-right',
                 title: 'Upload Timeout',
                 message: `Upload of ${file.name} timed out`,
                 color: 'red',
@@ -200,62 +211,118 @@ export const uploadAssetWebWorker = async ({
     });
 };
 
-export const deleteAssetWebWorker = async ({ assetsList }: any) => {
+// Rest of your deleteAssetWebWorker code remains the same...
+interface AssetItem {
+    publicId: string;
+    type: 'image' | 'video' | 'raw' | 'auto';
+}
+
+interface DeleteAssetParams {
+    assetsList: AssetItem[];
+}
+
+interface WorkerResponse {
+    status: 'success' | 'error';
+    results?: any;
+    error?: string;
+}
+
+interface DeleteAssetResult {
+    success: boolean;
+    results?: any;
+    error?: string;
+}
+
+export const deleteAssetWebWorker = async ({ assetsList }: DeleteAssetParams): Promise<DeleteAssetResult> => {
     console.log('🚀 [Turbopack] deleteAssetWebWorker :: assetsList:', assetsList);
 
-    return new Promise((resolve, reject) => {
-        let worker: Worker;
+    return new Promise((resolve) => {
+        let worker: Worker | null = null;
+        let isResolved = false;
+
+        const cleanup = () => {
+            if (worker) {
+                worker.terminate();
+                worker = null;
+            }
+        };
+
+        const resolveOnce = (result: DeleteAssetResult) => {
+            if (!isResolved) {
+                isResolved = true;
+                cleanup();
+                resolve(result);
+            }
+        };
 
         try {
+            // Check if Worker is available (browser environment)
+            if (typeof Worker === 'undefined') {
+                console.error('❌ [Turbopack] Web Workers not supported');
+                resolveOnce({ success: false, error: 'Web Workers not supported in this environment' });
+                return;
+            }
+
             // FIXED: Use different file extension to avoid worker loader
             worker = new Worker(/* turbopackIgnore: true */ "/deleteWorker.js");
-
             console.log('✅ [Turbopack] Worker created successfully');
 
         } catch (error) {
             console.error('❌ [Turbopack] Failed to create worker:', error);
-            resolve({ success: false, error: 'Failed to create worker' });
+            resolveOnce({ success: false, error: 'Failed to create worker' });
             return;
         }
 
+        // Set up worker event handlers
         worker.onmessage = (event) => {
-            const { status, results, error } = event.data;
+            const { status, results, error }: WorkerResponse = event.data;
             console.log('📨 [Turbopack] Worker response:', { status, results, error });
 
-            worker.terminate();
-
             if (status === 'success') {
-                resolve({ success: true, results });
+                resolveOnce({ success: true, results });
             } else {
-                resolve({ success: false, error });
+                resolveOnce({ success: false, error: error || 'Unknown worker error' });
             }
         };
 
         worker.onerror = (error) => {
             console.error('❌ [Turbopack] Worker error:', error);
-            worker.terminate();
-            resolve({ success: false, error: error.message });
+            resolveOnce({ success: false, error: error.message || 'Worker execution error' });
         };
 
         worker.onmessageerror = (error) => {
             console.error('❌ [Turbopack] Worker message error:', error);
-            worker.terminate();
-            resolve({ success: false, error: 'Message serialization error' });
+            resolveOnce({ success: false, error: 'Message serialization error' });
         };
 
+        // Send message to worker
         try {
-            worker.postMessage({ assetsList, bffApiUrl: process.env.NEXT_PUBLIC_BFF_HOST_API });
+            const bffApiUrl = process.env.NEXT_PUBLIC_BFF_HOST_API;
+            if (!bffApiUrl) {
+                console.error('❌ [Turbopack] BFF API URL not configured');
+                resolveOnce({ success: false, error: 'BFF API URL not configured' });
+                return;
+            }
+
+            worker.postMessage({ assetsList, bffApiUrl });
             console.log('📤 [Turbopack] Message sent to worker');
         } catch (error) {
             console.error('❌ [Turbopack] Failed to send message:', error);
-            worker.terminate();
-            resolve({ success: false, error: 'Failed to send message to worker' });
+            resolveOnce({ success: false, error: 'Failed to send message to worker' });
+            return;
         }
 
-        setTimeout(() => {
+        // Set timeout
+        const timeoutId = setTimeout(() => {
             console.error('⏰ [Turbopack] Worker timeout');
-            worker.terminate();
-            resolve({ success: false, error: 'Worker timeout' });
+            resolveOnce({ success: false, error: 'Worker timeout after 30 seconds' });
         }, 30000);
+
+        // Clear timeout if resolved early
+        const originalResolve = resolve;
+        resolve = (result: DeleteAssetResult) => {
+            clearTimeout(timeoutId);
+            originalResolve(result);
+        };
     });
 };

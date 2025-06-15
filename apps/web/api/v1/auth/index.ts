@@ -3,23 +3,23 @@ import { authApiClient } from '@whatsnxt/core-util';
 
 export const AuthAPI = {
 
-  login: async (payload) => {
+  login: async (payload: unknown) => {
     const response = await authApiClient.post('/auth/login', payload)
     return response?.data;
   },
 
-  otp: async (payload) => {
+  otp: async (payload: unknown) => {
     const response = await authApiClient.post('/auth/send-otp', payload);
     return response?.data;
   },
 
-  createAccount: async (payload) => {
+  createAccount: async (payload: unknown) => {
     const response = await authApiClient.post('/auth/createAccount', payload);
     return response?.data;
   },
 
   logout: async () => {
-    const response = await authApiClient.get('/auth/logout');
+    const response = await authApiClient.post('/auth/logout', {});
     return response;
   },
 

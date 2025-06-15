@@ -27,14 +27,14 @@ export const NavbarMobile = ({ user, links, loginMenuLinks, drawerOpened, closeD
     try {
       await CacheAPI.invalidate();
       notifications.show({
-        position: 'bottom-left',
+        position: 'bottom-right',
         color: 'red',
         title: 'Cache invalidation success!',
         message: 'Complete cache has been cleared',
       });
     } catch (error) {
       notifications.show({
-        position: 'bottom-left',
+        position: 'bottom-right',
         color: 'red',
         title: 'Cache invalidation failed!',
         message: error,

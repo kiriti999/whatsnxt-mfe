@@ -12,18 +12,40 @@ import { IconChevronDown, IconChevronUp, IconEye, IconEyeOff, IconPlus, IconDots
 import CourseDeleteModal from './course-delete-model';
 import ActionButtons from './CourseHistoryActionButtonsMobile'; // Import the new component
 
+// Add proper types for video and section
+interface Video {
+  _id: string;
+  name: string;
+  isPublish: boolean; // Make sure this is included
+}
+
+interface Section {
+  _id: string;
+  sectionTitle: string;
+  videos: Video[];
+}
+
+interface Course {
+  _id: string;
+  title?: string;
+  courseName?: string;
+  slug: string;
+  status: string;
+  sections: Section[];
+}
+
 interface courseResponseType {
   isLoading: boolean;
   refetch: () => void;
-  data: { courseList: [], totalCount: number };
+  data: { courseList: Course[], totalCount: number };
 }
 
 const CourseHistory = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedSearch] = useDebouncedValue(searchQuery, 300);
-  const [expandedCourse, setExpandedCourse] = useState({});
-  const [expandedSection, setExpandedSection] = useState({});
+  const [expandedCourse, setExpandedCourse] = useState<Record<string, boolean>>({});
+  const [expandedSection, setExpandedSection] = useState<Record<string, boolean>>({});
   const [isMobile, setIsMobile] = useState(false);
 
   const [courseDelId, setCourseDelId] = useState('');
@@ -124,14 +146,14 @@ const CourseHistory = () => {
     setCurrentPage(1);
   };
 
-  const publishVideo = async (videoId: String, sectionId: String, isPublish: Boolean) => {
+  const publishVideo = async (videoId: string, sectionId: string, isPublish: boolean) => {
     const payload = { isPublish: !isPublish };
     const response = await CourseAPI.publishVideo(sectionId, videoId, payload);
 
     let message = isPublish ? 'Video unpublished successfully' : 'Video published successfully';
     if (response.status === 200) {
       notifications.show({
-        position: 'bottom-left',
+        position: 'bottom-right',
         title: 'Publish success',
         message: message,
         color: 'green',
@@ -140,14 +162,14 @@ const CourseHistory = () => {
     refetch();
   };
 
-  const publishAllVideosInSection = async (sectionId: String, isPublish: Boolean) => {
+  const publishAllVideosInSection = async (sectionId: string, isPublish: boolean) => {
     const payload = { isPublish: !isPublish };
     const response = await CourseAPI.publishAllVideosInSection(sectionId, payload);
 
     let message = isPublish ? 'All videos unpublished successfully' : 'All videos published successfully';
     if (response.status === 200) {
       notifications.show({
-        position: 'bottom-left',
+        position: 'bottom-right',
         title: 'Publish success',
         message: message,
         color: 'green',
@@ -160,7 +182,7 @@ const CourseHistory = () => {
   const tableColumns = React.useMemo(() => [
     {
       header: 'Title',
-      accessor: (row: { _id: string | number; slug: any; courseName: any; title: any; }) => (
+      accessor: (row: Course) => (
         <Link href={`/courses/${courseSlugs[row._id] ?? row.slug}`}>
           {courseTitles[row._id] ?? row?.courseName ?? row?.title}
         </Link>
@@ -168,7 +190,7 @@ const CourseHistory = () => {
     },
     {
       header: 'Status',
-      accessor: (row: { _id: string | number; status: any; }) => (
+      accessor: (row: Course) => (
         <>
           {courseStatuses[row._id] ?? row.status}
         </>
@@ -176,7 +198,7 @@ const CourseHistory = () => {
     },
     {
       header: 'Actions',
-      accessor: (row: any) =>
+      accessor: (row: Course) =>
         <ActionButtons
           row={row}
           handleCourseDeleteClick={handleCourseDeleteClick}
@@ -188,7 +210,7 @@ const CourseHistory = () => {
     },
     {
       header: '',
-      accessor: (row: { _id: string | number; }) =>
+      accessor: (row: Course) =>
         <ActionIcon onClick={() => { toggleCourse(row._id) }} variant="filled" color="red" radius="md" size="sm">
           {expandedCourse[row._id] ?
             <IconChevronUp size={14} />
@@ -197,25 +219,28 @@ const CourseHistory = () => {
           }
         </ActionIcon>
     }
-  ], [courseTitles, courseSlugs, courseStatuses, isMobile]);
+  ], [courseTitles, courseSlugs, courseStatuses, expandedCourse]);
 
-  // For section level videos, we can also use a mobile-friendly approach
-  const renderVideoActions = (video: { isPublish: Boolean; _id: String; }, sectionId: String) => {
+  // Fixed renderVideoActions function with proper typing and null checks
+  const renderVideoActions = (video: Video, sectionId: string) => {
+    // Add safety check for isPublish property
+    const isPublish = video.isPublish ?? false;
+
     if (!isMobile) {
       return (
         <Tooltip fz={'xs'}
-          label={video.isPublish ? "Unpublish" : "Publish"}
+          label={isPublish ? "Unpublish" : "Publish"}
           position="bottom"
           withArrow
         >
           <ActionIcon
-            onClick={() => { publishVideo(video._id, sectionId, video.isPublish); }}
+            onClick={() => { publishVideo(video._id, sectionId, isPublish); }}
             radius="md"
             size="sm"
             variant="filled"
-            color={video.isPublish ? "red" : "blue"}
+            color={isPublish ? "red" : "blue"}
           >
-            {video.isPublish ? <IconEyeOff size={14} /> : <IconEye size={16} />}
+            {isPublish ? <IconEyeOff size={14} /> : <IconEye size={16} />}
           </ActionIcon>
         </Tooltip>
       );
@@ -231,12 +256,12 @@ const CourseHistory = () => {
         </Menu.Target>
         <Menu.Dropdown>
           <Menu.Item
-            leftSection={video.isPublish ? <IconEyeOff size={16} /> : <IconEye size={16} />}
-            onClick={() => { publishVideo(video._id, sectionId, video.isPublish); }}
-            color={video.isPublish ? "red" : "blue"}
+            leftSection={isPublish ? <IconEyeOff size={16} /> : <IconEye size={16} />}
+            onClick={() => { publishVideo(video._id, sectionId, isPublish); }}
+            color={isPublish ? "red" : "blue"}
           >
             <Group align="center" >
-              <span>{video.isPublish ? "Unpublish" : "Publish"}</span>
+              <span>{isPublish ? "Unpublish" : "Publish"}</span>
             </Group>
           </Menu.Item>
         </Menu.Dropdown>
@@ -292,14 +317,14 @@ const CourseHistory = () => {
                     </td>
                   </tr>
                 ) : (
-                  data?.courseList && data?.courseList.length > 0 ? data?.courseList.map((row: any) => (
+                  data?.courseList && data?.courseList.length > 0 ? data?.courseList.map((row: Course) => (
                     <React.Fragment key={row._id}>
                       <tr>
                         {tableColumns.map((column, index) => (
                           <td key={`${column.header}-${index}`}>
                             {typeof column.accessor === 'function'
                               ? column.accessor(row)
-                              : row[column.accessor]}
+                              : String(row[column.accessor as keyof Course] || '')}
                           </td>
                         ))}
                       </tr>
@@ -310,13 +335,13 @@ const CourseHistory = () => {
                               <Table withTableBorder={false} className='my-course-table' >
                                 <thead>
                                   <tr>
-                                    <th key={Math.random()}>Section Title</th>
-                                    <th key={Math.random()}>Actions</th>
+                                    <th>Section Title</th>
+                                    <th>Actions</th>
                                     <th></th>
                                   </tr>
                                 </thead>
                                 <tbody>
-                                  {row?.sections?.map((item: any) => (
+                                  {row?.sections?.map((item: Section) => (
                                     <React.Fragment key={item._id}>
                                       <tr>
                                         {item?.videos?.length > 0 && <td>{item.sectionTitle}</td>}
@@ -332,24 +357,24 @@ const CourseHistory = () => {
                                                 <Menu.Dropdown>
                                                   <Menu.Item
                                                     leftSection={
-                                                      item?.videos.filter((x: { isPublish: any; }) => x.isPublish).length !== item?.videos.length ?
+                                                      item?.videos.filter((x: Video) => x.isPublish).length !== item?.videos.length ?
                                                         <IconEye size={16} /> :
                                                         <IconEyeOff size={16} />
                                                     }
                                                     onClick={() => {
-                                                      item?.videos.filter((x: { isPublish: any; }) => x.isPublish).length !== item?.videos.length
+                                                      item?.videos.filter((x: Video) => x.isPublish).length !== item?.videos.length
                                                         ? publishAllVideosInSection(item._id, false)
                                                         : publishAllVideosInSection(item._id, true);
                                                     }}
                                                     color={
-                                                      item?.videos.filter((x: { isPublish: any; }) => x.isPublish).length !== item?.videos.length
+                                                      item?.videos.filter((x: Video) => x.isPublish).length !== item?.videos.length
                                                         ? "blue"
                                                         : "red"
                                                     }
                                                   >
                                                     <Group align="center" >
                                                       <span>
-                                                        {item?.videos.filter((x: { isPublish: any; }) => x.isPublish).length !== item?.videos.length ?
+                                                        {item?.videos.filter((x: Video) => x.isPublish).length !== item?.videos.length ?
                                                           "Publish All" :
                                                           "Unpublish All"}
                                                       </span>
@@ -360,7 +385,7 @@ const CourseHistory = () => {
                                             ) : (
                                               <Tooltip fz={'xs'}
                                                 label={
-                                                  item?.videos.filter((x: { isPublish: any; }) => x.isPublish).length !== item?.videos.length
+                                                  item?.videos.filter((x: Video) => x.isPublish).length !== item?.videos.length
                                                     ? "Publish All"
                                                     : "Unpublish All"
                                                 }
@@ -369,7 +394,7 @@ const CourseHistory = () => {
                                               >
                                                 <ActionIcon
                                                   onClick={() => {
-                                                    item?.videos.filter((x: { isPublish: any; }) => x.isPublish).length !== item?.videos.length
+                                                    item?.videos.filter((x: Video) => x.isPublish).length !== item?.videos.length
                                                       ? publishAllVideosInSection(item._id, false)
                                                       : publishAllVideosInSection(item._id, true);
                                                   }}
@@ -377,12 +402,12 @@ const CourseHistory = () => {
                                                   size="sm"
                                                   variant="filled"
                                                   color={
-                                                    item?.videos.filter((x: { isPublish: any; }) => x.isPublish).length !== item?.videos.length
+                                                    item?.videos.filter((x: Video) => x.isPublish).length !== item?.videos.length
                                                       ? "blue"
                                                       : "red"
                                                   }
                                                 >
-                                                  {item?.videos.filter((x: { isPublish: any; }) => x.isPublish).length !== item?.videos.length ? (
+                                                  {item?.videos.filter((x: Video) => x.isPublish).length !== item?.videos.length ? (
                                                     <IconEye size={14} />
                                                   ) : (
                                                     <IconEyeOff size={14} />
@@ -410,12 +435,12 @@ const CourseHistory = () => {
                                               <Table withTableBorder={false} className='my-course-table'>
                                                 <thead>
                                                   <tr>
-                                                    <th key={Math.random()}>Lecture Title</th>
-                                                    <th key={Math.random()}>Actions</th>
+                                                    <th>Lecture Title</th>
+                                                    <th>Actions</th>
                                                   </tr>
                                                 </thead>
                                                 <tbody>
-                                                  {item?.videos?.map((video: { _id: React.Key | null | undefined; name: string | number | bigint | boolean | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | Promise<string | number | bigint | boolean | React.ReactPortal | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | null | undefined> | null | undefined; }, i: number) => (
+                                                  {item?.videos?.map((video: Video, i: number) => (
                                                     <tr key={video._id}>
                                                       <td>{i + 1}. {video.name}</td>
                                                       <td>
@@ -453,7 +478,7 @@ const CourseHistory = () => {
               <Pagination
                 value={currentPage}
                 onChange={handlePaginationChange}
-                total={Math.ceil(data?.totalCount / 10)}
+                total={Math.ceil((data?.totalCount || 0) / 10)}
                 mt="md"
                 radius="md"
               />

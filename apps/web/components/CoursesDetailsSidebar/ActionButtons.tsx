@@ -41,7 +41,7 @@ const ActionButtons = ({
         },
         onSuccess: (response) => {
             notifications.show({
-                position: 'bottom-left',
+                position: 'bottom-right',
                 title: 'Course enrolling',
                 message: response?.data || 'Enrolled successfully',
                 color: 'green',
@@ -52,7 +52,7 @@ const ActionButtons = ({
         onError: (error: any) => {
             console.log('Course Enrollment: ActionButtons :: error:', error);
             notifications.show({
-                position: 'bottom-left',
+                position: 'bottom-right',
                 title: 'Course enrollment failed',
                 message: error?.response?.data || 'Enrollment failed',
                 color: 'red',

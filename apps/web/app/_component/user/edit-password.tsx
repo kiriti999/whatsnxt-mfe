@@ -42,7 +42,7 @@ const EditPassword = () => {
     } catch (error) {
       console.log('error ', error);
       notifications.show({
-        position: 'bottom-left',
+        position: 'bottom-right',
         title: 'Edit Password Error',
         message: 'Something went error!',
         color: 'red'
@@ -50,7 +50,7 @@ const EditPassword = () => {
     } finally {
       setLoading(false);
       notifications.show({
-        position: 'bottom-left',
+        position: 'bottom-right',
         title: 'Edit Password Updated',
         message: 'Password updated!',
         color: 'green'

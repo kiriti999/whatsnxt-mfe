@@ -1,3 +1,4 @@
+// Search.tsx
 import React, { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation';
 import { SearchForm, SearchBarResult } from '@whatsnxt/core-ui';
@@ -8,28 +9,29 @@ function Search() {
     const router = useRouter();
     const [search, setSearch] = useState('');
     const [show, setShow] = useState(true);
-    const inputRef = useRef(null);
-    const containerRef = useRef(null);
+    const inputRef = useRef<HTMLInputElement>(null);
+    const containerRef = useRef<HTMLDivElement>(null);
     const { indexType } = useSearchContext();
 
     const { data, isLoading } = useAlgoliaSearch<any>(indexType, search);
 
-    const handleSearch = (e: { preventDefault: () => void; }) => {
+    const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         router.push(`/course-search?q=${search}`);
         setShow(false);
     };
 
-    const onChange = (e: { target: { value: React.SetStateAction<string>; }; }) => {
+    const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSearch(e.target.value);
         setShow(true);
     };
 
     useEffect(() => {
-        const handleClickOutside = (e: { target: any; }) => {
+        const handleClickOutside = (e: MouseEvent) => {
+            const target = e.target as Node;
             if (
-                !inputRef?.current?.contains(e.target) &&
-                !containerRef?.current?.contains(e.target)
+                !inputRef?.current?.contains(target) &&
+                !containerRef?.current?.contains(target)
             )
                 setShow(false);
         };
@@ -46,8 +48,12 @@ function Search() {
             handleSearch={handleSearch}
             inputRef={inputRef}
             containerRef={containerRef}
-            search={search} show={show} setShow={setShow}
-            change={onChange} data={data} isLoading={isLoading}
+            search={search}
+            show={show}
+            setShow={setShow}
+            change={onChange}
+            data={data}
+            isLoading={isLoading}
             SearchResultComponent={SearchBarResult}
         />
     )

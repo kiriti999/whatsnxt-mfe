@@ -5,7 +5,8 @@ import CourseInvoice from '../../../../components/CourseInvoice';
 const CourseInvoicePage = async props => {
     const params = await props.params;
     try {
-        const response = await serverFetcher(`/orders/${params.id}`);
+        const BASEURL = process.env.BFF_HOST_API as string;
+        const response = await serverFetcher(BASEURL, `/orders/${params.id}`);
         console.log(response, 'response');
         return (
             <CourseInvoice order={response} />

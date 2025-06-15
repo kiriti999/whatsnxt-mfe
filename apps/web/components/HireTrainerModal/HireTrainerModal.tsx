@@ -79,14 +79,14 @@ export const HireTrainerModal: FC<HireTrainerModalProps> = ({ opened, onClose, a
       setError(null);
 
       notifications.show({
-        position: 'bottom-left',
+        position: 'bottom-right',
         title: 'Hire Trainer',
         message: 'Your request has been submitted successfully.',
         color: 'green'
       });
     } catch (error) {
       notifications.show({
-        position: 'bottom-left',
+        position: 'bottom-right',
         title: 'Hire Trainer Error',
         message: 'Something went wrong.',
         color: 'red'

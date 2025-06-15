@@ -1,0 +1,25 @@
+{
+  "name": "@whatsnxt/blogcomments",
+  "version": "0.0.1",
+  "main": "./index.tsx",
+  "types": "./index.tsx",
+  "license": "MIT",
+  "scripts": {
+    "lint": "eslint \"**/*.ts*\"",
+    "lint:fix": "eslint \"**/*.ts*\" --fix"
+  },
+  "dependencies": {
+    "styled-components": "^6.1.13"
+  },
+  "devDependencies": {
+    "knip": "^5.61.0",
+    "postcss": "8.4.31",
+    "postcss-simple-vars": "7.0.1",
+    "ts-prune": "0.10.3",
+
+    "@types/node": "^22.15.31",
+    "@types/react": "19.1.0",
+    "@types/react-dom": "19.1.1",
+    "eslint": "^9.29.0"
+  }
+}

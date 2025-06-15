@@ -14,26 +14,28 @@ interface CourseDeleteModaProps {
 }
 
 const CourseDeleteModal = ({ courseId, isModalOpen, modalClose, handleDeleteSuccess, courseImagePublicId }: CourseDeleteModaProps) => {
+    console.log(' CourseDeleteModal :: courseImagePublicId:', courseImagePublicId)
 
     const handleCourseDeleteConfirm = async () => {
-
+        modalClose();
         const { success } = await deleteAssetWebWorker({
-            assetsList: [{ publicId: 'courseImagePublicId', type: 'image' }],
+            assetsList: [{ publicId: courseImagePublicId, type: 'image' }],
         });
+
         if (success) {
             try {
                 await CourseBuilderAPI.deleteCourse(courseId);
                 notifications.show({
-                    position: 'bottom-left',
+                    position: 'bottom-right',
                     title: 'Course deleted',
                     message: 'Course deleted successfully',
                     color: 'green',
                 });
-                //refetch();
+                // refetch();
                 handleDeleteSuccess();
             } catch (err) {
                 notifications.show({
-                    position: 'bottom-left',
+                    position: 'bottom-right',
                     title: 'Course not deleted',
                     message: err?.response?.data?.message,
                     color: 'red',
@@ -44,7 +46,7 @@ const CourseDeleteModal = ({ courseId, isModalOpen, modalClose, handleDeleteSucc
             }
         } else {
             notifications.show({
-                position: 'bottom-left',
+                position: 'bottom-right',
                 title: 'Course image',
                 message: 'Failed to delete course image from cloudinay',
                 color: 'red',

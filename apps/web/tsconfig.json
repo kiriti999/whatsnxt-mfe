@@ -22,15 +22,30 @@
       "@/components*": [
         "./components*"
       ]
-    }
+    },
+    "target": "ES2017",
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "skipLibCheck": true,
+    "strict": false,
+    "incremental": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true
   },
   "include": [
     "**/*.ts",
     "**/*.tsx",
     "next-env.d.ts",
     "next.config.ts",
-    ".next/types/**/*.ts"
-, "api/v1/comment/index.js", "utils/worker/deleteWorker.js", "utils/worker/uploadWorker.js"  ],
+    ".next/types/**/*.ts",
+    "api/v1/comment/index.js",
+    "utils/worker/deleteWorker.js",
+    "utils/worker/uploadWorker.js"
+  ],
   "exclude": [
     "node_modules"
   ]

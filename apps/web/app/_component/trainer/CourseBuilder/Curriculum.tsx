@@ -30,7 +30,6 @@ const Curriculum = ({ courseId, courseWithSections }) => {
 	const [sections, setSections] = useState(courseWithSections?.sections || []);
 	const router = useRouter();
 	const { enabledSections, setEnabledSections } = useDashboardContext();
-	const [isModalOpen, setIsModalOpen] = useState(false);
 	const { onVideoUpload, onDocUpload, onRemoveVideo, onRemoveDoc, onLectureLinksUpdated } = getVideoAndDocActions(setSections)
 
 	const reorderLectureOrder = async (

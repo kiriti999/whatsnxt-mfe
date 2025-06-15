@@ -65,7 +65,7 @@ export const useRazorPayment = ({ processPayment, verifyPayment = () => ({ statu
 
             if (!(razorpay_payment_id && razorpay_order_id && razorpay_signature)) {
                 return notifications.show({
-                    position: 'bottom-left',
+                    position: 'bottom-right',
                     title: 'Payment Failed',
                     message: 'Payment verification failed',
                     color: 'red',
@@ -104,7 +104,7 @@ export const useRazorPayment = ({ processPayment, verifyPayment = () => ({ statu
                     });
                 } else {
                     notifications.show({
-                        position: 'bottom-left',
+                        position: 'bottom-right',
                         title: 'Payment Failed',
                         message: 'Payment verification failed',
                         color: 'red',
@@ -113,7 +113,7 @@ export const useRazorPayment = ({ processPayment, verifyPayment = () => ({ statu
             } catch (error) {
                 console.error('Error handling payment response:', error);
                 notifications.show({
-                    position: 'bottom-left',
+                    position: 'bottom-right',
                     title: 'Payment Failed',
                     message: 'An error occurred during payment processing',
                     color: 'red',
@@ -130,7 +130,7 @@ export const useRazorPayment = ({ processPayment, verifyPayment = () => ({ statu
     ) => {
         if (!Razorpay) {
             notifications.show({
-                position: 'bottom-left',
+                position: 'bottom-right',
                 title: 'Payment Error',
                 message: 'Razorpay is not loaded',
                 color: 'red',
@@ -176,7 +176,7 @@ export const useRazorPayment = ({ processPayment, verifyPayment = () => ({ statu
                         console.log('Payment modal dismissed by user.');
                         close();
                         notifications.show({
-                            position: 'bottom-left',
+                            position: 'bottom-right',
                             title: 'Payment Cancelled',
                             message: 'Payment was cancelled by the user.',
                             color: 'yellow',
@@ -192,7 +192,7 @@ export const useRazorPayment = ({ processPayment, verifyPayment = () => ({ statu
                 console.error('Payment failed:', response);
                 close();
                 notifications.show({
-                    position: 'bottom-left',
+                    position: 'bottom-right',
                     title: 'Payment Failed',
                     message: response.error?.description || 'Payment failed',
                     color: 'red',
@@ -205,7 +205,7 @@ export const useRazorPayment = ({ processPayment, verifyPayment = () => ({ statu
             console.error('Error occurred during payment:', error);
             close();
             notifications.show({
-                position: 'bottom-left',
+                position: 'bottom-right',
                 title: 'Payment Error',
                 message: 'Error occurred during payment',
                 color: 'red',

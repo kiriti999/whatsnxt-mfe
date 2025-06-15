@@ -6,17 +6,12 @@ import React from 'react';
 import { notifications } from '@mantine/notifications';
 import { Container, Text } from '@mantine/core';
 import { MantineLoader } from '@whatsnxt/core-ui';
-import { useMutation } from '@apollo/client';
-import { HANDLE_CALLBACK_MUTATION, SHARE_POST_MUTATION } from '../../api/gqlQueries/linkedInCallbackQuery';
+import { LinkedInAPI } from '../../../api/v1/blog/linkedInApi'; // Adjust path as needed
 
 const LinkedInCallback = () => {
     const searchParams = useSearchParams();
     const router = useRouter();
     const [redirectUrl, setRedirectUrl] = useState('');
-
-    // GraphQL Mutations
-    const [callback] = useMutation(HANDLE_CALLBACK_MUTATION);
-    const [sharePost] = useMutation(SHARE_POST_MUTATION);
 
     useEffect(() => {
         const authCode = searchParams.get('code'); // Get the authorization code from URL
@@ -38,27 +33,23 @@ const LinkedInCallback = () => {
                 throw new Error('Unable to retrieve data for sharing. Please try again.');
             }
 
-
             // 🔹 Step 1: Exchange authorization code for tokens
-            await callback({
-                variables: { code: authCode },
-            });
-            console.log('LinkedIn authorization successful. Token saved.');
+            const callbackResult = await LinkedInAPI.handleCallback(authCode);
+            console.log('LinkedIn authorization successful. Token saved:', callbackResult);
 
             // 🔹 Step 2: Share the post after token exchange
-            const { data } = await sharePost({
-                variables: {
-                    url,
-                    title,
-                    email,
-                    text: description,
-                    thumbnailUrn,
-                    media: media?.filter(Boolean) ?? [], // Ensure media is non-nullable
-                },
+            const shareResult = await LinkedInAPI.sharePost({
+                url,
+                title,
+                email,
+                text: description,
+                thumbnailUrn,
+                media: media?.filter(Boolean) ?? [], // Ensure media is non-nullable
             });
 
-            if (data?.shareLinkedInPost) {
-                console.log('Post shared successfully.');
+            if (shareResult) {
+                console.log('Post shared successfully:', shareResult);
+
                 // Notify success
                 notifications.show({
                     title: 'Success',
@@ -70,9 +61,11 @@ const LinkedInCallback = () => {
                 localStorage.removeItem('linkedinShareData');
 
                 router.push(url);
+            } else {
+                throw new Error('Failed to share post - no response data');
             }
 
-        } catch (error) {
+        } catch (error: any) {
             console.error('Failed to share post after authorization:', error);
             notifications.show({
                 title: 'Error',
@@ -80,7 +73,13 @@ const LinkedInCallback = () => {
                 color: 'red',
                 autoClose: 3000,
             });
-            router.push(redirectUrl);
+
+            // Redirect to the original URL or a fallback
+            if (redirectUrl) {
+                router.push(redirectUrl);
+            } else {
+                router.push('/'); // Fallback to home page
+            }
         }
     };
 

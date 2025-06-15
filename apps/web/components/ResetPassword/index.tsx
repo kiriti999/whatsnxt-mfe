@@ -20,7 +20,7 @@ import { useDisclosure } from '@mantine/hooks';
 import classes from './ResetPassword.module.css';
 import { useMutation } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
-import { ProfileAPI } from '../../api/v1/user/profile';
+import { ProfileAPI } from '../../api/v1/profile/profile';
 
 
 
@@ -58,7 +58,7 @@ const ResetPassword = () => {
             onSuccess: async (response: any) => {
                 close()
                 notifications.show({
-                    position: 'bottom-left',
+                    position: 'bottom-right',
                     title: 'Reset Password Success',
                     message: response.data.message || '',
                     color: 'green',
@@ -67,7 +67,7 @@ const ResetPassword = () => {
             onError: (error: any) => {
                 close()
                 notifications.show({
-                    position: 'bottom-left',
+                    position: 'bottom-right',
                     title: 'Reset Password Error',
                     message: error?.response?.data?.error || 'An error occurred while processing your request. Please try again later',
                     color: 'red',

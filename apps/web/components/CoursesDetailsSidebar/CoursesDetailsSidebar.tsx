@@ -68,7 +68,7 @@ export const CoursesDetailsSidebar: FC<CoursesDetailsSidebarProps> = ({
   const dispatchAddToCart = (courseObj: { courseName: string }) => {
     dispatch({ type: 'ADD_TO_CART', data: courseObj });
     notifications.show({
-      position: 'bottom-left', title: 'Cart Updated', message: `${courseObj.courseName} added to cart.`, color: 'green'
+      position: 'bottom-right', title: 'Cart Updated', message: `${courseObj.courseName} added to cart.`, color: 'green'
     });
   };
 

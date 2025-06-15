@@ -6,8 +6,8 @@ const LectureLinks = ({ linkAr }) => {
         <div>
             <Title order={3}>Links</Title>
             {linkAr.map((linkData, index: number) => (
-                <Container key={linkData?._id}>
-                    <Anchor href={linkData?.link} target="_blank">Show Link {index + 1}</Anchor>
+                <Container key={linkData?._id} m={0}>
+                    <Anchor href={linkData?.link} target="_blank" size='sm'>Show Link {index + 1}</Anchor>
                 </Container>
             ))}
         </div>

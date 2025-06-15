@@ -1,6 +1,6 @@
 import { algoliaSearchByKeyword } from '@whatsnxt/core-util';
 
-export const SearchAPI = {
+export const SearchAPI: { search: (query: string) => Promise<any[]> } = {
   /**
    * @desc This function is used to add algolia search to SearchForm component.
    * @param {string} query - The search query/keyword.
@@ -23,7 +23,7 @@ export const SearchAPI = {
  * @param {string} title - The search keyword/title.
  * @returns {Promise<any>} - The search results from Algolia.
  */
-async function searchIndexedPost(title) {
+async function searchIndexedPost(title: string) {
   try {
     const indexName = process.env.NEXT_PUBLIC_ALGOLIA_COURSE_INDEX_NAME;
     const page = 0; // Default page

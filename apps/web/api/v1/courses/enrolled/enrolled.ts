@@ -19,7 +19,7 @@ export const CoursesEnrolledAPI = {
                 'Authorization': token
             }
         });
-        return response;
+        return response.data;
     },
     getEnrolledVideo: async function (token, params) {
         const response = await bffApiClient.get('/courses/enrolled/videos', {

@@ -22,7 +22,7 @@ import Link from 'next/link';
 import { fetchUser, checkSuccessResponse, getErrorMessageFromResponse, getCookieAccessToken } from '../../utils/Utils';
 import { notifications } from '@mantine/notifications';
 import { CartAPI } from '../../api/v1/cart/cart';
-import { AuthAPI } from '../../api/v1/auth/auth';
+import { AuthAPI } from '../../api/v1/auth';
 import { useMutation } from '@tanstack/react-query';
 import styles from './Authentication.module.css';
 import useAuth from '../../hooks/Authentication/useAuth';
@@ -124,7 +124,7 @@ export function AuthenticationForm(props: PaperProps) {
         if (checkSuccessResponse(response)) {
           setOtpSent(true);
           notifications.show({
-            position: 'bottom-left',
+            position: 'bottom-right',
             title: 'Registration',
             message: 'OTP sent to your email address',
             color: 'green',
@@ -132,7 +132,7 @@ export function AuthenticationForm(props: PaperProps) {
           return;
         }
         notifications.show({
-          position: 'bottom-left',
+          position: 'bottom-right',
           title: 'Registration',
           message: 'Error on sending otp, try again!',
           color: 'red',
@@ -142,7 +142,7 @@ export function AuthenticationForm(props: PaperProps) {
       },
       onError: (error) => {
         notifications.show({
-          position: 'bottom-left',
+          position: 'bottom-right',
           title: 'Registration',
           message: getErrorMessageFromResponse(error) ? getErrorMessageFromResponse(error) : 'Error on sending otp, try again!',
           color: 'red',
@@ -158,7 +158,7 @@ export function AuthenticationForm(props: PaperProps) {
         if (checkSuccessResponse(response)) {
           // const getToken = await getCookieAccessToken()
           notifications.show({
-            position: 'bottom-left',
+            position: 'bottom-right',
             title: 'Registration Success',
             message: 'Login to continue',
             color: 'green',
@@ -184,7 +184,7 @@ export function AuthenticationForm(props: PaperProps) {
           setError('otp', { type: 'manual', message: getErrorMessageFromResponse(error) })
 
           notifications.show({
-            position: 'bottom-left',
+            position: 'bottom-right',
             title: 'Authentication Error',
             message: getErrorMessageFromResponse(error),
             color: 'red',
@@ -212,7 +212,7 @@ export function AuthenticationForm(props: PaperProps) {
       },
       onError: (error) => {
         notifications.show({
-          position: 'bottom-left',
+          position: 'bottom-right',
           title: 'Authentication Error',
           message: getErrorMessageFromResponse(error),
           color: 'red',

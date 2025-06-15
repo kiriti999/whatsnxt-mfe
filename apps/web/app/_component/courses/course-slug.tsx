@@ -14,6 +14,7 @@ export default function CourseSlug({ course, reviews, reviewCommentCount }: Cour
   const [isCourseReviewMode, setisCourseReviewMode] = useState(false);
   const { user: loggedInUser } = useAuth();
 
+  
   useEffect(() => {
     if (loggedInUser?.role == "admin") {
       setisCourseReviewMode(true)

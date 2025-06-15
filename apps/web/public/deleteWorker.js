@@ -6,26 +6,14 @@ console.log('🔧 [Delete Worker] Worker script loaded');
 // we'll use dynamic imports or make the API call through postMessage
 
 const extractPublicIds = (assetsList) => {
+    console.log(' extractPublicIds :: assetsList:', assetsList)
     if (!Array.isArray(assetsList)) {
         console.error('assetsList is not an array:', assetsList);
         return [];
     }
 
     return assetsList
-        .map(asset => {
-            if (typeof asset === 'string') {
-                return asset;
-            }
-            if (asset && typeof asset === 'object' && asset.public_id) {
-                return asset.public_id;
-            }
-            if (asset && typeof asset === 'object' && asset.publicId) {
-                return asset.publicId;
-            }
-            console.warn('Invalid asset format:', asset);
-            return null;
-        })
-        .filter(id => typeof id === 'string' && id.length > 0);
+        .map(asset => asset.publicId)
 };
 
 self.onmessage = async (event) => {
@@ -34,6 +22,7 @@ self.onmessage = async (event) => {
 
     try {
         const public_ids = extractPublicIds(assetsList);
+        console.log(' self.onmessage= :: public_ids:', public_ids)
 
         if (public_ids.length === 0) {
             self.postMessage({

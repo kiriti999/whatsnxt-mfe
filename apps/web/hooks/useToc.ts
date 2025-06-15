@@ -1,4 +1,4 @@
-import { sanitize } from 'isomorphic-dompurify';
+import DOMPurify from 'isomorphic-dompurify';
 import { useCallback, useEffect, useRef } from 'react';
 
 export const useAddIdsToHeadings = (desc: string) => {
@@ -17,7 +17,7 @@ export const useAddIdsToHeadings = (desc: string) => {
     }
 
     // Sanitize the description
-    const sanitizedDescription = sanitize(decodedDescription);
+    const sanitizedDescription = DOMPurify.sanitize(decodedDescription);
 
     // Create a DOM parser
     const parser = new DOMParser();

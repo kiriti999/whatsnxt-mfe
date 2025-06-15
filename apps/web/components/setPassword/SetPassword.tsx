@@ -15,7 +15,7 @@ import { useDisclosure } from '@mantine/hooks';
 import classes from './SetPassword.module.css';
 import { useMutation } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
-import { ProfileAPI } from '../../api/v1/user/profile';
+import { ProfileAPI } from '../../api/v1/profile/profile';
 
 const SetPassword = () => {
   const [visible, { open, close }] = useDisclosure(false);
@@ -68,7 +68,7 @@ const SetPassword = () => {
       onSuccess: async (response: any) => {
         close()
         notifications.show({
-          position: 'bottom-left',
+          position: 'bottom-right',
           title: 'Reset Password Success',
           message: response?.data?.message || 'Password Reset Successfully',
           color: 'green',
@@ -78,7 +78,7 @@ const SetPassword = () => {
       onError: (error: any) => {
         close()
         notifications.show({
-          position: 'bottom-left',
+          position: 'bottom-right',
           title: 'Reset Password Error',
           message: error?.response?.data?.error || 'An error occurred while processing your request. Please try again later',
           color: 'red',

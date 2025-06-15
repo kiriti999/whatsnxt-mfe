@@ -47,9 +47,15 @@ export const NavbarDesktop = ({ links, cartItems, loginMenuLinks, drawerOpened, 
 
   function logout(e: any) {
     e.preventDefault();
+
+    // Clear Redux state
     dispatch({ type: 'UPDATE_USER_INFO', data: null });
     dispatch({ type: 'UPDATE_CART', data: { cartItems: [], discount: 0 } });
+
+    // Clear localStorage
     localStorage.removeItem('cart');
+
+    // Call the auth logout which handles cookies and navigation
     handleLogout();
   }
 
@@ -57,14 +63,14 @@ export const NavbarDesktop = ({ links, cartItems, loginMenuLinks, drawerOpened, 
     try {
       await CacheAPI.invalidate();
       notifications.show({
-        position: 'bottom-left',
+        position: 'bottom-right',
         color: 'red',
         title: 'Cache invalidation success!',
         message: 'Complete cache has been cleared',
       });
     } catch (error: any) {
       notifications.show({
-        position: 'bottom-left',
+        position: 'bottom-right',
         color: 'red',
         title: 'Cache invalidation failed!',
         message: error,

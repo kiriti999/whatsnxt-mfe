@@ -34,14 +34,14 @@ function MyBookings() {
       fetchBookings();
       setReason('');
       notifications.show({
-        position: 'bottom-left',
+        position: 'bottom-right',
         title: 'Booking Rejected',
         message: 'Your booking has been rejected.',
         color: 'green'
       });
     } catch (e) {
       notifications.show({
-        position: 'bottom-left',
+        position: 'bottom-right',
         title: 'Booking Error',
         message: 'Something went wrong',
         color: 'red'
@@ -61,7 +61,7 @@ function MyBookings() {
       setShow(null);
       fetchBookings();
       notifications.show({
-        position: 'bottom-left',
+        position: 'bottom-right',
         title: 'Booking Accepted',
         message: 'Your booking has been accepted.',
         color: 'green'
@@ -69,7 +69,7 @@ function MyBookings() {
     } catch (e) {
 
       notifications.show({
-        position: 'bottom-left',
+        position: 'bottom-right',
         title: 'Booking Error',
         message: 'Something went wrong',
         color: 'red'
@@ -91,14 +91,14 @@ function MyBookings() {
       fetchBookings();
 
       notifications.show({
-        position: 'bottom-left',
+        position: 'bottom-right',
         title: 'Booking Cancelled',
         message: 'Your booking has been cancelled.',
         color: 'green'
       });
     } catch (e) {
       notifications.show({
-        position: 'bottom-left',
+        position: 'bottom-right',
         title: 'Booking Error',
         message: 'Something went wrong',
         color: 'red'
@@ -120,14 +120,14 @@ function MyBookings() {
       fetchBookings();
 
       notifications.show({
-        position: 'bottom-left',
+        position: 'bottom-right',
         title: 'Booking Success',
         message: 'Your booking has been booked.',
         color: 'green'
       });
     } catch (e) {
       notifications.show({
-        position: 'bottom-left',
+        position: 'bottom-right',
         title: 'Booking Error',
         message: 'Something went wrong',
         color: 'red'

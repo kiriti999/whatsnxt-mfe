@@ -98,7 +98,6 @@ export const PaymentButton: FC<PaymentButtonProps> = ({
         gstRate: '18%',
       });
 
-
       // Revalidate cache
       cartItems.forEach(async (item) => await revalidate(`/courses/${item.slug}`));
       await revalidate('/my-courses');
@@ -131,11 +130,15 @@ export const PaymentButton: FC<PaymentButtonProps> = ({
     }
   };
 
-  const makePayment = useRazorPayment({ verifyPayment, processPayment });
+  // FIX: Destructure the object returned by useRazorPayment
+  const { makePayment, isLoading: razorPayLoading, error: razorPayError } = useRazorPayment({
+    verifyPayment,
+    processPayment
+  });
 
-  const showErrorNotification = (message) => {
+  const showErrorNotification = (message: string) => {
     notifications.show({
-      position: 'bottom-left',
+      position: 'bottom-right',
       title: 'Error',
       message,
       color: 'red',
@@ -149,19 +152,32 @@ export const PaymentButton: FC<PaymentButtonProps> = ({
     }
     open();
 
-    const payload = preparePayload();
+    const apiPayload = preparePayload();
+
+    // Create a separate payload for makePayment that matches the Payload type
+    const razorpayPayload = {
+      name: apiPayload.name,
+      description: apiPayload.description,
+      amount: apiPayload.amount,
+      gstAmount: apiPayload.gstAmount,
+      // Convert notes object to string for Razorpay
+      notes: `Address: ${apiPayload.notes.address || 'N/A'}, ${apiPayload.notes.gstDetails}`,
+      prefill: apiPayload.prefill,
+    };
+
     try {
-      const response = await orderAPI.createOrder(payload)
+      const response = await orderAPI.createOrder(apiPayload)
       console.log('handlePayment:: createOrder:: response:', response)
 
       const { order } = response.data;
-      makePayment(order.id, payload, close)
+      // Pass the properly typed payload to makePayment
+      makePayment(order.id, razorpayPayload, close)
     } catch (err) {
       showErrorNotification('createOrder api failed');
       close();
     }
 
-  }, [preparePayload, makePayment]);
+  }, [preparePayload, makePayment, user, router, open, close]);
 
   return (
     <div className={styles['payment-box']}>
@@ -180,15 +196,23 @@ export const PaymentButton: FC<PaymentButtonProps> = ({
       </Box>
 
       <Button color='red' size='md'
-        className={`mt-3 ${loading ? 'no-click' : ''}`}
+        className={`mt-3 ${loading || razorPayLoading ? 'no-click' : ''}`}
         onClick={(e) => {
           e.preventDefault();
           handlePayment();
         }}
         leftSection={<IconShoppingCart />}
+        disabled={loading || razorPayLoading}
       >
         Make Payment (₹{totalAmount.toFixed(2)})
       </Button>
+
+      {/* Optional: Display razor pay error if needed */}
+      {razorPayError && (
+        <Text size="sm" c="red" mt="xs">
+          {razorPayError}
+        </Text>
+      )}
     </div>
   );
 };

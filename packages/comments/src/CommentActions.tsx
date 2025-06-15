@@ -115,7 +115,7 @@ const CommentActions = ({
                                     <Menu.Item onClick={() => {
                                         reportComment();
                                         notifications.show({
-                                            position: 'bottom-left',
+                                            position: 'bottom-right',
                                             title: 'Comment flagged',
                                             message: 'Comment has been reported',
                                             color: 'green',

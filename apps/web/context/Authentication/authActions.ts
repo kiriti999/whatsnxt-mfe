@@ -1,4 +1,4 @@
-import { AuthAPI } from './../../api/v1/auth/auth';
+import { AuthAPI } from '../../api/v1/auth';
 import { notifications } from '@mantine/notifications';
 import { removeCookie } from '../../utils/Utils';
 
@@ -9,11 +9,12 @@ export const handleLogin = async (
   searchParams,
   isToastMessage = true
 ) => {
+  // Set user in state and cookie
   setUser(user);
-  
+
   if (isToastMessage) {
     notifications.show({
-      position: 'bottom-left',
+      position: 'bottom-right',
       title: 'Authentication Success',
       message: 'User logged in successfully',
       color: 'green',
@@ -27,12 +28,36 @@ export const handleLogin = async (
 
 export const handleLogout = async (setUser, router, dispatch) => {
   try {
-    dispatch({ type: 'UPDATE_CART', data: { cartItems: [], discount: 0 } });
-    await AuthAPI.logout();
+    // Clear user state immediately
     setUser(null);
+
+    // Clear Redux state
+    dispatch({ type: 'UPDATE_USER_INFO', data: null });
+    dispatch({ type: 'UPDATE_CART', data: { cartItems: [], discount: 0 } });
+
+    // Clear localStorage
+    console.log('Calling logout API...');
+    localStorage.removeItem('cart');
+
+    // Then call API logout
+    await AuthAPI.logout();
+
+    // Navigate to authentication page
     router.replace('/authentication');
   } catch (e) {
-    // if api fails, then will manually remove cookies 
+    // Ensure cleanup even if API fails
+    setUser(null);
+    removeCookie(process.env.NEXT_PUBLIC_COOKIES_USER_INFO);
     removeCookie(process.env.NEXT_PUBLIC_COOKIES_ACCESS_TOKEN);
+
+    // Clear Redux state
+    dispatch({ type: 'UPDATE_USER_INFO', data: null });
+    dispatch({ type: 'UPDATE_CART', data: { cartItems: [], discount: 0 } });
+
+    // Clear localStorage
+    localStorage.removeItem('cart');
+
+    // Still redirect to authentication
+    router.replace('/authentication');
   }
 };

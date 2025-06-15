@@ -35,7 +35,7 @@ export const ContactUsForm = () => {
             if (result.status === 'success') {
                 // Show success notification
                 notifications.show({
-                    position: 'bottom-left',
+                    position: 'bottom-right',
                     title: 'Message Sent',
                     message: 'Your message has been successfully sent!',
                     color: 'green',
@@ -50,7 +50,7 @@ export const ContactUsForm = () => {
 
             // Show error notification
             notifications.show({
-                position: 'bottom-left',
+                position: 'bottom-right',
                 title: 'Error',
                 message: 'Failed to send your message. Please try again later.',
                 color: 'red',

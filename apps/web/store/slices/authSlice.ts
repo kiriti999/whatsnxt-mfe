@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { AuthAPI } from '../../api/v1';
+import { AuthAPI } from '../../api/v1/auth';
 
 const initialState = {
   email: '',
@@ -8,11 +8,11 @@ const initialState = {
 };
 
 const signup = createAsyncThunk(
-  'blog/signup',
+  'signup',
   async (payload: any) => await AuthAPI.createAccount(payload),
 );
 const logout = createAsyncThunk(
-  'blog/logout',
+  'logout',
   async () => await AuthAPI.logout(),
 );
 

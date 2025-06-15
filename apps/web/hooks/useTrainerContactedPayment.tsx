@@ -16,6 +16,7 @@ export default function useTrainerContactedPayment(trainerId: string, returnto: 
     const router = useRouter();
 
     const { payload, hasPurchased, refetchQuery, notLoggedIn, userId, buyerEmail } = useAlreadyHasPurchased(trainerId);
+
     if (notLoggedIn) {
         return {
             notLoggedIn,
@@ -50,7 +51,7 @@ export default function useTrainerContactedPayment(trainerId: string, returnto: 
         } catch (error) {
             console.error('Error during contacted payment update or mail operation:', error);
             notifications.show({
-                position: 'bottom-left',
+                position: 'bottom-right',
                 title: 'API error',
                 message: 'Error while updating contacted students or sending purchase mail',
                 color: 'red'
@@ -61,7 +62,8 @@ export default function useTrainerContactedPayment(trainerId: string, returnto: 
         };
     }
 
-    const makePayment = useRazorPayment({ processPayment, verifyPayment });
+    // Destructure the makePayment function from the returned object
+    const { makePayment, isLoading, error } = useRazorPayment({ processPayment, verifyPayment });
 
     const handlePayment = useCallback(async () => {
         setPayNowModalOpened(false);
@@ -71,17 +73,18 @@ export default function useTrainerContactedPayment(trainerId: string, returnto: 
             const response = await trainerContactedPaymentAPI.createOrder(payload);
             const { order } = response.data;
 
+            // Now call makePayment as a function
             makePayment(order.id, payload, close);
         } catch (err) {
             close();
             notifications.show({
-                position: 'bottom-left',
+                position: 'bottom-right',
                 title: 'API error',
                 message: 'trainerContactedPayment API failed',
                 color: 'red',
             });
         }
-    }, [open, close])
+    }, [makePayment, open, close, payload]); // Added makePayment and payload to dependencies
 
     return {
         isVisible,
@@ -93,5 +96,7 @@ export default function useTrainerContactedPayment(trainerId: string, returnto: 
         hasPurchased,
         buyerEmail,
         refetchQuery,
+        isLoading, // You might want to expose these for UI states
+        error,
     };
 }

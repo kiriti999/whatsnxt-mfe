@@ -90,7 +90,7 @@ export const handleLandingPageSubmit: HandleLandingPageSubmit = async (
         const response = await CourseBuilderAPI.updateCourseLandingPageDetails(courseId, payload);
         if (response.status === 'updated') {
             notifications.show({
-                position: 'bottom-left',
+                position: 'bottom-right',
                 title: 'Course Updated',
                 message: response.message,
                 color: 'green',
@@ -100,7 +100,7 @@ export const handleLandingPageSubmit: HandleLandingPageSubmit = async (
         }
     } catch (err) {
         notifications.show({
-            position: 'bottom-left',
+            position: 'bottom-right',
             title: 'Course Error',
             message: err?.response?.data || 'Course failed to update',
             color: 'red',

@@ -1,6 +1,11 @@
+
 import { CloudinaryAPI } from '../api/v1/cloudinary';
 
-export async function uploadToCloudinary(image, folderName = process.env.NEXT_PUBLIC_UPLOAD_CLOUDINARY_PRESET) {
+export async function uploadToCloudinary(
+  image: File | Blob,
+  folderName: string = process.env.NEXT_PUBLIC_UPLOAD_CLOUDINARY_PRESET as string,
+  onUploadProgress?: (progressEvent: any) => void
+) {
   try {
     let formData = new FormData();
     formData.append(
@@ -11,13 +16,15 @@ export async function uploadToCloudinary(image, folderName = process.env.NEXT_PU
     formData.append('folder', folderName);
     formData.append('upload_preset', folderName);
     formData.append('timeout', '120000');
-    return await CloudinaryAPI.upload(formData);
+
+    // Provide both required arguments to upload method
+    return await CloudinaryAPI.upload(formData, onUploadProgress || (() => { }));
   } catch (error) {
     console.log('image-upload.js:: uploadToCloudinary:: error:', error);
   }
 }
 
-export async function uploadFormDataToCloudinary(image, folder?: string) {
+export async function uploadFormDataToCloudinary(image: string | Blob, folder?: string) {
   const formData = new FormData();
   formData.append('file', image);
   formData.append('upload_preset', folder);
@@ -25,7 +32,7 @@ export async function uploadFormDataToCloudinary(image, folder?: string) {
   return await CloudinaryAPI.uploadFormData(formData);
 }
 
-export const deleteCloudinaryImage = async (payload) => {
+export const deleteCloudinaryImage = async (payload: { public_id: any; }) => {
   const deleteResult = await CloudinaryAPI.delete(payload.public_id);
   console.log(
     'image-upload.js:: deleteCloudinaryImage:: deleteResult:',

@@ -8,7 +8,7 @@ const BASEURL = process.env.BFF_HOST_API as string;
 export const fetchTrainerProfile = async (userId?: string) => {
     try {
         const url = userId ? `/profile?userId=${userId}` : `/profile`
-        const response = await fetch(url); // Automatically GET
+        const response = await serverFetcher(BASEURL, url); // Automatically GET
         return response;
     } catch (error) {
         console.error('applyActions:: Error fetching trainer profile with query:', error);

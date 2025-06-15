@@ -9,7 +9,8 @@ import { cache } from 'react';
 
 const fetchInterviewData = cache(async (slug: string) => {
     try {
-        return await fetch(`/interview/${slug}`);
+        const BASEURL = process.env.BFF_HOST_API as string;
+        return await serverFetcher(BASEURL, `/interview/${slug}`);
     } catch (error) {
         return null;
     }

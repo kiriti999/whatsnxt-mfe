@@ -6,7 +6,6 @@ import { type CourseType, type Category } from '@whatsnxt/core-util';
 import styles from './Widget.module.css';
 
 const CoursesSidebar = ({ courses, categories }: { courses: CourseType[]; categories: Category[] }) => {
-  console.log(' CoursesSidebar :: courses, categories :', courses, categories)
   return (
     <div className={styles['widget-area']}>
       <div className={`${styles['widget']} ${styles['widget_recent_courses']}`}>
@@ -18,7 +17,7 @@ const CoursesSidebar = ({ courses, categories }: { courses: CourseType[]; catego
               <PopularPost
                 key={course._id}
                 imageUrl={course.courseImageUrl}
-                title={course.courseName}
+                title={course?.courseName}
                 updatedAt={new Date(course.updatedAt).toLocaleDateString('en-US', {
                   day: 'numeric',
                   month: 'short',

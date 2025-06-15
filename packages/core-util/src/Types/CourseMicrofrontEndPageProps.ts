@@ -19,7 +19,7 @@ export type CourseType = {
   id: string;
   _id: string;
   discount: number | null;
-  title: string;
+  courseName: string;
   overview: string;
   topics: string;
   price: number | null;

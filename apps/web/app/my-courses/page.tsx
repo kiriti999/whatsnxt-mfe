@@ -14,9 +14,7 @@ const getEnrolledCourses = async () => {
 
     try {
         const response = await CoursesEnrolledAPI.getEnrolled(token.value)
-        console.log('🚀 ~ getEnrolledCourses ~ response:', response.data)
-
-        const { enrolled, total } = response.data;
+        const { enrolled, total } = response;
         return { enrolled, total };
     } catch (error) {
         console.error('Error fetching enrolled courses:', error);

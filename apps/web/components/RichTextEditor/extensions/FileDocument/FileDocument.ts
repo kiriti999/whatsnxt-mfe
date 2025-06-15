@@ -1,4 +1,4 @@
-import { Node, mergeAttributes, CommandProps } from "@tiptap/core";
+import { Node, CommandProps } from "@tiptap/core";
 
 declare module "@tiptap/core" {
     interface Commands<ReturnType> {
@@ -44,8 +44,8 @@ export const FileDocument = Node.create({
                 getAttrs: (dom) => {
                     const aTag = dom.querySelector('a');
                     if (aTag) {
-                        const href = aTag.getAttribute('href'); // Corrected to 'href'
-                        const name = aTag.textContent; // Get the text content for the name
+                        const href = aTag.getAttribute('href');
+                        const name = aTag.textContent;
                         return {
                             src: href,
                             name: name,
@@ -85,13 +85,23 @@ export const FileDocument = Node.create({
                 dom: wrapper,
                 contentDOM: wrapper,
                 update: (updatedNode) => {
+                    // Check if this is the same node type
+                    if (updatedNode.type !== node.type) {
+                        return false;
+                    }
+
+                    // Check if attributes have changed
                     if (updatedNode.attrs.src !== node.attrs.src || updatedNode.attrs.name !== node.attrs.name) {
+                        // Update the DOM
                         while (wrapper.firstChild) {
                             wrapper.removeChild(wrapper.firstChild);
                         }
                         const updatedContent = getFileEmbed(updatedNode.attrs.name, updatedNode.attrs.src);
                         wrapper.appendChild(updatedContent);
                     }
+
+                    // Return true to indicate the update was successful
+                    return true;
                 },
             };
         };

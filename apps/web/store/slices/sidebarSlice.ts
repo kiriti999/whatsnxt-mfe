@@ -43,7 +43,6 @@ const sidebarSlice = createSlice({
           state: { articles: any; loading: boolean; error: string },
           action: { payload: any },
         ) => {
-          console.log(' sidebar action:', action)
           state.articles = action.payload;
           state.loading = false;
           state.error = '';

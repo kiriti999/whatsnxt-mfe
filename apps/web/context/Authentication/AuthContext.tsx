@@ -1,7 +1,6 @@
-import { createContext, useEffect, useState } from 'react';
+import { createContext, useEffect, useState, useMemo, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
-import { fetchUser } from '../../utils/Utils';
 import { useSearchParams } from 'next/navigation'
 import { useDispatch } from 'react-redux';
 import { handleLogin, handleLogout } from './authActions';
@@ -37,8 +36,7 @@ export interface AuthContextType {
     isToastMessage?: boolean
   ) => Promise<void>;
   logout: () => Promise<void>;
-  profileApi: () => Promise<void>;
-  token: string
+  token: string;
 }
 
 // ** Defaults
@@ -49,62 +47,83 @@ const defaultProvider: AuthContextType = {
   setLoading: () => null,
   login: () => Promise.resolve(),
   logout: () => Promise.resolve(),
-  profileApi: () => Promise.resolve(),
   isAuthenticated: false,
   token: ''
 };
 
 const AuthContext = createContext<AuthContextType>(defaultProvider);
 
-const AuthProvider = ({ children, userData }) => {
-  const userCookie = Cookies.get(process.env.NEXT_PUBLIC_COOKIES_USER_INFO);
+interface AuthProviderProps {
+  children: React.ReactNode;
+  userData?: any;
+}
+
+const AuthProvider = ({ children, userData }: AuthProviderProps) => {
   const dispatch = useDispatch();
   const searchParams = useSearchParams();
   const router = useRouter();
 
-  const [user, setUser] = useState(
-    userCookie ? JSON.parse(userCookie) : null
-  );
-  const [loading, setLoading] = useState<boolean>(defaultProvider.loading);
-  const token = Cookies.get(process.env.NEXT_PUBLIC_COOKIES_ACCESS_TOKEN);
+  // Initialize user state from userData or cookies
+  const [user, setUser] = useState(() => {
+    if (userData) return userData;
 
-  useEffect(() => {
-    setLoading(true);
-    if (userData) setUser(userData);
-    setLoading(false);
-  }, [userData]);
-
-  const profileApiCall = async () => {
     try {
-      const userObject = await fetchUser(Cookies.get(process.env.NEXT_PUBLIC_COOKIES_USER_PROFILE));
-      if (userObject) {
-        setUser({ ...userObject });
-      }
+      const userCookie = Cookies.get(process.env.NEXT_PUBLIC_COOKIES_USER_INFO);
+      return userCookie ? JSON.parse(userCookie) : null;
     } catch (error) {
-      console.log('profileApiCall ~ error:', error);
+      console.error('Error parsing user cookie:', error);
+      return null;
     }
-  };
+  });
 
-  // Create wrapper functions that pass the required arguments
-  const login = async (user: User, isToastMessage = true) => {
-    return handleLogin(user, setUser, router, searchParams, isToastMessage);
-  };
+  const [loading, setLoading] = useState<boolean>(false);
 
-  const logout = async () => {
-    return handleLogout(setUser, router, dispatch);
-  };
+  // Get current token from cookies (computed each time)
+  const token = useMemo(() => {
+    return Cookies.get(process.env.NEXT_PUBLIC_COOKIES_ACCESS_TOKEN) || '';
+  }, []);
 
-  const values: AuthContextType = {
-    isAuthenticated: !!userCookie && !!token,
+  // Simple setUser function (no cookie management - backend handles it)
+  const setUserOnly = useCallback((newUser: any) => {
+    console.log('Setting user:', newUser);
+    setUser(newUser);
+  }, []);
+
+  // Only sync with userData prop changes
+  useEffect(() => {
+    if (userData && (!user || JSON.stringify(userData) !== JSON.stringify(user))) {
+      console.log('Updating user from userData prop');
+      setUserOnly(userData);
+    }
+  }, [userData, setUserOnly]);
+
+
+  // Memoize functions to prevent unnecessary re-renders
+  const login = useMemo(() =>
+    async (user: User, isToastMessage = true) => {
+      return handleLogin(user, setUserOnly, router, searchParams, isToastMessage);
+    },
+    [router, searchParams, setUserOnly]
+  );
+
+  const logout = useMemo(() =>
+    async () => {
+      return handleLogout(setUserOnly, router, dispatch);
+    },
+    [router, dispatch, setUserOnly]
+  );
+
+  // Memoize context value to prevent unnecessary re-renders
+  const values: AuthContextType = useMemo(() => ({
+    isAuthenticated: !!user,
     user,
     loading,
-    setUser,
+    setUser: setUserOnly,
     setLoading,
     login,
     logout,
-    profileApi: profileApiCall,
     token
-  };
+  }), [user, loading, token, login, logout, setUserOnly]);
 
   return <AuthContext.Provider value={values}>{children}</AuthContext.Provider>;
 };

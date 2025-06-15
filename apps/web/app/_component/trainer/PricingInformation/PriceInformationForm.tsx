@@ -76,7 +76,7 @@ const PriceInformationForm = ({ courseId, courseWithSections }) => {
 			setLoading(true)
 			await CourseBuilderAPI.updateCoursePricing(courseId, payload);
 			notifications.show({
-				position: 'bottom-left',
+				position: 'bottom-right',
 				title: 'Price info Update',
 				message: 'Course price successfully updated.',
 				color: 'green',
@@ -92,7 +92,7 @@ const PriceInformationForm = ({ courseId, courseWithSections }) => {
 			console.error('Error updating course pricing:', error);
 			// Optional: Display error notification
 			notifications.show({
-				position: 'bottom-left',
+				position: 'bottom-right',
 				title: 'Price info Update',
 				message: 'Something went wrong.',
 				color: 'gred',

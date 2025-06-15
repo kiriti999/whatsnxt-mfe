@@ -34,7 +34,7 @@ export function CourseCard({ course }: CourseCardProps) {
             }}
         >
             <CardComponent
-                courseName={course.title}
+                courseName={course.courseName}
                 paidType={paidType}
                 link={`/courses/${course.slug}`}
                 image={
@@ -42,7 +42,7 @@ export function CourseCard({ course }: CourseCardProps) {
                         <Image
                             fill
                             style={{ objectFit: 'cover' }}
-                            alt={course.title}
+                            alt={course.courseName}
                             src={course.courseImageUrl}
                             priority={false}
                             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"

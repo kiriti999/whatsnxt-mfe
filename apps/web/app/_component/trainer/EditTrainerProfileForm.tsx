@@ -99,7 +99,7 @@ const EditTrainerProfileForm: React.FC<EditTrainerProfileFormProps> = ({
 
             if (updatedProfile.status) {
                 notifications.show({
-                    position: 'bottom-left',
+                    position: 'bottom-right',
                     title: "Profile Updated",
                     message: "Your profile has been updated successfully.",
                     color: "green",
@@ -110,7 +110,7 @@ const EditTrainerProfileForm: React.FC<EditTrainerProfileFormProps> = ({
 
         } catch (error: any) {
             notifications.show({
-                position: 'bottom-left',
+                position: 'bottom-right',
                 title: "Update Failed",
                 message: error?.message || "Failed to update profile.",
                 color: "red",

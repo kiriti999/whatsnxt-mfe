@@ -151,7 +151,7 @@ const RegisterForm = ({ user }: { user: any }) => {
       console.log('🚀 ~ consthandleApply:SubmitHandler<RegisterFormValues>= ~ payload:', payload)
       const response = await UserAPI.apply(payload);
       notifications.show({
-        position: "bottom-left",
+        position: "bottom-right",
         title: "Applied Successfully",
         message: response,
         color: "green",
@@ -161,7 +161,7 @@ const RegisterForm = ({ user }: { user: any }) => {
       router.push("/trainer/courses");
     } catch (error: any) {
       notifications.show({
-        position: "bottom-left",
+        position: "bottom-right",
         title: "Registration Failed",
         message: error?.message || "Failed to apply",
         color: "red",

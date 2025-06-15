@@ -34,7 +34,7 @@ const VideosPanel = ({ courseId, userId, section, openVideoModal, isCourseReview
                             <Group>
                                 {item.lectureLinks.map((link, index) => {
                                     return (
-                                        <Tooltip label='View link' key={index}>
+                                        <Tooltip label='Article link' key={index}>
                                             <ActionIcon size='xs' variant='subtle' component={Link} href={link.link}>
                                                 <IconLink stroke={2} />
                                             </ActionIcon>
@@ -42,7 +42,7 @@ const VideosPanel = ({ courseId, userId, section, openVideoModal, isCourseReview
                                     )
                                 })}
                                 {item?.docUrl && <Group>
-                                    <Tooltip label='View file'>
+                                    <Tooltip label='Course file'>
                                         <ActionIcon size='xs' variant='subtle' component={Link} href={item.docUrl}>
                                             <IconFile stroke={2} />
                                         </ActionIcon>

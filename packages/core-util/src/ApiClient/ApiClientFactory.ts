@@ -123,6 +123,7 @@ const getApiConfig = (type: ApiClientType): ApiClientConfig => {
             return {
                 ...baseConfig,
                 baseURL: process.env.NEXT_PUBLIC_BFF_HOST_AUTH_API!,
+                requestInterceptor: bffRequestInterceptor,
                 errorHandler: authErrorHandler,
             };
 

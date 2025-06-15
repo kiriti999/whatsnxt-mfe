@@ -1,6 +1,4 @@
-// serverQuery.ts
-import { type } from 'os';
-import { start } from 'repl';
+
 import { serverFetcher } from './serverFetcher';
 
 const BASEURL = process.env.BFF_BLOG_HOST_API as string;

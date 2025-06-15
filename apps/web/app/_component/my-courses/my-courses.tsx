@@ -46,6 +46,7 @@ type CourseCardProps = {
 
 // Component to render a single course
 const CourseCard = ({ course, lessonsWatched, lessons, commentData, ratingData }: CourseCardProps) => {
+  console.log(' CourseCard :: course:', course)
   const { user } = useAuth();
   const totalLessons = lessons.length;
   const courseProgressPercentage = lessonsWatched === 0 ? 0 : Math.ceil((lessonsWatched / totalLessons) * 100);
@@ -124,7 +125,7 @@ const CourseCard = ({ course, lessonsWatched, lessons, commentData, ratingData }
         setCommetId(newComment._id);
       }
       notifications.show({
-        position: 'bottom-left',
+        position: 'bottom-right',
         color: 'green',
         title: 'Review Submitted',
         message: 'Your review is submited',
@@ -136,7 +137,7 @@ const CourseCard = ({ course, lessonsWatched, lessons, commentData, ratingData }
       close();
     } catch (error) {
       notifications.show({
-        position: 'bottom-left',
+        position: 'bottom-right',
         color: 'red',
         title: 'Review not Submitted',
         message: 'Unable to submit your review try again later.',
@@ -170,14 +171,14 @@ const CourseCard = ({ course, lessonsWatched, lessons, commentData, ratingData }
           setShowReviewTextBox(false);
 
           notifications.show({
-            position: 'bottom-left',
+            position: 'bottom-right',
             color: 'green',
             title: 'Review Deleted',
             message: 'Your review has been successfully deleted.',
           });
         } catch (error) {
           notifications.show({
-            position: 'bottom-left',
+            position: 'bottom-right',
             color: 'red',
             title: 'Error',
             message: 'An error occurred while deleting your review. Please try again.',
@@ -318,12 +319,14 @@ type MyCoursesProps = {
 };
 
 const MyCourses = ({ enrolled, total }: MyCoursesProps) => {
+  console.log(' MyCourses :: enrolled:', enrolled)
 
   const [recordsPerPage] = useState(8);
   const [currentPage, setCurrentPage] = useState(1);
   const indexOfLastRecord = currentPage * recordsPerPage;
   const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
   const currentRecords = enrolled.slice(indexOfFirstRecord, indexOfLastRecord);
+  console.log(' MyCourses :: currentRecords:', currentRecords)
   const nPages = Math.ceil(total / recordsPerPage);
   return (
     <div>

@@ -16,7 +16,7 @@ import {
   IconEye
 } from "@tabler/icons-react";
 import Pagination from '../pagination/pagination';
-import { sanitize } from 'isomorphic-dompurify';
+import DOMPurify from 'isomorphic-dompurify';
 
 
 const fetchNotificationsData = async (page: number) => {
@@ -52,7 +52,7 @@ const NotificationItem = ({ notification, isSelected, onClick, onCheckboxChange 
         <Text
           lineClamp={3}
           dangerouslySetInnerHTML={{
-            __html: sanitize(decodeURI(notification.message)),
+            __html: DOMPurify.sanitize(decodeURI(notification.message)),
           }}
         />
       </div>

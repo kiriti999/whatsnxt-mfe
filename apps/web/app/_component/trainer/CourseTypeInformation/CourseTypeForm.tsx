@@ -59,7 +59,7 @@ const CourseTypeForm = ({ courseId, cType }: Props) => {
 
 			if (response.courseType) {
 				notifications.show({
-					position: 'bottom-left',
+					position: 'bottom-right',
 					title: 'Course Type Updated',
 					message: 'Course Type successfully updated.',
 					color: 'green',
@@ -75,7 +75,7 @@ const CourseTypeForm = ({ courseId, cType }: Props) => {
 			}
 		} catch (error) {
 			notifications.show({
-				position: 'bottom-left',
+				position: 'bottom-right',
 				title: 'Course Type Updated',
 				message: 'Something went wrong',
 				color: 'red',

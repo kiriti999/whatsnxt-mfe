@@ -1,13 +1,12 @@
 "use client"
 
-import React, { useEffect } from 'react';
+import React, { useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import { Box } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { NavbarDesktop } from './Desktop';
 import { NavbarMobile } from './Mobile';
 import useAuth from '../../hooks/Authentication/useAuth';
-import process from 'process';
 import { IconUserHeart } from '@tabler/icons-react';
 
 type LinkType = {
@@ -32,21 +31,44 @@ const Navbar = ({ loginMenuLinks, links }: headerProps) => {
     const cartItems = useSelector((state: any) => state.cart.cartItems);
     const [drawerOpened, { toggle: toggleDrawer, close: closeDrawer }] = useDisclosure(false);
 
-    useEffect(() => {
+    // Create a new array with admin link if user is admin, without mutating the original
+    const enhancedLoginMenuLinks = useMemo(() => {
         if (authUser?.role === 'admin') {
-            loginMenuLinks.unshift({ title: 'Admin view', url: `${process.env.NEXT_PUBLIC_MFE_HOST}/admin/course-review-request`, linkType: '_self', icon: IconUserHeart })
+            const adminLink = {
+                title: 'Admin view',
+                url: `${process.env.NEXT_PUBLIC_MFE_HOST || ''}/admin/course-review-request`,
+                linkType: '_self',
+                icon: IconUserHeart
+            };
+
+            // Check if admin link already exists to prevent duplicates
+            const hasAdminLink = loginMenuLinks.some(link => link.title === 'Admin view');
+            if (!hasAdminLink) {
+                return [adminLink, ...loginMenuLinks];
+            }
         }
-    }, [authUser?.role])
+        return loginMenuLinks;
+    }, [authUser?.role, loginMenuLinks]);
 
     return (
         <Box>
-            <NavbarDesktop user={authUser} links={links} cartItems={cartItems}
-                loginMenuLinks={loginMenuLinks} drawerOpened={drawerOpened}
-                toggleDrawer={toggleDrawer} />
+            <NavbarDesktop
+                user={authUser}
+                links={links}
+                cartItems={cartItems}
+                loginMenuLinks={enhancedLoginMenuLinks}
+                drawerOpened={drawerOpened}
+                toggleDrawer={toggleDrawer}
+            />
 
-            <NavbarMobile user={authUser} links={links} cartItems={cartItems}
-                loginMenuLinks={loginMenuLinks} drawerOpened={drawerOpened}
-                closeDrawer={closeDrawer} />
+            <NavbarMobile
+                user={authUser}
+                links={links}
+                cartItems={cartItems}
+                loginMenuLinks={enhancedLoginMenuLinks}
+                drawerOpened={drawerOpened}
+                closeDrawer={closeDrawer}
+            />
         </Box>
     );
 }

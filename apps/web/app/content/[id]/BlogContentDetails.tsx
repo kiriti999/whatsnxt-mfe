@@ -3,7 +3,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { AnalyticsAPI } from '../../../api/v1/blog/analyticsApi';
 import { usePathname } from 'next/navigation';
 import SidebarPost from '../../../components/Blog/sidebar';
-import { Comment, CommentContextProvider, CommentReplyContextProvider } from '@whatsnxt/comments';
+import { BlogComment, CommentContextProvider, CommentReplyContextProvider } from '@whatsnxt/blogcomments';
 import BlogContent from '../../../components/Blog/Content/Blog';
 import SidebarHeadings from '../../../components/Blog/sidebar-headings';
 import { WindowCheck } from '@whatsnxt/core-util';
@@ -13,7 +13,7 @@ import useAuth from '../../../hooks/Authentication/useAuth';
 import { Box, Container, Grid, GridCol, Stack } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { calculateTotalViews } from '@/utils/pageViews';
-import useCommentHandlers from '@whatsnxt/comments/src/hooks/useCommentHandlers';
+import useCommentHandlers from '@whatsnxt/blogcomments/src/hooks/useCommentHandlers';
 
 const initialProps = {
   title: '',
@@ -181,15 +181,12 @@ function BlogContentDetails({ details }: BlogContentDetailsProps) {
                   comments={comments}
                 >
                   <CommentContextProvider>
-                    <Comment
+                    <BlogComment
                       userId={userId}
                       email={email}
                       comment={comments}
-                      item={item}
                       root={true}
                       rootDepth={1}
-                      contentId={contentId}
-                      setComments={setComments}
                       handleInsertNode={handleInsertNode}
                       handleEditNode={handleEditNode}
                       handleDeleteNode={handleDeleteNode}

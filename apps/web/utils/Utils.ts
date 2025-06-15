@@ -56,7 +56,6 @@ export const axiosApi = {
     blogApiBaseUrl: process.env.NEXT_PUBLIC_BFF_BLOG_HOST
 }
 
-
 export const checkSuccessResponse = res => {
     return res?.status === 200 || res?.status === 201 || res?.success === true
 }

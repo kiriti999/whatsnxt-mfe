@@ -4,7 +4,7 @@ import { JSX, ReactNode, useState } from 'react';
 import { Provider } from 'react-redux';
 import NextTopLoader from 'nextjs-toploader';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { createTheme, DEFAULT_THEME, MantineProvider, TypographyStylesProvider } from '@mantine/core';
+import { DEFAULT_THEME, MantineProvider, TypographyStylesProvider } from '@mantine/core';
 import { Notifications } from '@mantine/notifications';
 import Layout from '../Layout';
 import FilterStore from '../../context/filterStore';
@@ -17,9 +17,6 @@ import { User } from '../Navbar/types';
 import { ModalsProvider } from '@mantine/modals';
 import SearchProvider from '@/context/SearchContext';
 
-const theme = createTheme({
-  fontFamily: `Roboto, ${DEFAULT_THEME.fontFamily}`,
-})
 
 export default function CoursesMicrofrontend({ children, user }: { children: ReactNode, user: User }): JSX.Element {
   const [queryClient] = useState(

@@ -97,7 +97,7 @@ const CreateCourseName = () => {
 
       setLoading(false);
       notifications.show({
-        position: 'bottom-left',
+        position: 'bottom-right',
         title: 'Course name success',
         message: 'Course name created successfully',
         color: 'green',
@@ -108,7 +108,7 @@ const CreateCourseName = () => {
       console.log('Error during form submission:', error);
       setLoading(false);
       notifications.show({
-        position: 'bottom-left',
+        position: 'bottom-right',
         title: 'Course Name Error',
         message: error?.response?.data?.message,
         color: 'red',

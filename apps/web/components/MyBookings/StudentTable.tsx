@@ -42,40 +42,50 @@ function StudentTable({ bookings, handleBooked, handleCancel }) {
   const [reason, setReason] = useState('');
   const [loading, setLoading] = useState(false);
   const [bookingIndex, setBookingIndex] = useState<number>();
-
   const [amount, setAmount] = useState(null);
-
-  const payload = {
-    name: 'Trainer hiring',
-    description: 'Whatsnxt trainer hiring',
-    amount,
-  }
 
   const processPayment = ({ paymentId, amount }) => {
     handleBooked(bookingIndex, paymentId, amount / 100);
   }
-  const makePayment = useRazorPayment({ processPayment });
+
+  // FIX: Destructure the object returned by useRazorPayment
+  const { makePayment, isLoading: razorPayLoading, error: razorPayError } = useRazorPayment({
+    processPayment
+  });
 
   const handlePayment = useCallback(
     async (bookingIndex: number) => {
       setLoading(true);
       const booking = bookings[bookingIndex];
 
-      const response = await TrainerAPI.checkout({ id: booking._id })
-      const { data: order, success } = response;
+      try {
+        const response = await TrainerAPI.checkout({ id: booking._id });
+        const { data: order, success } = response;
 
-      if (success) {
-        setAmount(order.amount)
-        makePayment(order.id, {
-          ...payload, prefill: {
-            name: booking.name,
-            email: booking.email,
-            contact: booking.phone,
-          }
-        }, () => setLoading(false))
+        if (success) {
+          setAmount(order.amount);
+
+          // Create the payload that matches the Payload type
+          const razorpayPayload = {
+            name: 'Trainer hiring',
+            description: 'Whatsnxt trainer hiring',
+            amount: order.amount,
+            prefill: {
+              name: booking.name,
+              email: booking.email,
+              contact: booking.phone,
+            }
+          };
+
+          // FIX: Call makePayment as a function
+          makePayment(order.id, razorpayPayload, () => setLoading(false));
+        }
+      } catch (error) {
+        console.error('Error during payment:', error);
+        setLoading(false);
       }
     },
-    [bookings, handleBooked]
+    [bookings, handleBooked, makePayment]
   );
 
   return (
@@ -152,13 +162,14 @@ function StudentTable({ bookings, handleBooked, handleCancel }) {
                     {booking.status === 'accepted' && (
                       <button
                         className="btn btn-success"
+                        disabled={loading || razorPayLoading}
                         onClick={(e) => {
                           e.preventDefault();
                           setBookingIndex(index);
                           handlePayment(index);
                         }}
                       >
-                        Book Now
+                        {loading || razorPayLoading ? 'Processing...' : 'Book Now'}
                       </button>
                     )}
                   </div>
@@ -168,6 +179,13 @@ function StudentTable({ bookings, handleBooked, handleCancel }) {
           ))}
         </tbody>
       </table>
+
+      {/* Optional: Display razor pay error if needed */}
+      {razorPayError && (
+        <div className="alert alert-danger mt-2">
+          {razorPayError}
+        </div>
+      )}
     </>
   );
 }

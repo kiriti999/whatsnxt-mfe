@@ -56,7 +56,7 @@ const AddQuestion = ({ onAddQuestion, courseId }) => {
       if (response.status === 200) {
         setApiKey('')
         notifications.show({
-          position: 'bottom-left',
+          position: 'bottom-right',
           color: 'green',
           title: 'Key saved succesfully',
           message: 'Key saved',

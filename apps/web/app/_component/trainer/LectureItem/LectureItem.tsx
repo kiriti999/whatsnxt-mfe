@@ -111,7 +111,7 @@ export const LectureItem: FC<LectureItemProps> = ({
 
     if (selectedFile.size / 1024 / 1024 > 99) {
       notifications.show({
-        position: 'bottom-left',
+        position: 'bottom-right',
         title: "File Too Large",
         message: "File size exceeds 99MB.",
         color: "red",
@@ -130,7 +130,7 @@ export const LectureItem: FC<LectureItemProps> = ({
 
     if (selectedFile.size / 1024 / 1024 > 99) {
       notifications.show({
-        position: 'bottom-left',
+        position: 'bottom-right',
         title: "File Too Large",
         message: "File size exceeds 99MB.",
         color: "red",
@@ -152,7 +152,7 @@ export const LectureItem: FC<LectureItemProps> = ({
   const handleVideoUpload = async () => {
     if (!file) {
       notifications.show({
-        position: 'bottom-left',
+        position: 'bottom-right',
         title: "No File Selected",
         message: "Please select a file to upload.",
         color: "red",
@@ -192,14 +192,14 @@ export const LectureItem: FC<LectureItemProps> = ({
       setVideoResourceType(resource_type)
 
       notifications.show({
-        position: 'bottom-left',
+        position: 'bottom-right',
         title: "Upload Successful",
         message: "Video uploaded successfully.",
         color: "green",
       });
     } catch (error) {
       notifications.show({
-        position: 'bottom-left',
+        position: 'bottom-right',
         title: "Upload Error",
         message: "Error uploading video.",
         color: "red",
@@ -224,7 +224,7 @@ export const LectureItem: FC<LectureItemProps> = ({
       });
 
       notifications.show({
-        position: 'bottom-left',
+        position: 'bottom-right',
         title: "Changes Saved",
         message: "Preview saved successfully.",
         color: "green",
@@ -232,7 +232,7 @@ export const LectureItem: FC<LectureItemProps> = ({
 
     } catch (error) {
       notifications.show({
-        position: 'bottom-left',
+        position: 'bottom-right',
         title: "Preview Error",
         message: "Error saving preview",
         color: "red",
@@ -246,7 +246,7 @@ export const LectureItem: FC<LectureItemProps> = ({
   const handleFileUpload = async () => {
     if (!doc) {
       notifications.show({
-        position: 'bottom-left',
+        position: 'bottom-right',
         title: "No File Selected",
         message: "Please select a file to upload.",
         color: "red",
@@ -294,7 +294,7 @@ export const LectureItem: FC<LectureItemProps> = ({
       });
 
       notifications.show({
-        position: 'bottom-left',
+        position: 'bottom-right',
         title: "Upload Successful",
         message: "Document uploaded successfully.",
         color: "green",
@@ -302,7 +302,7 @@ export const LectureItem: FC<LectureItemProps> = ({
 
     } catch (error) {
       notifications.show({
-        position: 'bottom-left',
+        position: 'bottom-right',
         title: "Upload Error",
         message: "Error uploading document.",
         color: "red",
@@ -337,14 +337,14 @@ export const LectureItem: FC<LectureItemProps> = ({
       });
 
       notifications.show({
-        position: 'bottom-left',
+        position: 'bottom-right',
         title: "URL Saved",
         message: "YouTube URL saved successfully.",
         color: "green",
       });
     } catch (error) {
       notifications.show({
-        position: 'bottom-left',
+        position: 'bottom-right',
         title: "Error",
         message: "Failed to save YouTube URL.",
         color: "red",
@@ -392,7 +392,7 @@ export const LectureItem: FC<LectureItemProps> = ({
             setAssetFile(null);
 
             notifications.show({
-              position: 'bottom-left',
+              position: 'bottom-right',
               title: `${assetType.charAt(0).toUpperCase() + assetType.slice(1)} Removed`,
               message: `${assetType.charAt(0).toUpperCase() + assetType.slice(1)} removed successfully.`,
               color: "green",
@@ -400,7 +400,7 @@ export const LectureItem: FC<LectureItemProps> = ({
             console.log(`${assetType.charAt(0).toUpperCase() + assetType.slice(1)} deleted successfully from the database.`);
           } else {
             notifications.show({
-              position: 'bottom-left',
+              position: 'bottom-right',
               title: "Error",
               message: `Failed to remove ${assetType}.`,
               color: "red",
@@ -409,7 +409,7 @@ export const LectureItem: FC<LectureItemProps> = ({
           }
         } catch (error) {
           notifications.show({
-            position: 'bottom-left',
+            position: 'bottom-right',
             title: "Error",
             message: `Failed to remove ${assetType}.`,
             color: "red",
@@ -462,14 +462,14 @@ export const LectureItem: FC<LectureItemProps> = ({
       setLectureLinksAr(newLectureLinks.data);
 
       notifications.show({
-        position: 'bottom-left',
+        position: 'bottom-right',
         title: "Link Saved",
         message: "Lecture Link saved successfully.",
         color: "green",
       });
     } catch (error) {
       notifications.show({
-        position: 'bottom-left',
+        position: 'bottom-right',
         title: "Error",
         message: "Failed to add lecture link.",
         color: "red",
@@ -511,14 +511,14 @@ export const LectureItem: FC<LectureItemProps> = ({
       setLectureLinksAr(updatedData.data);
 
       notifications.show({
-        position: 'bottom-left',
+        position: 'bottom-right',
         title: "Link Saved",
         message: "Lecture Link saved successfully.",
         color: "green",
       });
     } catch (error) {
       notifications.show({
-        position: 'bottom-left',
+        position: 'bottom-right',
         title: "Error",
         message: "Failed to update lecture link.",
         color: "red",
@@ -549,14 +549,14 @@ export const LectureItem: FC<LectureItemProps> = ({
       });
       setLectureLinksAr(newLinkAr);
       notifications.show({
-        position: 'bottom-left',
+        position: 'bottom-right',
         title: "Link Deleted",
         message: "Lecture Link deleted successfully.",
         color: "green",
       });
     } catch (error) {
       notifications.show({
-        position: 'bottom-left',
+        position: 'bottom-right',
         title: "Error",
         message: "Failed to delete lecture link.",
         color: "red",

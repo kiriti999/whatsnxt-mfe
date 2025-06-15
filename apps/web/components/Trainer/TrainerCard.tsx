@@ -48,7 +48,7 @@ function TrainerCard({ trainer }) {
   const handleHireMeClick = () => {
     if (!user) {
       notifications.show({
-        position: 'bottom-left',
+        position: 'bottom-right',
         title: 'Hire Trainer',
         message: 'Please register first to hire a trainer',
         color: 'red',

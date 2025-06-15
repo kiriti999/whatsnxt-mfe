@@ -66,7 +66,7 @@ function CreateReviewComment({ courseId, setComments, rating, defaultValue = "",
 
       if (updatedComment.status === 200) {
         notifications.show({
-          position: 'bottom-left',
+          position: 'bottom-right',
           color: 'green',
           title: 'Review',
           message: 'Review updated',
@@ -87,7 +87,7 @@ function CreateReviewComment({ courseId, setComments, rating, defaultValue = "",
 
     if (newComment.status === 201) {
       notifications.show({
-        position: 'bottom-left',
+        position: 'bottom-right',
         color: 'green',
         title: 'Review',
         message: 'Review submitted',

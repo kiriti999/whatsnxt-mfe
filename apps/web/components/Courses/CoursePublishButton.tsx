@@ -29,7 +29,7 @@ const CoursePublishButton = ({
 
             if (response.status === 200) {
                 // Update parent state for this specific course
-                setCourseTitle(response.data.course.title);
+                setCourseTitle(response.data.course.courseName);
                 setCourseSlug(response.data.course.slug);
                 setCourseStatus(response.data.status);
 
@@ -60,7 +60,7 @@ const CoursePublishButton = ({
                     console.log(' handlePublish :: record:', record)
                     await indexRecord(record, 'course');
                     notifications.show({
-                        position: 'bottom-left',
+                        position: 'bottom-right',
                         title: 'Course Published successfully',
                         message: 'Published',
                         color: 'green',
@@ -69,7 +69,7 @@ const CoursePublishButton = ({
                     // Remove from Algolia if unpublishing
                     await deleteIndex(_id, 'course');
                     notifications.show({
-                        position: 'bottom-left',
+                        position: 'bottom-right',
                         title: 'Course Unpublished successfully',
                         message: 'UnPublished',
                         color: 'green',
@@ -79,7 +79,7 @@ const CoursePublishButton = ({
         } catch (error) {
             console.log('CoursePublishButton.js:: handlePublish:: error:', error);
             notifications.show({
-                position: 'bottom-left',
+                position: 'bottom-right',
                 title: 'Course Publish Failed',
                 message: 'Unable to publish',
                 color: 'red',

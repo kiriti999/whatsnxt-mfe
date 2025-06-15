@@ -39,7 +39,7 @@ const EditProfile = () => {
       const response = await ProfileAPI.editProfile(formData);
       if (response.status === 200) {
         notifications.show({
-          position: 'bottom-left',
+          position: 'bottom-right',
           title: 'Profile Updated',
           message: 'User data updated successfully',
           color: 'green',
@@ -48,7 +48,7 @@ const EditProfile = () => {
     } catch (error) {
       console.error('Error updating profile:', error);
       notifications.show({
-        position: 'bottom-left',
+        position: 'bottom-right',
         title: 'Update Failed',
         message: 'An error occurred while updating the profile.',
         color: 'red',

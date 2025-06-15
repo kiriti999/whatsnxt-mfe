@@ -75,7 +75,7 @@ export const deleteSection = async ({ index, sections, setSections, courseId, is
 
     if (sections[index].videos.length > 0) {
         notifications.show({
-            position: 'bottom-left',
+            position: 'bottom-right',
             color: 'red',
             title: 'Unable to delete section',
             message: 'Please delete the lectures first to continue',
@@ -198,7 +198,7 @@ export const deleteLecture = async ({ sectionIndex, lectureIndex, sections, setS
 
     if (sections[sectionIndex].videos[lectureIndex]?.videoUrl || sections[sectionIndex].videos[lectureIndex]?.docUrl) {
         notifications.show({
-            position: 'bottom-left',
+            position: 'bottom-right',
             color: 'red',
             title: 'Unable to delete lecture',
             message: 'Please remove the video and documents attached to proceed',
@@ -232,7 +232,7 @@ export const deleteCourse = async ({ courseWithSections, sections, courseId, rou
     const hasAnyVideos = sections.some((section: { videos: string | any[]; }) => section.videos && section.videos.length > 0);
     if (hasAnyVideos) {
         notifications.show({
-            position: 'bottom-left',
+            position: 'bottom-right',
             color: 'red',
             title: 'Unable to delete course',
             message: 'Please delete the sections first to continue',
@@ -251,7 +251,7 @@ export const deleteCourse = async ({ courseWithSections, sections, courseId, rou
         confirmProps: { color: 'red' },
         onCancel: () => {
             notifications.show({
-                position: 'bottom-left',
+                position: 'bottom-right',
                 title: 'Action Cancelled',
                 message: 'Course deletion was cancelled.',
                 color: 'yellow',
@@ -270,7 +270,7 @@ export const deleteCourse = async ({ courseWithSections, sections, courseId, rou
                     // TODO: When logged in as Student, if cart is deleted on the backend then front end should sync accordingly and should not break
                     await deleteIndex(courseId, 'course');
                     notifications.show({
-                        position: 'bottom-left',
+                        position: 'bottom-right',
                         color: 'green',
                         title: 'Course delete succesfully',
                         message: 'Course delete done',
@@ -278,7 +278,7 @@ export const deleteCourse = async ({ courseWithSections, sections, courseId, rou
                     router.push('/trainer/courses');
                 } else {
                     notifications.show({
-                        position: 'bottom-left',
+                        position: 'bottom-right',
                         title: 'Remove course image from cloudinary',
                         message: 'Failed to remove course image from cloudinary',
                         color: 'red',
@@ -286,7 +286,7 @@ export const deleteCourse = async ({ courseWithSections, sections, courseId, rou
                 }
             } catch (error) {
                 notifications.show({
-                    position: 'bottom-left',
+                    position: 'bottom-right',
                     color: 'red',
                     title: 'Course delete failed',
                     message: `${error.message} because one student already enrolled into this course`,

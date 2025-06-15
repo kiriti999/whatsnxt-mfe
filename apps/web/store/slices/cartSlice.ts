@@ -1,4 +1,4 @@
-import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction, createAsyncThunk, Reducer } from '@reduxjs/toolkit';
 import { bffApiClient } from '@whatsnxt/core-util';
 
 // Types
@@ -190,8 +190,8 @@ export const {
 	updateQuantity,
 } = cartSlice.actions;
 
-// Export reducer
-export const cartReducer = cartSlice.reducer;
+// Export reducer with explicit type annotation
+export const cartReducer: Reducer<CartState> = cartSlice.reducer;
 
 // Selectors
 export const selectCartItems = (state: { cart: CartState }) => state.cart.cartItems;

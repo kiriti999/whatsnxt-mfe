@@ -3,7 +3,7 @@ import useNode from "./useNode";
 import { CommentAPI } from '../../../../apps/web/api/v1/comment';
 import useAuth from '../../../../apps/web/hooks/Authentication/useAuth';
 
-const useCommentHandlers = ({ lessonId, comments, setComments }) => {
+const useCommentHandlers = ({ lessonId, comments, setComments }: any) => {
     const { user } = useAuth();
     const userId = user?._id;
 
@@ -74,7 +74,7 @@ const useCommentHandlers = ({ lessonId, comments, setComments }) => {
         parentId,
         offset,
         limit,
-    }) => {
+    }: any) => {
         try {
             const commentsSet = await CommentAPI.getLessonComments({
                 lessonId, parentId, offset, limit

@@ -1,5 +1,6 @@
 import bundleAnalyzer from '@next/bundle-analyzer';
 import { fileURLToPath } from 'url';
+import type { NextConfig } from 'next';
 
 const __filename = fileURLToPath(import.meta.url);
 
@@ -7,8 +8,7 @@ const withBundleAnalyzer = bundleAnalyzer({
     enabled: process.env.ANALYZE === 'true',
 });
 
-/** @type {import('next').NextConfig} */
-const nextConfig = {
+const nextConfig: NextConfig = {
     reactStrictMode: true,
     compress: true,
     productionBrowserSourceMaps: true,
@@ -48,17 +48,17 @@ const nextConfig = {
             {
                 protocol: 'https',
                 hostname: 'ik.imagekit.io',
-                pathname: '**',
+                pathname: '/**',
             },
             {
                 protocol: 'https',
                 hostname: 'res.cloudinary.com',
-                pathname: '**',
+                pathname: '/**',
             },
             {
                 protocol: 'https',
                 hostname: 'mdbcdn.b-cdn.net',
-                pathname: '**',
+                pathname: '/**',
             },
         ],
     },

@@ -14,7 +14,7 @@ export default function CourseApproval({ course }: CourseProps) {
         try {
             await CourseBuilderAPI.updateCourseStatusApproved(course?._id).then((res) => {
                 notifications.show({
-                    position: 'bottom-left',
+                    position: 'bottom-right',
                     color: 'green',
                     title: 'Course approved succesfully',
                     message: 'Course status updated',
@@ -24,7 +24,7 @@ export default function CourseApproval({ course }: CourseProps) {
         } catch (error) {
             console.log("error approvin course", error.message);
             notifications.show({
-                position: 'bottom-left',
+                position: 'bottom-right',
                 color: 'red',
                 title: 'Unable to update course status, Please try again later.',
                 message: '',
@@ -39,7 +39,7 @@ export default function CourseApproval({ course }: CourseProps) {
                 await CourseBuilderAPI.updateCourseStatusRejected(course?._id, event.target.reject_reason.value).then((res) => {
                     setOpened(false);
                     notifications.show({
-                        position: 'bottom-left',
+                        position: 'bottom-right',
                         color: 'green',
                         title: 'Course rejected succesfully',
                         message: 'Course status updated',
@@ -48,7 +48,7 @@ export default function CourseApproval({ course }: CourseProps) {
                 })
             } else {
                 notifications.show({
-                    position: 'bottom-left',
+                    position: 'bottom-right',
                     color: 'red',
                     title: 'Please specify reject reason',
                     message: 'Reject reason is required',
@@ -57,7 +57,7 @@ export default function CourseApproval({ course }: CourseProps) {
         } catch (error) {
             console.log("error rejecting course", error.message);
             notifications.show({
-                position: 'bottom-left',
+                position: 'bottom-right',
                 color: 'red',
                 title: 'Unable to update course status, Please try again later.',
                 message: '',

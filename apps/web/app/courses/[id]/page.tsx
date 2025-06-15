@@ -10,16 +10,8 @@ export const dynamic = 'force-dynamic';
 
 const fetchCourseData = cache(async (slug: string) => {
     try {
-        console.log('fetchCourseData :: slug:', slug);
 
-        // Handle special slugs that end with -invalidate
-        const actualSlug = slug.endsWith('-invalidate')
-            ? slug.replace('-invalidate', '')
-            : slug;
-
-        console.log('fetchCourseData :: actualSlug:', actualSlug);
-
-        const course = await fetchCourseBySlug(actualSlug) as CourseType;
+        const course = await fetchCourseBySlug(slug) as CourseType;
         console.log('fetchCourseData :: course found:', !!course);
 
         return course;

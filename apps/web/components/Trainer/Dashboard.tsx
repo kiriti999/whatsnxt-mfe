@@ -66,7 +66,7 @@ function Dashboard({ id, open, close, courseName = '', teacherName = '' }: Props
       const response = await CourseBuilderAPI.updateCourseStatusReview(id);
       if (response.course.status == "pending_review") {
         notifications.show({
-          position: 'bottom-left',
+          position: 'bottom-right',
           title: 'Course status changed',
           message: 'Course sent for review',
           color: 'green',
@@ -76,7 +76,7 @@ function Dashboard({ id, open, close, courseName = '', teacherName = '' }: Props
       }
     } catch (error) {
       notifications.show({
-        position: 'bottom-left',
+        position: 'bottom-right',
         title: 'Course cannot be reviewed',
         message: 'Unable to send course for review',
         color: 'red',

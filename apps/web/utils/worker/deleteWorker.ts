@@ -1,6 +1,6 @@
 import { CloudinaryAPI } from '../../api/v1/cloudinary';
 
-export const deleteAssets = async (public_ids) => {
+export const deleteAssets = async (public_ids: any) => {
     return await CloudinaryAPI.deleteMultiAssets({ public_ids })
 };
 

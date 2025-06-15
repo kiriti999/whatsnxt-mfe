@@ -20,14 +20,12 @@ export const CloudinaryAPI = {
         });
         return response?.data || [];
     },
-    deleteMultiAssets: async function (public_ids: []) {
+    deleteMultiAssets: async function (public_ids: any) {
         const response = await bffApiClient.delete('/cloudinary/delete-multiple-assets', public_ids);
         return response?.data || [];
     },
     delete: async function (id: string) {
-        const response = await bffApiClient.delete(`/api/v1/cloudinary?deleteID=${id}`, null, {
-            withCredentials: false
-        });
+        const response = await bffApiClient.delete(`/api/v1/cloudinary?deleteID=${id}`, null);
         console.log('CloudinaryAPI:: delete:: response: ', response?.data);
         return response?.data || [];
     },

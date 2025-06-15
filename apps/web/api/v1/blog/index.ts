@@ -1,4 +1,3 @@
-export { AuthAPI } from './authApi';
 export { ContentAPI } from './contentApi';
 export { CategoryAPI } from './categoryApi';
 export { FormAPI } from './formApi';

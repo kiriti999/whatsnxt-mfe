@@ -4,7 +4,6 @@ import SidebarHeadings from '../../../components/Blog/sidebar-headings';
 import { AnalyticsAPI } from '../../../api/v1/blog/analyticsApi';
 import { usePathname } from 'next/navigation';
 import SidebarPost from '../../../components/Blog/sidebar-post';
-import { Comment, CommentContextProvider, CommentReplyContextProvider } from '@whatsnxt/comments';
 import ClipboardCopy from '../../../components/Blog/ShareButtons/ClipBoardCopy';
 import WhatsappShare from '../../../components/Blog/ShareButtons/WhatsappShare';
 import GooglePageViews from '../../../components/Blog/Content/GooglePageViews';
@@ -17,7 +16,8 @@ import { Text, Box, Container, Group, Stack, Grid, GridCol, Title } from '@manti
 import TutorialsToc from '../TutorialToc';
 import useAuth from '../../../hooks/Authentication/useAuth';
 import { useMediaQuery } from '@mantine/hooks';
-import useCommentHandlers from '@whatsnxt/comments/src/hooks/useCommentHandlers';
+import useCommentHandlers from '@whatsnxt/blogcomments/src/hooks/useCommentHandlers';
+import { BlogComment, CommentReplyContextProvider, CommentContextProvider } from '@whatsnxt/blogcomments';
 
 const initialProps = {
   title: '',
@@ -171,7 +171,7 @@ function TutorialContentDetails({ details }: any) {
                     comments={comments}
                   >
                     <CommentContextProvider>
-                      <Comment
+                      <BlogComment
                         userId={userId}
                         email={email}
                         comment={comments}
