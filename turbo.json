@@ -15,14 +15,14 @@
         "ALGOLIA_COURSE_INDEX_NAME",
         "ALGOLIA_BLOG_INDEX_NAME",
         "ALGOLIA_TUTORIAL_INDEX_NAME",
-        "ALGOLIA_TUTORIAL_INDEX_NAME",
         "COOKIES_USER_INFO",
         "AXIOS_CLIENT",
         "ADMIN_EMAIL",
         "COOKIES_ACCESS_TOKEN"
       ],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
-      "outputs": [".next/**", "!.next/cache/**"]
+      "outputs": [".next/**", "!.next/cache/**"],
+      "passThroughEnv": ["*"]
     },
     "lint": {
       "dependsOn": ["^lint"]
