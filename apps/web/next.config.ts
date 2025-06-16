@@ -46,7 +46,6 @@ const nextConfig: NextConfig = {
         },
     },
 
-    output: 'standalone',
     transpilePackages: [],
 
     images: {
