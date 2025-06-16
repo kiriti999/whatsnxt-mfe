@@ -12,6 +12,8 @@ type LessonPageProps = {
     params: Promise<LessonPageParams>;
 };
 
+export const dynamic = 'force-dynamic'
+
 export default async function LessonPage({ params }: LessonPageProps) {
     try {
         const resolvedParams = await params;

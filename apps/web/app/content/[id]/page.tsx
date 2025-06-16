@@ -5,6 +5,8 @@ import TutorialContentDetails from './TutorialContentDetails';
 import { getPostBySlugServer } from '../../../fetcher/serverFetcher';
 import React from 'react';
 
+export const dynamic = 'force-dynamic'
+
 const ContentPage = async (props: any) => {
   const params = await props.params;
 

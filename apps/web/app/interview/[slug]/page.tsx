@@ -7,6 +7,8 @@ import { Metadata } from 'next';
 import { cache } from 'react';
 
 
+export const dynamic = 'force-dynamic'
+
 const fetchInterviewData = cache(async (slug: string) => {
     try {
         const BASEURL = process.env.BFF_HOST_API as string;

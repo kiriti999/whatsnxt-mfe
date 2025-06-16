@@ -2,6 +2,8 @@ import React from 'react';
 import { serverFetcher } from '../../../../fetcher/serverFetcher';
 import CourseInvoice from '../../../../components/CourseInvoice';
 
+export const dynamic = 'force-dynamic'
+
 const CourseInvoicePage = async props => {
     const params = await props.params;
     try {

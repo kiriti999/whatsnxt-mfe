@@ -2,6 +2,7 @@ import React from 'react';
 import { fetchCourseBuilderData } from '../../../../../fetcher/courseBuilderServerQuery';
 import CourseBuilder from '../../../../_component/trainer/CourseBuilder';
 
+export const dynamic = 'force-dynamic'
 async function Page(props: { params: Promise<{ id: string }> }) {
     const params = await props.params;
     let courseFetched = null;
