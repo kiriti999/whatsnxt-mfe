@@ -1,4 +1,5 @@
 {
+  "extends": "@repo/typescript-config/nextjs.json",
   "compilerOptions": {
     "plugins": [
       {
@@ -8,20 +9,15 @@
     "target": "ES2017",
     "lib": [
       "dom",
-      "dom.iterable", 
+      "dom.iterable",
       "esnext"
     ],
-    "allowJs": true,
     "skipLibCheck": true,
     "strict": false,
-    "noEmit": true,
     "incremental": true,
     "esModuleInterop": true,
-    "module": "esnext",
-    "moduleResolution": "bundler",
     "resolveJsonModule": true,
-    "isolatedModules": true,
-    "jsx": "preserve"
+    "isolatedModules": true
   },
   "include": [
     "**/*.ts",

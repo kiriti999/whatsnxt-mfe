@@ -17,8 +17,6 @@
     "partytown": "npx partytown copylib apps/web/public/~partytown"
   },
   "devDependencies": {
-    "@repo/eslint-config": "workspace:*",
-    "@repo/typescript-config": "workspace:*",
     "@types/node": "^22.15.31",
     "@types/react": "19.1.0",
     "@types/react-dom": "19.1.1",
@@ -74,6 +72,8 @@
     "@whatsnxt/comments": "workspace:*",
     "@whatsnxt/core-ui": "workspace:*",
     "@whatsnxt/core-util": "workspace:*",
+    "@repo/eslint-config": "workspace:*",
+    "@repo/typescript-config": "workspace:*",
     "algoliasearch": "4.23.3",
     "autoprefixer": "10.4.14",
     "bootstrap": "5.3.3",
