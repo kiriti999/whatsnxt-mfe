@@ -1,5 +1,5 @@
 "use client"
-import algoliasearch, { SearchIndex, SearchResponse } from 'algoliasearch';
+import algoliasearch, { SearchIndex } from 'algoliasearch';
 import useSWR from 'swr';
 
 // Types for better type safety
@@ -84,7 +84,7 @@ async function algoliaSearchByKeyword<T = unknown>(
     page = 0,
     hitsPerPage = 10,
     options: SearchOptions = {}
-): Promise<SearchResponse<T>> {
+): Promise<any> {
     try {
         const searchIndex = getAlgoliaIndex(indexName);
 
@@ -161,7 +161,7 @@ async function algoliaGetCategoryList(indexName: IndexType | string): Promise<Ca
             hitsPerPage: 1000, // Get more results for comprehensive category list
         });
 
-        const result: any[] = [];
+        const result: CategoryResult[] = [];
         const indexMapping: Record<string, number> = {};
         let indicator = 0;
 
@@ -171,9 +171,10 @@ async function algoliaGetCategoryList(indexName: IndexType | string): Promise<Ca
             if (!category || typeof category !== 'string') return;
 
             const value = category.toLowerCase();
+            const existingIndex = indexMapping[value];
 
-            if (indexMapping[value] !== undefined) {
-                result[indexMapping[value]].count += 1;
+            if (existingIndex !== undefined && result[existingIndex]) {
+                result[existingIndex].count += 1;
             } else {
                 indexMapping[value] = indicator;
                 result.push({
@@ -198,7 +199,7 @@ async function algoliaGetRecentEntries<T = unknown>(
     indexName: IndexType | string,
     limit = 5,
     sortBy = 'date'
-): Promise<SearchResponse<T>> {
+): Promise<any> {
     try {
         const searchIndex = getAlgoliaIndex(indexName);
 
