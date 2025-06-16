@@ -3,6 +3,11 @@
   "private": true,
   "author": "Arjun Komaragiri",
   "type": "module",
+  "pnpm": {
+    "overrides": {
+      "agent-base": "^7.1.0"
+    }
+  },
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev --parallel --continue",
