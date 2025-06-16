@@ -19,7 +19,6 @@ const nunito = Nunito({
 });
 
 const getUser = async () => {
-  console.log('layout.tsx:: getUser: Getting user info...');
   const tokenKeyName = process.env.NEXT_PUBLIC_COOKIES_ACCESS_TOKEN;
 
   const cookieStore = await cookies();
