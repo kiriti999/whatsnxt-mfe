@@ -5,7 +5,9 @@
   "type": "module",
   "pnpm": {
     "overrides": {
-      "agent-base": "^7.1.1"
+      "agent-base": "^7.1.1",
+      "http-proxy-agent": "^7.0.2",
+      "https-proxy-agent": "^7.0.5"
     }
   },
   "scripts": {
