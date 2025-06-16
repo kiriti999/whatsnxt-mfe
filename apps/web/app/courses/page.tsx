@@ -2,6 +2,7 @@ import React from 'react';
 import CoursePage from '../_component/courses/courses-page';
 import { fetchCourses, fetchPopularCourses, fetchCategoriesByCount } from '../../fetcher/courseServerQuery';
 
+export const dynamic = 'force-dynamic'
 async function Page() {
   // Declare variables outside the try block
   let courses = [];
