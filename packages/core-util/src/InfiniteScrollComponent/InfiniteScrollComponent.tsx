@@ -12,7 +12,7 @@ export const InfiniteScrollComponent = ({ isLoading, onViewPortCallback, childre
 
         observerRef.current = new IntersectionObserver(
             ([entry]) => {
-                if (entry.isIntersecting) {
+                if (entry?.isIntersecting) {
                     onViewPortCallback();
                 }
             },
