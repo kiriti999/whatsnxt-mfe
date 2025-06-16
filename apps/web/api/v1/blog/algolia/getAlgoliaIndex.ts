@@ -1,4 +1,5 @@
-const algoliasearch = require('algoliasearch');
+
+import algoliasearch from 'algoliasearch';
 
 export const getAlgoliaIndex = () => {
   const client = algoliasearch(
