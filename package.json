@@ -13,7 +13,7 @@
     "find-deadcode": "ts-prune | grep -v -e 'export' -e 'used in module'",
     "knip": "knip",
     "deploy": "vercel --prod -l",
-    "analyze": "ANALYZE=true next build",
+    "analyze": "cd apps/web && ANALYZE=true next build",
     "partytown": "npx partytown copylib apps/web/public/~partytown"
   },
   "devDependencies": {

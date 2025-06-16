@@ -19,6 +19,10 @@ const nextConfig: NextConfig = {
         ignoreDuringBuilds: true,
     },
 
+    generateBuildId: async () => {
+        return process.env.VERCEL_GIT_COMMIT_SHA || `build-${Date.now()}`
+    },
+
     experimental: {
         optimizePackageImports: ['@mantine/core', '@mantine/hooks'],
     },
