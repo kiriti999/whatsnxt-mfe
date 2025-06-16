@@ -6,8 +6,10 @@
   "publishConfig": {
     "access": "public"
   },
+  "files": ["*.json"],
   "exports": {
     "./base.json": "./base.json",
-    "./nextjs.json": "./nextjs.json"
+    "./nextjs.json": "./nextjs.json",
+    "./react-library.json": "./react-library.json"
   }
 }
