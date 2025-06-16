@@ -1,7 +1,9 @@
-import DOMPurify from 'isomorphic-dompurify';
+// import DOMPurify from 'isomorphic-dompurify';
 import { useCallback, useEffect, useRef } from 'react';
+import { useDOMPurify } from './useDompurify';
 
 export const useAddIdsToHeadings = (desc: string) => {
+  const DOMPurify = useDOMPurify();
   const containerRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {

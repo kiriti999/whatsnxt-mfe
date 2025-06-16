@@ -16,8 +16,10 @@ import {
   IconEye
 } from "@tabler/icons-react";
 import Pagination from '../pagination/pagination';
-import DOMPurify from 'isomorphic-dompurify';
+import { useDOMPurify } from '../../hooks/useDompurify';
+// import DOMPurify from 'isomorphic-dompurify';
 
+const DOMPurify = useDOMPurify();
 
 const fetchNotificationsData = async (page: number) => {
   const { data } = await TrainerAPI.getNotification(page);
