@@ -3,6 +3,7 @@ import { fetchCourses } from '../fetcher/courseServerQuery';
 import Home from './_component/home/home';
 import { fetchTrendingArticles } from '../fetcher/blogServerQuery';
 
+export const dynamic = 'force-dynamic'
 async function Page() {
   // Fetch data for CourseMicroFrontEnd
   const data = await fetchCourses(30, 0);

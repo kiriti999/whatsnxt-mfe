@@ -2,10 +2,9 @@ import React from 'react'
 import SearchResults from '../../components/SearchResults';
 import { fetchPopularCourses } from '../../fetcher/courseServerQuery';
 
-
+export const dynamic = 'force-dynamic'
 async function Page() {
     const coursesPopularity = await fetchPopularCourses()
-    console.log(' Page :: coursesPopularity:', coursesPopularity)
     return (
         <div>
             {<SearchResults coursesPopularity={coursesPopularity} />}
