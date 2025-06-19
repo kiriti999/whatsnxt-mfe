@@ -1,7 +1,7 @@
 "use server";
 import { serverFetcher } from "../../../../fetcher/serverFetcher";
 
-const BASEURL = process.env.BFF_HOST_API as string;
+const BASEURL = process.env.BFF_HOST_COURSE_API as string;
 
 export async function updateContactedStudents(trainerId: string, studentId: string) {
     try {

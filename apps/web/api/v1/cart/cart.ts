@@ -1,18 +1,18 @@
-import { bffApiClient } from '@whatsnxt/core-util';
+import { courseApiClient } from '@whatsnxt/core-util';
 
 
 export const CartAPI = {
   fetch: async function () {
-    const response = await bffApiClient.get('/cart');
+    const response = await courseApiClient.get('/cart');
     return response.data;
   },
   createCart: async function () {
-    const response = await bffApiClient.post('/cart', null);
+    const response = await courseApiClient.post('/cart', null);
     return response.data;
   },
   deleteCartItem: async function (cartItemId) {
     try {
-      const response = await bffApiClient.delete(`/cart/${cartItemId}`);
+      const response = await courseApiClient.delete(`/cart/${cartItemId}`);
       return response.data;
     } catch (error) {
       console.error('Error deleting cart item:', error);

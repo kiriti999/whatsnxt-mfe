@@ -1,15 +1,15 @@
-import { bffApiClient } from '@whatsnxt/core-util';
+import { courseApiClient } from '@whatsnxt/core-util';
 
 export const CategoryAPI = {
   getCategories: async function () {
-    const response = await bffApiClient.get('/categories');
+    const response = await courseApiClient.get('/courses/categories');
 
     // returning the data returned by the API
     console.log('CategoryAPI:: getCategories:: response: ', response?.data);
     return response?.data || [];
   },
   getArticleCountByCategory: async function () {
-    const response = await bffApiClient.get('/articleCountByCategory');
+    const response = await courseApiClient.get('/articleCountByCategory');
 
     // returning the data returned by the API
     console.log(

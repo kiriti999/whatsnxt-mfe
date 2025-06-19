@@ -2,7 +2,7 @@
 import xior from 'xior';
 import Cookie from 'js-cookie';
 
-export type ApiClientType = 'auth' | 'bff' | 'blog';
+export type ApiClientType = 'common' | 'course' | 'blog';
 
 interface ApiClientConfig {
     baseURL: string;
@@ -19,8 +19,8 @@ function isWebWorker(): boolean {
 }
 
 // Auth-specific error handler
-// Updated authErrorHandler in ApiClientFactory.ts
-const authErrorHandler = async (error: any) => {
+// Updated commonErrorHandler in ApiClientFactory.ts
+const commonErrorHandler = async (error: any) => {
     const statusCode = error.response?.status;
     const backendMessage = error.response?.data?.message;
 
@@ -32,8 +32,8 @@ const authErrorHandler = async (error: any) => {
 
         // Special handling for 401 - could redirect to login or handle differently
         if (statusCode === 401) {
-            console.warn(`Unauthorized:: message: ${backendMessage || error.response.statusText} code: ${statusCode}`);
-            throw new Error(backendMessage || 'unauthorized');
+            console.warn(`Uncommonorized:: message: ${backendMessage || error.response.statusText} code: ${statusCode}`);
+            throw new Error(backendMessage || 'uncommonorized');
         }
 
         // For any error response, extract the backend message if available
@@ -53,7 +53,7 @@ const authErrorHandler = async (error: any) => {
 };
 
 // BFF-specific request interceptor (preserving your existing token logic)
-const bffRequestInterceptor = (config: any) => {
+const courseRequestInterceptor = (config: any) => {
 
     // Skip ALL header modifications for FormData requests
     if (config.data instanceof FormData) {
@@ -87,7 +87,7 @@ const bffRequestInterceptor = (config: any) => {
     return config;
 };
 
-const bffErrorHandler = async (error: any) => {
+const courseErrorHandler = async (error: any) => {
     const statusCode = error.response?.status;
     const errorMessage = error.response?.data?.message || error.message;
 
@@ -119,28 +119,28 @@ const getApiConfig = (type: ApiClientType): ApiClientConfig => {
     };
 
     switch (type) {
-        case 'auth':
+        case 'common':
             return {
                 ...baseConfig,
-                baseURL: process.env.NEXT_PUBLIC_BFF_HOST_AUTH_API!,
-                requestInterceptor: bffRequestInterceptor,
-                errorHandler: authErrorHandler,
+                baseURL: process.env.NEXT_PUBLIC_BFF_HOST_COMMON_API!,
+                requestInterceptor: courseRequestInterceptor,
+                errorHandler: commonErrorHandler,
             };
 
-        case 'bff':
+        case 'course':
             return {
                 ...baseConfig,
-                baseURL: process.env.NEXT_PUBLIC_BFF_HOST_API!, // Keep your original env var
-                requestInterceptor: bffRequestInterceptor,
-                errorHandler: bffErrorHandler,
+                baseURL: process.env.NEXT_PUBLIC_BFF_HOST_COURSE_API!, // Keep your original env var
+                requestInterceptor: courseRequestInterceptor,
+                errorHandler: courseErrorHandler,
             };
 
         case 'blog':
             return {
                 ...baseConfig,
                 baseURL: process.env.NEXT_PUBLIC_BLOG_HOST_API!, // Keep your original env var
-                requestInterceptor: bffRequestInterceptor,
-                errorHandler: bffErrorHandler,
+                requestInterceptor: courseRequestInterceptor,
+                errorHandler: courseErrorHandler,
             };
 
         default:
@@ -229,8 +229,8 @@ const createApiClient = (type: ApiClientType) => {
 };
 
 // Create specific client instances
-export const authXiorInstance = createApiClient('auth');
-export const bffXiorInstance = createApiClient('bff');
+export const commonXiorInstance = createApiClient('common');
+export const courseXiorInstance = createApiClient('course');
 export const blogXiorInstance = createApiClient('blog');
 
 // Generic API client wrapper
@@ -277,14 +277,14 @@ const createApiMethods = (xiorInstance: any) => ({
 });
 
 // Export the API clients
-export const authApiClient = {
-    ...createApiMethods(authXiorInstance),
-    xiorInstance: authXiorInstance
+export const commonApiClient = {
+    ...createApiMethods(commonXiorInstance),
+    xiorInstance: commonXiorInstance
 };
 
-export const bffApiClient = {
-    ...createApiMethods(bffXiorInstance),
-    xiorInstance: bffXiorInstance
+export const courseApiClient = {
+    ...createApiMethods(courseXiorInstance),
+    xiorInstance: courseXiorInstance
 };
 
 export const blogApiClient = {

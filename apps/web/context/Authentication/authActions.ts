@@ -1,6 +1,6 @@
 import { AuthAPI } from '../../api/v1/auth';
 import { notifications } from '@mantine/notifications';
-import { removeCookie } from '../../utils/Utils';
+import { removeCookie } from '../../utils/commonHelper';
 
 export const handleLogin = async (
   user,

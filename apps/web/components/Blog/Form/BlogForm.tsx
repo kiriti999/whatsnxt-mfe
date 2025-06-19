@@ -4,7 +4,7 @@ import { Box, Button, Container, FileInput, Grid, Select, Text, TextInput, Title
 import { useRouter } from 'next/navigation';
 import { notifications } from '@mantine/notifications';
 import { BlogFormProps } from '../../../types/blogs';
-import { CloudinaryAPI, FormAPI, HistoryAPI } from '../../../api/v1/blog';
+import { FormAPI, HistoryAPI } from '../../../api/v1/blog';
 import { getCategoryId } from '../../../utils/form';
 import { IconUpload } from '@tabler/icons-react';
 import { RichTextEditor } from '../../RichTextEditor';
@@ -12,6 +12,7 @@ import { useDisclosure } from '@mantine/hooks';
 import { MantineLoader } from '@whatsnxt/core-ui';
 import { AISuggestions } from '../../../api/v1/blog/aiSuggestions';
 import Image from 'next/image';
+import { CloudinaryAPI } from '../../../api/v1/common/cloudinary';
 
 const BlogForm: React.FC<BlogFormProps> = ({ categories, edit }) => {
   const [isVisible, { open, close }] = useDisclosure(false);
@@ -145,12 +146,20 @@ const BlogForm: React.FC<BlogFormProps> = ({ categories, edit }) => {
 
       if (blogImage) {
         console.log(`Uploading...`)
-        const fileUploadResData = await CloudinaryAPI.uploadFormImage(blogImage, 'image')
+        const fileUploadResData = await CloudinaryAPI.blog.upload(
+          blogImage,           // File object
+          'image',            // resource type
+          'whatsnxt-blog',    // folder name (optional, defaults to 'whatsnxt')
+          (progressEvent) => { // progress callback (optional)
+            const progress = (progressEvent.loaded / progressEvent.total) * 100;
+            console.log(`Upload progress: ${progress}%`);
+          }
+        );
         console.log(' handleFormSubmit :: fileUploadResData:', fileUploadResData)
         imageUrl = fileUploadResData?.secure_url;
         cloudinaryAssets.push({
           publicId: fileUploadResData?.public_id,
-          type: fileUploadResData?.resource_type,
+          resource_type: fileUploadResData?.resource_type,
           url: fileUploadResData.url,
           secureUrl: imageUrl,
           format: fileUploadResData.format

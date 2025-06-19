@@ -2,7 +2,7 @@
 import { CourseType } from '@whatsnxt/core-util';
 import { serverFetcher } from './serverFetcher';
 
-const BASEURL = process.env.BFF_HOST_API as string;
+const BASEURL = process.env.BFF_HOST_COURSE_API as string;
 
 export const fetchCourses = async (limit = 30, offset = 0) => {
   const response = await serverFetcher(BASEURL, `/courses/course?limit=${limit}&offset=${offset}`);

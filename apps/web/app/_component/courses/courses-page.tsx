@@ -11,7 +11,7 @@ import sortStyles from './index.module.css';
 import CoursesSidebar from '../../../components/Courses/CoursesSidebar';
 import styles from '../../../components/Courses/Course.module.css';
 import Pagination from '../../../components/pagination/pagination';
-import { addPopularityToCourses } from '../../../utils/Utils';
+import { addPopularityToCourses } from '../../../utils';
 import { AnalyticsAPI } from '../../../api/v1/analytics';
 import { useQuery } from '@tanstack/react-query';
 

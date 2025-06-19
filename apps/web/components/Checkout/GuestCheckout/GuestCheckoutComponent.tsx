@@ -20,7 +20,6 @@ import {
 } from '@mantine/core';
 import { GoogleButton } from '@whatsnxt/core-ui/src/GoogleButton';
 import Link from 'next/link';
-import { fetchUser, checkSuccessResponse, getErrorMessageFromResponse, getCookieAccessToken } from '../../../utils/Utils';
 import { notifications } from '@mantine/notifications';
 import { CartAPI } from '../../../api/v1/cart/cart';
 import { AuthAPI } from '../../../api/v1/auth';
@@ -31,6 +30,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { AuthContext } from '../../../context/Authentication/AuthContext';
 import { IconLogin } from '@tabler/icons-react';
 import { PageBanner } from '@whatsnxt/core-ui';
+import { checkSuccessResponse, fetchUser, getCookieAccessToken, getErrorMessageFromResponse } from '../../../utils/commonHelper';
 
 interface IFormData {
   email: string;

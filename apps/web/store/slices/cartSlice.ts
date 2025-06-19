@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction, createAsyncThunk, Reducer } from '@reduxjs/toolkit';
-import { bffApiClient } from '@whatsnxt/core-util';
+import { courseApiClient } from '@whatsnxt/core-util';
 
 // Types
 export interface CartItem {
@@ -71,7 +71,7 @@ export const updateCartOnServer = createAsyncThunk(
 	'cart/updateCartOnServer',
 	async (details: { cartItems: CartItem[]; discount: number }) => {
 		const { cartItems, discount } = details;
-		await bffApiClient.post('/cart', { cartItems, discount });
+		await courseApiClient.post('/cart', { cartItems, discount });
 		return details;
 	}
 );
