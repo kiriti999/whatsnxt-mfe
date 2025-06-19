@@ -1,6 +1,6 @@
 import { createContext, useCallback, useEffect } from 'react';
-import { getUploadedAssets } from '../utils/worker/workerWithLocalStorage';
-import { deleteDataWebWorker } from '../components/RichTextEditor/common';
+import { getAssetFromLocalStorage } from '../utils/worker/localStorageHandler';
+import { unifiedDeleteWebWorker } from '../utils/worker/assetManager';
 
 // ** Defaults
 const defaultProvider = {};
@@ -15,8 +15,8 @@ const CloudinaryAssetsManageContextProvider = ({ children }: { children: React.R
     }, [])
 
     const deleteUnusedAssets = useCallback(async () => {
-        if (getUploadedAssets() && getUploadedAssets().length > 0) {
-            await deleteDataWebWorker({ assetsList: getUploadedAssets() })
+        if (getAssetFromLocalStorage() && getAssetFromLocalStorage().length > 0) {
+            await unifiedDeleteWebWorker({ assetsList: getAssetFromLocalStorage() })
         }
     }, [])
 

@@ -1,9 +1,9 @@
 import { useContext, useRef } from "react";
 import { IconVideo } from '@tabler/icons-react';
 import styles from "../../Tiptap/Tiptap.module.css";
-import { uploadDataWebWorker } from '../../common';
 import { TiptapManageContext } from '../../../../context/TiptapManageContext';
 import { Button } from '@mantine/core';
+import { uploadDataWebWorker } from '../../../../utils/worker/assetManager';
 
 
 // Custom Video button component
@@ -11,7 +11,7 @@ const VideoControl = ({ editor }: { editor: any }) => {
     const fileInputRef = useRef<HTMLInputElement>(null);
     const { courseId, updateProgress } = useContext(TiptapManageContext)
 
-    const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
         // for reset the target value , so it could allow to add same files 
         event.target.value = ""
@@ -19,7 +19,7 @@ const VideoControl = ({ editor }: { editor: any }) => {
         if (file) {
             const tempUrl = URL.createObjectURL(file);
             editor.chain().focus().setVideo({ src: tempUrl }).run();
-            uploadDataWebWorker({ file, tempUrl, editor, courseId, type: "video", setProgress: updateProgress })
+            await uploadDataWebWorker({ file, tempUrl, editor, courseId, resource_type: "video", setProgress: updateProgress })
         }
     };
 

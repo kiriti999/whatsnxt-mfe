@@ -1,5 +1,5 @@
+import { getCookieAccessToken } from '../../utils/commonHelper';
 
-import { getCookieAccessToken } from '../../utils/Utils';
 
 const initialState = {
     userToken: getCookieAccessToken(),

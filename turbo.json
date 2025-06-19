@@ -7,9 +7,9 @@
       "env": [
         "NODE_ENV",
         "MFE_HOST",
-        "BFF_HOST_API",
+        "BFF_HOST_COURSE_API",
         "BFF_BLOG_HOST_API",
-        "BFF_HOST_AUTH_API",
+        "BFF_HOST_COMMON_API",
         "BFF_VERSION",
         "GOOGLE_LOGIN_URL",
         "ALGOLIA_COURSE_INDEX_NAME",

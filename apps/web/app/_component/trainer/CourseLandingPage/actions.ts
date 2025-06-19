@@ -3,8 +3,8 @@ import type { AppRouterInstance } from "next/dist/shared/lib/app-router-context.
 import { notifications } from "@mantine/notifications";
 import { CourseBuilderAPI } from "../../../../api/v1/courses/course-builder/course-builder-api";
 import { extractCloudinaryLinksFromContent, extractPublicIdsAndTypeFromLinks, extractPublicIdsFromLinks } from "../../../../components/RichTextEditor/common";
-import { getImageAsData, uploadToCloudinary } from "../../../../utils/image-upload";
-import { removeUploadedAssetsList } from "../../../../utils/worker/workerWithLocalStorage";
+import { getImageAsData, uploadToCloudinary } from "../../../../utils/course-image-upload";
+import { removeAssetFromLocalStoragesList } from "../../../../utils/worker/localStorageHandler";
 import { revalidate } from "../../../../server-actions";
 
 type Payload = {
@@ -18,12 +18,11 @@ type Payload = {
     nestedSubCategoryName?: string;
 };
 
-const cloudinaryImageUploadCleanup = ({ overview, topics }) => {
+const extractCloudAssetsToSave = ({ overview, topics }) => {
     const cloudinaryLinksOverview = extractCloudinaryLinksFromContent(overview);
     const cloudinaryLinksTopics = extractCloudinaryLinksFromContent(topics);
     const usedPublicIdsInEditor = extractPublicIdsFromLinks([...cloudinaryLinksOverview, ...cloudinaryLinksTopics]);
-    removeUploadedAssetsList(usedPublicIdsInEditor);
-    return extractPublicIdsAndTypeFromLinks([...cloudinaryLinksOverview, ...cloudinaryLinksTopics]);
+    return { cloudinaryLinksOverview, cloudinaryLinksTopics, usedPublicIdsInEditor }
 };
 
 const handleProfilePhotoUpload = async ({ courseImageUrl, imageAttributes, setImageUploading }) => {
@@ -74,7 +73,11 @@ export const handleLandingPageSubmit: HandleLandingPageSubmit = async (
             courseImageUrl = courseImageUrl.replace(/^http:\/\//i, 'https://');
         }
 
-        const cloudinaryAssets = cloudinaryImageUploadCleanup({ overview: data.overview, topics: data.topics });
+
+        const { cloudinaryLinksOverview, cloudinaryLinksTopics, usedPublicIdsInEditor } = extractCloudAssetsToSave({ overview: data.overview, topics: data.topics });
+        // Remove from local storage before saving into db
+        removeAssetFromLocalStoragesList(usedPublicIdsInEditor);
+        const cloudinaryAssets = extractPublicIdsAndTypeFromLinks([...cloudinaryLinksOverview, ...cloudinaryLinksTopics]);
 
         const payload: any = {
             ...data,

@@ -1,9 +1,5 @@
 import { cookies } from 'next/headers';
 
-const API_CONFIG = {
-    baseUrl: process.env.BFF_HOST_API,
-};
-
 interface FetcherOptions {
     method?: 'GET' | 'POST' | 'PUT' | 'DELETE';
     body?: Record<string, any>;
@@ -40,7 +36,7 @@ export const serverFetcher = async (BASEURL: string, URL: string, options: Fetch
             fetchOptions.body = JSON.stringify(options.body);
         }
 
-        const URI = BASEURL ? `${BASEURL}${URL}` : `${API_CONFIG.baseUrl}${URL}`;
+        const URI = BASEURL ? `${BASEURL}${URL}` : `undefined`;
         console.log(' serverFetcher :: URI:', URI);
         console.log(' serverFetcher :: token present:', !!token);
 
@@ -63,7 +59,7 @@ export const serverFetcher = async (BASEURL: string, URL: string, options: Fetch
 // Specific function for getting post by slug
 export const getCourseBySlugServer = async (slug: string): Promise<any> => {
     try {
-        const BASEURL = process.env.BFF_HOST_API as string;
+        const BASEURL = process.env.BFF_HOST_COURSE_API as string;
         return await serverFetcher(BASEURL, `/course/slug/${slug}`, {
             cache: 'force-cache', // Cache published posts
         });

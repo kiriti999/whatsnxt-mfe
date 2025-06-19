@@ -2,7 +2,7 @@
 
 import { serverFetcher } from './serverFetcher';
 
-const BASEURL = process.env.BFF_HOST_API as string;
+const BASEURL = process.env.BFF_HOST_COURSE_API as string;
 
 // Function to set application to pending
 export const fetchTrainerProfile = async (userId?: string) => {

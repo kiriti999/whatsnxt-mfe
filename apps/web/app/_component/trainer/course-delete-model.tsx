@@ -3,23 +3,23 @@ import React from 'react';
 import { Button, Flex, Modal, Text } from '@mantine/core';
 import { CourseBuilderAPI } from '../../../api/v1/courses/course-builder/course-builder-api';
 import { notifications } from '@mantine/notifications';
-import { deleteAssetWebWorker } from '../../../utils/worker/assetManager';
+import { unifiedDeleteWebWorker } from '../../../utils/worker/assetManager';
 
 interface CourseDeleteModaProps {
     courseId: string;
-    courseImagePublicId: string;
+    publicId: string;
     isModalOpen: boolean;
     modalClose: any;
     handleDeleteSuccess: any;
 }
 
-const CourseDeleteModal = ({ courseId, isModalOpen, modalClose, handleDeleteSuccess, courseImagePublicId }: CourseDeleteModaProps) => {
-    console.log(' CourseDeleteModal :: courseImagePublicId:', courseImagePublicId)
+const CourseDeleteModal = ({ courseId, isModalOpen, modalClose, handleDeleteSuccess, publicId }: CourseDeleteModaProps) => {
+    console.log(' CourseDeleteModal :: courseImagePublicId:', publicId);
 
     const handleCourseDeleteConfirm = async () => {
         modalClose();
-        const { success } = await deleteAssetWebWorker({
-            assetsList: [{ publicId: courseImagePublicId, type: 'image' }],
+        const { success } = await unifiedDeleteWebWorker({
+            assetsList: [{ publicId: publicId, resource_type: 'image' }],
         });
 
         if (success) {

@@ -1,6 +1,6 @@
 import { createContext, useCallback, useEffect } from 'react';
-import { getUploadedAssets } from '../utils/worker/workerWithLocalStorage';
-import { deleteDataWebWorker } from '../components/RichTextEditor/common';
+import { getAssetFromLocalStorage } from '../utils/worker/localStorageHandler';
+import { unifiedDeleteWebWorker } from '../utils/worker/assetManager';
 
 // ** Defaults
 const defaultProvider = {};
@@ -15,10 +15,23 @@ const CourseManageContextProvider = ({ children }) => {
     }, [])
 
     const deleteUnusedAssets = useCallback(async () => {
-        if (getUploadedAssets() && getUploadedAssets().length > 0) {
-            await deleteDataWebWorker({ assetsList: getUploadedAssets() })
+        try {
+            const storedAssets = getAssetFromLocalStorage();
+
+            // Early return if no assets to clean up
+            if (!storedAssets?.length) {
+                return;
+            }
+
+            console.log(`Cleaning up ${storedAssets.length} unused assets`);
+            await unifiedDeleteWebWorker({ assetsList: storedAssets });
+
+
+        } catch (error) {
+            console.error('Failed to delete unused assets:', error);
+
         }
-    }, [])
+    }, []);
 
     return (
         <CourseManageContext.Provider value={{}}>

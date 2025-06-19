@@ -20,7 +20,7 @@ import {
 } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import { IconUpload } from "@tabler/icons-react";
-import { uploadToCloudinary } from "../../../utils/image-upload";
+import { uploadToCloudinary } from "../../../utils/course-image-upload";
 import { ProfileAPI } from '../../../api/v1/profile/profile';
 
 type EditFormValues = {

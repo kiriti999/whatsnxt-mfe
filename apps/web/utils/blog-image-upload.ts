@@ -1,42 +1,147 @@
-
-import { CloudinaryAPI } from '../api/v1/cloudinary';
+import {
+  CloudinaryAPI,
+  ResourceType,
+  UploadResponse,
+  DeleteResponse
+} from '../../web/api/v1/common/cloudinary';
 
 export async function uploadToCloudinary(
   image: File | Blob,
   folderName: string = process.env.NEXT_PUBLIC_UPLOAD_CLOUDINARY_PRESET as string,
-  onUploadProgress?: (progressEvent: any) => void
-) {
+  onUploadProgress?: (progressEvent: any) => void,
+  resource_type: ResourceType = 'auto',
+  apiType: 'blog' | 'course' = 'blog'
+): Promise<UploadResponse> {
   try {
-    let formData = new FormData();
-    formData.append(
-      'api_key',
-      process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY as string,
-    );
-    formData.append('file', image);
-    formData.append('folder', folderName);
-    formData.append('upload_preset', folderName);
-    formData.append('timeout', '120000');
+    // Convert Blob to File if necessary
+    let fileToUpload: File;
+    if (image instanceof File) {
+      fileToUpload = image;
+    } else {
+      // Convert Blob to File
+      fileToUpload = new File([image], 'upload', { resource_type: image.type || 'image/jpeg' });
+    }
 
-    // Provide both required arguments to upload method
-    return await CloudinaryAPI.upload(formData, onUploadProgress || (() => { }));
+    // Use the appropriate API based on apiType parameter
+    const uploadFunction = apiType === 'blog' ? CloudinaryAPI.blog.upload : CloudinaryAPI.course.upload;
+
+    return await uploadFunction(
+      fileToUpload,
+      resource_type,
+      folderName,
+      onUploadProgress
+    );
   } catch (error) {
     console.log('image-upload.js:: uploadToCloudinary:: error:', error);
+    throw error;
   }
 }
 
-export async function uploadFormDataToCloudinary(image: string | Blob, folder?: string) {
-  const formData = new FormData();
-  formData.append('file', image);
-  formData.append('upload_preset', folder);
-  formData.append('folder', folder); // Add the folder field
-  return await CloudinaryAPI.uploadFormData(formData);
+export async function uploadFormDataToCloudinary(
+  image: string | Blob,
+  folder?: string,
+  apiType: 'blog' | 'course' = 'blog'
+): Promise<UploadResponse> {
+  try {
+    let fileToUpload: File;
+
+    if (typeof image === 'string') {
+      // If it's a base64 string or URL, we need to convert it to a File
+      if (image.startsWith('data:')) {
+        // Handle base64 data URL
+        const response = await fetch(image);
+        const blob = await response.blob();
+        fileToUpload = new File([blob], 'upload', { type: blob.type || 'image/jpeg' });
+      } else {
+        // Handle regular URL
+        const response = await fetch(image);
+        const blob = await response.blob();
+        fileToUpload = new File([blob], 'upload', { type: blob.type || 'image/jpeg' });
+      }
+    } else {
+      // Convert Blob to File
+      fileToUpload = new File([image], 'upload', { type: image.type || 'image/jpeg' });
+    }
+
+    // Use the appropriate API based on apiType parameter
+    const uploadFunction = apiType === 'blog' ? CloudinaryAPI.blog.upload : CloudinaryAPI.course.upload;
+
+    return await uploadFunction(
+      fileToUpload,
+      'auto', // resource type
+      folder || 'whatsnxt' // folder name
+    );
+  } catch (error) {
+    console.log('image-upload.js:: uploadFormDataToCloudinary:: error:', error);
+    throw error;
+  }
 }
 
-export const deleteCloudinaryImage = async (payload: { public_id: any; }) => {
-  const deleteResult = await CloudinaryAPI.delete(payload.public_id);
-  console.log(
-    'image-upload.js:: deleteCloudinaryImage:: deleteResult:',
-    deleteResult,
-  );
-  return deleteResult;
+export const deleteCloudinaryImage = async (
+  publicId: string,
+  resourceType?: ResourceType,
+  apiType: 'blog' | 'course' = 'blog'
+): Promise<DeleteResponse> => {
+  try {
+    // Use the appropriate API based on apiType parameter
+    const deleteFunction = apiType === 'blog' ? CloudinaryAPI.blog.delete : CloudinaryAPI.course.delete;
+
+    const deleteResult = await deleteFunction(publicId, resourceType);
+    console.log(
+      'image-upload.js:: deleteCloudinaryImage:: deleteResult:',
+      deleteResult,
+    );
+    return deleteResult;
+  } catch (error) {
+    console.log('image-upload.js:: deleteCloudinaryImage:: error:', error);
+    throw error;
+  }
+};
+
+// Additional utility functions for multiple operations
+export const deleteMultipleCloudinaryImages = async (
+  assets: Array<{ publicId: string; resource_type: ResourceType }>,
+  apiType: 'blog' | 'course' = 'blog'
+): Promise<DeleteResponse> => {
+  console.log(' assets:', assets)
+  console.log(' assets:', assets)
+  console.log(' assets:', assets)
+  console.log(' assets:', assets)
+  try {
+    const deleteFunction = apiType === 'blog' ? CloudinaryAPI.blog.deleteMultiple : CloudinaryAPI.course.deleteMultiple;
+
+    const deleteResult = await deleteFunction(assets);
+    console.log('deleteMultipleCloudinaryImages:: deleteResult:', deleteResult);
+    return deleteResult;
+  } catch (error) {
+    console.log('deleteMultipleCloudinaryImages:: error:', error);
+    throw error;
+  }
+};
+
+export const uploadMultipleToCloudinary = async (
+  files: File[],
+  folderName: string = 'whatsnxt',
+  resource_type: ResourceType = 'auto',
+  apiType: 'blog' | 'course' = 'blog',
+  onUploadProgress?: (fileIndex: number, progressEvent: any) => void
+): Promise<UploadResponse[]> => {
+  try {
+    const apiClient = apiType === 'blog' ?
+      require('@whatsnxt/core-util').blogApiClient :
+      require('@whatsnxt/core-util').courseApiClient;
+
+    const endpoint = apiType === 'blog' ? '/cloudinary/upload-image' : '/cloudinary/upload';
+
+    return await CloudinaryAPI.uploadMultiple(files, {
+      apiClient,
+      endpoint,
+      resource_type,
+      folderName,
+      onUploadProgress
+    });
+  } catch (error) {
+    console.log('uploadMultipleToCloudinary:: error:', error);
+    throw error;
+  }
 };

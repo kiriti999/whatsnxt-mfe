@@ -19,7 +19,6 @@ import {
 } from '@mantine/core';
 import { GoogleButton } from '@whatsnxt/core-ui/src/GoogleButton';
 import Link from 'next/link';
-import { fetchUser, checkSuccessResponse, getErrorMessageFromResponse, getCookieAccessToken } from '../../utils/Utils';
 import { notifications } from '@mantine/notifications';
 import { CartAPI } from '../../api/v1/cart/cart';
 import { AuthAPI } from '../../api/v1/auth';
@@ -28,6 +27,7 @@ import styles from './Authentication.module.css';
 import useAuth from '../../hooks/Authentication/useAuth';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { AuthContext } from '../../context/Authentication/AuthContext';
+import { checkSuccessResponse, fetchUser, getCookieAccessToken, getErrorMessageFromResponse } from '../../utils/commonHelper';
 
 interface IFormData {
   email: string;
@@ -156,7 +156,9 @@ export function AuthenticationForm(props: PaperProps) {
       mutationFn: async (formData: any) => await AuthAPI.createAccount(formData),
       onSuccess: async (response: any) => {
         if (checkSuccessResponse(response)) {
-          // const getToken = await getCookieAccessToken()
+          console.log(' onSuccess: :: response:', response)
+          const token = await getCookieAccessToken()
+          console.log(' onSuccess: :: token:', token)
           notifications.show({
             position: 'bottom-right',
             title: 'Registration Success',
@@ -164,12 +166,20 @@ export function AuthenticationForm(props: PaperProps) {
             color: 'green',
             autoClose: 5000
           });
-          // const userObject = await fetchUser(getToken);
-          // // const userObject = await ProfileAPI.getProfile(getToken);
-          // dispatch({ type: 'UPDATE_USER_INFO', data: userObject });
-          // dispatch({ type: 'UPDATE_USER_TOKEN', data: getToken });
-          // await login(userObject, false)
-          // router.push(redirectUrl);
+
+          if (token) {
+            // Auto-login user
+            dispatch({ type: 'UPDATE_USER_TOKEN', data: token });
+            const userObject = await fetchUser(token);
+            dispatch({ type: 'UPDATE_USER_INFO', data: userObject });
+            await login(userObject);
+            router.push(redirectUrl);
+            return;
+          }
+
+          // Fallback to login form
+          reset();
+          toggle();
         }
       },
       onError: (error) => {

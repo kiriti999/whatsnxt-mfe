@@ -29,6 +29,9 @@ self.onmessage = async (event) => {
         // Use XMLHttpRequest for progress tracking
         const xhr = new XMLHttpRequest();
 
+        // 3. Event handlers are triggered after xhr.send
+        // These lines just REGISTER the event handlers
+        // No actual events are fired yet - just setting up listeners
         xhr.upload.addEventListener('progress', (progressEvent) => {
             if (progressEvent.lengthComputable) {
                 const progress = Math.round((progressEvent.loaded / progressEvent.total) * 100);
@@ -75,12 +78,13 @@ self.onmessage = async (event) => {
             });
         });
 
-        // Call your BFF API endpoint
+        // 1. Configure the request with URL
         xhr.open('POST', `${BFF_API_BASE}/cloudinary/upload`);
 
         // Add any authentication headers your BFF requires
         // xhr.setRequestHeader('Authorization', 'Bearer ' + token);
 
+        // 2. Send the request
         xhr.send(formData);
 
     } catch (error) {

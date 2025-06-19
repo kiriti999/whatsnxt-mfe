@@ -4,7 +4,7 @@ import { CourseBuilderAPI } from "../../../../api/v1/courses/course-builder/cour
 import type { Section } from "../types";
 import { deleteIndex } from "@whatsnxt/core-util";
 import { modals } from '@mantine/modals';
-import { deleteAssetWebWorker } from '../../../../utils/worker/assetManager';
+import { unifiedDeleteWebWorker } from '../../../../utils/worker/assetManager';
 
 export const handleCourseNameSave = async ({ courseId, newCourseName, setIsEditingCourseName }) => {
     try {
@@ -259,8 +259,8 @@ export const deleteCourse = async ({ courseWithSections, sections, courseId, rou
         },
         onConfirm: async () => {
             try {
-                const { success } = await deleteAssetWebWorker({
-                    assetsList: [{ publicId: courseWithSections?.courseImagePublicId, type: 'image' }],
+                const { success } = await unifiedDeleteWebWorker({
+                    assetsList: [{ publicId: courseWithSections?.courseImagePublicId, resource_type: 'image' }],
                 });
                 if (success) {
                     await CourseBuilderAPI.deleteCourse(courseId);

@@ -14,7 +14,7 @@ export interface BlogFormProps {
     imageUrl?: string;
     cloudinaryAssets?: {
       publicId: string;
-      type: string;
+      resource_type: string;
       url: string;
       secureUrl: string;
       format: string;

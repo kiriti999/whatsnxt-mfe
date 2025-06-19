@@ -24,7 +24,7 @@ import { useRouter } from "next/navigation";
 import { UserAPI } from "../../api/v1/user/apply";
 import { LanguageAPI } from "../../api/v1/language";
 import { IconUpload } from "@tabler/icons-react";
-import { uploadToCloudinary } from "../../utils/image-upload";
+import { uploadToCloudinary } from "../../utils/course-image-upload";
 import { revalidate } from "../../server-actions";
 import TrainingConfirmationModal from "./TrainingConfirmationModal";
 

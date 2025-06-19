@@ -1,8 +1,8 @@
-import { bffApiClient } from '@whatsnxt/core-util';
+import { courseApiClient } from '@whatsnxt/core-util';
 
 export const SidebarAPI = {
   getPopular: async function () {
-    const response = await bffApiClient.get('/popular');
+    const response = await courseApiClient.get('/popular');
 
     // returning the data returned by the API
     console.log('SidebarAPI:: getPopular:: response: ', response?.data);

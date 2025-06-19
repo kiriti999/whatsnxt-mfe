@@ -3,15 +3,15 @@ import { useContext, useRef } from "react";
 import styles from "../../Tiptap/Tiptap.module.css";
 import { IconVolume } from '@tabler/icons-react';
 import { TiptapManageContext } from '../../../../context/TiptapManageContext';
-import { uploadDataWebWorker } from '../../common';
 import { Button } from '@mantine/core';
+import { uploadDataWebWorker } from '../../../../utils/worker/assetManager';
 
 // Custom Audio button component
 const AudioControl = ({ editor }: { editor: any }) => {
     const fileInputRef = useRef<HTMLInputElement>(null);
     const { courseId, updateProgress } = useContext(TiptapManageContext)
 
-    const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
         // for reset the target value , so it could allow to add same files 
         event.target.value = ""
@@ -19,7 +19,7 @@ const AudioControl = ({ editor }: { editor: any }) => {
         if (file) {
             const tempUrl = URL.createObjectURL(file);
             editor.chain().focus().setAudio({ src: tempUrl }).run();
-            uploadDataWebWorker({ file, tempUrl, editor, courseId, type: "auto", setProgress: updateProgress })
+            await uploadDataWebWorker({ file, tempUrl, editor, courseId, resource_type: "auto", setProgress: updateProgress })
         }
     };
 

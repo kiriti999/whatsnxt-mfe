@@ -486,7 +486,7 @@ const CourseHistory = () => {
 
             <CourseDeleteModal
               courseId={courseDelId}
-              courseImagePublicId={publicId}
+              publicId={publicId}
               isModalOpen={isModalOpen}
               modalClose={handleModalClose}
               handleDeleteSuccess={handleCourseDeleteSuccess}

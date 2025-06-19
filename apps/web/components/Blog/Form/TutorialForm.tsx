@@ -5,7 +5,7 @@ import { CategoryData } from '../../../types/form';
 import { useSaved } from '../../../hooks/saved';
 import { getCategoryId } from '../../../utils/form';
 import type { Category, Detail, Tutorial } from '../../../types/form';
-import { CloudinaryAPI, FormAPI, HistoryAPI } from '../../../api/v1/blog';
+import { FormAPI, HistoryAPI } from '../../../api/v1/blog';
 import Pagination from '../../Common/Pagination';
 import { RichTextEditor } from '../../RichTextEditor';
 import { useRouter } from 'next/navigation';
@@ -20,6 +20,7 @@ import {
 } from '../../RichTextEditor/common';
 import { IconUpload } from '@tabler/icons-react';
 import Image from 'next/image';
+import { CloudinaryAPI } from '../../../api/v1/common/cloudinary';
 
 interface TutorialFormProps {
   categories: Category[];
@@ -288,7 +289,15 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
 
       if (tutorialImage) {
         console.log(`Uploading...`)
-        const fileUploadResData = await CloudinaryAPI.uploadFormImage(tutorialImage, 'image')
+        const fileUploadResData = await CloudinaryAPI.blog.upload(
+          tutorialImage,           // File object
+          'image',            // resource type
+          'whatsnxt-tutorial',    // folder name (optional, defaults to 'whatsnxt')
+          (progressEvent) => { // progress callback (optional)
+            const progress = (progressEvent.loaded / progressEvent.total) * 100;
+            console.log(`Upload progress: ${progress}%`);
+          }
+        );
         imageUrl = fileUploadResData?.secure_url;
         cloudinaryAssets.push({
           publicId: fileUploadResData?.public_id,

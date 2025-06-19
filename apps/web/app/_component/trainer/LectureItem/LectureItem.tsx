@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useState } from "react";
+import React, { FC, useCallback, useEffect, useState } from "react";
 import {
   Accordion,
   Button,
@@ -30,10 +30,11 @@ import { CourseBuilderAPI } from "../../../../api/v1/courses/course-builder/cour
 import EditTextGroup from "./EditTextGroup";
 import { EditOrderIndex } from "./EditOrderIndex";
 import PreviewToggle from './PreviewToggle';
-import { deleteAssetWebWorker, uploadAssetWebWorker } from '../../../../utils/worker/assetManager';
+import { unifiedDeleteWebWorker, uploadDataWebWorker } from '../../../../utils/worker/assetManager';
 import LectureLinksComponent from './LectureLinks'
 import { assetType, LectureItemProps } from '../types';
 import { modals } from '@mantine/modals';
+import { getAssetFromLocalStorage } from '../../../../utils/worker/localStorageHandler';
 
 
 export const LectureItem: FC<LectureItemProps> = ({
@@ -141,11 +142,11 @@ export const LectureItem: FC<LectureItemProps> = ({
     setDoc(selectedFile);
   };
 
-  const uploadAssetToCloud = async (file: File, lectureId, setProgress, type): Promise<assetType> => {
+  const uploadAssetToCloud = async (file: File, lectureId, setProgress, resource_type): Promise<assetType> => {
     const data = new FormData();
     data.append("file", file);
-    data.append("resource_type", type);
-    const result = uploadAssetWebWorker({ file, lectureId, type, setProgress })
+    data.append("resource_type", resource_type);
+    const result = await uploadDataWebWorker({ file, lectureId, resource_type, setProgress })
     return result;
   };
 
@@ -356,17 +357,17 @@ export const LectureItem: FC<LectureItemProps> = ({
   };
 
   const handleDelete = async (
-    e,
-    assetType: 'video' | 'doc',
+    e: any,
+    resource_type: 'video' | 'doc',
     deleteAssetAPI: () => Promise<void>,
     setAssetUrl: (url: string | undefined) => void,
     setAssetFile: (file: File | null) => void
   ) => {
     modals.openConfirmModal({
-      title: `Confirm ${assetType.charAt(0).toUpperCase() + assetType.slice(1)} Deletion`,
+      title: `Confirm ${resource_type.charAt(0).toUpperCase() + resource_type.slice(1)} Deletion`,
       centered: true,
       children: (
-        <p>Are you sure you want to remove this {assetType}? This action cannot be undone.</p>
+        <p>Are you sure you want to remove this {resource_type}? This action cannot be undone.</p>
       ),
       labels: { confirm: 'Delete', cancel: 'Cancel' },
       confirmProps: { color: 'red' },
@@ -375,17 +376,17 @@ export const LectureItem: FC<LectureItemProps> = ({
           setLoading(true);
           const resourceType = e.target.dataset.resourceType;
 
-          const { success } = await deleteAssetWebWorker({
-            assetsList: [{ publicId: e.target.id, type: resourceType }],
+          const { success } = await unifiedDeleteWebWorker({
+            assetsList: [{ publicId: e.target.id, resource_type: resourceType }],
           });
 
           if (success) {
             // Proceed with database deletion if cloud deletion succeeded
             const response: any = await deleteAssetAPI();
-            if (response.status === 200 && assetType === 'video') {
+            if (response.status === 200 && resource_type === 'video') {
               onRemoveVideo(sectionId, lectureId);
             }
-            if (response.status === 200 && assetType === 'doc') {
+            if (response.status === 200 && resource_type === 'doc') {
               onRemoveDoc(sectionId, lectureId);
             }
             setAssetUrl(undefined);
@@ -393,28 +394,28 @@ export const LectureItem: FC<LectureItemProps> = ({
 
             notifications.show({
               position: 'bottom-right',
-              title: `${assetType.charAt(0).toUpperCase() + assetType.slice(1)} Removed`,
-              message: `${assetType.charAt(0).toUpperCase() + assetType.slice(1)} removed successfully.`,
+              title: `${resource_type.charAt(0).toUpperCase() + resource_type.slice(1)} Removed`,
+              message: `${resource_type.charAt(0).toUpperCase() + resource_type.slice(1)} removed successfully.`,
               color: "green",
             });
-            console.log(`${assetType.charAt(0).toUpperCase() + assetType.slice(1)} deleted successfully from the database.`);
+            console.log(`${resource_type.charAt(0).toUpperCase() + resource_type.slice(1)} deleted successfully from the database.`);
           } else {
             notifications.show({
               position: 'bottom-right',
               title: "Error",
-              message: `Failed to remove ${assetType}.`,
+              message: `Failed to remove ${resource_type}.`,
               color: "red",
             });
-            console.error(`Failed to delete ${assetType} from the cloud.`);
+            console.error(`Failed to delete ${resource_type} from the cloud.`);
           }
         } catch (error) {
           notifications.show({
             position: 'bottom-right',
             title: "Error",
-            message: `Failed to remove ${assetType}.`,
+            message: `Failed to remove ${resource_type}.`,
             color: "red",
           });
-          console.error(`Error deleting ${assetType}:`, error);
+          console.error(`Error deleting ${resource_type}:`, error);
         } finally {
           setLoading(false);
         }
@@ -529,7 +530,6 @@ export const LectureItem: FC<LectureItemProps> = ({
     }
   }
 
-
   const handleLectureLinkDelete = async (linkId, isNew) => {
     try {
       setLoading(true);
@@ -575,6 +575,34 @@ export const LectureItem: FC<LectureItemProps> = ({
     //if lecture link array is changed it will get pushed to section
     onLectureLinksUpdated(sectionId, lectureId, lectureLinksAr);
   }, [lectureLinksAr])
+
+  // delete ids on unload
+  useEffect(() => {
+    return () => {
+      // calls on unload
+      deleteUnusedAssets()
+    }
+  }, [])
+
+  const deleteUnusedAssets = useCallback(async () => {
+    try {
+      const storedAssets = getAssetFromLocalStorage();
+
+      // Early return if no assets to clean up
+      if (!storedAssets?.length) {
+        return;
+      }
+
+      console.log(`Cleaning up ${storedAssets.length} unused assets`);
+      await unifiedDeleteWebWorker({ assetsList: storedAssets });
+
+
+    } catch (error) {
+      console.error('Failed to delete unused assets:', error);
+
+    }
+  }, []);
+
 
   return (
     <Card shadow="xs" padding="md" radius="md" withBorder my="md">

@@ -1,15 +1,15 @@
 import { useContext, useRef } from 'react';
 import { TiptapManageContext } from '../../../../context/TiptapManageContext';
-import { uploadDataWebWorker } from '../../common';
 import { IconPhoto } from '@tabler/icons-react';
 import { Button } from '@mantine/core';
+import { uploadDataWebWorker } from '../../../../utils/worker/assetManager';
 
 // Custom Image button component
 const ImageControl = ({ editor }: any) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { courseId, updateProgress } = useContext(TiptapManageContext);
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     // Reset the target value so it allows adding the same files
     event.target.value = '';
@@ -17,12 +17,12 @@ const ImageControl = ({ editor }: any) => {
     if (file) {
       const tempUrl = URL.createObjectURL(file);
       editor.chain().focus().setImage({ src: tempUrl }).run();
-      uploadDataWebWorker({
+      await uploadDataWebWorker({
         file,
         tempUrl,
         editor,
         courseId,
-        type: 'image',
+        resource_type: 'image',
         setProgress: updateProgress,
       });
     }

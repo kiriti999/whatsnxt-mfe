@@ -7,9 +7,9 @@ import '@mantine/notifications/styles.css';
 import React, { ReactNode } from 'react'
 import { Nunito } from "next/font/google"
 import { cookies } from "next/headers";
-import { fetchUser } from "../utils/Utils"
 import { Metadata } from "next";
 import Providers from '../components/StateWrappers/StateWrappers'
+import { fetchUser } from '../utils/commonHelper';
 
 const nunito = Nunito({
   subsets: ["latin"],

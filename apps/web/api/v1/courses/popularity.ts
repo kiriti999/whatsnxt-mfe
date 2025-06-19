@@ -1,8 +1,8 @@
-import { bffApiClient } from '@whatsnxt/core-util';
+import { courseApiClient } from '@whatsnxt/core-util';
 
 export const PopularityAPI = {
   popularity: async function () {
-    const response = await bffApiClient.get('/courses/popularity');
+    const response = await courseApiClient.get('/courses/popularity');
     return response;
   },
 };

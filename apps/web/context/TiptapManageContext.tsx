@@ -8,8 +8,8 @@ import {
     useCallback,
 } from 'react';
 import useAuth from '../hooks/Authentication/useAuth';
-import { getUploadedAssets } from '../utils/worker/workerWithLocalStorage';
-import { deleteDataWebWorker } from '../components/RichTextEditor/common';
+import { getAssetFromLocalStorage } from '../utils/worker/localStorageHandler';
+import { unifiedDeleteWebWorker } from '../utils/worker/assetManager';
 
 // ** Defaults
 interface ProgressEntry {
@@ -79,8 +79,8 @@ const TiptapManageContextProvider = ({ isAssetsUploading, children, courseId, se
     }, [])
 
     const deleteUnusedAssets = useCallback(async () => {
-        if (getUploadedAssets() && getUploadedAssets().length > 0) {
-            await deleteDataWebWorker({ assetsList: getUploadedAssets() })
+        if (getAssetFromLocalStorage() && getAssetFromLocalStorage().length > 0) {
+            await unifiedDeleteWebWorker({ assetsList: getAssetFromLocalStorage() })
         }
     }, [])
 

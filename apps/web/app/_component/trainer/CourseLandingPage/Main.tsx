@@ -22,12 +22,12 @@ import { TiptapManageContextProvider } from "../../../../context/TiptapManageCon
 import { RichTextEditor } from '../../../../components/RichTextEditor';
 import { CategoriesAPI } from '../../../../api/v1/courses/categories';
 import { LanguageAPI } from '../../../../api/v1/language';
-import { getUploadedAssets } from '../../../../utils/worker/workerWithLocalStorage';
-import { deleteDataWebWorker } from '../../../../components/RichTextEditor/common';
+import { getAssetFromLocalStorage } from '../../../../utils/worker/localStorageHandler';
 import { useDashboardContext } from '../../../../context/DashboardContext';
 import { handleCategoryChange, handleLandingPageSubmit, handleSubCategoryChange } from './actions';
 import { useRouter } from "next/navigation";
 import { IconUpload } from '@tabler/icons-react';
+import { unifiedDeleteWebWorker } from '../../../../utils/worker/assetManager';
 
 const INIT_COURSE = {
 	overview: '',
@@ -96,10 +96,23 @@ const Main = ({ courseWithSections, courseId }) => {
 	}, [])
 
 	const deleteUnusedAssets = useCallback(async () => {
-		if (getUploadedAssets() && getUploadedAssets().length > 0) {
-			await deleteDataWebWorker({ assetsList: getUploadedAssets() })
+		try {
+			const storedAssets = getAssetFromLocalStorage();
+
+			// Early return if no assets to clean up
+			if (!storedAssets?.length) {
+				return;
+			}
+
+			console.log(`Cleaning up ${storedAssets.length} unused assets`);
+			await unifiedDeleteWebWorker({ assetsList: storedAssets });
+
+
+		} catch (error) {
+			console.error('Failed to delete unused assets:', error);
+
 		}
-	}, [])
+	}, []);
 
 	const {
 		handleSubmit,

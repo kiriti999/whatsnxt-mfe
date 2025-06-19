@@ -11,7 +11,7 @@ import { MantineLoader } from '@whatsnxt/core-ui';
 import { ProfileAPI } from '../../../api/v1/profile/profile';
 
 const MyProfile = () => {
-  const { isAuthenticated, user, token } = useAuth();
+  const { user, token } = useAuth();
   const [profile, setProfile] = useState(undefined);
 
   const { isFetching, data } = useQuery({

@@ -17,7 +17,6 @@ import {
 } from "@tabler/icons-react";
 import Pagination from '../pagination/pagination';
 import { useDOMPurify } from '../../hooks/useDompurify';
-// import DOMPurify from 'isomorphic-dompurify';
 
 const DOMPurify = useDOMPurify();
 
