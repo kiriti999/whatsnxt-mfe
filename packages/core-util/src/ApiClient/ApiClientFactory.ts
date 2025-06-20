@@ -53,8 +53,8 @@ const commonErrorHandler = async (error: any) => {
 };
 
 // BFF-specific request interceptor (preserving your existing token logic)
-const courseRequestInterceptor = (config: any) => {
-console.log(' courseRequestInterceptor :: config:', config)
+const axiosRequestInterceptor = (config: any) => {
+console.log(' axiosRequestInterceptor :: config:', config)
 
     // Skip ALL header modifications for FormData requests
     if (config.data instanceof FormData) {
@@ -66,7 +66,7 @@ console.log(' courseRequestInterceptor :: config:', config)
     const token = config.data?.accessToken ? config.data?.accessToken : Cookie.get(process.env.NEXT_PUBLIC_COOKIES_ACCESS_TOKEN);
 
     if (token) {
-        console.log(' courseRequestInterceptor :: token:', token)
+        console.log(' axiosRequestInterceptor :: token:', token)
         // Set Authorization header instead of Cookie
         config.headers = config.headers || {};
         config.headers['Authorization'] = `${token}`;
@@ -89,14 +89,14 @@ console.log(' courseRequestInterceptor :: config:', config)
     return config;
 };
 
-const courseErrorHandler = async (error: any) => {
+const apiErrorHandler = async (error: any) => {
     const statusCode = error.response?.status;
     const errorMessage = error.response?.data?.message || error.message;
 
     try {
         // Log the error for debugging
         if (statusCode) {
-            console.info(`BFF API Error:: message: ${errorMessage} code: ${statusCode}`);
+            console.info(`Axios API Error:: message: ${errorMessage} code: ${statusCode}`);
         }
 
         // For BFF errors, we want to preserve the custom error message from backend
@@ -109,7 +109,7 @@ const courseErrorHandler = async (error: any) => {
 
         return Promise.reject(error);
     } catch (e: any) {
-        console.info(`BFF ErrorHandler Exception:: message: ${e.message}`);
+        console.info(`Axios ErrorHandler Exception:: message: ${e.message}`);
         return Promise.reject(e);
     }
 };
@@ -125,7 +125,7 @@ const getApiConfig = (type: ApiClientType): ApiClientConfig => {
             return {
                 ...baseConfig,
                 baseURL: process.env.NEXT_PUBLIC_BFF_HOST_COMMON_API!,
-                requestInterceptor: courseRequestInterceptor,
+                requestInterceptor: axiosRequestInterceptor,
                 errorHandler: commonErrorHandler,
             };
 
@@ -133,16 +133,16 @@ const getApiConfig = (type: ApiClientType): ApiClientConfig => {
             return {
                 ...baseConfig,
                 baseURL: process.env.NEXT_PUBLIC_BFF_HOST_COURSE_API!, // Keep your original env var
-                requestInterceptor: courseRequestInterceptor,
-                errorHandler: courseErrorHandler,
+                requestInterceptor: axiosRequestInterceptor,
+                errorHandler: apiErrorHandler,
             };
 
         case 'blog':
             return {
                 ...baseConfig,
                 baseURL: process.env.NEXT_PUBLIC_BLOG_HOST_API!, // Keep your original env var
-                requestInterceptor: courseRequestInterceptor,
-                errorHandler: courseErrorHandler,
+                requestInterceptor: axiosRequestInterceptor,
+                errorHandler: apiErrorHandler,
             };
 
         default:
