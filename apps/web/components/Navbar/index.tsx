@@ -53,7 +53,6 @@ const Navbar = ({ loginMenuLinks, links }: headerProps) => {
     return (
         <Box>
             <NavbarDesktop
-                user={authUser}
                 links={links}
                 cartItems={cartItems}
                 loginMenuLinks={enhancedLoginMenuLinks}
@@ -62,7 +61,6 @@ const Navbar = ({ loginMenuLinks, links }: headerProps) => {
             />
 
             <NavbarMobile
-                user={authUser}
                 links={links}
                 cartItems={cartItems}
                 loginMenuLinks={enhancedLoginMenuLinks}

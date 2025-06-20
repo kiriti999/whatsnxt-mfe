@@ -11,17 +11,16 @@ import { CacheAPI } from '../../../apis/v1/redis';
 interface INavbarMobile {
   links: LinkType[];
   cartItems: any[];
-  user: User;
   loginMenuLinks: any[];
   drawerOpened: any;
   closeDrawer: any;
 }
 
-export const NavbarMobile = ({ user, links, loginMenuLinks, drawerOpened, closeDrawer }: INavbarMobile) => {
-  const { logout: handleLogout, loading } = useAuth();
-  const isAdmin = user && user.role === 'admin';
-  const isTrainer = user && user.role === 'trainer';
-  const isLoggedIn = !!user;
+export const NavbarMobile = ({ links, loginMenuLinks, drawerOpened, closeDrawer }: INavbarMobile) => {
+  const { logout: handleLogout, loading, user: authUser } = useAuth();
+  const isAdmin = authUser && authUser.role === 'admin';
+  const isTrainer = authUser && authUser.role === 'trainer';
+  const isLoggedIn = !!authUser;
 
   async function clearCache() {
     try {
@@ -48,7 +47,7 @@ export const NavbarMobile = ({ user, links, loginMenuLinks, drawerOpened, closeD
       onClose={closeDrawer}
       size="80%"
       padding="md"
-      title={user?.email}
+      title={authUser?.email}
       hiddenFrom="1367px"
       zIndex={1000000}
     >

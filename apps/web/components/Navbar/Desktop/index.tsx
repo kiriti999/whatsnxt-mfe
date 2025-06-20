@@ -17,13 +17,12 @@ import { resetCart } from '../../../store/slices/cartSlice';
 interface INavbarDesktop {
   links: NavLink[];
   cartItems: any[];
-  user: User;
   loginMenuLinks: any[];
   drawerOpened: any;
   toggleDrawer: any;
 }
 
-export const NavbarDesktop = ({ links, cartItems, loginMenuLinks, drawerOpened, toggleDrawer, user }: INavbarDesktop) => {
+export const NavbarDesktop = ({ links, cartItems, loginMenuLinks, drawerOpened, toggleDrawer }: INavbarDesktop) => {
   const [isSearch, setIsSearch] = useState(false);
   const { logout: handleLogout, user: userInfoData, loading, isAuthenticated } = useAuth();
   const [usernameLabel, setUsernameLabel] = useState<string | null>(null);
