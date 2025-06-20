@@ -145,15 +145,23 @@ export const GuestCheckoutComponent: FC<GuestCheckoutComponentProps> = () => {
             message: 'User registered successfully',
             color: 'green',
           });
-          const userObject = await fetchUser(response.token);
+          const token = response.token;
+
+          // Dispatch token first so API calls can use it
           dispatch({
-            type: 'LOGIN',
-            data: {
-              token: response.token,
-              userObject: userObject
-            }
+            type: 'UPDATE_USER_TOKEN',
+            data: token
           });
-          await login(userObject, false)
+
+          const userObject = await fetchUser(token); // Pass token explicitly
+          console.log('userObject fetched:', userObject);
+
+          dispatch({
+            type: 'UPDATE_USER_INFO',
+            data: userObject
+          });
+
+          await login(userObject);
           router.push(redirectUrl);
         }
 
@@ -193,14 +201,22 @@ export const GuestCheckoutComponent: FC<GuestCheckoutComponentProps> = () => {
       mutationFn: async (formData: any) => await AuthAPI.login(formData),
       onSuccess: async (response: any) => {
         if (checkSuccessResponse(response)) {
-          const userObject = await fetchUser(response.token);
+          const token = response.token;
+
+          // Dispatch token first so API calls can use it
           dispatch({
-            type: 'LOGIN',
-            data: {
-              token: response.token,
-              userObject: userObject
-            }
+            type: 'UPDATE_USER_TOKEN',
+            data: token
           });
+
+          const userObject = await fetchUser(token); // Pass token explicitly
+          console.log('userObject fetched:', userObject);
+
+          dispatch({
+            type: 'UPDATE_USER_INFO',
+            data: userObject
+          });
+
           await fetchCartInfo();
           await login(userObject);
           router.push(redirectUrl);

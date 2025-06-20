@@ -215,20 +215,25 @@ export function AuthenticationForm(props: PaperProps) {
       onSuccess: async (response: any) => {
         if (checkSuccessResponse(response)) {
           console.log(' onSuccess: :: response:', response)
-          // const getToken = await getCookieAccessToken()
           const token = response.token;
-          const userObject = await fetchUser(token);
+
+          // Dispatch token first so API calls can use it
+          dispatch({
+            type: 'UPDATE_USER_TOKEN',
+            data: token
+          });
+
+          const userObject = await fetchUser(token); // Pass token explicitly
+          console.log('userObject fetched:', userObject);
 
           dispatch({
-            type: 'LOGIN',
-            data: {
-              token: token,
-              userObject: userObject
-            }
+            type: 'UPDATE_USER_INFO',
+            data: userObject
           });
-          // await login(userObject);
-          router.push(redirectUrl);
+
           await fetchCartInfo();
+          await login(userObject);
+          router.push(redirectUrl);
         }
 
       },

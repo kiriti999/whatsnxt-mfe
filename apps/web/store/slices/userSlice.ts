@@ -7,12 +7,11 @@ const initialState = {
 
 export const userReducer = (state = initialState, action) => {
     switch (action.type) {
-        case 'LOGIN': // New combined action
-            return {
-                ...state,
-                userToken: action.data.token,
-                userObject: action.data.userObject
-            };
+        case 'UPDATE_USER_TOKEN':
+            return { ...state, userToken: action.data };
+
+        case 'UPDATE_USER_INFO':
+            return { ...state, userObject: action.data };
 
         case 'LOGOUT':
             return {
