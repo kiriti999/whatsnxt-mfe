@@ -1,6 +1,7 @@
 import { AuthAPI } from '../../apis/v1/auth';
 import { notifications } from '@mantine/notifications';
 import { removeCookie } from '../../utils/commonHelper';
+import { resetCart } from '../../store/slices/cartSlice';
 
 export const handleLogin = async (
   user,
@@ -32,8 +33,8 @@ export const handleLogout = async (setUser, router, dispatch) => {
     setUser(null);
 
     // Clear Redux state
-    dispatch({ type: 'UPDATE_USER_INFO', data: null });
-    dispatch({ type: 'UPDATE_CART', data: { cartItems: [], discount: 0 } });
+    dispatch({ type: 'LOGOUT' });
+    dispatch(resetCart());
 
     // Clear localStorage
     console.log('Calling logout API...');
@@ -51,11 +52,11 @@ export const handleLogout = async (setUser, router, dispatch) => {
     removeCookie(process.env.NEXT_PUBLIC_COOKIES_ACCESS_TOKEN);
 
     // Clear Redux state
-    dispatch({ type: 'UPDATE_USER_INFO', data: null });
-    dispatch({ type: 'UPDATE_CART', data: { cartItems: [], discount: 0 } });
+    dispatch({ type: 'LOGOUT' });
+    dispatch(resetCart());
 
     // Clear localStorage
-    localStorage.removeItem('cart');
+    // localStorage.removeItem('cart');
 
     // Still redirect to authentication
     router.replace('/authentication');

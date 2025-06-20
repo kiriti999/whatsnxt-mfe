@@ -52,7 +52,7 @@ export const NavbarDesktop = ({ links, cartItems, loginMenuLinks, drawerOpened, 
     // Clear Redux state
     dispatch({ type: 'LOGOUT' });
     dispatch(resetCart());
-    dispatch({ type: 'UPDATE_CART', data: { cartItems: [], discount: 0 } });
+    // dispatch({ type: 'UPDATE_CART', data: { cartItems: [], discount: 0 } });
 
     // Clear localStorage
     // localStorage.removeItem('cart'); // clear from store
