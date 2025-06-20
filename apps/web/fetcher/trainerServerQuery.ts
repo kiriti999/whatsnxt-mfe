@@ -25,3 +25,14 @@ export const fetchTrainerDetails = async (trainerId: string) => {
         throw error;
     }
 };
+
+export const fetchTrainerNotifications = async () => {
+    try {
+        const url = `/courses/trainer/notifications`;
+        const response = await serverFetcher(BASEURL, url); // Automatically GET
+        return response;
+    } catch (error) {
+        console.error('applyActions:: Error fetching trainer details with query:', error);
+        throw error;
+    }
+};

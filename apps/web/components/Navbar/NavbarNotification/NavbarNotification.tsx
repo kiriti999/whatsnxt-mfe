@@ -5,12 +5,16 @@ import styles from './NavbarNotification.module.css';
 import { Anchor } from '@mantine/core';
 import { IconBell } from '@tabler/icons-react';
 import { TrainerAPI } from '../../../apis/v1/courses/trainer/trainer';
+import { fetchTrainerNotifications } from '../../../fetcher/trainerServerQuery';
 
 type NavbarNotificationProps = {
   user: any
 }
 
 export const NavbarNotification: FC<NavbarNotificationProps> = ({ user }) => {
+  console.log(' NavbarNotification:: user:', user)
+  console.log(' NavbarNotification:: user:', user)
+  console.log(' NavbarNotification:: user:', user)
 
   if (!user) {
     return null;
@@ -22,6 +26,8 @@ export const NavbarNotification: FC<NavbarNotificationProps> = ({ user }) => {
       if (!user) return false;
 
       const response = await TrainerAPI.getNotification()
+      const result = await fetchTrainerNotifications()
+      console.log(' fetchTrainerNotifications:: queryFn: :: result:', result)
       return response.data;
     },
   });
