@@ -27,8 +27,8 @@ export const NavbarDesktop = ({ links, cartItems, loginMenuLinks, drawerOpened, 
   const [isSearch, setIsSearch] = useState(false);
   const { logout: handleLogout, user: userInfoData, loading, isAuthenticated } = useAuth();
   const [usernameLabel, setUsernameLabel] = useState<string | null>(null);
-  const isAdmin = user && user.role === 'admin';
-  const isTrainer = user && user.role === 'trainer';
+  const isAdmin = userInfoData && userInfoData.role === 'admin';
+  const isTrainer = userInfoData && userInfoData.role === 'trainer';
   const isXL = useMediaQuery("(min-width: 1200px)");
 
   // Add new media queries for iPad Pro resolutions

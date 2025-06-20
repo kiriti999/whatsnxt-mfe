@@ -231,8 +231,8 @@ export function AuthenticationForm(props: PaperProps) {
             data: userObject
           });
 
-          await fetchCartInfo();
           await login(userObject);
+          await fetchCartInfo();
           router.push(redirectUrl);
         }
 
