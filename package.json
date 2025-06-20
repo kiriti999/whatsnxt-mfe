@@ -26,7 +26,6 @@
     "partytown": "npx partytown copylib apps/web/public/~partytown"
   },
   "devDependencies": {
-    "@types/dompurify": "^3.2.0",
     "@types/node": "^22.15.31",
     "@types/react": "19.1.0",
     "@types/react-dom": "19.1.1",
@@ -48,7 +47,7 @@
     "@mantine/notifications": "8.1.0",
     "@mantine/nprogress": "8.1.0",
     "@next/bundle-analyzer": "^15.3.3",
-    "@qwik.dev/partytown": "0.11.1",
+    "@builder.io/partytown": "^0.10.2",
     "@reduxjs/toolkit": "^2.8.2",
     "@repo/eslint-config": "workspace:*",
     "@repo/typescript-config": "workspace:*",
