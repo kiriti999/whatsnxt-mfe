@@ -209,7 +209,9 @@ export function AuthenticationForm(props: PaperProps) {
       mutationFn: async (formData: any) => await AuthAPI.login(formData),
       onSuccess: async (response: any) => {
         if (checkSuccessResponse(response)) {
-          const getToken = await getCookieAccessToken()
+          console.log(' onSuccess: :: response:', response)
+          // const getToken = await getCookieAccessToken()
+          const getToken = response.token;
           dispatch({ type: 'UPDATE_USER_TOKEN', data: getToken });
           const userObject = await fetchUser(getToken);
           console.log(' onSuccess: :: userObject:', userObject)

@@ -2,6 +2,7 @@ import { courseApiClient } from '@whatsnxt/core-util';
 
 export const ProfileAPI = {
   getProfile: async function (token) {
+    console.log(' token:', token)
     const response = await courseApiClient.get('/common/profile', token);
     console.log(' response:', response)
     return response;

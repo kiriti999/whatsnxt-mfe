@@ -12,6 +12,7 @@ import useAuth from '../../../hooks/Authentication/useAuth';
 import { CacheAPI } from '../../../apis/v1/redis/index';
 import classes from '../Navbar.module.css';
 import { notifications } from '@mantine/notifications';
+import { resetCart } from '../../../store/slices/cartSlice';
 
 interface INavbarDesktop {
   links: NavLink[];
@@ -49,11 +50,12 @@ export const NavbarDesktop = ({ links, cartItems, loginMenuLinks, drawerOpened, 
     e.preventDefault();
 
     // Clear Redux state
-    dispatch({ type: 'UPDATE_USER_INFO', data: null });
+    dispatch({ type: 'LOGOUT' });
+    dispatch(resetCart());
     dispatch({ type: 'UPDATE_CART', data: { cartItems: [], discount: 0 } });
 
     // Clear localStorage
-    localStorage.removeItem('cart');
+    // localStorage.removeItem('cart'); // clear from store
 
     // Call the auth logout which handles cookies and navigation
     handleLogout();

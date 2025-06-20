@@ -1,6 +1,5 @@
 import { getCookieAccessToken } from '../../utils/commonHelper';
 
-
 const initialState = {
     userToken: getCookieAccessToken(),
     userObject: null
@@ -13,6 +12,13 @@ export const userReducer = (state = initialState, action) => {
 
         case 'UPDATE_USER_INFO':
             return { ...state, userObject: action.data };
+
+        case 'LOGOUT':
+            return {
+                ...state,
+                userToken: null,
+                userObject: null
+            };
 
         default:
             return state;

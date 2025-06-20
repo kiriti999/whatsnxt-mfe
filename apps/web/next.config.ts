@@ -7,7 +7,7 @@ const withBundleAnalyzer = bundleAnalyzer({
 
 const nextConfig: NextConfig = {
     reactStrictMode: true,
-    // compress: true,
+    compress: true,
     productionBrowserSourceMaps: true,
 
     generateBuildId: async () => {
