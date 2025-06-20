@@ -1,6 +1,6 @@
 // ApiClientFactory.ts
 import xior from 'xior';
-import Cookie from 'js-cookie';
+import { store } from '../../../../apps/web/store/store';
 
 export type ApiClientType = 'common' | 'course' | 'blog';
 
@@ -53,40 +53,47 @@ const commonErrorHandler = async (error: any) => {
 };
 
 // BFF-specific request interceptor (preserving your existing token logic)
-const axiosRequestInterceptor = (config: any) => {
-    const tokenKey = process.env.NEXT_PUBLIC_COOKIES_ACCESS_TOKEN;
-    console.log(' axiosRequestInterceptor :: tokenKey:', tokenKey);
-    console.log(' axiosRequestInterceptor :: config:', config);
-    console.log('extract token from cookie ', Cookie.get(process.env.NEXT_PUBLIC_COOKIES_ACCESS_TOKEN as string));
+const xiorRequestInterceptor = (config: any) => {
+    console.log('🔍 Request to:', config.url);
 
-    // Skip ALL header modifications for FormData requests
+    // Skip FormData requests
     if (config.data instanceof FormData) {
-        // Don't modify headers - let browser set Content-Type with boundary
         return config;
     }
 
-    // @ts-ignore
-    const token = config.data?.accessToken ? config.data?.accessToken : Cookie.get(process.env.NEXT_PUBLIC_COOKIES_ACCESS_TOKEN);
+    let token = null;
 
-    if (token) {
-        console.log(' axiosRequestInterceptor :: token:', token)
-        // Set Authorization header instead of Cookie
+    // Try to get token from multiple sources
+    if (config.data?.accessToken) {
+        token = config.data.accessToken;
         config.headers = config.headers || {};
         config.headers['Authorization'] = `${token}`;
-
-        // Remove the token from the payload if it exists
-        if (config.data?.accessToken) {
-            delete config.data.accessToken;
+        delete config.data.accessToken;
+        console.log('✅ Token from request data');
+    } else {
+        // Try to get token from Redux for web workers
+        try {
+            const state = store.getState(); // You'll need to import store
+            console.log(' xiorRequestInterceptor :: state:', state)
+            token = state.user?.userToken; // *** This TOKEN IS LOST WHEN PAGE IS REFRESHED AND THIS IS EXPECTED. LETS NOT SET COOKIE TO http:false to prevent XSS cookie access
+        } catch (e: any) {
+            console.log('⚠️ Could not access Redux store:', e.message);
         }
     }
 
-    if (isWebWorker() && config?.data?.accessToken) {
-        // If running inside a Web Worker, manually include the token in the headers
-        config.headers['Cookie'] = `${process.env.NEXT_PUBLIC_COOKIES_ACCESS_TOKEN}=${token}; ${config.headers['Cookie'] || ''}`;
-        // Remove the token from the payload
-        if (config.data?.accessToken) {
-            delete config.data.accessToken;
+    // Web Worker handling
+    if (isWebWorker()) {
+        console.log('🔧 Web Worker detected');
+
+        if (token) {
+            config.headers = config.headers || {};
+            config.headers['Cookie'] = `${process.env.NEXT_PUBLIC_COOKIES_ACCESS_TOKEN}=${token}; ${config.headers['Cookie'] || ''}`;
+            console.log('✅ Added token to Cookie header for Web Worker');
+        } else {
+            console.log('❌ No token available for Web Worker');
         }
+    } else {
+        console.log('🍪 Using HttpOnly cookie (sent automatically)');
     }
 
     return config;
@@ -128,7 +135,7 @@ const getApiConfig = (type: ApiClientType): ApiClientConfig => {
             return {
                 ...baseConfig,
                 baseURL: process.env.NEXT_PUBLIC_BFF_HOST_COMMON_API!,
-                requestInterceptor: axiosRequestInterceptor,
+                requestInterceptor: xiorRequestInterceptor,
                 errorHandler: commonErrorHandler,
             };
 
@@ -136,7 +143,7 @@ const getApiConfig = (type: ApiClientType): ApiClientConfig => {
             return {
                 ...baseConfig,
                 baseURL: process.env.NEXT_PUBLIC_BFF_HOST_COURSE_API!, // Keep your original env var
-                requestInterceptor: axiosRequestInterceptor,
+                requestInterceptor: xiorRequestInterceptor,
                 errorHandler: apiErrorHandler,
             };
 
@@ -144,7 +151,7 @@ const getApiConfig = (type: ApiClientType): ApiClientConfig => {
             return {
                 ...baseConfig,
                 baseURL: process.env.NEXT_PUBLIC_BLOG_HOST_API!, // Keep your original env var
-                requestInterceptor: axiosRequestInterceptor,
+                requestInterceptor: xiorRequestInterceptor,
                 errorHandler: apiErrorHandler,
             };
 

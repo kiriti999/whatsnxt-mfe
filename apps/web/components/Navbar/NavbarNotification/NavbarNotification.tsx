@@ -11,9 +11,6 @@ type NavbarNotificationProps = {
 }
 
 export const NavbarNotification: FC<NavbarNotificationProps> = ({ user }) => {
-  console.log(' NavbarNotification:: user:', user)
-  console.log(' NavbarNotification:: user:', user)
-  console.log(' NavbarNotification:: user:', user)
 
   if (!user) {
     return null;
@@ -25,8 +22,6 @@ export const NavbarNotification: FC<NavbarNotificationProps> = ({ user }) => {
       if (!user) return false;
 
       const response = await TrainerAPI.getNotification()
-      // const result = await fetchTrainerNotifications()
-      // console.log(' fetchTrainerNotifications:: queryFn: :: result:', result)
       return response.data;
     },
   });
