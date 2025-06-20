@@ -37,7 +37,6 @@ export const handleLogout = async (setUser, router, dispatch) => {
     dispatch(resetCart());
 
     // Clear localStorage
-    console.log('Calling logout API...');
     localStorage.removeItem('cart');
 
     // Then call API logout

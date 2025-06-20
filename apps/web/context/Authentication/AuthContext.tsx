@@ -85,7 +85,6 @@ const AuthProvider = ({ children, userData }: AuthProviderProps) => {
 
   // Simple setUser function (no cookie management - backend handles it)
   const setUserOnly = useCallback((newUser: any) => {
-    console.log('Setting user:', newUser);
     setUser(newUser);
   }, []);
 

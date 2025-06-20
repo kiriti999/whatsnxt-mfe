@@ -156,7 +156,6 @@ export function AuthenticationForm(props: PaperProps) {
       mutationFn: async (formData: any) => await AuthAPI.createAccount(formData),
       onSuccess: async (response: any) => {
         if (checkSuccessResponse(response)) {
-          console.log(' onSuccess: :: response:', response)
           const token = await getCookieAccessToken()
           console.log(' onSuccess: :: token:', token)
           notifications.show({
@@ -214,7 +213,6 @@ export function AuthenticationForm(props: PaperProps) {
       mutationFn: async (formData: any) => await AuthAPI.login(formData),
       onSuccess: async (response: any) => {
         if (checkSuccessResponse(response)) {
-          console.log(' onSuccess: :: response:', response)
           const token = response.token;
 
           // Dispatch token first so API calls can use it

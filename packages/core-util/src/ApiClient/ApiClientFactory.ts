@@ -74,7 +74,6 @@ const xiorRequestInterceptor = (config: any) => {
         // Try to get token from Redux for web workers
         try {
             const state = store.getState(); // You'll need to import store
-            console.log(' xiorRequestInterceptor :: state:', state)
             token = state.user?.userToken; // *** This TOKEN IS LOST WHEN PAGE IS REFRESHED AND THIS IS EXPECTED. LETS NOT SET COOKIE TO http:false to prevent XSS cookie access
         } catch (e: any) {
             console.log('⚠️ Could not access Redux store:', e.message);
