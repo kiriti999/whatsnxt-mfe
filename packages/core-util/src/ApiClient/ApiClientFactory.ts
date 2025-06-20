@@ -54,7 +54,10 @@ const commonErrorHandler = async (error: any) => {
 
 // BFF-specific request interceptor (preserving your existing token logic)
 const axiosRequestInterceptor = (config: any) => {
-console.log(' axiosRequestInterceptor :: config:', config)
+    const tokenKey = process.env.NEXT_PUBLIC_COOKIES_ACCESS_TOKEN;
+    console.log(' axiosRequestInterceptor :: tokenKey:', tokenKey);
+    console.log(' axiosRequestInterceptor :: config:', config);
+    console.log('extract token from cookie ', Cookie.get(process.env.NEXT_PUBLIC_COOKIES_ACCESS_TOKEN as string));
 
     // Skip ALL header modifications for FormData requests
     if (config.data instanceof FormData) {
