@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { Grid, Container, LoadingOverlay } from '@mantine/core';
 import Dashboard from '../../../../components/Trainer/Dashboard';
 import { DashboardContextProvider } from '../../../../context/DashboardContext';
@@ -32,15 +32,13 @@ type CourseLandingPageProps = {
 };
 
 const CourseLandingPage: React.FC<CourseLandingPageProps> = ({ id, courseData }) => {
-    const [isBrowser, setIsBrowser] = useState(false);
     const [isVisible, { open, close }] = useDisclosure(true);
 
     useEffect(() => {
-        setIsBrowser(typeof window !== 'undefined');
-        close()
-    }, []);
+        close();
+    }, [close]);
 
-    return isBrowser ? (
+    return (
         <DashboardContextProvider>
             <LoadingOverlay visible={isVisible} zIndex={1000} overlayProps={{ radius: "sm", blur: 2 }} />
             <div className="pb-100">
@@ -56,7 +54,7 @@ const CourseLandingPage: React.FC<CourseLandingPageProps> = ({ id, courseData })
                 </Container>
             </div>
         </DashboardContextProvider>
-    ) : null;
+    );
 }
 
 export default CourseLandingPage;

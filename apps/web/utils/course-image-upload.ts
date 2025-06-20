@@ -41,19 +41,71 @@ export const getImageAsData = async (file: File): Promise<string> => {
 };
 
 // Fixed uploadToCloudinary function - using the correct CloudinaryAPI methods
+// Helper function to convert base64 data URL to Blob
+const base64ToBlob = (base64Data: string): Blob => {
+  const byteCharacters = atob(base64Data.split(',')[1]);
+  const byteNumbers = new Array(byteCharacters.length);
+
+  for (let i = 0; i < byteCharacters.length; i++) {
+    byteNumbers[i] = byteCharacters.charCodeAt(i);
+  }
+
+  const byteArray = new Uint8Array(byteNumbers);
+  const mimeType = base64Data.split(',')[0].split(':')[1].split(';')[0];
+
+  return new Blob([byteArray], { type: mimeType });
+};
+
+const handleProfilePhotoUpload = async ({ courseImageUrl, imageAttributes, setImageUploading }) => {
+  let secure_url = '';
+  setImageUploading(true);
+
+  if (courseImageUrl) {
+    const base64Data = await getImageAsData(courseImageUrl);
+
+    // Convert base64 string to Blob
+    const imageBlob = base64ToBlob(base64Data);
+
+    const cloudinary = await uploadToCloudinary(imageBlob);
+    secure_url = cloudinary?.secure_url;
+    imageAttributes = { public_id: cloudinary?.public_id };
+  }
+
+  setImageUploading(false);
+  return secure_url;
+};
+
+// Alternative approach: Update uploadToCloudinary to handle strings
 export async function uploadToCloudinary(
-  image: File | Blob,
+  image: File | Blob | string,
   folder: string = 'whatsnxt',
   resource_type: ResourceType = 'auto',
   apiType: 'blog' | 'course' = 'blog'
 ): Promise<UploadResponse> {
   try {
-    // Convert to File if it's a Blob
     let fileToUpload: File;
+
     if (image instanceof File) {
       fileToUpload = image;
-    } else {
+    } else if (image instanceof Blob) {
       fileToUpload = new File([image], 'upload', { type: image.type || 'image/jpeg' });
+    } else if (typeof image === 'string') {
+      // Handle base64 data URL or regular URL
+      let blob: Blob;
+
+      if (image.startsWith('data:')) {
+        // Convert base64 data URL to blob
+        const response = await fetch(image);
+        blob = await response.blob();
+      } else {
+        // Handle regular URL
+        const response = await fetch(image);
+        blob = await response.blob();
+      }
+
+      fileToUpload = new File([blob], 'upload', { type: blob.type || 'image/jpeg' });
+    } else {
+      throw new Error('Invalid image type. Expected File, Blob, or string.');
     }
 
     // Use the appropriate API based on apiType

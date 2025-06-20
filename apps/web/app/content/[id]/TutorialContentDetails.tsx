@@ -10,7 +10,6 @@ import GooglePageViews from '../../../components/Blog/Content/GooglePageViews';
 import TutorialContent from '../../../components/Blog/Content/Tutorial/TutorialContent';
 import { TutorialArticle } from '../../../types/contentDetails';
 import FacebookShare from '@whatsnxt/core-ui/src/ShareOptions/FacebookShare';
-import { WindowCheck } from '@whatsnxt/core-util';
 import { SkeletonBlogContent } from '@whatsnxt/core-ui';
 import { Text, Box, Container, Group, Stack, Grid, GridCol, Title } from '@mantine/core';
 import TutorialsToc from '../TutorialToc';
@@ -80,8 +79,7 @@ function TutorialContentDetails({ details }: any) {
   const [url, setUrl] = useState<String>('');
 
   useEffect(() => {
-    if (!WindowCheck()) return;
-    setUrl(window?.location.href);
+    setUrl(window.location.href);
   }, []);
 
   useEffect(() => {

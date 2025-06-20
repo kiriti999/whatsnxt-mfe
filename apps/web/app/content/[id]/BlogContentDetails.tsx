@@ -6,7 +6,6 @@ import SidebarPost from '../../../components/Blog/sidebar';
 import { BlogComment, CommentContextProvider, CommentReplyContextProvider } from '@whatsnxt/blogcomments';
 import BlogContent from '../../../components/Blog/Content/Blog';
 import SidebarHeadings from '../../../components/Blog/sidebar-headings';
-import { WindowCheck } from '@whatsnxt/core-util';
 import StickyHeader from '../../../components/Blog/Content/StickyHeader';
 import { SkeletonBlogContent } from '@whatsnxt/core-ui';
 import useAuth from '../../../hooks/Authentication/useAuth';
@@ -105,11 +104,9 @@ function BlogContentDetails({ details }: BlogContentDetailsProps) {
   });
 
   const [url, setUrl] = useState<string>('');
-  const pathName = usePathname();
 
   useEffect(() => {
-    if (!WindowCheck()) return;
-    setUrl(window?.location.href ?? '');
+    setUrl(window.location.href);
   }, []);
 
   useEffect(() => {

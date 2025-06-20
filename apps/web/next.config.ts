@@ -1,8 +1,5 @@
 import bundleAnalyzer from '@next/bundle-analyzer';
-import { fileURLToPath } from 'url';
 import type { NextConfig } from 'next';
-
-const __filename = fileURLToPath(import.meta.url);
 
 const withBundleAnalyzer = bundleAnalyzer({
     enabled: process.env.ANALYZE === 'true',
@@ -12,12 +9,6 @@ const nextConfig: NextConfig = {
     reactStrictMode: true,
     compress: true,
     productionBrowserSourceMaps: true,
-    typescript: {
-        ignoreBuildErrors: true,
-    },
-    eslint: {
-        ignoreDuringBuilds: true,
-    },
 
     generateBuildId: async () => {
         return process.env.VERCEL_GIT_COMMIT_SHA || `build-${Date.now()}`

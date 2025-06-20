@@ -19,7 +19,7 @@ export async function uploadToCloudinary(
       fileToUpload = image;
     } else {
       // Convert Blob to File
-      fileToUpload = new File([image], 'upload', { resource_type: image.type || 'image/jpeg' });
+      fileToUpload = new File([image], 'upload', { type: image.type || 'image/jpeg' });
     }
 
     // Use the appropriate API based on apiType parameter

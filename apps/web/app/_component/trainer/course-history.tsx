@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import coursesStyles from '../../../components/Courses/Course.module.css';
 import { useQuery } from '@tanstack/react-query';
 import { TrainerAPI } from '../../../apis/v1/courses/trainer/trainer';
-import { useDebouncedValue } from '@mantine/hooks';
+import { useDebouncedValue, useMediaQuery } from '@mantine/hooks';
 import Link from 'next/link';
 import { ActionIcon, Box, Button, Center, Collapse, Grid, Group, Loader, Pagination, Select, Table, TextInput, Tooltip, Menu } from '@mantine/core';
 import { CourseAPI } from '../../../apis/v1/courses/course/course';
@@ -46,7 +46,7 @@ const CourseHistory = () => {
   const [debouncedSearch] = useDebouncedValue(searchQuery, 300);
   const [expandedCourse, setExpandedCourse] = useState<Record<string, boolean>>({});
   const [expandedSection, setExpandedSection] = useState<Record<string, boolean>>({});
-  const [isMobile, setIsMobile] = useState(false);
+  // const [isMobile, setIsMobile] = useState(false);
 
   const [courseDelId, setCourseDelId] = useState('');
   const [public_id, setPublicId] = useState('');
@@ -56,24 +56,7 @@ const CourseHistory = () => {
   const [courseSlugs, setCourseSlugs] = useState<Record<string, string>>({});
   const [courseStatuses, setCourseStatuses] = useState<Record<string, string>>({});
 
-  useEffect(() => {
-    // Check if we're on the client-side
-    if (typeof window !== 'undefined') {
-      // Define mobile breakpoint
-      const checkIfMobile = () => {
-        setIsMobile(window.innerWidth < 768);
-      };
-
-      // Set initial value
-      checkIfMobile();
-
-      // Add event listener for window resize
-      window.addEventListener('resize', checkIfMobile);
-
-      // Clean up
-      return () => window.removeEventListener('resize', checkIfMobile);
-    }
-  }, []);
+  const isMobile = useMediaQuery('(max-width: 768px)');
 
   const handleSetCourseTitle = (courseId: string, newTitle: string) => {
     setCourseTitles((prev) => ({

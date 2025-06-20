@@ -3,7 +3,6 @@
 import { MainBanner } from '@whatsnxt/core-ui'
 import React from 'react'
 import dynamic from 'next/dynamic'
-import PartyTownScripts from '../../../components/PartyTownScripts'
 
 const DynamicCoursesComponent = dynamic(() =>
   import('../../../components/CoursesMicroFrontEnd').then((courseMfe) => courseMfe)
@@ -20,7 +19,6 @@ interface HomeProps {
 function Home({ data, articles }: HomeProps) {
   return (
     <div>
-      <PartyTownScripts />
       <MainBanner />
       <DynamicCoursesComponent
         courses={data?.courses || []}

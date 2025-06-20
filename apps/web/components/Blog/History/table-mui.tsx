@@ -87,7 +87,7 @@ const HistoryMUI = ({ open, close }: any) => {
     ](rowData._id);
     const public_id = rowData?.postImageAttributes?.public_id || null;
     if (deleteResult) {
-      if (public_id) await deleteCloudinaryImage({ public_id });
+      if (public_id) await deleteCloudinaryImage(public_id);
       await deleteIndex(rowData._id, rowData?.tutorial ? 'tutorial' : 'blog');
       await load();
     }
