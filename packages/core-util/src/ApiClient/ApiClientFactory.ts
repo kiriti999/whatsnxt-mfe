@@ -54,6 +54,7 @@ const commonErrorHandler = async (error: any) => {
 
 // BFF-specific request interceptor (preserving your existing token logic)
 const courseRequestInterceptor = (config: any) => {
+console.log(' courseRequestInterceptor :: config:', config)
 
     // Skip ALL header modifications for FormData requests
     if (config.data instanceof FormData) {
