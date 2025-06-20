@@ -14,7 +14,7 @@ export interface SubCategory {
 export interface Tutorial {
   title: string;
   description: string;
-  cloudinaryAssets?: { publicId: string; resource_type: string }[]
+  cloudinaryAssets?: { public_id: string; resource_type: string }[]
 }
 
 export interface Detail {

@@ -78,7 +78,7 @@ export async function uploadFormDataToCloudinary(
 }
 
 export const deleteCloudinaryImage = async (
-  publicId: string,
+  public_id: string,
   resourceType?: ResourceType,
   apiType: 'blog' | 'course' = 'blog'
 ): Promise<DeleteResponse> => {
@@ -86,7 +86,7 @@ export const deleteCloudinaryImage = async (
     // Use the appropriate API based on apiType parameter
     const deleteFunction = apiType === 'blog' ? CloudinaryAPI.blog.delete : CloudinaryAPI.course.delete;
 
-    const deleteResult = await deleteFunction(publicId, resourceType);
+    const deleteResult = await deleteFunction(public_id, resourceType);
     console.log(
       'image-upload.js:: deleteCloudinaryImage:: deleteResult:',
       deleteResult,
@@ -94,27 +94,6 @@ export const deleteCloudinaryImage = async (
     return deleteResult;
   } catch (error) {
     console.log('image-upload.js:: deleteCloudinaryImage:: error:', error);
-    throw error;
-  }
-};
-
-// Additional utility functions for multiple operations
-export const deleteMultipleCloudinaryImages = async (
-  assets: Array<{ publicId: string; resource_type: ResourceType }>,
-  apiType: 'blog' | 'course' = 'blog'
-): Promise<DeleteResponse> => {
-  console.log(' assets:', assets)
-  console.log(' assets:', assets)
-  console.log(' assets:', assets)
-  console.log(' assets:', assets)
-  try {
-    const deleteFunction = apiType === 'blog' ? CloudinaryAPI.blog.deleteMultiple : CloudinaryAPI.course.deleteMultiple;
-
-    const deleteResult = await deleteFunction(assets);
-    console.log('deleteMultipleCloudinaryImages:: deleteResult:', deleteResult);
-    return deleteResult;
-  } catch (error) {
-    console.log('deleteMultipleCloudinaryImages:: error:', error);
     throw error;
   }
 };

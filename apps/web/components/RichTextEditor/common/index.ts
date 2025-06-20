@@ -34,11 +34,11 @@ export const extractPublicIdsAndTypeFromLinks = (links: any[]) => {
     return links.map((link: string) => {
         const parts = link.split('/');
         const lastPart = parts.slice(-2).join('/');
-        const publicId = lastPart.split('.')[0];
+        const public_id = lastPart.split('.')[0];
         const resource_type = parts.find((part: string) => mediaTypes.includes(part)) || 'image';
 
         return {
-            publicId,
+            public_id,
             resource_type
         };
     });
@@ -71,7 +71,7 @@ export const cloudinaryAssetsUploadCleanupForUpdate = ({ oldContent, newContent 
         removeAssetFromLocalStoragesList(usedPublicIdsInNewEditor);
 
         // get the public IDs that are in the old editor but not in the updated editor
-        const publicIdsNotInUpdatedEditor = usedPublicIdsInPrevEditor.filter(({ publicId }) => !usedPublicIdsInNewEditor.includes(publicId));
+        const publicIdsNotInUpdatedEditor = usedPublicIdsInPrevEditor.filter(({ public_id }) => !usedPublicIdsInNewEditor.includes(public_id));
         // store it to on local storage so on cleanup it will be removed
         updateAssetOnLocalStorage(publicIdsNotInUpdatedEditor);
     });

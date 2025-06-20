@@ -33,7 +33,7 @@ interface TutorialFormProps {
     tutorials: Tutorial[];
     imageUrl?: string;
     cloudinaryAssets: {
-      publicId: string;
+      public_id: string;
       type: string;
       url: string;
       secureUrl: string;
@@ -300,7 +300,7 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
         );
         imageUrl = fileUploadResData?.secure_url;
         cloudinaryAssets.push({
-          publicId: fileUploadResData?.public_id,
+          public_id: fileUploadResData?.public_id,
           type: fileUploadResData?.resource_type,
           url: fileUploadResData.url,
           secureUrl: imageUrl,

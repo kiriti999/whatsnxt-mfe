@@ -3,7 +3,7 @@ import { IconVideo } from '@tabler/icons-react';
 import styles from "../../Tiptap/Tiptap.module.css";
 import { TiptapManageContext } from '../../../../context/TiptapManageContext';
 import { Button } from '@mantine/core';
-import { uploadDataWebWorker } from '../../../../utils/worker/assetManager';
+import { unifiedUploadWebWorker } from '../../../../utils/worker/assetManager';
 
 
 // Custom Video button component
@@ -19,7 +19,7 @@ const VideoControl = ({ editor }: { editor: any }) => {
         if (file) {
             const tempUrl = URL.createObjectURL(file);
             editor.chain().focus().setVideo({ src: tempUrl }).run();
-            await uploadDataWebWorker({ file, tempUrl, editor, courseId, resource_type: "video", setProgress: updateProgress })
+            await unifiedUploadWebWorker({ file, tempUrl, editor, folder: courseId, resource_type: "video", setProgress: updateProgress })
         }
     };
 

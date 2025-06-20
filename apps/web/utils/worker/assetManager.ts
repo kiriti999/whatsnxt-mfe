@@ -27,7 +27,7 @@ interface UploadResponse {
 interface ProgressUpdate {
     fileName: string;
     progress: number;
-    timestamp: number;
+    timestamp: any;
     isCompleted?: boolean;
 }
 
@@ -56,6 +56,7 @@ export const unifiedUploadWebWorker = async (options: UnifiedUploadOptions): Pro
         tempUrl,
         rejectOnError = false
     } = options;
+    console.log(' unifiedUploadWebWorker :: options:', options)
 
     console.log('🚀 [Turbopack] Starting upload for:', file.name);
 
@@ -217,18 +218,9 @@ export const unifiedUploadWebWorker = async (options: UnifiedUploadOptions): Pro
     });
 };
 
-// Convenience wrapper functions for backward compatibility
-export const uploadDataWebWorker = (options: any) => {
-    return unifiedUploadWebWorker({
-        ...options,
-        folder: options?.lectureId,
-        rejectOnError: true
-    });
-};
-
 // Unified Delete Worker Interfaces
 interface AssetItem {
-    publicId: string;
+    public_id: string;
     resource_type: 'image' | 'video' | 'raw' | 'auto' | string;
 }
 
@@ -393,37 +385,3 @@ export const unifiedDeleteWebWorker = async (options: UnifiedDeleteOptions): Pro
         }, 30000);
     });
 };
-// Convenience wrapper functions for backward compatibility
-// export const unifiedDeleteWebWorker = async ({ assetsList }: any): Promise<boolean> => {
-//     const result = await unifiedDeleteWebWorker({
-//         assetsList,
-//         clearLocalStorage: true,
-//         returnDetailedResult: false
-//     });
-//     return result as boolean;
-// };
-
-// export const unifiedDeleteWebWorker = async ({ assetsList }: DeleteAssetParams): Promise<DeleteAssetResult> => {
-//     const result = await unifiedDeleteWebWorker({
-//         assetsList,
-//         clearLocalStorage: false,
-//         returnDetailedResult: true
-//     });
-//     return result as DeleteAssetResult;
-// }; = async ({ assetsList }: any): Promise<boolean> => {
-//     const result = await unifiedDeleteWebWorker({
-//         assetsList,
-//         clearLocalStorage: true,
-//         returnDetailedResult: false
-//     });
-//     return result as boolean;
-// };
-
-// export const unifiedDeleteWebWorker = async ({ assetsList }: DeleteAssetParams): Promise<DeleteAssetResult> => {
-//     const result = await unifiedDeleteWebWorker({
-//         assetsList,
-//         clearLocalStorage: false,
-//         returnDetailedResult: true
-//     });
-//     return result as DeleteAssetResult;
-// };

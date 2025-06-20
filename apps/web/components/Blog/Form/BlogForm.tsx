@@ -158,7 +158,7 @@ const BlogForm: React.FC<BlogFormProps> = ({ categories, edit }) => {
         console.log(' handleFormSubmit :: fileUploadResData:', fileUploadResData)
         imageUrl = fileUploadResData?.secure_url;
         cloudinaryAssets.push({
-          publicId: fileUploadResData?.public_id,
+          public_id: fileUploadResData?.public_id,
           resource_type: fileUploadResData?.resource_type,
           url: fileUploadResData.url,
           secureUrl: imageUrl,

@@ -105,7 +105,7 @@ const Main = ({ courseWithSections, courseId }) => {
 			}
 
 			console.log(`Cleaning up ${storedAssets.length} unused assets`);
-			await unifiedDeleteWebWorker({ assetsList: storedAssets });
+			await unifiedDeleteWebWorker({ assetsList: storedAssets, clearLocalStorage: true });
 
 
 		} catch (error) {

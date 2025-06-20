@@ -16,7 +16,7 @@ const CloudinaryAssetsManageContextProvider = ({ children }: { children: React.R
 
     const deleteUnusedAssets = useCallback(async () => {
         if (getAssetFromLocalStorage() && getAssetFromLocalStorage().length > 0) {
-            await unifiedDeleteWebWorker({ assetsList: getAssetFromLocalStorage() })
+            await unifiedDeleteWebWorker({ assetsList: getAssetFromLocalStorage(), clearLocalStorage: true })
         }
     }, [])
 

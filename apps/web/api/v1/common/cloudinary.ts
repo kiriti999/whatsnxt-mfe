@@ -6,7 +6,7 @@ export type ResourceType = 'image' | 'video' | 'raw' | 'auto';
 export type UploadProgressCallback = (progressEvent: any) => void;
 
 export interface Asset {
-    publicId: string;
+    public_id: string;
     resource_type: ResourceType;
 }
 
@@ -200,37 +200,16 @@ const createUploadFunction = (apiClient: any, endpoint: string, defaultPreset?: 
 
 // Unified delete single asset function
 const createDeleteFunction = (apiClient: any, endpoint: string = '/cloudinary/delete-asset') => {
-    return async function (publicId: string, resource_type?: ResourceType): Promise<DeleteResponse> {
+    return async function (public_id: string, resource_type?: ResourceType): Promise<DeleteResponse> {
         try {
             const payload = resource_type
-                ? { public_id: publicId, resource_type: resource_type, deleteID: publicId }
-                : { public_id: publicId, deleteID: publicId };
+                ? { public_id: public_id, resource_type: resource_type, deleteID: public_id }
+                : { public_id: public_id, deleteID: public_id };
 
             const response = await apiClient.delete(endpoint, payload);
             return response.data;
         } catch (error: any) {
             console.error('Delete error:', error);
-            throw error;
-        }
-    };
-};
-
-// Unified delete multiple assets function
-const createDeleteMultipleFunction = (apiClient: any, endpoint: string = '/cloudinary/delete-multiple-assets') => {
-    return async function (assets: Asset[], accessToken?: string): Promise<DeleteResponse> {
-        try {
-            if (!assets || !Array.isArray(assets) || assets.length === 0) {
-                throw new Error('Assets array is required and must not be empty');
-            }
-
-            const payload = accessToken
-                ? { assets: assets, accessToken }
-                : { assets: assets };
-
-            const response = await apiClient.delete(endpoint, payload);
-            return response.data;
-        } catch (error: any) {
-            console.error('Delete multiple assets error:', error);
             throw error;
         }
     };
@@ -245,8 +224,6 @@ export const CloudinaryAPI = {
         uploadDirect: createUploadFunction(blogApiClient, '/cloudinary/upload-image', 'whatsnxt-blog'),
 
         delete: createDeleteFunction(blogApiClient, '/cloudinary/deleteAsset'),
-
-        deleteMultiple: createDeleteMultipleFunction(blogApiClient, '/cloudinary/deleteMultipleAssets'),
 
         // Legacy method for backward compatibility
         uploadFormImage: async function (
@@ -268,8 +245,6 @@ export const CloudinaryAPI = {
         uploadDirect: createUploadFunction(courseApiClient, '/cloudinary/upload', 'whatsnxt-course'),
 
         delete: createDeleteFunction(courseApiClient),
-
-        deleteMultiple: createDeleteMultipleFunction(courseApiClient),
 
         // Legacy upload with progress (for backward compatibility)
         uploadWithProgress: async function (
@@ -436,13 +411,6 @@ export const CloudinaryAPI = {
         console.warn('CloudinaryAPI.delete is deprecated, use CloudinaryAPI.blog.delete or CloudinaryAPI.course.delete instead');
         return this.blog.delete(id);
     },
-
-    // Legacy delete multiple method for backward compatibility
-    deleteMultipleAssets: async function (assets: { resource_type: string, id: string }[], accessToken: string): Promise<any> {
-        console.warn('CloudinaryAPI.deleteMultipleAssets is deprecated, use CloudinaryAPI.blog.deleteMultiple or CloudinaryAPI.course.deleteMultiple instead');
-        const formattedAssets = assets.map(asset => ({ publicId: asset.id, resource_type: asset.resource_type as ResourceType }));
-        return this.blog.deleteMultiple(formattedAssets, accessToken);
-    }
     // #endregion SHARED
 };
 

@@ -4,7 +4,7 @@ import styles from "../../Tiptap/Tiptap.module.css";
 import { IconVolume } from '@tabler/icons-react';
 import { TiptapManageContext } from '../../../../context/TiptapManageContext';
 import { Button } from '@mantine/core';
-import { uploadDataWebWorker } from '../../../../utils/worker/assetManager';
+import { unifiedUploadWebWorker } from '../../../../utils/worker/assetManager';
 
 // Custom Audio button component
 const AudioControl = ({ editor }: { editor: any }) => {
@@ -19,7 +19,7 @@ const AudioControl = ({ editor }: { editor: any }) => {
         if (file) {
             const tempUrl = URL.createObjectURL(file);
             editor.chain().focus().setAudio({ src: tempUrl }).run();
-            await uploadDataWebWorker({ file, tempUrl, editor, courseId, resource_type: "auto", setProgress: updateProgress })
+            await unifiedUploadWebWorker({ file, tempUrl, editor, folder: courseId, resource_type: "auto", setProgress: updateProgress })
         }
     };
 

@@ -49,7 +49,7 @@ const CourseHistory = () => {
   const [isMobile, setIsMobile] = useState(false);
 
   const [courseDelId, setCourseDelId] = useState('');
-  const [publicId, setPublicId] = useState('');
+  const [public_id, setPublicId] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const [courseTitles, setCourseTitles] = useState<Record<string, string>>({});
@@ -486,7 +486,7 @@ const CourseHistory = () => {
 
             <CourseDeleteModal
               courseId={courseDelId}
-              publicId={publicId}
+              public_id={public_id}
               isModalOpen={isModalOpen}
               modalClose={handleModalClose}
               handleDeleteSuccess={handleCourseDeleteSuccess}

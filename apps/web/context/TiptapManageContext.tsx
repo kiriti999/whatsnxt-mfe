@@ -80,13 +80,12 @@ const TiptapManageContextProvider = ({ isAssetsUploading, children, courseId, se
 
     const deleteUnusedAssets = useCallback(async () => {
         if (getAssetFromLocalStorage() && getAssetFromLocalStorage().length > 0) {
-            await unifiedDeleteWebWorker({ assetsList: getAssetFromLocalStorage() })
+            await unifiedDeleteWebWorker({ assetsList: getAssetFromLocalStorage(), clearLocalStorage: true })
         }
     }, [])
 
 
     const updateProgress = ({ fileName, timestamp, progress, isCompleted = false }) => {
-
         setProgressList(prevProgressList => {
             const existingProgressIndex = prevProgressList.findIndex(item => item.timestamp === timestamp);
 

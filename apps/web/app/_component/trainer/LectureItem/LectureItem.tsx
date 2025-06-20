@@ -30,11 +30,10 @@ import { CourseBuilderAPI } from "../../../../api/v1/courses/course-builder/cour
 import EditTextGroup from "./EditTextGroup";
 import { EditOrderIndex } from "./EditOrderIndex";
 import PreviewToggle from './PreviewToggle';
-import { unifiedDeleteWebWorker, uploadDataWebWorker } from '../../../../utils/worker/assetManager';
+import { unifiedDeleteWebWorker, unifiedUploadWebWorker } from '../../../../utils/worker/assetManager';
 import LectureLinksComponent from './LectureLinks'
 import { assetType, LectureItemProps } from '../types';
 import { modals } from '@mantine/modals';
-import { getAssetFromLocalStorage } from '../../../../utils/worker/localStorageHandler';
 
 
 export const LectureItem: FC<LectureItemProps> = ({
@@ -143,10 +142,11 @@ export const LectureItem: FC<LectureItemProps> = ({
   };
 
   const uploadAssetToCloud = async (file: File, lectureId, setProgress, resource_type): Promise<assetType> => {
+    console.log(' uploadAssetToCloud :: resource_type:', resource_type)
     const data = new FormData();
     data.append("file", file);
     data.append("resource_type", resource_type);
-    const result = await uploadDataWebWorker({ file, lectureId, resource_type, setProgress })
+    const result = await unifiedUploadWebWorker({ file, folder: lectureId, resource_type, setProgress })
     return result;
   };
 
@@ -255,10 +255,19 @@ export const LectureItem: FC<LectureItemProps> = ({
       return;
     }
 
+    if (doc.name.length > 110) {
+      notifications.show({
+        position: 'bottom-right',
+        title: 'Filename Error',
+        message: 'Filename is too long. It should be less than 111 chars',
+        color: 'red'
+      });
+      return
+    }
+
     setDocLoading(true);
 
     try {
-      // Map file types to resource types, default to 'auto' if type not in map
       const typeMap: Record<string, string> = {
         'application/msword': 'raw',
         'application/pdf': 'image',
@@ -268,9 +277,18 @@ export const LectureItem: FC<LectureItemProps> = ({
       const type = typeMap[doc.type] || 'auto';
 
       // Upload file to cloud
-      const { secure_url, public_id, resource_type } = await uploadAssetToCloud(
+      const uploadResult = await uploadAssetToCloud(
         doc, lectureId, setProgress, type
       );
+      console.log(' handleFileUpload :: uploadResult:', uploadResult)
+      console.log(' handleFileUpload :: doc:', doc)
+
+      // Validate upload result
+      if (!uploadResult || !uploadResult.secure_url || !uploadResult.public_id) {
+        throw new Error('Invalid upload response');
+      }
+
+      const { secure_url, public_id, resource_type } = uploadResult;
 
       // Save file data to the backend
       const response = await CourseBuilderAPI.addLectureDoc({
@@ -287,7 +305,7 @@ export const LectureItem: FC<LectureItemProps> = ({
       setDocId(public_id);
       setDocResourceType(resource_type);
 
-      // Update the frontend state with the new document data
+      // Update the frontend state
       onDocUpload(sectionId, lectureId, {
         docUrl: secure_url,
         docPublicId: public_id,
@@ -302,16 +320,26 @@ export const LectureItem: FC<LectureItemProps> = ({
       });
 
     } catch (error) {
-      notifications.show({
-        position: 'bottom-right',
-        title: "Upload Error",
-        message: "Error uploading document.",
-        color: "red",
-      });
       console.error("File upload error:", error);
+
+      // Handle specific error types
+      if (error.message.includes('File is required')) {
+        notifications.show({
+          position: 'bottom-right',
+          title: 'File Error',
+          message: 'Please select a valid file.',
+          color: 'red'
+        });
+      } else {
+        notifications.show({
+          position: 'bottom-right',
+          title: 'Upload Failed',
+          message: error.message || 'Failed to upload file.',
+          color: 'red'
+        });
+      }
     } finally {
       setDocLoading(false);
-
       setDoc(null);
     }
   };
@@ -359,7 +387,7 @@ export const LectureItem: FC<LectureItemProps> = ({
   const handleDelete = async (
     e: any,
     resource_type: 'video' | 'doc',
-    deleteAssetAPI: () => Promise<void>,
+    deleteLectureVideoAPI: () => Promise<void>,
     setAssetUrl: (url: string | undefined) => void,
     setAssetFile: (file: File | null) => void
   ) => {
@@ -377,12 +405,14 @@ export const LectureItem: FC<LectureItemProps> = ({
           const resourceType = e.target.dataset.resourceType;
 
           const { success } = await unifiedDeleteWebWorker({
-            assetsList: [{ publicId: e.target.id, resource_type: resourceType }],
+            assetsList: [{ public_id: e.target.id, resource_type: resourceType }],
+            clearLocalStorage: true
           });
 
           if (success) {
+            // removeAssetFromLocalStoragesList([e.target.id]);
             // Proceed with database deletion if cloud deletion succeeded
-            const response: any = await deleteAssetAPI();
+            const response: any = await deleteLectureVideoAPI();
             if (response.status === 200 && resource_type === 'video') {
               onRemoveVideo(sectionId, lectureId);
             }
@@ -424,13 +454,14 @@ export const LectureItem: FC<LectureItemProps> = ({
   };
 
   // Usage for handleDeleteVideo
-  const handleDeleteVideo = (e) =>
-    handleDelete(e,
+  const handleDeleteVideo = (e) => {
+    return handleDelete(e,
       'video',
       () => CourseBuilderAPI.deleteLectureVideo({ courseId, sectionId, lectureId }),
       setVideoUrl,
       setFile
     );
+  }
 
   // Usage for handleDeleteDoc
   const handleDeleteDoc = (e) =>
@@ -575,33 +606,6 @@ export const LectureItem: FC<LectureItemProps> = ({
     //if lecture link array is changed it will get pushed to section
     onLectureLinksUpdated(sectionId, lectureId, lectureLinksAr);
   }, [lectureLinksAr])
-
-  // delete ids on unload
-  useEffect(() => {
-    return () => {
-      // calls on unload
-      deleteUnusedAssets()
-    }
-  }, [])
-
-  const deleteUnusedAssets = useCallback(async () => {
-    try {
-      const storedAssets = getAssetFromLocalStorage();
-
-      // Early return if no assets to clean up
-      if (!storedAssets?.length) {
-        return;
-      }
-
-      console.log(`Cleaning up ${storedAssets.length} unused assets`);
-      await unifiedDeleteWebWorker({ assetsList: storedAssets });
-
-
-    } catch (error) {
-      console.error('Failed to delete unused assets:', error);
-
-    }
-  }, []);
 
 
   return (

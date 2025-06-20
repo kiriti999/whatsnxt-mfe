@@ -4,7 +4,7 @@ console.log('🔧 [Upload Worker] Worker script loaded');
 
 self.onmessage = async (event) => {
     console.log('🔧 [Upload Worker] Received message:', event.data);
-    const { file, fileKeyName, folder, type, bffApiUrl } = event.data;
+    const { file, fileKeyName, folder, resource_type, bffApiUrl } = event.data;
 
     try {
         if (!file) {
@@ -18,11 +18,10 @@ self.onmessage = async (event) => {
 
         const formData = new FormData();
         formData.append(fileKeyName || 'file', file);
-        formData.append('resourceType', type);
+        formData.append('resourceType', resource_type);
         if (folder) {
             formData.append('folder', folder);
         }
-
         // Get the BFF API base URL
         const BFF_API_BASE = bffApiUrl;
 

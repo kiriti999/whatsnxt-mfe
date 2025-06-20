@@ -1,5 +1,5 @@
 interface AssetItem {
-    publicId: string;
+    public_id: string;
     resource_type: string;
 }
 
@@ -15,17 +15,17 @@ export const getAssetFromLocalStorage = (): AssetItem[] => {
     }
 };
 
-export const addAssetOnLocalStorage = (publicId: string, resource_type: string): boolean => {
+export const addAssetOnLocalStorage = (public_id: string, resource_type: string): boolean => {
     try {
         const storedAssets = getAssetFromLocalStorage();
 
         // Check if asset already exists to avoid duplicates
-        const existingAsset = storedAssets.find(asset => asset.publicId === publicId);
+        const existingAsset = storedAssets.find(asset => asset.public_id === public_id);
         if (existingAsset) {
             return true; // Asset already exists, consider it successful
         }
 
-        storedAssets.push({ publicId, resource_type });
+        storedAssets.push({ public_id, resource_type });
         localStorage.setItem(STORAGE_KEY, JSON.stringify(storedAssets));
         return true;
     } catch (error) {
@@ -39,8 +39,8 @@ export const updateAssetOnLocalStorage = (assetsArray: AssetItem[]): boolean => 
         const storedAssets = getAssetFromLocalStorage();
 
         // Filter out duplicates before merging
-        const existingPublicIds = new Set(storedAssets.map(asset => asset.publicId));
-        const newUniqueAssets = assetsArray.filter(asset => !existingPublicIds.has(asset.publicId));
+        const existingPublicIds = new Set(storedAssets.map(asset => asset.public_id));
+        const newUniqueAssets = assetsArray.filter(asset => !existingPublicIds.has(asset.public_id));
 
         const newAssets = [...storedAssets, ...newUniqueAssets];
         localStorage.setItem(STORAGE_KEY, JSON.stringify(newAssets));
@@ -54,7 +54,7 @@ export const updateAssetOnLocalStorage = (assetsArray: AssetItem[]): boolean => 
 export const removeAssetFromLocalStoragesList = (publicIdsToRemove: string[]): boolean => {
     try {
         let storedAssets = getAssetFromLocalStorage();
-        storedAssets = storedAssets.filter(asset => !publicIdsToRemove.includes(asset.publicId));
+        storedAssets = storedAssets.filter(asset => !publicIdsToRemove.includes(asset.public_id));
         localStorage.setItem(STORAGE_KEY, JSON.stringify(storedAssets));
         return true;
     } catch (error) {

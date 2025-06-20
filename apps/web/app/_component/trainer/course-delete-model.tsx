@@ -7,19 +7,19 @@ import { unifiedDeleteWebWorker } from '../../../utils/worker/assetManager';
 
 interface CourseDeleteModaProps {
     courseId: string;
-    publicId: string;
+    public_id: string;
     isModalOpen: boolean;
     modalClose: any;
     handleDeleteSuccess: any;
 }
 
-const CourseDeleteModal = ({ courseId, isModalOpen, modalClose, handleDeleteSuccess, publicId }: CourseDeleteModaProps) => {
-    console.log(' CourseDeleteModal :: courseImagePublicId:', publicId);
+const CourseDeleteModal = ({ courseId, isModalOpen, modalClose, handleDeleteSuccess, public_id }: CourseDeleteModaProps) => {
 
     const handleCourseDeleteConfirm = async () => {
         modalClose();
         const { success } = await unifiedDeleteWebWorker({
-            assetsList: [{ publicId: publicId, resource_type: 'image' }],
+            assetsList: [{ public_id: public_id, resource_type: 'image' }],
+            clearLocalStorage: true
         });
 
         if (success) {

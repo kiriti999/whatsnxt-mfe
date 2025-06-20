@@ -13,7 +13,7 @@ export interface BlogFormProps {
     contentFormat?: string;
     imageUrl?: string;
     cloudinaryAssets?: {
-      publicId: string;
+      public_id: string;
       resource_type: string;
       url: string;
       secureUrl: string;

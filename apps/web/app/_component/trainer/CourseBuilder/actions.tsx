@@ -260,7 +260,8 @@ export const deleteCourse = async ({ courseWithSections, sections, courseId, rou
         onConfirm: async () => {
             try {
                 const { success } = await unifiedDeleteWebWorker({
-                    assetsList: [{ publicId: courseWithSections?.courseImagePublicId, resource_type: 'image' }],
+                    assetsList: [{ public_id: courseWithSections?.courseImagePublicId, resource_type: 'image' }],
+                    clearLocalStorage: true
                 });
                 if (success) {
                     await CourseBuilderAPI.deleteCourse(courseId);

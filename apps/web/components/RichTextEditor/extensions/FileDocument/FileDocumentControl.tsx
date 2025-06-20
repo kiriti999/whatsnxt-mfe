@@ -2,9 +2,9 @@ import { useContext, useRef } from 'react';
 import { IconFilePlus } from '@tabler/icons-react';
 import styles from '../../Tiptap/Tiptap.module.css';
 import { TiptapManageContext } from '../../../../context/TiptapManageContext';
-import { uploadDataWebWorker } from '../../../../utils/worker/assetManager';
+import { unifiedUploadWebWorker } from '../../../../utils/worker/assetManager';
 
-const FileControl =  ({ editor }: { editor: any }) => {
+const FileControl = ({ editor }: { editor: any }) => {
     const fileInputRef = useRef<HTMLInputElement>(null);
     const { updateProgress, userId } = useContext(TiptapManageContext)
 
@@ -17,7 +17,7 @@ const FileControl =  ({ editor }: { editor: any }) => {
             const fileName = file.name;
             const tempUrl = URL.createObjectURL(file);
             editor.chain().focus().setFile({ src: tempUrl, name: fileName }).run();
-            await uploadDataWebWorker({ file, tempUrl, editor, folder: userId, resource_type: 'raw', setProgress: updateProgress })
+            await unifiedUploadWebWorker({ file, tempUrl, editor, folder: userId, resource_type: 'raw', setProgress: updateProgress })
         }
     };
 

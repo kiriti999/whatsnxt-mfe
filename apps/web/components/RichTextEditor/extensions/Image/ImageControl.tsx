@@ -2,7 +2,7 @@ import { useContext, useRef } from 'react';
 import { TiptapManageContext } from '../../../../context/TiptapManageContext';
 import { IconPhoto } from '@tabler/icons-react';
 import { Button } from '@mantine/core';
-import { uploadDataWebWorker } from '../../../../utils/worker/assetManager';
+import { unifiedUploadWebWorker } from '../../../../utils/worker/assetManager';
 
 // Custom Image button component
 const ImageControl = ({ editor }: any) => {
@@ -17,11 +17,11 @@ const ImageControl = ({ editor }: any) => {
     if (file) {
       const tempUrl = URL.createObjectURL(file);
       editor.chain().focus().setImage({ src: tempUrl }).run();
-      await uploadDataWebWorker({
+      await unifiedUploadWebWorker({
         file,
         tempUrl,
         editor,
-        courseId,
+        folder: courseId,
         resource_type: 'image',
         setProgress: updateProgress,
       });
