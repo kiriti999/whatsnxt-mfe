@@ -16,9 +16,7 @@ import {
   IconEye
 } from "@tabler/icons-react";
 import Pagination from '../pagination/pagination';
-import { useDOMPurify } from '../../hooks/useDompurify';
-
-const DOMPurify = useDOMPurify();
+import sanitizeHtml from 'sanitize-html';
 
 const fetchNotificationsData = async (page: number) => {
   const { data } = await TrainerAPI.getNotification(page);
@@ -53,7 +51,7 @@ const NotificationItem = ({ notification, isSelected, onClick, onCheckboxChange 
         <Text
           lineClamp={3}
           dangerouslySetInnerHTML={{
-            __html: DOMPurify.sanitize(decodeURI(notification.message)),
+            __html: sanitizeHtml(decodeURI(notification.message)),
           }}
         />
       </div>

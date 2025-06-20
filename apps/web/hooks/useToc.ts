@@ -1,9 +1,7 @@
-// import DOMPurify from 'isomorphic-dompurify';
 import { useCallback, useEffect, useRef } from 'react';
-import { useDOMPurify } from './useDompurify';
+import sanitizeHtml from 'sanitize-html';
 
 export const useAddIdsToHeadings = (desc: string) => {
-  const DOMPurify = useDOMPurify();
   const containerRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -19,7 +17,7 @@ export const useAddIdsToHeadings = (desc: string) => {
     }
 
     // Sanitize the description
-    const sanitizedDescription = DOMPurify.sanitize(decodedDescription);
+    const sanitizedDescription = sanitizeHtml(decodedDescription);
 
     // Create a DOM parser
     const parser = new DOMParser();
