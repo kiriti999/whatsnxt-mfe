@@ -26,7 +26,7 @@ import {
 } from "@tabler/icons-react";
 import styles from './LectureItem.module.css'
 import { notifications } from "@mantine/notifications";
-import { CourseBuilderAPI } from "../../../../api/v1/courses/course-builder/course-builder-api";
+import { CourseBuilderAPI } from "../../../../apis/v1/courses/course-builder/course-builder-api";
 import EditTextGroup from "./EditTextGroup";
 import { EditOrderIndex } from "./EditOrderIndex";
 import PreviewToggle from './PreviewToggle';

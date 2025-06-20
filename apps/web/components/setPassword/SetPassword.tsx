@@ -15,7 +15,7 @@ import { useDisclosure } from '@mantine/hooks';
 import classes from './SetPassword.module.css';
 import { useMutation } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
-import { ProfileAPI } from '../../api/v1/profile/profile';
+import { ProfileAPI } from '../../apis/v1/profile/profile';
 
 const SetPassword = () => {
   const [visible, { open, close }] = useDisclosure(false);

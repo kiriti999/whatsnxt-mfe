@@ -6,7 +6,7 @@ import { IconLogin, IconLogout, IconUserShare } from '@tabler/icons-react';
 import classes from '../Navbar.module.css';
 import useAuth from '../../../hooks/Authentication/useAuth';
 import { notifications } from '@mantine/notifications';
-import { CacheAPI } from '../../../api/v1/redis';
+import { CacheAPI } from '../../../apis/v1/redis';
 
 interface INavbarMobile {
   links: LinkType[];

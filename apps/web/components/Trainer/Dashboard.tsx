@@ -6,10 +6,10 @@ import { Button, Stack, Text, Title, Timeline } from '@mantine/core';
 import { usePathname } from 'next/navigation';
 import { IconCheck, IconCircle } from '@tabler/icons-react';
 import { useDashboardContext } from '../../context/DashboardContext';
-import { CourseBuilderAPI } from '../../api/v1/courses/course-builder/course-builder-api';
+import { CourseBuilderAPI } from '../../apis/v1/courses/course-builder/course-builder-api';
 import { notifications } from '@mantine/notifications';
 import { useRouter } from 'next/navigation';
-import { mailAPI } from '../../api/v1/mail';
+import { mailAPI } from '../../apis/v1/mail';
 
 
 const COURSE_TYPE_PATH = `/trainer/course/course-type-information`;

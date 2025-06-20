@@ -9,10 +9,10 @@ import Discussion from './discussion';
 import LectureLinks from './LectureLinks'
 import useAuth from '../../hooks/Authentication/useAuth';
 import { useQuery } from '@tanstack/react-query';
-import { CoursesEnrolledAPI } from '../../api/v1/courses/enrolled/enrolled';
+import { CoursesEnrolledAPI } from '../../apis/v1/courses/enrolled/enrolled';
 import UserFeedBack from './userFeedBack';
 import InterviewClient from './InterviewClient';
-import { CourseFeedbackAPI } from '../../api/v1/courses/feedback/feedback';
+import { CourseFeedbackAPI } from '../../apis/v1/courses/feedback/feedback';
 
 
 

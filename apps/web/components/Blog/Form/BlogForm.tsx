@@ -4,15 +4,15 @@ import { Box, Button, Container, FileInput, Grid, Select, Text, TextInput, Title
 import { useRouter } from 'next/navigation';
 import { notifications } from '@mantine/notifications';
 import { BlogFormProps } from '../../../types/blogs';
-import { FormAPI, HistoryAPI } from '../../../api/v1/blog';
+import { FormAPI, HistoryAPI } from '../../../apis/v1/blog';
 import { getCategoryId } from '../../../utils/form';
 import { IconUpload } from '@tabler/icons-react';
 import { RichTextEditor } from '../../RichTextEditor';
 import { useDisclosure } from '@mantine/hooks';
 import { MantineLoader } from '@whatsnxt/core-ui';
-import { AISuggestions } from '../../../api/v1/blog/aiSuggestions';
+import { AISuggestions } from '../../../apis/v1/blog/aiSuggestions';
 import Image from 'next/image';
-import { CloudinaryAPI } from '../../../api/v1/common/cloudinary';
+import { CloudinaryAPI } from '../../../apis/v1/common/cloudinary';
 
 const BlogForm: React.FC<BlogFormProps> = ({ categories, edit }) => {
   const [isVisible, { open, close }] = useDisclosure(false);

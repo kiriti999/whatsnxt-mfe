@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState, useCallback } from 'react';
 import SidebarHeadings from '../../../components/Blog/sidebar-headings';
-import { AnalyticsAPI } from '../../../api/v1/blog/analyticsApi';
+import { AnalyticsAPI } from '../../../apis/v1/blog/analyticsApi';
 import { usePathname } from 'next/navigation';
 import SidebarPost from '../../../components/Blog/sidebar-post';
 import ClipboardCopy from '@whatsnxt/core-ui/src/ShareOptions/ClipBoardCopy';

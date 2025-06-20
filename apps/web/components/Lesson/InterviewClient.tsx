@@ -10,7 +10,7 @@ import {
 } from "@mantine/core";
 import { IconSearch } from "@tabler/icons-react";
 import { useMediaQuery } from "@mantine/hooks";
-import { interviewAPI } from "../../api/v1/courses/interview/interview";
+import { interviewAPI } from "../../apis/v1/courses/interview/interview";
 import Question from './question';
 
 const InterviewClient = ({ course, pageLimit = 2 }) => {

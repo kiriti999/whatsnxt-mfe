@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { type CourseType } from '@whatsnxt/core-util';
 import { Box, Button, Flex, Modal, Textarea } from '@mantine/core';
 import { notifications } from "@mantine/notifications";
-import { CourseBuilderAPI } from "../../../../api/v1/courses/course-builder/course-builder-api"
+import { CourseBuilderAPI } from "../../../../apis/v1/courses/course-builder/course-builder-api"
 import { useRouter } from 'next/navigation';
 
 export default function CourseApproval({ course }: CourseProps) {

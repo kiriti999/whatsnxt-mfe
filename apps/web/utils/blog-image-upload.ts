@@ -3,7 +3,7 @@ import {
   ResourceType,
   UploadResponse,
   DeleteResponse
-} from '../../web/api/v1/common/cloudinary';
+} from '../../web/apis/v1/common/cloudinary';
 
 export async function uploadToCloudinary(
   image: File | Blob,

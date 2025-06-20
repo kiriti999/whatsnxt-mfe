@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import { useQuery } from '@tanstack/react-query';
 import { Button, TextInput, Container, Paper } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
-import { ProfileAPI } from '../../../api/v1/profile/profile';
+import { ProfileAPI } from '../../../apis/v1/profile/profile';
 
 type Profile = {
   name: string;

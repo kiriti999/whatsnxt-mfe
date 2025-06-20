@@ -2,11 +2,11 @@
 import React, { useState, useEffect } from 'react';
 import coursesStyles from '../../../components/Courses/Course.module.css';
 import { useQuery } from '@tanstack/react-query';
-import { TrainerAPI } from '../../../api/v1/courses/trainer/trainer';
+import { TrainerAPI } from '../../../apis/v1/courses/trainer/trainer';
 import { useDebouncedValue } from '@mantine/hooks';
 import Link from 'next/link';
 import { ActionIcon, Box, Button, Center, Collapse, Grid, Group, Loader, Pagination, Select, Table, TextInput, Tooltip, Menu } from '@mantine/core';
-import { CourseAPI } from '../../../api/v1/courses/course/course';
+import { CourseAPI } from '../../../apis/v1/courses/course/course';
 import { notifications } from '@mantine/notifications';
 import { IconChevronDown, IconChevronUp, IconEye, IconEyeOff, IconPlus, IconDotsVertical } from '@tabler/icons-react';
 import CourseDeleteModal from './course-delete-model';

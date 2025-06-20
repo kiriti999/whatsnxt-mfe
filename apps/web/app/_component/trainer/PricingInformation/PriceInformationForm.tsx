@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Text, Title, Group, Card, Stack, Grid, Radio, NumberInput, Button } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { Controller, useForm } from 'react-hook-form';
-import { CourseBuilderAPI } from '../../../../api/v1/courses/course-builder/course-builder-api';
+import { CourseBuilderAPI } from '../../../../apis/v1/courses/course-builder/course-builder-api';
 import { useDashboardContext } from '../../../../context/DashboardContext';
 import { revalidate } from '../../../../server-actions';
 

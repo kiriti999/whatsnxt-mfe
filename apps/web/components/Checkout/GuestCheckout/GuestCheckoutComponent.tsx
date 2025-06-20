@@ -21,8 +21,8 @@ import {
 import { GoogleButton } from '@whatsnxt/core-ui/src/GoogleButton';
 import Link from 'next/link';
 import { notifications } from '@mantine/notifications';
-import { CartAPI } from '../../../api/v1/cart/cart';
-import { AuthAPI } from '../../../api/v1/auth';
+import { CartAPI } from '../../../apis/v1/cart/cart';
+import { AuthAPI } from '../../../apis/v1/auth';
 import { useMutation } from '@tanstack/react-query';
 import styles from './GuestCheckout.module.css';
 import useAuth from '../../../hooks/Authentication/useAuth';

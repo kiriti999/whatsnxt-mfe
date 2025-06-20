@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Avatar, Box, Button, Grid, Rating, Stack, Title, Text, Flex, Menu } from '@mantine/core';
 import { RatingBars } from '@whatsnxt/core-ui';
 import useAuth from '../../../../hooks/Authentication/useAuth';
-import { CourseFeedbackAPI } from '../../../../api/v1/courses/feedback/feedback';
+import { CourseFeedbackAPI } from '../../../../apis/v1/courses/feedback/feedback';
 import { formatRelativeTime, FormatText } from '../../../../components/Comments/helper';
 import { IconDotsVertical } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';

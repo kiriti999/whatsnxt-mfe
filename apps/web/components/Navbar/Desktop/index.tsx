@@ -9,7 +9,7 @@ import type { Link as NavLink, User } from '../types';
 import { NavbarNotification } from '../NavbarNotification/index';
 import Search from '../../Search';
 import useAuth from '../../../hooks/Authentication/useAuth';
-import { CacheAPI } from '../../../api/v1/redis/index';
+import { CacheAPI } from '../../../apis/v1/redis/index';
 import classes from '../Navbar.module.css';
 import { notifications } from '@mantine/notifications';
 

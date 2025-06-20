@@ -6,7 +6,7 @@ import { createPortal } from 'react-dom';
 import { notifications } from '@mantine/notifications';
 import TrainerTable from './TrainerTable';
 import StudentTable from './StudentTable';
-import { TrainerAPI } from '../../api/v1/courses/trainer/trainer';
+import { TrainerAPI } from '../../apis/v1/courses/trainer/trainer';
 
 
 function MyBookings() {

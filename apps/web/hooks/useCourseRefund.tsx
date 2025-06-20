@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { notifications } from "@mantine/notifications";
-import { mailAPI } from "../api/v1/mail";
-import { orderAPI } from "../api/v1/orders";
-import { razorPaymentAPI } from "../api/v1/payment/razorpay";
-import { CoursesEnrolledAPI } from "../api/v1/courses/enrolled/enrolled";
+import { mailAPI } from "../apis/v1/mail";
+import { orderAPI } from "../apis/v1/orders";
+import { razorPaymentAPI } from "../apis/v1/payment/razorpay";
+import { CoursesEnrolledAPI } from "../apis/v1/courses/enrolled/enrolled";
 import { revalidate } from "../server-actions";
 import isRefundEligible from "../utils/isRefundEligible";
 

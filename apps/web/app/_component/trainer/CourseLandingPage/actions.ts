@@ -1,7 +1,7 @@
 import { type Dispatch, type SetStateAction } from "react";
 import type { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import { notifications } from "@mantine/notifications";
-import { CourseBuilderAPI } from "../../../../api/v1/courses/course-builder/course-builder-api";
+import { CourseBuilderAPI } from "../../../../apis/v1/courses/course-builder/course-builder-api";
 import { extractCloudinaryLinksFromContent, extractPublicIdsAndTypeFromLinks, extractPublicIdsFromLinks } from "../../../../components/RichTextEditor/common";
 import { getImageAsData, uploadToCloudinary } from "../../../../utils/course-image-upload";
 import { removeAssetFromLocalStoragesList } from "../../../../utils/worker/localStorageHandler";

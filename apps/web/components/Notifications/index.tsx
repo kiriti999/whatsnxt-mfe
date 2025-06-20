@@ -6,7 +6,7 @@ import { ActionIcon, Text, Checkbox, Skeleton, Title, Tooltip } from '@mantine/c
 import styles from './notifications.module.css';
 import { elapsedTime } from '../../utils/elapsedTime';
 import { handleRefresh, handleRead, handleDelete, handleSelectAll, handleClick } from './handler';
-import { TrainerAPI } from '../../api/v1/courses/trainer/trainer';
+import { TrainerAPI } from '../../apis/v1/courses/trainer/trainer';
 
 import {
   IconRefresh,

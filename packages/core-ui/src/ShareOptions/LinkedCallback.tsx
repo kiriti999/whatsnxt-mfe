@@ -6,7 +6,7 @@ import React from 'react';
 import { notifications } from '@mantine/notifications';
 import { Container, Text } from '@mantine/core';
 import { MantineLoader } from '@whatsnxt/core-ui';
-import { LinkedInAPI } from '../../../../apps/web/api/v1/blog/linkedInApi'; // Adjust path as needed
+import { LinkedInAPI } from '../../../../apps/web/apis/v1/blog/linkedInApi'; // Adjust path as needed
 
 const LinkedInCallback = () => {
     const searchParams = useSearchParams();

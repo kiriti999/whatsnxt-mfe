@@ -1,6 +1,6 @@
 import { useCallback, useEffect } from "react";
 import useNode from "./useNode";
-import { ContentAPI } from "../../../../apps/web/api/v1/blog/contentApi";
+import { ContentAPI } from "../../../../apps/web/apis/v1/blog/contentApi";
 import useAuth from '../../../../apps/web/hooks/Authentication/useAuth';
 
 async function fetchComments(
@@ -18,7 +18,7 @@ async function fetchComments(
     return data;
 }
 
-const useCommentHandlers = ({ contentId, comments, setComments } :any) => {
+const useCommentHandlers = ({ contentId, comments, setComments }: any) => {
     const { user } = useAuth();
     const email = user?.email;
 

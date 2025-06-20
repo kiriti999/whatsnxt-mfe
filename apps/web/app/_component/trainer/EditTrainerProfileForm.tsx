@@ -21,7 +21,7 @@ import {
 import { notifications } from "@mantine/notifications";
 import { IconUpload } from "@tabler/icons-react";
 import { uploadToCloudinary } from "../../../utils/course-image-upload";
-import { ProfileAPI } from '../../../api/v1/profile/profile';
+import { ProfileAPI } from '../../../apis/v1/profile/profile';
 
 type EditFormValues = {
     name: string;

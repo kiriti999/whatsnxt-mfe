@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { deleteIndex, indexRecord } from '@whatsnxt/core-util';
 import { ActionIcon, Tooltip } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
-import { CourseAPI } from '../../api/v1/courses/course/course';
+import { CourseAPI } from '../../apis/v1/courses/course/course';
 import { IconEyeOff, IconEye } from '@tabler/icons-react';
 
 const CoursePublishButton = ({

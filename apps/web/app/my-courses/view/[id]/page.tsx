@@ -1,5 +1,5 @@
 import React from 'react'
-import { CoursesEnrolledAPI } from '../../../../api/v1/courses/enrolled/enrolled';
+import { CoursesEnrolledAPI } from '../../../../apis/v1/courses/enrolled/enrolled';
 import { cookies } from 'next/headers';
 import SingleCourses from '../../../_component/my-courses/my-course-view';
 

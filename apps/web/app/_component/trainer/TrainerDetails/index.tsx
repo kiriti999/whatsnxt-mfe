@@ -9,7 +9,7 @@ import useTrainerContactedPayment from "../../../../hooks/useTrainerContactedPay
 import useTrainerContactedRefund from '../../../../hooks/useTrainerContactedRefund';
 import ContactDetailsModal from '../../../../components/Trainer/ContactDetailsModal';
 import useAuth from '../../../../hooks/Authentication/useAuth';
-import { trainerContactedPaymentAPI } from '../../../../api/v1/trainer-contacted-payment';
+import { trainerContactedPaymentAPI } from '../../../../apis/v1/trainer-contacted-payment';
 
 const TrainerDetails = ({ trainer, courses }) => {
     const { _id: trainerId, name: trainerName, about, experience, contactsCount, skills, rate, languages, revealTrainerInfo } = trainer || {};

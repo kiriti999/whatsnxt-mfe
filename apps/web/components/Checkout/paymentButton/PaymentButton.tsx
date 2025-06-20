@@ -4,8 +4,8 @@ import { type PaymentDetails, type RazorpayResponse, useRazorPayment } from '@wh
 import { notifications } from '@mantine/notifications';
 import { Button, Text, Box, Group, Stack } from '@mantine/core';
 import { IconShoppingCart } from '@tabler/icons-react';
-import { orderAPI } from '../../../api/v1/orders';
-import { mailAPI } from '../../../api/v1/mail';
+import { orderAPI } from '../../../apis/v1/orders';
+import { mailAPI } from '../../../apis/v1/mail';
 import useAuth from '../../../hooks/Authentication/useAuth';
 import { PaymentButtonProps } from '../types';
 import { revalidate } from '../../../server-actions';

@@ -6,7 +6,7 @@ import CreateReviewComment from "../ReviewComment/actions/createReviewComment";
 import { Box, Flex, Rating, Title, Text, Paper, Group, Button, Tooltip } from "@mantine/core";
 import { FormatText } from "../Comments/helper";
 import { IconEdit } from "@tabler/icons-react";
-import { CourseFeedbackAPI } from '../../api/v1/courses/feedback/feedback';
+import { CourseFeedbackAPI } from '../../apis/v1/courses/feedback/feedback';
 
 function UserFeedBack({ courseId, reviewComment, userId }: { courseId: string, reviewComment: any, userId: string }) {
     const { isEnrolled } = useIsEnrolled(courseId)

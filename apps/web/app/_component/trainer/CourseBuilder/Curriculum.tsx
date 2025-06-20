@@ -18,7 +18,7 @@ import {
 	updateSectionTitle,
 	getVideoAndDocActions
 } from "./actions";
-import { CourseBuilderAPI } from "../../../../api/v1/courses/course-builder/course-builder-api";
+import { CourseBuilderAPI } from "../../../../apis/v1/courses/course-builder/course-builder-api";
 import { useDashboardContext } from "../../../../context/DashboardContext";
 
 const Curriculum = ({ courseId, courseWithSections }) => {

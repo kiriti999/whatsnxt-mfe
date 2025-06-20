@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form"
 import { useRouter } from "next/navigation";
 import useAuth from "../../../hooks/Authentication/useAuth";
 import { useIsEnrolled } from "../../../hooks/useIsEnrolled";
-import { CourseFeedbackAPI } from '../../../api/v1/courses/feedback/feedback';
+import { CourseFeedbackAPI } from '../../../apis/v1/courses/feedback/feedback';
 import { notifications } from '@mantine/notifications';
 
 const validationOptions = {

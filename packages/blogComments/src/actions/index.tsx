@@ -1,6 +1,6 @@
 import { useRouter } from "next/navigation";
 import { notifications } from "@mantine/notifications";
-import { ContentAPI } from "../../../../apps/web/api/v1/blog/contentApi";
+import { ContentAPI } from "../../../../apps/web/apis/v1/blog/contentApi";
 
 export const useAddComment = ({
   contentId,

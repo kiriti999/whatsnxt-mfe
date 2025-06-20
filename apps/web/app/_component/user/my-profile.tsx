@@ -8,7 +8,7 @@ import Profile from '../../../components/Profile/Profile';
 import useAuth from '../../../hooks/Authentication/useAuth';
 import TrainerProfile from '../trainer/trainer-profile';
 import { MantineLoader } from '@whatsnxt/core-ui';
-import { ProfileAPI } from '../../../api/v1/profile/profile';
+import { ProfileAPI } from '../../../apis/v1/profile/profile';
 
 const MyProfile = () => {
   const { user, token } = useAuth();

@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { useRazorpay, RazorpayOrderOptions } from 'react-razorpay';
 import { notifications } from '@mantine/notifications';
-import { razorPaymentAPI } from '../../../apps/web/api/v1/payment/razorpay';
+import { razorPaymentAPI } from '../../../apps/web/apis/v1/payment/razorpay';
 
 // Define currency type based on what Razorpay accepts
 type CurrencyCode = 'INR' | 'USD' | 'EUR' | 'GBP' | 'JPY' | 'AUD' | 'CAD' | 'SGD' | 'AED';

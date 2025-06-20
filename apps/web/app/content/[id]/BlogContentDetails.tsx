@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useState, useCallback } from 'react';
-import { AnalyticsAPI } from '../../../api/v1/blog/analyticsApi';
+import { AnalyticsAPI } from '../../../apis/v1/blog/analyticsApi';
 import { usePathname } from 'next/navigation';
 import SidebarPost from '../../../components/Blog/sidebar';
 import { BlogComment, CommentContextProvider, CommentReplyContextProvider } from '@whatsnxt/blogcomments';

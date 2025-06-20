@@ -14,7 +14,7 @@ import { modals } from '@mantine/modals';
 import { IconBook, IconDotsVertical } from '@tabler/icons-react';
 import Pagination from '../../../components/pagination/pagination';
 import useAuth from "../../../hooks/Authentication/useAuth";
-import { CourseFeedbackAPI } from '../../../api/v1/courses/feedback/feedback';
+import { CourseFeedbackAPI } from '../../../apis/v1/courses/feedback/feedback';
 import useCourseRefund from '../../../hooks/useCourseRefund';
 import { useIsEnrolled } from '../../../hooks/useIsEnrolled';
 import Refund from '../../../components/Refund';

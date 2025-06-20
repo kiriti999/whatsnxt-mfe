@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { SidebarAPI } from '../../api/v1';
+import { SidebarAPI } from '../../apis/v1';
 
 const initialState = {
   articles: [

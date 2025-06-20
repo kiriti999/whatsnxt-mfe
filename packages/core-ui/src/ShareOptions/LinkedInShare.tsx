@@ -3,7 +3,7 @@ import { IconBrandLinkedin } from '@tabler/icons-react';
 import { Tooltip } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { useRouter } from 'next/navigation';
-import { LinkedInAPI } from '../../../../apps/web/api/v1/blog/linkedInApi';
+import { LinkedInAPI } from '../../../../apps/web/apis/v1/blog/linkedInApi';
 
 interface LinkedInShareProps {
     url: string;

@@ -4,7 +4,7 @@ import CommentActions from "./actions/CommentActions"
 import { useRouter } from "next/navigation";
 import React from 'react';
 import { Avatar } from "@mantine/core";
-import { CourseFeedbackAPI } from '../../api/v1/courses/feedback/feedback';
+import { CourseFeedbackAPI } from '../../apis/v1/courses/feedback/feedback';
 
 function ReviewCommentList({
     comment,

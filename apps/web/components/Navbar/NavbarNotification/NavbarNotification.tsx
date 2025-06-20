@@ -4,7 +4,7 @@ import Link from 'next/link';
 import styles from './NavbarNotification.module.css';
 import { Anchor } from '@mantine/core';
 import { IconBell } from '@tabler/icons-react';
-import { TrainerAPI } from '../../../api/v1/courses/trainer/trainer';
+import { TrainerAPI } from '../../../apis/v1/courses/trainer/trainer';
 
 type NavbarNotificationProps = {
   user: any

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Button, Box, Pagination, TextInput, Flex, MediaQuery, Group } from "@mantine/core";
-import { interviewAPI } from "../../../../api/v1/courses/interview/interview";
+import { interviewAPI } from "../../../../apis/v1/courses/interview/interview";
 import QuestionTable from "./QuestionTable";
 import AddQuestion from "./AddQuestion";
 import EditQuestion from "./EditQuestion";

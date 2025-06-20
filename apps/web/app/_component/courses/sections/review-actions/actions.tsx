@@ -1,5 +1,5 @@
 import { IconThumbDown, IconThumbDownFilled, IconThumbUp, IconThumbUpFilled } from "@tabler/icons-react"
-import { CourseFeedbackAPI } from "../../../../../api/v1/courses/feedback/feedback";
+import { CourseFeedbackAPI } from "../../../../../apis/v1/courses/feedback/feedback";
 import useAuth from "../../../../../hooks/Authentication/useAuth";
 import { Box, Button } from "@mantine/core";
 import { useState } from "react";

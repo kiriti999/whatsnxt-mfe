@@ -11,7 +11,7 @@ import useTrainerContactedPayment from '../../hooks/useTrainerContactedPayment';
 import useTrainerContactedRefund from '../../hooks/useTrainerContactedRefund';
 import ContactDetailsModal from './ContactDetailsModal';
 import useAuth from '../../hooks/Authentication/useAuth';
-import { trainerContactedPaymentAPI } from '../../api/v1/trainer-contacted-payment';
+import { trainerContactedPaymentAPI } from '../../apis/v1/trainer-contacted-payment';
 
 export type TrainerType = {
   _id: string;

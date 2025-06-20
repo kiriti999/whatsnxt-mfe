@@ -16,7 +16,7 @@ import remarkGfm from "remark-gfm"; // Enables GitHub-style markdown
 import { IconEdit, IconTrash } from "@tabler/icons-react";
 import { useMediaQuery } from "@mantine/hooks";
 import { showNotification } from "@mantine/notifications";
-import { interviewAPI } from "../../../../api/v1/courses/interview/interview";
+import { interviewAPI } from "../../../../apis/v1/courses/interview/interview";
 
 const QuestionTable = ({ questions, refreshQuestions, onEdit }) => {
   const [loadingId, setLoadingId] = useState(null);

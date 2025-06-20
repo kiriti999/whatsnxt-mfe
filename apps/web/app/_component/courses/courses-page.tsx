@@ -12,7 +12,7 @@ import CoursesSidebar from '../../../components/Courses/CoursesSidebar';
 import styles from '../../../components/Courses/Course.module.css';
 import Pagination from '../../../components/pagination/pagination';
 import { addPopularityToCourses } from '../../../utils';
-import { AnalyticsAPI } from '../../../api/v1/analytics';
+import { AnalyticsAPI } from '../../../apis/v1/analytics';
 import { useQuery } from '@tanstack/react-query';
 
 export default function CoursePage({ courses, enrolled, categories }: { courses: CourseType[], enrolled: any[], categories: Category[] }) {

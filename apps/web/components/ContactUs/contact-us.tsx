@@ -4,7 +4,7 @@ import { Paper, SimpleGrid, TextInput, Textarea, Group, Button, Text } from '@ma
 import { notifications } from '@mantine/notifications';
 import ContactIconsList from '../../app/_component/contact-us/ContactIcons';
 import classes from './ContactUs.module.css';
-import { mailAPI } from '../../api/v1/mail';
+import { mailAPI } from '../../apis/v1/mail';
 
 export const ContactUsForm = () => {
     const { handleSubmit, control, reset, formState: { errors } } = useForm({

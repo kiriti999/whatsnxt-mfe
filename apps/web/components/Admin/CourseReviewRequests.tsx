@@ -6,7 +6,7 @@ import useAuth from '../../hooks/Authentication/useAuth';
 import { Container, Title, Grid, Paper, Group, Button, Center, Loader, Table, Text, LoadingOverlay, Pagination, Box } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import AdminSidebar from "./AdminSidebar";
-import { CourseAPI } from "../../api/v1/courses/course/course"
+import { CourseAPI } from "../../apis/v1/courses/course/course"
 
 const LIMIT = 1;
 

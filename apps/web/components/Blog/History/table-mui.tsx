@@ -21,7 +21,7 @@ import {
   IconEyeOff,
   IconPlus,
 } from '@tabler/icons-react';
-import { HistoryAPI } from '../../../api/v1/index';
+import { HistoryAPI } from '../../../apis/v1/index';
 import { deleteCloudinaryImage } from '../../../utils/blog-image-upload';
 import { useRouter } from 'next/navigation';
 import { useDebouncedValue } from '@mantine/hooks';

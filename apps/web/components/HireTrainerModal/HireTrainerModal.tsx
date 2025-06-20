@@ -2,10 +2,10 @@ import React, { FC, useEffect, useState } from 'react';
 import styles from './HireTrainerModal.module.css';
 import { notifications } from '@mantine/notifications';
 import { Modal } from '@mantine/core';
-import { TrainerAPI } from '../../api/v1/courses/trainer/trainer';
+import { TrainerAPI } from '../../apis/v1/courses/trainer/trainer';
 import useAuth from '../../hooks/Authentication/useAuth';
 // import { useQuery } from '@tanstack/react-query';
-// import { ProfileAPI } from '../../api/v1/user/profile';
+// import { ProfileAPI } from '../../apis/v1/user/profile';
 
 
 type HireTrainerModalProps = {

@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { createPortal } from 'react-dom';
 import { useRazorPayment } from '@whatsnxt/core-util/src/RazorPayment';
 import { Anchor } from '@mantine/core';
-import { TrainerAPI } from '../../api/v1/courses/trainer/trainer';
+import { TrainerAPI } from '../../apis/v1/courses/trainer/trainer';
 import styles from './my-bookings.module.css';
 
 function CancelBookingModal({ onCancel, setReason }) {

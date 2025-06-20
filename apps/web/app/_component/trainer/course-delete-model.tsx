@@ -1,7 +1,7 @@
 "use client"
 import React from 'react';
 import { Button, Flex, Modal, Text } from '@mantine/core';
-import { CourseBuilderAPI } from '../../../api/v1/courses/course-builder/course-builder-api';
+import { CourseBuilderAPI } from '../../../apis/v1/courses/course-builder/course-builder-api';
 import { notifications } from '@mantine/notifications';
 import { unifiedDeleteWebWorker } from '../../../utils/worker/assetManager';
 

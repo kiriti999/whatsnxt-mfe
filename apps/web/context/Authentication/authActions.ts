@@ -1,4 +1,4 @@
-import { AuthAPI } from '../../api/v1/auth';
+import { AuthAPI } from '../../apis/v1/auth';
 import { notifications } from '@mantine/notifications';
 import { removeCookie } from '../../utils/commonHelper';
 

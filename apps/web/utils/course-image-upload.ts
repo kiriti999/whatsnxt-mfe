@@ -1,5 +1,5 @@
 
-import { CloudinaryAPI } from '../api/v1/common/cloudinary';
+import { CloudinaryAPI } from '../apis/v1/common/cloudinary';
 
 // Types for better type safety
 type ResourceType = 'image' | 'video' | 'raw' | 'auto';

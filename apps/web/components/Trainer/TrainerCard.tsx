@@ -4,7 +4,7 @@ import { useDisclosure } from '@mantine/hooks';
 import styles from './TrainerCard.module.css';
 import CourseCard from './CourseCard';
 import { HireTrainerModal } from '../HireTrainerModal';
-import { TrainerAPI } from '../../api/v1/courses/trainer/trainer';
+import { TrainerAPI } from '../../apis/v1/courses/trainer/trainer';
 import useAuth from '../../hooks/Authentication/useAuth';
 import { useRouter } from 'next/navigation'; // Use useRouter from next/navigation
 import { notifications } from '@mantine/notifications';

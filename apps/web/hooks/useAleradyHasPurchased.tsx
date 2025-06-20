@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import useAuth from "./Authentication/useAuth";
-import { trainerContactedPaymentAPI } from "../api/v1/trainer-contacted-payment";
+import { trainerContactedPaymentAPI } from "../apis/v1/trainer-contacted-payment";
 
 export default function useAlreadyHasPurchased(trainerId: string) {
     const { user } = useAuth();

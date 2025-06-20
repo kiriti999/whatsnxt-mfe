@@ -5,7 +5,7 @@ import { CategoryData } from '../../../types/form';
 import { useSaved } from '../../../hooks/saved';
 import { getCategoryId } from '../../../utils/form';
 import type { Category, Detail, Tutorial } from '../../../types/form';
-import { FormAPI, HistoryAPI } from '../../../api/v1/blog';
+import { FormAPI, HistoryAPI } from '../../../apis/v1/blog';
 import Pagination from '../../Common/Pagination';
 import { RichTextEditor } from '../../RichTextEditor';
 import { useRouter } from 'next/navigation';
@@ -20,7 +20,7 @@ import {
 } from '../../RichTextEditor/common';
 import { IconUpload } from '@tabler/icons-react';
 import Image from 'next/image';
-import { CloudinaryAPI } from '../../../api/v1/common/cloudinary';
+import { CloudinaryAPI } from '../../../apis/v1/common/cloudinary';
 
 interface TutorialFormProps {
   categories: Category[];

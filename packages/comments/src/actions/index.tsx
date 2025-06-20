@@ -1,5 +1,5 @@
 import { useRouter } from 'next/navigation';
-import { CommentAPI } from '../../../../apps/web/api/v1/comment';
+import { CommentAPI } from '../../../../apps/web/apis/v1/comment';
 
 export const useAddComment = ({
   lessonId,

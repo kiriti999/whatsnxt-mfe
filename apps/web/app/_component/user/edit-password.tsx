@@ -12,7 +12,7 @@ import {
 import { notifications } from '@mantine/notifications';
 import { IconChevronRight, IconLock } from '@tabler/icons-react';
 import { LoadingSpinner } from '@whatsnxt/core-ui';
-import { ProfileAPI } from '../../../api/v1/profile/profile';
+import { ProfileAPI } from '../../../apis/v1/profile/profile';
 
 const EditPassword = () => {
   const [user, setUser] = React.useState({

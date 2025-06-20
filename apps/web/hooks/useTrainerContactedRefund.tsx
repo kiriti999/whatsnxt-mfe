@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { notifications } from "@mantine/notifications";
-import { trainerContactedPaymentAPI } from "../api/v1/trainer-contacted-payment";
-import { razorPaymentAPI } from "../api/v1/payment/razorpay";
-import { mailAPI } from "../api/v1/mail";
+import { trainerContactedPaymentAPI } from "../apis/v1/trainer-contacted-payment";
+import { razorPaymentAPI } from "../apis/v1/payment/razorpay";
+import { mailAPI } from "../apis/v1/mail";
 
 type PROPS = {
     trainerName: string;

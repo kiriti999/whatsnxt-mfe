@@ -1,6 +1,6 @@
 import React from 'react';
 import { useInfiniteQuery } from '@tanstack/react-query';
-import { ContentAPI } from '../../../api/v1/blog/contentApi';
+import { ContentAPI } from '../../../apis/v1/blog/contentApi';
 import { RootState } from '../../../store/store';
 import { useSelector } from 'react-redux';
 import { usePostGrid } from './Grids/hooks/usePostGrid';

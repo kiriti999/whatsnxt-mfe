@@ -1,5 +1,5 @@
 'use client'
-import { CategoryAPI, ContentAPI } from '../../../../web/api/v1/blog';
+import { CategoryAPI, ContentAPI } from '../../../../web/apis/v1/blog';
 import { useSearchParams } from 'next/navigation';
 import { useState, useEffect, useMemo } from 'react';
 import { ContentType } from '../Content/ContentComponent';

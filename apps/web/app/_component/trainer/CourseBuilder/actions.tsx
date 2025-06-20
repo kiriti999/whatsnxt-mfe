@@ -1,6 +1,6 @@
 import { notifications } from "@mantine/notifications";
 import { Text } from "@mantine/core";
-import { CourseBuilderAPI } from "../../../../api/v1/courses/course-builder/course-builder-api";
+import { CourseBuilderAPI } from "../../../../apis/v1/courses/course-builder/course-builder-api";
 import type { Section } from "../types";
 import { deleteIndex } from "@whatsnxt/core-util";
 import { modals } from '@mantine/modals';

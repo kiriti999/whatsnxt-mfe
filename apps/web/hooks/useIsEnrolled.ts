@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { CoursesEnrolledAPI } from "../api/v1/courses/enrolled/enrolled";
+import { CoursesEnrolledAPI } from "../apis/v1/courses/enrolled/enrolled";
 
 export function useIsEnrolled(courseId: string) {
     const { data: isEnrolled, isLoading: isFetching, refetch } = useQuery({

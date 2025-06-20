@@ -10,7 +10,7 @@ import styles from '../../Comments/style.module.css';
 import style from "../style.module.css";
 import { useState } from 'react';
 import { Button } from '@mantine/core';
-import { CourseFeedbackAPI } from '../../../api/v1/courses/feedback/feedback';
+import { CourseFeedbackAPI } from '../../../apis/v1/courses/feedback/feedback';
 
 function CommentActions({
     comment,

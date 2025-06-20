@@ -1,6 +1,6 @@
 import { useCallback, useEffect } from "react";
 import useNode from "./useNode";
-import { CommentAPI } from '../../../../apps/web/api/v1/comment';
+import { CommentAPI } from '../../../../apps/web/apis/v1/comment';
 import useAuth from '../../../../apps/web/hooks/Authentication/useAuth';
 
 const useCommentHandlers = ({ lessonId, comments, setComments }: any) => {

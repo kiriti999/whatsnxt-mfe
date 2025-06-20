@@ -23,7 +23,7 @@ import { CartItems } from "../CartItems/CartItems";
 import { calculateCartTotal } from "../../utils/calculateCartTotal";
 import { kConverter } from "@whatsnxt/core-util";
 import Link from 'next/link';
-import { CartAPI } from '../../api/v1/cart/cart';
+import { CartAPI } from '../../apis/v1/cart/cart';
 import { useMediaQuery } from '@mantine/hooks';
 
 export const ShoppingCart: FC = () => {

@@ -5,9 +5,9 @@ import { ScrollArea, Divider, Container, Title } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import CourseTable from './CourseTable';
 import TeacherTable from './TeacherTable';
-import { orderAPI } from '../../api/v1/orders';
+import { orderAPI } from '../../apis/v1/orders';
 import useAuth from '../../hooks/Authentication/useAuth';
-import { trainerContactedPaymentAPI } from '../../api/v1/trainer-contacted-payment';
+import { trainerContactedPaymentAPI } from '../../apis/v1/trainer-contacted-payment';
 
 const PurchaseHistory = () => {
     const [orders, setOrders] = useState([]);

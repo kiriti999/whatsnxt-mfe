@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button, TextInput, Textarea, Title, Group, Loader, Box, Text, Stack, Flex, Anchor } from "@mantine/core";
-import { interviewAPI } from "../../../../api/v1/courses/interview/interview";
+import { interviewAPI } from "../../../../apis/v1/courses/interview/interview";
 import { showNotification } from "@mantine/notifications";
 import styles from './AddQuestionStyle.module.css'
 import { notifications } from "@mantine/notifications";

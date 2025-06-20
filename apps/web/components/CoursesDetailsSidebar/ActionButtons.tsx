@@ -7,7 +7,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { IconShoppingCart, IconTags } from '@tabler/icons-react';
 import styles from './CoursesDetailsSidebar.module.css';
 import useAuth from '../../hooks/Authentication/useAuth';
-import { CoursesEnrolledAPI } from '../../api/v1/courses/enrolled/enrolled';
+import { CoursesEnrolledAPI } from '../../apis/v1/courses/enrolled/enrolled';
 import NavigateButton from './NavigateButton';
 
 const ActionButtons = ({

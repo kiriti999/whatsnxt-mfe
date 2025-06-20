@@ -1,4 +1,4 @@
-import { notificationAPI } from '../../api/v1/notifications';
+import { notificationAPI } from '../../apis/v1/notifications';
 
 // Handles selecting/deselecting a notification
 export const handleClick = (index, setSelected) => {

@@ -1,6 +1,6 @@
 import { Skeleton } from '@mantine/core';
 import { useEffect, useState } from 'react';
-import { TrainerAPI } from '../../api/v1/courses/trainer/trainer';
+import { TrainerAPI } from '../../apis/v1/courses/trainer/trainer';
 import styles from './TrainerSearchPage.module.css';
 import SearchData from './SearchData';
 
