@@ -167,15 +167,20 @@ export function AuthenticationForm(props: PaperProps) {
             autoClose: 5000
           });
 
-          if (token) {
-            // Auto-login user
-            dispatch({ type: 'UPDATE_USER_TOKEN', data: token });
-            const userObject = await fetchUser(token);
-            dispatch({ type: 'UPDATE_USER_INFO', data: userObject });
-            await login(userObject);
-            router.push(redirectUrl);
-            return;
-          }
+          // if (token) {
+          //   // Auto-login user
+          //   const userObject = await fetchUser(token);
+          //   dispatch({ 
+          //     type: 'LOGIN', 
+          //     data: { 
+          //       token: token, 
+          //       userObject: userObject 
+          //     } 
+          //   });
+          //   await login(userObject);
+          //   router.push(redirectUrl);
+          //   return;
+          // }
 
           // Fallback to login form
           reset();
@@ -211,11 +216,16 @@ export function AuthenticationForm(props: PaperProps) {
         if (checkSuccessResponse(response)) {
           console.log(' onSuccess: :: response:', response)
           // const getToken = await getCookieAccessToken()
-          const getToken = response.token;
-          dispatch({ type: 'UPDATE_USER_TOKEN', data: getToken });
-          const userObject = await fetchUser(getToken);
-          console.log(' onSuccess: :: userObject:', userObject)
-          dispatch({ type: 'UPDATE_USER_INFO', data: userObject });
+          const token = response.token;
+          const userObject = await fetchUser(token);
+
+          dispatch({ 
+            type: 'LOGIN', 
+            data: { 
+              token: token, 
+              userObject: userObject 
+            } 
+          });
           await fetchCartInfo();
           await login(userObject);
           router.push(redirectUrl);

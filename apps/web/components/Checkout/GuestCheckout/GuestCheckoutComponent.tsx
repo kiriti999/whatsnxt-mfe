@@ -139,16 +139,20 @@ export const GuestCheckoutComponent: FC<GuestCheckoutComponentProps> = () => {
       mutationFn: async (formData: any) => await AuthAPI.createAccount(formData),
       onSuccess: async (response: any) => {
         if (checkSuccessResponse(response)) {
-          const getToken = await getCookieAccessToken()
           notifications.show({
             position: 'bottom-right',
             title: 'Authentication Success',
             message: 'User registered successfully',
             color: 'green',
           });
-          const userObject = await fetchUser(getToken);
-          dispatch({ type: 'UPDATE_USER_INFO', data: userObject });
-          dispatch({ type: 'UPDATE_USER_TOKEN', data: getToken });
+          const userObject = await fetchUser(response.token);
+          dispatch({
+            type: 'LOGIN',
+            data: {
+              token: response.token,
+              userObject: userObject
+            }
+          });
           await login(userObject, false)
           router.push(redirectUrl);
         }
@@ -189,10 +193,14 @@ export const GuestCheckoutComponent: FC<GuestCheckoutComponentProps> = () => {
       mutationFn: async (formData: any) => await AuthAPI.login(formData),
       onSuccess: async (response: any) => {
         if (checkSuccessResponse(response)) {
-          const getToken = await getCookieAccessToken()
-          dispatch({ type: 'UPDATE_USER_TOKEN', data: getToken });
-          const userObject = await fetchUser(getToken);
-          dispatch({ type: 'UPDATE_USER_INFO', data: userObject });
+          const userObject = await fetchUser(response.token);
+          dispatch({
+            type: 'LOGIN',
+            data: {
+              token: response.token,
+              userObject: userObject
+            }
+          });
           await fetchCartInfo();
           await login(userObject);
           router.push(redirectUrl);
