@@ -65,6 +65,7 @@ const courseRequestInterceptor = (config: any) => {
     const token = config.data?.accessToken ? config.data?.accessToken : Cookie.get(process.env.NEXT_PUBLIC_COOKIES_ACCESS_TOKEN);
 
     if (token) {
+        console.log(' courseRequestInterceptor :: token:', token)
         // Set Authorization header instead of Cookie
         config.headers = config.headers || {};
         config.headers['Authorization'] = `${token}`;
