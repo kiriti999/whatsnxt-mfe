@@ -137,7 +137,7 @@ export const NavbarDesktop = ({ links, cartItems, loginMenuLinks, drawerOpened, 
             <Space w="md" />
             <Cart cartItems={cartItems} />
             <Space w="xl" />
-            {isAuthenticated && <NavbarNotification user={user} />}
+            {isAuthenticated && <NavbarNotification user={userInfoData} />}
             <Space w="xl" />
 
 
