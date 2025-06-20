@@ -219,16 +219,16 @@ export function AuthenticationForm(props: PaperProps) {
           const token = response.token;
           const userObject = await fetchUser(token);
 
-          dispatch({ 
-            type: 'LOGIN', 
-            data: { 
-              token: token, 
-              userObject: userObject 
-            } 
+          dispatch({
+            type: 'LOGIN',
+            data: {
+              token: token,
+              userObject: userObject
+            }
           });
-          await fetchCartInfo();
-          await login(userObject);
+          // await login(userObject);
           router.push(redirectUrl);
+          await fetchCartInfo();
         }
 
       },
