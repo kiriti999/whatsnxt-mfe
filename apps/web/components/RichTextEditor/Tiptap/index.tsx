@@ -247,6 +247,7 @@ export default function Tiptap({ content, onChange, onWordCountChange }: {
 }) {
 
   const editor = useEditor({
+    immediatelyRender: false,
     extensions: [
       Highlight.configure({ multicolor: true }),
       StarterKit.configure({ codeBlock: false }), // Avoid duplication
