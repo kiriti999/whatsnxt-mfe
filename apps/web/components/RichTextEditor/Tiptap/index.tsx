@@ -54,7 +54,7 @@ import {
   IconWand,
 } from "@tabler/icons-react";
 import styles from "./Tiptap.module.css";
-import { Box, Button, Divider, Group, Paper, RingProgress, Select, Tooltip, Text, ColorInput, ActionIcon, Flex, Code } from '@mantine/core';
+import { Box, Button, Divider, Group, Paper, RingProgress, Select, Tooltip, Text, ColorInput, Flex } from '@mantine/core';
 import { toggleCustomHeading } from '../extensions/Heading/CustomHeading';
 import YoutubeUploader from '../extensions/Youtube/Youtube';
 import ImageControl from '../extensions/Image/ImageControl';

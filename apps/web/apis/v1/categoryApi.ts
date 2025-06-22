@@ -4,9 +4,7 @@ export const CategoryAPI = {
   getCategories: async function () {
     const response = await courseApiClient.get('/courses/categories');
 
-    // returning the data returned by the API
-    console.log('CategoryAPI:: getCategories:: response: ', response?.data);
-    return response?.data || [];
+    return response?.data?.categories || [];
   },
   getArticleCountByCategory: async function () {
     const response = await courseApiClient.get('/articleCountByCategory');
