@@ -7,8 +7,12 @@ import { Anchor, Box, Container, Divider, Flex, Group, LoadingOverlay, Text, Tit
 import { PaymentButton } from '../paymentButton';
 import { calculateCartTotal } from '../../../utils/calculateCartTotal';
 
+// Import RTK actions and selectors
+import { selectCartItems, resetCart } from '../../../store/slices/cartSlice'; // Adjust path as needed
+
 export const UserCheckoutComponent: FC = () => {
-  const cartItems = useSelector((state: any) => state.cart.cartItems);
+  // Use RTK selector
+  const cartItems = useSelector(selectCartItems) as any;
   const [cartAmount, setCartAmount] = useState(0);
   const dispatch = useDispatch();
   const [isVisible, { open, close }] = useDisclosure(false);
@@ -19,9 +23,8 @@ export const UserCheckoutComponent: FC = () => {
   }, [cartItems]);
 
   const onClearCart = () => {
-    dispatch({
-      type: 'RESET_CART',
-    });
+    // Use RTK action creator
+    dispatch(resetCart());
   };
 
   return (
@@ -50,7 +53,7 @@ export const UserCheckoutComponent: FC = () => {
                 <Anchor href="#" size="sm">
                   <Text size='md' m={0}>{cart.courseName}</Text>
                 </Anchor>
-                <Text m={0}>&#8377;{cart.total_cost}</Text>
+                <Text m={0}>&#8377;{cart.total_cost || cart.price}</Text>
               </Group>
             ))}
 

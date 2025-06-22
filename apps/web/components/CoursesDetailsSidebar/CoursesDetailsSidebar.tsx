@@ -1,4 +1,3 @@
-
 import React, { FC, useEffect, useMemo, useState } from 'react';
 import styles from './CoursesDetailsSidebar.module.css';
 import { notifications } from '@mantine/notifications';
@@ -7,6 +6,9 @@ import { Anchor, LoadingOverlay, Text } from '@mantine/core';
 import Link from 'next/link';
 import ReactPlayer from 'react-player';
 import ActionButtons from './ActionButtons';
+
+// Import RTK actions
+import { addToCart, selectCartItems } from '../../store/slices/cartSlice'; // Adjust path as needed
 
 import {
   IconCopy,
@@ -47,10 +49,11 @@ export const CoursesDetailsSidebar: FC<CoursesDetailsSidebarProps> = ({
   slug,
   isCourseReviewMode
 }) => {
-  const cartItems = useSelector((state: any) => state.cart.cartItems);
+  // Use RTK selector
+  const cartItems = useSelector(selectCartItems) as any;
   const dispatch = useDispatch();
   const [add, setAdd] = useState(false);
-  const [display, setDisplay] = useState(false); // State for ReactPlayer
+  const [display, setDisplay] = useState(false);
   const [isVisible, { open, close }] = useDisclosure(true);
 
   const { isEnrolled, isFetching } = useIsEnrolled(courseId);
@@ -58,27 +61,50 @@ export const CoursesDetailsSidebar: FC<CoursesDetailsSidebarProps> = ({
 
   const url = useMemo(() => `${process.env.NEXT_PUBLIC_MFE_HOST}/courses/${slug}`, [slug]);
 
-  const addToCart = () => {
-    const courseObj = { id: courseId, courseName, slug, price, total_cost: price, lessons, duration, image: courseImageUrl, quantity: 1 };
+  const handleAddToCart = () => {
+    const courseObj = {
+      id: courseId,
+      _id: courseId, // Add both for compatibility
+      courseName,
+      slug,
+      price: price || 0,
+      total_cost: price || 0,
+      lessons,
+      duration,
+      image: courseImageUrl,
+      quantity: 1
+    };
+
     if (!isCourseExist()) {
       dispatchAddToCart(courseObj);
     }
   }
 
-  const dispatchAddToCart = (courseObj: { courseName: string }) => {
-    dispatch({ type: 'ADD_TO_CART', data: courseObj });
+  const dispatchAddToCart = (courseObj: any) => {
+    // Use RTK action creator
+    dispatch(addToCart(courseObj));
     notifications.show({
-      position: 'bottom-right', title: 'Cart Updated', message: `${courseObj.courseName} added to cart.`, color: 'green'
+      position: 'bottom-right',
+      title: 'Cart Updated',
+      message: `${courseObj.courseName} added to cart.`,
+      color: 'green'
     });
   };
 
   const isCourseExist = () => {
-    return cartItems.find((cart: { id: string }) => courseId === cart.id.split('_')[1]);
+    return cartItems.find((cart: { id: string }) => {
+      // Handle both formats: direct id and prefixed id
+      const cartId = cart.id.includes('_') ? cart.id.split('_')[1] : cart.id;
+      return courseId === cartId;
+    });
   };
 
   useEffect(() => {
-    const courseExist = cartItems.find((cart: { id: string }) => courseId === cart.id.split('_')[1]);
-    courseExist && setAdd(true);
+    const courseExist = cartItems.find((cart: { id: string }) => {
+      const cartId = cart.id.includes('_') ? cart.id.split('_')[1] : cart.id;
+      return courseId === cartId;
+    });
+    setAdd(!!courseExist);
   }, [cartItems, courseId]);
 
   useEffect(() => {
@@ -88,7 +114,7 @@ export const CoursesDetailsSidebar: FC<CoursesDetailsSidebarProps> = ({
   return !isFetching && (
     <>
       <LoadingOverlay visible={isVisible} zIndex={1000} overlayProps={{ radius: "sm", blur: 2 }} />
-      {/* Conditionally render ReactPlayer when the state is true */}
+
       {display && (
         <ReactPlayer
           url="https://www.youtube.com/embed/bk7McNUjWgw"
@@ -98,9 +124,7 @@ export const CoursesDetailsSidebar: FC<CoursesDetailsSidebarProps> = ({
         />
       )}
 
-      {/* {courseData?.courseType === 'paid' && */}
       <div className={`${styles['courses-details-info']}`}>
-        {/* Instructor and course details */}
         <ul className={`${styles['info']}`}>
           <li>
             <div className="d-flex justify-content-between align-items-center">
@@ -111,7 +135,6 @@ export const CoursesDetailsSidebar: FC<CoursesDetailsSidebarProps> = ({
             </div>
           </li>
 
-          {/* Render course details conditionally */}
           {price > 0 && (
             <li>
               {courseData?.paidType === 'live' && (
@@ -150,18 +173,16 @@ export const CoursesDetailsSidebar: FC<CoursesDetailsSidebarProps> = ({
                   <span>&#8377;{price}</span>
                 )}
               </div>
-
             ) : <p>Already purchased this course</p>}
           </li>
         </ul>
 
-        {/* Action buttons */}
         {!isCourseReviewMode && (
           <>
             <ActionButtons
               add={add}
               isEnrolled={isEnrolled}
-              addToCartClick={addToCart}
+              addToCartClick={handleAddToCart}
               userId={userId}
               courseId={courseData._id}
               courseType={courseData.courseType}
@@ -201,7 +222,6 @@ export const CoursesDetailsSidebar: FC<CoursesDetailsSidebarProps> = ({
           </>
         )}
       </div>
-      {/* } */}
     </>
   );
 };

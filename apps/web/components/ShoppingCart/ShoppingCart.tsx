@@ -26,24 +26,31 @@ import Link from 'next/link';
 import { CartAPI } from '../../apis/v1/cart/cart';
 import { useMediaQuery } from '@mantine/hooks';
 
+// Import RTK actions and selectors
+import {
+  selectCartItems,
+  removeFromCart,
+  updateCart
+} from '../../store/slices/cartSlice'; // Adjust path as needed
+
 export const ShoppingCart: FC = () => {
   const [cartAmount, setCartAmount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
-  const cartItems = useSelector((state: any) => state.cart.cartItems) as any[];
+
+  // Use RTK selector
+  const cartItems = useSelector(selectCartItems) as any;
   const dispatch = useDispatch();
   const theme = useMantineTheme();
   const isMobile = useMediaQuery(`(max-width: ${theme.breakpoints.sm})`);
 
   useEffect(() => {
-    const { cartTotal } = calculateCartTotal(cartItems) as any;
+    const { cartTotal } = calculateCartTotal(cartItems);
     setCartAmount(cartTotal);
   }, [cartItems]);
 
-  const handleRemove = (cartId) => {
-    dispatch({
-      type: "REMOVE_CART",
-      id: cartId,
-    });
+  const handleRemove = (cartId: string) => {
+    // Use RTK action creator
+    dispatch(removeFromCart(cartId));
   };
 
   // Standard table view for cart items (desktop)
@@ -89,13 +96,13 @@ export const ShoppingCart: FC = () => {
             {/* Row 2: Name */}
             <Flex mb="0">
               <Text fw={500} size="sm" w="40%" c="dimmed">Name:</Text>
-              <Text>{cart.name || 'Product'}</Text>
+              <Text>{cart.courseName || cart.name || 'Product'}</Text>
             </Flex>
 
             {/* Row 3: Price */}
             <Flex mb="0">
               <Text fw={500} size="sm" w="40%" c="dimmed">Price:</Text>
-              <Text fw={500} size="sm">₹{kConverter(cart.total_cost || 0)}</Text>
+              <Text fw={500} size="sm">₹{kConverter(cart.total_cost || cart.price || 0)}</Text>
             </Flex>
 
             {/* Row 4: Type */}
@@ -128,15 +135,22 @@ export const ShoppingCart: FC = () => {
 
   const [cartData, setCartData] = useState([]);
 
-  const compareItems = (apiData) => {
+  const compareItems = (apiData: any[]) => {
     try {
       const localCartData = JSON.parse(localStorage.getItem('cart') || '{"cartItems":[]}');
       const localCartItems = localCartData?.cartItems || [];
+
       if (localCartData) {
         const apiDataIds = apiData.map(item => item.id);
         const newLocalItems = localCartItems.filter(item => apiDataIds.includes(item.id));
-        localCartData.cartItems = newLocalItems;
-        dispatch({ type: 'UPDATE_CART', data: localCartData });
+
+        const updatedCartData = {
+          cartItems: newLocalItems,
+          discount: localCartData.discount || 0
+        };
+
+        // Use RTK action creator
+        dispatch(updateCart(updatedCartData));
       }
     } catch (error) {
       console.log("Error comparing items:", error.message);
@@ -154,6 +168,9 @@ export const ShoppingCart: FC = () => {
             const localCartData = JSON.parse(localStorage.getItem('cart') || '{"cartItems":[]}');
             localCartData.cartItems = [];
             localStorage.setItem('cart', JSON.stringify(localCartData));
+
+            // Update Redux state
+            dispatch(updateCart({ cartItems: [], discount: 0 }));
           } catch (error) {
             console.log("Error updating local cart:", error.message);
           }
@@ -167,7 +184,7 @@ export const ShoppingCart: FC = () => {
   }
 
   useEffect(() => {
-    if (cartItems) {
+    if (cartItems !== undefined) {
       getCartData();
     }
   }, []);

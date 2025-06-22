@@ -9,6 +9,9 @@ import { NavbarMobile } from './Mobile';
 import useAuth from '../../hooks/Authentication/useAuth';
 import { IconUserHeart } from '@tabler/icons-react';
 
+// Import RTK selector
+import { selectCartItems } from '../../store/slices/cartSlice'; // Adjust path as needed
+
 type LinkType = {
     url: string;
     title: string;
@@ -24,7 +27,9 @@ type headerProps = {
 
 const Navbar = ({ loginMenuLinks, links }: headerProps) => {
     const { user: authUser } = useAuth();
-    const cartItems = useSelector((state: any) => state.cart.cartItems);
+
+    // Use RTK selector
+    const cartItems = useSelector(selectCartItems);
     const [drawerOpened, { toggle: toggleDrawer, close: closeDrawer }] = useDisclosure(false);
 
     // Create a new array with admin link if user is admin, without mutating the original
