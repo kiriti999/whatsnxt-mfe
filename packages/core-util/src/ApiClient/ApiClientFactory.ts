@@ -2,7 +2,7 @@
 import xior from 'xior';
 import { store } from '../../../../apps/web/store/store';
 
-export type ApiClientType = 'common' | 'course' | 'blog';
+export type ApiClientType = 'common' | 'course' | 'article';
 
 interface ApiClientConfig {
     baseURL: string;
@@ -146,10 +146,10 @@ const getApiConfig = (type: ApiClientType): ApiClientConfig => {
                 errorHandler: apiErrorHandler,
             };
 
-        case 'blog':
+        case 'article':
             return {
                 ...baseConfig,
-                baseURL: process.env.NEXT_PUBLIC_BLOG_HOST_API!, // Keep your original env var
+                baseURL: process.env.NEXT_PUBLIC_ARTICLE_HOST_API!, // Keep your original env var
                 requestInterceptor: xiorRequestInterceptor,
                 errorHandler: apiErrorHandler,
             };
@@ -242,7 +242,7 @@ const createApiClient = (type: ApiClientType) => {
 // Create specific client instances
 export const commonXiorInstance = createApiClient('common');
 export const courseXiorInstance = createApiClient('course');
-export const blogXiorInstance = createApiClient('blog');
+export const articleXiorInstance = createApiClient('article');
 
 // Generic API client wrapper
 const createApiMethods = (xiorInstance: any) => ({
@@ -298,7 +298,7 @@ export const courseApiClient = {
     xiorInstance: courseXiorInstance
 };
 
-export const blogApiClient = {
-    ...createApiMethods(blogXiorInstance),
-    xiorInstance: blogXiorInstance
+export const articleApiClient = {
+    ...createApiMethods(articleXiorInstance),
+    xiorInstance: articleXiorInstance
 };

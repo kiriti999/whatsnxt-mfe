@@ -1,15 +1,15 @@
-import { blogApiClient } from '@whatsnxt/core-util';
+import { articleApiClient } from '@whatsnxt/core-util';
 import type { ContentType } from '../../../components/Blog/Content/ContentComponent'
 
 export const ContentAPI = {
 
   getPosts: async function (start: number, limit: number, type: ContentType) {
-    const { data } = await blogApiClient.get(`/post/getPosts?start=${start}&limit=${limit}&type=${type}`,)
+    const { data } = await articleApiClient.get(`/post/getPosts?start=${start}&limit=${limit}&type=${type}`,)
     return data ? data.posts : [];
   },
 
   getTutorials: async function (start: number, limit: number, type: ContentType) {
-    const { data } = await blogApiClient.get(`/tutorial?start=${start}&limit=${limit}&type=${type}`,)
+    const { data } = await articleApiClient.get(`/tutorial?start=${start}&limit=${limit}&type=${type}`,)
     return data?.data ? data.data.tutorials : [];
   },
 
@@ -20,7 +20,7 @@ export const ContentAPI = {
       ...(search && { search })
     });
 
-    const { data } = await blogApiClient.get(`/post/my-drafts?${queryParams}`);
+    const { data } = await articleApiClient.get(`/post/my-drafts?${queryParams}`);
     return data ? data.data.posts : { posts: [], totalRecords: 0 };
   },
 
@@ -32,7 +32,7 @@ export const ContentAPI = {
       ...(search && { search })
     });
 
-    const { data } = await blogApiClient.get(`/post/my-published?${queryParams}`);
+    const { data } = await articleApiClient.get(`/post/my-published?${queryParams}`);
     return data ? data.data.posts : { posts: [], totalRecords: 0 };
   },
 
@@ -44,17 +44,17 @@ export const ContentAPI = {
       ...(search && { search })
     });
 
-    const { data } = await blogApiClient.get(`/post/my-all?${queryParams}`);
+    const { data } = await articleApiClient.get(`/post/my-all?${queryParams}`);
     return data ? data.data.posts : { posts: [], totalRecords: 0 };
   },
 
   getPostsById: async function (id: string) {
-    const { data } = await blogApiClient.get(`/post/getPostById/${id}`);
+    const { data } = await articleApiClient.get(`/post/getPostById/${id}`);
     return data ? data : {};
   },
 
   getPostsByCategory: async function (categoryName: string) {
-    const { data } = await blogApiClient.get(`/post/getPostsByCategory`, { categoryName })
+    const { data } = await articleApiClient.get(`/post/getPostsByCategory?categoryName=${encodeURIComponent(categoryName)}`)
     return data ? data : [];
   },
 
@@ -67,13 +67,13 @@ export const ContentAPI = {
       ...(payload.parentId && { parentId: payload.parentId })
     });
 
-    const { data } = await blogApiClient.get(`/comment/getComments?${queryParams}`);
+    const { data } = await articleApiClient.get(`/comment/getComments?${queryParams}`);
     return data ? data : [];
   },
 
   postComment: async function (payload: any) {
     console.log('postComment:: payload:', payload)
-    const { data } = await blogApiClient.post(`/comment/createComment`, {
+    const { data } = await articleApiClient.post(`/comment/createComment`, {
       contentId: payload.contentId,
       content: payload.content,
       email: payload.email,
@@ -84,7 +84,7 @@ export const ContentAPI = {
 
   editComment: async function (payload: any) {
     console.log(' payload:', payload)
-    const { data } = await blogApiClient.put(`/comment/editComment`, {
+    const { data } = await articleApiClient.put(`/comment/editComment`, {
       contentId: payload.contentId,
       content: payload.comment,
       id: payload.commentId,
@@ -100,7 +100,7 @@ export const ContentAPI = {
       email: payload.email
     });
 
-    const { data } = await blogApiClient.delete(`/comment/deleteComment?${queryParams}`);
+    const { data } = await articleApiClient.delete(`/comment/deleteComment?${queryParams}`);
     return data ? data : {};
   },
 
@@ -108,7 +108,7 @@ export const ContentAPI = {
     commentId: string,
     email: string
   }) {
-    const { data } = await blogApiClient.post(`/comment/toggleLike`, {
+    const { data } = await articleApiClient.post(`/comment/toggleLike`, {
       id: payload.commentId,
       email: payload.email
     });
@@ -119,7 +119,7 @@ export const ContentAPI = {
     commentId: string,
     email: string
   }) {
-    const { data } = await blogApiClient.post(`/comment/toggleDislike`, {
+    const { data } = await articleApiClient.post(`/comment/toggleDislike`, {
       id: payload.commentId,
       email: payload.email
     });
@@ -127,7 +127,7 @@ export const ContentAPI = {
   },
 
   flagComment: async function (payload: any) {
-    const { data } = await blogApiClient.post(`/comment/flagComment`, {
+    const { data } = await articleApiClient.post(`/comment/flagComment`, {
       id: payload.id,
       email: payload.email
     });

@@ -107,7 +107,7 @@ export const uploadMultipleToCloudinary = async (
 ): Promise<UploadResponse[]> => {
   try {
     const apiClient = apiType === 'blog' ?
-      require('@whatsnxt/core-util').blogApiClient :
+      require('@whatsnxt/core-util').articleApiClient :
       require('@whatsnxt/core-util').courseApiClient;
 
     const endpoint = apiType === 'blog' ? '/cloudinary/upload-image' : '/cloudinary/upload';

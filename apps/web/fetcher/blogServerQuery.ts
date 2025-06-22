@@ -1,7 +1,7 @@
 
 import { serverFetcher } from './serverFetcher';
 
-const BASEURL = process.env.BFF_BLOG_HOST_API as string;
+const BASEURL = process.env.BFF_ARTICLE_HOST_API as string;
 
 export const fetchTrendingArticles = async (start: number, limit: number, type: string) => {
   try {

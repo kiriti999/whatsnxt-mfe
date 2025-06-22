@@ -1,5 +1,5 @@
 import xior from 'xior';
-import { blogApiClient, courseApiClient } from '@whatsnxt/core-util';
+import { articleApiClient, courseApiClient } from '@whatsnxt/core-util';
 
 // Types for better type safety
 export type ResourceType = 'image' | 'video' | 'raw' | 'auto';
@@ -218,12 +218,12 @@ const createDeleteFunction = (apiClient: any, endpoint: string = '/cloudinary/de
 export const CloudinaryAPI = {
     // #region BLOG API
     blog: {
-        upload: createUploadFunction(blogApiClient, '/cloudinary/upload-image', 'whatsnxt-blog'),
+        upload: createUploadFunction(articleApiClient, '/cloudinary/upload-image', 'whatsnxt-blog'),
 
         // Direct upload to Cloudinary with preset
-        uploadDirect: createUploadFunction(blogApiClient, '/cloudinary/upload-image', 'whatsnxt-blog'),
+        uploadDirect: createUploadFunction(articleApiClient, '/cloudinary/upload-image', 'whatsnxt-blog'),
 
-        delete: createDeleteFunction(blogApiClient, '/cloudinary/deleteAsset'),
+        delete: createDeleteFunction(articleApiClient, '/cloudinary/deleteAsset'),
 
         // Legacy method for backward compatibility
         uploadFormImage: async function (

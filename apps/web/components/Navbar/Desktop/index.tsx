@@ -173,7 +173,7 @@ export const NavbarDesktop = ({ links, cartItems, loginMenuLinks, drawerOpened, 
                     }
 
                     // Handle Blog with Menu.Sub for proper submenu
-                    if (link.title === 'Blog' && link.children) {
+                    if (link.title === 'Article' && link.children) {
                       return (
                         <Menu.Sub key={index}>
                           <Menu.Sub.Target>

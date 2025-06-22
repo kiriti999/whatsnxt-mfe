@@ -1,5 +1,5 @@
 import React from 'react';
-import SidebarPopularTags from '../sidebar-category/sidebar-category';
+import SidebarArticleTags from '../sidebar-tags/sidebar-article-tags';
 import SidebarPost from '../sidebar-post';
 
 function Sidebar() {
@@ -9,7 +9,7 @@ function Sidebar() {
 
       <SidebarPost></SidebarPost>
 
-      <SidebarPopularTags></SidebarPopularTags>
+      <SidebarArticleTags></SidebarArticleTags>
     </div>
   );
 }

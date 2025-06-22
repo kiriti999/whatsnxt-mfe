@@ -68,7 +68,7 @@ export const getCourseBySlugServer = async (slug: string): Promise<any> => {
 
 export const getPostBySlugServer = async (slug: string): Promise<any> => {
     try {
-        const BASEURL = process.env.BFF_BLOG_HOST_API as string;
+        const BASEURL = process.env.BFF_ARTICLE_HOST_API as string;
         return await serverFetcher(BASEURL, `/post/slug/${slug}`, {
             cache: 'force-cache', // Cache published posts
         });

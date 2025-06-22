@@ -1,4 +1,4 @@
-import { blogApiClient, courseApiClient } from '@whatsnxt/core-util';
+import { articleApiClient, courseApiClient } from '@whatsnxt/core-util';
 
 export const LinkedInAPI = {
     /**
@@ -7,7 +7,7 @@ export const LinkedInAPI = {
      */
     checkToken: async function () {
         try {
-            const { data } = await blogApiClient.get('/blog/linkedin/token-check');
+            const { data } = await articleApiClient.get('/blog/linkedin/token-check');
             return data.tokenAvailable || false;
         } catch (error) {
             console.error('Error checking LinkedIn token:', error);

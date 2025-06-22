@@ -1,13 +1,13 @@
-import { blogApiClient } from '@whatsnxt/core-util';
+import { articleApiClient } from '@whatsnxt/core-util';
 
 export const CategoryAPI = {
   getCategories: async function () {
-    const { data } = await blogApiClient.get('/category/getCategories');
+    const { data } = await articleApiClient.get('/category/getCategories');
     return data ? data : [];
   },
 
   getArticleCountByCategory: async function () {
-    const { data } = await blogApiClient.get('/category/getArticleCountByCategory');
+    const { data } = await articleApiClient.get('/category/getArticleCountByCategory');
     return data ? data : [];
   },
 
@@ -18,7 +18,7 @@ export const CategoryAPI = {
     categoryId: string;
     categoryName: string;
   }) {
-    const { data } = await blogApiClient.put('/blog/category/editCategory', {
+    const { data } = await articleApiClient.put('/blog/category/editCategory', {
       categoryId,
       categoryName,
     });

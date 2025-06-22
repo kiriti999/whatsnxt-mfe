@@ -1,4 +1,4 @@
-import { blogApiClient } from '@whatsnxt/core-util';
+import { articleApiClient } from '@whatsnxt/core-util';
 import { getAlgoliaIndex } from '../../v1/blog/algolia/getAlgoliaIndex';
 import { historyFilterType } from '../../../types/history';
 
@@ -11,7 +11,7 @@ export const HistoryAPI = {
     search: string,
     filter?: historyFilterType,
   ) {
-    const { data } = await blogApiClient.get('/history/getHistory', {
+    const { data } = await articleApiClient.get('/history/getHistory', {
       start,
       limit,
       type: 'both',
@@ -22,7 +22,7 @@ export const HistoryAPI = {
   },
 
   createTutorialFromBlogs: async function (list: string[], title: string) {
-    const { data } = await blogApiClient.post('/history/createTutorialFromBlogs', {
+    const { data } = await articleApiClient.post('/history/createTutorialFromBlogs', {
       blogIds: list,
       title
     }) as { data: any };
@@ -31,7 +31,7 @@ export const HistoryAPI = {
   },
 
   downloadEBook: async function (id: string) {
-    const { data } = await blogApiClient.get('/history/downloadEBook', {
+    const { data } = await articleApiClient.get('/history/downloadEBook', {
       id
     }) as { data: any };
 
@@ -39,7 +39,7 @@ export const HistoryAPI = {
   },
 
   downloadPDF: async function (id: string) {
-    const { data } = await blogApiClient.get('/history/downloadPDF', {
+    const { data } = await articleApiClient.get('/history/downloadPDF', {
       id
     }) as { data: any };
 
@@ -47,7 +47,7 @@ export const HistoryAPI = {
   },
 
   downloadPPT: async function (id: string) {
-    const { data } = await blogApiClient.get('/history/downloadPPT', {
+    const { data } = await articleApiClient.get('/history/downloadPPT', {
       id
     }) as { data: any };
 
@@ -55,7 +55,7 @@ export const HistoryAPI = {
   },
 
   deleteBlog: async function (id: string) {
-    const { data } = await blogApiClient.delete(`/history/deleteBlog/${id}`, {
+    const { data } = await articleApiClient.delete(`/history/deleteBlog/${id}`, {
       postId: id
     }) as { data: any };
 
@@ -64,7 +64,7 @@ export const HistoryAPI = {
   },
 
   deleteTutorial: async function (id: string) {
-    const { data } = await blogApiClient.delete(`/history/deleteTutorial/${id}`, {
+    const { data } = await articleApiClient.delete(`/history/deleteTutorial/${id}`, {
       tutorialId: id
     }) as { data: any };
 
@@ -73,7 +73,7 @@ export const HistoryAPI = {
   },
 
   publishDraft: async function (id: string, shouldPublish: boolean) {
-    const { data } = await blogApiClient.put('/history/publishDraft', {
+    const { data } = await articleApiClient.put('/history/publishDraft', {
       postId: id,
       shouldPublish
     }) as { data: any };

@@ -1,8 +1,8 @@
-import { blogApiClient } from '@whatsnxt/core-util';
+import { articleApiClient } from '@whatsnxt/core-util';
 
 export const FormAPI = {
   createBlog: async function (payload: any) {
-    const { data } = await blogApiClient.post('/post/createBlog', {
+    const { data } = await articleApiClient.post('/post/createBlog', {
       title: payload.title,
       description: payload.description,
       contentFormat: payload.contentFormat || 'HTML',
@@ -18,7 +18,7 @@ export const FormAPI = {
   },
 
   updateBlog: async function (id: string, payload: any) {
-    const { data } = await blogApiClient.put(`/history/editBlog/${id}`, {
+    const { data } = await articleApiClient.put(`/history/editBlog/${id}`, {
       id,
       title: payload.title,
       description: payload.description,
@@ -35,7 +35,7 @@ export const FormAPI = {
   },
 
   createTutorial: async function (payload: any) {
-    const { data } = await blogApiClient.post('/tutorial/createTutorial', {
+    const { data } = await articleApiClient.post('/tutorial/createTutorial', {
       title: payload.title,
       description: payload.description || '',
       categoryName: payload.categoryName,
@@ -51,7 +51,7 @@ export const FormAPI = {
   },
 
   updateTutorial: async function (id: string, payload: any) {
-    const { data } = await blogApiClient.put(`/history/editTutorial/${id}`, {
+    const { data } = await articleApiClient.put(`/history/editTutorial/${id}`, {
       id,
       title: payload.title,
       description: payload.description || '',

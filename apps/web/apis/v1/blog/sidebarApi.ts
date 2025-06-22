@@ -1,8 +1,8 @@
-import { blogApiClient } from '@whatsnxt/core-util';
+import { articleApiClient } from '@whatsnxt/core-util';
 
 export const SidebarAPI = {
   getPopular: async function () {
-    const { data } = await blogApiClient.get('/post/getPopularPosts') as any;
+    const { data } = await articleApiClient.get('/post/getPopularPosts') as any;
     return data ? data : [];
   },
 };

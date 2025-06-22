@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { Skeleton } from '@mantine/core';
+import { Skeleton, Title } from '@mantine/core';
 import PopularPost from '@whatsnxt/core-ui/src/PopularPost';
 import { type CourseType, type Category } from '@whatsnxt/core-util';
 import styles from './Widget.module.css';
@@ -36,7 +36,7 @@ const CoursesSidebar = ({ courses, categories }: { courses: CourseType[]; catego
       </div>
 
       <div className={`${styles['widget']} ${styles['widget_tag_cloud']}`}>
-        <h3 className={styles['widget-title']}>Popular Tags</h3>
+        <Title order={5}>Popular Tags</Title>
         <div className={styles['tagcloud']}>
           {categories?.length > 0 ? (
             categories.map((item, i) => (

@@ -24,7 +24,7 @@ const initialState = {
 };
 
 export const getPosts: any = createAsyncThunk(
-  'blog/posts',
+  'article/posts',
   async ({ start = 1, limit = 10, type = 'both' }: any) => {
     return await ContentAPI.getPosts(start, limit, type);
   },
@@ -113,14 +113,9 @@ const contentSlice = createSlice({
           state: { tutorials: any; articles: any; totalCount: any; loading: boolean; error: string },
           action: { payload: any },
         ) => {
-          console.log('getTutorials fulfilled - action.payload:', action.payload);
-
           // The payload is already an array of tutorials
           const tutorialsData = Array.isArray(action.payload) ? action.payload : [];
           const totalRecords = tutorialsData.length; // Use array length as totalRecords
-
-          console.log('Setting tutorials data:', tutorialsData);
-          console.log('Setting totalRecords:', totalRecords);
 
           state.tutorials = tutorialsData;
           state.articles = tutorialsData; // Also update articles for unified access

@@ -56,7 +56,7 @@ export const CoursesDetailsSidebar: FC<CoursesDetailsSidebarProps> = ({
   const { isEnrolled, isFetching } = useIsEnrolled(courseId);
   const isFreeCourse = courseData?.courseType === 'free';
 
-  const url = useMemo(() => `${process.env.MFE_HOST}/courses/${slug}`, [slug]);
+  const url = useMemo(() => `${process.env.NEXT_PUBLIC_MFE_HOST}/courses/${slug}`, [slug]);
 
   const addToCart = () => {
     const courseObj = { id: courseId, courseName, slug, price, total_cost: price, lessons, duration, image: courseImageUrl, quantity: 1 };

@@ -55,7 +55,7 @@ export default function AppProvider({ children, user }: { children: ReactNode, u
         ]
       },
       {
-        title: 'Blog',
+        title: 'Article',
         url: '',
         children: [
           { title: 'History', url: `${domain}/history/table`, icon: IconAddressBook },

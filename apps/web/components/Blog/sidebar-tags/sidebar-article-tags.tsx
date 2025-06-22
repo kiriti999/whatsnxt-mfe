@@ -6,16 +6,16 @@ import { getPostsByCategory, setSelectTag } from '../../../store/slices/contentS
 import React from 'react';
 import { PopularTag } from '@whatsnxt/core-ui';
 
-const SidebarPopularTags = React.memo(() => {
+const SidebarArticleTags = React.memo(() => {
 
-  const blogCategoryStore = useSelector((store: RootState) => {
+  const articleCategoryStore = useSelector((store: RootState) => {
     return store.blogCategory
   })
   const storeSidebar = useSelector((store: RootState) => {
     return store.sidebar
   })
   // Memoize the result of useSelector
-  const categoryStore = useMemo(() => blogCategoryStore, [blogCategoryStore]);
+  const categoryStore = useMemo(() => articleCategoryStore, [articleCategoryStore]);
 
   const sidebarStore = useMemo(() => storeSidebar, [storeSidebar]);
 
@@ -40,5 +40,5 @@ const SidebarPopularTags = React.memo(() => {
   );
 });
 
-SidebarPopularTags.displayName = 'SidebarPopularTags';
-export default SidebarPopularTags;
+SidebarArticleTags.displayName = 'SidebarArticleTags';
+export default SidebarArticleTags;
