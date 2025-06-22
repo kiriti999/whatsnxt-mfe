@@ -78,8 +78,9 @@ const EditorBubbleMenu: React.FC<EditorBubbleMenuProps> = ({ editor }) => {
             <BubbleMenu
                 editor={editor}
                 tippyOptions={{
+                    appendTo: () => document.body,
                     duration: 100,
-                    placement: 'top'
+                    placement: 'top',
                 }}
             >
                 <Group
@@ -90,38 +91,56 @@ const EditorBubbleMenu: React.FC<EditorBubbleMenuProps> = ({ editor }) => {
                         backgroundColor: '#1e1e1e',
                         borderRadius: '4px',
                         boxShadow: '0 3px 10px rgba(0, 0, 0, 0.25)',
-                        border: '1px solid #333'
+                        border: '1px solid #333',
+                        position: 'relative',
+                        // Add a small arrow pointing to the selected text
+                        '&::after': {
+                            content: '""',
+                            position: 'absolute',
+                            top: '100%',
+                            left: '50%',
+                            transform: 'translateX(-50%)',
+                            width: 0,
+                            height: 0,
+                            borderLeft: '6px solid transparent',
+                            borderRight: '6px solid transparent',
+                            borderTop: '6px solid #1e1e1e'
+                        }
                     }}
                 >
-                    <Tooltip label="Copy Code">
+                    <Tooltip label="Copy Code" withinPortal>
                         <ActionIcon
                             {...actionIconProps}
                             onClick={handleCopyCode}
                             color="blue"
                             variant="light"
                             style={{ color: '#d4d4d4' }}
+                            aria-label="Copy code to clipboard"
                         >
                             <IconCopy size={16} />
                         </ActionIcon>
                     </Tooltip>
 
-                    <Tooltip label="Exit Code Block">
+                    <Tooltip label="Exit Code Block" withinPortal>
                         <ActionIcon
                             {...actionIconProps}
                             onClick={handleExitCodeBlock}
                             color="red"
                             variant="light"
                             style={{ color: '#ff6b6b' }}
+                            aria-label="Exit code block"
                         >
                             <IconX size={16} />
                         </ActionIcon>
                     </Tooltip>
 
-                    <Tooltip label="Code Block">
+                    <Tooltip label="Code Block" withinPortal>
                         <ActionIcon
                             {...actionIconProps}
                             color="blue"
                             variant="filled"
+                            aria-label="Code block active"
+                            aria-pressed="true"
                         >
                             <IconCodeDots size={16} />
                         </ActionIcon>
@@ -136,6 +155,7 @@ const EditorBubbleMenu: React.FC<EditorBubbleMenuProps> = ({ editor }) => {
         <BubbleMenu
             editor={editor}
             tippyOptions={{
+                appendTo: () => document.body,
                 duration: 100,
                 placement: 'top'
             }}
@@ -148,54 +168,75 @@ const EditorBubbleMenu: React.FC<EditorBubbleMenuProps> = ({ editor }) => {
                     backgroundColor: 'white',
                     borderRadius: '4px',
                     boxShadow: '0 3px 10px rgba(0, 0, 0, 0.15)',
-                    border: '1px solid #e0e0e0'
+                    border: '1px solid #e0e0e0',
+                    position: 'relative',
+                    '&::after': {
+                        content: '""',
+                        position: 'absolute',
+                        top: '100%',
+                        left: '50%',
+                        transform: 'translateX(-50%)',
+                        width: 0,
+                        height: 0,
+                        borderLeft: '6px solid transparent',
+                        borderRight: '6px solid transparent',
+                        borderTop: '6px solid white'
+                    }
                 }}
             >
-                <Tooltip label="Bold">
+                <Tooltip label="Bold" withinPortal>
                     <ActionIcon
                         {...actionIconProps}
                         onClick={() => editor.chain().focus().toggleBold().run()}
                         color={editor.isActive('bold') ? 'blue' : 'gray'}
                         variant={editor.isActive('bold') ? 'filled' : 'light'}
+                        aria-label="Toggle bold"
+                        aria-pressed={editor.isActive('bold')}
                     >
                         <IconBold size={16} />
                     </ActionIcon>
                 </Tooltip>
 
-                <Tooltip label="Italic">
+                <Tooltip label="Italic" withinPortal>
                     <ActionIcon
                         {...actionIconProps}
                         onClick={() => editor.chain().focus().toggleItalic().run()}
                         color={editor.isActive('italic') ? 'blue' : 'gray'}
                         variant={editor.isActive('italic') ? 'filled' : 'light'}
+                        aria-label="Toggle italic"
+                        aria-pressed={editor.isActive('italic')}
                     >
                         <IconItalic size={16} />
                     </ActionIcon>
                 </Tooltip>
 
-                <Tooltip label="Underline">
+                <Tooltip label="Underline" withinPortal>
                     <ActionIcon
                         {...actionIconProps}
                         onClick={() => editor.chain().focus().toggleUnderline().run()}
                         color={editor.isActive('underline') ? 'blue' : 'gray'}
                         variant={editor.isActive('underline') ? 'filled' : 'light'}
+                        aria-label="Toggle underline"
+                        aria-pressed={editor.isActive('underline')}
                     >
                         <IconUnderline size={16} />
                     </ActionIcon>
                 </Tooltip>
 
-                <Tooltip label="Strikethrough">
+                <Tooltip label="Strikethrough" withinPortal>
                     <ActionIcon
                         {...actionIconProps}
                         onClick={() => editor.chain().focus().toggleStrike().run()}
                         color={editor.isActive('strike') ? 'blue' : 'gray'}
                         variant={editor.isActive('strike') ? 'filled' : 'light'}
+                        aria-label="Toggle strikethrough"
+                        aria-pressed={editor.isActive('strike')}
                     >
                         <IconStrikethrough size={16} />
                     </ActionIcon>
                 </Tooltip>
 
-                <Tooltip label="Inline Code">
+                <Tooltip label="Inline Code" withinPortal>
                     <ActionIcon
                         {...actionIconProps}
                         onClick={() => {
@@ -203,29 +244,35 @@ const EditorBubbleMenu: React.FC<EditorBubbleMenuProps> = ({ editor }) => {
                         }}
                         color={editor.isActive('code') ? 'blue' : 'gray'}
                         variant={editor.isActive('code') ? 'filled' : 'light'}
+                        aria-label="Toggle inline code"
+                        aria-pressed={editor.isActive('code')}
                     >
                         <IconCode size={16} />
                     </ActionIcon>
                 </Tooltip>
 
 
-                <Tooltip label={editor.isActive('link') ? "Remove link" : "Add link"}>
+                <Tooltip label={editor.isActive('link') ? "Remove link" : "Add link"} withinPortal>
                     <ActionIcon
                         {...actionIconProps}
                         onClick={handleLinkClick}
                         color={editor.isActive('link') ? 'blue' : 'gray'}
                         variant={editor.isActive('link') ? 'filled' : 'light'}
+                        aria-label={editor.isActive('link') ? "Remove link" : "Add link"}
+                        aria-pressed={editor.isActive('link')}
                     >
                         <IconLink size={16} />
                     </ActionIcon>
                 </Tooltip>
 
-                <Tooltip label="Highlight">
+                <Tooltip label="Highlight" withinPortal>
                     <ActionIcon
                         {...actionIconProps}
                         onClick={() => editor.chain().focus().toggleHighlight().run()}
                         color={editor.isActive('highlight') ? 'blue' : 'gray'}
                         variant={editor.isActive('highlight') ? 'filled' : 'light'}
+                        aria-label="Toggle highlight"
+                        aria-pressed={editor.isActive('highlight')}
                     >
                         <IconHighlight size={16} />
                     </ActionIcon>

@@ -63,7 +63,7 @@ export const NavbarDesktop = ({ links, cartItems, loginMenuLinks, drawerOpened, 
       await CacheAPI.invalidate();
       notifications.show({
         position: 'bottom-right',
-        color: 'red',
+        color: 'green',
         title: 'Cache invalidation success!',
         message: 'Complete cache has been cleared',
       });

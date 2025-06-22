@@ -31,7 +31,7 @@ const SidebarPost = memo(() => {
             imageUrl={item.imageUrl}
             updatedAt={item.updatedAt ?? new Date().toDateString()}
             categoryName={item.categoryName}
-            slug={item.slug}
+            slug={`/content/${item.slug}`}
           />
         )
       ))}

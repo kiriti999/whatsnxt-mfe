@@ -11,7 +11,7 @@ import { CourseAPI } from "../../apis/v1/courses/course/course"
 const LIMIT = 1;
 
 const CourseReviewRequests = () => {
-    const { token } = useAuth();
+    const { user } = useAuth();
     const [loading, setLoading] = useState(false);
     const router = useRouter(); // Use router from next/navigation
     const pathname = usePathname(); // Use pathname from next/navigation
@@ -32,10 +32,10 @@ const CourseReviewRequests = () => {
 
     // Ensure authentication
     useEffect(() => {
-        if (!token) {
+        if (!user.isAuthenticated) {
             router.replace('/authentication'); // Use replace instead of push for redirection in the App Router
         }
-    }, [token, router]);
+    }, [user.isAuthenticated, router]);
 
     const getRequests = async () => {
         setLoading(true);

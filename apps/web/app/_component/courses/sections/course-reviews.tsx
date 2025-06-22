@@ -22,7 +22,7 @@ const CourseReviews = ({
 }) => {
     const [reviewsPage, setReviewsPage] = useState(1);
     const [hasMoreReviews, setHasMoreReviews] = useState(true);
-    const { token, user } = useAuth();
+    const { user } = useAuth();
 
     useEffect(() => {
         setReviewsPage(2);
@@ -31,11 +31,9 @@ const CourseReviews = ({
             setHasMoreReviews(false);
         }
 
-        if (!token) return;
+        if (!user.isAuthenticated) return;
 
-        const parts = token.split('.');
-        const tokenPayload = JSON.parse(atob(parts[1]));
-        const { userId } = tokenPayload;
+        const { _id: userId } = user;
 
         for (let i = 0; i < courseReviews.length; i++) {
             const review = courseReviews[i];
@@ -47,7 +45,7 @@ const CourseReviews = ({
                 break;
             }
         }
-    }, [token, courseReviews, reviewCommentCount, setValue, setCommentIndex, setRating, setIsRatingProvided]);
+    }, [user.isAuthenticated, courseReviews, reviewCommentCount, setValue, setCommentIndex, setRating, setIsRatingProvided]);
 
     const loadMore = async (e) => {
         e.preventDefault();

@@ -12,7 +12,7 @@ const Page = () => {
                         <Title order={1}>Thank You!</Title>
                         <Text>Your payment is successful</Text>
                         <Title order={5} className='mt-3'>
-                            <Link legacyBehavior href='/my-courses'>Go to my courses</Link>
+                            <Link href='/my-courses'>Go to my courses</Link>
                         </Title>
                     </Box>
                 </Grid>

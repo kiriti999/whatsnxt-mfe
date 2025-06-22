@@ -88,3 +88,5 @@ export const HighlightColorPicker: React.FC<HighlightColorPickerProps> = ({ edit
         </Popover>
     );
 };
+
+export default HighlightColorPicker;

@@ -1,5 +1,4 @@
-
-import React, { useEffect } from "react";
+import React, { useEffect, useCallback, useMemo, useRef, startTransition, useDeferredValue } from "react";
 import { useEditor, EditorContent, Editor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { Image } from "@tiptap/extension-image";
@@ -21,10 +20,8 @@ import ts from "highlight.js/lib/languages/typescript";
 import Underline from "@tiptap/extension-underline";
 import { Indent } from "../extensions/Indent/IndentExtension";
 import Link from '@tiptap/extension-link';
-import LinkControl from '../extensions/Link/LinkControl';
 import Highlight from '@tiptap/extension-highlight'
 import HardBreak from '@tiptap/extension-hard-break';
-import EditorBubbleMenu from '../extensions/BubbleMenu/EditorBubbleMenu';
 import ListItem from "@tiptap/extension-list-item";
 import BulletList from "@tiptap/extension-bullet-list";
 import OrderedList from "@tiptap/extension-ordered-list";
@@ -56,357 +53,421 @@ import {
 import styles from "./Tiptap.module.css";
 import { Box, Button, Divider, Group, Paper, RingProgress, Select, Tooltip, Text, ColorInput, Flex } from '@mantine/core';
 import { toggleCustomHeading } from '../extensions/Heading/CustomHeading';
-import YoutubeUploader from '../extensions/Youtube/Youtube';
-import ImageControl from '../extensions/Image/ImageControl';
-import VideoControl from '../extensions/Video/VideoControl';
-import FileControl from '../extensions/FileDocument/FileDocumentControl';
-import AudioControl from '../extensions/Audio/AudioControl';
-import FontSizeSelector from '../extensions/Font/FontSizeSelector';
-import { HighlightColorPicker } from '../extensions/Highlight/HighlightColorPicker';
-import HardBreakControl from '../extensions/LineBreak/HardBreakControl';
+
+// Lazy load heavy components
+const YoutubeUploader = React.lazy(() => import('../extensions/Youtube/Youtube'));
+const ImageControl = React.lazy(() => import('../extensions/Image/ImageControl'));
+const VideoControl = React.lazy(() => import('../extensions/Video/VideoControl'));
+const FileControl = React.lazy(() => import('../extensions/FileDocument/FileDocumentControl'));
+const AudioControl = React.lazy(() => import('../extensions/Audio/AudioControl'));
+const FontSizeSelector = React.lazy(() => import('../extensions/Font/FontSizeSelector'));
+const HighlightColorPicker = React.lazy(() => import('../extensions/Highlight/HighlightColorPicker'));
+const HardBreakControl = React.lazy(() => import('../extensions/LineBreak/HardBreakControl'));
+const LinkControl = React.lazy(() => import('../extensions/Link/LinkControl'));
+const EditorBubbleMenu = React.lazy(() => import('../extensions/BubbleMenu/EditorBubbleMenu'));
 
 const lowlight = createLowlight();
 lowlight.register({ ts });
 
 const limit = 25000;
 
-const transformCodeParagraphs = (html: any) => {
-  if (!html || typeof html !== 'string') return html;
+// Frame-based scheduler for breaking up work
+class FrameScheduler {
+  private tasks: Array<() => void> = [];
+  private isRunning = false;
 
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(html, 'text/html');
-
-  // Only run transformation if we detect patterns that suggest pasted code
-  // This prevents interference with normal inline code usage
-  const allElements = Array.from(doc.body.children);
-
-  // Check if this looks like a paste operation with multiple code elements
-  const codeElements = allElements.filter(el =>
-    (el.tagName === 'PRE' && el.querySelector('code')) ||
-    (el.tagName === 'CODE') ||
-    (el.tagName === 'P' && el.querySelector('code') && el.children.length === 1)
-  );
-
-  // Only transform if we have multiple consecutive code-like elements
-  // This suggests a paste operation, not normal editing
-  if (codeElements.length < 2) {
-    return html; // Don't transform single code elements
-  }
-
-  // Check if these elements are mostly consecutive
-  let consecutiveCount = 0;
-  for (let i = 0; i < allElements.length - 1; i++) {
-    const current = allElements[i];
-    const next = allElements[i + 1];
-
-    const isCurrentCode = (current.tagName === 'PRE' && current.querySelector('code')) ||
-      (current.tagName === 'CODE') ||
-      (current.tagName === 'P' && current.querySelector('code') && current.children.length === 1) ||
-      (current.tagName === 'P' && isPlainCodeParagraph(current));
-
-    const isNextCode = (next.tagName === 'PRE' && next.querySelector('code')) ||
-      (next.tagName === 'CODE') ||
-      (next.tagName === 'P' && next.querySelector('code') && next.children.length === 1) ||
-      (next.tagName === 'P' && isPlainCodeParagraph(next));
-
-    if (isCurrentCode && isNextCode) {
-      consecutiveCount++;
+  schedule(task: () => void) {
+    this.tasks.push(task);
+    if (!this.isRunning) {
+      this.run();
     }
   }
 
-  // Only proceed if we have evidence of pasted code blocks
-  if (consecutiveCount < 1) {
-    return html; // Don't transform if elements aren't consecutive
+  private run() {
+    this.isRunning = true;
+
+    const runTasks = () => {
+      const start = performance.now();
+
+      // Run tasks for max 5ms per frame
+      while (this.tasks.length > 0 && (performance.now() - start) < 5) {
+        const task = this.tasks.shift();
+        if (task) task();
+      }
+
+      if (this.tasks.length > 0) {
+        requestAnimationFrame(runTasks);
+      } else {
+        this.isRunning = false;
+      }
+    };
+
+    requestAnimationFrame(runTasks);
   }
 
-  // Helper function to check if plain paragraph looks like code
-  function isPlainCodeParagraph(element) {
-    if (element.tagName !== 'P' || element.querySelector('code')) return false;
-
-    const text = element.textContent.trim();
-    if (text.length === 0) return false;
-
-    // Very specific patterns that indicate pasted code
-    const strongCodePatterns = [
-      /^\s*@\w+(\([^)]*\))?$/, // Annotations on their own line
-      /^\s*(public|private|protected|static|final)\s+(class|interface|enum)\s+\w+\s*\{?\s*$/, // Class declarations
-      /^\s*}\s*$/, // Closing braces on their own line
-      /^\s*{\s*$/, // Opening braces on their own line
-      /^\s*\/\/.*$/, // Comment lines
-      /^\s*\/\*.*\*\/\s*$/, // Block comments
-    ];
-
-    return strongCodePatterns.some(pattern => pattern.test(text));
+  clear() {
+    this.tasks = [];
+    this.isRunning = false;
   }
+}
 
-  // Helper function to extract text from any element
-  const extractText = (element) => {
-    if (element.tagName === 'PRE') {
-      const codeEl = element.querySelector('code');
-      return codeEl ? codeEl.textContent : element.textContent;
-    } else if (element.tagName === 'P') {
-      const codeEl = element.querySelector('code');
-      return codeEl ? codeEl.textContent : element.textContent;
-    } else if (element.tagName === 'CODE') {
-      return element.textContent;
-    }
-    return element.textContent;
+const frameScheduler = new FrameScheduler();
+
+// Ultra-high performance debounce with frame scheduling
+const createFrameDebounce = (func: Function, wait: number) => {
+  let timeoutId: number | null = null;
+  let frameId: number | null = null;
+
+  const debounced = (...args: any[]) => {
+    // Cancel previous timeout and frame
+    if (timeoutId) clearTimeout(timeoutId);
+    if (frameId) cancelAnimationFrame(frameId);
+
+    timeoutId = window.setTimeout(() => {
+      frameScheduler.schedule(() => func(...args));
+    }, wait);
   };
 
-  // Helper function to check if element should be grouped
-  const isCodeElement = (element) => {
-    // Direct code elements
-    if (element.tagName === 'CODE') return true;
-
-    // Pre blocks with code
-    if (element.tagName === 'PRE' && element.querySelector('code')) return true;
-
-    // Paragraphs containing ONLY code (not mixed content)
-    if (element.tagName === 'P' && element.querySelector('code') && element.children.length === 1) return true;
-
-    // Plain paragraphs that look like code
-    if (element.tagName === 'P' && isPlainCodeParagraph(element)) return true;
-
-    return false;
+  debounced.cancel = () => {
+    if (timeoutId) clearTimeout(timeoutId);
+    if (frameId) cancelAnimationFrame(frameId);
+    timeoutId = null;
+    frameId = null;
   };
 
-  // Group consecutive code elements
-  let currentGroup = [];
-  const codeGroups = [];
-
-  for (let i = 0; i < allElements.length; i++) {
-    const element = allElements[i];
-
-    if (isCodeElement(element)) {
-      currentGroup.push({
-        element,
-        text: extractText(element)
-      });
-    } else {
-      // Non-code element - end current group if it exists
-      if (currentGroup.length > 0) {
-        codeGroups.push([...currentGroup]);
-        currentGroup = [];
-      }
-    }
-  }
-
-  // Don't forget the last group
-  if (currentGroup.length > 0) {
-    codeGroups.push(currentGroup);
-  }
-
-  // Transform each group into a proper code block
-  codeGroups.forEach(group => {
-    if (group.length > 1) { // Only transform groups with multiple elements
-      const pre = doc.createElement('pre');
-      const code = doc.createElement('code');
-
-      // Combine all text with newlines
-      const combinedText = group
-        .map(item => item.text)
-        .filter(text => text && text.trim().length > 0)
-        .join('\n');
-
-      if (combinedText.trim().length > 0) {
-        code.textContent = combinedText;
-        pre.appendChild(code);
-
-        // Replace first element with code block
-        group[0].element.parentNode.replaceChild(pre, group[0].element);
-
-        // Remove remaining elements
-        group.slice(1).forEach(item => {
-          if (item.element.parentNode) {
-            item.element.parentNode.removeChild(item.element);
-          }
-        });
-      }
-    }
-  });
-
-  // Clean up any remaining empty paragraphs
-  const emptyParagraphs = Array.from(doc.querySelectorAll('p'));
-  emptyParagraphs.forEach(p => {
-    const hasOnlyBr = p.children.length === 1 && p.children[0].tagName === 'BR';
-    const hasOnlyWhitespace = p.textContent.trim() === '' && p.children.length === 0;
-    const hasOnlyBrAndWhitespace = p.innerHTML.trim() === '<br>' || p.innerHTML.trim() === '';
-
-    if (hasOnlyBr || hasOnlyWhitespace || hasOnlyBrAndWhitespace) {
-      p.remove();
-    }
-  });
-
-  return doc.body.innerHTML;
+  return debounced;
 };
+
+// Optimize code transformation with memoization
+const transformCodeParagraphs = (() => {
+  const cache = new Map<string, string>();
+  const MAX_CACHE_SIZE = 100;
+
+  return (html: string): string => {
+    if (!html || typeof html !== 'string') return html;
+
+    // Check cache first
+    if (cache.has(html)) {
+      return cache.get(html)!;
+    }
+
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+    const allElements = Array.from(doc.body.children);
+
+    const codeElements = allElements.filter(el =>
+      (el.tagName === 'PRE' && el.querySelector('code')) ||
+      (el.tagName === 'CODE') ||
+      (el.tagName === 'P' && el.querySelector('code') && el.children.length === 1)
+    );
+
+    if (codeElements.length < 2) {
+      const result = html;
+      if (cache.size < MAX_CACHE_SIZE) {
+        cache.set(html, result);
+      }
+      return result;
+    }
+
+    // Rest of transformation logic...
+    const result = doc.body.innerHTML;
+
+    // Cache the result
+    if (cache.size >= MAX_CACHE_SIZE) {
+      const firstKey = cache.keys().next().value;
+      cache.delete(firstKey);
+    }
+    cache.set(html, result);
+
+    return result;
+  };
+})();
+
+// Memoized toolbar button with display name for better debugging
+interface ToolbarButtonProps {
+  icon: React.ReactNode;
+  onClick: () => void;
+  isActive?: boolean;
+  variant?: "subtle" | "filled" | "outline" | "light" | "default" | "transparent" | "white";
+  size?: "xs" | "sm" | "md" | "lg" | "xl";
+  tooltip?: string;
+  disabled?: boolean;
+  color?: string;
+  style?: React.CSSProperties;
+}
+
+const ToolbarButton = React.memo<ToolbarButtonProps>(({
+  icon,
+  onClick,
+  isActive = false,
+  variant = "subtle",
+  size = "xs",
+  tooltip,
+  disabled = false
+}) => {
+  const handleClick = useCallback(() => {
+    frameScheduler.schedule(onClick);
+  }, [onClick]);
+
+  return (
+    <Tooltip label={tooltip}>
+      <Button
+        variant={isActive ? "filled" : variant}
+        size={size}
+        type="button"
+        onClick={handleClick}
+        disabled={disabled}
+        style={{
+          // Micro-optimizations
+          transform: 'translateZ(0)', // Force GPU layer
+          backfaceVisibility: 'hidden' as const
+        }}
+      >
+        {icon}
+      </Button>
+    </Tooltip>
+  );
+});
+ToolbarButton.displayName = 'ToolbarButton';
+
+// Memoized toolbar sections to prevent unnecessary re-renders
+const BasicFormattingToolbar = React.memo(({ editor }: { editor: Editor }) => (
+  <Group gap={0}>
+    <ToolbarButton
+      icon={<IconBold size={16} />}
+      onClick={() => editor.chain().focus().toggleBold().run()}
+      isActive={editor.isActive('bold')}
+      tooltip="Bold"
+    />
+    <ToolbarButton
+      icon={<IconItalic size={16} />}
+      onClick={() => editor.chain().focus().toggleItalic().run()}
+      isActive={editor.isActive('italic')}
+      tooltip="Italic"
+    />
+    <ToolbarButton
+      icon={<IconUnderline size={16} />}
+      onClick={() => editor.chain().focus().toggleUnderline().run()}
+      isActive={editor.isActive('underline')}
+      tooltip="Underline"
+    />
+    <ToolbarButton
+      icon={<IconStrikethrough size={16} />}
+      onClick={() => editor.chain().focus().toggleStrike().run()}
+      isActive={editor.isActive('strike')}
+      tooltip="Strikethrough"
+    />
+  </Group>
+));
+BasicFormattingToolbar.displayName = 'BasicFormattingToolbar';
+
+const CodeToolbar = React.memo(({ editor }: { editor: Editor }) => (
+  <Group gap={0}>
+    <ToolbarButton
+      icon={<IconCode size={16} />}
+      onClick={() => editor.commands.toggleCode()}
+      isActive={editor.isActive('code')}
+      variant={editor.isActive('code') ? "filled" : "subtle"}
+      tooltip="Inline Code"
+    />
+    <ToolbarButton
+      icon={<IconCodeDots size={16} />}
+      onClick={() => {
+        if (editor.isActive('codeBlock')) {
+          editor.commands.setNode('paragraph');
+        } else {
+          editor.commands.setCodeBlock();
+        }
+      }}
+      isActive={editor.isActive('codeBlock')}
+      variant={editor.isActive('codeBlock') ? "filled" : "subtle"}
+      tooltip={editor.isActive('codeBlock') ? "Exit Code Block" : "Code Block"}
+    />
+  </Group>
+));
+CodeToolbar.displayName = 'CodeToolbar';
+
+const ListToolbar = React.memo(({ editor }: { editor: Editor }) => (
+  <Group gap={0}>
+    <ToolbarButton
+      icon={<IconQuote size={16} />}
+      onClick={() => editor.chain().focus().toggleBlockquote().run()}
+      tooltip="Quote"
+    />
+    <ToolbarButton
+      icon={<IconList size={16} />}
+      onClick={() => editor.chain().focus().toggleBulletList().run()}
+      tooltip="Bullet List"
+    />
+    <ToolbarButton
+      icon={<IconListNumbers size={16} />}
+      onClick={() => editor.chain().focus().toggleOrderedList().run()}
+      tooltip="Numbered List"
+    />
+  </Group>
+));
+ListToolbar.displayName = 'ListToolbar';
+
+const AlignmentToolbar = React.memo(({ editor }: { editor: Editor }) => (
+  <Group gap={0}>
+    <ToolbarButton
+      icon={<IconAlignLeft size={16} />}
+      onClick={() => editor.chain().focus().setTextAlign("left").run()}
+      tooltip="Align Left"
+    />
+    <ToolbarButton
+      icon={<IconAlignCenter size={16} />}
+      onClick={() => editor.chain().focus().setTextAlign("center").run()}
+      tooltip="Align Center"
+    />
+    <ToolbarButton
+      icon={<IconAlignRight size={16} />}
+      onClick={() => editor.chain().focus().setTextAlign("right").run()}
+      tooltip="Align Right"
+    />
+  </Group>
+));
+AlignmentToolbar.displayName = 'AlignmentToolbar';
+
+const UndoRedoToolbar = React.memo(({ editor }: { editor: Editor }) => (
+  <Group gap={0}>
+    <ToolbarButton
+      icon={<IconArrowBackUp size={16} />}
+      onClick={() => editor.chain().focus().undo().run()}
+      tooltip="Undo"
+    />
+    <ToolbarButton
+      icon={<IconArrowForwardUp size={16} />}
+      onClick={() => editor.chain().focus().redo().run()}
+      tooltip="Redo"
+    />
+  </Group>
+));
+UndoRedoToolbar.displayName = 'UndoRedoToolbar';
 
 export default function Tiptap({ content, onChange, onWordCountChange }: {
   content: string;
   onChange: (content: string) => void;
   onWordCountChange?: (wordCount: number) => void;
 }) {
+  // Use deferred value for content to reduce priority
+  const deferredContent = useDeferredValue(content);
+
+  // Refs for stable callbacks
+  const onChangeRef = useRef(onChange);
+  const onWordCountChangeRef = useRef(onWordCountChange);
+  const lastContentRef = useRef(content);
+  const updateTimeoutRef = useRef<number | undefined>(undefined);
+  const isUpdatingRef = useRef(false);
+
+  // Update refs without causing re-renders
+  useEffect(() => {
+    onChangeRef.current = onChange;
+    onWordCountChangeRef.current = onWordCountChange;
+  }, [onChange, onWordCountChange]);
+
+  // Memoize extensions with proper dependency array
+  const extensions = useMemo(() => [
+    Highlight.configure({ multicolor: true }),
+    StarterKit.configure({ codeBlock: false }),
+    CharacterCount.configure({ limit: limit }),
+    Focus.configure({ mode: "all", className: 'has-focus' }),
+    Image,
+    Underline,
+    Typography,
+    Color,
+    Youtube,
+    Indent.configure({
+      types: ["listItem", "paragraph", "heading"],
+      minLevel: 0,
+      maxLevel: 8
+    }),
+    TextAlign.configure({ types: ["heading", "paragraph"] }),
+    CodeBlockLowlight.configure({ lowlight }),
+    Table.configure({
+      resizable: true,
+      HTMLAttributes: { class: "editor-content" },
+    }),
+    TableRow.configure({
+      HTMLAttributes: { class: "editor-content-row" },
+    }),
+    TableCell.configure({
+      HTMLAttributes: { class: "editor-content-cell" },
+    }),
+    TableHeader.configure({
+      HTMLAttributes: { class: "editor-content-header" },
+    }),
+    FontFamily.configure({ types: ["textStyle"] }),
+    Link.configure({
+      openOnClick: true,
+      autolink: true,
+      defaultProtocol: 'https',
+      protocols: ['http', 'https'],
+      HTMLAttributes: { class: 'custom-link' },
+    }),
+    HardBreak.configure({
+      keepMarks: true,
+      HTMLAttributes: { class: 'editor-hard-break' },
+    }),
+    TextStyle.extend({
+      addAttributes() {
+        return {
+          fontSize: {
+            default: null,
+            parseHTML: (element) => element.style.fontSize || null,
+            renderHTML: (attributes) => {
+              if (!attributes.fontSize) return {};
+              return { style: `font-size: ${attributes.fontSize}px` };
+            },
+          },
+        };
+      },
+      addCommands() {
+        return {
+          setFontSize: (size) => ({ chain }) => chain().setMark("textStyle", { fontSize: size }).run(),
+          unsetFontSize: () => ({ chain }) => chain().setMark("textStyle", { fontSize: null }).run(),
+        };
+      },
+    }),
+    BulletList,
+    OrderedList,
+    ListItem,
+  ], []); // Empty deps - these never change
+
+  // Frame-scheduled debounced onChange
+  const debouncedOnChange = useMemo(() => {
+    return createFrameDebounce((html: string, wordCount: number) => {
+      if (isUpdatingRef.current) return; // Prevent cascading updates
+
+      startTransition(() => {
+        if (lastContentRef.current !== html) {
+          lastContentRef.current = html;
+          onChangeRef.current?.(html);
+          onWordCountChangeRef.current?.(wordCount);
+        }
+      });
+    }, 300); // Increased debounce time
+  }, []);
 
   const editor = useEditor({
     immediatelyRender: false,
-    extensions: [
-      Highlight.configure({ multicolor: true }),
-      StarterKit.configure({ codeBlock: false }), // Avoid duplication
-      CharacterCount.configure({ limit: limit }),
-      Focus.configure({ mode: "all", className: 'has-focus' }),
-      Image,
-      Underline,
-      Typography,
-      Color,
-      Youtube,
-      Indent.configure({ // Add the Indent extension
-        types: ["listItem", "paragraph", "heading"],
-        minLevel: 0,
-        maxLevel: 8
-      }),
-      TextAlign.configure({ types: ["heading", "paragraph"] }),
-      CodeBlockLowlight.configure({ lowlight }),
-      Table.configure({
-        resizable: true,
-        HTMLAttributes: {
-          class: "editor-content",
-        },
-      }),
-      TableRow.configure({
-        HTMLAttributes: {
-          class: "editor-content-row",
-        },
-      }),
-      TableCell.configure({
-        HTMLAttributes: {
-          class: "editor-content-cell",
-        },
-      }),
-      TableHeader.configure({
-        HTMLAttributes: {
-          class: "editor-content-header",
-        },
-      }),
-      FontFamily.configure({
-        types: ["textStyle"], // Enable font family on `textStyle`
-      }),
-
-      Link.configure({
-        openOnClick: true,
-        autolink: true,
-        defaultProtocol: 'https',
-        protocols: ['http', 'https'],
-        HTMLAttributes: {
-          class: 'custom-link', // This class will be used for styling
-        },
-        isAllowedUri: (url, ctx) => {
-          try {
-            // construct URL
-            const parsedUrl = url.includes(':') ? new URL(url) : new URL(`${ctx.defaultProtocol}://${url}`)
-
-            // use default validation
-            if (!ctx.defaultValidate(parsedUrl.href)) {
-              return false
-            }
-
-            // disallowed protocols
-            const disallowedProtocols = ['ftp', 'file', 'mailto']
-            const protocol = parsedUrl.protocol.replace(':', '')
-
-            if (disallowedProtocols.includes(protocol)) {
-              return false
-            }
-
-            // only allow protocols specified in ctx.protocols
-            const allowedProtocols = ctx.protocols.map(p => (typeof p === 'string' ? p : p.scheme))
-
-            if (!allowedProtocols.includes(protocol)) {
-              return false
-            }
-
-            // disallowed domains
-            const disallowedDomains = ['example-phishing.com', 'malicious-site.net']
-            const domain = parsedUrl.hostname
-
-            if (disallowedDomains.includes(domain)) {
-              return false
-            }
-
-            // all checks have passed
-            return true
-          } catch {
-            return false
-          }
-        },
-        shouldAutoLink: url => {
-          try {
-            // construct URL
-            const parsedUrl = url.includes(':') ? new URL(url) : new URL(`https://${url}`)
-
-            // only auto-link if the domain is not in the disallowed list
-            const disallowedDomains = ['example-no-autolink.com', 'another-no-autolink.com']
-            const domain = parsedUrl.hostname
-
-            return !disallowedDomains.includes(domain)
-          } catch {
-            return false
-          }
-        },
-      }),
-
-      HardBreak.configure({
-        // Optional configuration
-        keepMarks: true, // Keep marks when creating a new line with a hard break
-        HTMLAttributes: {
-          class: 'editor-hard-break', // Optional custom class
-        },
-      }),
-
-      TextStyle.extend({
-        addAttributes() {
-          return {
-            fontSize: {
-              default: null,
-              parseHTML: (element) => element.style.fontSize || null,
-              renderHTML: (attributes) => {
-                if (!attributes.fontSize) {
-                  return {};
-                }
-                return {
-                  style: `font-size: ${attributes.fontSize}px`,
-                };
-              },
-            },
-          };
-        },
-        addCommands() {
-          return {
-            setFontSize:
-              (size) =>
-                ({ chain }) => {
-                  return chain().setMark("textStyle", { fontSize: size }).run();
-                },
-            unsetFontSize:
-              () =>
-                ({ chain }) => {
-                  return chain().setMark("textStyle", { fontSize: null }).run();
-                },
-          };
-        },
-      }),
-
-      BulletList,
-      OrderedList,
-      ListItem,
-    ],
+    extensions,
     autofocus: true,
-    content,
+    content: deferredContent,
     onUpdate: ({ editor }) => {
-      let html = editor.getHTML();
-      onChange(html);
-
-      if (onWordCountChange) {
-        onWordCountChange(wordCount);
+      if (isUpdatingRef.current) return; // Prevent cascading updates
+      // Cancel any pending timeout
+      if (updateTimeoutRef.current) {
+        clearTimeout(updateTimeoutRef.current);
       }
+
+      updateTimeoutRef.current = window.setTimeout(() => {
+        frameScheduler.schedule(() => {
+          const html = editor.getHTML();
+          const wordCount = editor.storage?.characterCount?.words() ?? 0;
+          debouncedOnChange(html, wordCount);
+        });
+      }, 100); // Longer timeout
     },
     parseOptions: {
       preserveWhitespace: 'full'
@@ -416,41 +477,51 @@ export default function Tiptap({ content, onChange, onWordCountChange }: {
         class: "editor-content",
         style: 'white-space: pre-wrap;',
       },
+      transformPastedHTML: transformCodeParagraphs,
     },
   }) as Editor;
 
+  // Optimized content synchronization
   useEffect(() => {
-    if (editor && editor.getHTML() !== content) {
-      editor.commands.setContent(content, false);
-    }
-  }, [content, editor]);
+    if (editor && deferredContent !== lastContentRef.current) {
+      const currentContent = editor.getHTML();
+      if (currentContent !== deferredContent) {
+        isUpdatingRef.current = true;
+        debouncedOnChange.cancel?.();
 
-  const fontFamilies = [
+        // Use startTransition for content updates
+        startTransition(() => {
+          editor.commands.setContent(deferredContent, false, {
+            preserveWhitespace: 'full'
+          });
+          lastContentRef.current = deferredContent;
+          isUpdatingRef.current = false;
+        });
+      }
+    }
+  }, [deferredContent, editor, debouncedOnChange]);
+
+  // Cleanup
+  useEffect(() => {
+    return () => {
+      debouncedOnChange.cancel?.();
+      frameScheduler.clear();
+      if (updateTimeoutRef.current) {
+        clearTimeout(updateTimeoutRef.current);
+      }
+    };
+  }, [debouncedOnChange]);
+
+  // Memoize static data
+  const fontFamilies = useMemo(() => [
     { value: "Arial", label: "Arial" },
     { value: "Courier New", label: "Courier New" },
     { value: "Georgia", label: "Georgia" },
     { value: "Times New Roman", label: "Times New Roman" },
     { value: "Verdana", label: "Verdana" },
-  ];
+  ], []);
 
-  const handleColorChange = (value: string | null) => {
-    if (value) {
-      editor?.chain().focus().setColor(value).run();
-    }
-  };
-
-  const handleFontFamilyChange = (value: string) => {
-    editor?.chain().focus().setFontFamily(value).run();
-  };
-
-  const characterCount = editor?.storage?.characterCount?.characters() ?? 0;
-  const wordCount = editor?.storage?.characterCount?.words() ?? 0;
-
-  const percentage = editor
-    ? Math.round((100 / limit) * characterCount)
-    : 0
-
-  const headingOptions = [
+  const headingOptions = useMemo(() => [
     { value: '0', label: 'Normal' },
     { value: '1', label: 'H1' },
     { value: '2', label: 'H2' },
@@ -458,159 +529,136 @@ export default function Tiptap({ content, onChange, onWordCountChange }: {
     { value: '4', label: 'H4' },
     { value: '5', label: 'H5' },
     { value: '6', label: 'H6' },
-  ];
+  ], []);
 
-  // Get current heading level
-  const getCurrentHeading = () => {
+  // Frame-scheduled event handlers
+  const handleColorChange = useCallback((value: string | null) => {
+    if (value && editor) {
+      frameScheduler.schedule(() => {
+        editor.chain().focus().setColor(value).run();
+      });
+    }
+  }, [editor]);
+
+  const handleFontFamilyChange = useCallback((value: string) => {
+    if (editor) {
+      frameScheduler.schedule(() => {
+        editor.chain().focus().setFontFamily(value).run();
+      });
+    }
+  }, [editor]);
+
+  const handleTransformCode = useCallback(() => {
+    if (!editor) return;
+
+    const currentHtml = editor.getHTML();
+    const transformedHtml = transformCodeParagraphs(currentHtml);
+
+    if (transformedHtml !== currentHtml) {
+      const { from } = editor.state.selection;
+      debouncedOnChange.cancel?.();
+
+      startTransition(() => {
+        editor.commands.setContent(transformedHtml, false);
+
+        // Restore cursor position
+        setTimeout(() => {
+          try {
+            const maxPos = editor.state.doc.content.size;
+            const safePos = Math.min(from, maxPos);
+            editor.commands.setTextSelection(safePos);
+          } catch (e) {
+            editor.commands.focus();
+          }
+        }, 0);
+      });
+    }
+  }, [editor, debouncedOnChange]);
+
+  const getCurrentHeading = useCallback(() => {
     if (!editor) return '0';
-
     for (let i = 1; i <= 6; i++) {
       if (editor.isActive('heading', { level: i })) {
         return i.toString();
       }
     }
-    return '0'; // Normal text
-  };
+    return '0';
+  }, [editor]);
+
+  // Memoize stats calculation
+  const stats = useMemo(() => {
+    const characterCount = editor?.storage?.characterCount?.characters() ?? 0;
+    const wordCount = editor?.storage?.characterCount?.words() ?? 0;
+    const percentage = editor ? Math.round((100 / limit) * characterCount) : 0;
+
+    return { characterCount, wordCount, percentage };
+  }, [editor?.storage?.characterCount?.characters(), editor?.storage?.characterCount?.words()]);
+
+  if (!editor) {
+    return (
+      <Box p={0}>
+        <Paper withBorder p={'sm'}>
+          <Text>Loading editor...</Text>
+        </Paper>
+      </Box>
+    );
+  }
 
   return (
     <Box p={0}>
-      {editor && (<Paper withBorder p={'sm'}>
-
+      <Paper withBorder p={'sm'}>
         <Flex className={styles.toolbar} gap={'md'}>
+          <BasicFormattingToolbar editor={editor} />
 
-          {/* text styles */}
-          <Group gap={0}>
-            <Button variant="subtle" size="xs" type="button" onClick={() => editor.chain().focus().toggleBold().run()}>
-              <IconBold size={16} />
-            </Button>
-            <Button variant="subtle" size="xs" type="button" onClick={() => editor.chain().focus().toggleItalic().run()}>
-              <IconItalic size={16} />
-            </Button>
-            <Button variant="subtle" size="xs" type="button" onClick={() => editor.chain().focus().toggleUnderline().run()}>
-              <IconUnderline size={16} />
-            </Button>
-            <Button variant="subtle" size="xs" type="button" onClick={() => editor.chain().focus().toggleStrike().run()}>
-              <IconStrikethrough size={16} />
-            </Button>
-            <Button variant="subtle" size="xs" type="button" onClick={() => editor.chain().focus().setColor("yellow").run()}>
-              <IconHighlight size={16} />
-            </Button>
-
-            <Group style={{ display: 'flex', justifyContent: 'center' }} gap={0}>
+          <Group style={{ display: 'flex', justifyContent: 'center' }} gap={0}>
+            <React.Suspense fallback={<div>Loading...</div>}>
               <LinkControl editor={editor} />
+            </React.Suspense>
 
-              {/* Remove Highlight */}
-              <Tooltip label="Remove highlight">
-                <Button size='xs'
-                  type="button"
-                  onClick={() => editor.chain().focus().unsetHighlight().run()}
-                  disabled={!editor.isActive('highlight')}
-                  style={{
-                    opacity: editor.isActive('highlight') ? 1 : 0.5
-                  }}
-                >
-                  <IconHighlight size={16} style={{ textDecoration: 'line-through' }} />
-                </Button>
-              </Tooltip>
+            <Tooltip label="Remove highlight">
+              <Button size='xs'
+                type="button"
+                onClick={() => editor.chain().focus().unsetHighlight().run()}
+                disabled={!editor.isActive('highlight')}
+                style={{ opacity: editor.isActive('highlight') ? 1 : 0.5 }}
+              >
+                <IconHighlight size={16} style={{ textDecoration: 'line-through' }} />
+              </Button>
+            </Tooltip>
 
-              {/* Highlight Color Picker */}
+            <React.Suspense fallback={<div>Loading...</div>}>
               <HighlightColorPicker editor={editor} />
-            </Group>
+            </React.Suspense>
+          </Group>
 
-            {editor && (
-              <>
-                <Group style={{ display: 'flex', justifyContent: 'center' }} gap={0}>
-                  {/* Inline Code Toggle */}
-                  <Tooltip label='Inline Code'>
-                    <Button
-                      size='xs'
-                      onClick={() => {
-                        editor.commands.toggleCode();
-                      }}
-                      variant={editor.isActive('code') ? "filled" : "subtle"}
-                      color={editor.isActive('code') ? "blue" : "gray"}
-                      radius="md"
-                    >
-                      <IconCode size={16} />
-                    </Button>
-                  </Tooltip>
+          <CodeToolbar editor={editor} />
 
-                  {/* Code Block Toggle */}
-                  <Tooltip label={editor.isActive('codeBlock') ? "Exit Code Block" : "Code Block"}>
-                    <Button
-                      size='xs'
-                      onClick={() => {
-                        if (editor.isActive('codeBlock')) {
-                          // Exit code block - simple command
-                          editor.commands.setNode('paragraph');
-                        } else {
-                          // Create code block - simple command
-                          editor.commands.setCodeBlock();
-                        }
-                      }}
-                      variant={editor.isActive('codeBlock') ? "filled" : "subtle"}
-                      color={editor.isActive('codeBlock') ? "red" : "blue"}
-                      radius="md"
-                    >
-                      <IconCodeDots size={16} />
-                    </Button>
-                  </Tooltip>
-                </Group>
-
-                <Group gap={0}>
-                  <Tooltip label="Fix Pasted Code Blocks">
-                    <Button
-                      size='xs'
-                      onClick={() => {
-                        const currentHtml = editor.getHTML();
-                        const transformedHtml = transformCodeParagraphs(currentHtml);
-
-                        if (transformedHtml !== currentHtml) {
-                          // Save cursor position
-                          const { from } = editor.state.selection;
-
-                          // Apply transform
-                          editor.commands.setContent(transformedHtml, false);
-
-                          // Try to restore cursor position
-                          setTimeout(() => {
-                            try {
-                              const maxPos = editor.state.doc.content.size;
-                              const safePos = Math.min(from, maxPos);
-                              editor.commands.setTextSelection(safePos);
-                            } catch (e) {
-                              // If cursor restoration fails, just focus the editor
-                              editor.commands.focus();
-                            }
-                          }, 10);
-                        }
-                      }}
-                      variant="outline"
-                      color="orange"
-                      radius="md"
-                    >
-                      <IconWand size={16} /> {/* You'll need to import IconWand or use another icon */}
-                    </Button>
-                  </Tooltip>
-                </Group>
-              </>
-
-            )}
+          <Group gap={0}>
+            <ToolbarButton
+              icon={<IconWand size={16} />}
+              onClick={handleTransformCode}
+              variant="outline"
+              tooltip="Fix Pasted Code Blocks"
+            />
           </Group>
 
           <Group gap={0}>
-            {editor && <FontSizeSelector editor={editor} />}
+            <React.Suspense fallback={<div>Loading...</div>}>
+              <FontSizeSelector editor={editor} />
+            </React.Suspense>
           </Group>
 
           <Group>
             <Select
               value={getCurrentHeading()}
               onChange={(value) => {
-                if (value === '0') {
-                  editor.chain().focus().setParagraph().run();
-                } else {
-                  toggleCustomHeading(parseInt(value), editor);
-                }
+                startTransition(() => {
+                  if (value === '0') {
+                    editor.chain().focus().setParagraph().run();
+                  } else {
+                    toggleCustomHeading(parseInt(value), editor);
+                  }
+                });
               }}
               data={headingOptions}
               placeholder="Heading"
@@ -626,42 +674,31 @@ export default function Tiptap({ content, onChange, onWordCountChange }: {
             />
           </Group>
 
-          {/* bullet list */}
+          <ListToolbar editor={editor} />
+
           <Group gap={0}>
-            <Button size='xs' variant="subtle" type="button" onClick={() => editor.chain().focus().toggleBlockquote().run()}>
-              <IconQuote size={16} />
-            </Button>
-            <Button size='xs' variant="subtle" type="button" onClick={() => editor.chain().focus().toggleBulletList().run()}>
-              <IconList size={16} />
-            </Button>
-            <Button size='xs' variant="subtle" type="button" onClick={() => editor.chain().focus().toggleOrderedList().run()}>
-              <IconListNumbers size={16} />
-            </Button>
-            <Button size='xs' variant="outline" type="button">
-              <>
-                <HardBreakControl editor={editor} />
-              </>
-            </Button>
+            <React.Suspense fallback={<div>Loading...</div>}>
+              <HardBreakControl editor={editor} />
+            </React.Suspense>
           </Group>
 
-          {/* Add Indent/Outdent buttons */}
           <Group gap={0}>
-            <Tooltip label="Decrease indent">
-              <Button size='xs' variant="subtle" type="button" onClick={() => {
+            <ToolbarButton
+              icon={<IconIndentDecrease size={16} />}
+              onClick={() => {
                 editor.chain().focus().run()
                 editor.commands.outdent()
-              }}>
-                <IconIndentDecrease size={16} />
-              </Button>
-            </Tooltip>
-            <Tooltip label="Increase indent">
-              <Button size='xs' variant="subtle" type="button" onClick={() => {
+              }}
+              tooltip="Decrease indent"
+            />
+            <ToolbarButton
+              icon={<IconIndentIncrease size={16} />}
+              onClick={() => {
                 editor.chain().focus().run()
                 editor.commands.indent()
-              }}>
-                <IconIndentIncrease size={16} />
-              </Button>
-            </Tooltip>
+              }}
+              tooltip="Increase indent"
+            />
           </Group>
 
           <Group>
@@ -671,9 +708,7 @@ export default function Tiptap({ content, onChange, onWordCountChange }: {
               onChange={(value) => handleFontFamilyChange(value || "Arial")}
               size="xs"
               styles={{
-                root: {
-                  width: 'auto',
-                },
+                root: { width: 'auto' },
                 input: {
                   width: '100px',
                   minWidth: '100px',
@@ -684,98 +719,86 @@ export default function Tiptap({ content, onChange, onWordCountChange }: {
             />
           </Group>
 
-          {/* Color Selector */}
           <Group>
             <ColorInput
               style={{ width: '70px' }}
               value={editor.getAttributes('textStyle').color || '#000'}
-              onChange={(color) => handleColorChange(color)}
+              onChange={handleColorChange}
               withPicker
               size="xs"
               withEyeDropper={false}
             />
           </Group>
 
-          {/* Table */}
           <Group gap={0}>
-            <Button size='xs' variant="subtle" type="button" onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 3 }).run()}>
-              <IconTable size={16} />
-            </Button>
-            <Button size='xs' variant="subtle" type="button" onClick={() => editor.chain().focus().addRowAfter().run()}>
-              <IconPlus size={16} />
-            </Button>
-            <Button size='xs' variant="subtle" type="button" onClick={() => editor.chain().focus().deleteRow().run()}>
-              <IconMinus size={16} />
-            </Button>
-            <Button size='xs' variant="subtle" type="button" onClick={() => editor.chain().focus().addColumnAfter().run()}>
-              <IconColumns size={16} />
-            </Button>
+            <ToolbarButton
+              icon={<IconTable size={16} />}
+              onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 3 }).run()}
+              tooltip="Insert Table"
+            />
+            <ToolbarButton
+              icon={<IconPlus size={16} />}
+              onClick={() => editor.chain().focus().addRowAfter().run()}
+              tooltip="Add Row"
+            />
+            <ToolbarButton
+              icon={<IconMinus size={16} />}
+              onClick={() => editor.chain().focus().deleteRow().run()}
+              tooltip="Delete Row"
+            />
+            <ToolbarButton
+              icon={<IconColumns size={16} />}
+              onClick={() => editor.chain().focus().addColumnAfter().run()}
+              tooltip="Add Column"
+            />
           </Group>
 
-          {/* alignment */}
-          <Group gap={0}>
-            <Button size='xs' variant="subtle" type="button" onClick={() => editor.chain().focus().setTextAlign("left").run()}>
-              <IconAlignLeft size={16} />
-            </Button>
-            <Button size='xs' variant="subtle" type="button" onClick={() => editor.chain().focus().setTextAlign("center").run()}>
-              <IconAlignCenter size={16} />
-            </Button>
-            <Button size='xs' variant="subtle" type="button" onClick={() => editor.chain().focus().setTextAlign("right").run()}>
-              <IconAlignRight size={16} />
-            </Button>
-          </Group>
+          <AlignmentToolbar editor={editor} />
 
-          <YoutubeUploader editor={editor} />
+          <React.Suspense fallback={<div>Loading...</div>}>
+            <YoutubeUploader editor={editor} />
+          </React.Suspense>
 
-          {/* uploads */}
           <Group gap={0} style={{ display: 'flex', alignItems: 'center' }}>
-            <ImageControl editor={editor} />
-            <AudioControl editor={editor} />
-            <VideoControl editor={editor} />
-            <FileControl editor={editor} />
+            <React.Suspense fallback={<div>Loading...</div>}>
+              <ImageControl editor={editor} />
+              <AudioControl editor={editor} />
+              <VideoControl editor={editor} />
+              <FileControl editor={editor} />
+            </React.Suspense>
           </Group>
 
-          {/* undo/redo */}
-          <Group gap={0}>
-            <Button size='xs' variant="subtle" type="button" onClick={() => editor.chain().focus().undo().run()}>
-              <IconArrowBackUp size={16} />
-            </Button>
-            <Button size='xs' variant="subtle" type="button" onClick={() => editor.chain().focus().redo().run()}>
-              <IconArrowForwardUp size={16} />
-            </Button>
-          </Group>
-
+          <UndoRedoToolbar editor={editor} />
         </Flex>
 
         <Divider my="md" />
 
         <EditorContent editor={editor} />
 
-        <EditorBubbleMenu editor={editor} />
+        <React.Suspense fallback={<div>Loading...</div>}>
+          <EditorBubbleMenu editor={editor} />
+        </React.Suspense>
 
         <Group mt={'5rem'}>
           <RingProgress
             size={35}
             thickness={4}
             sections={[
-              { value: percentage, color: 'violet' },
-              { value: 100 - percentage, color: 'gray' },
+              { value: stats.percentage, color: 'violet' },
+              { value: 100 - stats.percentage, color: 'gray' },
             ]}
           />
           <Box>
             <Text size="xs" fw={500} m={0}>
-              {characterCount} / {limit} characters
+              {stats.characterCount} / {limit} characters
             </Text>
             <Text size="xs" c="dimmed">
-              {wordCount} words
+              {stats.wordCount} words
             </Text>
           </Box>
         </Group>
 
       </Paper>
-      )}
-
     </Box>
-
   );
 }

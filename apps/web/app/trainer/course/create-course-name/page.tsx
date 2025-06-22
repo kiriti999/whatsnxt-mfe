@@ -7,7 +7,7 @@ import { notifications } from '@mantine/notifications';
 import { CourseAPI } from '../../../../apis/v1/courses/course/course';
 import { Controller, useForm } from 'react-hook-form';
 import { CategoriesAPI } from '../../../../apis/v1/courses/categories';
-import { Category } from '@whatsnxt/core-util';
+import { Category, SubCategory } from '@whatsnxt/core-util';
 import { useRouter } from 'next/navigation';
 import useAuth from '../../../../hooks/Authentication/useAuth';
 import { IconChevronRight } from '@tabler/icons-react';
@@ -15,8 +15,8 @@ import { IconChevronRight } from '@tabler/icons-react';
 const CreateCourseName = () => {
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
-  const [subCategories, setSubCategories] = useState<Category[]>([]);
-  const [nestedSubCategories, setNestedSubCategories] = useState<Category[]>([]);
+  const [subCategories, setSubCategories] = useState<SubCategory[]>([]);
+  const [nestedSubCategories, setNestedSubCategories] = useState<SubCategory[]>([]);
   const router = useRouter();
 
   const {

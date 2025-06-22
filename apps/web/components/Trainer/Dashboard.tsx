@@ -123,7 +123,6 @@ function Dashboard({ id, open, close, courseName = '', teacherName = '' }: Props
                 <Link
                   href={enabledSection && !isCurrentTab ? `${item.path}/${id}` : '#'}
                   passHref
-                  legacyBehavior
                 >
                   <Button
                     component="a"
