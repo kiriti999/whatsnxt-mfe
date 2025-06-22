@@ -2,6 +2,7 @@ import { AuthAPI } from '../../apis/v1/auth';
 import { notifications } from '@mantine/notifications';
 import { removeCookie } from '../../utils/commonHelper';
 import { resetCart } from '../../store/slices/cartSlice';
+import { logout } from '../../store/slices/userSlice';
 
 export const handleLogin = async (
   user,
@@ -43,7 +44,7 @@ export const handleLogout = async (setUser, router, dispatch) => {
     setUser(null);
 
     // Clear Redux state
-    dispatch({ type: 'LOGOUT' });
+    dispatch(logout());
     dispatch(resetCart());
 
     // Call API logout to clear server-side session/cookies
@@ -70,7 +71,7 @@ export const handleLogout = async (setUser, router, dispatch) => {
     removeCookie(process.env.NEXT_PUBLIC_COOKIES_ACCESS_TOKEN);
 
     // Clear Redux state
-    dispatch({ type: 'LOGOUT' });
+    dispatch(logout());
     dispatch(resetCart());
 
     // Still redirect to authentication

@@ -13,6 +13,7 @@ import { CacheAPI } from '../../../apis/v1/redis/index';
 import classes from '../Navbar.module.css';
 import { notifications } from '@mantine/notifications';
 import { resetCart } from '../../../store/slices/cartSlice';
+import { updateUserInfo, logout } from '../../../store/slices/userSlice';
 
 interface INavbarDesktop {
   links: NavLink[];
@@ -47,11 +48,11 @@ export const NavbarDesktop = ({ links, cartItems, loginMenuLinks, drawerOpened, 
     }
   }, [user]);
 
-  function logout(e: any) {
+  function appLogout(e: any) {
     e.preventDefault();
 
     // Clear Redux state
-    dispatch({ type: 'LOGOUT' });
+    dispatch(logout());
     dispatch(resetCart());
 
     // Call the auth logout which handles cookies and navigation
@@ -223,7 +224,7 @@ export const NavbarDesktop = ({ links, cartItems, loginMenuLinks, drawerOpened, 
                   <Menu.Divider />
 
                   <Menu.Item
-                    onClick={logout}
+                    onClick={appLogout}
                     color="red"
                     leftSection={<IconLogout style={{ width: rem(14), height: rem(14) }} />}
                   >

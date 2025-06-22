@@ -1,5 +1,5 @@
-import { configureStore } from '@reduxjs/toolkit';
-import { createWrapper } from 'next-redux-wrapper';
+import { configureStore, ThunkAction, Action } from '@reduxjs/toolkit';
+import { createWrapper, HYDRATE } from 'next-redux-wrapper';
 import { cartReducer } from './slices/cartSlice';
 import { categoryReducer } from './slices/categorySlice';
 import { sidebarReducer } from './slices/sidebarSlice';
@@ -10,24 +10,45 @@ import { blogCategoryReducer } from './slices/blogCategorySlice';
 import { blogSidebarReducer } from './slices/blogSidebarSlice';
 import { imageReducer } from './slices/imageSlice';
 
-export const store = configureStore({
-    reducer: {
-        cart: cartReducer,
-        sidebar: sidebarReducer,
-        category: categoryReducer,
-        user: userReducer,
+// Create the store configuration
+const makeStore = () =>
+    configureStore({
+        reducer: {
+            cart: cartReducer,
+            sidebar: sidebarReducer,
+            category: categoryReducer,
+            user: userReducer,
+            auth: authReducer,
+            content: contentReducer,
+            blogSidebar: blogSidebarReducer,
+            blogCategory: blogCategoryReducer,
+            image: imageReducer,
+        },
+        devTools: process.env.NODE_ENV !== 'production',
+        middleware: (getDefaultMiddleware) =>
+            getDefaultMiddleware({
+                serializableCheck: {
+                    // Ignore these action types for serialization checks
+                    ignoredActions: [HYDRATE],
+                },
+            }),
+    });
 
-        auth: authReducer,
-        content: contentReducer,
-        blogSidebar: blogSidebarReducer,
-        blogCategory: blogCategoryReducer,
-        image: imageReducer,
-    },
-    devTools: true
-})
+// Export store type
+export type AppStore = ReturnType<typeof makeStore>;
+export type RootState = ReturnType<AppStore['getState']>;
+export type AppDispatch = AppStore['dispatch'];
+export type AppThunk<ReturnType = void> = ThunkAction<
+    ReturnType,
+    RootState,
+    unknown,
+    Action<string>
+>;
 
-export type RootState = ReturnType<typeof store.getState>;
-export type AppDispatch = typeof store.dispatch;
+// Create wrapper
+export const wrapper = createWrapper<AppStore>(makeStore, {
+    debug: process.env.NODE_ENV === 'development',
+});
 
-const makeStore = () => store;
-export const wrapper = createWrapper(makeStore);
+// For legacy compatibility (if needed)
+export const store = makeStore();

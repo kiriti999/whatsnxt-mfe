@@ -28,6 +28,10 @@ import useAuth from '../../hooks/Authentication/useAuth';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { checkSuccessResponse, fetchUser, getErrorMessageFromResponse } from '../../utils/commonHelper';
 
+// Import RTK actions
+import { updateCart, addToCart } from '../../store/slices/cartSlice';
+import { updateUserInfo } from '../../store/slices/userSlice'; // Assuming you have this
+
 interface IFormData {
   email: string;
   name: string;
@@ -69,37 +73,61 @@ export function AuthenticationForm(props: PaperProps) {
     reset()
   }, [isRegisterForm])
 
-
   const fetchCartInfo = async () => {
-    const cartRes = await CartAPI.fetch();
-    const localCarts = localStorage.getItem("cart");
-    if (cartRes.cart) {
-      if (localCarts) {
-        const localCartObj = JSON.parse(localCarts) as { cartItems: any[] };
-        dispatch({ type: 'UPDATE_CART', data: cartRes.cart });
-        //Loop through the localstorage and add them to user's cart
-        localCartObj.cartItems.forEach(item => {
-          // exclude course if in user's cart already
-          if (cartRes.cart.cartItems.some(cartItem => item.id === cartItem.id)) return;
+    try {
+      const cartRes = await CartAPI.fetch();
+      const localCarts = localStorage.getItem("cart");
 
-          const courseObj = { ...item, price: item.total_cost, id: item.id.replace("price_", "") };
+      if (cartRes.cart) {
+        // Update cart with server data
+        dispatch(updateCart({
+          cartItems: cartRes.cart.cartItems || [],
+          discount: cartRes.cart.discount || 0
+        }));
 
-          dispatch({ type: 'ADD_TO_CART', data: courseObj });
-        })
+        if (localCarts) {
+          const localCartObj = JSON.parse(localCarts) as { cartItems: any[] };
+
+          // Loop through localStorage items and add them to user's cart
+          localCartObj.cartItems.forEach(item => {
+            // Exclude course if already in user's cart
+            const itemExists = cartRes.cart.cartItems.some(cartItem => item.id === cartItem.id);
+            if (itemExists) return;
+
+            // Clean up the item data and add to cart
+            const courseObj = {
+              ...item,
+              id: item.id.replace("price_", ""),
+              price: item.total_cost || item.price || 0,
+              quantity: item.quantity || 1
+            };
+
+            dispatch(addToCart(courseObj));
+          });
+        }
         return;
       }
 
-      dispatch({ type: 'UPDATE_CART', data: cartRes.cart });
-      return;
-    } else {
+      // No cart exists, create one
       await CartAPI.createCart();
-      if (!localCarts) return;
-      const localCartObj = JSON.parse(localCarts) as { cartItems: any[] };
-      //Loop through the localstorage and add them to user's cart
-      localCartObj.cartItems.forEach(item => {
-        const courseObj = { ...item, price: item.total_cost, id: item.id.replace("price_", "") };
-        dispatch({ type: 'ADD_TO_CART', data: courseObj });
-      })
+
+      if (localCarts) {
+        const localCartObj = JSON.parse(localCarts) as { cartItems: any[] };
+
+        // Loop through localStorage and add items to new cart
+        localCartObj.cartItems.forEach(item => {
+          const courseObj = {
+            ...item,
+            id: item.id.replace("price_", ""),
+            price: item.total_cost || item.price || 0,
+            quantity: item.quantity || 1
+          };
+
+          dispatch(addToCart(courseObj));
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching cart info:', error);
     }
   };
 
@@ -123,8 +151,6 @@ export function AuthenticationForm(props: PaperProps) {
           message: 'Error on sending otp, try again!',
           color: 'red',
         });
-
-
       },
       onError: (error) => {
         notifications.show({
@@ -150,17 +176,13 @@ export function AuthenticationForm(props: PaperProps) {
             autoClose: 5000
           });
 
+          // Note: If you want to auto-login after registration, uncomment and update:
+          // const token = response.token;
           // if (token) {
-          //   // Auto-login user
           //   const userObject = await fetchUser(token);
-          //   dispatch({ 
-          //     type: 'LOGIN', 
-          //     data: { 
-          //       token: token, 
-          //       userObject: userObject 
-          //     } 
-          //   });
+          //   dispatch(updateUserInfo(userObject));
           //   await login(userObject);
+          //   await fetchCartInfo();
           //   router.push(redirectUrl);
           //   return;
           // }
@@ -198,12 +220,20 @@ export function AuthenticationForm(props: PaperProps) {
       onSuccess: async (response: any) => {
         if (checkSuccessResponse(response)) {
           const token = response.token;
-          const userObject = await fetchUser(token); // Pass token explicitly
+          const userObject = await fetchUser(token);
+
+          // Update Redux state with user info
+          dispatch(updateUserInfo(userObject));
+
+          // Login through auth context
           await login(userObject);
+
+          // Fetch and merge cart info
           await fetchCartInfo();
+
+          // Redirect to intended page
           router.push(redirectUrl);
         }
-
       },
       onError: (error) => {
         notifications.show({
@@ -339,7 +369,6 @@ export function AuthenticationForm(props: PaperProps) {
           </Group>
         </form>
       </Box>
-
     </Paper>
   );
 }
