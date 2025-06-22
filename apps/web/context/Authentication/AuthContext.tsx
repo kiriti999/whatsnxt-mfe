@@ -20,6 +20,7 @@ type User = {
   phone: string;
   rate: number;
   skills: string[];
+  address: string;
   updatedAt: string;
   _id: string;
   isAuthenticated: boolean; // Required field now

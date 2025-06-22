@@ -44,7 +44,7 @@ function TutorialContentDetails({ details }: any) {
   const [views, setViews] = useState(0);
   const { user } = useAuth();
   const email = user?.email || '';
-  const userId = user?.id;
+  const userId = user?._id;
 
   const [activeHeadingRef, setActiveHeadingRef] = useState<HTMLElement | null>(
     null

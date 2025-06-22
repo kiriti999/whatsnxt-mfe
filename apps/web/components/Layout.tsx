@@ -9,7 +9,7 @@ import { GoTop } from '@whatsnxt/core-util';
 import CookieConsent from 'react-cookie-consent';
 import { Box } from '@mantine/core';
 
-const Layout = ({ children, user, loginMenuLinks, links, copyRight }) => {
+const Layout = ({ children, loginMenuLinks, links, copyRight }) => {
 
   return (
     <>

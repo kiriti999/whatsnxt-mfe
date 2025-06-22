@@ -78,7 +78,7 @@ function BlogContentDetails({ details }: BlogContentDetailsProps) {
   const [views, setViews] = useState(0);
   const { user } = useAuth();
   const email = user?.email;
-  const userId = user?.id;
+  const userId = user?._id;
 
   const onHeadingsExtracted = useCallback(
     (headings: { ref: HTMLElement; text: string; id: string }[]) => {

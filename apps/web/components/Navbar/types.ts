@@ -33,4 +33,5 @@ export type User = {
   to?: any;
   trainerProfilePhoto?: any;
   updatedAt: string;
+  address: string;
 };

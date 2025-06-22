@@ -61,7 +61,7 @@ const TiptapManageContextProvider = ({ isAssetsUploading, children, courseId, se
     useEffect(() => {
         if (user) {
             (async function () {
-                const userId = user?.id
+                const userId = user?._id
                 // @ts-ignore
                 setUserId(userId);
             })();

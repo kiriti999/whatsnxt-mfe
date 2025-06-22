@@ -81,7 +81,7 @@ export default function AppProvider({ children, user }: { children: ReactNode, u
               <TypographyStylesProvider>
                 <ModalsProvider>
                   <SearchProvider>
-                    <Layout user={user} {...headerProps}>
+                    <Layout {...headerProps}>
                       <CourseManageContextProvider>
                         {children}
                       </CourseManageContextProvider>
