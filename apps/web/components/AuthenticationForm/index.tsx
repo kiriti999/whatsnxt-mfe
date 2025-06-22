@@ -1,5 +1,5 @@
 "use client"
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useToggle, upperFirst } from '@mantine/hooks';
 import { useForm } from 'react-hook-form';
@@ -26,8 +26,7 @@ import { useMutation } from '@tanstack/react-query';
 import styles from './Authentication.module.css';
 import useAuth from '../../hooks/Authentication/useAuth';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { AuthContext } from '../../context/Authentication/AuthContext';
-import { checkSuccessResponse, fetchUser, getCookieAccessToken, getErrorMessageFromResponse } from '../../utils/commonHelper';
+import { checkSuccessResponse, fetchUser, getErrorMessageFromResponse } from '../../utils/commonHelper';
 
 interface IFormData {
   email: string;
@@ -70,19 +69,6 @@ export function AuthenticationForm(props: PaperProps) {
     reset()
   }, [isRegisterForm])
 
-  const { setUser } = useContext(AuthContext); // Use setUser from AuthContext
-
-  useEffect(() => {
-    const fetchUser = async () => {
-      const storedUser = getCookieAccessToken();
-      if (storedUser) {
-        const parsedUser = JSON.parse(storedUser);
-        setUser(parsedUser); // Update AuthContext with the fetched user
-        router.push(redirectUrl)
-      }
-    };
-    fetchUser();
-  }, [setUser]);
 
   const fetchCartInfo = async () => {
     const cartRes = await CartAPI.fetch();
@@ -156,8 +142,6 @@ export function AuthenticationForm(props: PaperProps) {
       mutationFn: async (formData: any) => await AuthAPI.createAccount(formData),
       onSuccess: async (response: any) => {
         if (checkSuccessResponse(response)) {
-          const token = await getCookieAccessToken()
-          console.log(' onSuccess: :: token:', token)
           notifications.show({
             position: 'bottom-right',
             title: 'Registration Success',
@@ -214,21 +198,7 @@ export function AuthenticationForm(props: PaperProps) {
       onSuccess: async (response: any) => {
         if (checkSuccessResponse(response)) {
           const token = response.token;
-
-          // Dispatch token first so API calls can use it
-          dispatch({
-            type: 'UPDATE_USER_TOKEN',
-            data: token
-          });
-
           const userObject = await fetchUser(token); // Pass token explicitly
-          console.log('userObject fetched:', userObject);
-
-          dispatch({
-            type: 'UPDATE_USER_INFO',
-            data: userObject
-          });
-
           await login(userObject);
           await fetchCartInfo();
           router.push(redirectUrl);

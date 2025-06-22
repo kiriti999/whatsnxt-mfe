@@ -1,14 +1,14 @@
 import { createContext, useEffect, useState, useMemo, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import Cookies from 'js-cookie';
 import { useSearchParams } from 'next/navigation'
 import { useDispatch } from 'react-redux';
 import { handleLogin, handleLogout } from './authActions';
 
 type User = {
   about: string;
+  role: string;
   active: boolean;
-  agreedTerms: boolean;
+  agreedTerms?: boolean;
   as_trainer_apply: boolean;
   availability: string;
   createdAt: string;
@@ -22,85 +22,79 @@ type User = {
   skills: string[];
   updatedAt: string;
   _id: string;
+  isAuthenticated: boolean; // Required field now
 };
 
-// ** Types
 export interface AuthContextType {
-  user: any;
+  user: User | null;
   loading: boolean;
   isAuthenticated: boolean;
-  setUser: (user: any) => void;
+  setUser: (user: User | null) => void;
   setLoading: (loading: boolean) => void;
-  login: (
-    user: User,
-    isToastMessage?: boolean
-  ) => Promise<void>;
+  login: (user: User, isToastMessage?: boolean) => Promise<void>;
   logout: () => Promise<void>;
-  token: string;
+  token: string | null;
 }
 
-// ** Defaults
 const defaultProvider: AuthContextType = {
   user: null,
-  loading: true,
+  loading: false,
   setUser: () => null,
   setLoading: () => null,
   login: () => Promise.resolve(),
   logout: () => Promise.resolve(),
   isAuthenticated: false,
-  token: ''
+  token: null
 };
 
 const AuthContext = createContext<AuthContextType>(defaultProvider);
 
 interface AuthProviderProps {
   children: React.ReactNode;
-  userData?: any;
+  userData?: User | null;
+  initialToken?: string;
 }
 
-const AuthProvider = ({ children, userData }: AuthProviderProps) => {
+const AuthProvider = ({
+  children,
+  userData,
+  initialToken
+}: AuthProviderProps) => {
   const dispatch = useDispatch();
   const searchParams = useSearchParams();
   const router = useRouter();
 
-  // Initialize user state from userData or cookies
-  const [user, setUser] = useState(() => {
-    if (userData) return userData;
-
-    try {
-      const userCookie = Cookies.get(process.env.NEXT_PUBLIC_COOKIES_USER_INFO);
-      return userCookie ? JSON.parse(userCookie) : null;
-    } catch (error) {
-      console.error('Error parsing user cookie:', error);
-      return null;
-    }
-  });
-
+  // Initialize state from server-side data
+  const [user, setUser] = useState<User | null>(userData || null);
   const [loading, setLoading] = useState<boolean>(false);
+  const [token] = useState<string | null>(initialToken || null);
 
-  // Get current token from cookies (computed each time)
-  const token = useMemo(() => {
-    return Cookies.get(process.env.NEXT_PUBLIC_COOKIES_ACCESS_TOKEN) || '';
-  }, []);
+  // Determine authentication status from user object
+  const isAuthenticated = useMemo(() => {
+    return user?.isAuthenticated ?? false;
+  }, [user]);
 
-  // Simple setUser function (no cookie management - backend handles it)
-  const setUserOnly = useCallback((newUser: any) => {
+  const setUserOnly = useCallback((newUser: User | null) => {
     setUser(newUser);
   }, []);
 
-  // Only sync with userData prop changes
+  // Sync with userData prop changes (from server-side updates)
   useEffect(() => {
-    if (userData && (!user || JSON.stringify(userData) !== JSON.stringify(user))) {
-      console.log('Updating user from userData prop');
+    if (userData !== undefined) {
       setUserOnly(userData);
     }
   }, [userData, setUserOnly]);
 
+  // Debug logging
+  useEffect(() => {
+    console.log('Debug:: AuthContext state updated: ', user)
+  }, [user, isAuthenticated]);
 
-  // Memoize functions to prevent unnecessary re-renders
   const login = useMemo(() =>
-    async (user: User, isToastMessage = true) => {
-      return handleLogin(user, setUserOnly, router, searchParams, isToastMessage);
+    async (loginUser: User, isToastMessage = true) => {
+      // Ensure isAuthenticated is set to true during login
+      const authenticatedUser = { ...loginUser, isAuthenticated: true };
+      return handleLogin(authenticatedUser, setUserOnly, router, searchParams, isToastMessage);
     },
     [router, searchParams, setUserOnly]
   );
@@ -112,9 +106,8 @@ const AuthProvider = ({ children, userData }: AuthProviderProps) => {
     [router, dispatch, setUserOnly]
   );
 
-  // Memoize context value to prevent unnecessary re-renders
   const values: AuthContextType = useMemo(() => ({
-    isAuthenticated: !!user,
+    isAuthenticated,
     user,
     loading,
     setUser: setUserOnly,
@@ -122,7 +115,7 @@ const AuthProvider = ({ children, userData }: AuthProviderProps) => {
     login,
     logout,
     token
-  }), [user, loading, token, login, logout, setUserOnly]);
+  }), [isAuthenticated, user, loading, token, login, logout, setUserOnly]);
 
   return <AuthContext.Provider value={values}>{children}</AuthContext.Provider>;
 };

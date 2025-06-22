@@ -27,10 +27,9 @@ import { useMutation } from '@tanstack/react-query';
 import styles from './GuestCheckout.module.css';
 import useAuth from '../../../hooks/Authentication/useAuth';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { AuthContext } from '../../../context/Authentication/AuthContext';
 import { IconLogin } from '@tabler/icons-react';
 import { PageBanner } from '@whatsnxt/core-ui';
-import { checkSuccessResponse, fetchUser, getCookieAccessToken, getErrorMessageFromResponse } from '../../../utils/commonHelper';
+import { checkSuccessResponse, fetchUser, getErrorMessageFromResponse } from '../../../utils/commonHelper';
 
 interface IFormData {
   email: string;
@@ -75,20 +74,6 @@ export const GuestCheckoutComponent: FC<GuestCheckoutComponentProps> = () => {
     }
     reset()
   }, [isRegisterForm])
-
-  const { setUser } = useContext(AuthContext); // Use setUser from AuthContext
-
-  useEffect(() => {
-    const fetchUser = async () => {
-      const storedUser = getCookieAccessToken();
-      if (storedUser) {
-        const parsedUser = JSON.parse(storedUser);
-        setUser(parsedUser); // Update AuthContext with the fetched user
-        router.push(redirectUrl)
-      }
-    };
-    fetchUser();
-  }, [setUser]);
 
   const fetchCartInfo = async () => {
     const cartRes = await CartAPI.fetch();
@@ -146,15 +131,7 @@ export const GuestCheckoutComponent: FC<GuestCheckoutComponentProps> = () => {
             color: 'green',
           });
           const token = response.token;
-
-          // Dispatch token first so API calls can use it
-          dispatch({
-            type: 'UPDATE_USER_TOKEN',
-            data: token
-          });
-
           const userObject = await fetchUser(token); // Pass token explicitly
-          console.log('userObject fetched:', userObject);
 
           dispatch({
             type: 'UPDATE_USER_INFO',
@@ -202,20 +179,12 @@ export const GuestCheckoutComponent: FC<GuestCheckoutComponentProps> = () => {
       onSuccess: async (response: any) => {
         if (checkSuccessResponse(response)) {
           const token = response.token;
-
-          // Dispatch token first so API calls can use it
-          dispatch({
-            type: 'UPDATE_USER_TOKEN',
-            data: token
-          });
-
           const userObject = await fetchUser(token); // Pass token explicitly
-          console.log('userObject fetched:', userObject);
 
-          dispatch({
-            type: 'UPDATE_USER_INFO',
-            data: userObject
-          });
+          // dispatch({
+          //   type: 'UPDATE_USER_INFO',
+          //   data: userObject
+          // });
 
           await fetchCartInfo();
           await login(userObject);

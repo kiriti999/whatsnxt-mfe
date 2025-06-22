@@ -1,3 +1,4 @@
+// layout.tsx - Updated version
 // Global Styles
 import "./globals.css"
 import '../styles/bootstrap.min.css';
@@ -8,35 +9,54 @@ import React, { ReactNode } from 'react'
 import { Nunito } from "next/font/google"
 import { cookies } from "next/headers";
 import { Metadata } from "next";
-import Providers from '../components/StateWrappers/StateWrappers'
+import Providers from '../components/AppProvider/AppProvider'
 import { fetchUser } from '../utils/commonHelper';
 
 const nunito = Nunito({
   subsets: ["latin"],
-  weight: ['200', '300', '400', '600', '700', '900'], // Specify the weights you're using
-  style: ['normal', 'italic'], // Specify if you're using normal/italic styles
-  display: 'swap' // Optional: improve font rendering performance
+  weight: ['200', '300', '400', '600', '700', '900'],
+  style: ['normal', 'italic'],
+  display: 'swap'
 });
 
-const getUser = async () => {
+const getAuthData = async () => {
   const tokenKeyName = process.env.NEXT_PUBLIC_COOKIES_ACCESS_TOKEN;
 
   const cookieStore = await cookies();
-  const token = cookieStore.get(tokenKeyName); // Safely access the token
+  const token = cookieStore.get(tokenKeyName);
 
-  let pageProps = {} as any;
-
-  // Fetch user data if the token exists
   if (token) {
-    const user = await fetchUser(token.value);
+    try {
+      const user = await fetchUser(token.value);
+      console.log('getAuthData :: fetchUser response:', user);
 
-    if (!user || !user.active) {
-      // destroyCookie(ctx, tokenKeyName); // Destroy the token cookie if the user is not active
+      // FIXED: Check for user existence and isAuthenticated instead of user.active
+      if (!user) {
+        console.log('getAuthData :: user is null, returning null');
+        return null;
+      }
+
+      // If fetchUser already returned isAuthenticated: true, use it directly
+      if (user.isAuthenticated) {
+        return user;
+      }
+
+      // Otherwise, add isAuthenticated: true (fallback for older responses)
+      const authenticatedUser = {
+        ...user,
+        isAuthenticated: true
+      };
+      console.log('getAuthData :: returning authenticated user:', authenticatedUser);
+      return authenticatedUser;
+
+    } catch (error) {
+      console.error('getAuthData :: error fetching user:', error);
+      return null;
     }
-    pageProps.user = user; // Add user data to pageProps
+  } else {
+    console.log('getAuthData :: no token, returning null');
+    return null;
   }
-
-  return { pageProps };
 };
 
 export const metadata: Metadata = {
@@ -56,12 +76,13 @@ export const metadata: Metadata = {
 }
 
 async function RootLayout({ children }: { children: ReactNode }) {
-  const { pageProps } = await getUser()
+  const userData = await getAuthData(); // Get user data directly
+  console.log('RootLayout :: userData:', userData)
 
   return (
-    <html lang='en' className={nunito.className}>
+    <html lang="en" className={nunito.className}>
       <body>
-        <Providers user={pageProps.user}>
+        <Providers user={userData}> {/* Pass user prop directly */}
           {children}
         </Providers>
       </body>

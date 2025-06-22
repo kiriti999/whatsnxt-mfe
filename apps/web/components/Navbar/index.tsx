@@ -20,10 +20,6 @@ type headerProps = {
     links: LinkType[];
     loginMenuLinks: LinkType[];
     copyRight: string,
-    user: {
-        name: string
-        role: string
-    }
 }
 
 const Navbar = ({ loginMenuLinks, links }: headerProps) => {

@@ -50,7 +50,7 @@ export const fetchUser = async (token: any) => {
     const url = `${process.env.NEXT_PUBLIC_BFF_HOST_COMMON_API}/profile`;
     // const response = await AccountAPI.get(); // This is not working - dont use AccountAPI
     const response = await xior.get(url, payload);
-    return response?.data?.profile;
+    return response?.data;
   } catch (error) {
     console.log('auth.js:: fetchUser:: error: ', error);
   }

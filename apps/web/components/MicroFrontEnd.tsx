@@ -3,19 +3,19 @@ import TopCourses from './TopCourses/TopCourses';
 import type { CourseType } from '@whatsnxt/core-util';
 import TrendingArticles from './TrendingArticles';
 
-interface CoursesMicroFrontendProps {
+interface MicroFrontendProps {
   courses: CourseType[];
   total: number;
   articles: any[]; // Add articles prop
   totalArticles: number; // Add totalArticles prop
 }
 
-export default function CoursesMicroFrontend({
+export default function MicroFrontend({
   courses,
   total,
   articles,
   totalArticles
-}: CoursesMicroFrontendProps): ReactElement {
+}: MicroFrontendProps): ReactElement {
   return (
     <>
       <TopCourses courses={courses || []} total={total || 0} />

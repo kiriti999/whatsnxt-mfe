@@ -17,8 +17,8 @@ import { User } from '../Navbar/types';
 import { ModalsProvider } from '@mantine/modals';
 import SearchProvider from '../../context/SearchContext';
 
-
-export default function CoursesMicrofrontend({ children, user }: { children: ReactNode, user: User }): JSX.Element {
+export default function AppProvider({ children, user }: { children: ReactNode, user: User }): JSX.Element {
+  const isAuthenticated = user?.isAuthenticated || false;
   const [queryClient] = useState(
     () =>
       new QueryClient({

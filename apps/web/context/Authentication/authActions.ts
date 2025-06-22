@@ -10,8 +10,16 @@ export const handleLogin = async (
   searchParams,
   isToastMessage = true
 ) => {
-  // Set user in state and cookie
-  setUser(user);
+  console.log('handleLogin called with user:', user);
+
+  // Ensure user has isAuthenticated set to true
+  const authenticatedUser = {
+    ...user,
+    isAuthenticated: true
+  };
+
+  // Set user in state (cookie setting is handled server-side)
+  setUser(authenticatedUser);
 
   if (isToastMessage) {
     notifications.show({
@@ -28,6 +36,8 @@ export const handleLogin = async (
 };
 
 export const handleLogout = async (setUser, router, dispatch) => {
+  console.log('handleLogout called');
+
   try {
     // Clear user state immediately
     setUser(null);
@@ -36,17 +46,26 @@ export const handleLogout = async (setUser, router, dispatch) => {
     dispatch({ type: 'LOGOUT' });
     dispatch(resetCart());
 
-    // Clear localStorage
-    localStorage.removeItem('cart');
-
-    // Then call API logout
+    // Call API logout to clear server-side session/cookies
     await AuthAPI.logout();
 
     // Navigate to authentication page
     router.replace('/authentication');
+
+    // Show logout success notification
+    notifications.show({
+      position: 'bottom-right',
+      title: 'Logged Out',
+      message: 'You have been successfully logged out',
+      color: 'blue',
+    });
   } catch (e) {
+    console.error('Logout error:', e);
+
     // Ensure cleanup even if API fails
     setUser(null);
+
+    // Fallback: manually clear cookies if API logout fails
     removeCookie(process.env.NEXT_PUBLIC_COOKIES_USER_INFO);
     removeCookie(process.env.NEXT_PUBLIC_COOKIES_ACCESS_TOKEN);
 
@@ -54,10 +73,15 @@ export const handleLogout = async (setUser, router, dispatch) => {
     dispatch({ type: 'LOGOUT' });
     dispatch(resetCart());
 
-    // Clear localStorage
-    // localStorage.removeItem('cart');
-
     // Still redirect to authentication
     router.replace('/authentication');
+
+    // Show error notification
+    notifications.show({
+      position: 'bottom-right',
+      title: 'Logout Error',
+      message: 'Logout completed locally due to server error',
+      color: 'orange',
+    });
   }
 };

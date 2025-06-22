@@ -4,8 +4,8 @@ import { MainBanner } from '@whatsnxt/core-ui'
 import React from 'react'
 import dynamic from 'next/dynamic'
 
-const DynamicCoursesComponent = dynamic(() =>
-  import('../../../components/CoursesMicroFrontEnd').then((courseMfe) => courseMfe)
+const DynamicComponent = dynamic(() =>
+  import('../../../components/MicroFrontEnd').then((mfe) => mfe)
 )
 
 interface HomeProps {
@@ -20,7 +20,7 @@ function Home({ data, articles }: HomeProps) {
   return (
     <div>
       <MainBanner />
-      <DynamicCoursesComponent
+      <DynamicComponent
         courses={data?.courses || []}
         total={data?.total || 0}
         articles={articles || []} // Access the articles array properly

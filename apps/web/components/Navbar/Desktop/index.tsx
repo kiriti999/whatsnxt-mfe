@@ -3,9 +3,9 @@ import Link from 'next/link';
 import { useDispatch } from 'react-redux';
 import { Cart, Logo } from '@whatsnxt/core-ui';
 import { useMediaQuery } from '@mantine/hooks';
-import { Button, rem, Burger, Space, Anchor, Box, Tooltip, Menu } from '@mantine/core';
-import { IconLogin, IconLogout, IconSearch, IconX, IconChevronRight } from '@tabler/icons-react';
-import type { Link as NavLink, User } from '../types';
+import { Button, rem, Burger, Space, Anchor, Box, Menu } from '@mantine/core';
+import { IconLogin, IconLogout, IconSearch, IconX } from '@tabler/icons-react';
+import type { Link as NavLink } from '../types';
 import { NavbarNotification } from '../NavbarNotification/index';
 import Search from '../../Search';
 import useAuth from '../../../hooks/Authentication/useAuth';
@@ -24,26 +24,28 @@ interface INavbarDesktop {
 
 export const NavbarDesktop = ({ links, cartItems, loginMenuLinks, drawerOpened, toggleDrawer }: INavbarDesktop) => {
   const [isSearch, setIsSearch] = useState(false);
-  const { logout: handleLogout, user: userInfoData, loading, isAuthenticated } = useAuth();
+  const { logout: handleLogout, user, loading, isAuthenticated } = useAuth();
   const [usernameLabel, setUsernameLabel] = useState<string | null>(null);
-  const isAdmin = userInfoData && userInfoData.role === 'admin';
-  const isTrainer = userInfoData && userInfoData.role === 'trainer';
+
+  // Simplified role checks - now using user directly
+  const isAdmin = user?.role === 'admin';
+  const isTrainer = user?.role === 'trainer';
+
   const isXL = useMediaQuery("(min-width: 1200px)");
-
-  // Add new media queries for iPad Pro resolutions
   const isLargerThanIpadPro = useMediaQuery("(min-width: 1367px)");
-
   const dispatch = useDispatch();
 
-  // Update usernameLabel whenever userInfoData changes
+  // Update usernameLabel whenever user changes
   useEffect(() => {
-    if (userInfoData?.name) {
-      const usernameInitials = userInfoData.name.split(' ').map(n => n.charAt(0).toUpperCase());
+    if (user?.name) {
+      const usernameInitials = user.name.split(' ').map(n => n.charAt(0).toUpperCase());
       setUsernameLabel(
         usernameInitials.length > 1 ? `${usernameInitials[0]}${usernameInitials[1]}` : usernameInitials[0]
       );
+    } else {
+      setUsernameLabel(null);
     }
-  }, [userInfoData]);
+  }, [user]);
 
   function logout(e: any) {
     e.preventDefault();
@@ -51,10 +53,6 @@ export const NavbarDesktop = ({ links, cartItems, loginMenuLinks, drawerOpened, 
     // Clear Redux state
     dispatch({ type: 'LOGOUT' });
     dispatch(resetCart());
-    // dispatch({ type: 'UPDATE_CART', data: { cartItems: [], discount: 0 } });
-
-    // Clear localStorage
-    // localStorage.removeItem('cart'); // clear from store
 
     // Call the auth logout which handles cookies and navigation
     handleLogout();
@@ -136,9 +134,8 @@ export const NavbarDesktop = ({ links, cartItems, loginMenuLinks, drawerOpened, 
             <Space w="md" />
             <Cart cartItems={cartItems} />
             <Space w="xl" />
-            {isAuthenticated && <NavbarNotification user={userInfoData} />}
+            {isAuthenticated && user && <NavbarNotification user={user} />}
             <Space w="xl" />
-
 
             {isAuthenticated ? (
               <Menu shadow="md" width={250} position="bottom-end" trigger="click-hover" openDelay={100} closeDelay={400} withArrow arrowPosition="center">

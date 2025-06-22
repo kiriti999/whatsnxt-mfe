@@ -13,7 +13,7 @@ const Layout = ({ children, user, loginMenuLinks, links, copyRight }) => {
 
   return (
     <>
-      <Navbar user={user} links={links} loginMenuLinks={loginMenuLinks} copyRight={copyRight} />
+      <Navbar links={links} loginMenuLinks={loginMenuLinks} copyRight={copyRight} />
 
       <Box my={{ base: '2rem', sm: '3rem', md: '4rem' }}>
         {children}

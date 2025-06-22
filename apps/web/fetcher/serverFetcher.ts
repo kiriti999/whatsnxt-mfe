@@ -37,8 +37,6 @@ export const serverFetcher = async (BASEURL: string, URL: string, options: Fetch
         }
 
         const URI = BASEURL ? `${BASEURL}${URL}` : `undefined`;
-        console.log(' serverFetcher :: URI:', URI);
-        console.log(' serverFetcher :: token present:', !!token);
 
         const response = await fetch(
             `${URI}`,
