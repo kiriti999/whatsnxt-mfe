@@ -15,7 +15,7 @@ function ReviewAction({ reviewId, likes, dislikes }) {
         setDisikedUsers(data.disLikedBy)
     }
 
-    const toggleDisplike = async () => {
+    const toggleDislike = async () => {
         const { data } = await CourseFeedbackAPI.toggleDislike({ id: reviewId, userId: user._id });
         setLikedUsers(data.likedBy)
         setDisikedUsers(data.disLikedBy)
@@ -38,7 +38,7 @@ function ReviewAction({ reviewId, likes, dislikes }) {
 
             <Button
                 variant={"transparent"}
-                onClick={toggleDisplike}
+                onClick={toggleDislike}
                 px={0}
             >
                 {dislikedUsers.includes(user?._id) ? (

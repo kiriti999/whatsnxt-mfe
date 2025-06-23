@@ -111,7 +111,7 @@ export const useDeleteComment = ({ email, commentId, handleDeleteNode, contentId
 }
 
 export const getReactionActions = ({ email, handleEditNode, comment, setComments }: any) => {
-  const { id, hasLiked, hasDisliked, likes, dislikes } = comment || {};
+  const { id } = comment || {};
 
   const likeComment = async () => {
     if (!email) return;
@@ -121,19 +121,18 @@ export const getReactionActions = ({ email, handleEditNode, comment, setComments
       commentId: id,
       email,
     });
-    const hasLiked = data.likedBy?.includes(email);
 
-    // Toggle like state and handle dislike state
-    handleEditNode(id, 'hasLiked', hasLiked);
-    handleEditNode(id, 'hasDisliked', false);
+    // Use the actual data from the server response instead of trying to calculate
+    const newLikes = data.likes;
+    const newDislikes = data.dislikes;
+    const newHasLiked = data.likedBy && data.likedBy.length > 0;
+    const newHasDisliked = data.disLikedBy && data.disLikedBy.length > 0;
 
-    // Update like count and adjust dislike count if needed
-    handleEditNode(id, 'likes', hasLiked ? likes + 1 : likes - 1);
-    handleEditNode(
-      id,
-      'dislikes',
-      hasDisliked ? dislikes - 1 : dislikes
-    );
+    // Update the UI with the actual server values
+    handleEditNode(id, 'hasLiked', newHasLiked);
+    handleEditNode(id, 'hasDisliked', newHasDisliked);
+    handleEditNode(id, 'likes', newLikes);
+    handleEditNode(id, 'dislikes', newDislikes);
   };
 
   const dislikeComment = async () => {
@@ -145,19 +144,17 @@ export const getReactionActions = ({ email, handleEditNode, comment, setComments
       email,
     });
 
-    const hasDisliked = data.disLikedBy?.includes(email);
+    // Use the actual data from the server response
+    const newLikes = data.likes;
+    const newDislikes = data.dislikes;
+    const newHasLiked = data.likedBy && data.likedBy.length > 0;
+    const newHasDisliked = data.disLikedBy && data.disLikedBy.length > 0;
 
-    // Toggle dislike state and handle like state
-    handleEditNode(id, 'hasLiked', false);
-    handleEditNode(id, 'hasDisliked', hasDisliked);
-
-    // Update dislike count and adjust like count if needed
-    handleEditNode(id, 'dislikes', hasDisliked ? dislikes + 1 : dislikes - 1);
-    handleEditNode(
-      id,
-      'likes',
-      hasLiked ? likes - 1 : likes
-    );
+    // Update the UI with the actual server values
+    handleEditNode(id, 'hasLiked', newHasLiked);
+    handleEditNode(id, 'hasDisliked', newHasDisliked);
+    handleEditNode(id, 'likes', newLikes);
+    handleEditNode(id, 'dislikes', newDislikes);
   };
 
   const reportComment = async () => {
@@ -170,20 +167,24 @@ export const getReactionActions = ({ email, handleEditNode, comment, setComments
       }
 
       if (data) {
-        const { _id, flags, flaggedBy } = data;
+        const { _id, flags, hasFlagged } = data; // Use hasFlagged from server response
 
         setComments((prev: { items: any; }) => {
           let updatedItems = prev.items;
-          // remove comment from comments state which flags count is more than 4 
+
+          // Remove comment from comments state if flags count is 5 or more 
           if (flags >= 5) {
             updatedItems = updatedItems.filter((item: { id: any; }) => item.id !== _id);
+          } else {
+            // Update the comment's flagged status
+            updatedItems = updatedItems.map((item: { id: any; hasFlagged: boolean; }) => {
+              if (item.id === _id) {
+                item.hasFlagged = hasFlagged; // Use server response instead of checking array
+              }
+              return item;
+            });
           }
-          updatedItems = updatedItems.map((item: { id: any; hasFlagged: boolean; }) => {
-            if (item.id === _id && flaggedBy.includes(email)) {
-              item.hasFlagged = true;
-            }
-            return item;
-          });
+
           return { ...prev, items: updatedItems };
         });
       }

@@ -182,8 +182,10 @@ function BlogContentDetails({ details }: BlogContentDetailsProps) {
                       userId={userId}
                       email={email}
                       comment={comments}
+                      item={item}
                       root={true}
                       rootDepth={1}
+                      contentId={contentId}
                       handleInsertNode={handleInsertNode}
                       handleEditNode={handleEditNode}
                       handleDeleteNode={handleDeleteNode}

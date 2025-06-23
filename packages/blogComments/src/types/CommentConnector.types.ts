@@ -4,7 +4,7 @@ import { ReactNode, RefObject } from 'react';
 export interface CommentConnectorProps {
     commentId: number;
     commentItems: any;
-    connectorElementRef: RefObject<HTMLDivElement>;
+    connectorElementRef: any;
     name: string;
     children: ReactNode;
 }
