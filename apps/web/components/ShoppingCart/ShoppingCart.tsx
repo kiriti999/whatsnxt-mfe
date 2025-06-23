@@ -1,7 +1,8 @@
 "use client";
 
 import React, { FC, useEffect, useState } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
+import { useAppDispatch } from '../../store/hooks'; // Create this hook
 import {
   Button,
   Table,
@@ -30,16 +31,16 @@ import { useMediaQuery } from '@mantine/hooks';
 import {
   selectCartItems,
   removeFromCart,
-  updateCart
-} from '../../store/slices/cartSlice'; // Adjust path as needed
+  updateCart,
+  updateCartOnServer  // <-- Add this import
+} from '../../store/slices/cartSlice';
 
 export const ShoppingCart: FC = () => {
   const [cartAmount, setCartAmount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Use RTK selector
   const cartItems = useSelector(selectCartItems) as any;
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch(); // Use typed dispatch
   const theme = useMantineTheme();
   const isMobile = useMediaQuery(`(max-width: ${theme.breakpoints.sm})`);
 
@@ -48,9 +49,22 @@ export const ShoppingCart: FC = () => {
     setCartAmount(cartTotal);
   }, [cartItems]);
 
-  const handleRemove = (cartId: string) => {
-    // Use RTK action creator
+  const handleRemove = async (cartId: string) => {
+    // Remove item from local state
     dispatch(removeFromCart(cartId));
+
+    // Sync with server
+    try {
+      const updatedItems = cartItems.filter((item: any) => item.id !== cartId);
+      const cartData = {
+        cartItems: updatedItems,
+        discount: 0 // Get from state if needed
+      };
+
+      await dispatch(updateCartOnServer(cartData)).unwrap();
+    } catch (error) {
+      console.error('Failed to sync cart removal with server:', error);
+    }
   };
 
   // Standard table view for cart items (desktop)
@@ -149,7 +163,6 @@ export const ShoppingCart: FC = () => {
           discount: localCartData.discount || 0
         };
 
-        // Use RTK action creator
         dispatch(updateCart(updatedCartData));
       }
     } catch (error) {

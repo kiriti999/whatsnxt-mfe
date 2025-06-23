@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction, createAsyncThunk, Reducer } from '@reduxjs/toolkit';
 import { HYDRATE } from 'next-redux-wrapper';
+import { CartAPI } from '../../apis/v1/cart/cart';
 
 // Types
 export interface CartItem {
@@ -31,32 +32,30 @@ const initialState: CartState = {
 	error: null,
 };
 
-// Async thunk for server updates (avoid importing courseApiClient directly)
+// Async thunk for server updates
 export const updateCartOnServer = createAsyncThunk(
 	'cart/updateCartOnServer',
-	async (details: { cartItems: CartItem[]; discount: number }) => {
+	async (details: { cartItems: CartItem[]; discount: number }, { rejectWithValue }) => {
 		try {
-			// Use fetch instead of external client to avoid dependencies
-			const response = await fetch('/api/cart', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify(details),
-			});
-			
-			if (!response.ok) {
-				throw new Error('Failed to update cart');
+			// Using CartAPI (recommended)
+			const response = await CartAPI.updateCart(details);
+
+			// Check if response indicates success
+			if (response && (response.success || response.message === 'Cart updated successfully')) {
+				return details;
 			}
-			
-			return details;
+
+			// If response doesn't indicate success, throw error
+			throw new Error(response?.error || 'Unexpected response from server');
+
 		} catch (error) {
-			throw new Error('Failed to update cart on server');
+			console.error('Cart update error:', error);
+			// Return a rejected action with the error message
+			return rejectWithValue(error instanceof Error ? error.message : 'Failed to update cart on server');
 		}
 	}
 );
-
-// Helper functions (moved inside slice to avoid hoisting issues)
+// Helper functions
 const saveToLocalStorage = (cartItems: CartItem[], discount: number) => {
 	if (typeof window !== 'undefined') {
 		try {
@@ -106,10 +105,10 @@ const cartSlice = createSlice({
 			saveToLocalStorage(state.cartItems, state.discount);
 		},
 
-		// Add item to cart
+		// Add item to cart (with server sync)
 		addToCart: (state, action: PayloadAction<CartItem>) => {
 			const payload = action.payload;
-			
+
 			if (!payload.id) {
 				state.error = 'Item must have an id';
 				return;
@@ -154,7 +153,7 @@ const cartSlice = createSlice({
 		updateQuantity: (state, action: PayloadAction<{ id: string; quantity: number }>) => {
 			const { id, quantity } = action.payload;
 			const item = state.cartItems.find(item => item.id === id);
-			
+
 			if (item && quantity > 0) {
 				item.quantity = quantity;
 				saveToLocalStorage(state.cartItems, state.discount);
@@ -190,7 +189,7 @@ const cartSlice = createSlice({
 			state.cartItems = [];
 			state.discount = 0;
 			state.error = null;
-			
+
 			if (typeof window !== 'undefined') {
 				localStorage.removeItem('cart');
 			}

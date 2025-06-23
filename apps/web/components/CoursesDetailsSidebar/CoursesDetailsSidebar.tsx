@@ -1,14 +1,19 @@
 import React, { FC, useEffect, useMemo, useState } from 'react';
 import styles from './CoursesDetailsSidebar.module.css';
 import { notifications } from '@mantine/notifications';
-import { useSelector, useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
+import { useAppDispatch } from '../../store/hooks'; // Create this hook
 import { Anchor, LoadingOverlay, Text } from '@mantine/core';
 import Link from 'next/link';
 import ReactPlayer from 'react-player';
 import ActionButtons from './ActionButtons';
 
-// Import RTK actions
-import { addToCart, selectCartItems } from '../../store/slices/cartSlice'; // Adjust path as needed
+// Import RTK actions - ADD updateCartOnServer!
+import {
+  addToCart,
+  selectCartItems,
+  updateCartOnServer  // <-- Import this!
+} from '../../store/slices/cartSlice';
 
 import {
   IconCopy,
@@ -49,9 +54,8 @@ export const CoursesDetailsSidebar: FC<CoursesDetailsSidebarProps> = ({
   slug,
   isCourseReviewMode
 }) => {
-  // Use RTK selector
   const cartItems = useSelector(selectCartItems) as any;
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch(); // Use typed dispatch
   const [add, setAdd] = useState(false);
   const [display, setDisplay] = useState(false);
   const [isVisible, { open, close }] = useDisclosure(true);
@@ -61,10 +65,10 @@ export const CoursesDetailsSidebar: FC<CoursesDetailsSidebarProps> = ({
 
   const url = useMemo(() => `${process.env.NEXT_PUBLIC_MFE_HOST}/courses/${slug}`, [slug]);
 
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
     const courseObj = {
       id: courseId,
-      _id: courseId, // Add both for compatibility
+      _id: courseId,
       courseName,
       slug,
       price: price || 0,
@@ -76,24 +80,45 @@ export const CoursesDetailsSidebar: FC<CoursesDetailsSidebarProps> = ({
     };
 
     if (!isCourseExist()) {
-      dispatchAddToCart(courseObj);
+      await dispatchAddToCart(courseObj);
     }
   }
 
-  const dispatchAddToCart = (courseObj: any) => {
-    // Use RTK action creator
+  const dispatchAddToCart = async (courseObj: any) => {
+    // First dispatch the addToCart action (updates local state)
     dispatch(addToCart(courseObj));
-    notifications.show({
-      position: 'bottom-right',
-      title: 'Cart Updated',
-      message: `${courseObj.courseName} added to cart.`,
-      color: 'green'
-    });
+
+    // Then sync with server
+    try {
+      // Get current state after adding item
+      const currentState = {
+        cartItems: [...cartItems, courseObj],
+        discount: 0 // You may want to get this from state
+      };
+
+      // Dispatch async thunk to sync with server
+      await dispatch(updateCartOnServer(currentState)).unwrap();
+
+      notifications.show({
+        position: 'bottom-right',
+        title: 'Cart Updated',
+        message: `${courseObj.courseName} added to cart.`,
+        color: 'green'
+      });
+    } catch (error) {
+      // Handle server sync error
+      console.error('Failed to sync cart with server:', error);
+      notifications.show({
+        position: 'bottom-right',
+        title: 'Warning',
+        message: `${courseObj.courseName} added locally, but failed to sync with server.`,
+        color: 'yellow'
+      });
+    }
   };
 
   const isCourseExist = () => {
     return cartItems.find((cart: { id: string }) => {
-      // Handle both formats: direct id and prefixed id
       const cartId = cart.id.includes('_') ? cart.id.split('_')[1] : cart.id;
       return courseId === cartId;
     });
