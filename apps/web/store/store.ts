@@ -1,18 +1,31 @@
 import { configureStore, ThunkAction, Action } from '@reduxjs/toolkit';
 import { createWrapper, HYDRATE } from 'next-redux-wrapper';
-import { cartReducer } from './slices/cartSlice';
-import { categoryReducer } from './slices/categorySlice';
-import { sidebarReducer } from './slices/sidebarSlice';
-import { userReducer } from './slices/userSlice';
-import { authReducer } from './slices/authSlice';
-import { contentReducer } from './slices/contentSlice';
-import { blogCategoryReducer } from './slices/blogCategorySlice';
-import { blogSidebarReducer } from './slices/blogSidebarSlice';
-import { imageReducer } from './slices/imageSlice';
 
-// Create the store configuration
-const makeStore = () =>
-    configureStore({
+// Synchronous store creation for immediate use
+const makeStore = () => {
+    // Import reducers directly - adjust based on your actual exports
+    const cartSlice = require('./slices/cartSlice');
+    const categorySlice = require('./slices/categorySlice');
+    const sidebarSlice = require('./slices/sidebarSlice');
+    const userSlice = require('./slices/userSlice');
+    const authSlice = require('./slices/authSlice');
+    const contentSlice = require('./slices/contentSlice');
+    const blogCategorySlice = require('./slices/blogCategorySlice');
+    const blogSidebarSlice = require('./slices/blogSidebarSlice');
+    const imageSlice = require('./slices/imageSlice');
+
+    // Extract reducers - try both default and named exports
+    const cartReducer = cartSlice.default || cartSlice.cartReducer;
+    const categoryReducer = categorySlice.default || categorySlice.categoryReducer;
+    const sidebarReducer = sidebarSlice.default || sidebarSlice.sidebarReducer;
+    const userReducer = userSlice.default || userSlice.userReducer;
+    const authReducer = authSlice.default || authSlice.authReducer;
+    const contentReducer = contentSlice.default || contentSlice.contentReducer;
+    const blogCategoryReducer = blogCategorySlice.default || blogCategorySlice.blogCategoryReducer;
+    const blogSidebarReducer = blogSidebarSlice.default || blogSidebarSlice.blogSidebarReducer;
+    const imageReducer = imageSlice.default || imageSlice.imageReducer;
+
+    return configureStore({
         reducer: {
             cart: cartReducer,
             sidebar: sidebarReducer,
@@ -28,11 +41,11 @@ const makeStore = () =>
         middleware: (getDefaultMiddleware) =>
             getDefaultMiddleware({
                 serializableCheck: {
-                    // Ignore these action types for serialization checks
                     ignoredActions: [HYDRATE],
                 },
             }),
     });
+};
 
 // Export store type
 export type AppStore = ReturnType<typeof makeStore>;
@@ -50,5 +63,11 @@ export const wrapper = createWrapper<AppStore>(makeStore, {
     debug: process.env.NODE_ENV === 'development',
 });
 
-// For legacy compatibility (if needed)
-export const store = makeStore();
+// For legacy compatibility - lazy initialization
+let _store: AppStore | null = null;
+export const store = (() => {
+    if (!_store) {
+        _store = makeStore();
+    }
+    return _store;
+})();

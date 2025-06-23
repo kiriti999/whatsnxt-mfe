@@ -62,6 +62,6 @@ export const selectUserObject = (state: { user: UserState }): any | null =>
 export const selectIsAuthenticated = (state: { user: UserState }): boolean =>
     !!state.user.userToken;
 
-// Default export
+// Default export with explicit type annotation
 const reducer: Reducer<UserState> = userSlice.reducer;
 export default reducer;

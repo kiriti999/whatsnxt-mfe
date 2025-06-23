@@ -1,4 +1,4 @@
-export type ContentType = 'blog' | 'tutorial' | '';
+export type ContentType = 'blog' | 'tutorial' | 'both';
 
 export interface Category {
   _id: string;

@@ -36,9 +36,19 @@ export const updateCartOnServer = createAsyncThunk(
 	'cart/updateCartOnServer',
 	async (details: { cartItems: CartItem[]; discount: number }) => {
 		try {
-			// Dynamic import to avoid circular dependencies
-			const { courseApiClient } = await import('@whatsnxt/core-util');
-			await courseApiClient.post('/cart', details);
+			// Use fetch instead of external client to avoid dependencies
+			const response = await fetch('/api/cart', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify(details),
+			});
+			
+			if (!response.ok) {
+				throw new Error('Failed to update cart');
+			}
+			
 			return details;
 		} catch (error) {
 			throw new Error('Failed to update cart on server');
@@ -99,7 +109,7 @@ const cartSlice = createSlice({
 		// Add item to cart
 		addToCart: (state, action: PayloadAction<CartItem>) => {
 			const payload = action.payload;
-
+			
 			if (!payload.id) {
 				state.error = 'Item must have an id';
 				return;
@@ -144,7 +154,7 @@ const cartSlice = createSlice({
 		updateQuantity: (state, action: PayloadAction<{ id: string; quantity: number }>) => {
 			const { id, quantity } = action.payload;
 			const item = state.cartItems.find(item => item.id === id);
-
+			
 			if (item && quantity > 0) {
 				item.quantity = quantity;
 				saveToLocalStorage(state.cartItems, state.discount);
@@ -180,7 +190,7 @@ const cartSlice = createSlice({
 			state.cartItems = [];
 			state.discount = 0;
 			state.error = null;
-
+			
 			if (typeof window !== 'undefined') {
 				localStorage.removeItem('cart');
 			}
@@ -231,8 +241,10 @@ export const {
 	clearError,
 } = cartSlice.actions;
 
-// Export reducer
-export const cartReducer: Reducer<CartState> = cartSlice.reducer;
+// Export reducer with explicit type annotation
+const cartReducer: Reducer<CartState> = cartSlice.reducer;
+export { cartReducer };
+export default cartReducer;
 
 // Selectors
 export const selectCartItems = (state: { cart: CartState }) => state.cart.cartItems;

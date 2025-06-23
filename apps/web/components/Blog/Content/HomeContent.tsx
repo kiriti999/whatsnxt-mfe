@@ -3,9 +3,12 @@ import { useInfiniteQuery } from '@tanstack/react-query';
 import { ContentAPI } from '../../../apis/v1/blog/contentApi';
 import { RootState } from '../../../store/store';
 import { useSelector } from 'react-redux';
+import { 
+    selectCurrentTag, 
+    selectArticles 
+} from '../../../store/slices/contentSlice';
 import { usePostGrid } from './Grids/hooks/usePostGrid';
 import { LandingPagePostGrid } from './Grids/LandingPagePostGrid';
-
 
 /* eslint-disable-next-line */
 type ContentType = "blog" | "tutorial" | "both";
@@ -28,8 +31,10 @@ interface PostPage {
 
 function HomeContent(props: ContentProps) {
     const { type } = props;
-    const currentSelectedTag = useSelector((store: RootState) => store.content.currentTag);
-    const currentArticles = useSelector((store: RootState) => store.content.articles);
+    
+    // Use proper selectors instead of direct state access
+    const currentSelectedTag = useSelector(selectCurrentTag);
+    const currentArticles = useSelector(selectArticles);
 
     const queryResult = useInfiniteQuery<PostPage>({
         queryKey: ['/blog-tutorial/lists', type],

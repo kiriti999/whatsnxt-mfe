@@ -2,8 +2,8 @@
 import { CategoryAPI, ContentAPI } from '../../../../web/apis/v1/blog';
 import { useSearchParams } from 'next/navigation';
 import { useState, useEffect, useMemo } from 'react';
-import { ContentType } from '../Content/ContentComponent';
 import BlogForm from '../Form/BlogForm';
+import { ContentType } from '../../../types/form';
 
 export function BlogFormContent() {
     const params = useSearchParams();

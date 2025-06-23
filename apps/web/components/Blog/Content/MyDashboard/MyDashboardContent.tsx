@@ -3,10 +3,10 @@ import { ContentAPI } from '../../../../../web/apis/v1';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { useSearchParams } from 'next/navigation';
 import React from 'react';
-import { ContentType } from '../ContentComponent';
 import { DashboardPostGrid } from '../Grids/DashboardPostGrid';
 import { usePostGrid } from '../Grids/hooks/usePostGrid';
 import { ContentItem } from '../Grids/interface';
+import { ContentType } from '../../../../types/form';
 
 interface PostPage {
     totalRecords: number;

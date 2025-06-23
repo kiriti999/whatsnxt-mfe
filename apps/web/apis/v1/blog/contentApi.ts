@@ -1,14 +1,15 @@
 import { articleApiClient } from '@whatsnxt/core-util';
-import type { ContentType } from '../../../components/Blog/Content/ContentComponent'
+import { ContentType } from '../../../types/form';
+
 
 export const ContentAPI = {
 
-  getPosts: async function (start: number, limit: number, type: ContentType) {
+  getPosts: async function (start: number, limit: number, type: any) {
     const { data } = await articleApiClient.get(`/post/getPosts?start=${start}&limit=${limit}&type=${type}`,)
     return data ? data.posts : [];
   },
 
-  getTutorials: async function (start: number, limit: number, type: ContentType) {
+  getTutorials: async function (start: number, limit: number, type: any) {
     const { data } = await articleApiClient.get(`/tutorial?start=${start}&limit=${limit}&type=${type}`,)
     return data?.data ? data.data.tutorials : [];
   },

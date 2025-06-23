@@ -1,25 +1,51 @@
+// currencyHelper.ts - Make this completely self-contained
 export function kConverter(input: any): string {
-    const num = parseInput(input);
-    if (isValidNumber(num)) {
-        return formatNumber(num);
+    // Handle edge cases first
+    if (input === null || input === undefined || input === '') {
+        return '0';
+    }
+
+    // Parse input safely
+    let num: number;
+    if (typeof input === 'number') {
+        num = input;
+    } else if (typeof input === 'string') {
+        const parsed = parseFloat(input);
+        num = isNaN(parsed) ? 0 : parsed;
     } else {
-        return formatThousand(num);
+        num = 0;
+    }
+
+    // Handle negative numbers
+    if (num < 0) {
+        return '0';
+    }
+
+    // Format based on size
+    if (num < 1000 && num >= 0) {
+        return Math.floor(num).toString();
+    } else {
+        const thousands = num / 1000;
+        const formatted = thousands.toFixed(1);
+        return formatted.replace('.0', '') + 'k';
     }
 }
 
-function parseInput(input: any): number {
-    return typeof input === 'number' ? input : parseInt(input);
+// Additional helper functions (self-contained)
+export function formatCurrency(amount: number, currency = '₹'): string {
+    if (typeof amount !== 'number' || isNaN(amount)) {
+        return `${currency}0`;
+    }
+
+    return `${currency}${kConverter(amount)}`;
 }
 
-function isValidNumber(num: number): boolean {
-    return num < 1000 && num > 0;
-}
+export function parseCurrencyInput(input: string): number {
+    if (!input || typeof input !== 'string') {
+        return 0;
+    }
 
-function formatNumber(num: number): string {
-    return num.toFixed(0);
-}
-
-function formatThousand(num: number): string {
-    const s = (0.1 * Math.floor(num / 100)).toFixed(1);
-    return s.replace('.0', '') + 'k';
+    const cleaned = input.replace(/[^\d.]/g, '');
+    const parsed = parseFloat(cleaned);
+    return isNaN(parsed) ? 0 : parsed;
 }

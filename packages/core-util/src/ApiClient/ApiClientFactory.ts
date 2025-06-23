@@ -1,6 +1,26 @@
 // ApiClientFactory.ts
 import xior from 'xior';
-import { store } from '../../../../apps/web/store/store';
+
+// Import store type instead of the store instance to avoid circular dependencies
+type RootState = {
+    user: {
+        userToken: string | null;
+        userObject: any | null;
+    };
+    // Add other state properties as needed
+};
+
+// Lazy import function to avoid circular dependency
+const getStore = () => {
+    try {
+        // Dynamic import to avoid circular dependency issues
+        const { store } = require('../../../../apps/web/store/store');
+        return store;
+    } catch (error) {
+        console.warn('Could not access store:', error);
+        return null;
+    }
+};
 
 export type ApiClientType = 'common' | 'course' | 'article';
 
@@ -19,7 +39,6 @@ function isWebWorker(): boolean {
 }
 
 // Auth-specific error handler
-// Updated commonErrorHandler in ApiClientFactory.ts
 const commonErrorHandler = async (error: any) => {
     const statusCode = error.response?.status;
     const backendMessage = error.response?.data?.message;
@@ -32,8 +51,8 @@ const commonErrorHandler = async (error: any) => {
 
         // Special handling for 401 - could redirect to login or handle differently
         if (statusCode === 401) {
-            console.warn(`Uncommonorized:: message: ${backendMessage || error.response.statusText} code: ${statusCode}`);
-            throw new Error(backendMessage || 'uncommonorized');
+            console.warn(`Unauthorized:: message: ${backendMessage || error.response.statusText} code: ${statusCode}`);
+            throw new Error(backendMessage || 'Unauthorized');
         }
 
         // For any error response, extract the backend message if available
@@ -71,12 +90,23 @@ const xiorRequestInterceptor = (config: any) => {
         delete config.data.accessToken;
         console.log('✅ Token from request data');
     } else {
-        // Try to get token from Redux for web workers
+        // Try to get token from Redux store safely
         try {
-            const state = store.getState(); // You'll need to import store
-            token = state.user?.userToken; // *** This TOKEN IS LOST WHEN PAGE IS REFRESHED AND THIS IS EXPECTED. LETS NOT SET COOKIE TO http:false to prevent XSS cookie access
+            const store = getStore();
+            if (store) {
+                const state = store.getState() as RootState;
+                // Safe access with optional chaining and proper typing
+                token = state?.user?.userToken || null;
+                if (token) {
+                    console.log('✅ Token from Redux store');
+                } else {
+                    console.log('⚠️ No token found in Redux store');
+                }
+            } else {
+                console.log('⚠️ Could not access Redux store');
+            }
         } catch (e: any) {
-            console.log('⚠️ Could not access Redux store:', e.message);
+            console.log('⚠️ Error accessing Redux store:', e.message);
         }
     }
 
@@ -141,7 +171,7 @@ const getApiConfig = (type: ApiClientType): ApiClientConfig => {
         case 'course':
             return {
                 ...baseConfig,
-                baseURL: process.env.NEXT_PUBLIC_BFF_HOST_COURSE_API!, // Keep your original env var
+                baseURL: process.env.NEXT_PUBLIC_BFF_HOST_COURSE_API!,
                 requestInterceptor: xiorRequestInterceptor,
                 errorHandler: apiErrorHandler,
             };
@@ -149,7 +179,7 @@ const getApiConfig = (type: ApiClientType): ApiClientConfig => {
         case 'article':
             return {
                 ...baseConfig,
-                baseURL: process.env.NEXT_PUBLIC_ARTICLE_HOST_API!, // Keep your original env var
+                baseURL: process.env.NEXT_PUBLIC_ARTICLE_HOST_API!,
                 requestInterceptor: xiorRequestInterceptor,
                 errorHandler: apiErrorHandler,
             };

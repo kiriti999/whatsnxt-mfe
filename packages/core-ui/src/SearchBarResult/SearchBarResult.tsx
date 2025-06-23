@@ -1,7 +1,7 @@
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Anchor, Skeleton } from '@mantine/core';
+import { Anchor, Skeleton, Title } from '@mantine/core';
 import styles from './SearchBarResult.module.css';
 
 export type SearchResultProps = {
@@ -33,16 +33,16 @@ export const SearchBarResult = ({ data, isLoading, search, show, setShow, contai
                 >
                   <div className="col-md-3">
                     <Image
-                      src={content?.courseImageUrl}
+                      src={content?.imageUrl}
                       alt="none"
-                      width={200}
-                      height={150}
+                      width={50}
+                      height={32.5}
                       style={{ height: 'auto' }}
                     />
                   </div>
                   <div className="col-md">
                     <div>
-                      <strong>{content.title}</strong>
+                      <Title order={6}>{content.title}</Title>
                     </div>
                   </div>
                 </Anchor>

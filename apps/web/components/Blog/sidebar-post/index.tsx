@@ -1,7 +1,6 @@
 import { useEffect, memo, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../../../store/store';
-import { getPopular } from '../../../store/slices/blogSidebarSlice';
 import { PopularPost } from '@whatsnxt/core-ui';
 import { Title } from '@mantine/core';
 
@@ -9,12 +8,14 @@ const SidebarPost = memo(() => {
   const store = useSelector((store: RootState) => {
     return store.sidebar
   })
-  const memoizedStore = useMemo(() => store, [store]);
+  const memoizedStore = useMemo(() => store, [store]) as any;
 
   const dispatch = useDispatch<AppDispatch>();
 
   useEffect(() => {
-    dispatch(getPopular());
+    import('../../../store/slices/blogSidebarSlice').then(({ getPopular }) => {
+      dispatch(getPopular());
+    }).catch(console.error);
   }, [dispatch]);
 
   // Check if there is at least one listed item
