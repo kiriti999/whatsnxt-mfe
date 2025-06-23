@@ -10,7 +10,6 @@ import { Box, Title } from '@mantine/core';
 import InterviewComponent from './sections/interview-questions';
 
 const CourseSlugDetails = ({ course, courseReviews, setCourseReviews, reviewCommentCount, isCourseReviewMode }) => {
-    console.log('🚀 ~ CourseSlugDetails:: ~ course:', course);
 
     const { setValue } = useForm({
         mode: 'onBlur',

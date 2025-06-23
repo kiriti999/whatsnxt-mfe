@@ -6,7 +6,6 @@ import { type CourseType, type Category } from '@whatsnxt/core-util';
 import styles from './Widget.module.css';
 
 const CoursesSidebar = ({ courses, categories }: { courses: CourseType[]; categories: Category[] }) => {
-  console.log(' CoursesSidebar :: categories:', categories)
   return (
     <div className={styles['widget-area']}>
       <div className={`${styles['widget']} ${styles['widget_recent_courses']}`}>
