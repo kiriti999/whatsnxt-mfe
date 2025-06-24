@@ -10,7 +10,7 @@ const InstructorGuideLines = () => {
     <div className={`${styles['apply-instructor-area']} pt-5`}>
       <div className={styles['apply-instructor-image']}>
         <h2>Apply As Instructor</h2>
-        <Image width={500} height={500} src="https://res.cloudinary.com/cloudinary999/image/upload/v1718432539/whatsnxt/project-images/trainer.png" alt="image" />
+        {/* <Image width={500} height={500} src="https://res.cloudinary.com/cloudinary999/image/upload/v1718432539/whatsnxt/project-images/trainer.png" alt="image" /> */}
       </div>
 
       <div className={styles['apply-instructor-content']}>

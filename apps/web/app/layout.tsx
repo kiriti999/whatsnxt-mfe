@@ -37,7 +37,7 @@ const getAuthData = async () => {
       }
 
       // If fetchUser already returned isAuthenticated: true, use it directly
-      if (user.isAuthenticated) {
+      if (user?.isAuthenticated) {
         return user;
       }
 

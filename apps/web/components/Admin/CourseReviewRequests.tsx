@@ -32,10 +32,10 @@ const CourseReviewRequests = () => {
 
     // Ensure authentication
     useEffect(() => {
-        if (!user.isAuthenticated) {
+        if (!user?.isAuthenticated) {
             router.replace('/authentication'); // Use replace instead of push for redirection in the App Router
         }
-    }, [user.isAuthenticated, router]);
+    }, [user?.isAuthenticated, router]);
 
     const getRequests = async () => {
         setLoading(true);

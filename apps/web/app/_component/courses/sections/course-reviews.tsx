@@ -31,7 +31,7 @@ const CourseReviews = ({
             setHasMoreReviews(false);
         }
 
-        if (!user.isAuthenticated) return;
+        if (!user?.isAuthenticated) return;
 
         const { _id: userId } = user;
 
@@ -45,7 +45,7 @@ const CourseReviews = ({
                 break;
             }
         }
-    }, [user.isAuthenticated, courseReviews, reviewCommentCount, setValue, setCommentIndex, setRating, setIsRatingProvided]);
+    }, [user?.isAuthenticated, courseReviews, reviewCommentCount, setValue, setCommentIndex, setRating, setIsRatingProvided]);
 
     const loadMore = async (e) => {
         e.preventDefault();
