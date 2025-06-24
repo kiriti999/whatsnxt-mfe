@@ -1,4 +1,4 @@
-import { articleApiClient, articleApiClient } from '@whatsnxt/core-util';
+import { articleApiClient } from '@whatsnxt/core-util';
 import { getAlgoliaIndex } from '../../v1/blog/algolia/getAlgoliaIndex';
 import { historyFilterType } from '../../../types/history';
 
