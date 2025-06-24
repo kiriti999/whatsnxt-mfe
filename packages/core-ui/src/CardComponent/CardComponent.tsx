@@ -13,7 +13,7 @@ export const CardComponent = ({ image, courseName, link, paidType, children }: I
       </Card.Section>
       <div style={{ display: 'flex', justifyContent: 'space-between' }}>
         <Anchor component={Link} href={link} underline='never' style={{ textDecoration: 'none' }}>
-          <Text fw={500} className="my-3" lineClamp={2} size='0.95rem' c={'black'}>
+          <Text fw={500} className="my-3" lineClamp={2} c={'black'}>
             {courseName}
           </Text>
         </Anchor>
