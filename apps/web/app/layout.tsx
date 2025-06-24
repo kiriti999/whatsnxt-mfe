@@ -60,6 +60,16 @@ const getAuthData = async () => {
 };
 
 export const metadata: Metadata = {
+  icons: {
+    icon: [
+      { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
+      { url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
+    ],
+    apple: '/apple-icon.png',
+    other: [
+      { rel: 'icon', url: '/favicon.ico' },
+    ],
+  },
   metadataBase: new URL("https://whatsnxt.in"),
   title: "whatsnxt edu - Online skill development and learning provider",
   description: "whatsnxt edu - Online skill development and learning provider",
