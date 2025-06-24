@@ -52,7 +52,7 @@ const footerSections = [
     title: 'Address',
     links: [
       { icon: <IconMapPin size={16} />, text: 'Hyderabad, India', link: 'https://maps.app.goo.gl/2o5hu5yMSc78Tz4W9' },
-      { icon: <IconPhoneCall size={16} />, text: '+91 8790385964', link: 'tel:+91 8790385964' },
+      { icon: <IconPhoneCall size={16} />, text: '+91 6300711966', link: 'tel:+91 6300711966' },
       { icon: <IconMail size={16} />, text: 'info@whatsnxt.in', link: 'mailto:info@whatsnxt.in' },
     ],
   },

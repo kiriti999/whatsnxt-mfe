@@ -27,7 +27,7 @@ export function ContactIconsList() {
 
 const infoList: ContactIconProps[] = [
   { description: <Text fz={18}>info@whatsnxt.in</Text>, icon: <IconMail size={24} /> },
-  { description: <Text fz={18}>+91 8790385964</Text>, icon: <IconPhoneCall size={24} /> },
+  { description: <Text fz={18}>+91 6300711966</Text>, icon: <IconPhoneCall size={24} /> },
   { description: <Text fz={18}>Hyderabad, India</Text>, icon: <IconMapPin size={24} /> },
   { description: <Text fz={18}>Sunday & Saturday: 10:30 - 15:00</Text>, icon: <IconClockHour3 size={24} /> },
   { description: <Text fz={18}>Monday - Friday: 09:00 - 20:00</Text>, icon: <IconClockHour3 size={24} /> },
