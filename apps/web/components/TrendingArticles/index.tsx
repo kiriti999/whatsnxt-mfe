@@ -157,7 +157,7 @@ const TrendingArticles = ({ articles, total }: TrendingArticlesProps) => {
                     </Badge>
 
                     {/* Title */}
-                    <Title order={5} lineClamp={2} fw={600} size="sm" my={'xs'} onClick={() => handleReadMore(article.slug)}>
+                    <Title order={5} lineClamp={1} fw={600} size="sm" my={'xs'} onClick={() => handleReadMore(article.slug)}>
                       {article.title}
                     </Title>
 
