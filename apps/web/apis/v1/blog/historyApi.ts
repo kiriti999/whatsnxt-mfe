@@ -14,7 +14,18 @@ export const HistoryAPI = {
     let queryString = `start=${start}&limit=${limit}&type=both&search=${encodeURIComponent(search)}`;
 
     if (filter) {
-      queryString += `&filter=${encodeURIComponent(JSON.stringify(filter))}`;
+      if (filter.startDateParam) {
+        queryString += `&startDateParam=${encodeURIComponent(filter.startDateParam)}`;
+      }
+      if (filter.endDateParam) {
+        queryString += `&endDateParam=${encodeURIComponent(filter.endDateParam)}`;
+      }
+      if (filter.searchInput) {
+        queryString += `&searchInput=${encodeURIComponent(filter.searchInput)}`;
+      }
+      if (filter.selectedOptions) {
+        queryString += `&selectedOptions=${encodeURIComponent(JSON.stringify(filter.selectedOptions))}`;
+      }
     }
 
     const { data } = await articleApiClient.get(`/history/getHistory?${queryString}`) as { data: any };
