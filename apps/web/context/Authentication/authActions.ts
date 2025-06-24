@@ -37,18 +37,18 @@ export const handleLogin = async (
 };
 
 export const handleLogout = async (setUser, router, dispatch) => {
-  console.log('handleLogout called');
 
   try {
-    // Clear user state immediately
-    setUser(null);
-
-    // Clear Redux state
-    dispatch(logout());
-    dispatch(resetCart());
 
     // Call API logout to clear server-side session/cookies
-    await AuthAPI.logout();
+    try {
+      await AuthAPI.logout();
+      dispatch(logout());
+      setUser(null);
+      dispatch(resetCart());
+    } catch (error) {
+      console.log(' handleLogout :: error:', error)
+    }
 
     // Navigate to authentication page
     router.replace('/authentication');
