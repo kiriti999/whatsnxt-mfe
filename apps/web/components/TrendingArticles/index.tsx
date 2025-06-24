@@ -121,6 +121,7 @@ const TrendingArticles = ({ articles, total }: TrendingArticlesProps) => {
                   shadow="md"
                   padding="md"
                   radius="md"
+                  py={0}
                   withBorder
                   h="100%"
                   style={{
@@ -186,6 +187,7 @@ const TrendingArticles = ({ articles, total }: TrendingArticlesProps) => {
                       size="xs"
                       fullWidth
                       radius="md"
+                      mb={10}
                       onClick={() => handleReadMore(article.slug)}
                       styles={{
                         root: {
