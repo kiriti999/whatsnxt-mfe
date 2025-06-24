@@ -1,6 +1,6 @@
 import { useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
-import { type PaymentDetails, useRazorPayment, type RazorpayResponse } from "@whatsnxt/core-util/src/RazorPayment";
+import { useRazorPayment } from "@whatsnxt/core-util/src/RazorPayment";
 import { notifications } from "@mantine/notifications";
 import { useDisclosure } from "@mantine/hooks";
 import { trainerContactedPaymentAPI } from "../apis/v1/trainer-contacted-payment";
@@ -8,6 +8,8 @@ import { mailAPI } from "../apis/v1/mail";
 import useAlreadyHasPurchased from "./useAleradyHasPurchased";
 import { updateContactedStudents } from "../app/_component/trainer/TrainerDetails/actions";
 import { revalidate } from "../server-actions";
+import { PaymentDetails } from '@whatsnxt/core-util/src/Types/RazorPay';
+import { RazorpayResponse } from '../components/Checkout/types';
 
 export default function useTrainerContactedPayment(trainerId: string, returnto: string, refetchGetPayment: () => void) {
     const [isVisible, { open, close }] = useDisclosure(false);
