@@ -11,73 +11,81 @@ export const HistoryAPI = {
     search: string,
     filter?: historyFilterType,
   ) {
-    const { data } = await articleApiClient.get('/history/getHistory', {
-      start,
-      limit,
+    const params = new URLSearchParams({
+      start: start.toString(),
+      limit: limit.toString(),
       type: 'both',
-      search
-    }) as { data: any };
+      search: search
+    });
+
+    // Add filter to params if it exists
+    if (filter) {
+      params.append('filter', String(filter));
+    }
+
+    const { data } = await articleApiClient.get(`/history/getHistory?${params.toString()}`) as { data: any };
 
     return data ? data : [];
   },
+};
 
-  createTutorialFromBlogs: async function (list: string[], title: string) {
-    const { data } = await articleApiClient.post('/history/createTutorialFromBlogs', {
-      blogIds: list,
-      title
-    }) as { data: any };
+createTutorialFromBlogs: async function (list: string[], title: string) {
+  const { data } = await articleApiClient.post('/history/createTutorialFromBlogs', {
+    blogIds: list,
+    title
+  }) as { data: any };
 
-    return data.data ? data.data.CreateTutorialFromBlogs : {};
-  },
+  return data.data ? data.data.CreateTutorialFromBlogs : {};
+},
 
-  downloadEBook: async function (id: string) {
-    const { data } = await articleApiClient.get('/history/downloadEBook', {
-      id
-    }) as { data: any };
+downloadEBook: async function (id: string) {
+  const { data } = await articleApiClient.get('/history/downloadEBook', {
+    id
+  }) as { data: any };
 
-    return data.data ? data.data.generateEbook : '';
-  },
+  return data.data ? data.data.generateEbook : '';
+},
 
-  downloadPDF: async function (id: string) {
-    const { data } = await articleApiClient.get('/history/downloadPDF', {
-      id
-    }) as { data: any };
+downloadPDF: async function (id: string) {
+  const { data } = await articleApiClient.get('/history/downloadPDF', {
+    id
+  }) as { data: any };
 
-    return data.data ? data.data.generatePDF : '';
-  },
+  return data.data ? data.data.generatePDF : '';
+},
 
-  downloadPPT: async function (id: string) {
-    const { data } = await articleApiClient.get('/history/downloadPPT', {
-      id
-    }) as { data: any };
+downloadPPT: async function (id: string) {
+  const { data } = await articleApiClient.get('/history/downloadPPT', {
+    id
+  }) as { data: any };
 
-    return data.data ? data.data.generatePPT : '';
-  },
+  return data.data ? data.data.generatePPT : '';
+},
 
-  deleteBlog: async function (id: string) {
-    const { data } = await articleApiClient.delete(`/history/deleteBlog/${id}`, {
-      postId: id
-    }) as { data: any };
+deleteBlog: async function (id: string) {
+  const { data } = await articleApiClient.delete(`/history/deleteBlog/${id}`, {
+    postId: id
+  }) as { data: any };
 
-    if (data?.deletePost) index.deleteObject(id);
-    return data.data ? data.data.deletePost : '';
-  },
+  if (data?.deletePost) index.deleteObject(id);
+  return data.data ? data.data.deletePost : '';
+},
 
-  deleteTutorial: async function (id: string) {
-    const { data } = await articleApiClient.delete(`/history/deleteTutorial/${id}`, {
-      tutorialId: id
-    }) as { data: any };
+deleteTutorial: async function (id: string) {
+  const { data } = await articleApiClient.delete(`/history/deleteTutorial/${id}`, {
+    tutorialId: id
+  }) as { data: any };
 
-    if (data?.deleteTutorial) index.deleteObject(id);
-    return data.data ? data.data.deleteTutorial : '';
-  },
+  if (data?.deleteTutorial) index.deleteObject(id);
+  return data.data ? data.data.deleteTutorial : '';
+},
 
-  publishDraft: async function (id: string, shouldPublish: boolean) {
-    const { data } = await articleApiClient.put('/history/publishDraft', {
-      postId: id,
-      shouldPublish
-    }) as { data: any };
+publishDraft: async function (id: string, shouldPublish: boolean) {
+  const { data } = await articleApiClient.put('/history/publishDraft', {
+    postId: id,
+    shouldPublish
+  }) as { data: any };
 
-    return data.data ? data.data.publishPost : '';
-  },
+  return data.data ? data.data.publishPost : '';
+},
 };
