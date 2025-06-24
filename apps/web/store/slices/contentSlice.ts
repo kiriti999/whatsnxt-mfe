@@ -16,11 +16,16 @@ export interface ContentItem {
   listed: boolean;
 }
 
+// Clean, consistent API response interface
 export interface ApiResponse<T> {
-  data?: {
-    posts?: T[];
-    totalRecords?: number;
-  };
+  data: T[];           // Array of items for current page
+  totalCount: number;  // Total count across all pages
+  currentPage?: number;
+  limit?: number;
+}
+
+// Legacy response interface for backward compatibility
+export interface LegacyApiResponse<T> {
   posts?: T[];
   totalRecords?: number;
   success?: boolean;
@@ -68,7 +73,15 @@ export const getPosts = createAsyncThunk<
   async ({ start = 1, limit = 10, type = 'both' }, { rejectWithValue }) => {
     try {
       const response = await ContentAPI.getPosts(start, limit, type);
-      return response;
+
+      // Ensure response matches ApiResponse<ContentItem>
+      return {
+        data: response.data || [],
+        totalCount: response.totalCount || 0,
+        currentPage: response.currentPage || start,
+        limit: response.limit || limit
+      };
+
     } catch (error: any) {
       return rejectWithValue(error?.message || 'Failed to fetch posts');
     }
@@ -91,14 +104,38 @@ export const getPostsByCategory = createAsyncThunk<
 );
 
 export const getTutorials = createAsyncThunk<
-  ContentItem[] | ApiResponse<ContentItem>,
+  ApiResponse<ContentItem>,
   TutorialsParams
 >(
   'content/getTutorials',
   async ({ start = 1, limit = 10, type = 'tutorial' }, { rejectWithValue }) => {
     try {
       const response = await ContentAPI.getTutorials(start, limit, type);
-      return response;
+
+      // Handle different response structures and normalize to ApiResponse
+      if (Array.isArray(response)) {
+        // Direct array response
+        return {
+          data: response,
+          totalCount: response.length,
+          currentPage: start,
+          limit: limit
+        };
+      } else if (response.data && Array.isArray(response.data)) {
+        // Already in correct format
+        return response;
+      } else if (response.posts && Array.isArray(response.posts)) {
+        // Legacy format
+        return {
+          data: response.posts,
+          totalCount: response.totalRecords || response.posts.length,
+          currentPage: start,
+          limit: limit
+        };
+      } else {
+        throw new Error('Invalid response format');
+      }
+
     } catch (error: any) {
       return rejectWithValue(error?.message || 'Failed to fetch tutorials');
     }
@@ -141,19 +178,16 @@ const contentSlice = createSlice({
       .addCase(getPosts.fulfilled, (state, action) => {
         const payload = action.payload;
 
-        // Extract articles from different possible response structures
-        const articles = Array.isArray(payload) ? payload : [];
-        console.log(' .addCase :: articles:', articles);
-        const totalRecords = articles.length || 0;
-
-        state.articles = Array.isArray(articles) ? articles : [];
-        state.totalCount = totalRecords;
+        // Payload is guaranteed to be ApiResponse<ContentItem>
+        state.articles = payload.data || [];
+        state.totalCount = payload.totalCount || 0;
         state.loading = false;
         state.error = '';
       })
       .addCase(getPosts.rejected, (state, action) => {
         state.loading = false;
         state.articles = [];
+        state.totalCount = 0;
         state.error = (action.payload as string) || action.error.message || 'Failed to fetch posts';
       })
 
@@ -164,12 +198,14 @@ const contentSlice = createSlice({
       })
       .addCase(getPostsByCategory.fulfilled, (state, action) => {
         state.articles = Array.isArray(action.payload) ? action.payload : [];
+        state.totalCount = state.articles.length; // For category-based, use actual length
         state.loading = false;
         state.error = '';
       })
       .addCase(getPostsByCategory.rejected, (state, action) => {
         state.loading = false;
         state.articles = [];
+        state.totalCount = 0;
         state.error = (action.payload as string) || action.error.message || 'Failed to fetch posts by category';
       })
 
@@ -180,28 +216,10 @@ const contentSlice = createSlice({
       })
       .addCase(getTutorials.fulfilled, (state, action) => {
         const payload = action.payload;
-
-        // Handle different response structures
-        let tutorialsData: ContentItem[] = [];
-        let totalRecords = 0;
-
-        if (Array.isArray(payload)) {
-          // Direct array response
-          tutorialsData = payload;
-          totalRecords = payload.length;
-        } else if (payload?.data?.posts) {
-          // Nested response structure
-          tutorialsData = payload.data.posts;
-          totalRecords = payload.data.totalRecords || tutorialsData.length;
-        } else if (payload?.posts) {
-          // Flat response structure
-          tutorialsData = payload.posts;
-          totalRecords = payload.totalRecords || tutorialsData.length;
-        }
-
-        state.tutorials = tutorialsData;
-        state.articles = tutorialsData; // Also update articles for unified access
-        state.totalCount = totalRecords;
+        // Payload is guaranteed to be ApiResponse<ContentItem>
+        state.tutorials = payload.data || [];
+        state.articles = payload.data || []; // Update articles for unified access
+        state.totalCount = payload.totalCount || 0;
         state.loading = false;
         state.error = '';
       })
@@ -209,6 +227,7 @@ const contentSlice = createSlice({
         state.loading = false;
         state.tutorials = [];
         state.articles = [];
+        state.totalCount = 0;
         state.error = (action.payload as string) || action.error.message || 'Failed to fetch tutorials';
       });
   },
@@ -226,7 +245,6 @@ export const {
 // Export reducer with explicit type annotation
 export const contentReducer: Reducer<ContentState> = contentSlice.reducer;
 
-// Remove the separate ContentRootState and use generic selectors
 // Selectors with proper typing using generic RootState
 export const selectArticles = (state: { content: ContentState }) =>
   state.content.articles;
@@ -264,7 +282,7 @@ export const selectContentBySlug = (state: { content: ContentState }, slug: stri
   state.content.articles.find(article => article.slug === slug) ||
   state.content.tutorials.find(tutorial => tutorial.slug === slug);
 
-// Helper functions for components (updated to work with any state structure)
+// Helper functions for components
 export const isContentLoading = (state: any): boolean => {
   return state?.content?.loading || false;
 };
@@ -281,6 +299,6 @@ export const getContentTutorials = (state: any): ContentItem[] => {
   return state?.content?.tutorials || [];
 };
 
-// Default export with explicit type annotation
+// Default export
 const reducer: Reducer<ContentState> = contentSlice.reducer;
 export default reducer;

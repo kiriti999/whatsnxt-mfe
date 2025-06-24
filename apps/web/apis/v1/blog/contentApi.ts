@@ -6,7 +6,7 @@ export const ContentAPI = {
 
   getPosts: async function (start: number, limit: number, type: any) {
     const { data } = await articleApiClient.get(`/post/getPosts?start=${start}&limit=${limit}&type=${type}`,)
-    return data ? data.posts : [];
+    return data ? data : [];
   },
 
   getTutorials: async function (start: number, limit: number, type: any) {

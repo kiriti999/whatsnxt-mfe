@@ -20,18 +20,16 @@ import { Box, Container, Group } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { ContentType } from '../../../types/form';
 
-/* eslint-disable-next-line */
 export type ComponentContentType = "blog" | "tutorial" | "both";
-/* eslint-disable-next-line */
+
 export interface ContentProps {
-  type: ComponentContentType; // Use component-specific type
+  type: ComponentContentType;
 }
 
 function ContentComponent(props: ContentProps) {
   const { type } = props;
   const isMobile = useMediaQuery('(max-width: 768px)');
 
-  // Use proper selectors - these now work with your RootState
   const articles = useSelector(selectArticles);
   console.log(' ContentComponent :: articles:', articles)
   const tutorials = useSelector(selectTutorials);
@@ -40,7 +38,7 @@ function ContentComponent(props: ContentProps) {
   const totalCount = useSelector(selectTotalCount);
 
   const dispatch = useDispatch<AppDispatch>();
-  const [recordsPerPage] = useState(5);
+  const [recordsPerPage] = useState(6);
   const [currentPage, setCurrentPage] = useState(1);
   const nPages = Math.ceil(totalCount / recordsPerPage);
 
@@ -48,11 +46,10 @@ function ContentComponent(props: ContentProps) {
     if (type === 'tutorial') {
       dispatch(getTutorials({ start: currentPage, limit: recordsPerPage, type }));
     } else {
-      // Map 'both' to empty string or handle accordingly
       const apiType = type === 'both' ? '' : type;
       dispatch(getPosts({ start: currentPage, limit: recordsPerPage, type: apiType as ContentType }));
     }
-  }, [type, dispatch, recordsPerPage, currentPage]); // Added currentPage dependency
+  }, [type, dispatch, recordsPerPage, currentPage]);
 
   const pageChangeCallback = (page: number) => {
     setCurrentPage(page);
@@ -64,7 +61,6 @@ function ContentComponent(props: ContentProps) {
     }
   }
 
-  // Get the appropriate data based on type
   const displayData: ContentItem[] = type === 'tutorial' ? tutorials : articles;
 
   return (
@@ -87,20 +83,16 @@ function ContentComponent(props: ContentProps) {
         )}
       </Group>
 
-      {nPages > 1 && (
-        <Group mt={'xl'}>
-          {!loading &&
-            (!error || error === '') &&
-            displayData && displayData.length > 0 ? (
-            <Container fluid>
-              <Pagination
-                pageChangeCallback={pageChangeCallback}
-                nPages={nPages}
-                currentPage={currentPage}
-                setCurrentPage={setCurrentPage}
-              />
-            </Container>
-          ) : null}
+      {nPages > 1 && !loading && (!error || error === '') && displayData && displayData.length > 0 && (
+        <Group mt={'xl'} justify="center">
+          <Container fluid>
+            <Pagination
+              pageChangeCallback={pageChangeCallback}
+              nPages={nPages}
+              currentPage={currentPage}
+              setCurrentPage={setCurrentPage}
+            />
+          </Container>
         </Group>
       )}
     </>
