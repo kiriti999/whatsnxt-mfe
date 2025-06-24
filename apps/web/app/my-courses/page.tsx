@@ -1,26 +1,6 @@
 import React from 'react'
-import { CoursesEnrolledAPI } from '../../apis/v1/courses/enrolled/enrolled';
-import { cookies } from 'next/headers';
 import MyCourses from '../_component/my-courses/my-courses';
-
-const getEnrolledCourses = async () => {
-    const cookieStore = await cookies();
-    const tokenKeyName = process.env.NEXT_PUBLIC_COOKIES_ACCESS_TOKEN
-
-    const token = cookieStore.get(tokenKeyName)
-    if (!token) {
-        return { enrolled: [] };
-    }
-
-    try {
-        const response = await CoursesEnrolledAPI.getEnrolled(token.value)
-        const { enrolled, total } = response;
-        return { enrolled, total };
-    } catch (error) {
-        console.error('Error fetching enrolled courses:', error);
-        return { enrolled: [] };
-    }
-};
+import { getEnrolledCourses } from '../../fetcher/courseServerQuery';
 
 async function Page() {
     const { enrolled, total } = await getEnrolledCourses()

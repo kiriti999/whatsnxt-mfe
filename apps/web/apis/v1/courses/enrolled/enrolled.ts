@@ -13,12 +13,8 @@ export const CoursesEnrolledAPI = {
         const response = await courseApiClient.get('/courses/enrolled/isEnrolled', { params });
         return response;
     },
-    getEnrolled: async function (token) {
-        const response = await courseApiClient.get('/courses/enrolled', {
-            headers: {
-                'Authorization': token
-            }
-        });
+    getEnrolled: async function () {
+        const response = await courseApiClient.get('/courses/enrolled');
         return response.data;
     },
     getEnrolledVideo: async function (token, params) {

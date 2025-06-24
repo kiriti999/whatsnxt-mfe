@@ -24,8 +24,6 @@ export default function useCourseRefund({
     setIsRefundModalOpen,
 }: PROPS) {
     const [isRefundLoading, setIsRefundLoading] = useState(false);
-    console.log(courseId, 'courseId');
-    console.log(userId, 'userId');
 
     const { data } = useQuery({
         queryKey: [userId, courseId],
@@ -34,7 +32,6 @@ export default function useCourseRefund({
             return response.data;
         },
     });
-    console.log(data, 'paid order');
 
     const manyCourses = data?.courseInfo.length > 1;
     const currentCourse = data?.courseInfo?.find(course => course.courseId?._id === courseId);
@@ -82,7 +79,6 @@ export default function useCourseRefund({
             } else {
                 throw new Error('paymentId is undefined!')
             }
-            console.log(data, 'response data');
 
             await revalidate('/my-courses');
             notifications.show({

@@ -1,18 +1,29 @@
 import React, { FC, useState, useCallback, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { type PaymentDetails, type RazorpayResponse, useRazorPayment } from '@whatsnxt/core-util/src/RazorPayment';
+import { useRazorPayment } from '@whatsnxt/core-util/src/RazorPayment';
+import { PaymentDetails } from '@whatsnxt/core-util/src/Types/RazorPay';
 import { notifications } from '@mantine/notifications';
 import { Button, Text, Box, Group, Stack } from '@mantine/core';
 import { IconShoppingCart } from '@tabler/icons-react';
 import { orderAPI } from '../../../apis/v1/orders';
-import { mailAPI } from '../../../apis/v1/mail';
+
 import useAuth from '../../../hooks/Authentication/useAuth';
-import { PaymentButtonProps } from '../types';
+import { PaymentButtonProps, RazorpayResponse } from '../types';
 import { revalidate } from '../../../server-actions';
 import styles from './PaymentButton.module.css';
+import { sendPurchaseMail } from '../../../utils/coursePurchaseMail';
 
 // GST rate constant
-const GST_RATE = 0.18; // 18%
+const GST_RATE = 0; // 18%
+
+const showErrorNotification = (message: string) => {
+  notifications.show({
+    position: 'bottom-right',
+    title: 'Error',
+    message,
+    color: 'red',
+  });
+};
 
 export const PaymentButton: FC<PaymentButtonProps> = ({
   amount,
@@ -23,7 +34,6 @@ export const PaymentButton: FC<PaymentButtonProps> = ({
   close,
 }) => {
   const { user } = useAuth();
-  console.log(' PaymentButton:: user:', user)
 
   const router = useRouter();
   const [userInfo, setUserInfo] = useState({
@@ -47,7 +57,7 @@ export const PaymentButton: FC<PaymentButtonProps> = ({
 
   const preparePayload = useCallback(() => {
     const courseInfo = cartItems.map((item) => ({
-      courseId: item.id.split('_')[1],
+      courseId: item.id,
       courseName: item.courseName,
       price: item.total_cost || 0,
       total_cost: item.total_cost + (item.total_cost * GST_RATE) || 0,
@@ -95,7 +105,7 @@ export const PaymentButton: FC<PaymentButtonProps> = ({
       const response = await orderAPI.savePayment({
         ...paymentDetails,
         cartItems,
-        gstRate: '18%',
+        // gstRate: '18%',
       });
 
       // Revalidate cache
@@ -107,7 +117,7 @@ export const PaymentButton: FC<PaymentButtonProps> = ({
 
       if (response.status === 200) {
         // Send mail after payment is processed
-        await sendPurchaseMail(paymentDetails);
+        await sendPurchaseMail(paymentDetails, cartItems);
       }
 
     } catch (error) {
@@ -117,33 +127,11 @@ export const PaymentButton: FC<PaymentButtonProps> = ({
     }
   };
 
-  const sendPurchaseMail = async (paymentDetails: PaymentDetails) => {
-    try {
-      await mailAPI.sendCoursePurchaseMail({
-        ...paymentDetails,
-        cartItems,
-        gstRate: '18%',
-      });
-    } catch (mailError) {
-      console.error('Error sending purchase mail:', mailError);
-      showErrorNotification('Purchase mail could not be sent. Please check your inbox later.');
-    }
-  };
-
   // FIX: Destructure the object returned by useRazorPayment
   const { makePayment, isLoading: razorPayLoading, error: razorPayError } = useRazorPayment({
     verifyPayment,
     processPayment
   });
-
-  const showErrorNotification = (message: string) => {
-    notifications.show({
-      position: 'bottom-right',
-      title: 'Error',
-      message,
-      color: 'red',
-    });
-  };
 
   const handlePayment = useCallback(async () => {
     if (!user) {
@@ -157,9 +145,13 @@ export const PaymentButton: FC<PaymentButtonProps> = ({
     // Create a separate payload for makePayment that matches the Payload type
     const razorpayPayload = {
       name: apiPayload.name,
+      userId: apiPayload.userId,
+      buyerEmail: apiPayload.buyerEmail,
+      buyerName: apiPayload.buyerName,
       description: apiPayload.description,
       amount: apiPayload.amount,
       gstAmount: apiPayload.gstAmount,
+      courseInfo: apiPayload.courseInfo,
       // Convert notes object to string for Razorpay
       notes: `Address: ${apiPayload.notes.address || 'N/A'}, ${apiPayload.notes.gstDetails}`,
       prefill: apiPayload.prefill,
@@ -167,7 +159,6 @@ export const PaymentButton: FC<PaymentButtonProps> = ({
 
     try {
       const response = await orderAPI.createOrder(apiPayload)
-      console.log('handlePayment:: createOrder:: response:', response)
 
       const { order } = response.data;
       // Pass the properly typed payload to makePayment
@@ -196,13 +187,13 @@ export const PaymentButton: FC<PaymentButtonProps> = ({
       </Box>
 
       <Button color='red' size='md'
-        className={`mt-3 ${loading || razorPayLoading ? 'no-click' : ''}`}
+        className={`mt-3 ${loading ? 'no-click' : ''}`}
         onClick={(e) => {
           e.preventDefault();
           handlePayment();
         }}
         leftSection={<IconShoppingCart />}
-        disabled={loading || razorPayLoading}
+        disabled={loading}
       >
         Make Payment (₹{totalAmount.toFixed(2)})
       </Button>

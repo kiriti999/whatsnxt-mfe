@@ -8,7 +8,7 @@ export function useIsEnrolled(courseId: string) {
             if (!courseId) return false;
             try {
                 const response = await CoursesEnrolledAPI.isEnrolled({ courseId });
-                if (response?.data?.message === "No authorization token") {
+                if (response?.data?.message === "useIsEnrolled:: No authorization token") {
                     return false;
                 }
                 return response.data;

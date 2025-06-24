@@ -38,3 +38,8 @@ export const fetchLessonById = async (sectionId: string, lessonId: string) => {
   const videos = await fetchVideosBySection(sectionId) as any;
   return videos.find((item: any) => item._id === lessonId);
 };
+
+export const getEnrolledCourses = async () => {
+  const response = await serverFetcher(BASEURL, `/courses/enrolled`);
+  return response
+}

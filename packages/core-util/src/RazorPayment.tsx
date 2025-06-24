@@ -2,57 +2,8 @@ import { useCallback } from 'react';
 import { useRazorpay, RazorpayOrderOptions } from 'react-razorpay';
 import { notifications } from '@mantine/notifications';
 import { razorPaymentAPI } from '../../../apps/web/apis/v1/payment/razorpay';
+import { UseRazorProps, HandleResponseArgs, Payload } from './Types/RazorPay';
 
-// Define currency type based on what Razorpay accepts
-type CurrencyCode = 'INR' | 'USD' | 'EUR' | 'GBP' | 'JPY' | 'AUD' | 'CAD' | 'SGD' | 'AED';
-
-type SharedArgs = {
-    amount: string;
-    amount_paid?: string;
-    gstAmount?: string;
-    gstRate?: string;
-    userId?: string,
-    trainerId?: string,
-    buyerEmail?: string;
-    buyerName?: string;
-}
-
-type Payload = {
-    currency?: CurrencyCode; // Changed from string to CurrencyCode
-    name: string;
-    description: string;
-    gstAmount?: string;
-    prefill?: Record<string, unknown>;
-    notes?: string; // Changed to string to match RazorpayOrderOptions
-    theme?: Record<string, unknown>;
-} & SharedArgs
-
-export type RazorpayResponse = {
-    razorpay_payment_id: string;
-    razorpay_order_id: string;
-    razorpay_signature: string;
-};
-
-type HandleResponseArgs = {
-    response: RazorpayResponse,
-} & SharedArgs
-
-export type PaymentDetails = {
-    orderId: string;
-    paymentId: string;
-    method: string;
-    gstAmount?: string;
-    gstRate?: string;
-    bank?: string;
-    wallet?: string;
-    cardNetwork?: string;
-    cardLast4?: string;
-} & SharedArgs
-
-type UseRazorProps = {
-    verifyPayment?: (orderId: string, verificationDetails: RazorpayResponse) => Promise<any> | any,
-    processPayment: (paymentDetails: PaymentDetails) => Promise<void> | void,
-}
 
 export const useRazorPayment = ({ processPayment, verifyPayment = () => ({ status: 200 }) }: UseRazorProps) => {
     const { error, isLoading, Razorpay } = useRazorpay();
@@ -82,7 +33,6 @@ export const useRazorPayment = ({ processPayment, verifyPayment = () => ({ statu
                 if (status === 200) {
                     // Fetch payment details
                     const { data } = await razorPaymentAPI.getPaymentDetailsById(razorpay_payment_id);
-                    console.log(data, 'razor_paymentDetails');
 
                     // call processPayment
                     await processPayment({
@@ -95,7 +45,7 @@ export const useRazorPayment = ({ processPayment, verifyPayment = () => ({ statu
                         amount,
                         amount_paid: amount,
                         gstAmount,
-                        gstRate: '18%',
+                        // gstRate: '18%',
                         method: data?.method,
                         bank: data?.bank,
                         wallet: data?.wallet,
@@ -145,13 +95,13 @@ export const useRazorPayment = ({ processPayment, verifyPayment = () => ({ statu
                 : payload.amount;
 
             const options: RazorpayOrderOptions = {
-                key: process.env.NEXT_PUBLIC_RAZORPAY_KEY as string, // Use NEXT_PUBLIC_ prefix
+                key: process.env.RAZORPAY_KEY as string, // Use NEXT_PUBLIC_ prefix
                 order_id: orderId,
                 amount: amountInPaise,
                 currency: payload.currency || 'INR',
                 name: payload.name,
                 description: payload.description,
-                image: process.env.NEXT_PUBLIC_RAZORPAY_LOGO,
+                image: process.env.RAZORPAY_LOGO,
                 handler: (response) => handleRazorpayResponse({
                     response,
                     amount: payload.amount,

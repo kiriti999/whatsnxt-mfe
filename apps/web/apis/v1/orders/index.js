@@ -2,7 +2,6 @@ import { courseApiClient } from '@whatsnxt/core-util';
 
 export const orderAPI = {
   createOrder: async function (payload) {
-    console.log('createOrder:: payload:', payload);
     const response = await courseApiClient.post('/orders', payload);
     return response;
   },

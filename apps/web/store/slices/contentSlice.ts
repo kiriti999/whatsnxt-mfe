@@ -68,7 +68,6 @@ export const getPosts = createAsyncThunk<
   async ({ start = 1, limit = 10, type = 'both' }, { rejectWithValue }) => {
     try {
       const response = await ContentAPI.getPosts(start, limit, type);
-      console.log(' response:', response)
       return response;
     } catch (error: any) {
       return rejectWithValue(error?.message || 'Failed to fetch posts');

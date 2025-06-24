@@ -4,7 +4,6 @@ import { courseApiClient } from '@whatsnxt/core-util';
 export const CartAPI = {
   fetch: async function () {
     const response = await courseApiClient.get('/cart');
-    console.log(' response:', response)
     return response.data;
   },
   createCart: async function () {

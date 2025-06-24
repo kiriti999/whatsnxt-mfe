@@ -12,7 +12,6 @@ const fetchCourseData = cache(async (slug: string) => {
     try {
 
         const course = await fetchCourseBySlug(slug) as CourseType;
-        console.log('fetchCourseData :: course found:', !!course);
 
         return course;
     } catch (error) {
@@ -66,11 +65,9 @@ export async function generateMetadata({ params }): Promise<Metadata> {
 async function Page({ params }) {
     try {
         const { id: slug } = await params;
-        console.log('Page :: slug:', slug);
 
         // Fetch course by slug
         const course = await fetchCourseData(slug);
-        console.log('Page :: course found:', !!course);
 
         if (!course) {
             console.log('Course not found, showing 404');

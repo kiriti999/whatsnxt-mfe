@@ -6,7 +6,7 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import styles from '../../../components/Courses/Course.module.css';
 import Image from 'next/image';
-import { CardComponent, PageBanner } from '@whatsnxt/core-ui';
+import { CardComponent } from '@whatsnxt/core-ui';
 import { List, Progress, Rating, Text, ThemeIcon, Modal, Button, Box, Flex, Textarea, Title, Menu } from '@mantine/core';
 import { useHover, useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
@@ -16,7 +16,6 @@ import Pagination from '../../../components/pagination/pagination';
 import useAuth from "../../../hooks/Authentication/useAuth";
 import { CourseFeedbackAPI } from '../../../apis/v1/courses/feedback/feedback';
 import useCourseRefund from '../../../hooks/useCourseRefund';
-import { useIsEnrolled } from '../../../hooks/useIsEnrolled';
 import Refund from '../../../components/Refund';
 
 type Lesson = {
@@ -46,7 +45,6 @@ type CourseCardProps = {
 
 // Component to render a single course
 const CourseCard = ({ course, lessonsWatched, lessons, commentData, ratingData }: CourseCardProps) => {
-  console.log(' CourseCard :: course:', course)
   const { user } = useAuth();
   const totalLessons = lessons.length;
   const courseProgressPercentage = lessonsWatched === 0 ? 0 : Math.ceil((lessonsWatched / totalLessons) * 100);
@@ -188,8 +186,6 @@ const CourseCard = ({ course, lessonsWatched, lessons, commentData, ratingData }
     });
   };
 
-  const { isEnrolled } = useIsEnrolled(courseId);
-
   const { handleRefund, isRefundLoading, isRefundEligable } = useCourseRefund({
     userId: user?._id,
     buyerEmail: user?.email,
@@ -319,14 +315,11 @@ type MyCoursesProps = {
 };
 
 const MyCourses = ({ enrolled, total }: MyCoursesProps) => {
-  console.log(' MyCourses :: enrolled:', enrolled)
-
   const [recordsPerPage] = useState(8);
   const [currentPage, setCurrentPage] = useState(1);
   const indexOfLastRecord = currentPage * recordsPerPage;
   const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
-  const currentRecords = enrolled.slice(indexOfFirstRecord, indexOfLastRecord);
-  console.log(' MyCourses :: currentRecords:', currentRecords)
+  const currentRecords = enrolled && enrolled.slice(indexOfFirstRecord, indexOfLastRecord);
   const nPages = Math.ceil(total / recordsPerPage);
   return (
     <div>
