@@ -438,3 +438,88 @@ Profile Authentication Area CSS
   color: red;
   font-size: 0.825rem;
 }
+
+/* comments */
+.review-heading {
+  display: flex;
+  justify-content: flex-start;
+  margin-bottom: 1rem;
+}
+
+.review-profile {
+  display: flex;
+  justify-content: space-between;
+}
+
+.review-avatar {
+  margin-left: 0;
+  margin-right: 1rem;
+  order: 1;
+}
+
+.review-avatar-circle {
+  align-items: center;
+  display: inline-flex;
+  background-color: #00d53b;
+  object-fit: cover;
+  height: 2em;
+  width: 2em;
+  border-radius: 50%;
+  justify-content: center;
+}
+
+.review-name {
+  display: flex;
+  flex-direction: column;
+  order: 2;
+}
+
+.review-rating {
+  margin-bottom: 0.5rem;
+}
+
+.review-rating>div {
+  padding-left: 0.6rem;
+}
+
+.reply-reply-btn {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.review-show-more {
+  position: relative;
+  align-items: center;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  justify-content: center;
+  user-select: none;
+  -webkit-user-select: none;
+  vertical-align: bottom;
+  white-space: nowrap;
+  font-weight: 400;
+  line-height: 1.2;
+  letter-spacing: -.02rem;
+  font-size: 1rem;
+  text-decoration: underline;
+  text-underline-offset: 0.4rem;
+  margin-bottom: 1.6rem;
+}
+
+.review-show-more:focus {
+  outline: none;
+  color: rgb(202, 198, 191);
+}
+
+.review-replies {
+  padding-left: 60px;
+}
+
+.comment-name {
+  margin-left: 3.9rem;
+}
+
+.comment-heading {
+  margin-bottom: 0rem;
+}

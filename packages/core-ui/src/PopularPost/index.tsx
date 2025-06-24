@@ -13,6 +13,18 @@ interface Props {
     slug?: string;
 }
 
+export const formatDate = (date: any) => {
+    if (!date) return date;
+
+    const d = new Date(date);
+    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+        'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+    const day = d.getDate().toString().padStart(2, '0');
+    return `${days[d.getDay()]} ${months[d.getMonth()]} ${day} ${d.getFullYear()}`;
+};
+
 export default function PopularPost(props: Props) {
     const { imageUrl, title, updatedAt, slug } = props;
     const router = useRouter();
@@ -26,11 +38,11 @@ export default function PopularPost(props: Props) {
                     <Skeleton style={{ width: '40%', height: 100 }} square='true' />}
                 {title ?
                     (<div className={classes.body}>
-                        <Text className={classes.title} m={0} truncate="end">
+                        <Text className={classes.title} m={0} truncate="end" lineClamp={2}>
                             {title}
                         </Text>
                         <Text size="xs" c="dimmed" truncate="end">
-                            {updatedAt}
+                            {formatDate(updatedAt)}
                         </Text>
                     </div>) :
                     <div style={{ width: '55%' }}>

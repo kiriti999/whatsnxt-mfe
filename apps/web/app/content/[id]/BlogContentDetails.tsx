@@ -145,7 +145,7 @@ function BlogContentDetails({ details }: BlogContentDetailsProps) {
                     </Box>
                   </GridCol>
                 )}
-                <GridCol span={itemHeadings.length > 0 ? { base: 12, md: 7.5 } : { base: 12, md: 9 }} >
+                <GridCol span={itemHeadings.length > 0 ? { base: 12, md: 7.3 } : { base: 12, md: 9 }} >
                   <BlogContent
                     url={url}
                     views={views}
@@ -161,7 +161,7 @@ function BlogContentDetails({ details }: BlogContentDetailsProps) {
                   />
                 </GridCol>
 
-                <GridCol span={itemHeadings.length > 0 ? { base: 12, md: 2.3 } : { base: 12, md: 3 }}>
+                <GridCol span={itemHeadings.length > 0 ? { base: 12, md: 2.5 } : { base: 12, md: 3 }}>
                   <Box pos="sticky" top={0}>
                     <Box mt={itemHeadings.length > 1 ? 'lg' : 0}>
                       <SidebarPost />
