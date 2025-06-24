@@ -11,19 +11,13 @@ export const HistoryAPI = {
     search: string,
     filter?: historyFilterType,
   ) {
-    const params = new URLSearchParams({
-      start: start.toString(),
-      limit: limit.toString(),
-      type: 'both',
-      search: search
-    });
+    let queryString = `start=${start}&limit=${limit}&type=both&search=${encodeURIComponent(search)}`;
 
-    // Add filter to params if it exists
     if (filter) {
-      params.append('filter', String(filter));
+      queryString += `&filter=${encodeURIComponent(JSON.stringify(filter))}`;
     }
 
-    const { data } = await articleApiClient.get(`/history/getHistory?${params.toString()}`) as { data: any };
+    const { data } = await articleApiClient.get(`/history/getHistory?${queryString}`) as { data: any };
 
     return data ? data : [];
   },
