@@ -1,12 +1,15 @@
 import React from 'react';
-import AboutUs from '../../components/About/AboutUs';
+import dynamic from 'next/dynamic';
 
-const Page = () => {
-  return (
-    <>
-      <AboutUs />
-    </>
-  );
-};
+const DynamicAboutComponent = dynamic(() =>
+  import('../../components/About/AboutUs').then((aboutComponent) => aboutComponent)
+)
+
+const Page = () => (
+  <>
+    <DynamicAboutComponent />
+  </>
+)
 
 export default Page;
+
