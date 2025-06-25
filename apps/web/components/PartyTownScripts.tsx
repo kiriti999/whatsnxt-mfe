@@ -10,7 +10,7 @@ export default function PartyTownScripts() {
             <Script
                 type="text/partytown"
                 src="https://www.googletagmanager.com/gtag/js?id=GT-K55MWM3"
-                strategy="afterInteractive"
+                strategy="worker"
             />
             <Script
                 type="text/partytown"
@@ -18,11 +18,11 @@ export default function PartyTownScripts() {
                 strategy="afterInteractive"
                 dangerouslySetInnerHTML={{
                     __html: `
-            window.dataLayer = window.dataLayer || [];
-            window.gtag = function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', 'GT-K55MWM3');
-          `,
+                    window.dataLayer = window.dataLayer || [];
+                    window.gtag = function gtag(){dataLayer.push(arguments);}
+                    gtag('js', new Date());
+                    gtag('config', 'GT-K55MWM3');
+                `
                 }}
             />
         </>
