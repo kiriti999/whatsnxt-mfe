@@ -20,8 +20,8 @@ import {
 } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import { IconUpload } from "@tabler/icons-react";
-import { uploadToCloudinary } from "../../../utils/course-image-upload";
 import { ProfileAPI } from '../../../apis/v1/profile/profile';
+import { uploadImage } from '../../../components/Blog/Form/util';
 
 type EditFormValues = {
     name: string;
@@ -37,9 +37,11 @@ type EditFormValues = {
     languageIds: Array<{ _id: string; name: string; abbr: string }>;
     linkedin: string;
     github: string;
-    profile_photo: string;
-    certificate_name: string;
-    certificate_link: string;
+    photo: string;
+    certification: {  // Nested object as it exists in the database
+        name: string;
+        link: string;
+    };
     highestQualification: string;
 };
 
@@ -68,6 +70,10 @@ const EditTrainerProfileForm: React.FC<EditTrainerProfileFormProps> = ({
         mode: "onChange",
         defaultValues: {
             ...profile,
+            certification: {
+                name: profile.certification?.name || "",
+                link: profile.certification?.link || "",
+            },
             languageIds: profile.languageIds, // Extract IDs for value
         },
     });
@@ -78,24 +84,42 @@ const EditTrainerProfileForm: React.FC<EditTrainerProfileFormProps> = ({
     }));
 
     const handleUpdate: SubmitHandler<EditFormValues> = async (payload) => {
+
         try {
             setLoading(true);
             payload.skills = skills;
-            let profile_photo_url = profile.profile_photo;
+            let photo = profile.photo;
 
+            // Handle profile image upload
             if (profileImage) {
-                const cloudinary = await uploadToCloudinary(
-                    profileImage,
-                    `users/${profile.name}/profile`
-                );
-                profile_photo_url = cloudinary?.secure_url.replace(
-                    /^http:\/\//i,
-                    "https://"
-                );
-                payload.profile_photo = profile_photo_url;
+                try {
+                    const { secure_url, updatedAssets } = await uploadImage(
+                        profileImage,
+                        [],
+                        `users/${profile.name}/profile`,
+                        true
+                    );
+
+                    if (secure_url) {
+                        photo = secure_url.replace(/^http:\/\//i, "https://");
+                        payload.photo = photo;
+                    }
+                } catch (uploadError) {
+                    console.error('Profile image upload failed:', uploadError);
+                    throw new Error('Failed to upload profile image. Please try again.');
+                }
             }
 
-            const updatedProfile = await ProfileAPI.editProfileInfo(payload);
+            // Create the backend payload with nested certification structure
+            const backendPayload = {
+                ...payload,
+                certification: {
+                    name: payload.certification.name,
+                    link: payload.certification.link
+                }
+            };
+
+            const updatedProfile = await ProfileAPI.editProfileInfo(backendPayload);
 
             if (updatedProfile.status) {
                 notifications.show({
@@ -109,6 +133,7 @@ const EditTrainerProfileForm: React.FC<EditTrainerProfileFormProps> = ({
             }
 
         } catch (error: any) {
+            console.error('Profile update error:', error);
             notifications.show({
                 position: 'bottom-right',
                 title: "Update Failed",
@@ -231,6 +256,18 @@ const EditTrainerProfileForm: React.FC<EditTrainerProfileFormProps> = ({
                                     label="Skills"
                                     placeholder="Enter a skill and press Enter"
                                     error={skills.length === 0 ? "At least one skill is required" : undefined}
+                                />
+                            </Grid.Col>
+                            <Grid.Col span={12}>
+                                <TextInput
+                                    label="Cerification Name"
+                                    placeholder="Enter your certification name"
+                                    {...register("certification.name")}
+                                />
+                                <TextInput
+                                    label="Certification Link"
+                                    placeholder="Enter your certification link"
+                                    {...register("certification.link")}
                                 />
                             </Grid.Col>
                         </Grid>
