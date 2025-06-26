@@ -6,7 +6,7 @@ export const notificationAPI = {
         return response;
     },
     delete: async function (payload) {
-        const response = await courseApiClient.delete('/courses/trainer/delete-notifications', payload);
+        const response = await courseApiClient.post('/courses/trainer/delete-notifications', payload);
         return response;
     },
 };
