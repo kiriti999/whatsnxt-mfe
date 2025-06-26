@@ -16,15 +16,17 @@
 import { notifications } from '@mantine/notifications';
 import { removeTempImageFromEditor, replaceImageLinksOnContentPreview } from '../../components/RichTextEditor/common/EditorUtils';
 
-interface UploadResponse {
+export interface UploadResponse {
+    url: string;
     secure_url: string;
     duration: number;
     public_id: string;
     resource_type: string;
     timestamp: string;
+    format: string;
 }
 
-interface ProgressUpdate {
+export interface ProgressUpdate {
     fileName: string;
     progress: number;
     timestamp: any;
@@ -136,6 +138,8 @@ export const unifiedUploadWebWorker = async (options: UnifiedUploadOptions): Pro
 
                     if (response && response.secure_url && response.public_id) {
                         const result: UploadResponse = {
+                            url: response.url,
+                            format: response.format,
                             secure_url: response.secure_url,
                             public_id: response.public_id,
                             timestamp: (response.timestamp || timestamp).toString(),

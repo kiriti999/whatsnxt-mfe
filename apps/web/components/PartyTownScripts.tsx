@@ -1,28 +1,33 @@
-// place all script to be loaded by PartyTownAdd commentMore actions
-import { Partytown } from "@qwik.dev/partytown/react";
-import Script from 'next/script';
+import { Partytown } from "@builder.io/partytown/react";
 import React from 'react';
+import Script from 'next/script';
 
 export default function PartyTownScripts() {
+    const GA_MEASUREMENT_ID = 'GT-K8KF8BJN';
+
     return (
         <>
-            <Partytown forward={['dataLayer.push']} />
+            <Partytown debug forward={['dataLayer.push']} />
+
+            {/* Load gtag library */}
             <Script
                 type="text/partytown"
-                src="https://www.googletagmanager.com/gtag/js?id=GT-K55MWM3"
-                strategy="worker"
+                src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
+                strategy="afterInteractive"
             />
+
+            {/* Initialize Google Analytics */}
             <Script
                 type="text/partytown"
-                id="GA"
+                id="google-analytics"
                 strategy="afterInteractive"
                 dangerouslySetInnerHTML={{
                     __html: `
-                    window.dataLayer = window.dataLayer || [];
-                    window.gtag = function gtag(){dataLayer.push(arguments);}
-                    gtag('js', new Date());
-                    gtag('config', 'GT-K55MWM3');
-                `
+                        window.dataLayer = window.dataLayer || [];
+                        function gtag(){dataLayer.push(arguments);}
+                        gtag('js', new Date());
+                        gtag('config', '${GA_MEASUREMENT_ID}');
+                    `
                 }}
             />
         </>

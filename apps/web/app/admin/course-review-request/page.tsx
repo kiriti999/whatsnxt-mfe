@@ -1,12 +1,15 @@
-import React from 'react';
-import CourseReviewRequests from '../../../components/Admin/CourseReviewRequests'
 
-const Page = () => {
-    return (
-        <div>
-            <CourseReviewRequests />
-        </div>
-    );
-};
+import React from 'react';
+import dynamic from 'next/dynamic';
+
+const CourseReviewRequests = dynamic(() =>
+  import('../../../components/Admin/CourseReviewRequests').then((component) => component)
+)
+
+const Page = () => (
+  <>
+    <CourseReviewRequests />
+  </>
+)
 
 export default Page;

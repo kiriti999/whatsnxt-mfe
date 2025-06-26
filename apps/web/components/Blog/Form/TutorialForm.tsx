@@ -21,6 +21,7 @@ import {
 import { IconUpload } from '@tabler/icons-react';
 import Image from 'next/image';
 import { CloudinaryAPI } from '../../../apis/v1/common/cloudinary';
+import { uploadImage } from './util';
 
 interface TutorialFormProps {
   categories: Category[];
@@ -285,28 +286,13 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
       const categoryName: any = getValues('categoryName');
 
       let imageUrl = edit?.imageUrl || '';
-      const cloudinaryAssets = edit?.cloudinaryAssets || [];
+      let cloudinaryAssets = edit?.cloudinaryAssets || [];
 
-      if (tutorialImage) {
-        console.log(`Uploading...`)
-        const fileUploadResData = await CloudinaryAPI.blog.upload(
-          tutorialImage,           // File object
-          'image',            // resource type
-          'whatsnxt-tutorial',    // folder name (optional, defaults to 'whatsnxt')
-          (progressEvent) => { // progress callback (optional)
-            const progress = (progressEvent.loaded / progressEvent.total) * 100;
-            console.log(`Upload progress: ${progress}%`);
-          }
-        );
-        imageUrl = fileUploadResData?.secure_url;
-        cloudinaryAssets.push({
-          public_id: fileUploadResData?.public_id,
-          type: fileUploadResData?.resource_type,
-          url: fileUploadResData.url,
-          secureUrl: imageUrl,
-          format: fileUploadResData.format
-        })
-      }
+      // Upload image via worker
+      const { secure_url, updatedAssets } = await uploadImage(tutorialImage, cloudinaryAssets, 'whatsnxt-tutorial');
+      console.log('TutorialForm:: handleFormSubmit:: secure_url:', secure_url)
+      imageUrl = secure_url;
+      cloudinaryAssets = updatedAssets;
 
       const details = {
         title: getValues('tutorialName'),

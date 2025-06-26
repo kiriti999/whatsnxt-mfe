@@ -12,7 +12,7 @@ import { useDisclosure } from '@mantine/hooks';
 import { MantineLoader } from '@whatsnxt/core-ui';
 import { AISuggestions } from '../../../apis/v1/blog/aiSuggestions';
 import Image from 'next/image';
-import { CloudinaryAPI } from '../../../apis/v1/common/cloudinary';
+import { uploadImage } from './util';
 
 const BlogForm: React.FC<BlogFormProps> = ({ categories, edit }) => {
   const [isVisible, { open, close }] = useDisclosure(false);
@@ -142,29 +142,14 @@ const BlogForm: React.FC<BlogFormProps> = ({ categories, edit }) => {
       formData.contentFormat = contentIsMarkdown ? "MARKDOWN" : "HTML";
 
       let imageUrl = edit?.imageUrl || '';
-      const cloudinaryAssets = edit?.cloudinaryAssets || [];
+      let cloudinaryAssets = edit?.cloudinaryAssets || [];
 
-      if (blogImage) {
-        console.log(`Uploading...`)
-        const fileUploadResData = await CloudinaryAPI.blog.upload(
-          blogImage,           // File object
-          'image',            // resource type
-          'whatsnxt-blog',    // folder name (optional, defaults to 'whatsnxt')
-          (progressEvent) => { // progress callback (optional)
-            const progress = (progressEvent.loaded / progressEvent.total) * 100;
-            console.log(`Upload progress: ${progress}%`);
-          }
-        );
-        console.log(' handleFormSubmit :: fileUploadResData:', fileUploadResData)
-        imageUrl = fileUploadResData?.secure_url;
-        cloudinaryAssets.push({
-          public_id: fileUploadResData?.public_id,
-          resource_type: fileUploadResData?.resource_type,
-          url: fileUploadResData.url,
-          secureUrl: imageUrl,
-          format: fileUploadResData.format
-        })
-      }
+
+      // Upload image via worker
+      const { secure_url, updatedAssets } = await uploadImage(blogImage, cloudinaryAssets, 'whatsnxt-blog');
+      console.log('BlogForm:: handleFormSubmit:: secure_url:', secure_url)
+      imageUrl = secure_url;
+      cloudinaryAssets = updatedAssets;
 
       // Construct payload with nested categories
       const payload = {
