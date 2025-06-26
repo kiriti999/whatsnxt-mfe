@@ -16,7 +16,7 @@ export interface BlogFormProps {
       public_id: string;
       resource_type: string;
       url: string;
-      secureUrl: string;
+      secure_url: string;
       format: string;
     }[] | null
   };
