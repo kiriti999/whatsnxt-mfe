@@ -3,9 +3,9 @@ import type { AppRouterInstance } from "next/dist/shared/lib/app-router-context.
 import { notifications } from "@mantine/notifications";
 import { CourseBuilderAPI } from "../../../../apis/v1/courses/course-builder/course-builder-api";
 import { extractCloudinaryLinksFromContent, extractPublicIdsAndTypeFromLinks, extractPublicIdsFromLinks } from "../../../../components/RichTextEditor/common";
-import { getImageAsData, uploadToCloudinary } from "../../../../utils/course-image-upload";
 import { removeAssetFromLocalStoragesList } from "../../../../utils/worker/localStorageHandler";
 import { revalidate } from "../../../../server-actions";
+import { uploadImage } from '../../../../components/Blog/Form/util';
 
 type Payload = {
     courseImagePreview?: File | string;
@@ -25,21 +25,6 @@ const extractCloudAssetsToSave = ({ overview, topics }) => {
     return { cloudinaryLinksOverview, cloudinaryLinksTopics, usedPublicIdsInEditor }
 };
 
-const handleProfilePhotoUpload = async ({ courseImageUrl, imageAttributes, setImageUploading }) => {
-    let secure_url = '';
-    setImageUploading(true);
-
-    if (courseImageUrl) {
-        const base64Data = await getImageAsData(courseImageUrl);
-        const cloudinary = await uploadToCloudinary(base64Data);
-        secure_url = cloudinary?.secure_url;
-        imageAttributes = { public_id: cloudinary?.public_id };
-    }
-
-    setImageUploading(false);
-    return secure_url;
-};
-
 interface HandleLandingPageSubmitParams {
     data: Payload;
     courseId: string;
@@ -57,7 +42,7 @@ type HandleLandingPageSubmit = (
 
 
 export const handleLandingPageSubmit: HandleLandingPageSubmit = async (
-    { data, courseId, setImageUploading, courseImagePreview, imageAttributes, router },
+    { data, courseId, setImageUploading, courseImagePreview, router },
     open,
     close
 ) => {
@@ -65,19 +50,38 @@ export const handleLandingPageSubmit: HandleLandingPageSubmit = async (
         open()
         let courseImageUrl = '';
         let courseImagePublicId = '';
+
+        // Extract existing cloudinary assets first
+        const { cloudinaryLinksOverview, cloudinaryLinksTopics, usedPublicIdsInEditor } = extractCloudAssetsToSave({ overview: data.overview, topics: data.topics });
+        let cloudinaryAssets = extractPublicIdsAndTypeFromLinks([...cloudinaryLinksOverview, ...cloudinaryLinksTopics]);
+
+        // Handle course image upload using the new uploadImage function
         if (courseImagePreview) {
-            const cloudinary = await uploadToCloudinary(courseImagePreview, courseId);
-            console.log("🚀 ~ cloudinary:", cloudinary)
-            courseImageUrl = cloudinary?.secure_url
-            courseImagePublicId = cloudinary?.public_id;
-            courseImageUrl = courseImageUrl.replace(/^http:\/\//i, 'https://');
+            // Set uploading state if available
+            setImageUploading?.(true);
+
+            try {
+                const { secure_url, updatedAssets } = await uploadImage(
+                    courseImagePreview,
+                    cloudinaryAssets,
+                    courseId, // Using courseId as folder name
+                    false // addToLocalStorage - adjust based on your needs
+                );
+
+                if (secure_url) {
+                    courseImageUrl = secure_url.replace(/^http:\/\//i, 'https://');
+                    // Extract public_id from the updated assets
+                    const uploadedAsset = updatedAssets[updatedAssets.length - 1];
+                    courseImagePublicId = uploadedAsset?.public_id || '';
+                    cloudinaryAssets = updatedAssets;
+                }
+            } finally {
+                setImageUploading?.(false);
+            }
         }
 
-
-        const { cloudinaryLinksOverview, cloudinaryLinksTopics, usedPublicIdsInEditor } = extractCloudAssetsToSave({ overview: data.overview, topics: data.topics });
         // Remove from local storage before saving into db
         removeAssetFromLocalStoragesList(usedPublicIdsInEditor);
-        const cloudinaryAssets = extractPublicIdsAndTypeFromLinks([...cloudinaryLinksOverview, ...cloudinaryLinksTopics]);
 
         const payload: any = {
             ...data,
@@ -85,7 +89,7 @@ export const handleLandingPageSubmit: HandleLandingPageSubmit = async (
         };
 
         // Only include image fields if we're uploading a new image
-        if (courseImagePreview) {
+        if (courseImagePreview && courseImageUrl) {
             payload.courseImageUrl = courseImageUrl;
             payload.courseImagePublicId = courseImagePublicId;
         }
@@ -102,13 +106,15 @@ export const handleLandingPageSubmit: HandleLandingPageSubmit = async (
             router.push(`/trainer/course/course-interview-page/${courseId}`);
         }
     } catch (err) {
+        console.error('Course update error:', err);
         notifications.show({
             position: 'bottom-right',
             title: 'Course Error',
-            message: err?.response?.data || 'Course failed to update',
+            message: err?.response?.data || err?.message || 'Course failed to update',
             color: 'red',
         });
     } finally {
+        setImageUploading?.(false);
         close()
     }
 };
