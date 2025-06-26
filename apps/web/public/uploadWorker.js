@@ -75,7 +75,7 @@ async function convertToWebP(file, options = {}) {
                         }
 
                         const webpFile = new File([blob],
-                            file.name.replace(/\.[^/.]+$/, ''),
+                            file.name.replace(/\.[^/.]+$/, '.webp'),
                             { type: 'image/webp' }
                         );
 
@@ -135,7 +135,7 @@ self.onmessage = async (event) => {
 
         const formData = new FormData();
         formData.append(fileKeyName || 'file', file);
-        formData.append('resourceType', resource_type);
+        formData.append('resource_type', resource_type);
         if (folder) {
             formData.append('folder', folder);
         }
