@@ -65,7 +65,6 @@ export default function AppProvider({ children, user }: { children: ReactNode, u
         url: ``,
         children: [
           { title: 'Profile Info', url: `${domain}/user/my-profile`, icon: IconAddressBook },
-          { title: 'Edit Profile', url: `${domain}/user/edit-profile`, icon: IconUserEdit },
           { title: 'Edit Password', url: `${domain}/user/edit-password`, icon: IconPasswordUser },
         ]
       },
