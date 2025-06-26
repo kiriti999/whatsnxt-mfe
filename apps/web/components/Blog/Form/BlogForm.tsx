@@ -146,7 +146,8 @@ const BlogForm: React.FC<BlogFormProps> = ({ categories, edit }) => {
 
 
       // Upload image via worker
-      const { secure_url, updatedAssets } = await uploadImage(blogImage, cloudinaryAssets, 'whatsnxt-blog');
+      const addToLocalStorage = false;
+      const { secure_url, updatedAssets } = await uploadImage(blogImage, cloudinaryAssets, 'whatsnxt-blog', addToLocalStorage);
       console.log('BlogForm:: handleFormSubmit:: secure_url:', secure_url)
       imageUrl = secure_url;
       cloudinaryAssets = updatedAssets;
@@ -186,6 +187,7 @@ const BlogForm: React.FC<BlogFormProps> = ({ categories, edit }) => {
         message: error?.message || 'An error occurred while saving the blog',
         color: 'red',
       });
+      // TODO: Delete image from cloud incase of failure
     } finally {
       close();
     }
@@ -260,7 +262,7 @@ const BlogForm: React.FC<BlogFormProps> = ({ categories, edit }) => {
 
               {/* Description */}
               <Grid.Col span={12}>
-                <Text size="sm">Description</Text>
+                <Text size="sm" className='required'>Description</Text>
                 <Controller
                   name="description"
                   control={control}

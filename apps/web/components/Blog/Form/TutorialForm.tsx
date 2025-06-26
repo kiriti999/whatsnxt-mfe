@@ -37,7 +37,7 @@ interface TutorialFormProps {
       public_id: string;
       type: string;
       url: string;
-      secureUrl: string;
+      secure_url: string;
       format: string;
     }[] | null
   };
@@ -289,7 +289,8 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
       let cloudinaryAssets = edit?.cloudinaryAssets || [];
 
       // Upload image via worker
-      const { secure_url, updatedAssets } = await uploadImage(tutorialImage, cloudinaryAssets, 'whatsnxt-tutorial');
+      const addToLocalStorage = false;
+      const { secure_url, updatedAssets } = await uploadImage(tutorialImage, cloudinaryAssets, 'whatsnxt-tutorial', addToLocalStorage);
       console.log('TutorialForm:: handleFormSubmit:: secure_url:', secure_url)
       imageUrl = secure_url;
       cloudinaryAssets = updatedAssets;

@@ -22,11 +22,11 @@ import {
   IconPlus,
 } from '@tabler/icons-react';
 import { HistoryAPI } from '../../../apis/v1/index';
-import { deleteCloudinaryImage } from '../../../utils/blog-image-upload';
 import { useRouter } from 'next/navigation';
 import { useDebouncedValue } from '@mantine/hooks';
 import { downloadBase64File } from '../../../utils/downloadFile';
 import { deleteIndex, indexRecord } from '@whatsnxt/core-util';
+import { unifiedDeleteWebWorker } from '../../../utils/worker/assetManager';
 
 const HistoryMUI = ({ open, close }: any) => {
   const tutorialIndex = 'tutorial';
@@ -82,12 +82,15 @@ const HistoryMUI = ({ open, close }: any) => {
 
   const deleteContent = async (id: string | number) => {
     const rowData = data && data.length > 0 && data.find((f: { _id: number; }) => f._id === id);
-    const deleteResult = await HistoryAPI[
-      rowData?.tutorial ? 'deleteTutorial' : 'deleteBlog'
-    ](rowData._id);
-    const public_id = rowData?.postImageAttributes?.public_id || null;
+
+    console.log(' deleteContent :: rowData:', rowData)
+    const deleteResult = await HistoryAPI[rowData?.tutorial ? 'deleteTutorial' : 'deleteBlog'](rowData._id);
+    const assetsList = rowData?.cloudinaryAssets || [];
+
     if (deleteResult) {
-      if (public_id) await deleteCloudinaryImage(public_id);
+      if (assetsList.length > 0) {
+        unifiedDeleteWebWorker({ assetsList })
+      }
       await deleteIndex(rowData._id, rowData?.tutorial ? 'tutorial' : 'blog');
       await load();
     }
@@ -150,7 +153,6 @@ const HistoryMUI = ({ open, close }: any) => {
   };
 
   const handlePublishButtonClick = async (rowData: any) => {
-    console.log(' handlePublishButtonClick :: rowData:', rowData)
     try {
       open();
       const publish = !rowData.published;
