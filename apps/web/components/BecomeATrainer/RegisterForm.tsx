@@ -24,9 +24,9 @@ import { useRouter } from "next/navigation";
 import { UserAPI } from "../../apis/v1/user/apply";
 import { LanguageAPI } from "../../apis/v1/language";
 import { IconUpload } from "@tabler/icons-react";
-import { uploadToCloudinary } from "../../utils/course-image-upload";
 import { revalidate } from "../../server-actions";
 import TrainingConfirmationModal from "./TrainingConfirmationModal";
+import { uploadImage } from '../Blog/Form/util';
 
 type RegisterFormValues = {
   name: string;
@@ -137,19 +137,27 @@ const RegisterForm = ({ user }: { user: any }) => {
       setLoading(true);
       payload.skills = skills;
 
+      // Handle profile image upload using the new uploadImage function
       if (profileImage) {
-        const cloudinary = await uploadToCloudinary(
-          profileImage,
-          `users/${user?.email}/profile`
-        );
-        payload.trainerProfilePhoto = cloudinary?.secure_url.replace(
-          /^http:\/\//i,
-          "https://"
-        );
+        try {
+          const { secure_url, updatedAssets } = await uploadImage(
+            profileImage,
+            [], // No existing cloudinary assets for profile photo
+            `users/${user?.email}/profile`, // folder path
+            true // addToLocalStorage - adjust based on your needs
+          );
+
+          if (secure_url) {
+            payload.trainerProfilePhoto = secure_url.replace(/^http:\/\//i, "https://");
+          }
+        } catch (uploadError) {
+          console.error('Profile image upload failed:', uploadError);
+          throw new Error('Failed to upload profile image. Please try again.');
+        }
       }
 
-      console.log('🚀 ~ consthandleApply:SubmitHandler<RegisterFormValues>= ~ payload:', payload)
       const response = await UserAPI.apply(payload);
+
       notifications.show({
         position: "bottom-right",
         title: "Applied Successfully",
@@ -159,7 +167,9 @@ const RegisterForm = ({ user }: { user: any }) => {
 
       await revalidate("/trainer/courses");
       router.push("/trainer/courses");
+
     } catch (error: any) {
+      console.error('Application error:', error);
       notifications.show({
         position: "bottom-right",
         title: "Registration Failed",
