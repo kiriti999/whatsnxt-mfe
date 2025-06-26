@@ -15,38 +15,8 @@
 
 import { notifications } from '@mantine/notifications';
 import { removeTempImageFromEditor, replaceImageLinksOnContentPreview } from '../../components/RichTextEditor/common/EditorUtils';
+import { UnifiedUploadOptions, UploadResponse, UnifiedDeleteOptions, DeleteAssetResult, WorkerResponse } from './types';
 
-export interface UploadResponse {
-    url: string;
-    secure_url: string;
-    duration: number;
-    public_id: string;
-    resource_type: string;
-    timestamp: string;
-    format: string;
-}
-
-export interface ProgressUpdate {
-    fileName: string;
-    progress: number;
-    timestamp: any;
-    isCompleted?: boolean;
-}
-
-interface UnifiedUploadOptions {
-    file: File;
-    folder: string;
-    resource_type: string;
-    setProgress: (progress: ProgressUpdate) => void;
-
-    // Optional editor-specific options (for images)
-    editor?: any;
-    tempUrl?: string;
-    lectureId?: string;
-
-    // Behavior options
-    rejectOnError?: boolean; // true for promise rejection, false for null return
-}
 
 export const unifiedUploadWebWorker = async (options: UnifiedUploadOptions): Promise<UploadResponse | null> => {
     const {
@@ -56,9 +26,9 @@ export const unifiedUploadWebWorker = async (options: UnifiedUploadOptions): Pro
         setProgress,
         editor,
         tempUrl,
-        rejectOnError = false
+        rejectOnError = false,
+        addToLocalStorage = true
     } = options;
-    console.log(' unifiedUploadWebWorker :: options:', options)
 
     console.log('🚀 [Turbopack] Starting upload for:', file.name);
 
@@ -148,7 +118,7 @@ export const unifiedUploadWebWorker = async (options: UnifiedUploadOptions): Pro
                         };
 
                         // Dynamic localStorage handling based on resource resource_type
-                        if (result.public_id && result.resource_type) {
+                        if (result.public_id && result.resource_type && addToLocalStorage) {
                             import('./localStorageHandler')
                                 .then(({ addAssetOnLocalStorage }) => {
                                     const success = addAssetOnLocalStorage(result.public_id, result.resource_type);
@@ -162,7 +132,7 @@ export const unifiedUploadWebWorker = async (options: UnifiedUploadOptions): Pro
                         }
 
                         // Handle conditional logic based on Cloudinary resource_type
-                        if (result.resource_type === 'image' && editor && tempUrl) {
+                        if (result.resource_type === 'image' && editor && tempUrl && addToLocalStorage) {
                             // Only handle image replacement for actual images
                             replaceImageLinksOnContentPreview({
                                 setProgress,
@@ -222,32 +192,6 @@ export const unifiedUploadWebWorker = async (options: UnifiedUploadOptions): Pro
     });
 };
 
-// Unified Delete Worker Interfaces
-interface AssetItem {
-    public_id: string;
-    resource_type: 'image' | 'video' | 'raw' | 'auto' | string;
-}
-
-interface WorkerResponse {
-    status: 'success' | 'error';
-    results?: any;
-    error?: string;
-}
-
-interface DeleteAssetResult {
-    success: boolean;
-    results?: any;
-    error?: string;
-}
-
-// Updated interfaces - remove boolean return option
-interface UnifiedDeleteOptions {
-    assetsList: AssetItem[];
-    clearLocalStorage?: boolean; // Whether to clear localStorage on success
-    returnDetailedResult?: boolean; // Whether to return full details or minimal object
-}
-
-// Updated function signature - always returns DeleteAssetResult
 export const unifiedDeleteWebWorker = async (options: UnifiedDeleteOptions): Promise<DeleteAssetResult> => {
     const {
         assetsList,
