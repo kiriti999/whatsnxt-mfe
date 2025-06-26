@@ -121,32 +121,3 @@ export async function uploadToCloudinary(
     throw error;
   }
 }
-
-// Alternative function that works with FormData if you need it
-export async function uploadFormDataToCloudinary(
-  formData: FormData,
-  apiType: 'blog' | 'course' = 'blog'
-): Promise<UploadResponse> {
-  try {
-    // Extract file from FormData
-    const file = formData.get('file') as File;
-    const folder = formData.get('folder') as string || 'whatsnxt';
-    const resource_type = (formData.get('resource_type') as ResourceType) || 'auto';
-
-    if (!file) {
-      throw new Error('No file found in FormData');
-    }
-
-    // Use the appropriate API
-    const uploadFunction = apiType === 'blog' ? CloudinaryAPI.blog.upload : CloudinaryAPI.course.upload;
-
-    return await uploadFunction(
-      file,
-      resource_type,
-      folder
-    );
-  } catch (error) {
-    console.error('uploadFormDataToCloudinary error:', error);
-    throw error;
-  }
-}
