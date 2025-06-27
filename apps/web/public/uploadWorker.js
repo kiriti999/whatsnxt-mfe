@@ -83,11 +83,11 @@ async function convertToWebP(file, options = {}) {
                         const originalSizeKB = file.size / 1024;
                         const compressionRatio = ((originalSizeKB - fileSizeKB) / originalSizeKB * 100).toFixed(1);
 
-                        console.log(`✅ WebP conversion complete:`);
-                        console.log(`   Original: ${originalSizeKB.toFixed(1)}KB (${imageBitmap.width}x${imageBitmap.height})`);
-                        console.log(`   Converted: ${fileSizeKB.toFixed(1)}KB (${width}x${height})`);
-                        console.log(`   Compression: ${compressionRatio}% reduction`);
-                        console.log(`   Quality used: ${currentQuality}`);
+                        // console.log(`✅ WebP conversion complete:`);
+                        // console.log(`   Original: ${originalSizeKB.toFixed(1)}KB (${imageBitmap.width}x${imageBitmap.height})`);
+                        // console.log(`   Converted: ${fileSizeKB.toFixed(1)}KB (${width}x${height})`);
+                        // console.log(`   Compression: ${compressionRatio}% reduction`);
+                        // console.log(`   Quality used: ${currentQuality}`);
 
                         resolve(webpFile);
                     } catch (error) {
@@ -113,7 +113,7 @@ self.onmessage = async (event) => {
 
         // Convert to WebP if it's an image
         if (file.type.startsWith('image/')) {
-            console.log('🔄 [Upload Worker] Converting to WebP...');
+            // console.log('🔄 [Upload Worker] Converting to WebP...');
             self.postMessage({ status: 'progress', progress: 5 });
 
             try {
@@ -121,14 +121,14 @@ self.onmessage = async (event) => {
                 file = await convertToWebP(file, 0.85);
                 const newSize = file.size;
                 const savings = ((originalSize - newSize) / originalSize * 100).toFixed(1);
-                console.log(`✅ [Upload Worker] WebP conversion complete. Size reduced by ${savings}%`);
+                // console.log(`✅ [Upload Worker] WebP conversion complete. Size reduced by ${savings}%`);
             } catch (conversionError) {
                 console.warn('⚠️ [Upload Worker] WebP conversion failed, using original:', conversionError);
                 // Continue with original file
             }
         }
 
-        console.log('🔧 [Upload Worker] Starting upload:', file.name);
+        // console.log('🔧 [Upload Worker] Starting upload:', file.name);
 
         // Send initial progress
         self.postMessage({ status: 'progress', progress: 0 });
@@ -151,7 +151,7 @@ self.onmessage = async (event) => {
         xhr.upload.addEventListener('progress', (progressEvent) => {
             if (progressEvent.lengthComputable) {
                 const progress = Math.round((progressEvent.loaded / progressEvent.total) * 100);
-                console.log(`🔧 [Upload Worker] Progress: ${progress}%`);
+                // console.log(`🔧 [Upload Worker] Progress: ${progress}%`);
                 self.postMessage({ status: 'progress', progress });
             }
         });
