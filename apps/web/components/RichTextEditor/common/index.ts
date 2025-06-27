@@ -26,15 +26,26 @@ export const extractPublicIdsFromLinks = (links: string[]) => {
     return links.map(link => {
         const parts = link.split('/');
         const lastPart = parts.slice(-2).join('/');
-        return lastPart.split('.')[0];
+        // Remove duplicate extension if it exists
+        // "Design%20Patterns.webp.webp" -> "Design%20Patterns.webp"
+        // "Design%20Patterns.webp" -> "Design%20Patterns.webp" (unchanged)
+        const public_id = lastPart.replace(/(\.\w+)\1$/, '$1');
+        return decodeURIComponent(public_id);
     });
 };
 
 export const extractPublicIdsAndTypeFromLinks = (links: any[]) => {
     return links.map((link: string) => {
         const parts = link.split('/');
+
+        // Extract the folder and filename (last 2 parts after domain/upload/version)
         const lastPart = parts.slice(-2).join('/');
-        const public_id = lastPart.split('.')[0];
+
+        // Remove duplicate extension if it exists
+        // "Design%20Patterns.webp.webp" -> "Design%20Patterns.webp"
+        // "Design%20Patterns.webp" -> "Design%20Patterns.webp" (unchanged)
+        const public_id = lastPart.replace(/(\.\w+)\1$/, '$1');
+
         const resource_type = parts.find((part: string) => mediaTypes.includes(part)) || 'image';
 
         return {
@@ -47,6 +58,7 @@ export const extractPublicIdsAndTypeFromLinks = (links: any[]) => {
 export const cloudinaryAssetsUploadCleanup = ({ content }: any) => {
     const cloudinaryLinksFromContent = extractCloudinaryLinksFromContent(content);
     const usedPublicIdsInEditor = extractPublicIdsFromLinks([...cloudinaryLinksFromContent]);
+    console.log(' cloudinaryAssetsUploadCleanup :: usedPublicIdsInEditor:', usedPublicIdsInEditor)
 
     import('../../../utils/worker/localStorageHandler').then(({ removeAssetFromLocalStoragesList }) => {
         const success = removeAssetFromLocalStoragesList(usedPublicIdsInEditor);

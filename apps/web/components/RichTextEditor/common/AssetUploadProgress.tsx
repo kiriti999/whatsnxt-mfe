@@ -9,23 +9,22 @@ const AssetUploadProgress = () => {
 
     return (
         <div>
-            {progressList && progressList.length > 0 ? <>
-                <Progress.Root size="xl" transitionDuration={200} >
-                    {progressList.map((e, index) => (<>
-                        <Progress.Section key={e?.fileName} value={e.progress} animated color={colors[index % colors.length]}>
+            {progressList && progressList.length > 0 ? (
+                <Progress.Root size="xl" transitionDuration={200}>
+                    {progressList.map((e, index) => (
+                        <Progress.Section
+                            key={e?.fileName || index}
+                            value={e.progress}
+                            animated
+                            color={colors[index % colors.length]}
+                        >
                             <Progress.Label>{e?.fileName}</Progress.Label>
                         </Progress.Section>
-                    </>))}
+                    ))}
                 </Progress.Root>
-            </> : <></>}
-            {/* <Progress color="red" size="xl" value={80} animated /> */}
+            ) : null}
         </div>
     );
 };
 
-export default AssetUploadProgress
-
-
-
-
-
+export default AssetUploadProgress;

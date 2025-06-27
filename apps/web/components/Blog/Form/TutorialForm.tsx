@@ -280,8 +280,7 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
       if (checkValidationEachPage(copyTutorial)) {
         return;
       }
-      const updatedTutorialsList =
-        checkCleanupCloudinaryAssets(copyTutorial);
+      const updatedTutorialsList = checkCleanupCloudinaryAssets(copyTutorial);
 
       const categoryName: any = getValues('categoryName');
 
@@ -291,7 +290,6 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
       // Upload image via worker
       const addToLocalStorage = false;
       const { secure_url, updatedAssets } = await uploadImage(tutorialImage, cloudinaryAssets, 'whatsnxt-tutorial', addToLocalStorage);
-      console.log('TutorialForm:: handleFormSubmit:: secure_url:', secure_url)
       imageUrl = secure_url;
       cloudinaryAssets = updatedAssets;
 
@@ -312,6 +310,8 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
 
       try {
         const payload = { ...details, tutorials: updatedTutorialsList };
+
+        console.log('TutorialForm:: payload:', payload)
 
         const response = edit
           ? await FormAPI.updateTutorial(edit.id, payload)
