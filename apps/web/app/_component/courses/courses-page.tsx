@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
 import htmlReactParser from 'html-react-parser';
-import { Skeleton, Avatar, Text, Tooltip } from '@mantine/core';
+import { Skeleton, Avatar, Text, Tooltip, Container } from '@mantine/core';
 import { Amount, CardComponent, SortByComponent } from '@whatsnxt/core-ui';
 import type { CourseType, Category } from '@whatsnxt/core-util';
 import sortStyles from './index.module.css';
@@ -76,7 +76,7 @@ function Courses({ allCourses, courses, categories, totalRecords }: CourseProps)
   return (
     <div>
       <div className={`${styles['courses-area']} pb-70`}>
-        <div className="container">
+        <Container fluid>
           <div className="row">
             <div className="col-lg-9 col-md-9 col-sm-12">
               <div
@@ -167,7 +167,7 @@ function Courses({ allCourses, courses, categories, totalRecords }: CourseProps)
               <CoursesSidebar courses={allCourses} categories={categories} />
             </div>
           </div>
-        </div>
+        </Container>
       </div>
     </div>
   );
