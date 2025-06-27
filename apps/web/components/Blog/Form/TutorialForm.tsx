@@ -20,7 +20,6 @@ import {
 } from '../../RichTextEditor/common';
 import { IconUpload } from '@tabler/icons-react';
 import Image from 'next/image';
-import { CloudinaryAPI } from '../../../apis/v1/common/cloudinary';
 import { uploadImage } from './util';
 
 interface TutorialFormProps {
