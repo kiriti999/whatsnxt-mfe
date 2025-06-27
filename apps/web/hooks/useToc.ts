@@ -1,6 +1,19 @@
 import { useCallback, useEffect, useRef } from 'react';
 import sanitizeHtml from 'sanitize-html';
 
+// Configure sanitize-html options to allow images
+const sanitizeOptions = {
+  allowedTags: [
+    ...sanitizeHtml.defaults.allowedTags,
+    'img' // Add img to allowed tags
+  ],
+  allowedAttributes: {
+    ...sanitizeHtml.defaults.allowedAttributes,
+    img: ['src', 'alt', 'title', 'width', 'height', 'loading', 'class', 'style']
+  },
+  allowedSchemes: ['http', 'https', 'data']
+};
+
 export const useAddIdsToHeadings = (desc: string) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
 
@@ -17,7 +30,7 @@ export const useAddIdsToHeadings = (desc: string) => {
     }
 
     // Sanitize the description
-    const sanitizedDescription = sanitizeHtml(decodedDescription);
+    const sanitizedDescription = sanitizeHtml(decodedDescription, sanitizeOptions);
 
     // Create a DOM parser
     const parser = new DOMParser();
