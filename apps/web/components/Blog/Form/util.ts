@@ -17,7 +17,7 @@ export const uploadImage = async (image, cloudinaryAssets, folder, addToLocalSto
             folder: folder,
             resource_type: 'image',
             setProgress: (progressUpdate) => {
-                console.log(`Upload progress: ${progressUpdate.progress}%`);
+                // console.log(`Upload progress: ${progressUpdate.progress}%`);
             },
             rejectOnError: true, // Set to true if you want to handle errors explicitly
             addToLocalStorage
