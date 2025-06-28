@@ -105,7 +105,7 @@ function Courses({ allCourses, courses, categories, totalRecords }: CourseProps)
                       image={
                         <Image
                           fill
-                          src={course.courseImageUrl}
+                          src={course.imageUrl}
                           alt={course.courseName}
                           style={{ objectFit: "cover" }}
                         />

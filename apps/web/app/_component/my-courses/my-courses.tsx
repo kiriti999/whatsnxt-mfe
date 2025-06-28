@@ -26,7 +26,7 @@ type Lesson = {
 
 type Course = {
   courseName: string;
-  courseImageUrl: string;
+  imageUrl: string;
   slug: string;
   paidType?: 'video' | 'live'; // Assuming these are the only options
   lessons?: number;
@@ -211,7 +211,7 @@ const CourseCard = ({ course, lessonsWatched, lessons, commentData, ratingData }
           <Image className='image-preview'
             width={500}
             height={500}
-            src={course.courseImageUrl}
+            src={course.imageUrl}
             alt={course.courseName}
           />
         }

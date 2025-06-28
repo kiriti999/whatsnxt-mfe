@@ -46,7 +46,7 @@ const CoursePublishButton = ({
                         courseType: response.data.course.courseType,
                         rating: response.data.course.rating,
                         published: response.data.course.published,
-                        courseImageUrl: response.data.course.courseImageUrl,
+                        imageUrl: response.data.course.imageUrl,
                         coverPhoto: response.data.course.coverPhoto,
                         course_preview_video: '',
                         duration: response.data.course.duration,

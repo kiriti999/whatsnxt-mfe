@@ -29,10 +29,10 @@ const CourseSlugDetails = ({ course, courseReviews, setCourseReviews, reviewComm
         <>
             <CourseOverview overview={course.overview} courseName={course.courseName} />
 
-            {isCourseReviewMode && course?.courseImageUrl && (
+            {isCourseReviewMode && course?.imageUrl && (
                 <Box my="md" className='col-lg-3 col-md-6'>
                     <Title order={5}>Image Preview:</Title>
-                    <img src={course.courseImageUrl} alt="Image Preview" className="image-preview" />
+                    <img src={course.imageUrl} alt="Image Preview" className="image-preview" />
                 </Box>
             )}
 

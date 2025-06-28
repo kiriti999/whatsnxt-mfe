@@ -180,9 +180,9 @@ const Main = ({ courseWithSections, courseId }) => {
 
 	// Add this useEffect to set the image preview for existing courses
 	useEffect(() => {
-		if (courseId && courseWithSections?.courseImageUrl) {
+		if (courseId && courseWithSections?.imageUrl) {
 			// Set the image preview for existing courses
-			setImagePreview(courseWithSections.courseImageUrl as string);
+			setImagePreview(courseWithSections.imageUrl as string);
 		}
 	}, [courseId, courseWithSections]);
 

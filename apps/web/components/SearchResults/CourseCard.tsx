@@ -43,7 +43,7 @@ export function CourseCard({ course }: CourseCardProps) {
                             fill
                             style={{ objectFit: 'cover' }}
                             alt={course.courseName}
-                            src={course.courseImageUrl}
+                            src={course.imageUrl}
                             priority={false}
                             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                         />

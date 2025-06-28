@@ -28,7 +28,7 @@ export type CourseType = {
   courseType: String;
   rating: number;
   published: boolean;
-  courseImageUrl: string;
+  imageUrl: string;
   course_preview_video: string;
   duration: string;
   lessons: string;

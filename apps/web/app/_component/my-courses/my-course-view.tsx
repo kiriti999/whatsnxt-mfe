@@ -40,7 +40,7 @@ const SingleCourses = ({ videos }: any) => {
                         <Image
                           width={500}
                           height={500}
-                          src={video.course.courseImageUrl}
+                          src={video.course.imageUrl}
                           alt={video.course.courseName}
                         />
                         <h4>{video.name}</h4>

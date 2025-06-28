@@ -8,7 +8,7 @@ import Main from './Main';
 import { useDisclosure } from '@mantine/hooks';
 
 type Course = {
-    courseImageUrl?: File | string;
+    imageUrl?: File | string;
     overview: string;
     course_preview_video: string;
     topics?: string;

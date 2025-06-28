@@ -16,7 +16,7 @@ const CoursesSidebar = ({ courses, categories }: { courses: CourseType[]; catego
             (
               <PopularPost
                 key={course._id}
-                imageUrl={course.courseImageUrl}
+                imageUrl={course.imageUrl}
                 title={course?.courseName}
                 updatedAt={new Date(course.updatedAt).toLocaleDateString('en-US', {
                   day: 'numeric',

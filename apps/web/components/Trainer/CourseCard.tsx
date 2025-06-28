@@ -16,11 +16,11 @@ function CourseCard({ course }) {
             href={`/courses/${course.slug}`}
             className={`d-block ${styles['image']}`}
           >
-            {course.courseImageUrl ? (
+            {course.imageUrl ? (
               <Image
                 width={500}
                 height={300}
-                src={course.courseImageUrl}
+                src={course.imageUrl}
                 alt={course.courseName}
               />
             ) : (

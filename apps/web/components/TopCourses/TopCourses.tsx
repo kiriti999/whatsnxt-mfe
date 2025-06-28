@@ -57,7 +57,7 @@ const TopCourses = ({ courses, total }: { courses: any[], total: number }) => {
                           fill
                           style={{ objectFit: 'cover' }}
                           alt={course.courseName}
-                          src={course.courseImageUrl}
+                          src={course.imageUrl}
                           priority={true}
                           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                         />

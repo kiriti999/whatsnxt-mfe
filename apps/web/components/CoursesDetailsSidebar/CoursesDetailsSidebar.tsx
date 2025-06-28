@@ -33,7 +33,7 @@ type CoursesDetailsSidebarProps = {
   courseName: string;
   price: number | null;
   userId: any;
-  courseImageUrl: string;
+  imageUrl: string;
   duration: any;
   lessons: any;
   loggedInUser: any;
@@ -47,7 +47,7 @@ export const CoursesDetailsSidebar: FC<CoursesDetailsSidebarProps> = ({
   courseName,
   price,
   userId,
-  courseImageUrl,
+  imageUrl,
   duration,
   lessons,
   courseData,
@@ -75,7 +75,7 @@ export const CoursesDetailsSidebar: FC<CoursesDetailsSidebarProps> = ({
       total_cost: price || 0,
       lessons,
       duration,
-      image: courseImageUrl,
+      image: imageUrl,
       quantity: 1
     };
 

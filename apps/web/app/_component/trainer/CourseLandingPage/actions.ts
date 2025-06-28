@@ -48,7 +48,7 @@ export const handleLandingPageSubmit: HandleLandingPageSubmit = async (
 ) => {
     try {
         open()
-        let courseImageUrl = '';
+        let imageUrl = '';
         let courseImagePublicId = '';
 
         // Extract existing cloudinary assets first
@@ -69,7 +69,7 @@ export const handleLandingPageSubmit: HandleLandingPageSubmit = async (
                 );
 
                 if (secure_url) {
-                    courseImageUrl = secure_url.replace(/^http:\/\//i, 'https://');
+                    imageUrl = secure_url.replace(/^http:\/\//i, 'https://');
                     // Extract public_id from the updated assets
                     const uploadedAsset = updatedAssets[updatedAssets.length - 1];
                     courseImagePublicId = uploadedAsset?.public_id || '';
@@ -89,8 +89,8 @@ export const handleLandingPageSubmit: HandleLandingPageSubmit = async (
         };
 
         // Only include image fields if we're uploading a new image
-        if (courseImagePreview && courseImageUrl) {
-            payload.courseImageUrl = courseImageUrl;
+        if (courseImagePreview && imageUrl) {
+            payload.imageUrl = imageUrl;
             payload.courseImagePublicId = courseImagePublicId;
         }
 
