@@ -188,7 +188,7 @@ importers:
         specifier: ^3.2.1
         version: 3.2.1(fkl2x7g7r3c33dyriqm6xeo5ia)
       next:
-        specifier: ^15.3.4
+        specifier: 15.3.4
         version: 15.3.4(@babel/core@7.27.4)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       next-plugin-bundle-stats:
         specifier: ^4.20.2

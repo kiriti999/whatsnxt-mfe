@@ -1,4 +1,4 @@
-// middleware.ts
+// middleware.ts - Enhanced to help with static route detection
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
@@ -41,6 +41,25 @@ const dynamicPublicRoutes = [
   '/interview/',
 ];
 
+// Routes that should be statically generated (no auth in layout)
+const staticRoutes = [
+  '/',
+  '/about',
+  '/blogs',
+  '/tutorials',
+  '/courses',
+  '/search-trainers',
+  '/search-trainer',
+  '/become-a-trainer',
+  '/shipping-and-delivery',
+  '/privacy-policy',
+  '/refund-policy',
+  '/terms-of-service',
+  '/contact-us',
+  '/search',
+  '/course-search',
+];
+
 // Authentication routes (redirect authenticated users away from these)
 const authenticationRoutes = [
   '/auth/authentication',
@@ -53,23 +72,38 @@ const authenticationRoutes = [
 
 // Helper function to check if route is public
 const isPublicRoute = (pathname: string): boolean => {
-  // Check exact match for static public routes
   const isStaticPublic = publicRoutes.some(route =>
     new RegExp(`^${route.replace(/\/$/, '')}/?$`).test(pathname)
   );
 
-  // Check dynamic public routes
   const isDynamicPublic = dynamicPublicRoutes.some(route =>
     pathname.startsWith(route)
   );
 
-  // Check specific dynamic patterns
   const isCoursesDynamicRoute = /^\/courses\/[a-zA-Z0-9-]+\/?$/.test(pathname);
   const isInterviewDynamicRoute = /^\/interview\/[a-zA-Z0-9-]+\/?$/.test(pathname);
   const isTrainerDetailsRoute = /^\/trainer-details\/[a-zA-Z0-9-]+\/?$/.test(pathname);
 
   return isStaticPublic || isDynamicPublic || isCoursesDynamicRoute ||
     isInterviewDynamicRoute || isTrainerDetailsRoute;
+};
+
+// Helper function to check if route should be static
+const isStaticRoute = (pathname: string): boolean => {
+  // Check exact matches
+  if (staticRoutes.includes(pathname)) {
+    return true;
+  }
+
+  // Check dynamic patterns that should be static
+  const staticPatterns = [
+    /^\/courses\/[^\/]+$/,        // /courses/[courseId]
+    /^\/content\/[^\/]+$/,        // /content/[contentId]
+    /^\/trainer-details\/[^\/]+$/, // /trainer-details/[trainerId]
+    /^\/interview\/[^\/]+$/,      // /interview/[interviewId]
+  ];
+
+  return staticPatterns.some(pattern => pattern.test(pathname));
 };
 
 // Helper function to get token from cookies
@@ -122,18 +156,32 @@ export async function middleware(req: NextRequest) {
   const token = getAuthToken(req);
   const isPublic = isPublicRoute(pathname);
   const isAuth = isAuthRoute(pathname);
+  const isStatic = isStaticRoute(pathname);
+
+  // Create response with custom headers
+  const response = NextResponse.next();
+
+  // Add pathname to headers so layout can detect route type
+  response.headers.set('x-pathname', pathname);
+  response.headers.set('x-is-static', isStatic.toString());
+  response.headers.set('x-is-public', isPublic.toString());
+
+  // For static routes, allow through without auth checks
+  if (isStatic) {
+    console.log('Static route, allowing through:', pathname);
+    return response;
+  }
 
   // Allow access to public routes without authentication
   if (isPublic && !token) {
     console.log('Public route access granted:', pathname);
-    return NextResponse.next();
+    return response;
   }
 
   // Redirect unauthenticated users to authentication page
   if (!token && !isPublic) {
     console.log('Redirecting to authentication:', pathname);
     const authUrl = new URL('/auth/authentication', req.url);
-    // Preserve the intended destination
     authUrl.searchParams.set('redirect', pathname);
     return NextResponse.redirect(authUrl);
   }
@@ -147,7 +195,7 @@ export async function middleware(req: NextRequest) {
   // Allow authenticated users to access any route
   if (token) {
     console.log('Authenticated access granted:', pathname);
-    return NextResponse.next();
+    return response;
   }
 
   // Fallback: redirect to authentication
@@ -158,16 +206,6 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  /*
-   * Match all request paths except for the ones starting with:
-   * - api (API routes)
-   * - _next/static (static files)
-   * - _next/image (image optimization files)
-   * - favicon.ico (favicon file)
-   * - fonts (font files)
-   * - images (image files)
-   * - icons (icon files)
-   */
   matcher: [
     '/((?!api|_next/static|_next/image|favicon.ico|fonts|images|icons|.*\\..*).*)',
   ],

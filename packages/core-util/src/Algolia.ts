@@ -40,7 +40,7 @@ const INDEX_NAMES: Record<IndexType, string> = {
 // Validate environment variables
 const validateEnvVars = () => {
     const appId = process.env.NEXT_PUBLIC_ALGOLIA_APP_ID;
-    const adminKey = process.env.ALGOLIA_SEARCH_ADMIN_KEY;
+    const adminKey = process.env.NEXT_PUBLIC_ALGOLIA_SEARCH_ADMIN_KEY;
 
     if (!appId || !adminKey) {
         throw new Error('Missing required Algolia environment variables');
