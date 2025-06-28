@@ -95,6 +95,7 @@
     "highlight.js": "^11.11.1",
     "html-react-parser": "5.1.10",
     "js-cookie": "3.0.5",
+    "knip": "^5.61.0",
     "lowlight": "^3.3.0",
     "material-react-table": "^3.2.1",
     "next": "15.3.4",

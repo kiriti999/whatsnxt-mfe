@@ -181,6 +181,9 @@ importers:
       js-cookie:
         specifier: 3.0.5
         version: 3.0.5
+      knip:
+        specifier: ^5.61.0
+        version: 5.61.2(@types/node@22.15.32)(typescript@5.8.2)
       lowlight:
         specifier: ^3.3.0
         version: 3.3.0
