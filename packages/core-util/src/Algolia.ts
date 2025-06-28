@@ -230,10 +230,14 @@ export async function indexRecord(
             throw new Error('Record is required');
         }
 
+        // Create a mutable copy and remove unwanted properties
+        const { description, tutorials, ...cleanRecord } = record;
+
         const data: AlgoliaRecord = {
             objectID: record._id || record.id || record.objectID,
-            ...record,
+            ...cleanRecord,
         };
+
 
         if (!data.objectID) {
             throw new Error('Record must have an _id, id, or objectID field');
