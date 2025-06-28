@@ -95,7 +95,7 @@ const ResetPassword = () => {
                     <LoadingOverlay visible={visible} zIndex={1000} overlayProps={{ radius: 'sm', blur: 2 }} />
                     <form onSubmit={handleSubmit(resetPassword)}>
                         <Paper withBorder shadow="md" p={30} radius="md" mt="xl">
-                            <TextInput error={errors.email?.message && 'Invalid email'}  {...register('email', validationOptions.email)} label="Your email" placeholder="me@gmail.com" required />
+                            <TextInput error={errors.email?.message && 'Invalid email'}  {...register('email', validationOptions.email)} label="Your email" placeholder="email" required />
                             <Group justify="space-between" mt="lg" className={classes.controls}>
                                 <Anchor c="dimmed" size="sm" className={classes.control}>
                                     <Center inline onClick={() => { router.push('/authentication') }}>
