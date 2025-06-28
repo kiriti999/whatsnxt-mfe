@@ -1,0 +1,49 @@
+# robots.txt for whatsnxt.in
+
+User-agent: *
+
+# Block API routes and internal Next.js files
+Disallow: /api/
+Disallow: /_next/
+
+# Block authentication and user account pages
+Disallow: /auth/
+Disallow: /authentication
+Disallow: /reset-password
+Disallow: /set-password
+Disallow: /category-dashboard
+Disallow: /categories
+
+# Block checkout and cart pages (user-specific content)
+Disallow: /checkout/
+Disallow: /cart
+
+# Allow all public content
+Allow: /
+Allow: /about
+Allow: /blogs
+Allow: /tutorials
+Allow: /courses/
+Allow: /content/
+Allow: /search
+Allow: /course-search
+Allow: /search-trainers
+Allow: /search-trainer
+Allow: /trainer-details/
+Allow: /interview/
+Allow: /become-a-trainer
+Allow: /contact-us
+
+# Allow policy and legal pages
+Allow: /shipping-and-delivery
+Allow: /privacy-policy
+Allow: /refund-policy
+Allow: /terms-of-service
+
+# Block any remaining private/user-specific areas
+Disallow: /dashboard
+Disallow: /profile
+Disallow: /settings
+Disallow: /user/
+
+Sitemap: https://whatsnxt.in/sitemap.xml

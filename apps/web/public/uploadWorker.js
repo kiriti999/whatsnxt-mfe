@@ -5,7 +5,7 @@ console.log('🔧 [Upload Worker] Worker script loaded');
 // Add WebP conversion function inside worker
 async function convertToWebP(file, options = {}) {
     const {
-        quality = 0.50,           // WebP quality (0.1 to 1.0)
+        quality = 0.30,           // WebP quality (0.1 to 1.0)
         maxWidth = 1920,          // Maximum width in pixels
         maxHeight = 1080,         // Maximum height in pixels
         maxFileSizeKB = 1200,      // Maximum file size in KB
