@@ -103,7 +103,7 @@ async function convertToWebP(file, options = {}) {
 }
 
 self.onmessage = async (event) => {
-    console.log('🔧 [Upload Worker] Received message:', event.data);
+    // console.log('🔧 [Upload Worker] Received message:', event.data);
     let { file, fileKeyName, folder, resource_type, bffApiUrl } = event.data;
 
     try {
@@ -160,7 +160,7 @@ self.onmessage = async (event) => {
             if (xhr.status >= 200 && xhr.status < 300) {
                 try {
                     const response = JSON.parse(xhr.responseText);
-                    console.log('🔧 [Upload Worker] Upload successful:', response);
+                    console.log('🔧 [Upload Worker] Upload successful:', JSON.stringify(response));
                     self.postMessage({ status: 'success', response });
                 } catch (parseError) {
                     console.error('🔧 [Upload Worker] Parse error:', parseError);

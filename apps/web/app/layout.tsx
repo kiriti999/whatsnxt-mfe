@@ -1,4 +1,4 @@
-// layout.tsx - Updated version
+// layout.tsx - CLEANED VERSION (remove unnecessary scripts)
 // Global Styles
 import "./globals.css"
 import '@mantine/core/styles.css';
@@ -34,18 +34,15 @@ const getAuthData = async () => {
       const user = await fetchUser(token.value);
       console.log('getAuthData :: fetchUser response:', user);
 
-      // FIXED: Check for user existence and isAuthenticated instead of user.active
       if (!user) {
         console.log('getAuthData :: user is null, returning null');
         return null;
       }
 
-      // If fetchUser already returned isAuthenticated: true, use it directly
       if (user?.isAuthenticated) {
         return user;
       }
 
-      // Otherwise, add isAuthenticated: true (fallback for older responses)
       const authenticatedUser = {
         ...user,
         isAuthenticated: true
@@ -164,75 +161,40 @@ const Providers = dynamic(() => import('../components/AppProvider/AppProvider'),
 
 async function RootLayout({ children }: { children: ReactNode }) {
 
-  const userData = await getAuthData(); // Get user data directly
+  const userData = await getAuthData();
   console.log('RootLayout :: userData:', userData)
 
   return (
     <html lang="en" className={`${nunito.variable} ${nunito.className}`}>
       <head>
-        {/* NEXT.JS 15: Enhanced resource hints based on actual domains */}
+        <link rel="preload" href="/bootstrap.min.css" />
+        {/* Resource hints for actual services you use */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
-
-        {/* Cloudinary for images and media */}
         <link rel="preconnect" href="https://res.cloudinary.com" />
         <link rel="preconnect" href="https://api.cloudinary.com" />
 
-        {/* Algolia search */}
+        {/* FIXED: Use your actual Algolia App ID */}
         <link rel="preconnect" href="https://PG9F4BSTTH-dsn.algolia.net" />
 
-        {/* DNS prefetch for likely API calls */}
+        {/* DNS prefetch */}
         <link rel="dns-prefetch" href="//whatsnxt.in" />
-
-        {/* DNS prefetch for external services */}
         <link rel="dns-prefetch" href="//www.googletagmanager.com" />
         <link rel="dns-prefetch" href="//checkout.razorpay.com" />
 
-        {/* NEXT.JS 15: Enhanced viewport configuration */}
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes" />
-
-        {/* Theme color for mobile browsers */}
         <meta name="theme-color" content="#000000" />
         <meta name="msapplication-TileColor" content="#000000" />
       </head>
       <body className="antialiased">
-        {/* NEXT.JS 15: Enhanced error boundary wrapper */}
         <Providers user={userData}>
           {children}
         </Providers>
 
-        {/* NEXT.JS 15: Simple CSS loader script - No component needed */}
-        <Script
-          id="css-loader"
-          strategy="afterInteractive"
-          dangerouslySetInnerHTML={{
-            __html: `
-            (function() {
-              // Check if Bootstrap CSS is already loaded
-              if (document.querySelector('link[href="/bootstrap.min.css"]')) {
-                return;
-              }
-              
-              var link = document.createElement('link');
-              link.rel = 'stylesheet';
-              link.href = '/bootstrap.min.css';
-              link.media = 'print';
-              link.onload = function() { 
-                this.media = 'all'; 
-              };
-              link.onerror = function() {
-                this.media = 'all';
-              };
-              document.head.appendChild(link);
-            })();
-          `,
-          }}
-        />
-
-        {/* NEXT.JS 15: Optimized script loading */}
+        {/* Keep only essential scripts */}
         {process.env.NODE_ENV === 'production' && (
           <>
-            {/* Google Analytics with enhanced privacy */}
+            {/* Google Analytics */}
             <Script
               id="gtag-base"
               strategy="afterInteractive"
@@ -257,7 +219,7 @@ async function RootLayout({ children }: { children: ReactNode }) {
               }}
             />
 
-            {/* Service Worker Registration */}
+            {/* Service Worker - optional, remove if you don't have one */}
             <Script
               id="sw-register"
               strategy="afterInteractive"
@@ -280,17 +242,8 @@ async function RootLayout({ children }: { children: ReactNode }) {
           </>
         )}
 
-        {/* NEXT.JS 15: Lazy load heavy scripts */}
-        <Script
-          src="https://cdn.jsdelivr.net/npm/algoliasearch@4/dist/algoliasearch-lite.umd.js"
-          strategy="lazyOnload"
-        />
+        {/* REMOVED: Algolia and Razorpay script tags - use npm packages instead */}
 
-        <Script
-          id="razorpay-checkout"
-          src="https://checkout.razorpay.com/v1/checkout.js"
-          strategy="lazyOnload"
-        />
       </body>
     </html>
   )

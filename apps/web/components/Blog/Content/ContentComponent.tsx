@@ -31,14 +31,14 @@ function ContentComponent(props: ContentProps) {
   const isMobile = useMediaQuery('(max-width: 768px)');
 
   const articles = useSelector(selectArticles);
-  console.log(' ContentComponent :: articles:', articles)
+
   const tutorials = useSelector(selectTutorials);
   const loading = useSelector(selectContentLoading);
   const error = useSelector(selectContentError);
   const totalCount = useSelector(selectTotalCount);
 
   const dispatch = useDispatch<AppDispatch>();
-  const [recordsPerPage] = useState(6);
+  const [recordsPerPage] = useState(8);
   const [currentPage, setCurrentPage] = useState(1);
   const nPages = Math.ceil(totalCount / recordsPerPage);
 

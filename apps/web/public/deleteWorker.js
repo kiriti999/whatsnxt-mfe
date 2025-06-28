@@ -6,7 +6,6 @@ console.log('🔧 [Delete Worker] Worker script loaded');
 // we'll use dynamic imports or make the API call through postMessage
 
 self.onmessage = async (event) => {
-    console.log('🔧 [Delete Worker] Received message:', event.data);
     const { assetsList, bffApiUrl } = event.data;
 
     try {

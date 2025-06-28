@@ -11,12 +11,6 @@ const CRITICAL_RESOURCES = [
   '/manifest.json'
 ];
 
-// Static resources to cache
-const STATIC_RESOURCES = [
-  '/styles/critical.css',
-  '/images/logo.png'
-];
-
 // Install event - cache critical resources
 self.addEventListener('install', (event) => {
   console.log('Service Worker: Installing...');
@@ -28,11 +22,6 @@ self.addEventListener('install', (event) => {
         console.log('Service Worker: Caching critical resources');
         return cache.addAll(CRITICAL_RESOURCES);
       }),
-      // Cache static resources
-      caches.open(STATIC_CACHE_NAME).then((cache) => {
-        console.log('Service Worker: Caching static resources');
-        return cache.addAll(STATIC_RESOURCES);
-      })
     ]).then(() => {
       console.log('Service Worker: Installation complete');
       // Force activation of new service worker
@@ -109,15 +98,13 @@ function isCriticalResource(request) {
   return (
     request.url.includes('/favicon.ico') ||
     request.url.includes('/manifest.json') ||
-    request.url.includes('critical.css')
   );
 }
 
 // Helper function to check if request is for API
 function isAPIRequest(request) {
   return (
-    request.url.includes('/api/') ||
-    request.url.includes('/graphql')
+    request.url.includes('/api/')
   );
 }
 
