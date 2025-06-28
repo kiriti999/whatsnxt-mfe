@@ -14,7 +14,7 @@ const SEO = ({ title, description, image }) => {
 
 SEO.defaultProps = {
   title: 'whatsnxt',
-  description: 'whatsnxt edu',
+  description: 'whatsnxt',
   image: 'https://www.whatsnxt.in/images/logo.png',
 };
 

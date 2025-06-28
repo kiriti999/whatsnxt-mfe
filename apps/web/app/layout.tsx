@@ -71,14 +71,14 @@ export const metadata: Metadata = {
     ],
   },
   metadataBase: new URL("https://whatsnxt.in"),
-  title: "whatsnxt edu - Online skill development and learning provider",
-  description: "whatsnxt edu - Online skill development and learning provider",
+  title: "whatsnxt - Online skill development & learning provider",
+  description: "whatsnxt - Video courses and digital learning through articles and series on different categories. Facilitate learning through trainer search and connect",
   openGraph: {
-    title: "whatsnxt edu - Online skill development and learning provider",
-    description: "whatsnxt edu - Online skill development and learning provider"
+    title: "whatsnxt - Online skill development & learning provider",
+    description: "whatsnxt - Video courses and digital learning through articles and series on different categories. Facilitate learning through trainer search and connect"
   },
   twitter: {
-    description: "whatsnxt edu - Online skill development and learning provider"
+    description: "whatsnxt - Video courses and digital learning through articles and series on different categories. Facilitate learning through trainer search and connect"
   },
   alternates: {
     canonical: "https://whatsnxt.in",
