@@ -24,6 +24,11 @@ import Link from '@tiptap/extension-link';
 import LinkControl from '../extensions/Link/LinkControl';
 import HardBreak from '@tiptap/extension-hard-break';
 import EditorBubbleMenu from '../extensions/BubbleMenu/EditorBubbleMenu';
+// Explicitly import list extensions
+import BulletList from '@tiptap/extension-bullet-list';
+import OrderedList from '@tiptap/extension-ordered-list';
+import ListItem from '@tiptap/extension-list-item';
+import Blockquote from '@tiptap/extension-blockquote';
 
 import {
   IconBold,
@@ -269,11 +274,13 @@ export default function Tiptap({ content, onChange, onWordCountChange }) {
   const extensions = useMemo(() => [
     Highlight.configure({ multicolor: true }),
     StarterKit.configure({
+      // Disable extensions we'll add manually to avoid conflicts
       codeBlock: false,
       hardBreak: false,
       bulletList: false,
       orderedList: false,
       listItem: false,
+      blockquote: false,
     }),
     CharacterCount.configure({ limit: limit }),
     Focus.configure({
@@ -314,6 +321,31 @@ export default function Tiptap({ content, onChange, onWordCountChange }) {
     CodeBlockLowlight.configure({
       lowlight,
       defaultLanguage: null, // Better performance
+    }),
+    // Explicitly add list extensions
+    BulletList.configure({
+      HTMLAttributes: {
+        class: 'editor-bullet-list',
+      },
+      keepMarks: false,
+      keepAttributes: false,
+    }),
+    OrderedList.configure({
+      HTMLAttributes: {
+        class: 'editor-ordered-list',
+      },
+      keepMarks: false,
+      keepAttributes: false,
+    }),
+    ListItem.configure({
+      HTMLAttributes: {
+        class: 'editor-list-item',
+      },
+    }),
+    Blockquote.configure({
+      HTMLAttributes: {
+        class: 'editor-blockquote',
+      },
     }),
     Table.configure({
       resizable: true,

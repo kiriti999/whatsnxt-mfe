@@ -61,6 +61,9 @@ importers:
       '@tiptap/core':
         specifier: 2.10.4
         version: 2.10.4(@tiptap/pm@2.14.1)
+      '@tiptap/extension-blockquote':
+        specifier: ^2.23.0
+        version: 2.23.0(@tiptap/core@2.10.4(@tiptap/pm@2.14.1))
       '@tiptap/extension-bubble-menu':
         specifier: 2.10.4
         version: 2.10.4(@tiptap/core@2.10.4(@tiptap/pm@2.14.1))(@tiptap/pm@2.14.1)
@@ -1924,8 +1927,8 @@ packages:
     peerDependencies:
       '@tiptap/pm': ^2.7.0
 
-  '@tiptap/extension-blockquote@2.14.1':
-    resolution: {integrity: sha512-IduWJHE5U2noK+z9JuzZ3wwrKBo9K2vdfW3O1drPBgPf5/QZRepspw6+GZIXG3HlYW2f8pom3CKJ7RKSGZgR+A==}
+  '@tiptap/extension-blockquote@2.23.0':
+    resolution: {integrity: sha512-EBWzvqM39K07oAtxD/bZr/TKqTvMZ9pQtBkimyFgHBhkd/PsQvu0r0k1wmheSsizlwDVkO4O8St0zkUimqyevQ==}
     peerDependencies:
       '@tiptap/core': ^2.7.0
 
@@ -7028,7 +7031,7 @@ snapshots:
     dependencies:
       '@tiptap/pm': 2.14.1
 
-  '@tiptap/extension-blockquote@2.14.1(@tiptap/core@2.10.4(@tiptap/pm@2.14.1))':
+  '@tiptap/extension-blockquote@2.23.0(@tiptap/core@2.10.4(@tiptap/pm@2.14.1))':
     dependencies:
       '@tiptap/core': 2.10.4(@tiptap/pm@2.14.1)
 
@@ -7232,7 +7235,7 @@ snapshots:
   '@tiptap/starter-kit@2.10.4':
     dependencies:
       '@tiptap/core': 2.10.4(@tiptap/pm@2.14.1)
-      '@tiptap/extension-blockquote': 2.14.1(@tiptap/core@2.10.4(@tiptap/pm@2.14.1))
+      '@tiptap/extension-blockquote': 2.23.0(@tiptap/core@2.10.4(@tiptap/pm@2.14.1))
       '@tiptap/extension-bold': 2.14.1(@tiptap/core@2.10.4(@tiptap/pm@2.14.1))
       '@tiptap/extension-bullet-list': 2.14.1(@tiptap/core@2.10.4(@tiptap/pm@2.14.1))
       '@tiptap/extension-code': 2.14.1(@tiptap/core@2.10.4(@tiptap/pm@2.14.1))
