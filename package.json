@@ -39,7 +39,6 @@
     "node": ">=18"
   },
   "dependencies": {
-    "@apollo/client": "^3.13.8",
     "@builder.io/partytown": "^0.10.2",
     "@mantine/carousel": "^8.1.0",
     "@mantine/core": "8.1.0",

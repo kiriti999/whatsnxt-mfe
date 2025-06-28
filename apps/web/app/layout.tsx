@@ -167,7 +167,6 @@ async function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" className={`${nunito.variable} ${nunito.className}`}>
       <head>
-        <link rel="preload" href="/bootstrap.min.css" />
         {/* Resource hints for actual services you use */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
