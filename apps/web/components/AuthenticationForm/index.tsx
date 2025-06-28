@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useToggle, upperFirst } from '@mantine/hooks';
-import { useForm } from 'react-hook-form';
+import { useForm } from '@mantine/form';
 import {
   TextInput,
   PasswordInput,
@@ -14,23 +14,28 @@ import {
   Divider,
   Checkbox,
   Anchor,
-  Stack, LoadingOverlay,
-  Box
+  Stack,
+  LoadingOverlay,
+  Box,
+  Container,
+  Title,
+  Alert,
+  rem
 } from '@mantine/core';
+import { notifications } from '@mantine/notifications';
+import { IconInfoCircle, IconCheck } from '@tabler/icons-react';
 import { GoogleButton } from '@whatsnxt/core-ui/src/GoogleButton';
 import Link from 'next/link';
-import { notifications } from '@mantine/notifications';
 import { CartAPI } from '../../apis/v1/cart/cart';
 import { AuthAPI } from '../../apis/v1/auth';
 import { useMutation } from '@tanstack/react-query';
-import styles from './Authentication.module.css';
 import useAuth from '../../hooks/Authentication/useAuth';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { checkSuccessResponse, fetchUser, getErrorMessageFromResponse } from '../../utils/commonHelper';
 
 // Import RTK actions
 import { updateCart, addToCart } from '../../store/slices/cartSlice';
-import { updateUserInfo } from '../../store/slices/userSlice'; // Assuming you have this
+import { updateUserInfo } from '../../store/slices/userSlice';
 
 interface IFormData {
   email: string;
@@ -45,33 +50,55 @@ export function AuthenticationForm(props: PaperProps) {
   const searchParams = useSearchParams();
   const redirectUrl = searchParams.get('returnto') || '/';
   const [otpSent, setOtpSent] = useState(false);
-  const { login } = useAuth()
+  const { login } = useAuth();
   const [type, toggle] = useToggle(['login', 'register'] as const);
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    setError,
-    reset,
-    getValues
-  } = useForm<IFormData>({
-    defaultValues: {
+  const dispatch = useDispatch();
+  const isRegisterForm = type === 'register';
+
+  const form = useForm<IFormData>({
+    initialValues: {
       email: '',
       name: '',
       password: '',
       otp: '',
-      terms: true,
+      terms: false,
+    },
+    validate: {
+      email: (value) => {
+        if (!value) return 'Email is required';
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) return 'Invalid email format';
+        return null;
+      },
+      name: (value) => {
+        if (isRegisterForm) {
+          if (!value) return 'Name is required';
+          if (value.length < 3) return 'Name should include at least 3 characters';
+          if (/^\d/.test(value)) return 'Name should not start with a number';
+        }
+        return null;
+      },
+      password: (value) => {
+        if (!value) return 'Password is required';
+        if (value.length < 6) return 'Password should include at least 6 characters';
+        return null;
+      },
+      otp: (value) => {
+        if (otpSent && isRegisterForm && !value) return 'OTP is required';
+        return null;
+      },
+      terms: (value) => {
+        if (isRegisterForm && !value) return 'You must accept terms and conditions';
+        return null;
+      },
     },
   });
-  const dispatch = useDispatch();
-  const isRegisterForm = type === 'register'
 
   useEffect(() => {
     if (!isRegisterForm) {
-      setOtpSent(false)
+      setOtpSent(false);
     }
-    reset()
-  }, [isRegisterForm])
+    form.reset();
+  }, [isRegisterForm]);
 
   const fetchCartInfo = async () => {
     try {
@@ -131,244 +158,245 @@ export function AuthenticationForm(props: PaperProps) {
     }
   };
 
-  const otpSendHandler = useMutation(
-    {
-      mutationFn: async (formData: any) => await AuthAPI.otp(formData),
-      onSuccess: (response: any) => {
-        if (checkSuccessResponse(response)) {
-          setOtpSent(true);
-          notifications.show({
-            position: 'bottom-right',
-            title: 'Registration',
-            message: 'OTP sent to your email address',
-            color: 'green',
-          });
-          return;
-        }
+  const otpSendHandler = useMutation({
+    mutationFn: async (formData: any) => await AuthAPI.otp(formData),
+    onSuccess: (response: any) => {
+      if (checkSuccessResponse(response)) {
+        setOtpSent(true);
         notifications.show({
-          position: 'bottom-right',
-          title: 'Registration',
-          message: 'Error on sending otp, try again!',
-          color: 'red',
+          title: 'OTP Sent',
+          message: 'Please check your email for the verification code',
+          color: 'green',
+          icon: <IconCheck style={{ width: rem(18), height: rem(18) }} />,
         });
-      },
-      onError: (error) => {
-        notifications.show({
-          position: 'bottom-right',
-          title: 'Registration',
-          message: getErrorMessageFromResponse(error) ? getErrorMessageFromResponse(error) : 'Error on sending otp, try again!',
-          color: 'red',
-        });
-      },
-    }
-  );
-
-  const registerHandler = useMutation(
-    {
-      mutationFn: async (formData: any) => await AuthAPI.createAccount(formData),
-      onSuccess: async (response: any) => {
-        if (checkSuccessResponse(response)) {
-          notifications.show({
-            position: 'bottom-right',
-            title: 'Registration Success',
-            message: 'Login to continue',
-            color: 'green',
-            autoClose: 5000
-          });
-
-          // Note: If you want to auto-login after registration, uncomment and update:
-          // const token = response.token;
-          // if (token) {
-          //   const userObject = await fetchUser(token);
-          //   dispatch(updateUserInfo(userObject));
-          //   await login(userObject);
-          //   await fetchCartInfo();
-          //   router.push(redirectUrl);
-          //   return;
-          // }
-
-          // Fallback to login form
-          reset();
-          toggle();
-        }
-      },
-      onError: (error) => {
-        // Clear only the OTP field while keeping other form data
-        reset({
-          ...getValues(),
-          otp: '',
-        });
-
-        // error messages 
-        if (getErrorMessageFromResponse(error)) {
-          setError('otp', { type: 'manual', message: getErrorMessageFromResponse(error) })
-
-          notifications.show({
-            position: 'bottom-right',
-            title: 'Authentication Error',
-            message: getErrorMessageFromResponse(error),
-            color: 'red',
-          });
-        }
-      },
-    }
-  );
-
-  const loginHandler = useMutation(
-    {
-      mutationFn: async (formData: any) => await AuthAPI.login(formData),
-      onSuccess: async (response: any) => {
-        if (checkSuccessResponse(response)) {
-          const token = response.token;
-          const userObject = await fetchUser(token);
-
-          // Update Redux state with user info
-          dispatch(updateUserInfo(userObject));
-
-          // Login through auth context
-          await login(userObject);
-
-          // Fetch and merge cart info
-          await fetchCartInfo();
-
-          // Redirect to intended page
-          router.push(redirectUrl);
-        }
-      },
-      onError: (error) => {
-        notifications.show({
-          position: 'bottom-right',
-          title: 'Authentication Error',
-          message: getErrorMessageFromResponse(error),
-          color: 'red',
-        });
-        setError('email', { type: 'manual', message: 'Unable to login' });
-      },
-    }
-  );
-
-  const onSubmit = async (formData: IFormData) => {
-    if (!isRegisterForm) {
-      loginHandler.mutate(formData)
-    }
-
-    if (isRegisterForm) {
-      if (!otpSent) {
-        otpSendHandler.mutate(formData)
         return;
       }
+      notifications.show({
+        title: 'Error',
+        message: 'Failed to send OTP. Please try again.',
+        color: 'red',
+      });
+    },
+    onError: (error) => {
+      notifications.show({
+        title: 'Error',
+        message: getErrorMessageFromResponse(error) || 'Failed to send OTP. Please try again.',
+        color: 'red',
+      });
+    },
+  });
 
-      registerHandler.mutate(formData)
+  const registerHandler = useMutation({
+    mutationFn: async (formData: any) => await AuthAPI.createAccount(formData),
+    onSuccess: async (response: any) => {
+      if (checkSuccessResponse(response)) {
+        notifications.show({
+          title: 'Registration Successful',
+          message: 'Please log in to continue',
+          color: 'green',
+          autoClose: 5000,
+        });
+
+        form.reset();
+        toggle();
+      }
+    },
+    onError: (error) => {
+      // Clear only the OTP field while keeping other form data
+      form.setFieldValue('otp', '');
+
+      const errorMessage = getErrorMessageFromResponse(error);
+      if (errorMessage) {
+        form.setFieldError('otp', errorMessage);
+        notifications.show({
+          title: 'Registration Failed',
+          message: errorMessage,
+          color: 'red',
+        });
+      }
+    },
+  });
+
+  const loginHandler = useMutation({
+    mutationFn: async (formData: any) => await AuthAPI.login(formData),
+    onSuccess: async (response: any) => {
+      if (checkSuccessResponse(response)) {
+        const token = response.token;
+        const userObject = await fetchUser(token);
+
+        // Update Redux state with user info
+        dispatch(updateUserInfo(userObject));
+
+        // Login through auth context
+        await login(userObject);
+
+        // Fetch and merge cart info
+        await fetchCartInfo();
+
+        // Redirect to intended page
+        router.push(redirectUrl);
+      }
+    },
+    onError: (error) => {
+      const errorMessage = getErrorMessageFromResponse(error);
+      notifications.show({
+        title: 'Login Failed',
+        message: errorMessage || 'Invalid credentials',
+        color: 'red',
+      });
+      form.setFieldError('email', 'Please check your credentials');
+    },
+  });
+
+  const handleSubmit = async (values: IFormData) => {
+    if (!isRegisterForm) {
+      loginHandler.mutate(values);
+    } else {
+      if (!otpSent) {
+        otpSendHandler.mutate(values);
+        return;
+      }
+      registerHandler.mutate(values);
     }
   };
 
   const handleResendOTP = () => {
-    const formData = getValues();
-    otpSendHandler.mutate(formData);
+    otpSendHandler.mutate(form.values);
   };
 
   const handleGoogleLogin = () => {
-    // Redirect to the backend's Google OAuth endpoint
     const googleLoginUrl = `${process.env.NEXT_PUBLIC_BFF_HOST_GOOGLE_API}/login`;
     window.location.href = googleLoginUrl;
   };
 
+  const isLoading = registerHandler.isPending || otpSendHandler.isPending || loginHandler.isPending;
+
   return (
-    <Paper radius="md" p="xl" withBorder shadow="xl" {...props} w="100%" maw={500}>
-      <Text size="xl" className="fs-4" fw={800}>{upperFirst(type)}</Text>
-      <Group grow mb="md" mt="md">
-        <GoogleButton radius="xl" onClick={handleGoogleLogin}>Google</GoogleButton>
-      </Group>
+    <Container size={420} my={40}>
+      <Paper radius="md" p="xl" withBorder shadow="lg" {...props}>
+        <Title order={2} ta="center" fw={900} mb="md">
+          {upperFirst(type)}
+        </Title>
 
-      <Divider label="Or continue with email" labelPosition="center" my="lg" />
-      <Box pos="relative">
-        <LoadingOverlay visible={registerHandler.isPending || otpSendHandler.isPending || loginHandler.isPending} zIndex={1000} overlayProps={{ radius: 'sm', blur: 2 }} />
-        <form onSubmit={handleSubmit(onSubmit)} className='pb-10'>
-          <Stack>
-            {isRegisterForm && (
-              <TextInput
-                label="Name"
-                placeholder="Your name"
-                {...register('name', {
-                  required: 'Name is required',
-                  minLength: { value: 3, message: 'Name should include at least 3 characters' },
-                  validate: value => !/^\d/.test(value) || 'Name should not start with a number'
-                })}
-                error={errors.name && errors.name.message}
-                radius="md"
-              />
-            )}
+        <Group grow mb="md">
+          <GoogleButton
+            radius="xl"
+            onClick={handleGoogleLogin}
+            disabled={isLoading}
+            variant="default"
+            size="md"
+          >
+            Continue with Google
+          </GoogleButton>
+        </Group>
 
-            <TextInput
-              disabled={isRegisterForm && otpSent}
-              label="Email"
-              placeholder="you@example.com"
-              {...register('email', { required: 'Email is required', pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: 'Invalid email' } })}
-              error={errors.email && errors.email.message}
-              radius="md"
-            />
+        <Divider label="Or continue with email" labelPosition="center" my="lg" />
 
-            <PasswordInput
-              label="Password"
-              placeholder="Your password"
-              {...register('password', { required: 'Password is required', minLength: { value: 6, message: 'Password should include at least 6 characters' } })}
-              error={errors.password && errors.password.message}
-              radius="md"
-            />
+        <Box pos="relative">
+          <LoadingOverlay
+            visible={isLoading}
+            zIndex={1000}
+            overlayProps={{ radius: 'sm', blur: 2 }}
+          />
 
-            {(otpSent && isRegisterForm) && (
-              <>
-                <PasswordInput
-                  label="OTP"
-                  placeholder="Enter OTP"
-                  {...register('otp', { required: 'OTP is required' })}
-                  error={errors.otp && errors.otp.message}
+          <form onSubmit={form.onSubmit(handleSubmit)}>
+            <Stack gap="md">
+              {isRegisterForm && (
+                <TextInput
+                  label="Full Name"
+                  placeholder="Enter your full name"
                   radius="md"
+                  size="md"
+                  disabled={otpSent}
+                  {...form.getInputProps('name')}
                 />
+              )}
+
+              <TextInput
+                label="Email Address"
+                placeholder="your@email.com"
+                radius="md"
+                size="md"
+                disabled={isRegisterForm && otpSent}
+                {...form.getInputProps('email')}
+              />
+
+              <PasswordInput
+                label="Password"
+                placeholder="Enter your password"
+                radius="md"
+                size="md"
+                {...form.getInputProps('password')}
+              />
+
+              {otpSent && isRegisterForm && (
+                <>
+                  <PasswordInput
+                    label="Verification Code"
+                    placeholder="Enter the 6-digit code"
+                    radius="md"
+                    size="md"
+                    {...form.getInputProps('otp')}
+                  />
+
+                  <Alert icon={<IconInfoCircle size="1rem" />} color="blue" variant="light">
+                    <Text size="sm">
+                      Didn't receive the code?{' '}
+                      <Anchor
+                        component="button"
+                        type="button"
+                        onClick={handleResendOTP}
+                        disabled={otpSendHandler.isPending}
+                      >
+                        {otpSendHandler.isPending ? 'Sending...' : 'Resend OTP'}
+                      </Anchor>
+                    </Text>
+                  </Alert>
+                </>
+              )}
+
+              {!isRegisterForm && (
+                <Group justify="space-between">
+                  <Checkbox label="Remember me" />
+                  <Anchor component={Link} href="/reset-password" size="sm">
+                    Forgot password?
+                  </Anchor>
+                </Group>
+              )}
+
+              {isRegisterForm && (
+                <Checkbox
+                  label="I agree to the terms and conditions"
+                  {...form.getInputProps('terms', { type: 'checkbox' })}
+                />
+              )}
+
+              <Button
+                type="submit"
+                fullWidth
+                radius="md"
+                size="md"
+                loading={isLoading}
+                disabled={isLoading}
+              >
+                {isRegisterForm && !otpSent ? 'Send Verification Code' : upperFirst(type)}
+              </Button>
+
+              <Text c="dimmed" size="sm" ta="center">
+                {isRegisterForm ? 'Already have an account?' : "Don't have an account?"}{' '}
                 <Anchor
                   component="button"
                   type="button"
-                  onClick={handleResendOTP}
+                  onClick={() => toggle()}
                   size="sm"
-                  disabled={otpSendHandler.isPending}
                 >
-                  {otpSendHandler.isPending ? 'Sending...' : 'Resend OTP'}
+                  {isRegisterForm ? 'Sign in' : 'Create account'}
                 </Anchor>
-              </>
-            )}
-
-            {!isRegisterForm && (
-              <div className="d-flex align-items-center justify-content-between">
-                <Checkbox classNames={{ icon: styles.checkboxIcon }} label="Remember me" radius="xs" />
-                <Anchor component={Link} href="/reset-password">
-                  Forgot your password?
-                </Anchor>
-              </div>
-            )}
-            {isRegisterForm && (
-              <div>
-                <Checkbox
-                  label="I accept terms and conditions"
-                  classNames={{ icon: styles.checkboxIcon }}
-                  {...register('terms', { required: 'You must accept terms and conditions' })}
-                  error={errors.terms && errors.terms.message}
-                />
-              </div>
-            )}
-          </Stack>
-
-          <Group justify="space-between" mt="xl">
-            <Anchor component="button" type="button" c="dimmed" onClick={() => toggle()} size="sm">
-              {isRegisterForm
-                ? 'Already have an account? Login'
-                : "Don't have an account? Register"}
-            </Anchor>
-            <Button disabled={otpSendHandler.isPending || registerHandler.isPending} loading={otpSendHandler.isPending || registerHandler.isPending} type="submit" radius="xl">
-              {upperFirst(type)}
-            </Button>
-          </Group>
-        </form>
-      </Box>
-    </Paper>
+              </Text>
+            </Stack>
+          </form>
+        </Box>
+      </Paper>
+    </Container>
   );
 }

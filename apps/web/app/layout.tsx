@@ -11,6 +11,7 @@ import { Metadata } from "next";
 import { fetchUser } from '../utils/commonHelper';
 import dynamic from 'next/dynamic';
 import Script from 'next/script';
+import { OrganizationStructuredData, WebSiteStructuredData } from '../components/StructuredData';
 
 const nunito = Nunito({
   subsets: ["latin"],
@@ -184,6 +185,10 @@ async function RootLayout({ children }: { children: ReactNode }) {
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes" />
         <meta name="theme-color" content="#000000" />
         <meta name="msapplication-TileColor" content="#000000" />
+
+        {/* Global Structured Data */}
+        <OrganizationStructuredData />
+        <WebSiteStructuredData />
       </head>
       <body className="antialiased">
         <Providers user={userData}>

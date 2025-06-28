@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useRouter } from 'next/navigation'; // Import from next/navigation
 import Link from 'next/link'; // Use native Link from Next.js
 import { Paper, Group, Button, Text, Stack } from '@mantine/core';

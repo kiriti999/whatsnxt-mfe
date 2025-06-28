@@ -42,6 +42,7 @@
     "@builder.io/partytown": "^0.10.2",
     "@mantine/carousel": "^8.1.0",
     "@mantine/core": "8.1.0",
+    "@mantine/form": "^8.1.2",
     "@mantine/hooks": "^8.1.0",
     "@mantine/modals": "^8.1.0",
     "@mantine/notifications": "8.1.0",
