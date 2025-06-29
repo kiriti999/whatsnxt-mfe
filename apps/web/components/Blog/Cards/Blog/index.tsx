@@ -39,7 +39,7 @@ function BlogCard({ blog }: IBlogCard) {
           <Anchor component={Link} href={`/content/${blog.slug}`}>
             <Card padding="xs" radius="md" withBorder onClick={handleNavigation}>
               <Card.Section>
-                <Image priority
+                <Image
                   src={blog.imageUrl}
                   alt={blog.title}
                   width={300}
@@ -50,7 +50,6 @@ function BlogCard({ blog }: IBlogCard) {
                     height: 'auto',
                   }}
                   placeholder="blur"
-                  blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAQIAEQMhkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyEH4Wan6hxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGxggbFdA0s5uGx=="
                 />
               </Card.Section>
               <Divider />

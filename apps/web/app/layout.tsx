@@ -180,7 +180,6 @@ async function RootLayout({ children }: { children: ReactNode }) {
         {/* DNS prefetch */}
         <link rel="dns-prefetch" href="//whatsnxt.in" />
         <link rel="dns-prefetch" href="//www.googletagmanager.com" />
-        <link rel="dns-prefetch" href="//checkout.razorpay.com" />
 
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes" />
         <meta name="theme-color" content="#000000" />
