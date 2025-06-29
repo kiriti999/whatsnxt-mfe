@@ -30,6 +30,7 @@ const publicRoutes = [
   '/content/search',
   '/search',
   '/course-search',
+  '/consulting'
 ];
 
 // Dynamic routes that should be public (prefix matching)

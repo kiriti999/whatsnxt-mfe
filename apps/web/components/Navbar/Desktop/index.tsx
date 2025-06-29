@@ -108,11 +108,14 @@ export const NavbarDesktop = ({ links, cartItems, loginMenuLinks, drawerOpened, 
                 </Anchor>
               ))}
             </Box>
-            <Box style={{ width: "43%", minWidth: 200 }}><Search /></Box>
+            <Box style={{ width: "40%", minWidth: 200 }}><Search /></Box>
           </Box>
 
           <Space w="md" mr={'xl'} />
           <Box style={{ alignItems: "center" }} h="100%" display={"flex"}>
+            <Anchor href='/consulting' className={classes.link} component={Link}>
+              Consulting
+            </Anchor>
             <Anchor href='/search-trainers' className={classes.link} component={Link}>
               Search Trainer
             </Anchor>

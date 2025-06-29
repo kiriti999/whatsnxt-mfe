@@ -49,7 +49,6 @@ function BlogCard({ blog }: IBlogCard) {
                     width: '100%',
                     height: 'auto',
                   }}
-                  placeholder="blur"
                 />
               </Card.Section>
               <Divider />
