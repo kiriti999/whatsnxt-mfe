@@ -1,5 +1,3 @@
-// components/Consulting/sections/TrainingSection.tsx
-
 import React from 'react';
 import {
     Container,
