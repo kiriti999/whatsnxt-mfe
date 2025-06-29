@@ -1,6 +1,5 @@
 import React from 'react';
 import { Container, Grid, Text } from '@mantine/core';
-import SmoothTextSwitcher from '../TextSwitcher/TextSwitcher';
 import { HeroWithText } from '../HeroWithText';
 
 export const MainBanner = () => {
