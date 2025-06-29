@@ -6,43 +6,18 @@ export const checkSuccessResponse = res => {
   return res?.status === 200 || res?.status === 201 || res?.success === true
 }
 
-export function checkGraphqlResponse(response: any) {
-  // Check if there are errors in the response data
-  if (response.errors && response.errors.length > 0) {
-    throw new Error(response.errors[0].message || 'An error occurred.');
-  }
-
-  // Ensure the response contains the expected data
-  if (!response.data) {
-    throw new Error('Invalid response format.');
-  }
-
-  return response.data;
-}
-
 export function isWebWorker(): boolean {
   // @ts-ignore
   return typeof Worker !== 'undefined' && typeof importScripts === 'function';
 }
 
-export const handleLogin = (token: any) => {
-  setLoginCookie(process.env.NEXT_PUBLIC_COOKIES_ACCESS_TOKEN, token);
-};
-
 const setLoginCookie = (key, value: any) => {
   cookie.set(key, value, { sameSite: 'strict' });
 };
+
 export const removeCookie = (key) => {
   cookie.remove(key);
 };
-
-export const getCookieAccessToken = () => {
-  return cookie.get(process.env.NEXT_PUBLIC_COOKIES_ACCESS_TOKEN)
-};
-
-export const getCookieUserInfo = () => {
-  return cookie.get(process.env.NEXT_PUBLIC_COOKIES_USER_INFO)
-}
 
 export const fetchUser = async (token: any) => {
   try {

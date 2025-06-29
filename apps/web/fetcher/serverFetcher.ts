@@ -54,17 +54,6 @@ export const serverFetcher = async (BASEURL: string, URL: string, options: Fetch
         console.error('🚀 Server Fetcher Error:', error);
     }
 };
-// Specific function for getting post by slug
-export const getCourseBySlugServer = async (slug: string): Promise<any> => {
-    try {
-        const BASEURL = process.env.BFF_HOST_COURSE_API as string;
-        return await serverFetcher(BASEURL, `/course/slug/${slug}`, {
-            cache: 'force-cache', // Cache published posts
-        });
-    } catch (error) {
-        console.error(`Failed to fetch post with slug: ${slug}`, error);
-    }
-};
 
 export const getPostBySlugServer = async (slug: string): Promise<any> => {
     try {

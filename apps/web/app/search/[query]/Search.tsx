@@ -4,10 +4,10 @@ import BlogCard from '../../../components/Blog/Cards/Blog';
 import TutorialCard from '../../../components/Blog/Cards/Tutorial';
 import styles from './Search.module.css';
 import CardSkeleton from '../../../components/Blog/Content/CardSkeleton';
-import Pagination from '../../../components/Common/Pagination';
 import { Grid, Title } from '@mantine/core';
 import { algoliaSearchByKeyword } from '@whatsnxt/core-util';
 import { useSearchContext } from '../../../context/SearchContext';
+import Pagination from '../../../components/pagination/pagination';
 
 function Search({ query }: any) {
   const [data, setData] = useState<any>(null);
@@ -64,6 +64,7 @@ function Search({ query }: any) {
         </div>
       )}
       {loading && <CardSkeleton count={8} />}
+      
       {!loading && Array.isArray(data) && data.length > 0 && (
         <Pagination
           nPages={nPages}

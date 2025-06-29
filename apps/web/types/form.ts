@@ -31,9 +31,3 @@ export interface CategoryData {
   text: string;
 }
 
-export interface EditCategoryFormData {
-  categoryName: string;
-
-  backgroundColor: string;
-  fontColor: string;
-}

@@ -1,8 +1,8 @@
-import { articleApiClient } from '@whatsnxt/core-util';
-import { getAlgoliaIndex } from '../../v1/blog/algolia/getAlgoliaIndex';
+import { articleApiClient, getAlgoliaIndex } from '@whatsnxt/core-util';
+
 import { historyFilterType } from '../../../types/history';
 
-const index = getAlgoliaIndex();
+const index = getAlgoliaIndex('blog');
 
 export const HistoryAPI = {
   getHistory: async function (

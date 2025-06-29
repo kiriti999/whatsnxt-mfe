@@ -18,7 +18,7 @@ export const ContactUsForm = () => {
     });
 
     const onSubmit = async (data) => {
-        console.log('Form Data:', data);
+        console.log('ContactUsForm:: onSubmit:: data:', data);
 
         try {
             // Call the API
@@ -30,7 +30,6 @@ export const ContactUsForm = () => {
                 text: data.message,
             }
             const result = await mailAPI.sendContactUsMail(payload)
-            console.log('🚀 ~ onSubmit ~ result:', result)
 
             if (result.status === 'success') {
                 // Show success notification
