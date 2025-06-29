@@ -75,7 +75,7 @@ export const NavbarMobile = ({ links, loginMenuLinks, drawerOpened, closeDrawer 
         )}
 
         <Anchor href='/consulting' mt={'0.01rem'} className={classes.link} component={Link} onClick={closeDrawer}>
-          <Text size='sm'>consulting</Text>
+          <Text size='sm'>Consulting</Text>
         </Anchor>
 
         <Anchor href='/search-trainers' mt={'0.01rem'} className={classes.link} component={Link} onClick={closeDrawer}>
