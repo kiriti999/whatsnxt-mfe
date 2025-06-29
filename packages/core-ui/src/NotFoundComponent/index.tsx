@@ -1,7 +1,6 @@
 // NotFoundImage.tsx
 import React, { JSX } from 'react';
-import { Image, Container, Title, Text, Button, SimpleGrid } from '@mantine/core';
-import image from './image.svg';
+import { Container, Title, Text, Button, SimpleGrid } from '@mantine/core';
 import classes from './NotFoundComponent.module.css';
 
 interface NotFoundImageProps {
@@ -13,7 +12,6 @@ export const NotFoundComponent = ({ goToText = "Get back to home page", goToLink
   return (
     <Container className={classes.root}>
       <SimpleGrid spacing={{ base: 40, sm: 80 }} cols={{ base: 1, sm: 2 }}>
-        <Image src={image.src} className={classes.mobileImage} alt="not found" />
         <div>
           <Title className={classes.title}>Something is not right...</Title>
           <Text color="dimmed" size="lg">
@@ -31,7 +29,6 @@ export const NotFoundComponent = ({ goToText = "Get back to home page", goToLink
             {goToText}
           </Button>
         </div>
-        <Image src={image.src} className={classes.desktopImage} alt="not found"/>
       </SimpleGrid>
     </Container>
   );
