@@ -95,13 +95,13 @@ export const useRazorPayment = ({ processPayment, verifyPayment = () => ({ statu
                 : payload.amount;
 
             const options: RazorpayOrderOptions = {
-                key: process.env.RAZORPAY_KEY as string, // Use NEXT_PUBLIC_ prefix
+                key: process.env.NEXT_PUBLIC_RAZORPAY_KEY as string, // Use NEXT_PUBLIC_ prefix
                 order_id: orderId,
                 amount: amountInPaise,
                 currency: payload.currency || 'INR',
                 name: payload.name,
                 description: payload.description,
-                image: process.env.RAZORPAY_LOGO,
+                image: process.env.NEXT_PUBLIC_RAZORPAY_LOGO,
                 handler: (response) => handleRazorpayResponse({
                     response,
                     amount: payload.amount,
@@ -162,6 +162,7 @@ export const useRazorPayment = ({ processPayment, verifyPayment = () => ({ statu
             });
         }
     }, [Razorpay, handleRazorpayResponse]);
+
 
     return { makePayment, isLoading, error };
 }
