@@ -15,7 +15,7 @@ const Layout = ({ children, loginMenuLinks, links, copyRight }) => {
     <>
       <Navbar links={links} loginMenuLinks={loginMenuLinks} copyRight={copyRight} />
 
-      <Box my={{ base: '2rem', sm: '3rem', md: '4rem' }}>
+      <Box my={{ base: '2rem', sm: '3rem', md: '0rem' }}>
         {children}
       </Box>
 

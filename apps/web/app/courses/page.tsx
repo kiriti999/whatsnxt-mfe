@@ -1,6 +1,7 @@
 import React from 'react';
 import CoursePage from '../_component/courses/courses-page';
 import { fetchCourses, fetchPopularCourses, fetchCategoriesByCount } from '../../fetcher/courseServerQuery';
+import { Box } from '@mantine/core';
 
 export const dynamic = 'force-dynamic'
 async function Page() {
@@ -35,7 +36,9 @@ async function Page() {
 
   // Render the page component with the data
   return (
-    <CoursePage courses={courses} enrolled={enrolled} categories={categories} />
+    <Box my={{ base: '2rem', sm: '3rem', md: '4rem' }}>
+      <CoursePage courses={courses} enrolled={enrolled} categories={categories} />
+    </Box>
   );
 }
 
