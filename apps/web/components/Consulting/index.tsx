@@ -662,9 +662,9 @@ export default function ConsultingPage() {
 
                                 <Stack gap="md">
                                     {[
-                                        { icon: IconMail, label: "Email", value: "consulting@yourcompany.com" },
-                                        { icon: IconPhone, label: "Phone", value: "+1 (555) 123-4567" },
-                                        { icon: IconCalendar, label: "Schedule", value: "Free 30-minute consultation" }
+                                        { icon: IconMail, label: "Email", value: "info@whatsnxt.in" },
+                                        { icon: IconPhone, label: "Phone", value: "+91 6300711966" },
+                                        { icon: IconCalendar, label: "Schedule", value: "Free 45-minute consultation" }
                                     ].map((contact, index) => (
                                         <Group key={index}>
                                             <ThemeIcon size="lg" color="blue" variant="light">
@@ -707,6 +707,8 @@ export default function ConsultingPage() {
                                         style={{
                                             boxShadow: '0 10px 30px rgba(59, 130, 246, 0.3)'
                                         }}
+                                        component='a'
+                                        href='/contact-us'
                                     >
                                         Contact Us
                                     </Button>
