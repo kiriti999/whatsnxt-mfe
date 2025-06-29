@@ -16,7 +16,7 @@ export function useSearchResults(coursesPopularity: SearchResultsProps['coursesP
         queryKey: ["search", searchQuery, currentPage],
         queryFn: async () => {
             const result = await algoliaSearchByKeyword<CourseType>(
-                process.env.NEXT_PUBLIC_ALGOLIA_INDEX_NAME as string,
+                process.env.NEXT_PUBLIC_ALGOLIA_COURSE_INDEX_NAME as string,
                 searchQuery,
                 currentPage - 1,
                 20,
