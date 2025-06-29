@@ -37,7 +37,7 @@ function BlogCard({ blog }: IBlogCard) {
       {blog && (
         <Tooltip label={blog.title} position="bottom">
           <Anchor component={Link} href={`/content/${blog.slug}`}>
-            <Card padding="xs" radius="md" withBorder onClick={handleNavigation}>
+            <Card px={'xs'} py={0} radius="md" withBorder onClick={handleNavigation}>
               <Card.Section>
                 <Image
                   src={blog.imageUrl}

@@ -29,7 +29,7 @@ function TutorialCard({ tutorial }: ITutorialCard) {
 
       {tutorial && (
         <Anchor component={Link} href={`/content/${tutorial.slug}`}>
-          <Card padding="xs" radius="md" withBorder onClick={handleNavigation}>
+          <Card px={'xs'} py={0} radius="md" withBorder onClick={handleNavigation}>
             <Card.Section>
               <Image priority
                 src={tutorial?.imageUrl}
