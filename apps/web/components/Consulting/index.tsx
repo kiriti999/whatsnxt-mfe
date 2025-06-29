@@ -721,6 +721,8 @@ export default function ConsultingPage() {
                                             border: '2px solid rgba(255, 255, 255, 0.2)',
                                             backdropFilter: 'blur(10px)'
                                         }}
+                                        component='a'
+                                        href='/contact-us'
                                     >
                                         Schedule Call
                                     </Button>
