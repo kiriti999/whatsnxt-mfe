@@ -5,6 +5,7 @@ import CourseSlug from '../../_component/courses/course-slug';
 import { Metadata } from 'next';
 import { generateMetadata as createMetadata } from '@whatsnxt/core-util';
 import { notFound } from 'next/navigation';
+import { Box } from '@mantine/core';
 
 export const dynamic = 'force-dynamic';
 
@@ -90,11 +91,13 @@ async function Page({ params }) {
         }
 
         return (
-            <CourseSlug
-                course={course}
-                reviews={reviews}
-                reviewCommentCount={reviewCount}
-            />
+            <Box my={{ base: '2rem', sm: '3rem', md: '4rem' }}>
+                <CourseSlug
+                    course={course}
+                    reviews={reviews}
+                    reviewCommentCount={reviewCount}
+                />
+            </Box>
         );
     } catch (error) {
         console.error('Page rendering error:', error);
