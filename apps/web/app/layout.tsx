@@ -9,7 +9,8 @@ import { Nunito } from "next/font/google"
 import { cookies } from "next/headers";
 import { Metadata } from "next";
 import { fetchUser } from '../utils/commonHelper';
-import dynamic from 'next/dynamic';
+// import dynamic from 'next/dynamic';
+import Providers from '../components/AppProvider/AppProvider'
 import Script from 'next/script';
 import { OrganizationStructuredData, WebSiteStructuredData } from '../components/StructuredData';
 
@@ -155,10 +156,10 @@ export const metadata: Metadata = {
 }
 
 // Dynamic import for providers
-const Providers = dynamic(() => import('../components/AppProvider/AppProvider'), {
-  ssr: true,
-  loading: () => null
-});
+// const Providers = dynamic(() => import('../components/AppProvider/AppProvider'), {
+//   ssr: true,
+//   loading: () => null
+// });
 
 async function RootLayout({ children }: { children: ReactNode }) {
 
