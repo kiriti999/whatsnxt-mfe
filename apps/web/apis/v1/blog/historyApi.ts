@@ -1,8 +1,7 @@
-import { articleApiClient, getAlgoliaIndex } from '@whatsnxt/core-util';
+import { articleApiClient } from '@whatsnxt/core-util';
 
 import { historyFilterType } from '../../../types/history';
 
-const index = getAlgoliaIndex('blog');
 
 export const HistoryAPI = {
   getHistory: async function (
@@ -33,15 +32,6 @@ export const HistoryAPI = {
     return data ? data : [];
   },
 
-  createTutorialFromBlogs: async function (list: string[], title: string) {
-    const { data } = await articleApiClient.post('/history/createTutorialFromBlogs', {
-      blogIds: list,
-      title
-    }) as { data: any };
-
-    return data.data ? data.data.CreateTutorialFromBlogs : {};
-  },
-
   downloadEBook: async function (id: string) {
     const { data } = await articleApiClient.get('/history/downloadEBook', {
       id
@@ -64,24 +54,6 @@ export const HistoryAPI = {
     }) as { data: any };
 
     return data.data ? data.data.generatePPT : '';
-  },
-
-  deleteBlog: async function (id: string) {
-    const { data } = await articleApiClient.delete(`/history/deleteBlog/${id}`, {
-      postId: id
-    }) as { data: any };
-
-    if (data?.deletePost) index.deleteObject(id);
-    return data.data ? data.data.deletePost : '';
-  },
-
-  deleteTutorial: async function (id: string) {
-    const { data } = await articleApiClient.delete(`/history/deleteTutorial/${id}`, {
-      tutorialId: id
-    }) as { data: any };
-
-    if (data?.deleteTutorial) index.deleteObject(id);
-    return data.data ? data.data.deleteTutorial : '';
   },
 
   publishDraft: async function (id: string, shouldPublish: boolean) {

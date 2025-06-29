@@ -502,6 +502,8 @@ export default function ConsultingPage() {
                                         style={{
                                             boxShadow: '0 10px 30px rgba(59, 130, 246, 0.3)'
                                         }}
+                                        component='a'
+                                        href='/contact-us'
                                     >
                                         Schedule Consultation
                                     </Button>

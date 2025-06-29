@@ -1,5 +1,6 @@
-import { articleApiClient } from '@whatsnxt/core-util';
+import { articleApiClient, getAlgoliaIndex } from '@whatsnxt/core-util';
 import { ContentType } from '../../../types/form';
+const index = getAlgoliaIndex('blog');
 
 
 export const ContentAPI = {
@@ -133,5 +134,36 @@ export const ContentAPI = {
       email: payload.email
     });
     return data;
-  }
+  },
+
+
+
+
+
+  createTutorialFromBlogs: async function (list: string[], title: string) {
+    const { data } = await articleApiClient.post('/tutorial/createTutorialFromBlogs', {
+      blogIds: list,
+      title
+    }) as { data: any };
+
+    return data.data ? data.data.CreateTutorialFromBlogs : {};
+  },
+
+  deleteBlog: async function (id: string) {
+    const { data } = await articleApiClient.delete(`/post/deleteBlog/${id}`, {
+      postId: id
+    }) as { data: any };
+
+    if (data?.deletePost) index.deleteObject(id);
+    return data.data ? data.data.deletePost : '';
+  },
+
+  deleteTutorial: async function (id: string) {
+    const { data } = await articleApiClient.delete(`/tutorial/deleteTutorial/${id}`, {
+      tutorialId: id
+    }) as { data: any };
+
+    if (data?.deleteTutorial) index.deleteObject(id);
+    return data.data ? data.data.deleteTutorial : '';
+  },
 };

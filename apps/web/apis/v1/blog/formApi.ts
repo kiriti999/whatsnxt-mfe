@@ -18,7 +18,7 @@ export const FormAPI = {
   },
 
   updateBlog: async function (id: string, payload: any) {
-    const { data } = await articleApiClient.put(`/history/editBlog/${id}`, {
+    const { data } = await articleApiClient.put(`/post/editBlog/${id}`, {
       id,
       title: payload.title,
       description: payload.description,
@@ -51,7 +51,7 @@ export const FormAPI = {
   },
 
   updateTutorial: async function (id: string, payload: any) {
-    const { data } = await articleApiClient.put(`/history/editTutorial/${id}`, {
+    const { data } = await articleApiClient.put(`/tutorial/editTutorial/${id}`, {
       id,
       title: payload.title,
       description: payload.description || '',

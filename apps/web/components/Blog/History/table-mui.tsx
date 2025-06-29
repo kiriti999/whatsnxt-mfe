@@ -21,7 +21,7 @@ import {
   IconEyeOff,
   IconPlus,
 } from '@tabler/icons-react';
-import { HistoryAPI } from '../../../apis/v1/index';
+import { ContentAPI, HistoryAPI } from '../../../apis/v1/index';
 import { useRouter } from 'next/navigation';
 import { useDebouncedValue } from '@mantine/hooks';
 import { downloadBase64File } from '../../../utils/downloadFile';
@@ -84,7 +84,7 @@ const HistoryMUI = ({ open, close }: any) => {
     const rowData = data && data.length > 0 && data.find((f: { _id: number; }) => f._id === id);
 
     console.log(' deleteContent :: rowData:', rowData)
-    const deleteResult = await HistoryAPI[rowData?.tutorial ? 'deleteTutorial' : 'deleteBlog'](rowData._id);
+    const deleteResult = await ContentAPI[rowData?.tutorial ? 'deleteTutorial' : 'deleteBlog'](rowData._id);
     const assetsList = rowData?.cloudinaryAssets || [];
 
     if (deleteResult) {
@@ -121,7 +121,7 @@ const HistoryMUI = ({ open, close }: any) => {
   };
 
   const createTutorial = async (list: string[], tutorialTitle: string) => {
-    return await HistoryAPI.createTutorialFromBlogs(list, tutorialTitle)
+    return await ContentAPI.createTutorialFromBlogs(list, tutorialTitle)
   }
 
   const handleOpenModal = () => {

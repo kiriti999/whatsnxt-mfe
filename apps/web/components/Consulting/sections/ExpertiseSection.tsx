@@ -115,6 +115,8 @@ export function ExpertiseSection({ expertise }: ExpertiseSectionProps) {
                                     size="md"
                                     fullWidth
                                     className="cta-button"
+                                    component='a'
+                                    href='/contact-us'
                                 >
                                     Schedule Consultation
                                 </Button>
