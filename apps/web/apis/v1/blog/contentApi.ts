@@ -1,6 +1,6 @@
 import { articleApiClient, getAlgoliaIndex } from '@whatsnxt/core-util';
 import { ContentType } from '../../../types/form';
-const index = getAlgoliaIndex('blog');
+const index = getAlgoliaIndex('whatsnxt-blog-local');
 
 
 export const ContentAPI = {
