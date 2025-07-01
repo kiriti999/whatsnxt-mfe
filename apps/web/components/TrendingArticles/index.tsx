@@ -98,7 +98,8 @@ const TrendingArticles = ({ articles, total }: TrendingArticlesProps) => {
             previousControlIcon={<IconChevronLeft size={20} />}
             emblaOptions={{
               loop: true,
-              align: 'start',
+              align: 'center',
+              dragFree: true,
               slidesToScroll: 1
             }}
             styles={{
