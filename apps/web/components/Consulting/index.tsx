@@ -88,7 +88,7 @@ export default function ConsultingPage() {
     ];
 
     const stats = [
-        { number: "500+", label: "Projects Delivered", icon: IconRocket },
+        // { number: "500+", label: "Projects Delivered", icon: IconRocket },
         { number: "98%", label: "Client Satisfaction", icon: IconStar },
         { number: "50+", label: "Expert Consultants", icon: IconUsers },
         { number: "10+", label: "Years Experience", icon: IconTarget }
@@ -205,7 +205,7 @@ export default function ConsultingPage() {
                                     >
                                         Get Started
                                     </Button>
-                                    <Button
+                                    {/* <Button
                                         size="lg"
                                         variant="outline"
                                         color="white"
@@ -215,7 +215,7 @@ export default function ConsultingPage() {
                                         }}
                                     >
                                         View Our Work
-                                    </Button>
+                                    </Button> */}
                                 </Group>
 
                                 {/* Stats */}
