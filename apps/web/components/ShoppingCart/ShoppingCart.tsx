@@ -76,7 +76,7 @@ export const ShoppingCart: FC = () => {
             <th>Product</th>
             <th>Name</th>
             <th>Price</th>
-            <th>Type</th>
+            {/* <th>Type</th> */}
             <th>Action</th>
           </tr>
         </thead>
@@ -109,8 +109,8 @@ export const ShoppingCart: FC = () => {
           <Card key={cart.id} withBorder shadow="sm" radius="md" mb="md" p="md">
             {/* Row 2: Name */}
             <Flex mb="0">
-              <Text fw={500} size="sm" w="40%" c="dimmed">Name:</Text>
-              <Text>{cart.courseName || cart.name || 'Product'}</Text>
+              <Text fw={500} size="cm" w="40%" c="dimmed">Name:</Text>
+              <Text fw={500} size="cm">{cart.courseName || cart.name || 'Product'}</Text>
             </Flex>
 
             {/* Row 3: Price */}
@@ -120,17 +120,17 @@ export const ShoppingCart: FC = () => {
             </Flex>
 
             {/* Row 4: Type */}
-            <Flex mb="0">
+            {/* <Flex mb="0">
               <Text fw={500} size="sm" w="40%" c="dimmed">Type:</Text>
-              <Text>{cart.purchaseType || ''}</Text>
-            </Flex>
+              <Text fw={500} size="cm">{cart.purchaseType || ''}</Text>
+            </Flex> */}
 
             {/* Row 5: Action */}
             <Flex justify={'center'}>
               <Button
                 variant="light"
                 color="red"
-                size="xs"
+                size="sm"
                 leftSection={<IconTrash size={16} />}
                 onClick={() => handleRemove(cart.id)}
               >
@@ -210,7 +210,7 @@ export const ShoppingCart: FC = () => {
           <Grid justify='center'>
             <Grid.Col span={{ base: 12, md: 8, lg: 7 }}>
               <form>
-                <Title order={2} mb={isMobile ? "sm" : "md"} size={isMobile ? "h3" : "h2"}>
+                <Title order={3} mb={isMobile ? "sm" : "md"} size={isMobile ? "h3" : "h2"}>
                   Shopping Cart
                 </Title>
 
@@ -221,7 +221,7 @@ export const ShoppingCart: FC = () => {
                 {cartAmount > 0 && (
                   <Card mt={isMobile ? "md" : "xl"} padding={isMobile ? "sm" : "lg"} shadow="sm" withBorder>
                     <Stack align="center" gap={isMobile ? "xs" : "md"}>
-                      <Title order={isMobile ? 4 : 3}>Cart Totals</Title>
+                      <Title order={3}>Cart Totals</Title>
                       <Text fw={500} size={isMobile ? "md" : "xl"}>
                         Total: <strong>₹{kConverter(cartAmount)}</strong>
                       </Text>
