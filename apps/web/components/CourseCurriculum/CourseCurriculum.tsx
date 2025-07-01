@@ -38,10 +38,17 @@ const CourseCurriculum: FC<CourseCurriculumProps> = ({ courseId, userId, videos,
     setShowModal(true);  // Open the HireTrainerModal
   };
 
+  // Check if course content is empty (all values are 0 or falsy)
+  const isEmptyCourse = (!sections || sections.length === 0) &&
+    (!totalVideos || totalVideos === 0) &&
+    (!duration || duration === '0 sec' || duration === '0');
+
+  console.log(' isEmptyCourse:', isEmptyCourse)
+
   return (
     <>
       <div className={styles['courses-curriculum']}>
-        {sections ? (
+        {sections && sections.length > 0 ? (
           <>
             <Paper>
               <Title order={3} className='py-4'>Syllabus</Title>
@@ -49,9 +56,15 @@ const CourseCurriculum: FC<CourseCurriculumProps> = ({ courseId, userId, videos,
 
             <Paper p="md" shadow="md" withBorder>
               <Text size="md" fw={550} mb={'0.4rem'}>
-                Contains {sections.length} sections, {totalVideos} lectures with total duration of {duration}
+                {isEmptyCourse ? (
+                  <Text size="md" fw={550} color="dimmed">
+                    Coming soon
+                  </Text>
+                ) : (
+                  `Contains ${sections.length} sections, ${totalVideos} lectures with total duration of ${duration}`
+                )}
               </Text>
-              {sections.length && sections.map((section, i) => (
+              {sections.map((section, i) => (
                 <Accordion key={i} multiple defaultValue={section.sectionTitle}>
                   <Accordion.Item value={section.sectionTitle}>
                     <Accordion.Control>
@@ -68,7 +81,12 @@ const CourseCurriculum: FC<CourseCurriculumProps> = ({ courseId, userId, videos,
             </Paper>
           </>
         ) : (
-          <h3>No Videos</h3>
+          <Paper p="md" shadow="md" withBorder>
+            <Title order={3} className='py-4'>Syllabus</Title>
+            <Text size="md" fw={550} color="dimmed">
+              Coming soon
+            </Text>
+          </Paper>
         )}
 
         {/* Button to Book a Trainer */}
