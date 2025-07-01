@@ -523,3 +523,9 @@ Profile Authentication Area CSS
 .comment-heading {
   margin-bottom: 0rem;
 }
+
+
+/* RTE */
+code {
+  font-size: 0.95em !important;
+}
