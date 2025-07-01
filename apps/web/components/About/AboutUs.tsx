@@ -84,21 +84,6 @@ const AboutUs = () => {
                 can access concise, engaging, and effective content for rapid learning.
               </Text>
 
-              <Text
-                size="lg"
-                lh={1.7}
-                ta="center"
-                c="dimmed"
-                style={{
-                  fontSize: '1.1rem',
-                  maxWidth: '900px',
-                  margin: '0 auto'
-                }}
-              >
-                My goal is to support learners at every stage
-                of their journey, from foundational skills to advanced expertise.
-              </Text>
-
             </Stack>
           </Stack>
         </Paper>
