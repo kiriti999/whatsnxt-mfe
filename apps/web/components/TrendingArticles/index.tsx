@@ -88,7 +88,6 @@ const TrendingArticles = ({ articles, total }: TrendingArticlesProps) => {
         {/* Articles Carousel */}
         {articles.length > 0 ? (
           <Carousel
-            withIndicators
             withControls
             height={460}
             slideSize={{ base: '100%', sm: '50%', md: '33.333333%' }}
