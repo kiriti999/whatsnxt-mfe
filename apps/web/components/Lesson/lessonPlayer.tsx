@@ -37,7 +37,9 @@ const LessonPlayer = ({ lessonId, course, courseOverview, videoUrl = '', section
     const videoUrls = sections.flatMap((section) => section.videos.map((video) => video.videoUrl));
     const lessonIds = sections.flatMap((section) => section.videos.map((video) => video._id));
     const lectureLinks = sections.flatMap((section) => section.videos.map((video) => video.lectureLinks));
-    const [currentVideoIndex, setCurrentVideoIndex] = useState(videoUrls.indexOf(videoUrl) || 0);
+    const [currentVideoIndex, setCurrentVideoIndex] = useState(
+        Math.max(0, videoUrls.indexOf(videoUrl))
+    );
 
     const handleVideoEnd = async () => {
         await CoursesEnrolledAPI.updateCourseProgress({

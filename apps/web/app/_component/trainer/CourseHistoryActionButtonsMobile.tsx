@@ -77,7 +77,7 @@ const ActionButtons = ({
           component="div"
         >
           <Group align="center" >
-            <span>Publish</span>
+            <span>{row.status === 'published' ? 'Unpublish' : 'Publish'}</span>
             <CoursePublishButton
               _id={row._id}
               status={row.status}

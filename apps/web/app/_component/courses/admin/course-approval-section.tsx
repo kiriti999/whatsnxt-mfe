@@ -65,7 +65,7 @@ export default function CourseApproval({ course }: CourseProps) {
         }
     }
     return (
-        <Box mt={'xl'}>
+        <Box mb={'xl'} mt={'sm'}>
             <Flex gap={'xs'}>
                 <Button color="green" onClick={handleApprove}>Approve</Button>
                 <Button color="red" onClick={() => setOpened(true)}>Reject</Button>

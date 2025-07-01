@@ -1,5 +1,5 @@
 "use client"
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import coursesStyles from '../../../components/Courses/Course.module.css';
 import { useQuery } from '@tanstack/react-query';
 import { TrainerAPI } from '../../../apis/v1/courses/trainer/trainer';
@@ -46,7 +46,6 @@ const CourseHistory = () => {
   const [debouncedSearch] = useDebouncedValue(searchQuery, 300);
   const [expandedCourse, setExpandedCourse] = useState<Record<string, boolean>>({});
   const [expandedSection, setExpandedSection] = useState<Record<string, boolean>>({});
-  // const [isMobile, setIsMobile] = useState(false);
 
   const [courseDelId, setCourseDelId] = useState('');
   const [public_id, setPublicId] = useState('');
@@ -220,10 +219,10 @@ const CourseHistory = () => {
             onClick={() => { publishVideo(video._id, sectionId, isPublish); }}
             radius="md"
             size="sm"
-            variant="filled"
-            color={isPublish ? "red" : "blue"}
+            variant="outline"
+            color={isPublish ? "blue" : "red"}
           >
-            {isPublish ? <IconEyeOff size={14} /> : <IconEye size={16} />}
+            {isPublish ? <IconEye size={16} /> : <IconEyeOff size={14} />}
           </ActionIcon>
         </Tooltip>
       );
@@ -233,7 +232,7 @@ const CourseHistory = () => {
     return (
       <Menu position="bottom-end" withArrow>
         <Menu.Target>
-          <ActionIcon variant="subtle" size="md">
+          <ActionIcon variant="outline" size="md">
             <IconDotsVertical size={16} />
           </ActionIcon>
         </Menu.Target>
@@ -355,7 +354,7 @@ const CourseHistory = () => {
                                                         : "red"
                                                     }
                                                   >
-                                                    <Group align="center" >
+                                                    <Group align="center">
                                                       <span>
                                                         {item?.videos.filter((x: Video) => x.isPublish).length !== item?.videos.length ?
                                                           "Publish All" :
@@ -383,17 +382,17 @@ const CourseHistory = () => {
                                                   }}
                                                   radius="md"
                                                   size="sm"
-                                                  variant="filled"
+                                                  variant="outline"
                                                   color={
                                                     item?.videos.filter((x: Video) => x.isPublish).length !== item?.videos.length
-                                                      ? "blue"
-                                                      : "red"
+                                                      ? "red"
+                                                      : "blue"
                                                   }
                                                 >
                                                   {item?.videos.filter((x: Video) => x.isPublish).length !== item?.videos.length ? (
-                                                    <IconEye size={14} />
-                                                  ) : (
                                                     <IconEyeOff size={14} />
+                                                  ) : (
+                                                    <IconEye size={14} />
                                                   )}
                                                 </ActionIcon>
                                               </Tooltip>

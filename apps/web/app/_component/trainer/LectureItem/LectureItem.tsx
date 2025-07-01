@@ -141,12 +141,12 @@ export const LectureItem: FC<LectureItemProps> = ({
     setDoc(selectedFile);
   };
 
-  const uploadAssetToCloud = async (file: File, lectureId, setProgress, resource_type): Promise<assetType> => {
+  const uploadAssetToCloud = async (file: File, lectureId, setProgress, resource_type, addToLocalStorage = true): Promise<assetType> => {
     console.log(' uploadAssetToCloud :: resource_type:', resource_type)
     const data = new FormData();
     data.append("file", file);
     data.append("resource_type", resource_type);
-    const result = await unifiedUploadWebWorker({ file, folder: lectureId, resource_type, setProgress })
+    const result = await unifiedUploadWebWorker({ file, folder: lectureId, resource_type, setProgress, addToLocalStorage })
     return result;
   };
 
@@ -165,8 +165,9 @@ export const LectureItem: FC<LectureItemProps> = ({
     setProgress(0);
 
     try {
+      const addToLocalStorage = false;
       const { secure_url, duration: videoDuration, public_id, resource_type } = await uploadAssetToCloud(
-        file, lectureId, setProgress, 'video'
+        file, lectureId, setProgress, 'video', addToLocalStorage
       );
 
       await CourseBuilderAPI.addLectureVideo({
