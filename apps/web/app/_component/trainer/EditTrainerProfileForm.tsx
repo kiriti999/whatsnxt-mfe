@@ -93,11 +93,13 @@ const EditTrainerProfileForm: React.FC<EditTrainerProfileFormProps> = ({
             // Handle profile image upload
             if (profileImage) {
                 try {
+                    const bffApiUrl = process.env.NEXT_PUBLIC_BFF_HOST_IMAGEKIT_API
                     const { secure_url, updatedAssets } = await uploadImage(
                         profileImage,
                         [],
                         `users/${profile.name}/profile`,
-                        true
+                        true,
+                        bffApiUrl
                     );
 
                     if (secure_url) {

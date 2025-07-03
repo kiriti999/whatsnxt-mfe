@@ -85,6 +85,11 @@ const nextConfig: NextConfig = {
                 hostname: 'api.cloudinary.com',
                 pathname: '/**',
             },
+            {
+                protocol: 'https',
+                hostname: 'ik.imagekit.io',
+                pathname: '/**',
+            },
             // Add other domains if you use them for images
             {
                 protocol: 'https',
@@ -267,6 +272,8 @@ const nextConfig: NextConfig = {
         NEXT_PUBLIC_ALGOLIA_SEARCH_API_KEY: process.env.ALGOLIA_SEARCH_API_KEY,
         NEXT_PUBLIC_BFF_HOST_COURSE_API: process.env.BFF_HOST_COURSE_API,
         NEXT_PUBLIC_BFF_HOST_COMMON_API: process.env.BFF_HOST_COMMON_API,
+        NEXT_PUBLIC_BFF_HOST_CLOUDINARY_API: process.env.BFF_HOST_CLOUDINARY_API,
+        NEXT_PUBLIC_BFF_HOST_IMAGEKIT_API: process.env.BFF_HOST_IMAGEKIT_API,
         NEXT_PUBLIC_COOKIES_ACCESS_TOKEN: process.env.COOKIES_ACCESS_TOKEN,
         NEXT_PUBLIC_GA_ID: process.env.GA_ID,
     },

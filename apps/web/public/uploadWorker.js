@@ -79,16 +79,6 @@ async function convertToWebP(file, options = {}) {
                             { type: 'image/webp' }
                         );
 
-                        // Log compression stats
-                        const originalSizeKB = file.size / 1024;
-                        const compressionRatio = ((originalSizeKB - fileSizeKB) / originalSizeKB * 100).toFixed(1);
-
-                        // console.log(`✅ WebP conversion complete:`);
-                        // console.log(`   Original: ${originalSizeKB.toFixed(1)}KB (${imageBitmap.width}x${imageBitmap.height})`);
-                        // console.log(`   Converted: ${fileSizeKB.toFixed(1)}KB (${width}x${height})`);
-                        // console.log(`   Compression: ${compressionRatio}% reduction`);
-                        // console.log(`   Quality used: ${currentQuality}`);
-
                         resolve(webpFile);
                     } catch (error) {
                         reject(error);
@@ -139,8 +129,6 @@ self.onmessage = async (event) => {
         if (folder) {
             formData.append('folder', folder);
         }
-        // Get the BFF API base URL
-        const BFF_HOST_COMMON_API = bffApiUrl;
 
         // Use XMLHttpRequest for progress tracking
         const xhr = new XMLHttpRequest();
@@ -195,7 +183,7 @@ self.onmessage = async (event) => {
         });
 
         // 1. Configure the request with URL
-        xhr.open('POST', `${BFF_HOST_COMMON_API}/cloudinary/upload`);
+        xhr.open('POST', `${bffApiUrl}/upload`);
 
         // Add any authentication headers your BFF requires
         // xhr.setRequestHeader('Authorization', 'Bearer ' + token);

@@ -103,9 +103,9 @@ const Main = ({ courseWithSections, courseId }) => {
 			if (!storedAssets?.length) {
 				return;
 			}
-
+			const bffApiUrl = process.env.NEXT_PUBLIC_BFF_HOST_IMAGEKIT_API;
 			console.log(`Cleaning up ${storedAssets.length} unused assets`);
-			await unifiedDeleteWebWorker({ assetsList: storedAssets, clearLocalStorage: true });
+			await unifiedDeleteWebWorker({ assetsList: storedAssets, clearLocalStorage: true, bffApiUrl });
 
 
 		} catch (error) {

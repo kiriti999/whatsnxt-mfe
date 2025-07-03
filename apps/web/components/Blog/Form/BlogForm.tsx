@@ -147,7 +147,8 @@ const BlogForm: React.FC<BlogFormProps> = ({ categories, edit }) => {
 
       // Upload image via worker
       const addToLocalStorage = false;
-      const { secure_url, updatedAssets } = await uploadImage(blogImage, cloudinaryAssets, 'whatsnxt-blog', addToLocalStorage);
+      const bffApiUrl = process.env.NEXT_PUBLIC_BFF_HOST_IMAGEKIT_API;
+      const { secure_url, updatedAssets } = await uploadImage(blogImage, cloudinaryAssets, 'whatsnxt-blog', addToLocalStorage, bffApiUrl);
       console.log('BlogForm:: handleFormSubmit:: secure_url:', secure_url)
       imageUrl = secure_url;
       cloudinaryAssets = updatedAssets;

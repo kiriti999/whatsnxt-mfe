@@ -24,7 +24,8 @@ const CourseManageContextProvider = ({ children }) => {
             }
 
             console.log(`Cleaning up ${storedAssets.length} unused assets`);
-            await unifiedDeleteWebWorker({ assetsList: storedAssets, clearLocalStorage: true });
+            const bffApiUrl = process.env.NEXT_PUBLIC_BFF_HOST_IMAGEKIT_API;
+            await unifiedDeleteWebWorker({ assetsList: storedAssets, clearLocalStorage: true, bffApiUrl });
 
 
         } catch (error) {

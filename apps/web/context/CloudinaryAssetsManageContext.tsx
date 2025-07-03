@@ -16,7 +16,8 @@ const CloudinaryAssetsManageContextProvider = ({ children }: { children: React.R
 
     const deleteUnusedAssets = useCallback(async () => {
         if (getAssetFromLocalStorage() && getAssetFromLocalStorage().length > 0) {
-            await unifiedDeleteWebWorker({ assetsList: getAssetFromLocalStorage(), clearLocalStorage: true })
+            const bffApiUrl = process.env.NEXT_PUBLIC_BFF_HOST_IMAGEKIT_API;
+            await unifiedDeleteWebWorker({ assetsList: getAssetFromLocalStorage(), clearLocalStorage: true, bffApiUrl })
         }
     }, [])
 

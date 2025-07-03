@@ -166,6 +166,7 @@ const ImageControl = ({ editor }: any) => {
       // Track this upload
       activeUploads.current.add(tempUrl);
 
+      const bffApiUrl = process.env.NEXT_PUBLIC_BFF_HOST_IMAGEKIT_API;
       // Upload without immediate editor update (RECOMMENDED for performance)
       const result = await unifiedUploadWebWorker({
         file: finalFile,
@@ -174,6 +175,7 @@ const ImageControl = ({ editor }: any) => {
         folder: courseId,
         resource_type: 'image',
         setProgress: updateProgress,
+        bffApiUrl
       });
 
       // Only add to editor after successful upload

@@ -259,9 +259,11 @@ export const deleteCourse = async ({ courseWithSections, sections, courseId, rou
         },
         onConfirm: async () => {
             try {
+                const bffApiUrl = process.env.NEXT_PUBLIC_BFF_HOST_IMAGEKIT_API;
                 const { success } = await unifiedDeleteWebWorker({
                     assetsList: [{ public_id: courseWithSections?.courseImagePublicId, resource_type: 'image' }],
-                    clearLocalStorage: true
+                    clearLocalStorage: true,
+                    bffApiUrl
                 });
                 if (success) {
                     await CourseBuilderAPI.deleteCourse(courseId);

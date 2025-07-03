@@ -28,7 +28,7 @@ export const unifiedUploadWebWorker = async (options: UnifiedUploadOptions): Pro
         tempUrl,
         rejectOnError = false,
         addToLocalStorage = true,
-        bffApiUrl = process.env.NEXT_PUBLIC_BFF_HOST_COMMON_API
+        bffApiUrl = process.env.NEXT_PUBLIC_BFF_HOST_CLOUDINARY_API
     } = options;
 
     console.log('🚀 [Turbopack] Starting upload for:', file.name);
@@ -197,7 +197,8 @@ export const unifiedDeleteWebWorker = async (options: UnifiedDeleteOptions): Pro
     const {
         assetsList,
         clearLocalStorage = false,
-        returnDetailedResult = true
+        returnDetailedResult = true,
+        bffApiUrl = process.env.NEXT_PUBLIC_BFF_HOST_CLOUDINARY_API
     } = options;
 
     console.log('🚀 [Turbopack] Unified delete worker :: assetsList:', assetsList);
@@ -303,7 +304,6 @@ export const unifiedDeleteWebWorker = async (options: UnifiedDeleteOptions): Pro
 
         // Send message to worker
         try {
-            const bffApiUrl = process.env.NEXT_PUBLIC_BFF_HOST_COMMON_API;
             if (!bffApiUrl) {
                 console.error('❌ [Turbopack] BFF API URL not configured');
                 const errorResult = returnDetailedResult

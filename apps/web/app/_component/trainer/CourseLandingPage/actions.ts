@@ -61,11 +61,13 @@ export const handleLandingPageSubmit: HandleLandingPageSubmit = async (
             setImageUploading?.(true);
 
             try {
+                const bffApiUrl = process.env.NEXT_PUBLIC_BFF_HOST_IMAGEKIT_API;
                 const { secure_url, updatedAssets } = await uploadImage(
                     courseImagePreview,
                     cloudinaryAssets,
                     courseId, // Using courseId as folder name
-                    false // addToLocalStorage - adjust based on your needs
+                    false, // addToLocalStorage - adjust based on your needs
+                    bffApiUrl
                 );
 
                 if (secure_url) {

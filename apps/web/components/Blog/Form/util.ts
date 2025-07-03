@@ -1,6 +1,6 @@
 import { unifiedUploadWebWorker } from '../../../utils/worker/assetManager';
 
-export const uploadImage = async (image, cloudinaryAssets, folder, addToLocalStorage) => {
+export const uploadImage = async (image, cloudinaryAssets, folder, addToLocalStorage, bffApiUrl) => {
     if (!image) {
         return { imageUrl: null, updatedAssets: cloudinaryAssets };
     }
@@ -20,7 +20,8 @@ export const uploadImage = async (image, cloudinaryAssets, folder, addToLocalSto
                 // console.log(`Upload progress: ${progressUpdate.progress}%`);
             },
             rejectOnError: true, // Set to true if you want to handle errors explicitly
-            addToLocalStorage
+            addToLocalStorage,
+            bffApiUrl
         });
 
         let secure_url = null;

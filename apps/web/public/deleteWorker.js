@@ -12,10 +12,7 @@ self.onmessage = async (event) => {
         // Since we can't import CloudinaryAPI directly in a worker,
         // we'll use fetch to call your BFF API directly
         // This assumes your BFF API is accessible from the browser
-        // Get the BFF API base URL (you may need to adjust this)
-        const BFF_HOST_COMMON_API = bffApiUrl;
-
-        const response = await fetch(`${BFF_HOST_COMMON_API}/cloudinary/delete-multiple-assets`, {
+        const response = await fetch(`${bffApiUrl}/delete-multiple-assets`, {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',

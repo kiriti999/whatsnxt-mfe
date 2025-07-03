@@ -21,7 +21,7 @@ export interface UnifiedUploadOptions {
     resource_type: string;
     setProgress: (progress: ProgressUpdate) => void;
     addToLocalStorage?: boolean
-    bffApiUrl?: any;
+    bffApiUrl?: string;
 
     // Optional editor-specific options (for images)
     editor?: any;
@@ -56,4 +56,5 @@ export interface UnifiedDeleteOptions {
     assetsList: AssetItem[];
     clearLocalStorage?: boolean; // Whether to clear localStorage on success
     returnDetailedResult?: boolean; // Whether to return full details or minimal object
+    bffApiUrl?: string;
 }

@@ -288,7 +288,8 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
 
       // Upload image via worker
       const addToLocalStorage = false;
-      const { secure_url, updatedAssets } = await uploadImage(tutorialImage, cloudinaryAssets, 'whatsnxt-tutorial', addToLocalStorage);
+      const bffApiUrl = process.env.NEXT_PUBLIC_BFF_HOST_IMAGEKIT_API;
+      const { secure_url, updatedAssets } = await uploadImage(tutorialImage, cloudinaryAssets, 'whatsnxt-tutorial', addToLocalStorage, bffApiUrl);
       imageUrl = secure_url;
       cloudinaryAssets = updatedAssets;
 

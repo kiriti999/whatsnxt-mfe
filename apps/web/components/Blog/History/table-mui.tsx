@@ -89,7 +89,8 @@ const HistoryMUI = ({ open, close }: any) => {
 
     if (deleteResult) {
       if (assetsList.length > 0) {
-        unifiedDeleteWebWorker({ assetsList })
+        const bffApiUrl = process.env.NEXT_PUBLIC_BFF_HOST_IMAGEKIT_API;
+        unifiedDeleteWebWorker({ assetsList, bffApiUrl })
       }
       await deleteIndex(rowData._id, rowData?.tutorial ? 'tutorial' : 'blog');
       await load();
