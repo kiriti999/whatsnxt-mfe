@@ -27,7 +27,8 @@ export const unifiedUploadWebWorker = async (options: UnifiedUploadOptions): Pro
         editor,
         tempUrl,
         rejectOnError = false,
-        addToLocalStorage = true
+        addToLocalStorage = true,
+        bffApiUrl = process.env.NEXT_PUBLIC_BFF_HOST_COMMON_API
     } = options;
 
     console.log('🚀 [Turbopack] Starting upload for:', file.name);
@@ -176,7 +177,7 @@ export const unifiedUploadWebWorker = async (options: UnifiedUploadOptions): Pro
                 fileKeyName: 'file',
                 folder,
                 resource_type,
-                bffApiUrl: process.env.NEXT_PUBLIC_BFF_HOST_COMMON_API
+                bffApiUrl: bffApiUrl
             });
 
             console.log('📤 [Turbopack] Upload task sent to worker');

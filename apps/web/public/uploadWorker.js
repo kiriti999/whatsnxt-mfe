@@ -140,7 +140,7 @@ self.onmessage = async (event) => {
             formData.append('folder', folder);
         }
         // Get the BFF API base URL
-        const BFF_API_BASE = bffApiUrl;
+        const BFF_HOST_COMMON_API = bffApiUrl;
 
         // Use XMLHttpRequest for progress tracking
         const xhr = new XMLHttpRequest();
@@ -195,7 +195,7 @@ self.onmessage = async (event) => {
         });
 
         // 1. Configure the request with URL
-        xhr.open('POST', `${BFF_API_BASE}/cloudinary/upload`);
+        xhr.open('POST', `${BFF_HOST_COMMON_API}/cloudinary/upload`);
 
         // Add any authentication headers your BFF requires
         // xhr.setRequestHeader('Authorization', 'Bearer ' + token);

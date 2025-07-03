@@ -21,6 +21,7 @@ export interface UnifiedUploadOptions {
     resource_type: string;
     setProgress: (progress: ProgressUpdate) => void;
     addToLocalStorage?: boolean
+    bffApiUrl?: any;
 
     // Optional editor-specific options (for images)
     editor?: any;

@@ -13,9 +13,9 @@ self.onmessage = async (event) => {
         // we'll use fetch to call your BFF API directly
         // This assumes your BFF API is accessible from the browser
         // Get the BFF API base URL (you may need to adjust this)
-        const BFF_API_BASE = bffApiUrl;
+        const BFF_HOST_COMMON_API = bffApiUrl;
 
-        const response = await fetch(`${BFF_API_BASE}/cloudinary/delete-multiple-assets`, {
+        const response = await fetch(`${BFF_HOST_COMMON_API}/cloudinary/delete-multiple-assets`, {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',
