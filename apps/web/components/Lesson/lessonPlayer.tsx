@@ -41,6 +41,8 @@ const LessonPlayer = ({ lessonId, course, courseOverview, videoUrl = '', section
         Math.max(0, videoUrls.indexOf(videoUrl))
     );
 
+    // State for maintaing video auto starts
+    const [play, setPlay] = useState<boolean>(false)
     const handleVideoEnd = async () => {
         await CoursesEnrolledAPI.updateCourseProgress({
             userId: user?._id,
@@ -64,6 +66,9 @@ const LessonPlayer = ({ lessonId, course, courseOverview, videoUrl = '', section
                 <Paper withBorder>
                     <ReactPlayer
                         url={videoUrls[currentVideoIndex]} // Dynamically update the video URL
+                        light={videoUrls[currentVideoIndex] + "&poster=true"}
+                        playing={play}
+                        onClickPreview={()=>{setPlay(true)}}
                         width="100%"
                         height="500px"
                         controls={true}
