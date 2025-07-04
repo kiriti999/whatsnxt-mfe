@@ -23,9 +23,9 @@ const Layout = ({ children, loginMenuLinks, links, copyRight }) => {
 
       <Footer />
 
-      <CookieConsent>
+      {/* <CookieConsent>
         This website uses cookies to enhance the user experience.
-      </CookieConsent>
+      </CookieConsent> */}
     </>
   );
 };
