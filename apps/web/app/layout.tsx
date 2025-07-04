@@ -153,6 +153,57 @@ export const metadata: Metadata = {
   },
 
   manifest: '/manifest.json',
+
+  // Add Local Business Schema here
+  other: {
+    'application/ld+json': JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "EducationalOrganization",
+      "name": "whatsnxt",
+      "alternateName": "whatsnxt - Online Learning Platform",
+      "description": "Video courses and digital learning through articles and series on different categories. Facilitate learning through trainer search and connect",
+      "url": "https://whatsnxt.in",
+      "logo": "https://whatsnxt.in/logo.png",
+      "image": "https://whatsnxt.in/og-image.jpg",
+      "foundingDate": "2024", // Update with your actual founding date
+      "founder": {
+        "@type": "Organization",
+        "name": "whatsnxt Team"
+      },
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Hyderabad", // Update with your city
+        "addressRegion": "Telangana",
+        "addressCountry": "IN"
+      },
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "contactType": "customer service",
+        "availableLanguage": ["English", "Hindi", "Telugu"]
+      },
+      "offers": {
+        "@type": "Offer",
+        "category": "Educational Services",
+        "description": "Online skill development courses and training programs"
+      },
+      "serviceArea": {
+        "@type": "Country",
+        "name": "India"
+      },
+      "educationalCredentialAwarded": "Certificate of Completion",
+      "hasCredential": {
+        "@type": "EducationalOccupationalCredential",
+        "credentialCategory": "Professional Development"
+      },
+      "sameAs": [
+        "https://x.com/whatsnxtsocial",
+        // Add other social media URLs
+        // "https://www.facebook.com/whatsnxt",
+        // "https://www.linkedin.com/company/whatsnxt",
+        // "https://www.youtube.com/channel/whatsnxt"
+      ]
+    })
+  }
 }
 
 async function RootLayout({ children }: { children: ReactNode }) {
