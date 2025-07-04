@@ -155,12 +155,6 @@ export const metadata: Metadata = {
   manifest: '/manifest.json',
 }
 
-// Dynamic import for providers
-// const Providers = dynamic(() => import('../components/AppProvider/AppProvider'), {
-//   ssr: true,
-//   loading: () => null
-// });
-
 async function RootLayout({ children }: { children: ReactNode }) {
 
   const userData = await getAuthData();
