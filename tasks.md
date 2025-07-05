@@ -6,6 +6,7 @@ AI training from developer POV
 
 TODO:: Courses app:
 ===================
+www and without www prefix should work
 AI training page
 
 Security:
