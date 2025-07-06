@@ -1,5 +1,5 @@
 "use client"
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useDispatch } from 'react-redux';
 import { useToggle, upperFirst } from '@mantine/hooks';
 import { useForm } from '@mantine/form';
@@ -45,15 +45,20 @@ interface IFormData {
   otp?: string;
 }
 
+// Global flag to prevent multiple Google auth processing
+let isGoogleAuthProcessing = false;
+
 export function AuthenticationForm(props: PaperProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectUrl = searchParams.get('returnto') || '/';
   const [otpSent, setOtpSent] = useState(false);
-  const { login } = useAuth();
+  const { login, user } = useAuth();
   const [type, toggle] = useToggle(['login', 'register'] as const);
   const dispatch = useDispatch();
   const isRegisterForm = type === 'register';
+  const [hasProcessedGoogle, setHasProcessedGoogle] = useState(false);
+  const processedRef = useRef(false); // Ref to track processing across re-renders
 
   const form = useForm<IFormData>({
     initialValues: {
@@ -92,6 +97,120 @@ export function AuthenticationForm(props: PaperProps) {
       },
     },
   });
+
+  // FIXED: Handle Google auth with multiple safeguards
+  useEffect(() => {
+    console.log('🔍 Google auth handler useEffect triggered');
+
+    const googleStatus = searchParams.get('google');
+    const error = searchParams.get('error');
+
+    console.log('🔍 googleStatus:', googleStatus);
+    console.log('🔍 Global flag:', isGoogleAuthProcessing);
+    console.log('🔍 Local state:', hasProcessedGoogle);
+    console.log('🔍 Ref state:', processedRef.current);
+
+    // Multiple safeguards to prevent double processing
+    if (hasProcessedGoogle || processedRef.current || isGoogleAuthProcessing) {
+      console.log('🔍 Already processed Google auth, skipping');
+      return;
+    }
+
+    // Handle Google login error
+    if (googleStatus === 'error') {
+      console.log('🔴 Google login error detected');
+
+      // Set all flags
+      setHasProcessedGoogle(true);
+      processedRef.current = true;
+      isGoogleAuthProcessing = true;
+
+      notifications.show({
+        title: 'Login Failed',
+        message: 'Google authentication failed. Please try again.',
+        color: 'red',
+      });
+
+      // Clean up URL
+      cleanupUrl();
+
+      // Reset flags after processing
+      setTimeout(() => {
+        isGoogleAuthProcessing = false;
+      }, 1000);
+
+      return;
+    }
+
+    // Handle Google login success
+    if (googleStatus === 'success') {
+      console.log('🟢 Google login success detected');
+
+      // Set all flags immediately
+      setHasProcessedGoogle(true);
+      processedRef.current = true;
+      isGoogleAuthProcessing = true;
+
+      // Show success notification
+      notifications.show({
+        title: 'Welcome!',
+        message: 'Successfully logged in with Google',
+        color: 'green',
+      });
+
+      // Clean up URL
+      cleanupUrl();
+
+      // Check if user is already authenticated
+      if (user?.isAuthenticated) {
+        console.log('🟢 User is already authenticated, redirecting immediately');
+
+        // Reset global flag and redirect
+        setTimeout(() => {
+          isGoogleAuthProcessing = false;
+          router.push(redirectUrl);
+        }, 1000);
+      } else {
+        console.log('🟢 User not yet authenticated, forcing page refresh');
+
+        // Force a page refresh to get the updated user data from server
+        setTimeout(() => {
+          isGoogleAuthProcessing = false;
+          window.location.href = redirectUrl;
+        }, 1000);
+      }
+    }
+
+    function cleanupUrl() {
+      const cleanUrl = new URL(window.location.href);
+      cleanUrl.searchParams.delete('google');
+      cleanUrl.searchParams.delete('error');
+      cleanUrl.searchParams.delete('message');
+      window.history.replaceState({}, '', cleanUrl.toString());
+      console.log('🔍 URL cleaned up to:', cleanUrl.toString());
+    }
+
+  }, [searchParams, user, redirectUrl, hasProcessedGoogle, router]);
+
+  // Separate effect for normal authenticated user redirect
+  useEffect(() => {
+    const googleStatus = searchParams.get('google');
+
+    // Only redirect if user is authenticated AND not processing Google auth AND no Google params
+    if (user?.isAuthenticated && !googleStatus && !hasProcessedGoogle && !processedRef.current) {
+      console.log('🔍 Normal authenticated user redirect to:', redirectUrl);
+      router.push(redirectUrl);
+    }
+  }, [user, router, redirectUrl, searchParams, hasProcessedGoogle]);
+
+  // Reset processing flag when component unmounts
+  useEffect(() => {
+    return () => {
+      console.log('🔍 Component unmounting, resetting flags');
+      isGoogleAuthProcessing = false;
+      processedRef.current = false;
+    };
+  }, []);
 
   useEffect(() => {
     if (!isRegisterForm) {
@@ -265,7 +384,9 @@ export function AuthenticationForm(props: PaperProps) {
   };
 
   const handleGoogleLogin = () => {
-    const googleLoginUrl = `${process.env.NEXT_PUBLIC_BFF_HOST_GOOGLE_API}/login`;
+    // Add returnto parameter to the Google login URL
+    const returnto = encodeURIComponent(redirectUrl);
+    const googleLoginUrl = `${process.env.NEXT_PUBLIC_BFF_HOST_GOOGLE_API}/login?returnto=${returnto}`;
     window.location.href = googleLoginUrl;
   };
 

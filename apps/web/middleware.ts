@@ -1,4 +1,4 @@
-// middleware.ts - Enhanced to help with static route detection
+// middleware.ts - Enhanced with Google login success handling
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
@@ -126,6 +126,19 @@ const isAuthRoute = (pathname: string): boolean => {
   );
 };
 
+// NEW: Helper function to check if this is a Google login callback
+const isGoogleLoginCallback = (req: NextRequest): boolean => {
+  const url = req.nextUrl;
+
+  // Check if this is authentication page with Google success/error parameters
+  if (url.pathname === '/authentication' || url.pathname === '/auth/authentication') {
+    const googleParam = url.searchParams.get('google');
+    return googleParam === 'success' || googleParam === 'error';
+  }
+
+  return false;
+};
+
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
@@ -152,12 +165,13 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
-  console.log('Middleware processing:', req.method, pathname);
+  console.log('Middleware processing:', req.method, pathname, req.nextUrl.search);
 
   const token = getAuthToken(req);
   const isPublic = isPublicRoute(pathname);
   const isAuth = isAuthRoute(pathname);
   const isStatic = isStaticRoute(pathname);
+  const isGoogleCallback = isGoogleLoginCallback(req);
 
   // Create response with custom headers
   const response = NextResponse.next();
@@ -166,6 +180,12 @@ export async function middleware(req: NextRequest) {
   response.headers.set('x-pathname', pathname);
   response.headers.set('x-is-static', isStatic.toString());
   response.headers.set('x-is-public', isPublic.toString());
+
+  // IMPORTANT: Allow Google login callbacks to proceed even if user is authenticated
+  if (isGoogleCallback) {
+    console.log('Google login callback detected, allowing through:', pathname, req.nextUrl.search);
+    return response;
+  }
 
   // For static routes, allow through without auth checks
   if (isStatic) {
@@ -182,13 +202,13 @@ export async function middleware(req: NextRequest) {
   // Redirect unauthenticated users to authentication page
   if (!token && !isPublic) {
     console.log('Redirecting to authentication:', pathname);
-    const authUrl = new URL('/auth/authentication', req.url);
-    authUrl.searchParams.set('redirect', pathname);
+    const authUrl = new URL('/authentication', req.url);
+    authUrl.searchParams.set('returnto', pathname);
     return NextResponse.redirect(authUrl);
   }
 
-  // Redirect authenticated users away from auth pages
-  if (token && isAuth) {
+  // Redirect authenticated users away from auth pages (EXCEPT Google callbacks)
+  if (token && isAuth && !isGoogleCallback) {
     console.log('Authenticated user accessing auth route, redirecting home:', pathname);
     return NextResponse.redirect(new URL('/', req.url));
   }
@@ -201,8 +221,8 @@ export async function middleware(req: NextRequest) {
 
   // Fallback: redirect to authentication
   console.log('Fallback redirect to authentication:', pathname);
-  const authUrl = new URL('/auth/authentication', req.url);
-  authUrl.searchParams.set('redirect', pathname);
+  const authUrl = new URL('/authentication', req.url);
+  authUrl.searchParams.set('returnto', pathname);
   return NextResponse.redirect(authUrl);
 }
 
