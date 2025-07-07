@@ -1,8 +1,8 @@
 import { courseApiClient } from '@whatsnxt/core-util';
 
 export const TrainerAPI = {
-    courseHistory: async function (page = null, id = null, search = null) {
-        const url = `/courses/trainer/course-history?${page ? `page=${page}` : ''}${id ? `&id=${id}` : ''}${search ? `&search=${search}` : ''}`;
+    courseHistory: async function (page = null, id = null, search = null, sort = '') {
+        const url = `/courses/trainer/course-history?${page ? `page=${page}` : ''}${id ? `&id=${id}` : ''}${search ? `&search=${search}` : ''}${sort ? `&sort=${sort}` : ''}`;
         const response = await courseApiClient.get(url);
         return response;
     },

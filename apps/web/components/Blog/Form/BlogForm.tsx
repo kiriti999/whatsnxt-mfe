@@ -13,6 +13,7 @@ import { MantineLoader } from '@whatsnxt/core-ui';
 import { AISuggestions } from '../../../apis/v1/blog/aiSuggestions';
 import Image from 'next/image';
 import { uploadImage } from './util';
+import { unifiedDeleteWebWorker } from '../../../utils/worker/assetManager';
 
 const BlogForm: React.FC<BlogFormProps> = ({ categories, edit }) => {
   const [isVisible, { open, close }] = useDisclosure(false);
@@ -23,6 +24,7 @@ const BlogForm: React.FC<BlogFormProps> = ({ categories, edit }) => {
   const router = useRouter();
   const [wordCount, setWordCount] = useState(0);
   const [contentIsMarkdown, setContentIsMarkdown] = useState(false);
+
 
   const {
     setValue,
@@ -130,6 +132,8 @@ const BlogForm: React.FC<BlogFormProps> = ({ categories, edit }) => {
 
   const handleFormSubmit = async (formData: any, e: any) => {
     e.preventDefault();
+    let imageAssets = [] // store image assets image url for temp
+    const bffApiUrl = process.env.NEXT_PUBLIC_BFF_HOST_IMAGEKIT_API;
     try {
       open();
       // Get categoryId for the selected category
@@ -147,10 +151,13 @@ const BlogForm: React.FC<BlogFormProps> = ({ categories, edit }) => {
 
       // Upload image via worker
       const addToLocalStorage = false;
-      const bffApiUrl = process.env.NEXT_PUBLIC_BFF_HOST_IMAGEKIT_API;
       const { secure_url, updatedAssets } = await uploadImage(blogImage, cloudinaryAssets, 'whatsnxt-blog', addToLocalStorage, bffApiUrl);
-      imageUrl = secure_url;
+      imageUrl = secure_url
       cloudinaryAssets = updatedAssets;
+
+      if (secure_url) {
+        imageAssets = [...updatedAssets]
+      }
 
       // Construct payload with nested categories
       const payload = {
@@ -187,8 +194,13 @@ const BlogForm: React.FC<BlogFormProps> = ({ categories, edit }) => {
         message: error?.message || 'An error occurred while saving the blog',
         color: 'red',
       });
-      // TODO: Delete image from cloud incase of failure
+      // Early return if no assets to clean up
+      if (!imageAssets.length) {
+        return;
+      }
+      await unifiedDeleteWebWorker({ assetsList: imageAssets, clearLocalStorage: true, bffApiUrl });
     } finally {
+      imageAssets = [] // remove temp assests
       close();
     }
   };
