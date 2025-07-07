@@ -79,7 +79,7 @@ export const generateArticleSchema = (article: Article) => {
             "url": "https://whatsnxt.in",
             "logo": {
                 "@type": "ImageObject",
-                "url": "https://whatsnxt.in/logo.png"
+                "url": "https://www.whatsnxt.in/logo.png"
             }
         },
         "mainEntityOfPage": {
@@ -173,7 +173,7 @@ export const generateTutorialSchema = (tutorial: Tutorial) => {
             "url": "https://whatsnxt.in",
             "logo": {
                 "@type": "ImageObject",
-                "url": "https://whatsnxt.in/logo.png"
+                "url": "https://www.whatsnxt.in/logo.png"
             }
         }
     };
@@ -241,7 +241,7 @@ export const generateOrganizationSchema = () => {
         "name": "whatsnxt",
         "alternateName": "whatsnxt Learning Platform",
         "url": "https://whatsnxt.in",
-        "logo": "https://whatsnxt.in/logo.png",
+        "logo": "https://www.whatsnxt.in/logo.png",
         "description": "Online skill development & learning provider offering video courses and digital learning through articles and series on different categories.",
         "foundingDate": "2025", // Replace with actual founding date
         "sameAs": [
@@ -281,7 +281,7 @@ export const generateWebSiteSchema = () => {
             "@type": "SearchAction",
             "target": {
                 "@type": "EntryPoint",
-                "urlTemplate": "https://whatsnxt.in/search?q={search_term_string}"
+                "urlTemplate": "https://www.whatsnxt.in/search?q={search_term_string}"
             },
             "query-input": "required name=search_term_string"
         }

@@ -43,8 +43,8 @@ const footerSections = [
   {
     title: 'Resources',
     links: [
-      { icon: <IconArticle size={16} />, text: 'Blogs', link: 'https://whatsnxt.in/blogs' },
-      { icon: <IconBook size={16} />, text: 'Tutorials', link: 'https://whatsnxt.in/tutorials' },
+      { icon: <IconArticle size={16} />, text: 'Blogs', link: 'https://www.whatsnxt.in/blogs' },
+      { icon: <IconBook size={16} />, text: 'Tutorials', link: 'https://www.whatsnxt.in/tutorials' },
       { icon: <IconMail size={16} />, text: 'Contact', link: '/contact-us' }
     ],
   },

@@ -82,7 +82,7 @@ const LinkedInShare: React.FC<LinkedInShareProps> = ({ url, title, thumbnailUrn,
 
                 // If token is available, proceed to share the post
                 try {
-                    const descriptionWithLink = `${description} Learn more at: https://whatsnxt.in/blogs`;
+                    const descriptionWithLink = `${description} Learn more at: https://www.whatsnxt.in/blogs`;
 
                     const shareResult = await LinkedInAPI.sharePost({
                         url,

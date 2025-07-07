@@ -47,7 +47,7 @@ export async function generateMetadata({ params }): Promise<Metadata> {
             author: 'whatsnxt.in',
             publishedDate: fetchResult.createdAt,
             modifiedDate: fetchResult.updatedAt,
-            canonical: `https://whatsnxt.in/course/${slug}`,
+            canonical: `https://www.whatsnxt.in/course/${slug}`,
         });
 
         return metadata;

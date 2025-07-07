@@ -46,4 +46,4 @@ Disallow: /profile
 Disallow: /settings
 Disallow: /user/
 
-Sitemap: https://whatsnxt.in/sitemap.xml
+Sitemap: https://www.whatsnxt.in/sitemap.xml

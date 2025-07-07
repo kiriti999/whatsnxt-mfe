@@ -50,7 +50,7 @@ const ContentPage = async (props: any) => {
               "name": "whatsnxt.in",
               "logo": {
                 "@type": "ImageObject",
-                "url": "https://whatsnxt.in/logo.png"
+                "url": "https://www.whatsnxt.in/logo.png"
               },
               "sameAs": [
                 "https://www.linkedin.com/company/105606569"
@@ -60,7 +60,7 @@ const ContentPage = async (props: any) => {
             "dateModified": slugData.updatedAt,
             "mainEntityOfPage": {
               "@type": "WebPage",
-              "@id": `https://whatsnxt.in/content/${params.id}`
+              "@id": `https://www.whatsnxt.in/content/${params.id}`
             }
           })
         }}

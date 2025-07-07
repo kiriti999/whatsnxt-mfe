@@ -163,8 +163,8 @@ export const metadata: Metadata = {
       "alternateName": "whatsnxt - Online Learning Platform",
       "description": "Video courses and digital learning through articles and series on different categories. Facilitate learning through trainer search and connect",
       "url": "https://whatsnxt.in",
-      "logo": "https://whatsnxt.in/logo.png",
-      "image": "https://whatsnxt.in/og-image.jpg",
+      "logo": "https://www.whatsnxt.in/logo.png",
+      "image": "https://www.whatsnxt.in/og-image.jpg",
       "foundingDate": "2024", // Update with your actual founding date
       "founder": {
         "@type": "Organization",

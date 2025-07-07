@@ -104,7 +104,7 @@ export function generateMetadata({
 
         // ✅ LinkedIn article-specific fields
         if (author) {
-            openGraph.authors = [`https://whatsnxt.in/author/${author.toLowerCase().replace(/\s+/g, '-')}`];
+            openGraph.authors = [`https://www.whatsnxt.in/author/${author.toLowerCase().replace(/\s+/g, '-')}`];
         }
         if (section) {
             openGraph.section = section;
@@ -186,25 +186,25 @@ export const fallbackMetadata = {
     general: {
         title: "whatsnxt.in",
         description: "Blog on any category - Learn programming, development, and technology etc",
-        image: "https://whatsnxt.in/og-default.jpg",
+        image: "https://www.whatsnxt.in/og-default.jpg",
         section: "Technology"
     },
     article: {
         title: "Article | whatsnxt.in",
         description: "Read our latest articles and insights on programming and technology etc",
-        image: "https://whatsnxt.in/og-article.jpg",
+        image: "https://www.whatsnxt.in/og-article.jpg",
         section: "Articles"
     },
     course: {
         title: "Course | whatsnxt.in",
         description: "Explore our comprehensive courses and learning materials",
-        image: "https://whatsnxt.in/og-course.jpg",
+        image: "https://www.whatsnxt.in/og-course.jpg",
         section: "Education"
     },
     interview: {
         title: "Interview Question | whatsnxt.in",
         description: "Expert answers to technical interview questions and preparation",
-        image: "https://whatsnxt.in/og-interview.jpg",
+        image: "https://www.whatsnxt.in/og-interview.jpg",
         section: "Career"
     }
 };

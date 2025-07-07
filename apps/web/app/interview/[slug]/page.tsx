@@ -36,7 +36,7 @@ export async function generateMetadata({ params }): Promise<Metadata> {
             author: interview.authorInfo.name,
             publishedDate: interview.questionUpdated,
             modifiedDate: interview.answerUpdated,
-            canonical: `https://whatsnxt.in/interview/${slug}`,
+            canonical: `https://www.whatsnxt.in/interview/${slug}`,
         });
     } catch (error) {
         return {};
