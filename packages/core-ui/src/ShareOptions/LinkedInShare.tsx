@@ -14,7 +14,7 @@ interface LinkedInShareProps {
     media?: string[];
 }
 
-const LinkedInShare: React.FC<LinkedInShareProps> = ({ url, title, thumbnailUrn, description, email, media }) => {
+const LinkedInShare: React.FC<LinkedInShareProps> = ({ url, title, thumbnailUrn, description, email, media }: any) => {
     const style = { cursor: 'pointer' };
     const router = useRouter();
     const [tokenAvailable, setTokenAvailable] = useState<boolean>(false);
@@ -36,6 +36,19 @@ const LinkedInShare: React.FC<LinkedInShareProps> = ({ url, title, thumbnailUrn,
 
         checkTokenStatus();
     }, [email]);
+
+    const truncateLinkedInText = (text: string, maxLength = 3000) => {
+        if (!text) return '';
+        
+        // If text is within limit, return as is
+        if (text.length <= maxLength) {
+            return text;
+        }
+        
+        // Truncate at 2996 characters and append "..."
+        const truncateAt = maxLength - 3; // Reserve 3 characters for "..."
+        return text.substring(0, truncateAt) + '...';
+    };
 
     const handleShare = async (e: React.MouseEvent) => {
         e.preventDefault();
@@ -82,7 +95,8 @@ const LinkedInShare: React.FC<LinkedInShareProps> = ({ url, title, thumbnailUrn,
 
                 // If token is available, proceed to share the post
                 try {
-                    const descriptionWithLink = `${description} Read more at: ${url}`;
+                    const truncatedText = truncateLinkedInText(description);
+                    const descriptionWithLink = `${truncatedText} Read more at: ${url}`;
 
                     const shareResult = await LinkedInAPI.sharePost({
                         url,
