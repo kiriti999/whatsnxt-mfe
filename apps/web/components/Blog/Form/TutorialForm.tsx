@@ -21,6 +21,7 @@ import {
 import { IconUpload } from '@tabler/icons-react';
 import Image from 'next/image';
 import { uploadImage } from './util';
+import { unifiedDeleteWebWorker } from '../../../utils/worker/assetManager';
 
 interface TutorialFormProps {
   categories: Category[];
@@ -347,6 +348,12 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
           message: `${error.message}`,
           color: 'red',
         });
+
+        // Early return if no assets to clean up
+        if (!updatedAssets.length) {
+          return;
+        }
+        await unifiedDeleteWebWorker({ assetsList: updatedAssets, clearLocalStorage: true, bffApiUrl });
       } finally {
         close();
       }
