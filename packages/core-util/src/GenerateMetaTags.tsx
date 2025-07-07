@@ -28,7 +28,7 @@ interface MetadataParams {
 }
 
 export function generateMetadata({
-    title = 'blog.whatsnxt.in',
+    title = 'whatsnxt.in',
     description = 'Courses on any category',
     image,
     canonical,
@@ -37,7 +37,7 @@ export function generateMetadata({
     publishedDate,
     modifiedDate,
     type = 'website',
-    siteName = 'blog.whatsnxt.in',
+    siteName = 'whatsnxt.in',
     tags = [], // ✅ LinkedIn article tags
     section // ✅ LinkedIn article section
 }: MetadataParams): Metadata {
@@ -66,7 +66,7 @@ export function generateMetadata({
         description,
         keywords: keywords.length > 0 ? keywords : undefined,
         authors: author ? [{ name: author }] : undefined,
-        metadataBase: new URL('https://blog.whatsnxt.in'),
+        metadataBase: new URL('https://whatsnxt.in'),
         // ✅ Enhanced robots for LinkedIn crawling
         robots: {
             index: true,
@@ -80,7 +80,7 @@ export function generateMetadata({
             },
         },
         // ✅ Add publisher information
-        publisher: 'blog.whatsnxt.in',
+        publisher: 'whatsnxt.in',
     };
 
     // Build openGraph object with LinkedIn optimizations
@@ -104,7 +104,7 @@ export function generateMetadata({
 
         // ✅ LinkedIn article-specific fields
         if (author) {
-            openGraph.authors = [`https://blog.whatsnxt.in/author/${author.toLowerCase().replace(/\s+/g, '-')}`];
+            openGraph.authors = [`https://whatsnxt.in/author/${author.toLowerCase().replace(/\s+/g, '-')}`];
         }
         if (section) {
             openGraph.section = section;
@@ -184,21 +184,21 @@ function optimizeImageForLinkedIn(imageUrl: string): string {
 // ✅ Enhanced fallback metadata with LinkedIn-optimized images
 export const fallbackMetadata = {
     general: {
-        title: "blog.whatsnxt.in",
+        title: "whatsnxt.in",
         description: "Blog on any category - Learn programming, development, and technology etc",
-        image: "https://blog.whatsnxt.in/og-default.jpg",
+        image: "https://whatsnxt.in/og-default.jpg",
         section: "Technology"
     },
     article: {
-        title: "Article | blog.whatsnxt.in",
+        title: "Article | whatsnxt.in",
         description: "Read our latest articles and insights on programming and technology etc",
-        image: "https://blog.whatsnxt.in/og-article.jpg",
+        image: "https://whatsnxt.in/og-article.jpg",
         section: "Articles"
     },
     course: {
         title: "Course | whatsnxt.in",
         description: "Explore our comprehensive courses and learning materials",
-        image: "https://blog.whatsnxt.in/og-course.jpg",
+        image: "https://whatsnxt.in/og-course.jpg",
         section: "Education"
     },
     interview: {
