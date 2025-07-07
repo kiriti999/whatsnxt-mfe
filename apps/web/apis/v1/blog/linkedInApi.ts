@@ -1,4 +1,4 @@
-import { articleApiClient, courseApiClient } from '@whatsnxt/core-util';
+import { articleApiClient } from '@whatsnxt/core-util';
 
 export const LinkedInAPI = {
     /**
@@ -21,7 +21,7 @@ export const LinkedInAPI = {
      */
     getAuthUrl: async function () {
         try {
-            const { data } = await courseApiClient.get('/linkedin/auth-url');
+            const { data } = await articleApiClient.get('/linkedin/auth-url');
             return data.authUrl;
         } catch (error) {
             console.error('Error fetching LinkedIn auth URL:', error);
@@ -35,7 +35,7 @@ export const LinkedInAPI = {
      * @returns {Promise<any>} Response data
      */
     handleCallback: async function (code) {
-        const { data } = await courseApiClient.get(`/linkedin/callback?code=${code}`);
+        const { data } = await articleApiClient.get(`/linkedin/callback?code=${code}`);
         return data.data?.callback;
     },
 
@@ -51,7 +51,7 @@ export const LinkedInAPI = {
      * @returns {Promise<any>} Response data
      */
     sharePost: async function ({ url, title, email, text, thumbnailUrn, media }) {
-        const { data } = await courseApiClient.post('/linkedin/share', {
+        const { data } = await articleApiClient.post('/linkedin/share', {
             url,
             title,
             email,
