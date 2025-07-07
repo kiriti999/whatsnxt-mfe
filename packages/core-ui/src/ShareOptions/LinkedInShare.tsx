@@ -37,14 +37,14 @@ const LinkedInShare: React.FC<LinkedInShareProps> = ({ url, title, thumbnailUrn,
         checkTokenStatus();
     }, [email]);
 
-    const truncateLinkedInText = (text: string, maxLength = 1400) => {
+    const truncateLinkedInText = (text: string, maxLength = 1600) => {
         if (!text) return '';
-        
+
         // If text is within limit, return as is
         if (text.length <= maxLength) {
             return text;
         }
-        
+
         // Truncate at 2996 characters and append "..."
         const truncateAt = maxLength - 3; // Reserve 3 characters for "..."
         return text.substring(0, truncateAt) + '...';
