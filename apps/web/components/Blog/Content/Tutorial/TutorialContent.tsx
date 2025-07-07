@@ -47,7 +47,6 @@ const codeBlockStyles = `
     margin: 0 !important;
     border: none !important;
     border-radius: 0 !important;
-    font-size: 1.2em !important;
     line-height: 1.6 !important;
     white-space: pre !important;
     display: block !important;
@@ -69,7 +68,6 @@ const codeBlockStyles = `
     overflow-x: auto !important;
     border: 0.5px dotted #333 !important;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
-    font-size: 1.2em !important;
     line-height: 1.6 !important;
     white-space: pre !important;
     -moz-tab-size: 2 !important;

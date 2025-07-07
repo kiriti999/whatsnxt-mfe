@@ -63,7 +63,6 @@ const codeBlockStyles = `
     margin: 0 !important;
     border: none !important;
     border-radius: 8px !important;
-    font-size: 1.2em !important;
     line-height: 1.6 !important;
     white-space: pre !important;
     display: block !important;
@@ -88,7 +87,6 @@ const codeBlockStyles = `
     overflow-y: visible !important;
     border: 1px solid #333 !important;
     border-radius: 0 !important; /* Removed border radius */
-    font-size: 1.2em !important;
     line-height: 1.4 !important;
     white-space: pre !important;
     word-wrap: break-word !important;
