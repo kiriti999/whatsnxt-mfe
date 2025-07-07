@@ -13,6 +13,7 @@ import { fetchUser } from '../utils/commonHelper';
 import Providers from '../components/AppProvider/AppProvider'
 import Script from 'next/script';
 import { OrganizationStructuredData, WebSiteStructuredData } from '../components/StructuredData';
+import PartyTownScripts from '../components/PartyTownScripts';
 
 const nunito = Nunito({
   subsets: ["latin"],
@@ -234,6 +235,7 @@ async function RootLayout({ children }: { children: ReactNode }) {
         {/* Global Structured Data */}
         <OrganizationStructuredData />
         <WebSiteStructuredData />
+        <PartyTownScripts />
       </head>
       <body className="antialiased">
         <Providers user={userData}>

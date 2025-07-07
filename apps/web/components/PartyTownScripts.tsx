@@ -1,9 +1,10 @@
-import { Partytown } from "@builder.io/partytown/react";
+import { Partytown } from '@builder.io/partytown/react';
 import React from 'react';
 import Script from 'next/script';
 
 export default function PartyTownScripts() {
-    const GA_MEASUREMENT_ID = 'GT-K8KF8BJN';
+    // const GA_MEASUREMENT_ID = 'GT-K8KF8BJN';
+    const GA_MEASUREMENT_ID = 'G-4F0FTBLZ5K';
 
     return (
         <>
@@ -19,15 +20,15 @@ export default function PartyTownScripts() {
             {/* Initialize Google Analytics */}
             <Script
                 type="text/partytown"
-                id="google-analytics"
+                id="GA"
                 strategy="afterInteractive"
                 dangerouslySetInnerHTML={{
                     __html: `
-                        window.dataLayer = window.dataLayer || [];
-                        function gtag(){dataLayer.push(arguments);}
-                        gtag('js', new Date());
-                        gtag('config', '${GA_MEASUREMENT_ID}');
-                    `
+                      window.dataLayer = window.dataLayer || [];
+                      window.gtag = function gtag(){dataLayer.push(arguments);}
+                      gtag('js', new Date());
+                      gtag('config', ${GA_MEASUREMENT_ID});
+                    `,
                 }}
             />
         </>
