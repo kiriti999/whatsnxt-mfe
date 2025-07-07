@@ -37,15 +37,6 @@ const LinkedInShare: React.FC<LinkedInShareProps> = ({ url, title, thumbnailUrn,
         checkTokenStatus();
     }, [email]);
 
-    const stripHtmlTags = (html: string): string => {
-        // Create a temporary div element to parse HTML
-        const temp = document.createElement('div');
-        temp.innerHTML = html;
-        
-        // Get text content and clean up whitespace
-        return temp.textContent || temp.innerText || '';
-    };
-
     const truncateLinkedInText = (text: string, maxLength = 1200) => {
         if (!text) return '';
         
