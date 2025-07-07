@@ -529,3 +529,7 @@ Profile Authentication Area CSS
 code {
   font-size: 1.2em !important;
 }
+
+p>code {
+  font-size: 1em !important;
+}
