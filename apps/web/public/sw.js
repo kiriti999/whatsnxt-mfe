@@ -14,7 +14,7 @@ const CRITICAL_RESOURCES = [
 // Install event - cache critical resources
 self.addEventListener('install', (event) => {
   console.log('Service Worker: Installing...');
-  
+
   event.waitUntil(
     Promise.all([
       // Cache critical resources
@@ -33,7 +33,7 @@ self.addEventListener('install', (event) => {
 // Activate event - clean up old caches
 self.addEventListener('activate', (event) => {
   console.log('Service Worker: Activating...');
-  
+
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
@@ -57,12 +57,12 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
-  
+
   // Skip cross-origin requests and non-GET requests
   if (url.origin !== location.origin || request.method !== 'GET') {
     return;
   }
-  
+
   // Handle different types of requests
   if (isStaticAsset(request)) {
     // Static assets: Cache first, fallback to network
@@ -97,7 +97,7 @@ function isStaticAsset(request) {
 function isCriticalResource(request) {
   return (
     request.url.includes('/favicon.ico') ||
-    request.url.includes('/manifest.json') ||
+    request.url.includes('/manifest.json')
   );
 }
 
@@ -115,7 +115,7 @@ async function cacheFirst(request) {
     if (cachedResponse) {
       return cachedResponse;
     }
-    
+
     const networkResponse = await fetch(request);
     if (networkResponse.ok) {
       const cache = await caches.open(STATIC_CACHE_NAME);
@@ -136,7 +136,7 @@ async function staleWhileRevalidate(request) {
   try {
     const cache = await caches.open(CACHE_NAME);
     const cachedResponse = await cache.match(request);
-    
+
     // Start fetch in background
     const fetchPromise = fetch(request).then((networkResponse) => {
       if (networkResponse.ok) {
@@ -144,12 +144,12 @@ async function staleWhileRevalidate(request) {
       }
       return networkResponse;
     });
-    
+
     // Return cached version immediately if available
     if (cachedResponse) {
       return cachedResponse;
     }
-    
+
     // Otherwise wait for network
     return await fetchPromise;
   } catch (error) {
@@ -166,17 +166,17 @@ async function staleWhileRevalidate(request) {
 async function networkFirst(request) {
   try {
     const networkResponse = await fetch(request);
-    
+
     // Cache successful responses for API requests
     if (networkResponse.ok && isAPIRequest(request)) {
       const cache = await caches.open(CACHE_NAME);
       cache.put(request, networkResponse.clone());
     }
-    
+
     return networkResponse;
   } catch (error) {
     console.error('Network first failed:', error);
-    
+
     // Fallback to cache for API requests
     if (isAPIRequest(request)) {
       const cachedResponse = await caches.match(request);
@@ -184,7 +184,7 @@ async function networkFirst(request) {
         return cachedResponse;
       }
     }
-    
+
     return new Response('Network error', {
       status: 503,
       statusText: 'Service Unavailable'
