@@ -11,7 +11,7 @@ const RefundPolicy = () => {
             <div className="col-lg-8 col-md-12">
               <div className={styles['refund-policy-content']}>
                 <p>
-                  <i>This Refund Policy was last updated on January 1, 2020.</i>
+                  <i>This Refund Policy was last updated on July 6, 2025.</i>
                 </p>
 
                 <h3>1. Refund for Video Recorded Courses</h3>
