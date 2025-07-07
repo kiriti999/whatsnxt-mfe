@@ -55,6 +55,9 @@ const CourseHistory = () => {
   const [courseSlugs, setCourseSlugs] = useState<Record<string, string>>({});
   const [courseStatuses, setCourseStatuses] = useState<Record<string, string>>({});
 
+  // useState to track course status sorting
+  const [courseStatusSort, setCourseStatusSort] = useState('')
+
   const isMobile = useMediaQuery('(max-width: 768px)');
 
   const handleSetCourseTitle = (courseId: string, newTitle: string) => {
@@ -80,9 +83,9 @@ const CourseHistory = () => {
 
   // Create a loading state and debounce it
   const { isLoading, data, refetch }: courseResponseType = useQuery({
-    queryKey: ['trainer-course-history', currentPage, debouncedSearch],
+    queryKey: ['trainer-course-history', currentPage, debouncedSearch, courseStatusSort],
     queryFn: async () => {
-      const response = await TrainerAPI.courseHistory(currentPage, null, debouncedSearch);
+      const response = await TrainerAPI.courseHistory(currentPage, null, debouncedSearch, courseStatusSort);
       return {
         courseList: response.data?.courses || [],
         totalCount: response.data?.total || 0
@@ -127,6 +130,40 @@ const CourseHistory = () => {
     setSearchQuery(event.currentTarget.value);
     setCurrentPage(1);
   };
+
+  // Course Status
+  const courseStatusArray = [
+    {
+      label: "Last updated",
+      value: "updatedAt",
+    },
+    {
+      label: 'draft',
+      value: 'draft',
+    },
+    {
+      label: 'pending_review',
+      value: 'pending_review',
+    },
+    {
+      label: 'published',
+      value: 'published',
+    },
+    {
+      label: 'approved',
+      value: 'approved',
+    },
+    {
+      label: 'rejected',
+      value: 'rejected',
+    }
+  ]
+
+  // Handle status sorting
+  const handleStatusChange = (value: string) => {
+    setCourseStatusSort(value)
+    refetch();
+  }
 
   const publishVideo = async (videoId: string, sectionId: string, isPublish: boolean) => {
     const payload = { isPublish: !isPublish };
@@ -273,7 +310,10 @@ const CourseHistory = () => {
                   radius="sm"
                   placeholder="Sort by"
                   clearable={true}
-                  data={[]}
+                  data={courseStatusArray}
+                  onChange={(value) => {
+                    handleStatusChange(value);
+                  }}
                 />
               </Grid.Col>
               <Grid.Col span={{ base: 12, md: 4 }}>
