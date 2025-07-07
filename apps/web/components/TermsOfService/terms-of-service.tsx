@@ -6,7 +6,7 @@ const TermsOfService = () => {
     <Container size="lg" py="xl">
       <Stack gap="lg">
         <Text fs="italic" c="dimmed">
-          This Terms of Service was last updated on January 1, 2020.
+          This Terms of Service was last updated on July 6, 2025.
         </Text>
 
         <Title order={3}>1. Our website</Title>
