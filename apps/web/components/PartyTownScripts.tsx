@@ -25,9 +25,9 @@ export default function PartyTownScripts() {
                 dangerouslySetInnerHTML={{
                     __html: `
                       window.dataLayer = window.dataLayer || [];
-                      window.gtag = function gtag(){dataLayer.push(arguments);}
+                      function gtag(){dataLayer.push(arguments);}
                       gtag('js', new Date());
-                      gtag('config', ${GA_MEASUREMENT_ID});
+                      gtag('config', ${GA_MEASUREMENT_ID}');
                     `,
                 }}
             />
