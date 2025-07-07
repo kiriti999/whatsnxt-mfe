@@ -487,7 +487,14 @@ export function AuthenticationForm(props: PaperProps) {
 
               {isRegisterForm && (
                 <Checkbox
-                  label="I agree to the terms and conditions"
+                  label={
+                    <>
+                      I agree to the{' '}
+                      <Anchor href="/terms-of-service" target="_blank">
+                        terms and conditions
+                      </Anchor>
+                    </>
+                  }
                   {...form.getInputProps('terms', { type: 'checkbox' })}
                 />
               )}
