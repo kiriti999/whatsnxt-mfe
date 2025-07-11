@@ -14,6 +14,24 @@ const nextConfig: NextConfig = {
         return process.env.VERCEL_GIT_COMMIT_SHA || `build-${Date.now()}`
     },
 
+    // HTTPS redirect configuration
+    async redirects() {
+        return [
+            {
+                source: '/(.*)',
+                has: [
+                    {
+                        type: 'header',
+                        key: 'x-forwarded-proto',
+                        value: 'http',
+                    },
+                ],
+                destination: 'https://whatsnxt.in/$1',
+                permanent: true,
+            },
+        ];
+    },
+
     // NEXT.JS 15: Updated experimental features
     experimental: {
         // Next.js 15 specific optimizations
@@ -173,31 +191,148 @@ const nextConfig: NextConfig = {
         return config;
     },
 
-    // NEXT.JS 15: Enhanced headers with security improvements
+    // ENHANCED SECURITY HEADERS - Updated to fix Google Search Console issues
     async headers() {
+        // Dynamic CSP based on environment
+        const isDevelopment = process.env.NODE_ENV === 'development';
+
+        // Get your API hosts from environment variables
+        const apiHosts = [
+            process.env.BFF_HOST_COURSE_API,
+            process.env.BFF_HOST_COMMON_API,
+            process.env.BFF_HOST_CLOUDINARY_API,
+            process.env.BFF_HOST_IMAGEKIT_API,
+            process.env.BFF_ARTICLE_HOST_API,
+            process.env.GOOGLE_LOGIN_URL,
+        ].filter(Boolean); // Remove undefined values
+
+        // Build connect-src directive
+        const connectSrc = [
+            "'self'",
+            // Development localhost support
+            ...(isDevelopment ? ['http://localhost:*', 'ws://localhost:*'] : []),
+            // Your production API hosts
+            ...apiHosts,
+            // Third-party services
+            'https://api.razorpay.com',
+            'https://checkout.razorpay.com',
+            'https://*.algolia.net',
+            'https://*.algolianet.com',
+            'https://res.cloudinary.com',
+            'https://api.cloudinary.com',
+            'https://*.cloudinary.com',
+            'https://ik.imagekit.io',
+            'https://www.google-analytics.com',
+            'https://www.googletagmanager.com'
+        ].join(' ');
+
         return [
             {
                 source: '/(.*)',
                 headers: [
+                    // DNS Prefetch Control
                     {
                         key: 'X-DNS-Prefetch-Control',
                         value: 'on'
                     },
+                    // STRONG HSTS POLICY - Forces HTTPS and prevents downgrade attacks
                     {
                         key: 'Strict-Transport-Security',
-                        value: 'max-age=63072000; includeSubDomains; preload'
+                        value: 'max-age=31536000; includeSubDomains; preload'
                     },
+                    // CLICKJACKING PROTECTION - Prevents embedding in iframes
                     {
                         key: 'X-Frame-Options',
                         value: 'DENY'
                     },
+                    // CONTENT TYPE PROTECTION
                     {
                         key: 'X-Content-Type-Options',
                         value: 'nosniff'
                     },
+                    // XSS PROTECTION
+                    {
+                        key: 'X-XSS-Protection',
+                        value: '1; mode=block'
+                    },
+                    // REFERRER POLICY
                     {
                         key: 'Referrer-Policy',
-                        value: 'origin-when-cross-origin'
+                        value: 'strict-origin-when-cross-origin'
+                    },
+                    // CONTENT SECURITY POLICY - Prevents XSS attacks with Partytown support
+                    {
+                        key: 'Content-Security-Policy',
+                        value: [
+                            "default-src 'self'",
+                            // PARTYTOWN: Allow all Partytown scripts and external analytics
+                            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com https://www.googletagmanager.com https://www.google-analytics.com https://checkout.razorpay.com data: blob:",
+                            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://checkout.razorpay.com",
+                            "font-src 'self' https://fonts.gstatic.com https://checkout.razorpay.com",
+                            // Updated img-src to specifically include Cloudinary domains
+                            "img-src 'self' data: https: blob: https://res.cloudinary.com https://*.cloudinary.com https://api.cloudinary.com https://ik.imagekit.io https://*.imagekit.io",
+                            "media-src 'self' https: blob: https://res.cloudinary.com https://*.cloudinary.com https://api.cloudinary.com",
+                            `connect-src ${connectSrc}`,
+                            "frame-src 'self' https://checkout.razorpay.com",
+                            // PARTYTOWN SPECIFIC: Essential for web workers and service workers
+                            "worker-src 'self' blob: data:",
+                            "child-src 'self' blob: data:",
+                            // PARTYTOWN: Allow service worker registration
+                            "manifest-src 'self'",
+                            "frame-ancestors 'none'",
+                            "base-uri 'self'",
+                            "form-action 'self' https://checkout.razorpay.com",
+                            "upgrade-insecure-requests",
+                            "block-all-mixed-content"
+                        ].join('; ')
+                    },
+                    // CROSS-ORIGIN OPENER POLICY - Ensures proper origin isolation
+                    {
+                        key: 'Cross-Origin-Opener-Policy',
+                        value: 'same-origin-allow-popups'
+                    },
+                    // CROSS-ORIGIN EMBEDDER POLICY
+                    {
+                        key: 'Cross-Origin-Embedder-Policy',
+                        value: 'unsafe-none'
+                    },
+                    // PERMISSIONS POLICY - Controls access to browser features
+                    {
+                        key: 'Permissions-Policy',
+                        value: 'camera=(), microphone=(), geolocation=(), payment=(self "https://checkout.razorpay.com"), fullscreen=(self)'
+                    },
+                    // CROSS-ORIGIN RESOURCE POLICY
+                    {
+                        key: 'Cross-Origin-Resource-Policy',
+                        value: 'cross-origin'
+                    }
+                ],
+            },
+            // PARTYTOWN: Specific headers for Partytown files
+            {
+                source: '/~partytown/:path*',
+                headers: [
+                    {
+                        key: 'Cache-Control',
+                        value: 'public, max-age=31536000, immutable',
+                    },
+                    {
+                        key: 'Content-Type',
+                        value: 'application/javascript',
+                    },
+                    // Allow cross-origin access for service workers
+                    {
+                        key: 'Cross-Origin-Embedder-Policy',
+                        value: 'unsafe-none',
+                    },
+                    {
+                        key: 'Cross-Origin-Opener-Policy',
+                        value: 'same-origin-allow-popups',
+                    },
+                    // Essential for service worker registration
+                    {
+                        key: 'Service-Worker-Allowed',
+                        value: '/',
                     },
                 ],
             },
