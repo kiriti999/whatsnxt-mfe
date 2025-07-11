@@ -85,7 +85,6 @@
     "@whatsnxt/core-util": "workspace:*",
     "algoliasearch": "4.23.3",
     "autoprefixer": "10.4.14",
-    "bootstrap": "5.3.3",
     "clsx": "2.1.1",
     "cookies-next": "6.0.0",
     "file-saver": "2.0.5",
