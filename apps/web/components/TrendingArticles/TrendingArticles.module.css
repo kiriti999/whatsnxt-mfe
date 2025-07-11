@@ -107,6 +107,7 @@
 /* Image styles */
 .trendingImage {
     object-fit: cover;
+    border: 0.5px solid #e3dfdf;
 }
 
 /* Paper styles */
