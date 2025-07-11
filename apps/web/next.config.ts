@@ -206,24 +206,31 @@ const nextConfig: NextConfig = {
             process.env.GOOGLE_LOGIN_URL,
         ].filter(Boolean); // Remove undefined values
 
-        // Build connect-src directive
+        // Build connect-src directive with ALL required domains
         const connectSrc = [
             "'self'",
             // Development localhost support
             ...(isDevelopment ? ['http://localhost:*', 'ws://localhost:*'] : []),
-            // Your production API hosts
-            ...apiHosts,
-            // Third-party services
+            // Your API domain - COMPLETE ACCESS
+            'https://api.whatsnxt.in',
+            // Legacy specific paths (remove these after testing)
+            // ...apiHosts,
+            // Payment services
             'https://api.razorpay.com',
             'https://checkout.razorpay.com',
+            // Search services
             'https://*.algolia.net',
             'https://*.algolianet.com',
+            // Media services
             'https://res.cloudinary.com',
             'https://api.cloudinary.com',
             'https://*.cloudinary.com',
             'https://ik.imagekit.io',
+            // Analytics services - ADD MISSING DOMAINS
             'https://www.google-analytics.com',
-            'https://www.googletagmanager.com'
+            'https://analytics.google.com',  // MISSING - This was causing Partytown errors
+            'https://www.googletagmanager.com',
+            'https://*.google-analytics.com'  // Wildcard for any GA subdomain
         ].join(' ');
 
         return [
