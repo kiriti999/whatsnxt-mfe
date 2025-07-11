@@ -131,53 +131,118 @@ const nextConfig: NextConfig = {
     // NEXT.JS 15: Enhanced webpack configuration
     webpack: (config, { buildId, dev, isServer, defaultLoaders, nextRuntime, webpack }) => {
         if (!dev && !isServer) {
-            // Enhanced chunk splitting for Next.js 15
+            // Enhanced chunk splitting for Next.js 15 with aggressive optimization
             config.optimization.splitChunks = {
                 chunks: 'all',
                 minSize: 20000,
                 maxSize: 244000,
+                minChunks: 1,
+                maxAsyncRequests: 30,
+                maxInitialRequests: 30,
+                enforceSizeThreshold: 50000,
                 cacheGroups: {
+                    // Default group with higher threshold
                     default: {
                         minChunks: 2,
                         priority: -20,
                         reuseExistingChunk: true,
+                        maxSize: 100000,
                     },
-                    vendor: {
-                        test: /[\\/]node_modules[\\/]/,
-                        name: 'vendors',
-                        priority: -10,
-                        chunks: 'all',
-                    },
-                    // React and React DOM
+
+                    // React and React DOM - highest priority
                     react: {
-                        test: /[\\/]node_modules[\\/](react|react-dom)[\\/]/,
+                        test: /[\\/]node_modules[\\/](react|react-dom|react-router|react-router-dom)[\\/]/,
                         name: 'react',
                         chunks: 'all',
-                        priority: 20,
+                        priority: 30,
+                        enforce: true,
                     },
+
+                    // Next.js framework chunks
+                    nextjs: {
+                        test: /[\\/]node_modules[\\/]next[\\/]/,
+                        name: 'nextjs',
+                        chunks: 'all',
+                        priority: 25,
+                        enforce: true,
+                    },
+
                     // Mantine UI library
                     mantine: {
                         test: /[\\/]node_modules[\\/]@mantine[\\/]/,
                         name: 'mantine',
                         chunks: 'all',
-                        priority: 15,
+                        priority: 20,
+                        maxSize: 150000,
                     },
+
                     // Algolia search
                     algolia: {
                         test: /[\\/]node_modules[\\/](algoliasearch|@algolia)[\\/]/,
                         name: 'algolia',
                         chunks: 'all',
-                        priority: 12,
+                        priority: 18,
                     },
+
                     // Lodash utility library
                     lodash: {
                         test: /[\\/]node_modules[\\/]lodash[\\/]/,
                         name: 'lodash',
                         chunks: 'all',
-                        priority: 10,
+                        priority: 15,
+                    },
+
+                    // Common libraries that tend to be large
+                    polyfills: {
+                        test: /[\\/]node_modules[\\/](core-js|regenerator-runtime|@babel\/runtime)[\\/]/,
+                        name: 'polyfills',
+                        chunks: 'all',
+                        priority: 12,
+                    },
+
+                    // Combine small vendor chunks - this is the key optimization
+                    smallVendors: {
+                        test: /[\\/]node_modules[\\/]/,
+                        name: 'vendors',
+                        minSize: 0,
+                        maxSize: 50000, // Smaller chunks get combined
+                        chunks: 'all',
+                        priority: 5,
+                        enforce: false,
+                    },
+
+                    // Large vendor libraries get their own chunks
+                    largeVendors: {
+                        test: /[\\/]node_modules[\\/]/,
+                        name(module) {
+                            // Get the name of the package
+                            const packageName = module.context.match(/[\\/]node_modules[\\/](.*?)([\\/]|$)/)?.[1];
+                            if (packageName) {
+                                // Clean up scoped package names
+                                return `vendor.${packageName.replace('@', '')}`;
+                            }
+                            return 'vendor.misc';
+                        },
+                        minSize: 50000, // Only large packages get separate chunks
+                        chunks: 'all',
+                        priority: 8,
+                        maxSize: 200000,
+                    },
+
+                    // Common application code
+                    commons: {
+                        name: 'commons',
+                        minChunks: 2,
+                        chunks: 'all',
+                        priority: 0,
+                        maxSize: 100000,
                     },
                 },
             };
+
+            // Additional optimizations
+            config.optimization.usedExports = true;
+            config.optimization.sideEffects = false;
 
             // Tree shaking improvements for Next.js 15
             config.plugins.push(
@@ -186,6 +251,40 @@ const nextConfig: NextConfig = {
                     contextRegExp: /moment$/,
                 })
             );
+
+            // Remove unused CSS
+            if (config.optimization.minimizer) {
+                config.optimization.minimizer.forEach((plugin) => {
+                    if (plugin.constructor.name === 'CssMinimizerPlugin') {
+                        plugin.options.minimizerOptions = {
+                            ...plugin.options.minimizerOptions,
+                            preset: [
+                                'default',
+                                {
+                                    discardComments: { removeAll: true },
+                                    reduceIdents: true,
+                                    zindex: false,
+                                },
+                            ],
+                        };
+                    }
+                });
+            }
+
+            // Optimize module resolution
+            config.resolve.alias = {
+                ...config.resolve.alias,
+                // Add specific optimizations for problematic packages
+                'lodash': 'lodash-es', // Use ES modules version
+            };
+
+            // Module concatenation for better tree shaking
+            config.optimization.concatenateModules = true;
+
+            // Aggressive dead code elimination
+            config.optimization.innerGraph = true;
+            config.optimization.providedExports = true;
+            config.optimization.usedExports = true;
         }
 
         return config;
