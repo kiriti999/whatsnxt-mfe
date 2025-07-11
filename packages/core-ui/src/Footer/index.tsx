@@ -100,11 +100,12 @@ const DesktopFooter = () => (
           <Text size="xl" fw={800}>{section.title}</Text>
           <List className={`${classes['footer-contact-info']}`}>
             {section.links?.map((link, i) => (
-              <List.Item key={i} className='d-flex align-items-baseline'>
-                <Flex gap='sm' align='center'>
+              <List.Item key={i}>
+                <Flex gap="sm" align="center">
                   {link.icon}
                   <Anchor
-                    className={`text-decoration-none ${section.title === 'Address' ? 'mx-2' : ''}`}
+                    td="none"
+                    mx={section.title === 'Address' ? 'sm' : 0}
                     href={link.link}
                   >
                     {link.text}
@@ -173,23 +174,31 @@ export const Footer = () => {
               textAlign: 'center'
             }}
           >
-            <Text className="d-flex align-items-center gap-1 mb-2">
+            <Group gap="xs" mb="sm" align="center">
               <IconCopyright size={18} />
-              {currentYear} whatsnxt
-              <Anchor target="_blank" href="https://www.whatsnxt.in/" className="text-decoration-none">
+              <Text component="span">
+                {currentYear} whatsnxt
+              </Text>
+              <Anchor
+                target="_blank"
+                href="https://www.whatsnxt.in/"
+                td="none"
+              >
                 Copyright reserved
               </Anchor>
-            </Text>
+            </Group>
             <List className='p-0 m-0'>
               <Flex wrap='wrap' justify='center'>
                 {termsLinks.map((link, i) => (
-                  <List.Item key={i} className='d-flex align-items-baseline'>
-                    <Anchor
-                      className='text-decoration-none'
-                      href={link.link}
-                    >
-                      {link.text}
-                    </Anchor>
+                  <List.Item key={i}>
+                    <Flex align="baseline">
+                      <Anchor
+                        td="none"
+                        href={link.link}
+                      >
+                        {link.text}
+                      </Anchor>
+                    </Flex>
                   </List.Item>
                 ))}
               </Flex>

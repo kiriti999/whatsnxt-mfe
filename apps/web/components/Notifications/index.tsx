@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
-import { ActionIcon, Text, Checkbox, Skeleton, Title, Tooltip, Grid, Stack, Box } from '@mantine/core';
+import { ActionIcon, Text, Checkbox, Skeleton, Title, Tooltip, Grid, Stack, Box, Flex } from '@mantine/core';
 import styles from './notifications.module.css';
 import { elapsedTime } from '../../utils/elapsedTime';
 import { handleRefresh, handleRead, handleDelete, handleSelectAll, handleClick } from './handler';
@@ -38,7 +38,8 @@ const NotificationsHeader = ({ totalUnseen, onRefresh, onRead, onDelete, onSelec
 );
 
 const NotificationItem = ({ notification, isSelected, onClick, onCheckboxChange }) => (
-  <li className='d-flex align-items-center gap-2'>
+  <Flex align="center" gap="sm">
+    {/* Your content here */}
     <div
       className={`${styles.notification} ${!notification?.seen && styles.unseen} ${isSelected && styles.selected}`}
       onClick={onClick}
@@ -56,8 +57,9 @@ const NotificationItem = ({ notification, isSelected, onClick, onCheckboxChange 
         />
       </div>
     </div>
-    <Checkbox onChange={onCheckboxChange} checked={isSelected} />
-  </li>
+    <Checkbox onChange={onCheckboxChange} checked={isSelected} m={0}/>
+  </Flex>
+
 );
 
 const NotificationsList = ({ notifications, selected, onNotificationClick, onCheckboxChange }) => (

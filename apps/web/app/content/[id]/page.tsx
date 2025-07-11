@@ -4,6 +4,7 @@ import BlogContentDetails from './BlogContentDetails';
 import TutorialContentDetails from './TutorialContentDetails';
 import { getPostBySlugServer } from '../../../fetcher/serverFetcher';
 import React from 'react';
+import { Box } from '@mantine/core';
 
 export const dynamic = 'force-dynamic'
 
@@ -24,7 +25,7 @@ const ContentPage = async (props: any) => {
   }
 
   return (
-    <>
+    <Box my={'xl'}>
       {/* Your existing JSON-LD script */}
       <script
         type="application/ld+json"
@@ -71,7 +72,7 @@ const ContentPage = async (props: any) => {
       ) : (
         <BlogContentDetails details={slugData} />
       )}
-    </>
+    </Box>
   );
 };
 

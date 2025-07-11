@@ -2,7 +2,7 @@ import '@mantine/core/styles.css';
 import '@mantine/notifications/styles.css';
 
 import React from 'react';
-import 'bootstrap/dist/css/bootstrap.css';
+// import 'bootstrap/dist/css/bootstrap.css';
 import Navbar from './Navbar';
 import { Footer } from '@whatsnxt/core-ui/src/Footer';
 import { GoTop } from '@whatsnxt/core-util';
