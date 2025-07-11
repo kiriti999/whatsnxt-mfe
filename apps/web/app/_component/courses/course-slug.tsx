@@ -8,13 +8,14 @@ import { CoursesDetailsSidebar } from '../../../components/CoursesDetailsSidebar
 import CourseSlugDetails from './courseSlugDetails';
 import useAuth from '../../../hooks/Authentication/useAuth';
 import CourseApproval from './admin/course-approval-section'
+import { Container, Grid, GridCol } from '@mantine/core';
 
 export default function CourseSlug({ course, reviews, reviewCommentCount }: CourseProps) {
   const [courseReviews, setCourseReviews] = useState(reviews);
   const [isCourseReviewMode, setisCourseReviewMode] = useState(false);
   const { user: loggedInUser } = useAuth();
 
-  
+
   useEffect(() => {
     if (loggedInUser?.role == "admin") {
       setisCourseReviewMode(true)
@@ -31,29 +32,29 @@ export default function CourseSlug({ course, reviews, reviewCommentCount }: Cour
   return (
     <div>
       <div className='courses-details-area'>
-        <div className='container'>
-          <div className='row'>
-            <div className={`col-lg-8 col-md-12`}>
+        <Container size={'xl'}>
+          <Grid>
+            <Grid.Col span={{ base: 12, md: 12, lg: 8 }}>
               <div className={`${styles['courses-details-desc']}`}>
                 <CourseSlugDetails course={course} courseReviews={courseReviews} setCourseReviews={setCourseReviews}
                   reviewCommentCount={reviewCommentCount} isCourseReviewMode={isCourseReviewMode} />
               </div>
-            </div>
+            </Grid.Col>
 
-            <div className='col-lg-4 col-md-12'>
+            <GridCol span={{ base: 12, md: 12, lg: 4 }}>
               <CoursesDetailsSidebar
                 {...course}
                 courseData={course}
                 loggedInUser={loggedInUser}
                 isCourseReviewMode={isCourseReviewMode}
               />
-            </div>
-          </div>
+            </GridCol>
+          </Grid>
 
           {loggedInUser?.role == "admin" && (
             <CourseApproval course={course} />
           )}
-        </div>
+        </Container>
       </div>
 
       {/* <YouMightLikeTheCourses /> */}

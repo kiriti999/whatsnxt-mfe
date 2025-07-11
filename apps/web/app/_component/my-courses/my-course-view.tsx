@@ -1,6 +1,6 @@
 "use client"
 
-import { Anchor } from '@mantine/core';
+import { Anchor, Container, Grid, GridCol } from '@mantine/core';
 import { PageBanner } from '@whatsnxt/core-ui';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -22,9 +22,9 @@ const SingleCourses = ({ videos }: any) => {
       />
 
       <div className="ptb-100">
-        <div className="container">
-          <div className="row">
-            <div className="col-lg-3">
+        <Container>
+          <Grid>
+            <GridCol span={{ base: 12, lg: 3 }}>
               <div className={styles['course-video-list']}>
                 {videos.length ? (
                   videos.map((video: any) => (
@@ -51,18 +51,18 @@ const SingleCourses = ({ videos }: any) => {
                   <h3>No Videos</h3>
                 )}
               </div>
-            </div>
+            </GridCol>
 
-            <div className="col-lg-9">
+            <GridCol span={{ base: 12, lg: 9 }}>
               <div className={styles['course-video-iframe']}>
                 <video key={videoId} controls>
                   <source src={videoId} type="video/mp4" />
                   <source src="/images/courses/courses5.jpg" type="video/ogg" />
                 </video>
               </div>
-            </div>
-          </div>
-        </div>
+            </GridCol>
+          </Grid>
+        </Container>
       </div>
     </div>
   );

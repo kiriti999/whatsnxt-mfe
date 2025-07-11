@@ -22,14 +22,14 @@
 }
 
 .apply-instructor-content .react-tabs__tab-list .react-tabs__tab {
-  margin-right: 50px;
+  margin-right: 30px;
   margin-bottom: -1.5px;
   background-color: transparent;
   color: #606060;
   border: none;
   padding: 0 0 10px;
   position: relative;
-  font-weight: 800;
+  font-weight: 600;
 }
 
 .apply-instructor-content .react-tabs__tab-list .react-tabs__tab .react-tabs__tab.active-tab::before {

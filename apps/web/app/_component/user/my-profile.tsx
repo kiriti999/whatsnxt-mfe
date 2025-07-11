@@ -16,14 +16,14 @@ const MyProfile = () => {
     <Box>
       <div style={{ position: 'relative', padding: '10px', minHeight: '50vh' }}>
         {!profile && (
-          <div className="text-center">
+          <Box ta={'center'}>
             <Link
               href={'/authentication?returnto=user/my-profile'}
               style={{ fontSize: '22px' }}
             >
               Login to view profile
             </Link>
-          </div>
+          </Box>
         )}
 
         {profile && (

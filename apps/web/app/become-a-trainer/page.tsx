@@ -4,6 +4,7 @@ import React from 'react';
 import InstructorGuideLines from '../../components/BecomeATrainer/InstructorGuideLines';
 import RegisterForm from '../../components/BecomeATrainer/RegisterForm';
 import useAuth from '../../hooks/Authentication/useAuth';
+import { Container, Grid, GridCol } from '@mantine/core';
 
 
 const Page = () => {
@@ -11,16 +12,16 @@ const Page = () => {
 
   return (
     <>
-      <div className="container">
-        <div className="row">
-          <div className="col-lg">
+      <Container size={'xl'} pt={'xl'}>
+        <Grid gutter={'xl'}>
+          <GridCol span={{ base: 12, lg: 6 }}>
             <RegisterForm user={user} />
-          </div>
-          <div className="col-lg">
+          </GridCol>
+          <GridCol span={{ base: 12, lg: 6 }}>
             <InstructorGuideLines />
-          </div>
-        </div>
-      </div>
+          </GridCol>
+        </Grid>
+      </Container>
     </>
   );
 };

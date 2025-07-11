@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button, } from '@mantine/core';
+import { Box, Button, Container, Divider, Paper, Text, Title } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import styles from './TrainerCard.module.css';
 import CourseCard from './CourseCard';
@@ -61,8 +61,8 @@ function TrainerCard({ trainer }) {
   };
 
   return (
-    <>
-      <div className={styles.card_container}>
+    <Paper withBorder>
+      <Container py={'md'} px={'xs'} fluid>
         <HireTrainerModal opened={opened} onClose={close} trainerId={trainer?._id} author={''} slug={''} />
 
         <TrainerInfoCard
@@ -74,9 +74,9 @@ function TrainerCard({ trainer }) {
         />
 
         {showCourses && (
-          <div className={styles.courses_container + ' mt-4'}>
-            <h3 className="text-center">Courses by "{trainer.name}"</h3>
-            <hr className="p-2" />
+          <Box className={styles.courses_container} mt="lg">
+            <Title order={3} ta={'center'}>Courses by "{trainer.name}"</Title>
+            <Divider py="sm" />
             {!fetching && courses.length > 0 && (
               <div className={styles.courses}>
                 {courses.map((course, i) => (
@@ -85,7 +85,7 @@ function TrainerCard({ trainer }) {
               </div>
             )}
             {hasMore && (
-              <div className="text-center">
+              <Box ta={'center'}>
                 <Button
                   variant="outline"
                   onClick={fetchCourses}
@@ -93,16 +93,16 @@ function TrainerCard({ trainer }) {
                 >
                   Load More
                 </Button>
-              </div>
+              </Box>
             )}
             {fetching && <LoadingSpinner />}
             {!fetching && courses.length === 0 && (
-              <p className="text-center">No courses found</p>
+              <Text ta="center">No courses found</Text>
             )}
-          </div>
+          </Box>
         )}
-      </div>
-    </>
+      </Container>
+    </Paper>
   );
 }
 

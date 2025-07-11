@@ -1,6 +1,6 @@
 import React, { FC } from 'react';
 import './Amount.module.css';
-import { Text, Title } from '@mantine/core';
+import { Title } from '@mantine/core';
 
 type AmountProps = {
   // Define your component props here

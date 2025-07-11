@@ -1,9 +1,9 @@
-import { Text, Stack, Grid, Anchor } from '@mantine/core';
+import { Stack, Grid, Anchor, Text } from '@mantine/core';
 import Link from 'next/link';
 
 const Courses = ({ courses }) => {
     if (courses.length === 0) {
-        return <p className="text-center">No courses found</p>
+        return <Text ta={'center'}>No courses found</Text>
     }
 
     return (

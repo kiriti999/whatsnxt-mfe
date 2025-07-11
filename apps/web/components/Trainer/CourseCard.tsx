@@ -1,78 +1,109 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import React from 'react';
-import { Avatar, Badge, Rating } from '@mantine/core';
-import styles from '../Courses/Course.module.css';
-import { IconCurrencyRupee } from '@tabler/icons-react';
+import {
+  Avatar,
+  Badge,
+  Rating,
+  Card,
+  Text,
+  Box,
+  Group,
+  Anchor,
+} from '@mantine/core';
 
 function CourseCard({ course }) {
+  const discountedPrice = course?.discount > 0
+    ? course.price - (course.price * course.discount) / 100
+    : course.price;
+
   return (
-    <div className="col-lg-3 col-md-6 mb-4">
-      <div
-        className={`${styles['single-courses-box']} ${styles['course-box-border']}`}
-      >
-        <div className={styles['courses-image']}>
-          <Link
-            href={`/courses/${course.slug}`}
-            className={`d-block ${styles['image']}`}
-          >
+    <Box mb={'md'}>
+      <Card shadow="sm" padding={0} radius="md" withBorder>
+        <Card.Section>
+          <Link href={`/courses/${course.slug}`} style={{ display: 'block' }}>
             {course.imageUrl ? (
               <Image
                 width={500}
                 height={300}
                 src={course.imageUrl}
                 alt={course.courseName}
+                style={{ width: '100%', height: '200px', objectFit: 'cover' }}
               />
             ) : (
-              <Avatar variant="light" radius="xl" size="md" />
+              <Box p="xl" ta="center">
+                <Avatar variant="light" radius="xl" size="md" mx="auto" />
+              </Box>
             )}
           </Link>
-        </div>
+        </Card.Section>
 
-        <div className={`${styles['courses-content']} p-2 mb-2 ml-5`}>
-          <b title={course.courseName}>
-            <Link href={`/courses/${course.slug}`}>
-              {course.courseName.slice(0, 47)}
-              ...
-            </Link>
-          </b>
-
-          <br />
-          <small style={{ color: 'grey' }}>Led by experts</small>
-
-          <ul
-            className={`${styles['courses-box-footer']} d-flex justify-content-between align-items-center`}
+        <Box p="sm">
+          <Text
+            fw="bold"
+            size="sm"
+            lineClamp={1}
+            mb="xs"
+            title={course.courseName}
           >
-            <li>
+            <Anchor
+              component={Link}
+              href={`/courses/${course.slug}`}
+              c="inherit"
+              td="none"
+            >
+              {course.courseName.length > 47
+                ? `${course.courseName.slice(0, 47)}...`
+                : course.courseName
+              }
+            </Anchor>
+          </Text>
+
+          <Text size="xs" c="dimmed" mb="md">
+            Led by experts
+          </Text>
+
+          <Group justify="space-between" align="center" mb="xs">
+            <Box>
               {course?.discount > 0 ? (
-                <>
-                  <b>
-                    ₹{' '}
-                    {course.price -
-                      (course.price * course.discount) /
-                      100}{' '}
-                  </b>
-                  <s style={{ color: 'rgba(0, 0, 0, 0.5)' }}>
+                <Group gap="xs" align="center">
+                  <Text fw="bold" size="sm">
+                    ₹{discountedPrice}
+                  </Text>
+                  <Text
+                    size="xs"
+                    td="line-through"
+                    c="dimmed"
+                  >
                     ₹{course.price}
-                  </s>
-                  <b> ({course.discount}%)</b>
-                </>
+                  </Text>
+                  <Text fw="bold" size="xs" c="green">
+                    ({course.discount}%)
+                  </Text>
+                </Group>
               ) : (
-                <b>₹{course.price}</b>
+                <Text fw="bold" size="sm">
+                  ₹{course.price}
+                </Text>
               )}
-            </li>
+            </Box>
 
             {course?.purchaseCount > 0 && (
-              <li>
-                <Badge color="yellow">Best Seller</Badge>
-              </li>
+              <Badge color="yellow" size="sm">
+                Best Seller
+              </Badge>
             )}
-          </ul>
+          </Group>
 
-          <Rating defaultValue={course.rating} fractions={2} size={'xs'} readOnly className="mt-1" />
-        </div>
-      </div>
-    </div>
+          <Rating
+            defaultValue={course.rating}
+            fractions={2}
+            size="xs"
+            readOnly
+          />
+        </Box>
+      </Card>
+    </Box>
   );
 }
 

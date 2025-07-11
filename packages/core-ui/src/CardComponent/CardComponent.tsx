@@ -1,5 +1,5 @@
 import React from 'react';
-import { Anchor, Card, Group, Text, Tooltip } from '@mantine/core';
+import { Anchor, Card, Flex, Group, Text, Tooltip } from '@mantine/core';
 import Link from 'next/link';
 import { IconPhotoVideo, IconUserCheck } from '@tabler/icons-react';
 
@@ -11,7 +11,7 @@ export const CardComponent = ({ image, courseName, link, paidType, children }: I
           {image}
         </Anchor>
       </Card.Section>
-      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+      <Flex justify="space-between">
         <Anchor component={Link} href={link} underline='never' style={{ textDecoration: 'none' }}>
           <Text fw={500} className="my-3" lineClamp={2} c={'black'}>
             {courseName}
@@ -24,7 +24,7 @@ export const CardComponent = ({ image, courseName, link, paidType, children }: I
             </Group>
           </Tooltip>
         )}
-      </div>
+      </Flex>
       {children}
     </Card >
   );

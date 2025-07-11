@@ -1,13 +1,10 @@
 "use client"
 /* eslint-disable @next/next/no-img-element */
 
-
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import styles from '../../../components/Courses/Course.module.css';
-import Image from 'next/image';
 import { CardComponent } from '@whatsnxt/core-ui';
-import { List, Progress, Rating, Text, ThemeIcon, Modal, Button, Box, Flex, Textarea, Title, Menu } from '@mantine/core';
+import { List, Progress, Rating, Text, ThemeIcon, Modal, Button, Box, Textarea, Title, Menu, Grid, Image, Container, Flex } from '@mantine/core';
 import { useHover, useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { modals } from '@mantine/modals';
@@ -195,7 +192,7 @@ const CourseCard = ({ course, lessonsWatched, lessons, commentData, ratingData }
   });
 
   return (
-    <div className="col-lg-3 col-md-6">
+    <>
       <Modal size={'auto'}
         opened={isRefundModalOpen}
         onClose={() => setIsRefundModalOpen(false)} // Close modal when clicking outside or on close button
@@ -203,13 +200,14 @@ const CourseCard = ({ course, lessonsWatched, lessons, commentData, ratingData }
       >
         <Refund handleRefund={handleRefund} isRefundLoading={isRefundLoading} />
       </Modal>
+
       <CardComponent
         courseName={course.courseName}
         paidType={course.paidType}
         link={`/courses/${course.slug}`}
         image={
-          <Image className='image-preview'
-            width={500}
+          <Image
+            width={'100%'}
             height={500}
             src={course.imageUrl}
             alt={course.courseName}
@@ -232,7 +230,7 @@ const CourseCard = ({ course, lessonsWatched, lessons, commentData, ratingData }
         </Link>
         <Flex justify="space-between" align='flex-end'>
           <div>
-            <Rating value={rating} readOnly fractions={2} size={18} className="mt-2" />
+            <Rating value={rating} readOnly fractions={2} size={18} mt={'xs'} />
             <Text ref={ref} onClick={open} style={{ cursor: 'pointer' }}>
               {isReviewed ? (
                 <>
@@ -255,15 +253,15 @@ const CourseCard = ({ course, lessonsWatched, lessons, commentData, ratingData }
               </Menu.Dropdown>
             </Menu>
           )}
-
         </Flex>
+
         <Modal opened={opened} onClose={handleClose} title={isReviewed ? 'Edit Review' : 'Add Review'} centered>
           {isEditing ? (
             <Flex justify="center">
               <Box>
                 <Text>How would you rate this course</Text>
                 <Flex justify='center'>
-                  <Rating defaultValue={rating} onChange={handleRatingChange} fractions={2} size={24} className="mt-2" />
+                  <Rating defaultValue={rating} onChange={handleRatingChange} fractions={2} size={24} mt={'xs'} />
                 </Flex>
                 {showReviewTextBox &&
                   <>
@@ -285,7 +283,7 @@ const CourseCard = ({ course, lessonsWatched, lessons, commentData, ratingData }
             </Flex>
           ) : (
             <>
-              <Rating value={rating} readOnly fractions={2} size={18} className="mt-2" />
+              <Rating value={rating} readOnly fractions={2} size={18} mt={'xs'} />
               <Text className='mt-2 ml-1'>{review}</Text>
               <Flex justify='end' gap="md">
                 <Button onClick={handleDeleteClick}>Delete</Button>
@@ -295,7 +293,7 @@ const CourseCard = ({ course, lessonsWatched, lessons, commentData, ratingData }
           )}
         </Modal>
       </CardComponent>
-    </div >
+    </>
   );
 };
 
@@ -306,7 +304,6 @@ type EnrolledCourse = {
   lessons: Lesson[]; // Reuse the `Lesson` type from the previous definition,
   courseRatings: any;
   courseFeedback: any;
-
 };
 
 type MyCoursesProps = {
@@ -321,40 +318,44 @@ const MyCourses = ({ enrolled, total }: MyCoursesProps) => {
   const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
   const currentRecords = enrolled && enrolled.slice(indexOfFirstRecord, indexOfLastRecord);
   const nPages = Math.ceil(total / recordsPerPage);
+
   return (
-    <div>
-      <div className="pt-100 pb-70">
-        <div className="container">
-          <div className="row">
-            {enrolled && enrolled.length > 0 ? (
-              currentRecords.map((enrolledCourse) => (
+    <Box py="xl">
+      <Container>
+        <Grid>
+          {enrolled && enrolled.length > 0 ? (
+            currentRecords.map((enrolledCourse) => (
+              <Grid.Col
+                key={enrolledCourse._id}
+                span={{ base: 12, sm: 6, md: 4, lg: 4 }}
+              >
                 <CourseCard
-                  key={enrolledCourse._id}
                   course={enrolledCourse.course}
                   lessonsWatched={enrolledCourse.lessons_watched}
                   lessons={enrolledCourse.lessons}
                   commentData={enrolledCourse.courseFeedback}
                   ratingData={enrolledCourse.courseRatings}
                 />
-              ))
-            ) : (
-              <div className="col-lg-12">
-                <h2 className={styles['empty-content']}>No Courses Found</h2>
-              </div>
-            )}
-          </div>
+              </Grid.Col>
+            ))
+          ) : (
+            <Grid.Col span={12}>
+              <Title order={2} ta="center">
+                No Courses Found
+              </Title>
+            </Grid.Col>
+          )}
+        </Grid>
 
-          <div className="col-lg-12 col-md-12 mt-5">
-            <Pagination
-              nPages={nPages}
-              currentPage={currentPage}
-              setCurrentPage={setCurrentPage}
-            />
-          </div>
-        </div>
-      </div>
-
-    </div>
+        <Box mt="xl" ta="center">
+          <Pagination
+            nPages={nPages}
+            currentPage={currentPage}
+            setCurrentPage={setCurrentPage}
+          />
+        </Box>
+      </Container>
+    </Box>
   );
 };
 

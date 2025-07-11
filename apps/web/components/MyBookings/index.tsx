@@ -7,6 +7,7 @@ import { notifications } from '@mantine/notifications';
 import TrainerTable from './TrainerTable';
 import StudentTable from './StudentTable';
 import { TrainerAPI } from '../../apis/v1/courses/trainer/trainer';
+import { Box, Title } from '@mantine/core';
 
 
 function MyBookings() {
@@ -186,7 +187,7 @@ function MyBookings() {
           document.body,
         )}
       <div>
-        <h3 className="text-center">My Bookings</h3>
+        <Title order={3} ta="center">My Bookings</Title>
         {bookings.length != 0 ? (
           <>
             {type === 'trainer' ? (
@@ -204,9 +205,9 @@ function MyBookings() {
             )}
           </>
         ) : loading ? (
-          <div className="text-center">loading...</div>
+          <Box ta={'center'}>loading...</Box>
         ) : (
-          <h3 className="text-center">No bookings found</h3>
+          <Title ta={'center'} order={3}>No bookings found</Title>
         )}
       </div>
     </div>

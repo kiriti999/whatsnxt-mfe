@@ -3,7 +3,7 @@
 import React, { useState } from 'react'; // Import useState
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { Avatar, Button, Text, Grid, Flex, HoverCard, Modal, Title, LoadingOverlay, Input } from '@mantine/core';
+import { Avatar, Button, Text, Grid, Flex, HoverCard, Modal, LoadingOverlay, Input, Box } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks'; // Import the hook
 import { useQuery } from '@tanstack/react-query';
 import { IconClockHour2 } from '@tabler/icons-react';
@@ -89,7 +89,7 @@ const TrainerInfoCard: React.FC<TrainerInfoCardProps> = ({
   });
 
   return (
-    <div style={{ maxWidth: '1000px', margin: '0 auto', position: 'relative' }}> {/* Ensure container width */}
+    <Box px={'md'}>
       <LoadingOverlay visible={isVisible} zIndex={1000} overlayProps={{ radius: "sm", blur: 2 }} />
       {/* Modal for payment message */}
       <Modal
@@ -197,7 +197,7 @@ const TrainerInfoCard: React.FC<TrainerInfoCardProps> = ({
         </Grid.Col>
 
         {/* Column 2 - Experience & Skills */}
-        <Grid.Col span={{ base: 12, sm: 12, md: 8 }}>
+        <Grid.Col span={{ base: 12, sm: 12, md: 8 }} pl={'5em'}>
           <Flex justify="space-between" wrap="wrap">
             <div>
               <Text fw={700} size="lg" mb={12}>
@@ -229,7 +229,7 @@ const TrainerInfoCard: React.FC<TrainerInfoCardProps> = ({
           </Text>
         </Link>
       </Grid>
-    </div>
+    </Box>
   );
 };
 

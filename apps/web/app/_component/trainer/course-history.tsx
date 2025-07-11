@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { TrainerAPI } from '../../../apis/v1/courses/trainer/trainer';
 import { useDebouncedValue, useMediaQuery } from '@mantine/hooks';
 import Link from 'next/link';
-import { ActionIcon, Box, Button, Center, Collapse, Grid, Group, Loader, Pagination, Select, Table, TextInput, Tooltip, Menu } from '@mantine/core';
+import { ActionIcon, Box, Button, Center, Collapse, Grid, Group, Loader, Pagination, Select, Table, TextInput, Tooltip, Menu, Container, GridCol } from '@mantine/core';
 import { CourseAPI } from '../../../apis/v1/courses/course/course';
 import { notifications } from '@mantine/notifications';
 import { IconChevronDown, IconChevronUp, IconEye, IconEyeOff, IconPlus, IconDotsVertical } from '@tabler/icons-react';
@@ -290,9 +290,9 @@ const CourseHistory = () => {
 
   return (
     <div className={`${coursesStyles['courses-area']} courses-section pb-70`}>
-      <div className="container">
-        <div className="row">
-          <div className="col-md-12 col-lg-12 mt-3">
+      <Container size={'xl'}>
+        <Grid>
+          <GridCol span={12} mt="md">
 
             <Grid mb={'xs'} justify="space-between" grow>
               <Grid.Col span={{ base: 12, md: 4 }}>
@@ -513,9 +513,9 @@ const CourseHistory = () => {
               modalClose={handleModalClose}
               handleDeleteSuccess={handleCourseDeleteSuccess}
             />
-          </div>
-        </div>
-      </div>
+          </GridCol>
+        </Grid>
+      </Container>
     </div>
   );
 };

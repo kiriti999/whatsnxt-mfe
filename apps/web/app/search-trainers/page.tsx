@@ -4,6 +4,7 @@ import { useSearchParams } from 'next/navigation';
 import React from 'react';
 import SearchTrainerPage from '../../components/Trainer/TrainerSearchPage';
 import TrainerSearchPageComponent from '../../components/Trainer/TrainerSearchPageComponent';
+import { Box } from '@mantine/core';
 
 function SearchTrainer() {
     const searchParam = useSearchParams();
@@ -14,10 +15,10 @@ function SearchTrainer() {
     const page = Array.isArray(pageQuery) ? parseInt(pageQuery[0], 10) : (pageQuery ? parseInt(pageQuery, 10) : 1);
 
     return (
-        <div style={{ minHeight: '50vh' }}>
+        <Box my={'xl'}>
             <TrainerSearchPageComponent />
             {query && typeof query === 'string' && <SearchTrainerPage query={query} page={isNaN(page) ? 1 : page} />}
-        </div>
+        </Box>
     );
 }
 

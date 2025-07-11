@@ -38,7 +38,7 @@ export default function PopularPost(props: Props) {
                     <Skeleton style={{ width: '40%', height: 100 }} square='true' />}
                 {title ?
                     (<div className={classes.body}>
-                        <Text className={classes.title} m={0} truncate="end" lineClamp={1}>
+                        <Text className={classes.title} m={0} lineClamp={1}>
                             {title}
                         </Text>
                         <Text size="xs" c="dimmed" truncate="end">

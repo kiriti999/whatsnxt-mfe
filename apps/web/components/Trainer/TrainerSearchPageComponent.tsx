@@ -3,7 +3,7 @@ import { Container } from '@mantine/core';
 
 function TrainerSearchPageComponent() {
   return (
-    <Container size={'69rem'}>
+    <Container size={'xl'}>
       <TrainerSearchForm></TrainerSearchForm>
     </Container>
   );

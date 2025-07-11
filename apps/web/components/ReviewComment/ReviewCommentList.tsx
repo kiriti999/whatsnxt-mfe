@@ -3,7 +3,7 @@ import { formatRelativeTime, FormatText } from "../Comments/helper"
 import CommentActions from "./actions/CommentActions"
 import { useRouter } from "next/navigation";
 import React from 'react';
-import { Avatar } from "@mantine/core";
+import { Avatar, Flex } from "@mantine/core";
 import { CourseFeedbackAPI } from '../../apis/v1/courses/feedback/feedback';
 
 function ReviewCommentList({
@@ -48,12 +48,14 @@ function ReviewCommentList({
                 <div className="review-profile">
                     <Avatar color="#fe4a55">{(comment.email || email)?.charAt(0)?.toUpperCase() || '?'}</Avatar>
                 </div>
-                <div className="d-flex align-items-center gap-2">
+
+                <Flex align="center" gap="sm">
                     <b>{comment?.email || email || 'Author'}</b>
                     <p style={{ opacity: '0.6' }}>
                         {formatRelativeTime(comment?.updatedAt)}
                     </p>
-                </div>
+                </Flex>
+
             </div>
             <div contentEditable={editMode} ref={inputRef} suppressContentEditableWarning={editMode} style={{ wordWrap: 'break-word' }}>
                 {FormatText(comment?.content)}

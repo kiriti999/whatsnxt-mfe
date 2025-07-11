@@ -7,7 +7,7 @@ const Page = () => {
     return (
         <>
             <Container>
-                <Grid className='my-5 text-center' justify='center'>
+                <Grid my={5} justify='center' ta={'center'}>
                     <Box>
                         <Title order={1}>Thank You!</Title>
                         <Text>Your payment is successful</Text>

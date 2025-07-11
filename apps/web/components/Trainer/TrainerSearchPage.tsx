@@ -1,4 +1,4 @@
-import { Skeleton } from '@mantine/core';
+import { Container, Skeleton, Title } from '@mantine/core';
 import { useEffect, useState } from 'react';
 import { TrainerAPI } from '../../apis/v1/courses/trainer/trainer';
 import styles from './TrainerSearchPage.module.css';
@@ -27,15 +27,15 @@ function SearchTrainerPage({ query, page = 1 }) {
   }, [query, page]);
 
   return (
-    <div className={styles.container}>
+    <Container size={'xl'}>
       <SearchData data={data} total={total} page={page} query={query} />
 
       {loading && [...Array(5).keys()].map(i => <Skeleton key={i} width="100%" height={50} radius="sm" my={5} />)}
 
       {!loading && data.length === 0 && (
-        <h3 className="text-center">No trainers found for query: "{query}"</h3>
+        <Title order={3} ta={'center'}>No trainers found for query: "{query}"</Title>
       )}
-    </div>
+    </Container>
   );
 }
 

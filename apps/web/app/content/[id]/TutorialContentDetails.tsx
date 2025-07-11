@@ -146,7 +146,7 @@ function TutorialContentDetails({ details }: any) {
                 />
               </div>
 
-              <GridCol span={{ base: 12, md: 7.5 }} className='m-xs-auto'>
+              <GridCol span={{ base: 12, md: 7.5 }} mx="auto">
                 <TutorialContent
                   active={active}
                   setActive={setActive}

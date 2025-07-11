@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
-import { ActionIcon, Text, Checkbox, Skeleton, Title, Tooltip } from '@mantine/core';
+import { ActionIcon, Text, Checkbox, Skeleton, Title, Tooltip, Grid, Stack, Box } from '@mantine/core';
 import styles from './notifications.module.css';
 import { elapsedTime } from '../../utils/elapsedTime';
 import { handleRefresh, handleRead, handleDelete, handleSelectAll, handleClick } from './handler';
@@ -103,7 +103,7 @@ const Notifications = () => {
 
 
   return (
-    <div className='p-2'>
+    <Box p="sm">
       <div className={styles.container}>
         <NotificationsHeader
           totalUnseen={totalUnseen}
@@ -121,36 +121,38 @@ const Notifications = () => {
             onCheckboxChange={(index) => handleClick(index, setSelected)} // Pass the required args
           />
 
-          <div className="col-lg-12 col-md-12">
-            <Pagination
-              nPages={nPages}
-              currentPage={page}
-              setCurrentPage={setPage}
-            />
-          </div>
+          <Grid>
+            <Grid.Col span={12}>
+              <Pagination
+                nPages={nPages}
+                currentPage={page}
+                setCurrentPage={setPage}
+              />
+            </Grid.Col>
+          </Grid>
           {notifications.length === 0 && !loading && (
-            <div>
-              <div className='text-center'>
-                <Image
-                  src="https://ik.imagekit.io/freecodez/bell.webp"
-                  width={300}
-                  height={300}
-                  alt='empty-notification'
-                  style={{ height: 'auto', width: '200px' }}
-                />
-              </div>
-              <h4 className='text-center'>No Notification Yet</h4>
-              <p className='text-center'>You have no notification right now, come back later.</p>
-            </div>
+            <Stack align="center" gap="md">
+              <Image
+                src="https://ik.imagekit.io/freecodez/bell.webp"
+                alt="empty-notification"
+                width={200}
+              />
+              <Title order={4}>No Notification Yet</Title>
+              <Text ta="center">
+                You have no notification right now, come back later.
+              </Text>
+            </Stack>
           )}
         </div>
         {loading && (
-          <div className='p-3'>
-            {[...Array(5).keys()].map(i => <Skeleton key={i} width="100%" height={50} radius="sm" my={5} />)}
-          </div>
+          <Box p="md">
+            {[...Array(5).keys()].map(i => (
+              <Skeleton key={i} width="100%" height={50} radius="sm" my={5} />
+            ))}
+          </Box>
         )}
       </div>
-    </div>
+    </Box>
   );
 };
 

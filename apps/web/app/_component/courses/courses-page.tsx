@@ -4,12 +4,11 @@ import React, { useState } from 'react';
 import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
 import htmlReactParser from 'html-react-parser';
-import { Skeleton, Avatar, Text, Tooltip, Container } from '@mantine/core';
+import { Skeleton, Avatar, Text, Tooltip, Container, Grid, GridCol, Flex } from '@mantine/core';
 import { Amount, CardComponent, SortByComponent } from '@whatsnxt/core-ui';
 import type { CourseType, Category } from '@whatsnxt/core-util';
 import sortStyles from './index.module.css';
 import CoursesSidebar from '../../../components/Courses/CoursesSidebar';
-import styles from '../../../components/Courses/Course.module.css';
 import Pagination from '../../../components/pagination/pagination';
 import { addPopularityToCourses } from '../../../utils';
 import { AnalyticsAPI } from '../../../apis/v1/analytics';
@@ -75,100 +74,106 @@ function Courses({ allCourses, courses, categories, totalRecords }: CourseProps)
 
   return (
     <div>
-      <div className={`${styles['courses-area']} pb-70`}>
-        <Container fluid>
-          <div className="row">
-            <div className="col-lg-9 col-md-9 col-sm-12">
-              <div
-                className={`${sortStyles['whatsnxt-grid-sorting']} row align-items-center`}
-              >
-                <div
-                  className={`col-lg-8 col-md-6 ${sortStyles['result-count']}`}
+      <Container fluid>
+        <Grid>
+          <GridCol span={{ base: 12, sm: 12, md: 9, lg: 9 }}>
+            <div
+              className={`${sortStyles['whatsnxt-grid-sorting']} row align-items-center`}
+            >
+              <Grid>
+                <GridCol
+                  span={{ base: 12 }}
+                  className={sortStyles['result-count']}
                 >
-                  <p>
+                  <Text>
                     We found{' '}
                     <span className={sortStyles['count']}>{totalRecords}</span>{' '}
                     courses available for you
-                  </p>
-                </div>
+                  </Text>
+                </GridCol>
 
-                <SortByComponent />
-              </div>
+                <GridCol span={{ base: 12 }}>
+                  <SortByComponent />
+                </GridCol>
+              </Grid>
 
-              <div className="all-posts">
-                {currentRecords.map((course) => (
-                  <div className="posts" key={course._id}>
-                    <CardComponent
-                      courseName={`${course.courseName}`}
-                      paidType={course.paidType}
-                      link={`/courses/${course.slug}`}
-                      image={
+            </div>
+
+            <div className="all-posts">
+              {currentRecords.map((course) => (
+                <div className="posts" key={course._id}>
+                  <CardComponent
+                    courseName={`${course.courseName}`}
+                    paidType={course.paidType}
+                    link={`/courses/${course.slug}`}
+                    image={
+                      <Image
+                        fill
+                        src={course.imageUrl}
+                        alt={course.courseName}
+                        style={{ objectFit: "cover" }}
+                      />
+                    }>
+
+                    <Flex pb="sm" align="center">
+                      {course.userId?.profilePhoto ? (
                         <Image
-                          fill
-                          src={course.imageUrl}
-                          alt={course.courseName}
-                          style={{ objectFit: "cover" }}
+                          width={100}
+                          height={100}
+                          src={`${course?.userId?.profilePhoto}`}
+                          className="rounded-circle"
+                          alt="avatar"
                         />
-                      }>
-
-                      <div className='d-flex pb-2 align-items-center'>
-                        {course.userId?.profilePhoto ? (
-                          <Image
-                            width={100}
-                            height={100}
-                            src={`${course?.userId?.profilePhoto}`}
-                            className="rounded-circle"
-                            alt="avatar"
-                          />
-                        ) : (
-                          <Avatar variant="light" radius="xl" size="md" />
-                        )}
-                        <p className='ms-2 fw-bold'>
-                          <small>Led by experts</small>
-                        </p>
-                      </div>
-
-                      {course.overview && (
-                        <Text className='py-1' lineClamp={4}>{htmlReactParser(course.overview)}</Text>
-                      )}
-                      {course.price ? (
-                        <Amount amount={course.price} discount={course.discount} />
                       ) : (
-                        <div>
-                          <Tooltip label='Free course'><strong>free</strong></Tooltip>
-                        </div>
+                        <Avatar variant="light" radius="xl" size="md" />
                       )}
-                      {(course.discount !== null && course?.discount > 0) && <b> ({course.discount}%)</b>}
-                    </CardComponent>
-                  </div>
-                ))}
-                {totalRecords > 0 && currentRecords.length === 0 && (
-                  [...Array(3).keys()].map((i) => <Skeleton key={i} width={300} height={400} radius="sm" />)
-                )}
-              </div>
-              <div className="col-lg-12 col-md-12">
-                {currentRecords?.length > 0 && (
-                  <Pagination
-                    nPages={nPages}
-                    currentPage={currentPage}
-                    setCurrentPage={setCurrentPage}
-                  />
-                )}
-                {totalRecords > 0 && currentRecords?.length === 0 && (
-                  <div className="d-flex align-items-center gap-1 justify-content-center mt-3">
-                    {[...Array(3).keys()].map((i) => <Skeleton key={i} width={35} height={35} radius="sm" />)}
-                  </div>
-                )}
-              </div>
+                      <Text ml="sm" fw="bold" size="sm">
+                        Led by experts
+                      </Text>
+                    </Flex>
+
+
+                    {course.overview && (
+                      <Text className='py-1' lineClamp={4}>{htmlReactParser(course.overview)}</Text>
+                    )}
+                    {course.price ? (
+                      <Amount amount={course.price} discount={course.discount} />
+                    ) : (
+                      <Tooltip label='Free course'><strong>free</strong></Tooltip>
+                    )}
+                    {(course.discount !== null && course?.discount > 0) && <b> ({course.discount}%)</b>}
+                  </CardComponent>
+                </div>
+              ))}
+              {totalRecords > 0 && currentRecords.length === 0 && (
+                [...Array(3).keys()].map((i) => <Skeleton key={i} width={300} height={400} radius="sm" />)
+              )}
             </div>
 
-            {/* TODO: Enable CoursesSidebar component to show courses based on popularity (GA page views) */}
-            <div className="col-lg-3 col-md-3 col-sm-12">
-              <CoursesSidebar courses={allCourses} categories={categories} />
-            </div>
-          </div>
-        </Container>
-      </div>
+            <GridCol span={12}>
+              {currentRecords?.length > 0 && (
+                <Pagination
+                  nPages={nPages}
+                  currentPage={currentPage}
+                  setCurrentPage={setCurrentPage}
+                />
+              )}
+              {totalRecords > 0 && currentRecords?.length === 0 && (
+                <Flex align="center" gap="xs" justify="center" mt="md">
+                  {[...Array(3).keys()].map((i) => <Skeleton key={i} width={35} height={35} radius="sm" />)}
+                </Flex>
+
+              )}
+            </GridCol>
+          </GridCol>
+
+          {/* TODO: Enable CoursesSidebar component to show courses based on popularity (GA page views) */}
+          <Grid.Col span={{ base: 12, md: 3 }}>
+            {/* Your content here */}
+            <CoursesSidebar courses={allCourses} categories={categories} />
+          </Grid.Col>
+        </Grid>
+      </Container>
     </div>
   );
 

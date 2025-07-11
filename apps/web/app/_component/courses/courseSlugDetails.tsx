@@ -6,8 +6,9 @@ import CourseDescription from './sections/course-description';
 import CourseReviews from './sections/course-reviews';
 import Instructor from './sections/instructor';
 import CourseCurriculum from '../../../components/CourseCurriculum/CourseCurriculum';
-import { Box, Title } from '@mantine/core';
+import { Box, Grid, GridCol, Title } from '@mantine/core';
 import InterviewComponent from './sections/interview-questions';
+import Image from 'next/image';
 
 const CourseSlugDetails = ({ course, courseReviews, setCourseReviews, reviewCommentCount, isCourseReviewMode }) => {
 
@@ -30,10 +31,20 @@ const CourseSlugDetails = ({ course, courseReviews, setCourseReviews, reviewComm
             <CourseOverview overview={course.overview} courseName={course.courseName} />
 
             {isCourseReviewMode && course?.imageUrl && (
-                <Box my="md" className='col-lg-3 col-md-6'>
-                    <Title order={5}>Image Preview:</Title>
-                    <img src={course.imageUrl} alt="Image Preview" className="image-preview" />
-                </Box>
+                <Grid>
+                    <GridCol span={{ base: 12, md: 6, lg: 4 }}>
+                        <Box my="md">
+                            <Title order={5} mb="sm">Image Preview:</Title>
+                            <Image
+                                width={500}
+                                height={500}
+                                src={course.imageUrl}
+                                alt="Image Preview"
+                                className="image-preview"
+                            />
+                        </Box>
+                    </GridCol>
+                </Grid>
             )}
 
             <Instructor name={course?.author} designation={course?.userId?.designation} about={course?.userId?.about} />

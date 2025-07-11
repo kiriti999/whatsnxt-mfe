@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Button, Select, Text, TextInput, Box, Title } from '@mantine/core';
+import { Button, Select, Text, TextInput, Box, Title, Container, Grid, GridCol } from '@mantine/core';
 import { LoadingSpinner } from '@whatsnxt/core-ui';
 import { notifications } from '@mantine/notifications';
 import { CourseAPI } from '../../../../apis/v1/courses/course/course';
@@ -144,9 +144,9 @@ const CreateCourseName = () => {
 
   return (
     <Box className="pb-100">
-      <div className="container">
-        <div className="row">
-          <div className="col-md-12 col-lg-12 mt-3">
+      <Container size={'lg'}>
+        <Grid>
+          <GridCol span={12} mt="md">
             <Box className="border-box" p="md" mb="md">
               <form onSubmit={handleSubmit(handleCourseNameSubmit)}>
                 {loading && <LoadingSpinner />}
@@ -242,10 +242,10 @@ const CreateCourseName = () => {
                 </Button>
               </form>
             </Box>
-          </div>
-        </div>
-      </div>
-    </Box>
+          </GridCol>
+        </Grid>
+      </Container>
+    </Box >
   );
 };
 
