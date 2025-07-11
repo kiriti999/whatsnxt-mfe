@@ -15,6 +15,7 @@ import {
 import Image from 'next/image';
 import { Amount, CardComponent } from '@whatsnxt/core-ui';
 import Pagination from '../../components/pagination/pagination';
+import styles from './TopCourses.module.css';
 
 const TopCourses = ({ courses, total }: { courses: any[], total: number }) => {
   const [recordsPerPage] = useState(8);
@@ -25,10 +26,12 @@ const TopCourses = ({ courses, total }: { courses: any[], total: number }) => {
   const nPages = Math.ceil(total / recordsPerPage);
 
   return (
-    <Box py="0">
+    <Box className={styles.topCoursesContainer}>
       <Container size="xl">
-        <Box maw={720} mx="auto" mb={35} ta="center">
-          <Title order={4}>Top Selling Courses</Title>
+        <Box className={styles.topCoursesInner}>
+          <Title order={4} className={styles.topCoursesTitle}>
+            Top Selling Courses
+          </Title>
         </Box>
 
         <Grid gutter={{ base: "md", sm: "lg" }} justify="center">
@@ -39,23 +42,17 @@ const TopCourses = ({ courses, total }: { courses: any[], total: number }) => {
                   shadow={'xs'}
                   p={0}
                   radius="md"
-                  style={{
-                    overflow: 'hidden',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    height: '100%',
-                    boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
-                  }}
+                  className={styles.topCoursesPaper}
                 >
                   <CardComponent
                     courseName={course.courseName}
                     paidType={course.paidType}
                     link={`/courses/${course.slug}`}
                     image={
-                      <Box pos="relative" style={{ width: '100%', height: '200px' }}>
+                      <Box className={styles.topCoursesImageContainer}>
                         <Image
                           fill
-                          style={{ objectFit: 'cover' }}
+                          className={styles.topCoursesImage}
                           alt={course.courseName}
                           src={course.imageUrl}
                           priority={true}
@@ -67,7 +64,9 @@ const TopCourses = ({ courses, total }: { courses: any[], total: number }) => {
                     <Group justify="space-between" mt="xs">
                       <Box>
                         {course.courseType === 'free' ? (
-                          <Text fw={600} size="sm">Free Course</Text>
+                          <Text size="sm" className={styles.topCoursesFreeText}>
+                            Free Course
+                          </Text>
                         ) : (
                           <>
                             {course.price && (
@@ -75,17 +74,36 @@ const TopCourses = ({ courses, total }: { courses: any[], total: number }) => {
                             )}
                           </>
                         )}
-                        {course.discount! > 0 && <Text span fw={700}> ({course.discount}%)</Text>}
+                        {course.discount! > 0 && (
+                          <Text span className={styles.topCoursesDiscountText}>
+                            {" "}({course.discount}%)
+                          </Text>
+                        )}
                       </Box>
 
                       {course?.purchaseCount > 0 && (
-                        <Badge color="yellow" c="dark" variant="filled">Best Seller</Badge>
+                        <Badge
+                          color="yellow"
+                          c="dark"
+                          variant="filled"
+                          className={styles.topCoursesBestSellerBadge}
+                        >
+                          Best Seller
+                        </Badge>
                       )}
                     </Group>
                     <Flex align='center' mt="xs" justify={'space-between'}>
                       <Rating defaultValue={course.rating} fractions={2} size="xs" readOnly />
-                      {course.paidType === 'video' && <Text size='xs'>{course.duration}</Text>}
-                      {course.paidType === 'live' && <Text size='xs'>{course.lessons} lessons</Text>}
+                      {course.paidType === 'video' && (
+                        <Text size='xs' className={styles.topCoursesDurationText}>
+                          {course.duration}
+                        </Text>
+                      )}
+                      {course.paidType === 'live' && (
+                        <Text size='xs' className={styles.topCoursesLessonsText}>
+                          {course.lessons} lessons
+                        </Text>
+                      )}
                     </Flex>
                   </CardComponent>
                 </Paper>
@@ -95,9 +113,7 @@ const TopCourses = ({ courses, total }: { courses: any[], total: number }) => {
             <Flex
               direction={{ base: "column", lg: "row" }}
               gap="md"
-              align="center"
-              justify="center"
-              w="100%"
+              className={styles.topCoursesSkeletonContainer}
             >
               {[...Array(4).keys()].map((i) => (
                 <Skeleton key={i} width={300} height={300} radius="md" />
@@ -106,8 +122,8 @@ const TopCourses = ({ courses, total }: { courses: any[], total: number }) => {
           )}
 
           <Grid.Col span={12}>
-            <Box ta="center" py="xl">
-              <Text size="md" maw={600} mx="auto">
+            <Box className={styles.topCoursesCenterContainer}>
+              <Text size="md" className={styles.topCoursesDescription}>
                 Discover your next skill or passion. Join thousands of learners worldwide and take the next step in your career, hobbies, or personal growth. Your learning journey starts here!
               </Text>
             </Box>
@@ -117,7 +133,7 @@ const TopCourses = ({ courses, total }: { courses: any[], total: number }) => {
       </Container>
 
       {nPages > 1 && (
-        <Box ta="center" mt="xl">
+        <Box className={styles.topCoursesPaginationContainer}>
           <Pagination
             nPages={nPages}
             currentPage={currentPage}

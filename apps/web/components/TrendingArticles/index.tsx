@@ -18,6 +18,7 @@ import { Carousel } from '@mantine/carousel';
 import { IconUser, IconEye, IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
 import '@mantine/carousel/styles.css';
 import { createExcerpt } from '@whatsnxt/core-util';
+import styles from './TrendingArticles.module.css';
 
 interface Article {
   _id: string;
@@ -38,85 +39,6 @@ interface TrendingArticlesProps {
 }
 
 const TrendingArticles = ({ articles, total }: TrendingArticlesProps) => {
-  // Inject accessible styles with proper contrast ratios
-  React.useEffect(() => {
-    const styleId = 'trending-articles-accessible-styles';
-    if (!document.getElementById(styleId)) {
-      const style = document.createElement('style');
-      style.id = styleId;
-      style.textContent = `
-        /* High contrast carousel controls */
-        .carousel-control[data-inactive] {
-          opacity: 0;
-          cursor: default;
-        }
-        
-        .carousel-indicator[data-active] {
-          width: 40px;
-        }
-        
-        /* Enhanced focus states for accessibility */
-        .trending-card:focus-within {
-          outline: 2px solid #0066cc;
-          outline-offset: 2px;
-        }
-        
-        .trending-button:focus {
-          outline: 2px solid #0066cc;
-          outline-offset: 2px;
-        }
-        
-        /* High contrast text improvements */
-        .trending-title {
-          color: #1a1a1a !important;
-          font-weight: 600;
-        }
-        
-        .trending-description {
-          color: #333333 !important; /* Better than dimmed for contrast */
-        }
-        
-        .trending-meta {
-          color: #555555 !important; /* High contrast for meta text */
-        }
-        
-        .trending-category-badge {
-          background-color: #e6f3ff !important;
-          color: #0066cc !important;
-          border: 1px solid #0066cc !important;
-        }
-        
-        .trending-total-badge {
-          background-color: #e6f3ff !important;
-          color: #0066cc !important;
-          border: 1px solid #0066cc !important;
-        }
-        
-        /* Empty state high contrast */
-        .trending-empty-title {
-          color: #333333 !important;
-        }
-        
-        .trending-empty-text {
-          color: #555555 !important;
-        }
-        
-        .trending-empty-icon {
-          color: #666666 !important;
-        }
-        
-        /* Button hover states with high contrast */
-        .trending-read-more:hover {
-          background-color: #0052a3 !important;
-          color: #ffffff !important;
-        }
-        
-       
-      `;
-      document.head.appendChild(style);
-    }
-  }, []);
-
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
@@ -146,22 +68,14 @@ const TrendingArticles = ({ articles, total }: TrendingArticlesProps) => {
             order={2}
             size="h1"
             fw={600}
-            style={{ color: 'var(--trending-title-color, #1a1a1a)' }}
+            className={styles.trendingTitle}
           >
             Trending Articles
           </Title>
           <Badge
             size="lg"
             variant="outline"
-            className="trending-total-badge"
-            styles={{
-              root: {
-                backgroundColor: '#e6f3ff',
-                color: '#0066cc',
-                border: '1px solid #0066cc',
-                fontWeight: 600,
-              }
-            }}
+            className={styles.trendingTotalBadge}
           >
             {total} Articles
           </Badge>
@@ -202,8 +116,8 @@ const TrendingArticles = ({ articles, total }: TrendingArticlesProps) => {
               },
             }}
             classNames={{
-              control: 'carousel-control',
-              indicator: 'carousel-indicator',
+              control: styles.carouselControl,
+              indicator: styles.carouselIndicator,
             }}
           >
             {articles.map((article) => (
@@ -215,24 +129,11 @@ const TrendingArticles = ({ articles, total }: TrendingArticlesProps) => {
                   py={0}
                   withBorder
                   h="100%"
-                  className="trending-card"
+                  className={styles.trendingCard}
                   tabIndex={0}
                   role="article"
                   aria-label={`Article: ${article.title}`}
                   onKeyDown={(e) => handleKeyDown(e, article.slug)}
-                  style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    transition: 'transform 200ms ease, box-shadow 200ms ease',
-                    cursor: 'pointer',
-                    border: '0.75px solid #d1d5db', // Higher contrast border
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.boxShadow = '0 10px 25px -5px rgba(0, 102, 204, 0.25), 0 10px 10px -5px rgba(0, 102, 204, 0.1)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.boxShadow = 'var(--mantine-shadow-md)';
-                  }}
                 >
                   <Card.Section>
                     <Image
@@ -241,26 +142,18 @@ const TrendingArticles = ({ articles, total }: TrendingArticlesProps) => {
                       height={180}
                       alt={`Cover image for article: ${article.title}`}
                       fit="cover"
-                      style={{ objectFit: 'cover' }}
+                      className={styles.trendingImage}
                       fetchPriority='auto'
                     />
                   </Card.Section>
 
-                  <Stack gap="xs" mt="sm" style={{ flex: 1 }}>
+                  <Stack gap="xs" mt="sm" className={styles.trendingContentStack}>
                     {/* Category Badge with high contrast */}
                     <Badge
                       variant="outline"
                       size="sm"
                       w="fit-content"
-                      className="trending-category-badge"
-                      styles={{
-                        root: {
-                          backgroundColor: '#e6f3ff',
-                          color: '#0066cc',
-                          border: '1px solid #0066cc',
-                          fontWeight: 500,
-                        }
-                      }}
+                      className={styles.trendingCategoryBadge}
                     >
                       {article.categoryName}
                     </Badge>
@@ -272,12 +165,8 @@ const TrendingArticles = ({ articles, total }: TrendingArticlesProps) => {
                       fw={600}
                       size="sm"
                       my={'xs'}
-                      className="trending-title"
+                      className={styles.trendingTitleClickable}
                       onClick={() => handleReadMore(article.slug)}
-                      style={{
-                        color: '#1a1a1a',
-                        cursor: 'pointer',
-                      }}
                       tabIndex={0}
                       onKeyDown={(e) => handleKeyDown(e, article.slug)}
                     >
@@ -290,8 +179,7 @@ const TrendingArticles = ({ articles, total }: TrendingArticlesProps) => {
                         size="sm"
                         lineClamp={2}
                         m={0}
-                        className="trending-description"
-                        style={{ color: '#333333' }} // Much better contrast than dimmed
+                        className={styles.trendingDescription}
                       >
                         {createExcerpt(article.description)}
                       </Text>
@@ -299,24 +187,19 @@ const TrendingArticles = ({ articles, total }: TrendingArticlesProps) => {
 
                     {/* Author and Date with high contrast */}
                     <Group gap="xs" mt="auto" mb="xs">
-                      <Avatar size="xs" radius="xl" style={{ backgroundColor: '#0066cc' }}>
+                      <Avatar size="xs" radius="xl" className={styles.trendingAvatar}>
                         <IconUser size={rem(12)} color="#ffffff" />
                       </Avatar>
                       <Text
                         size="xs"
                         truncate
-                        style={{
-                          maxWidth: '120px',
-                          color: '#555555' // High contrast for meta text
-                        }}
-                        className="trending-meta"
+                        className={styles.trendingMeta}
                       >
                         {article.author}
                       </Text>
                       <Text
                         size="xs"
-                        className="trending-meta"
-                        style={{ color: '#555555' }}
+                        className={styles.trendingMeta}
                       >
                         {formatDate(article.updatedAt)}
                       </Text>
@@ -329,25 +212,8 @@ const TrendingArticles = ({ articles, total }: TrendingArticlesProps) => {
                       fullWidth
                       radius="md"
                       mb={10}
-                      className="trending-read-more trending-button"
+                      className={`${styles.trendingReadMore} ${styles.trendingButton}`}
                       onClick={() => handleReadMore(article.slug)}
-                      styles={{
-                        root: {
-                          backgroundColor: '#0066cc',
-                          color: '#ffffff',
-                          fontWeight: 600,
-                          transition: 'all 200ms ease',
-                          border: 'none',
-                          '&:hover': {
-                            backgroundColor: '#0052a3',
-                            transform: 'translateY(-2px)',
-                          },
-                          '&:focus': {
-                            outline: '2px solid #0066cc',
-                            outlineOffset: '2px',
-                          },
-                        },
-                      }}
                     >
                       Read More
                     </Button>
@@ -357,25 +223,22 @@ const TrendingArticles = ({ articles, total }: TrendingArticlesProps) => {
             ))}
           </Carousel>
         ) : (
-          <Paper radius="md" p="xl" withBorder style={{ borderColor: '#d1d5db' }}>
+          <Paper radius="md" p="xl" withBorder className={styles.trendingEmptyPaper}>
             <Center py="xl">
               <Stack align="center" gap="md">
                 <IconEye
                   size={48}
-                  className="trending-empty-icon"
-                  style={{ color: '#666666' }} // Much better contrast than gray-5
+                  className={styles.trendingEmptyIcon}
                 />
                 <Title
                   order={3}
-                  className="trending-empty-title"
-                  style={{ color: '#333333' }} // High contrast instead of dimmed
+                  className={styles.trendingEmptyTitle}
                 >
                   No trending articles available
                 </Title>
                 <Text
                   ta="center"
-                  className="trending-empty-text"
-                  style={{ color: '#555555' }} // High contrast instead of dimmed
+                  className={styles.trendingEmptyText}
                 >
                   Check back later for the latest trending content!
                 </Text>

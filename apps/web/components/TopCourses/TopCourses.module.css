@@ -1,0 +1,99 @@
+/* TopCourses.module.css */
+
+/* Container styles */
+.topCoursesContainer {
+    padding: 0;
+}
+
+.topCoursesInner {
+    max-width: 720px;
+    margin: 0 auto 35px auto;
+    text-align: center;
+}
+
+/* High contrast title */
+.topCoursesTitle {
+    color: #1a1a1a !important;
+    font-weight: 600;
+}
+
+/* Paper card styles with high contrast */
+.topCoursesPaper {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    transition: box-shadow 200ms ease;
+}
+
+.topCoursesPaper:hover {
+    box-shadow: 0 10px 25px -5px rgba(0, 102, 204, 0.25), 0 10px 10px -5px rgba(0, 102, 204, 0.1);
+}
+
+/* Image container styles */
+.topCoursesImageContainer {
+    position: relative;
+    width: 100%;
+    height: 200px;
+}
+
+.topCoursesImage {
+    object-fit: cover;
+    border: 0.5px solid #e3dfdf;
+}
+
+/* Text styles with high contrast */
+.topCoursesFreeText {
+    font-weight: 600;
+    color: #1a1a1a !important;
+}
+
+.topCoursesDiscountText {
+    font-weight: 700;
+    color: #1a1a1a !important;
+}
+
+.topCoursesDurationText {
+    color: #555555 !important;
+    /* High contrast for meta text */
+}
+
+.topCoursesLessonsText {
+    color: #555555 !important;
+    /* High contrast for meta text */
+}
+
+/* Description text with high contrast */
+.topCoursesDescription {
+    max-width: 600px;
+    margin: 0 auto;
+    color: #333333 !important;
+    /* Better than dimmed for contrast */
+}
+
+/* Skeleton container */
+.topCoursesSkeletonContainer {
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Pagination container */
+.topCoursesPaginationContainer {
+    text-align: center;
+    margin-top: 24px;
+    /* xl spacing */
+}
+
+/* Center container for description */
+.topCoursesCenterContainer {
+    text-align: center;
+    padding: 24px 0;
+    /* xl spacing */
+}
+
+/* Best seller badge styles */
+.topCoursesBestSellerBadge {
+    /* Keep original Mantine styles */
+}

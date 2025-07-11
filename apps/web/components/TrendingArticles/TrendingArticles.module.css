@@ -1,0 +1,120 @@
+/* TrendingArticles.module.css */
+
+/* High contrast carousel controls */
+.carouselControl[data-inactive] {
+    opacity: 0;
+    cursor: default;
+}
+
+.carouselIndicator[data-active] {
+    width: 40px;
+}
+
+/* Enhanced focus states for accessibility */
+.trendingCard:focus-within {
+    outline: 2px solid #0066cc;
+    outline-offset: 2px;
+}
+
+.trendingButton:focus {
+    outline: 2px solid #0066cc;
+    outline-offset: 2px;
+}
+
+/* High contrast text improvements */
+.trendingTitle {
+    color: #1a1a1a !important;
+    font-weight: 600;
+}
+
+.trendingTitleClickable {
+    color: #1a1a1a !important;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.trendingDescription {
+    color: #333333 !important;
+    /* Better than dimmed for contrast */
+}
+
+.trendingMeta {
+    color: #555555 !important;
+    /* High contrast for meta text */
+    max-width: 120px;
+}
+
+/* Keep original badge styles - DO NOT change these */
+.trendingCategoryBadge {
+    /* No custom styles - use original Mantine styles */
+}
+
+.trendingTotalBadge {
+    /* No custom styles - use original Mantine styles */
+}
+
+/* Empty state high contrast */
+.trendingEmptyTitle {
+    color: #333333 !important;
+}
+
+.trendingEmptyText {
+    color: #555555 !important;
+}
+
+.trendingEmptyIcon {
+    color: #666666 !important;
+}
+
+/* Button styles */
+.trendingReadMore {
+    background-color: #0066cc;
+    color: #ffffff;
+    font-weight: 600;
+    transition: all 200ms ease;
+    border: none;
+}
+
+.trendingReadMore:hover {
+    background-color: #0052a3 !important;
+    color: #ffffff !important;
+    transform: translateY(-2px);
+}
+
+.trendingReadMore:focus {
+    outline: 2px solid #0066cc;
+    outline-offset: 2px;
+}
+
+/* Card styles */
+.trendingCard {
+    display: flex;
+    flex-direction: column;
+    transition: box-shadow 200ms ease;
+    cursor: pointer;
+    border: 0.75px solid #d1d5db;
+}
+
+.trendingCard:hover {
+    box-shadow: 0 10px 25px -5px rgba(0, 102, 204, 0.25), 0 10px 10px -5px rgba(0, 102, 204, 0.1);
+}
+
+/* Avatar styles */
+.trendingAvatar {
+    background-color: #0066cc;
+}
+
+/* Image styles */
+.trendingImage {
+    object-fit: cover;
+}
+
+/* Paper styles */
+.trendingEmptyPaper {
+    border-color: #d1d5db;
+}
+
+/* Stack styles */
+.trendingContentStack {
+    flex: 1;
+}
