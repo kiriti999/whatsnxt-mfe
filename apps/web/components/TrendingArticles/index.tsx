@@ -19,7 +19,6 @@ import { IconUser, IconEye, IconChevronLeft, IconChevronRight } from '@tabler/ic
 import '@mantine/carousel/styles.css';
 import { createExcerpt } from '@whatsnxt/core-util';
 
-
 interface Article {
   _id: string;
   title: string;
@@ -39,13 +38,14 @@ interface TrendingArticlesProps {
 }
 
 const TrendingArticles = ({ articles, total }: TrendingArticlesProps) => {
-  // Inject styles
+  // Inject accessible styles with proper contrast ratios
   React.useEffect(() => {
-    const styleId = 'trending-articles-carousel-styles';
+    const styleId = 'trending-articles-accessible-styles';
     if (!document.getElementById(styleId)) {
       const style = document.createElement('style');
       style.id = styleId;
       style.textContent = `
+        /* High contrast carousel controls */
         .carousel-control[data-inactive] {
           opacity: 0;
           cursor: default;
@@ -54,6 +54,64 @@ const TrendingArticles = ({ articles, total }: TrendingArticlesProps) => {
         .carousel-indicator[data-active] {
           width: 40px;
         }
+        
+        /* Enhanced focus states for accessibility */
+        .trending-card:focus-within {
+          outline: 2px solid #0066cc;
+          outline-offset: 2px;
+        }
+        
+        .trending-button:focus {
+          outline: 2px solid #0066cc;
+          outline-offset: 2px;
+        }
+        
+        /* High contrast text improvements */
+        .trending-title {
+          color: #1a1a1a !important;
+          font-weight: 600;
+        }
+        
+        .trending-description {
+          color: #333333 !important; /* Better than dimmed for contrast */
+        }
+        
+        .trending-meta {
+          color: #555555 !important; /* High contrast for meta text */
+        }
+        
+        .trending-category-badge {
+          background-color: #e6f3ff !important;
+          color: #0066cc !important;
+          border: 1px solid #0066cc !important;
+        }
+        
+        .trending-total-badge {
+          background-color: #e6f3ff !important;
+          color: #0066cc !important;
+          border: 1px solid #0066cc !important;
+        }
+        
+        /* Empty state high contrast */
+        .trending-empty-title {
+          color: #333333 !important;
+        }
+        
+        .trending-empty-text {
+          color: #555555 !important;
+        }
+        
+        .trending-empty-icon {
+          color: #666666 !important;
+        }
+        
+        /* Button hover states with high contrast */
+        .trending-read-more:hover {
+          background-color: #0052a3 !important;
+          color: #ffffff !important;
+        }
+        
+       
       `;
       document.head.appendChild(style);
     }
@@ -72,15 +130,39 @@ const TrendingArticles = ({ articles, total }: TrendingArticlesProps) => {
     window.location.href = `/content/${slug}`;
   };
 
+  const handleKeyDown = (event: React.KeyboardEvent, slug: string) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      handleReadMore(slug);
+    }
+  };
+
   return (
     <Container size="xl" py="xl">
       <Stack gap="xl">
-        {/* Header */}
+        {/* Header with improved contrast */}
         <Group justify="left" align="center">
-          <Title order={2} size="h1" fw={600}>
+          <Title
+            order={2}
+            size="h1"
+            fw={600}
+            style={{ color: 'var(--trending-title-color, #1a1a1a)' }}
+          >
             Trending Articles
           </Title>
-          <Badge size="lg" variant="light" color="blue">
+          <Badge
+            size="lg"
+            variant="outline"
+            className="trending-total-badge"
+            styles={{
+              root: {
+                backgroundColor: '#e6f3ff',
+                color: '#0066cc',
+                border: '1px solid #0066cc',
+                fontWeight: 600,
+              }
+            }}
+          >
             {total} Articles
           </Badge>
         </Group>
@@ -107,7 +189,16 @@ const TrendingArticles = ({ articles, total }: TrendingArticlesProps) => {
                 width: rem(12),
                 height: rem(4),
                 transition: 'width 250ms ease',
-                backgroundColor: 'var(--mantine-color-gray-4)',
+                backgroundColor: '#cccccc', // Higher contrast than gray-4
+              },
+              control: {
+                backgroundColor: '#ffffff',
+                border: '1px solid #0066cc',
+                color: '#0066cc',
+                '&:hover': {
+                  backgroundColor: '#0066cc',
+                  color: '#ffffff',
+                },
               },
             }}
             classNames={{
@@ -124,26 +215,31 @@ const TrendingArticles = ({ articles, total }: TrendingArticlesProps) => {
                   py={0}
                   withBorder
                   h="100%"
+                  className="trending-card"
+                  tabIndex={0}
+                  role="article"
+                  aria-label={`Article: ${article.title}`}
+                  onKeyDown={(e) => handleKeyDown(e, article.slug)}
                   style={{
                     display: 'flex',
                     flexDirection: 'column',
                     transition: 'transform 200ms ease, box-shadow 200ms ease',
                     cursor: 'pointer',
+                    border: '0.75px solid #d1d5db', // Higher contrast border
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = 'translateY(-4px)';
-                    e.currentTarget.style.boxShadow = 'var(--mantine-shadow-lg)';
+                    e.currentTarget.style.boxShadow = '0 10px 25px -5px rgba(0, 102, 204, 0.25), 0 10px 10px -5px rgba(0, 102, 204, 0.1)';
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = 'translateY(0)';
                     e.currentTarget.style.boxShadow = 'var(--mantine-shadow-md)';
                   }}
                 >
                   <Card.Section>
-                    <Image onClick={() => handleReadMore(article.slug)}
+                    <Image
+                      onClick={() => handleReadMore(article.slug)}
                       src={article.imageUrl || '/placeholder-article.jpg'}
                       height={180}
-                      alt={article.title}
+                      alt={`Cover image for article: ${article.title}`}
                       fit="cover"
                       style={{ objectFit: 'cover' }}
                       fetchPriority='auto'
@@ -151,49 +247,104 @@ const TrendingArticles = ({ articles, total }: TrendingArticlesProps) => {
                   </Card.Section>
 
                   <Stack gap="xs" mt="sm" style={{ flex: 1 }}>
-                    {/* Category Badge */}
-                    <Badge variant="light" color="cyan" size="sm" w="fit-content">
+                    {/* Category Badge with high contrast */}
+                    <Badge
+                      variant="outline"
+                      size="sm"
+                      w="fit-content"
+                      className="trending-category-badge"
+                      styles={{
+                        root: {
+                          backgroundColor: '#e6f3ff',
+                          color: '#0066cc',
+                          border: '1px solid #0066cc',
+                          fontWeight: 500,
+                        }
+                      }}
+                    >
                       {article.categoryName}
                     </Badge>
 
-                    {/* Title */}
-                    <Title order={5} lineClamp={1} fw={600} size="sm" my={'xs'} onClick={() => handleReadMore(article.slug)}>
+                    {/* Title with high contrast */}
+                    <Title
+                      order={5}
+                      lineClamp={1}
+                      fw={600}
+                      size="sm"
+                      my={'xs'}
+                      className="trending-title"
+                      onClick={() => handleReadMore(article.slug)}
+                      style={{
+                        color: '#1a1a1a',
+                        cursor: 'pointer',
+                      }}
+                      tabIndex={0}
+                      onKeyDown={(e) => handleKeyDown(e, article.slug)}
+                    >
                       {article.title}
                     </Title>
 
-                    {/* Description - optional if you want to show it */}
+                    {/* Description with improved contrast */}
                     {article.description && (
-                      <Text size="sm" c="dimmed" lineClamp={2} m={0}>
+                      <Text
+                        size="sm"
+                        lineClamp={2}
+                        m={0}
+                        className="trending-description"
+                        style={{ color: '#333333' }} // Much better contrast than dimmed
+                      >
                         {createExcerpt(article.description)}
                       </Text>
                     )}
 
-                    {/* Author and Date */}
+                    {/* Author and Date with high contrast */}
                     <Group gap="xs" mt="auto" mb="xs">
-                      <Avatar size="xs" radius="xl" color="cyan">
-                        <IconUser size={rem(12)} />
+                      <Avatar size="xs" radius="xl" style={{ backgroundColor: '#0066cc' }}>
+                        <IconUser size={rem(12)} color="#ffffff" />
                       </Avatar>
-                      <Text size="xs" c="dimmed" truncate style={{ maxWidth: '120px' }}>
+                      <Text
+                        size="xs"
+                        truncate
+                        style={{
+                          maxWidth: '120px',
+                          color: '#555555' // High contrast for meta text
+                        }}
+                        className="trending-meta"
+                      >
                         {article.author}
                       </Text>
-                      <Text size="xs" c="dimmed">
+                      <Text
+                        size="xs"
+                        className="trending-meta"
+                        style={{ color: '#555555' }}
+                      >
                         {formatDate(article.updatedAt)}
                       </Text>
                     </Group>
 
-                    {/* Read More Button */}
+                    {/* Read More Button with high contrast */}
                     <Button
-                      variant="light"
+                      variant="filled"
                       size="xs"
                       fullWidth
                       radius="md"
                       mb={10}
+                      className="trending-read-more trending-button"
                       onClick={() => handleReadMore(article.slug)}
                       styles={{
                         root: {
+                          backgroundColor: '#0066cc',
+                          color: '#ffffff',
+                          fontWeight: 600,
                           transition: 'all 200ms ease',
+                          border: 'none',
                           '&:hover': {
+                            backgroundColor: '#0052a3',
                             transform: 'translateY(-2px)',
+                          },
+                          '&:focus': {
+                            outline: '2px solid #0066cc',
+                            outlineOffset: '2px',
                           },
                         },
                       }}
@@ -206,14 +357,26 @@ const TrendingArticles = ({ articles, total }: TrendingArticlesProps) => {
             ))}
           </Carousel>
         ) : (
-          <Paper radius="md" p="xl" withBorder>
+          <Paper radius="md" p="xl" withBorder style={{ borderColor: '#d1d5db' }}>
             <Center py="xl">
               <Stack align="center" gap="md">
-                <IconEye size={48} style={{ color: 'var(--mantine-color-gray-5)' }} />
-                <Title order={3} c="dimmed">
+                <IconEye
+                  size={48}
+                  className="trending-empty-icon"
+                  style={{ color: '#666666' }} // Much better contrast than gray-5
+                />
+                <Title
+                  order={3}
+                  className="trending-empty-title"
+                  style={{ color: '#333333' }} // High contrast instead of dimmed
+                >
                   No trending articles available
                 </Title>
-                <Text c="dimmed" ta="center">
+                <Text
+                  ta="center"
+                  className="trending-empty-text"
+                  style={{ color: '#555555' }} // High contrast instead of dimmed
+                >
                   Check back later for the latest trending content!
                 </Text>
               </Stack>
