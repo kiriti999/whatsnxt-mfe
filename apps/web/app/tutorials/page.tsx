@@ -1,16 +1,33 @@
-import Content from '../../components/Blog/Content/Content';
+// import Content from '../../components/Blog/Content/Content';
+// import { Container } from '@mantine/core';
+// import { MantineLoader } from '@whatsnxt/core-ui';
+// import { Suspense } from 'react';
+
+// const Tutorial = () => {
+//   return (
+//     <Suspense fallback={<MantineLoader />}>
+//       <Container fluid>
+//         <Content type="tutorial"></Content>
+//       </Container>
+//     </Suspense>
+//   );
+// };
+
+// export default Tutorial;
+
+
 import { Container } from '@mantine/core';
 import { MantineLoader } from '@whatsnxt/core-ui';
-import { Suspense } from 'react';
+import dynamic from 'next/dynamic';
+const Content = dynamic(() => import('../../components/Blog/Content/Content'), {
+  ssr: false,
+  loading: () => <MantineLoader />,
+});
 
-const Tutorial = () => {
+export default function TutorialPage() {
   return (
-    <Suspense fallback={<MantineLoader />}>
-      <Container fluid>
-        <Content type="tutorial"></Content>
-      </Container>
-    </Suspense>
+    <Container fluid>
+      <Content type="tutorial" />
+    </Container>
   );
-};
-
-export default Tutorial;
+}

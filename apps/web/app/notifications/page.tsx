@@ -1,9 +1,14 @@
-import React from 'react';
-
+import React, { Suspense } from 'react';
 import Notifications from '../../components/Notifications';
+import { MantineLoader } from '@whatsnxt/core-ui';
 
-function Page() {
-    return <Notifications />
-}
+const Page = () => {
+    return (
+        <Suspense fallback={<MantineLoader />}>
+            <Notifications />
+        </Suspense>
+    );
+};
 
-export default Page
+export default Page;
+
