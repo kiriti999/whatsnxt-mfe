@@ -4,149 +4,49 @@
   <!-- Homepage -->
   <url>
     <loc>https://www.whatsnxt.in/</loc>
-    <lastmod>2025-06-28</lastmod>
+    <lastmod>2025-07-14</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
   
-  <!-- Main Pages -->
-  <url>
-    <loc>https://www.whatsnxt.in/about</loc>
-    <lastmod>2025-06-28</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  
-  <url>
-    <loc>https://www.whatsnxt.in/blogs</loc>
-    <lastmod>2025-06-28</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  
-  <url>
-    <loc>https://www.whatsnxt.in/tutorials</loc>
-    <lastmod>2025-06-28</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  
+  <!-- Main Course Pages -->
   <url>
     <loc>https://www.whatsnxt.in/courses</loc>
-    <lastmod>2025-06-28</lastmod>
+    <lastmod>2025-07-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   
-  <!-- Search Pages -->
+  <!-- Content Index Page -->
   <url>
-    <loc>https://www.whatsnxt.in/search</loc>
-    <lastmod>2025-06-28</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://www.whatsnxt.in/course-search</loc>
-    <lastmod>2025-06-28</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://www.whatsnxt.in/search-trainers</loc>
-    <lastmod>2025-06-28</lastmod>
+    <loc>https://www.whatsnxt.in/content</loc>
+    <lastmod>2025-07-14</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  
-  <url>
-    <loc>https://www.whatsnxt.in/search-trainer</loc>
-    <lastmod>2025-06-28</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
+    <priority>0.9</priority>
   </url>
   
   <!-- Business Pages -->
   <url>
-    <loc>https://www.whatsnxt.in/become-a-trainer</loc>
-    <lastmod>2025-06-28</lastmod>
+    <loc>https://www.whatsnxt.in/consulting</loc>
+    <lastmod>2025-07-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   
+  <url>
+    <loc>https://www.whatsnxt.in/become-a-trainer</loc>
+    <lastmod>2025-07-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  
+  <!-- Contact Page (recommended to keep) -->
   <url>
     <loc>https://www.whatsnxt.in/contact-us</loc>
-    <lastmod>2025-06-28</lastmod>
+    <lastmod>2025-07-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   
-  <!-- Legal Pages -->
-  <url>
-    <loc>https://www.whatsnxt.in/privacy-policy</loc>
-    <lastmod>2025-06-28</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.4</priority>
-  </url>
-  
-  <url>
-    <loc>https://www.whatsnxt.in/terms-of-service</loc>
-    <lastmod>2025-06-28</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.4</priority>
-  </url>
-  
-  <url>
-    <loc>https://www.whatsnxt.in/refund-policy</loc>
-    <lastmod>2025-06-28</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.4</priority>
-  </url>
-  
-  <url>
-    <loc>https://www.whatsnxt.in/shipping-and-delivery</loc>
-    <lastmod>2025-06-28</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.4</priority>
-  </url>
-  
-  <!-- Example Dynamic Pages - Replace with actual content -->
-  <!-- 
-  <url>
-    <loc>https://www.whatsnxt.in/courses/web-development-fundamentals</loc>
-    <lastmod>2025-06-28</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  
-  <url>
-    <loc>https://www.whatsnxt.in/courses/react-masterclass</loc>
-    <lastmod>2025-06-28</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  
-  <url>
-    <loc>https://www.whatsnxt.in/trainer-details/john-doe-web-developer</loc>
-    <lastmod>2025-06-28</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  
-  <url>
-    <loc>https://www.whatsnxt.in/content/javascript-basics-tutorial</loc>
-    <lastmod>2025-06-28</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  
-  <url>
-    <loc>https://www.whatsnxt.in/interview/frontend-developer-questions</loc>
-    <lastmod>2025-06-28</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  -->
   
 </urlset>

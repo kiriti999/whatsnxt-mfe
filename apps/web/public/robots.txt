@@ -18,32 +18,31 @@ Disallow: /categories
 Disallow: /checkout/
 Disallow: /cart
 
-# Allow all public content
-Allow: /
-Allow: /about
-Allow: /blogs
-Allow: /tutorials
-Allow: /courses/
-Allow: /content/
-Allow: /search
-Allow: /course-search
-Allow: /search-trainers
-Allow: /search-trainer
-Allow: /trainer-details/
-Allow: /interview/
-Allow: /become-a-trainer
-Allow: /contact-us
+# Block search functionality pages
+Disallow: /course-search
+Disallow: /search-trainers
+Disallow: /search-trainer
+Disallow: /search
 
-# Allow policy and legal pages
-Allow: /shipping-and-delivery
-Allow: /privacy-policy
-Allow: /refund-policy
-Allow: /terms-of-service
+# Block legal pages (if you prefer)
+Disallow: /terms-of-service
+Disallow: /privacy-policy
+Disallow: /refund-policy
+Disallow: /shipping-and-delivery
 
 # Block any remaining private/user-specific areas
 Disallow: /dashboard
 Disallow: /profile
 Disallow: /settings
 Disallow: /user/
+
+# Allow only essential public content
+Allow: /
+Allow: /courses
+Allow: /courses/
+Allow: /content/
+Allow: /consulting
+Allow: /become-a-trainer
+Allow: /contact-us
 
 Sitemap: https://www.whatsnxt.in/sitemap.xml
