@@ -35,7 +35,7 @@ export const CartItems: FC<CartItemsProps> = ({
 
       <td className={styles['product-name']}>
         <Box w={200}>
-          <Anchor component={Link} href={`/courses/${slug}`}>
+          <Anchor component={Link} href={slug ? `/courses/${slug}` : '/courses'}>
             <Text truncate="end">{courseName}</Text>
           </Anchor>
         </Box>

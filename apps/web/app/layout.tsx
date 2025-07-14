@@ -64,7 +64,7 @@ const getAuthData = async () => {
 };
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://whatsnxt.in"),
+  metadataBase: new URL("https://www.whatsnxt.in"),
   title: {
     default: "whatsnxt - Online skill development & learning provider",
     template: "%s | whatsnxt"
@@ -97,7 +97,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    url: 'https://whatsnxt.in',
+    url: 'https://www.whatsnxt.in',
     siteName: 'whatsnxt',
     title: "whatsnxt - Online skill development & learning provider",
     description: "whatsnxt - Video courses and digital learning through articles and series on different categories. Facilitate learning through trainer search and connect",
@@ -121,11 +121,7 @@ export const metadata: Metadata = {
   },
 
   alternates: {
-    canonical: "https://whatsnxt.in",
-    languages: {
-      'en-US': '/en-US',
-      'hi-IN': '/hi-IN',
-    },
+    canonical: "https://www.whatsnxt.in",
   },
 
   appleWebApp: {
@@ -163,7 +159,7 @@ export const metadata: Metadata = {
       "name": "whatsnxt",
       "alternateName": "whatsnxt - Online Learning Platform",
       "description": "Video courses and digital learning through articles and series on different categories. Facilitate learning through trainer search and connect",
-      "url": "https://whatsnxt.in",
+      "url": "https://www.whatsnxt.in",
       "logo": "https://www.whatsnxt.in/logo.png",
       "image": "https://www.whatsnxt.in/og-image.jpg",
       "foundingDate": "2024", // Update with your actual founding date

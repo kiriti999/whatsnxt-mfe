@@ -26,7 +26,7 @@ const nextConfig: NextConfig = {
                         value: 'http',
                     },
                 ],
-                destination: 'https://whatsnxt.in/$1',
+                destination: 'https://www.whatsnxt.in/$1',
                 permanent: true,
             },
         ];

@@ -48,7 +48,12 @@ const TrendingArticles = ({ articles, total }: TrendingArticlesProps) => {
   };
 
   const handleReadMore = (slug: string) => {
-    // Navigate to article detail page
+    // Add validation
+    if (!slug || slug === 'undefined') {
+      console.warn('Invalid slug provided:', slug);
+      window.location.href = 'https://www.whatsnxt.in/'; // fallback to home page
+      return;
+    }
     window.location.href = `/content/${slug}`;
   };
 

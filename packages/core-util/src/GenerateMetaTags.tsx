@@ -66,7 +66,7 @@ export function generateMetadata({
         description,
         keywords: keywords.length > 0 ? keywords : undefined,
         authors: author ? [{ name: author }] : undefined,
-        metadataBase: new URL('https://whatsnxt.in'),
+        metadataBase: new URL('https://www.whatsnxt.in'),
         // ✅ Enhanced robots for LinkedIn crawling
         robots: {
             index: true,

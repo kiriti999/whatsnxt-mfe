@@ -44,7 +44,7 @@ const ContentPage = async (props: any) => {
             "author": {
               "@type": "Organization",
               "name": "whatsnxt.in",
-              "url": "https://whatsnxt.in"
+              "url": "https://www.whatsnxt.in"
             },
             "publisher": {
               "@type": "Organization",
