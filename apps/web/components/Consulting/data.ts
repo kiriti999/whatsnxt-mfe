@@ -39,7 +39,7 @@ export const consultingData = {
             color: "teal"
         }
     ],
-    
+
     expertise: [
         { name: "Full-Stack Development", level: 95 },
         { name: "Cloud Architecture (AWS, Azure, GCP)", level: 90 },
@@ -52,7 +52,7 @@ export const consultingData = {
         { name: "Team Leadership", level: 89 },
         { name: "Technical Documentation", level: 86 }
     ],
-    
+
     trainingTopics: [
         { name: "Modern JavaScript & TypeScript", popularity: 98, icon: IconCode },
         { name: "React & Next.js Development", popularity: 95, icon: IconRocket },
@@ -63,16 +63,16 @@ export const consultingData = {
         { name: "Testing Strategies", popularity: 78, icon: IconTarget },
         { name: "Code Quality & Best Practices", popularity: 85, icon: IconStar }
     ],
-    
+
     stats: [
         { number: "500+", label: "Projects Delivered", icon: IconRocket },
         { number: "98%", label: "Client Satisfaction", icon: IconStar },
         { number: "50+", label: "Expert Consultants", icon: IconUsers },
         { number: "10+", label: "Years Experience", icon: IconTarget }
     ],
-    
+
     contacts: [
-        { icon: IconMail, label: "Email", value: "info@whatsnxt.in" },
+        { icon: IconMail, label: "Email", value: "support@whatsnxt.in" },
         { icon: IconPhone, label: "Phone", value: "+91 6300711966" },
         { icon: IconCalendar, label: "Schedule", value: "Free 60-minute consultation" }
     ]

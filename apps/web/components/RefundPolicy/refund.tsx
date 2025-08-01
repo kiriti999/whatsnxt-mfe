@@ -22,12 +22,12 @@ const RefundPolicy = () => {
 
                 <Title order={3} mb="md">2. Refund for Live Training Courses</Title>
                 <Text mb="md">
-                  For live training courses, you must request a refund before attending the third session with the trainer. Refund requests after attending the third session will not be entertained. To initiate a refund, please contact us via email at <Anchor href="mailto:info@whatsnxt.in">info@whatsnxt.in</Anchor>.
+                  For live training courses, you must request a refund before attending the third session with the trainer. Refund requests after attending the third session will not be entertained. To initiate a refund, please contact us via email at <Anchor href="mailto:support@whatsnxt.in">support@whatsnxt.in</Anchor>.
                 </Text>
 
                 <Title order={3} mb="md">3. How to Request a Refund</Title>
                 <Box component="ol" mb="md">
-                  <li>Email us at <Anchor href="mailto:info@whatsnxt.in">info@whatsnxt.in</Anchor> with your order details and the reason for your refund request.</li>
+                  <li>Email us at <Anchor href="mailto:support@whatsnxt.in">support@whatsnxt.in</Anchor> with your order details and the reason for your refund request.</li>
                   <li>
                     For video recorded courses, the refund request must be made within 30 days of purchase.
                   </li>

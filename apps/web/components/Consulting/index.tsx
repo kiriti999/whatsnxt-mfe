@@ -664,7 +664,7 @@ export default function ConsultingPage() {
 
                                 <Stack gap="md">
                                     {[
-                                        { icon: IconMail, label: "Email", value: "info@whatsnxt.in" },
+                                        { icon: IconMail, label: "Email", value: "support@whatsnxt.in" },
                                         { icon: IconPhone, label: "Phone", value: "+91 6300711966" },
                                         { icon: IconCalendar, label: "Schedule", value: "Free 45-minute consultation" }
                                     ].map((contact, index) => (
