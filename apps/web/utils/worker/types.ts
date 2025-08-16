@@ -46,15 +46,23 @@ export interface WorkerResponse {
 }
 
 export interface DeleteAssetResult {
-    success: boolean;
-    results?: any;
-    error?: string;
+  success: boolean;
+  error?: string;
+  results?: any;
 }
 
-// Updated interfaces - remove boolean return option
-export interface UnifiedDeleteOptions {
-    assetsList: AssetItem[];
-    clearLocalStorage?: boolean; // Whether to clear localStorage on success
-    returnDetailedResult?: boolean; // Whether to return full details or minimal object
-    bffApiUrl?: string;
+// Image Safety Types
+export interface SafeSearchResult {
+  adult: 'UNKNOWN' | 'VERY_UNLIKELY' | 'UNLIKELY' | 'POSSIBLE' | 'LIKELY' | 'VERY_LIKELY';
+  spoof: 'UNKNOWN' | 'VERY_UNLIKELY' | 'UNLIKELY' | 'POSSIBLE' | 'LIKELY' | 'VERY_LIKELY';
+  medical: 'UNKNOWN' | 'VERY_UNLIKELY' | 'UNLIKELY' | 'POSSIBLE' | 'LIKELY' | 'VERY_LIKELY';
+  violence: 'UNKNOWN' | 'VERY_UNLIKELY' | 'UNLIKELY' | 'POSSIBLE' | 'LIKELY' | 'VERY_LIKELY';
+  racy: 'UNKNOWN' | 'VERY_UNLIKELY' | 'UNLIKELY' | 'POSSIBLE' | 'LIKELY' | 'VERY_LIKELY';
+}
+
+export interface ImageSafetyResult {
+  safe: boolean;
+  safeSearch: SafeSearchResult;
+  blockedReasons: string[];
+  confidence: 'low' | 'medium' | 'high';
 }

@@ -3,6 +3,13 @@ import { TiptapManageContext } from '../../../../context/TiptapManageContext';
 import { IconPhoto } from '@tabler/icons-react';
 import { Button } from '@mantine/core';
 import { unifiedUploadWebWorker } from '../../../../utils/worker/assetManager';
+import { 
+  scanImageSafety, 
+  validateImageForSafety, 
+  getSafetySummary, 
+  fileToBuffer,
+  type ImageSafetyResult 
+} from '../../../../utils/imageSafety';
 
 // File size limits (in bytes)
 const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
@@ -24,6 +31,7 @@ const ImageControl = ({ editor }: any) => {
   const { courseId, updateProgress } = useContext(TiptapManageContext);
   const [isUploading, setIsUploading] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
+  const [isScanningForSafety, setIsScanningForSafety] = useState(false);
   const activeUploads = useRef(new Set<string>());
 
   // Format file size for display
@@ -87,6 +95,32 @@ const ImageControl = ({ editor }: any) => {
     return dimensionsValid;
   };
 
+  // Safety scan image before upload
+  const performSafetyScan = async (file: File): Promise<ImageSafetyResult> => {
+    console.log('🔍 Starting safety scan for:', file.name);
+    setIsScanningForSafety(true);
+    
+    try {
+      // Validate file for safety scanning
+      validateImageForSafety(file);
+      
+      // Convert file to buffer
+      const buffer = await fileToBuffer(file);
+      
+      // Perform safety scan
+      const safetyResult = await scanImageSafety(buffer);
+      
+      console.log('✅ Safety scan completed:', safetyResult);
+      return safetyResult;
+      
+    } catch (error) {
+      console.error('❌ Safety scan failed:', error);
+      throw error;
+    } finally {
+      setIsScanningForSafety(false);
+    }
+  };
+
   // Optional: Compress large images
   const compressImage = async (file: File, maxWidth: number = 1920, quality: number = 0.8): Promise<File> => {
     return new Promise((resolve) => {
@@ -134,7 +168,7 @@ const ImageControl = ({ editor }: any) => {
     // Reset the target value so it allows adding the same files
     event.target.value = '';
 
-    if (!file || !editor || isUploading) {
+    if (!file || !editor || isUploading || isScanningForSafety) {
       return;
     }
 
@@ -143,6 +177,25 @@ const ImageControl = ({ editor }: any) => {
     if (!isValid) {
       // Error message is already set by validateFile
       setTimeout(() => setValidationError(null), 5000); // Clear error after 5s
+      return;
+    }
+
+    // SAFETY SCANNING: Scan image for inappropriate content
+    try {
+      const safetyResult = await performSafetyScan(file);
+      
+      if (!safetyResult.safe) {
+        const summary = getSafetySummary(safetyResult);
+        setValidationError(`Image blocked: ${summary}`);
+        setTimeout(() => setValidationError(null), 8000); // Clear error after 8s
+        return;
+      }
+      
+      console.log('✅ Image passed safety check, proceeding with upload');
+    } catch (error) {
+      console.error('❌ Safety scan failed:', error);
+      setValidationError(`Upload blocked: ${error instanceof Error ? error.message : 'Safety scan failed'}`);
+      setTimeout(() => setValidationError(null), 8000);
       return;
     }
 
@@ -237,7 +290,7 @@ const ImageControl = ({ editor }: any) => {
         ref={fileInputRef}
         onChange={handleFileUpload}
         accept={SUPPORTED_FORMATS.join(',')}
-        disabled={isUploading}
+        disabled={isUploading || isScanningForSafety}
       />
 
       {/* Styled button */}
@@ -247,11 +300,12 @@ const ImageControl = ({ editor }: any) => {
         variant="outline"
         onClick={() => fileInputRef.current?.click()}
         title={`Add Image (Max: ${formatFileSize(MAX_FILE_SIZE)})`}
-        loading={isUploading}
-        disabled={isUploading}
+        loading={isUploading || isScanningForSafety}
+        disabled={isUploading || isScanningForSafety}
         color={validationError ? 'red' : undefined}
       >
         <IconPhoto size={20} />
+        {isScanningForSafety && <span style={{ marginLeft: '4px', fontSize: '10px' }}>Scanning...</span>}
       </Button>
 
       {/* Error display */}
