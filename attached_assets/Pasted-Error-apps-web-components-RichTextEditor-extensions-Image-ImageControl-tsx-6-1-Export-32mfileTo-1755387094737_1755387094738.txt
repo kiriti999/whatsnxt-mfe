@@ -1,0 +1,38 @@
+Error: ./apps/web/components/RichTextEditor/extensions/Image/ImageControl.tsx:6:1
+Export [32mfileToBuffer[39m doesn't exist in target module
+[0m [90m  4 |[39m [36mimport[39m { [33mButton[39m } [36mfrom[39m [32m'@mantine/core'[39m[33m;[39m[0m
+[0m [90m  5 |[39m [36mimport[39m { unifiedUploadWebWorker } [36mfrom[39m [32m'../../../../utils/worker/assetManager'[39m[33m;[39m[0m
+[0m[31m[1m>[22m[39m[90m  6 |[39m [36mimport[39m { [0m
+[0m [90m    |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[0m
+[0m[31m[1m>[22m[39m[90m  7 |[39m   scanImageSafety[33m,[39m [0m
+[0m [90m    |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[0m
+[0m[31m[1m>[22m[39m[90m  8 |[39m   validateImageForSafety[33m,[39m [0m
+[0m [90m    |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[0m
+[0m[31m[1m>[22m[39m[90m  9 |[39m   getSafetySummary[33m,[39m [0m
+[0m [90m    |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[0m
+[0m[31m[1m>[22m[39m[90m 10 |[39m   fileToBuffer[33m,[39m[0m
+[0m [90m    |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[0m
+[0m[31m[1m>[22m[39m[90m 11 |[39m   type [33mImageSafetyResult[39m [0m
+[0m [90m    |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[0m
+[0m[31m[1m>[22m[39m[90m 12 |[39m } [36mfrom[39m [32m'../../../../utils/imageSafety'[39m[33m;[39m[0m
+[0m [90m    |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[0m
+[0m [90m 13 |[39m[0m
+[0m [90m 14 |[39m [90m// File size limits (in bytes)[39m[0m
+[0m [90m 15 |[39m [36mconst[39m [33mMAX_FILE_SIZE[39m [33m=[39m [35m2[39m [33m*[39m [35m1024[39m [33m*[39m [35m1024[39m[33m;[39m [90m// 2MB[39m[0m
+
+The export [32mfileToBuffer[39m was not found in module [1m[31m[project]/apps/web/utils/imageSafety.ts [app-client] (ecmascript)[39m[22m.
+Did you mean to import [32mcheckImageSafety[39m?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+    at BuildError (http://localhost:3001/_next/static/chunks/%5Broot-of-the-server%5D__69dc36b0._.js:17416:41)
+    at react-stack-bottom-frame (http://localhost:3001/_next/static/chunks/a14e7_react-dom_638ad3bb._.js:13596:24)
+    at renderWithHooksAgain (http://localhost:3001/_next/static/chunks/a14e7_react-dom_638ad3bb._.js:3615:24)
+    at renderWithHooks (http://localhost:3001/_next/static/chunks/a14e7_react-dom_638ad3bb._.js:3566:28)
+    at updateFunctionComponent (http://localhost:3001/_next/static/chunks/a14e7_react-dom_638ad3bb._.js:5317:21)
+    at beginWork (http://localhost:3001/_next/static/chunks/a14e7_react-dom_638ad3bb._.js:5916:24)
+    at runWithFiberInDEV (http://localhost:3001/_next/static/chunks/a14e7_react-dom_638ad3bb._.js:1335:74)
+    at performUnitOfWork (http://localhost:3001/_next/static/chunks/a14e7_react-dom_638ad3bb._.js:7988:97)
+    at workLoopSync (http://localhost:3001/_next/static/chunks/a14e7_react-dom_638ad3bb._.js:7880:40)
+    at renderRootSync (http://localhost:3001/_next/static/chunks/a14e7_react-dom_638ad3bb._.js:7863:13)
+    at performWorkOnRoot (http://localhost:3001/_next/static/chunks/a14e7_react-dom_638ad3bb._.js:7602:212)
+    at performWorkOnRootViaSchedulerTask (http://localhost:3001/_next/static/chunks/a14e7_react-dom_638ad3bb._.js:8566:9)
+    at MessagePort.performWorkUntilDeadline (http://localhost:3001/_next/static/chunks/node_modules__pnpm_51c25b77._.js:1119:64)
