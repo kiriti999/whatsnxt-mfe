@@ -40,6 +40,7 @@
   },
   "dependencies": {
     "@builder.io/partytown": "0.10.2",
+    "@google-cloud/vision": "^5.3.3",
     "@mantine/carousel": "8.1.2",
     "@mantine/core": "8.1.2",
     "@mantine/form": "8.1.2",
