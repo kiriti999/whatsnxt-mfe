@@ -19,7 +19,7 @@ import {
   cloudinaryAssetsUploadCleanupForUpdate,
 } from '../../RichTextEditor/common';
 import { IconUpload, IconAlertCircle, IconCheck } from '@tabler/icons-react';
-import Image from 'next/image';
+import { default as NextImage } from 'next/image';
 import { uploadImage } from './util';
 import { unifiedDeleteWebWorker } from '../../../utils/worker/assetManager';
 import { useImageSafety } from '../../../hooks/useImageSafety';
@@ -74,13 +74,13 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
   const [validationSuccess, setValidationSuccess] = useState<string | null>(null);
 
   // Image safety hook
-  const {
-    scanImageClientSide,
+  const { 
+    scanImageClientSide, 
     preloadModel,
-    isScanning,
+    isScanning, 
     isModelLoading,
-    error: scanError,
-    clearError
+    error: scanError, 
+    clearError 
   } = useImageSafety();
 
   const {
@@ -200,17 +200,18 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
   // Validate image dimensions
   const validateImageDimensions = (file: File): Promise<boolean> => {
     return new Promise((resolve) => {
-      const img = new Image();
+      // Use HTMLImageElement directly to avoid naming conflicts
+      const img = document.createElement('img');
       const url = URL.createObjectURL(file);
 
       img.onload = () => {
         URL.revokeObjectURL(url);
         const minWidth = 750, minHeight = 422;
         const maxWidth = 6000, maxHeight = 6000;
-
+        
         const isValidMin = img.width >= minWidth && img.height >= minHeight;
         const isValidMax = img.width <= maxWidth && img.height <= maxHeight;
-
+        
         if (!isValidMin) {
           setValidationError(
             `Image dimensions too small. Min: ${minWidth}x${minHeight}px, Actual: ${img.width}x${img.height}px`
@@ -220,7 +221,7 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
             `Image dimensions too large. Max: ${maxWidth}x${maxHeight}px, Actual: ${img.width}x${img.height}px`
           );
         }
-
+        
         resolve(isValidMin && isValidMax);
       };
 
@@ -272,7 +273,7 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
 
     try {
       console.log('🔍 Starting validation and safety scan for:', file.name);
-
+      
       // Step 1: Basic file validation
       const isValidFile = await validateFile(file);
       if (!isValidFile) {
@@ -282,7 +283,7 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
       // Step 2: Safety scanning
       console.log('🔍 Running AI safety scan...');
       const safetyResult = await scanImageClientSide(file);
-
+      
       if (!safetyResult.safe) {
         setValidationError(
           `Image blocked by AI safety scan: ${safetyResult.blockedReasons.join(', ')}`
@@ -703,9 +704,9 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
                       clearable
                       label={<Text fz={15}>Tutorial Image <Text component="span" m={0} size='lg' c="red">*</Text></Text>}
                       placeholder={
-                        isScanning ? "🔍 Scanning image..." :
-                          isModelLoading ? "🤖 Loading AI model..." :
-                            "Select tutorial image"
+                        isScanning ? "🔍 Scanning image..." : 
+                        isModelLoading ? "🤖 Loading AI model..." :
+                        "Select tutorial image"
                       }
                       leftSection={
                         isScanning || isModelLoading ? (
@@ -725,9 +726,9 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
 
                     {/* Status messages */}
                     {(validationError || scanError) && (
-                      <Alert
-                        icon={<IconAlertCircle size={16} />}
-                        color="red"
+                      <Alert 
+                        icon={<IconAlertCircle size={16} />} 
+                        color="red" 
                         mt="xs"
                         variant="light"
                       >
@@ -736,9 +737,9 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
                     )}
 
                     {validationSuccess && !validationError && !scanError && (
-                      <Alert
-                        icon={<IconCheck size={16} />}
-                        color="green"
+                      <Alert 
+                        icon={<IconCheck size={16} />} 
+                        color="green" 
                         mt="xs"
                         variant="light"
                       >
@@ -797,13 +798,13 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
               {imagePreview && !validationError && !scanError && (
                 <Box mt="md">
                   <Title order={5}>Image Preview:</Title>
-                  <Image
+                  <NextImage
                     alt="tutorial image preview"
                     width={300}
                     height={200}
                     sizes="(max-width: 480px) 300px, (max-width: 768px) 320px, 340px"
                     src={imagePreview}
-                    style={{
+                    style={{ 
                       borderRadius: '8px',
                       border: '1px solid #e9ecef'
                     }}
@@ -846,15 +847,15 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
                       )}
 
                       <Group>
-                        <Button
+                        <Button 
                           fullWidth
                           disabled={
-                            isAssetsUploading ||
-                            isScanning ||
-                            isModelLoading ||
-                            (validationError !== null) ||
+                            isAssetsUploading || 
+                            isScanning || 
+                            isModelLoading || 
+                            (validationError !== null) || 
                             (scanError !== null)
-                          }
+                          } 
                           type="submit"
                         >
                           {edit ? 'Update' : 'Create'}
