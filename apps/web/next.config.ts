@@ -312,6 +312,8 @@ const nextConfig: NextConfig = {
             ...(isDevelopment ? ['http://localhost:*', 'ws://localhost:*'] : []),
             // Your API domain - COMPLETE ACCESS
             'https://api.whatsnxt.in',
+            // Legacy specific paths (remove these after testing)
+            // ...apiHosts,
             // Payment services
             'https://api.razorpay.com',
             'https://checkout.razorpay.com',
@@ -323,18 +325,11 @@ const nextConfig: NextConfig = {
             'https://api.cloudinary.com',
             'https://*.cloudinary.com',
             'https://ik.imagekit.io',
-            // Analytics services - COMPLETE GOOGLE ANALYTICS DOMAINS
+            // Analytics services - ADD MISSING DOMAINS
             'https://www.google-analytics.com',
-            'https://analytics.google.com',
+            'https://analytics.google.com',  // MISSING - This was causing Partytown errors
             'https://www.googletagmanager.com',
-            'https://*.google-analytics.com',
-            // MISSING DOMAINS - Add these for complete GA4 support:
-            'https://stats.g.doubleclick.net',        // GA4 data collection
-            'https://*.doubleclick.net',              // DoubleClick (Google Ads integration)
-            'https://www.google.co.in',               // Google Ads audiences (location-specific)
-            'https://*.google.com',                   // Wildcard for any Google domain
-            'https://region1.google-analytics.com',   // Regional GA servers
-            'https://region1.analytics.google.com'    // Regional analytics servers
+            'https://*.google-analytics.com'  // Wildcard for any GA subdomain
         ].join(' ');
 
         return [

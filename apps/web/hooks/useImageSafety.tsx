@@ -1,30 +1,56 @@
+
 import { useState, useCallback } from 'react';
-import { checkImageSafety, ImageSafetyResponse } from '../utils/imageSafety';
+import { 
+  scanImageSafety, 
+  validateImageForSafety, 
+  getSafetySummary, 
+  fileToBuffer,
+  type ImageSafetyResult 
+} from '../utils/imageSafety';
 
 interface UseImageSafetyReturn {
-  checkSafety: (imageUrl: string) => Promise<ImageSafetyResponse>;
-  isLoading: boolean;
+  scanImage: (file: File) => Promise<ImageSafetyResult>;
+  isScanning: boolean;
   error: string | null;
   clearError: () => void;
 }
 
 export function useImageSafety(): UseImageSafetyReturn {
-  const [isLoading, setIsLoading] = useState(false);
+  const [isScanning, setIsScanning] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const checkSafety = useCallback(async (imageUrl: string): Promise<ImageSafetyResponse> => {
-    setIsLoading(true);
+  const scanImage = useCallback(async (file: File): Promise<ImageSafetyResult> => {
+    setIsScanning(true);
     setError(null);
 
     try {
-      const result = await checkImageSafety(imageUrl);
+      console.log('🔍 Hook: Starting image safety scan for:', file.name);
+
+      // Validate file
+      validateImageForSafety(file);
+
+      // Convert to buffer
+      const buffer = await fileToBuffer(file);
+
+      // Perform safety scan
+      const result = await scanImageSafety(buffer);
+
+      console.log('✅ Hook: Safety scan completed:', result);
+
+      if (!result.safe) {
+        const summary = getSafetySummary(result);
+        setError(summary);
+      }
+
       return result;
+
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to check image safety';
+      const errorMessage = err instanceof Error ? err.message : 'Safety scan failed';
+      console.error('❌ Hook: Safety scan error:', errorMessage);
       setError(errorMessage);
       throw err;
     } finally {
-      setIsLoading(false);
+      setIsScanning(false);
     }
   }, []);
 
@@ -33,8 +59,8 @@ export function useImageSafety(): UseImageSafetyReturn {
   }, []);
 
   return {
-    checkSafety,
-    isLoading,
+    scanImage,
+    isScanning,
     error,
     clearError,
   };
