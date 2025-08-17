@@ -1,12 +1,12 @@
 import React, { useEffect, useState, useCallback, Suspense } from 'react';
 import { useForm, Controller } from 'react-hook-form';
-import { Box, Button, Container, FileInput, Grid, Select, Text, TextInput, Title, LoadingOverlay, Loader, Switch } from '@mantine/core';
+import { Box, Button, Container, FileInput, Grid, Select, Text, TextInput, Title, LoadingOverlay, Loader, Switch, Alert, Group } from '@mantine/core';
 import { useRouter } from 'next/navigation';
 import { notifications } from '@mantine/notifications';
 import { BlogFormProps } from '../../../types/blogs';
 import { FormAPI, HistoryAPI } from '../../../apis/v1/blog';
 import { getCategoryId } from '../../../utils/form';
-import { IconUpload } from '@tabler/icons-react';
+import { IconUpload, IconAlertCircle, IconCheck } from '@tabler/icons-react';
 import { RichTextEditor } from '../../RichTextEditor';
 import { useDisclosure } from '@mantine/hooks';
 import { MantineLoader } from '@whatsnxt/core-ui';
@@ -14,6 +14,7 @@ import { AISuggestions } from '../../../apis/v1/blog/aiSuggestions';
 import Image from 'next/image';
 import { uploadImage } from './util';
 import { unifiedDeleteWebWorker } from '../../../utils/worker/assetManager';
+import { useImageSafety } from '../../../hooks/useImageSafety';
 
 const BlogForm: React.FC<BlogFormProps> = ({ categories, edit }) => {
   const [isVisible, { open, close }] = useDisclosure(false);
@@ -21,10 +22,21 @@ const BlogForm: React.FC<BlogFormProps> = ({ categories, edit }) => {
   const [nestedSubCategories, setNestedSubCategories] = useState<any[]>([]);
   const [blogImage, setCourseImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [validationError, setValidationError] = useState<string | null>(null);
+  const [validationSuccess, setValidationSuccess] = useState<string | null>(null);
   const router = useRouter();
   const [wordCount, setWordCount] = useState(0);
   const [contentIsMarkdown, setContentIsMarkdown] = useState(false);
 
+  // Image safety hook
+  const {
+    scanImageClientSide,
+    preloadModel,
+    isScanning,
+    isModelLoading,
+    error: scanError,
+    clearError
+  } = useImageSafety();
 
   const {
     setValue,
@@ -54,6 +66,11 @@ const BlogForm: React.FC<BlogFormProps> = ({ categories, edit }) => {
   useEffect(() => {
     setQuestionText(titleValue);
   }, [titleValue]);
+
+  // Preload AI model on component mount for better UX
+  useEffect(() => {
+    preloadModel().catch(console.warn);
+  }, [preloadModel]);
 
   // Populate subcategories and nested subcategories when editing
   // Pre-fill the form with edit data if available
@@ -92,6 +109,11 @@ const BlogForm: React.FC<BlogFormProps> = ({ categories, edit }) => {
       if (edit.nestedSubCategory) {
         setValue('nestedSubCategory', edit.nestedSubCategory)
       }
+
+      // Set existing image preview if editing
+      if (edit.imageUrl) {
+        setImagePreview(edit.imageUrl);
+      }
     }
   }, [edit, setValue]);
 
@@ -116,6 +138,7 @@ const BlogForm: React.FC<BlogFormProps> = ({ categories, edit }) => {
     },
     [categories]
   );
+
   // Update nested subcategories when a subcategory is selected
   const handleSubCategoryChange = useCallback(
     (value: string) => {
@@ -129,6 +152,129 @@ const BlogForm: React.FC<BlogFormProps> = ({ categories, edit }) => {
     },
     [subCategories]
   );
+
+  // Format file size for display
+  const formatFileSize = (bytes: number): string => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  };
+
+  // Validate image dimensions
+  const validateImageDimensions = (file: File): Promise<boolean> => {
+    return new Promise((resolve) => {
+      const img = new Image();
+      const url = URL.createObjectURL(file);
+
+      img.onload = () => {
+        URL.revokeObjectURL(url);
+        const minWidth = 750, minHeight = 422;
+        const maxWidth = 6000, maxHeight = 6000;
+
+        const isValidMin = img.width >= minWidth && img.height >= minHeight;
+        const isValidMax = img.width <= maxWidth && img.height <= maxHeight;
+
+        if (!isValidMin) {
+          setValidationError(
+            `Image dimensions too small. Min: ${minWidth}x${minHeight}px, Actual: ${img.width}x${img.height}px`
+          );
+        } else if (!isValidMax) {
+          setValidationError(
+            `Image dimensions too large. Max: ${maxWidth}x${maxHeight}px, Actual: ${img.width}x${img.height}px`
+          );
+        }
+
+        resolve(isValidMin && isValidMax);
+      };
+
+      img.onerror = () => {
+        URL.revokeObjectURL(url);
+        setValidationError('Invalid image file');
+        resolve(false);
+      };
+
+      img.src = url;
+    });
+  };
+
+  // Comprehensive file validation
+  const validateFile = async (file: File): Promise<boolean> => {
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    const allowedTypes = ['image/png', 'image/jpg', 'image/jpeg'];
+
+    // Check file type
+    if (!allowedTypes.includes(file.type)) {
+      setValidationError(`Unsupported file format. Supported: ${allowedTypes.join(', ')}`);
+      return false;
+    }
+
+    // Check file size
+    if (file.size > maxSize) {
+      setValidationError(
+        `File too large: ${formatFileSize(file.size)}. Maximum allowed: ${formatFileSize(maxSize)}`
+      );
+      return false;
+    }
+
+    // Check image dimensions
+    const dimensionsValid = await validateImageDimensions(file);
+    return dimensionsValid;
+  };
+
+  const handleImageChange = async (file: File | null) => {
+    // Clear previous states
+    setValidationError(null);
+    setValidationSuccess(null);
+    clearError();
+
+    if (!file) {
+      setCourseImage(null);
+      setImagePreview(null);
+      return;
+    }
+
+    try {
+      console.log('🔍 Starting validation and safety scan for:', file.name);
+
+      // Step 1: Basic file validation
+      const isValidFile = await validateFile(file);
+      if (!isValidFile) {
+        return; // Error already set by validateFile
+      }
+
+      // Step 2: Safety scanning
+      console.log('🔍 Running AI safety scan...');
+      const safetyResult = await scanImageClientSide(file);
+
+      if (!safetyResult.safe) {
+        setValidationError(
+          `Image blocked by AI safety scan: ${safetyResult.blockedReasons.join(', ')}`
+        );
+        console.error('❌ Image failed safety check:', safetyResult);
+        return;
+      }
+
+      // Step 3: All checks passed - set the image
+      console.log('✅ Image passed all validation checks');
+      setCourseImage(file);
+      setValidationSuccess(`Image validated successfully (${formatFileSize(file.size)})`);
+
+      // Step 4: Create preview
+      const fileReader = new FileReader();
+      fileReader.onload = (e) => {
+        setImagePreview(e.target?.result as string);
+      };
+      fileReader.readAsDataURL(file);
+
+    } catch (error) {
+      console.error('❌ Image validation failed:', error);
+      setValidationError(
+        `Validation failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
+    }
+  };
 
   const handleFormSubmit = async (formData: any, e: any) => {
     e.preventDefault();
@@ -148,15 +294,17 @@ const BlogForm: React.FC<BlogFormProps> = ({ categories, edit }) => {
       let imageUrl = edit?.imageUrl || '';
       let cloudinaryAssets = edit?.cloudinaryAssets || [];
 
+      // Only upload new image if one was selected
+      if (blogImage) {
+        // Upload image via worker
+        const addToLocalStorage = false;
+        const { secure_url, updatedAssets } = await uploadImage(blogImage, cloudinaryAssets, 'whatsnxt-blog', addToLocalStorage, bffApiUrl);
+        imageUrl = secure_url
+        cloudinaryAssets = updatedAssets;
 
-      // Upload image via worker
-      const addToLocalStorage = false;
-      const { secure_url, updatedAssets } = await uploadImage(blogImage, cloudinaryAssets, 'whatsnxt-blog', addToLocalStorage, bffApiUrl);
-      imageUrl = secure_url
-      cloudinaryAssets = updatedAssets;
-
-      if (secure_url) {
-        imageAssets = [...updatedAssets]
+        if (secure_url) {
+          imageAssets = [...updatedAssets]
+        }
       }
 
       // Construct payload with nested categories
@@ -205,20 +353,6 @@ const BlogForm: React.FC<BlogFormProps> = ({ categories, edit }) => {
     }
   };
 
-  const handleImageChange = (file: File | null) => {
-    setCourseImage(file);
-
-    if (file) {
-      const fileReader = new FileReader();
-      fileReader.onload = (e) => {
-        setImagePreview(e.target?.result as string); // Set image preview
-      };
-      fileReader.readAsDataURL(file); // Read the file as a data URL
-    } else {
-      setImagePreview(null); // Reset preview if no file is selected
-    }
-  };
-
   const handleWordCountChange = (count: number) => {
     console.log('wordCount ', count);
     setWordCount(count);
@@ -252,7 +386,6 @@ const BlogForm: React.FC<BlogFormProps> = ({ categories, edit }) => {
                 <TextInput
                   label={<Text fz={15}>Title <Text component="span" m={0} size='lg' c="red">*</Text></Text>}
                   placeholder="Enter blog title"
-
                   {...register('title', { required: 'Title is required', maxLength: 250 })}
                 />
                 {errors.title && <Text c="red">{errors.title.message}</Text>}
@@ -271,7 +404,6 @@ const BlogForm: React.FC<BlogFormProps> = ({ categories, edit }) => {
                   description="Toggle if content is Markdown instead of HTML"
                 />
               </Grid.Col>
-
 
               {/* Description */}
               <Grid.Col span={12}>
@@ -357,28 +489,85 @@ const BlogForm: React.FC<BlogFormProps> = ({ categories, edit }) => {
               )}
             </Grid>
 
+            {/* Blog Image Upload */}
             <Controller
               name="blogImagePreview"
               control={control}
               rules={{ required: edit ? false : 'Blog Image is required' }}
               render={({ field }) => (
-                <FileInput
-                  clearable
-                  label={<Text size='sm' mt={'2rem'}>Blog Image <Text component="span" size='lg' c="red">*</Text></Text>}
-                  placeholder="Select course image"
-                  leftSection={<IconUpload size={16} />}
-                  value={blogImage}
-                  onChange={(e) => {
-                    handleImageChange(e);
-                    field.onChange(e);
-                  }}
-                  accept=".png,.jpg,.jpeg"
-                />
+                <div>
+                  <FileInput
+                    clearable
+                    label={<Text size='sm' mt={'2rem'}>Blog Image <Text component="span" size='lg' c="red">*</Text></Text>}
+                    placeholder={
+                      isScanning ? "🔍 Scanning image..." :
+                        isModelLoading ? "🤖 Loading AI model..." :
+                          "Select blog image"
+                    }
+                    leftSection={
+                      isScanning || isModelLoading ? (
+                        <Loader size={16} />
+                      ) : (
+                        <IconUpload size={16} />
+                      )
+                    }
+                    value={blogImage}
+                    onChange={(e) => {
+                      handleImageChange(e);
+                      field.onChange(e);
+                    }}
+                    accept=".png,.jpg,.jpeg"
+                    disabled={isScanning || isModelLoading}
+                  />
+
+                  {/* Status messages */}
+                  {(validationError || scanError) && (
+                    <Alert
+                      icon={<IconAlertCircle size={16} />}
+                      color="red"
+                      mt="xs"
+                      variant="light"
+                    >
+                      {validationError || scanError}
+                    </Alert>
+                  )}
+
+                  {validationSuccess && !validationError && !scanError && (
+                    <Alert
+                      icon={<IconCheck size={16} />}
+                      color="green"
+                      mt="xs"
+                      variant="light"
+                    >
+                      {validationSuccess}
+                    </Alert>
+                  )}
+
+                  {/* Scanning status */}
+                  {isScanning && (
+                    <Group gap="xs" mt="xs">
+                      <Loader size="xs" />
+                      <Text size="xs" c="blue">
+                        Running AI safety scan...
+                      </Text>
+                    </Group>
+                  )}
+
+                  {/* Model loading status */}
+                  {isModelLoading && (
+                    <Group gap="xs" mt="xs">
+                      <Loader size="xs" />
+                      <Text size="xs" c="gray">
+                        Loading AI model in browser...
+                      </Text>
+                    </Group>
+                  )}
+                </div>
               )}
             />
             {errors.blogImagePreview && <Text c="red">{errors.blogImagePreview.message}</Text>}
 
-            {/* Course Image Technical Requirements */}
+            {/* Blog Image Technical Requirements */}
             <Box mt="lg" style={{ textAlign: 'left' }}>
               <Title order={5}>Blog Image Requirements</Title>
               <Text size="sm" mt="xs">
@@ -393,10 +582,16 @@ const BlogForm: React.FC<BlogFormProps> = ({ categories, edit }) => {
               <Text size="sm" mt="xs">
                 <strong>Maximum required dimensions:</strong> 6000 × 6000 pixels
               </Text>
+              <Text size="sm" mt="xs">
+                <strong>File size:</strong> Maximum 5MB
+              </Text>
+              <Text size="sm" mt="xs" c="blue">
+                <strong>AI Safety:</strong> All images are automatically scanned for inappropriate content before upload.
+              </Text>
             </Box>
 
             {/* Image Preview */}
-            {imagePreview && (
+            {imagePreview && !validationError && !scanError && (
               <Box mt="md">
                 <Title order={5}>Image Preview:</Title>
                 <Image
@@ -405,11 +600,19 @@ const BlogForm: React.FC<BlogFormProps> = ({ categories, edit }) => {
                   width={300}
                   height={200}
                   sizes="(max-width: 480px) 300px, (max-width: 768px) 320px, 340px"
+                  style={{
+                    borderRadius: '8px',
+                    border: '1px solid #e9ecef'
+                  }}
                 />
               </Box>
             )}
 
-            <Button type="submit" mt="md" disabled={!isDirty}>
+            <Button
+              type="submit"
+              mt="md"
+              disabled={!isDirty || isScanning || isModelLoading || (validationError !== null) || (scanError !== null)}
+            >
               {edit ? 'Update' : 'Create'}
             </Button>
           </form>

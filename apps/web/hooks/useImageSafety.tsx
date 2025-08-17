@@ -1,56 +1,66 @@
-
 import { useState, useCallback } from 'react';
-import { 
-  scanImageSafety, 
-  validateImageForSafety, 
-  getSafetySummary, 
-  fileToBuffer,
-  type ImageSafetyResult 
-} from '../utils/imageSafety';
+import {
+  scanImageSafetyClientSide,
+  validateImageForClientSafety,
+  getClientSafetySummary,
+  preloadNSFWModel,
+  type ClientImageSafetyResult
+} from '../utils/imageSafetyClient';
 
 interface UseImageSafetyReturn {
-  scanImage: (file: File) => Promise<ImageSafetyResult>;
+  scanImageClientSide: (file: File) => Promise<ClientImageSafetyResult>;
+  preloadModel: () => Promise<void>;
   isScanning: boolean;
+  isModelLoading: boolean;
   error: string | null;
   clearError: () => void;
 }
 
 export function useImageSafety(): UseImageSafetyReturn {
   const [isScanning, setIsScanning] = useState(false);
+  const [isModelLoading, setIsModelLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const scanImage = useCallback(async (file: File): Promise<ImageSafetyResult> => {
+  const scanImageClientSide = useCallback(async (file: File): Promise<ClientImageSafetyResult> => {
     setIsScanning(true);
     setError(null);
 
     try {
-      console.log('🔍 Hook: Starting image safety scan for:', file.name);
+      console.log('🔍 Hook: Starting client-side AI safety scan for:', file.name);
 
-      // Validate file
-      validateImageForSafety(file);
+      // Validate file for client-side scanning
+      validateImageForClientSafety(file);
 
-      // Convert to buffer
-      const buffer = await fileToBuffer(file);
+      // Perform client-side safety scan
+      const result = await scanImageSafetyClientSide(file);
 
-      // Perform safety scan
-      const result = await scanImageSafety(buffer);
-
-      console.log('✅ Hook: Safety scan completed:', result);
+      console.log('✅ Hook: Client-side safety scan completed:', result);
 
       if (!result.safe) {
-        const summary = getSafetySummary(result);
+        const summary = getClientSafetySummary(result);
         setError(summary);
       }
 
       return result;
 
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Safety scan failed';
-      console.error('❌ Hook: Safety scan error:', errorMessage);
+      const errorMessage = err instanceof Error ? err.message : 'Client-side safety scan failed';
+      console.error('❌ Hook: Client-side safety scan error:', errorMessage);
       setError(errorMessage);
       throw err;
     } finally {
       setIsScanning(false);
+    }
+  }, []);
+
+  const preloadModel = useCallback(async (): Promise<void> => {
+    setIsModelLoading(true);
+    try {
+      await preloadNSFWModel();
+    } catch (err) {
+      console.warn('⚠️ Hook: Failed to preload NSFW model:', err);
+    } finally {
+      setIsModelLoading(false);
     }
   }, []);
 
@@ -59,8 +69,10 @@ export function useImageSafety(): UseImageSafetyReturn {
   }, []);
 
   return {
-    scanImage,
+    scanImageClientSide,
+    preloadModel,
     isScanning,
+    isModelLoading,
     error,
     clearError,
   };

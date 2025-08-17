@@ -3,13 +3,12 @@ import { TiptapManageContext } from '../../../../context/TiptapManageContext';
 import { IconPhoto } from '@tabler/icons-react';
 import { Button } from '@mantine/core';
 import { unifiedUploadWebWorker } from '../../../../utils/worker/assetManager';
-import { 
-  scanImageSafety, 
-  validateImageForSafety, 
-  getSafetySummary, 
-  fileToBuffer,
-  type ImageSafetyResult 
-} from '../../../../utils/imageSafety';
+import {
+  scanImageSafetyClientSide,
+  validateImageForClientSafety,
+  getClientSafetySummary,
+  type ClientImageSafetyResult
+} from '../../../../utils/imageSafetyClient';
 
 // File size limits (in bytes)
 const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
@@ -96,23 +95,20 @@ const ImageControl = ({ editor }: any) => {
   };
 
   // Safety scan image before upload
-  const performSafetyScan = async (file: File): Promise<ImageSafetyResult> => {
+  const performSafetyScan = async (file: File): Promise<ClientImageSafetyResult> => {
     console.log('🔍 Starting safety scan for:', file.name);
     setIsScanningForSafety(true);
-    
+
     try {
       // Validate file for safety scanning
-      validateImageForSafety(file);
-      
-      // Convert file to buffer
-      const buffer = await fileToBuffer(file);
-      
-      // Perform safety scan
-      const safetyResult = await scanImageSafety(buffer);
-      
+      validateImageForClientSafety(file);
+
+      // Perform safety scan directly with file (no buffer conversion needed)
+      const safetyResult = await scanImageSafetyClientSide(file);
+
       console.log('✅ Safety scan completed:', safetyResult);
       return safetyResult;
-      
+
     } catch (error) {
       console.error('❌ Safety scan failed:', error);
       throw error;
@@ -183,14 +179,14 @@ const ImageControl = ({ editor }: any) => {
     // SAFETY SCANNING: Scan image for inappropriate content
     try {
       const safetyResult = await performSafetyScan(file);
-      
+
       if (!safetyResult.safe) {
-        const summary = getSafetySummary(safetyResult);
+        const summary = getClientSafetySummary(safetyResult);
         setValidationError(`Image blocked: ${summary}`);
         setTimeout(() => setValidationError(null), 8000); // Clear error after 8s
         return;
       }
-      
+
       console.log('✅ Image passed safety check, proceeding with upload');
     } catch (error) {
       console.error('❌ Safety scan failed:', error);
