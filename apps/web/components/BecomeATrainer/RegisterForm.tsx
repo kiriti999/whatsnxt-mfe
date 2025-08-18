@@ -1,10 +1,9 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useForm, SubmitHandler, Controller } from "react-hook-form";
 import {
   Button,
   Text,
-  Textarea,
   TextInput,
   Paper,
   Title,
@@ -17,16 +16,21 @@ import {
   FileInput,
   Radio,
   Flex,
+  Alert,
+  Loader,
+  Box,
 } from "@mantine/core";
 import { useQuery } from "@tanstack/react-query";
 import { notifications } from "@mantine/notifications";
 import { useRouter } from "next/navigation";
 import { UserAPI } from "../../apis/v1/user/apply";
 import { LanguageAPI } from "../../apis/v1/language";
-import { IconUpload } from "@tabler/icons-react";
+import { IconUpload, IconAlertCircle, IconCheck } from "@tabler/icons-react";
 import { revalidate } from "../../server-actions";
 import TrainingConfirmationModal from "./TrainingConfirmationModal";
 import { uploadImage } from '../Blog/Form/util';
+import { ControllerTextInput, RegisterTextarea, RegisterTextInput } from "../hoc/TextInputHoc";
+import { useImageSafety } from "../../hooks/useImageSafety";
 
 type RegisterFormValues = {
   name: string;
@@ -56,8 +60,26 @@ const RegisterForm = ({ user }: { user: any }) => {
   const [loading, setLoading] = useState(false);
   const [profileImage, setProfileImage] = useState<File | null>(null);
   const [modalOpened, setModalOpened] = useState(false);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [validationError, setValidationError] = useState<string | null>(null);
+  const [validationSuccess, setValidationSuccess] = useState<string | null>(null);
 
   const router = useRouter();
+
+  // Image safety hook
+  const {
+    scanImageClientSide,
+    preloadModel,
+    isScanning,
+    isModelLoading,
+    error: scanError,
+    clearError
+  } = useImageSafety();
+
+  // Preload AI model on component mount for better UX
+  useEffect(() => {
+    preloadModel().catch(console.warn);
+  }, [preloadModel]);
 
   const {
     register,
@@ -99,6 +121,129 @@ const RegisterForm = ({ user }: { user: any }) => {
       return data || [];
     },
   });
+
+  // Format file size for display
+  const formatFileSize = (bytes: number): string => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  };
+
+  // Validate image dimensions
+  const validateImageDimensions = (file: File): Promise<boolean> => {
+    return new Promise((resolve) => {
+      const img = document.createElement('img');
+      const url = URL.createObjectURL(file);
+
+      img.onload = () => {
+        URL.revokeObjectURL(url);
+        const minWidth = 150, minHeight = 150;
+        const maxWidth = 2048, maxHeight = 2048;
+
+        const isValidMin = img.width >= minWidth && img.height >= minHeight;
+        const isValidMax = img.width <= maxWidth && img.height <= maxHeight;
+
+        if (!isValidMin) {
+          setValidationError(
+            `Profile image dimensions too small. Min: ${minWidth}x${minHeight}px, Actual: ${img.width}x${img.height}px`
+          );
+        } else if (!isValidMax) {
+          setValidationError(
+            `Profile image dimensions too large. Max: ${maxWidth}x${maxHeight}px, Actual: ${img.width}x${img.height}px`
+          );
+        }
+
+        resolve(isValidMin && isValidMax);
+      };
+
+      img.onerror = () => {
+        URL.revokeObjectURL(url);
+        setValidationError('Invalid image file');
+        resolve(false);
+      };
+
+      img.src = url;
+    });
+  };
+
+  // Comprehensive file validation
+  const validateFile = async (file: File): Promise<boolean> => {
+    const maxSize = 3 * 1024 * 1024; // 3MB for profile images
+    const allowedTypes = ['image/png', 'image/jpg', 'image/jpeg'];
+
+    // Check file type
+    if (!allowedTypes.includes(file.type)) {
+      setValidationError(`Unsupported file format. Supported: ${allowedTypes.join(', ')}`);
+      return false;
+    }
+
+    // Check file size
+    if (file.size > maxSize) {
+      setValidationError(
+        `File too large: ${formatFileSize(file.size)}. Maximum allowed: ${formatFileSize(maxSize)}`
+      );
+      return false;
+    }
+
+    // Check image dimensions
+    const dimensionsValid = await validateImageDimensions(file);
+    return dimensionsValid;
+  };
+
+  const handleImageChange = async (file: File | null) => {
+    // Clear previous states
+    setValidationError(null);
+    setValidationSuccess(null);
+    clearError();
+
+    if (!file) {
+      setProfileImage(null);
+      setImagePreview(null);
+      return;
+    }
+
+    try {
+      console.log('🔍 Starting validation and safety scan for profile image:', file.name);
+
+      // Step 1: Basic file validation
+      const isValidFile = await validateFile(file);
+      if (!isValidFile) {
+        return; // Error already set by validateFile
+      }
+
+      // Step 2: Safety scanning
+      console.log('🔍 Running AI safety scan...');
+      const safetyResult = await scanImageClientSide(file);
+
+      if (!safetyResult.safe) {
+        setValidationError(
+          `Profile image blocked by AI safety scan: ${safetyResult.blockedReasons.join(', ')}`
+        );
+        console.error('❌ Profile image failed safety check:', safetyResult);
+        return;
+      }
+
+      // Step 3: All checks passed - set the image
+      console.log('✅ Profile image passed all validation checks');
+      setProfileImage(file);
+      setValidationSuccess(`Profile image validated successfully (${formatFileSize(file.size)})`);
+
+      // Step 4: Create preview
+      const fileReader = new FileReader();
+      fileReader.onload = (e) => {
+        setImagePreview(e.target?.result as string);
+      };
+      fileReader.readAsDataURL(file);
+
+    } catch (error) {
+      console.error('❌ Profile image validation failed:', error);
+      setValidationError(
+        `Validation failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
+    }
+  };
 
   const handleRadioChange = (value: string) => {
     setValue("revealTrainerInfo", value);
@@ -256,31 +401,118 @@ const RegisterForm = ({ user }: { user: any }) => {
                 />
               </Grid.Col>
               <Grid.Col span={12}>
-                <Textarea
+                <RegisterTextarea
+                  register={register}
+                  errors={errors}
+                  name="about"
                   label="About Yourself"
                   placeholder="Tell us about your teaching profession"
-                  {...register("about", rules.about)}
-                  error={errors.about?.message}
+                  required={true}
+                  rules={rules.about}
                   maxLength={500}
-                  autosize
-                  minRows={2}
-                  maxRows={10}
-                  required
+                  allowNumbers={false}
+                  allowSpecialChars={true}
                 />
               </Grid.Col>
+
+              {/* Profile Image Upload with Safety Scanning */}
               <Grid.Col span={12}>
-                <FileInput
-                  clearable
-                  label={<Text size='0.9rem'>Profile Image (Optional)</Text>}
-                  placeholder="Profile image"
-                  leftSection={<IconUpload size={16} />}
-                  value={profileImage}
-                  {...register("profile_photo")}
-                  onChange={(e) => {
-                    setProfileImage(e)
-                  }}
-                  accept=".png,.jpg,.jpeg"
-                />
+                <div>
+                  <FileInput
+                    clearable
+                    label={<Text size='0.9rem'>Profile Image (Optional)</Text>}
+                    placeholder={
+                      isScanning ? "🔍 Scanning image..." :
+                        isModelLoading ? "🤖 Loading AI model..." :
+                          "Select profile image"
+                    }
+                    leftSection={
+                      isScanning || isModelLoading ? (
+                        <Loader size={16} />
+                      ) : (
+                        <IconUpload size={16} />
+                      )
+                    }
+                    value={profileImage}
+                    {...register("profile_photo")}
+                    onChange={(e) => {
+                      handleImageChange(e);
+                    }}
+                    accept=".png,.jpg,.jpeg"
+                    disabled={isScanning || isModelLoading}
+                  />
+
+                  {/* Status messages */}
+                  {(validationError || scanError) && (
+                    <Alert
+                      icon={<IconAlertCircle size={16} />}
+                      color="red"
+                      mt="xs"
+                      variant="light"
+                    >
+                      {validationError || scanError}
+                    </Alert>
+                  )}
+
+                  {validationSuccess && !validationError && !scanError && (
+                    <Alert
+                      icon={<IconCheck size={16} />}
+                      color="green"
+                      mt="xs"
+                      variant="light"
+                    >
+                      {validationSuccess}
+                    </Alert>
+                  )}
+
+                  {/* Scanning status */}
+                  {isScanning && (
+                    <Group gap="xs" mt="xs">
+                      <Loader size="xs" />
+                      <Text size="xs" c="blue">
+                        Running AI safety scan...
+                      </Text>
+                    </Group>
+                  )}
+
+                  {/* Model loading status */}
+                  {isModelLoading && (
+                    <Group gap="xs" mt="xs">
+                      <Loader size="xs" />
+                      <Text size="xs" c="gray">
+                        Loading AI model in browser...
+                      </Text>
+                    </Group>
+                  )}
+
+                  {/* Profile Image Requirements */}
+                  <Box mt="sm">
+                    <Text size="xs" c="dimmed">
+                      <strong>Requirements:</strong> PNG, JPEG • Max size: 3MB • Min dimensions: 150×150px • Max dimensions: 2048×2048px
+                    </Text>
+                    <Text size="xs" c="blue">
+                      <strong>AI Safety:</strong> All images are automatically scanned for inappropriate content.
+                    </Text>
+                  </Box>
+
+                  {/* Image Preview */}
+                  {imagePreview && !validationError && !scanError && (
+                    <Box mt="md">
+                      <Text size="sm" fw={500} mb="xs">Profile Image Preview:</Text>
+                      <img
+                        src={imagePreview}
+                        alt="Profile Preview"
+                        style={{
+                          width: '120px',
+                          height: '120px',
+                          objectFit: 'cover',
+                          borderRadius: '50%',
+                          border: '2px solid #e9ecef'
+                        }}
+                      />
+                    </Box>
+                  )}
+                </div>
               </Grid.Col>
 
               {languagesData?.length > 0 && (
@@ -313,14 +545,21 @@ const RegisterForm = ({ user }: { user: any }) => {
                 <Controller
                   name="designation"
                   control={control}
-                  rules={rules.designation}
+                  rules={{
+                    required: 'Designation is required',
+                    minLength: { value: 2, message: 'Designation must be at least 2 characters' }
+                  }}
                   render={({ field }) => (
-                    <TextInput
+                    <ControllerTextInput
                       {...field}
-                      label="Your designation"
+                      errors={errors}
+                      name="designation"
+                      label="Your Designation"
                       placeholder="Enter your designation"
-                      error={errors.designation?.message}
-                      required
+                      required={true}
+                      allowNumbers={false}
+                      allowSpecialChars={true} // Allow spaces, hyphens for job titles
+                      maxLength={50}
                     />
                   )}
                 />
@@ -337,6 +576,8 @@ const RegisterForm = ({ user }: { user: any }) => {
                       placeholder="Enter your experience in years"
                       error={errors.experience?.message}
                       min={1}
+                      max={99}
+                      maxLength={2}
                       required
                     />
                   )}
@@ -345,51 +586,82 @@ const RegisterForm = ({ user }: { user: any }) => {
               <Grid.Col span={12}>
                 <TagsInput
                   value={skills}
-                  onChange={setSkills}
                   label="Skills"
                   placeholder="Enter a skill and press Enter"
                   error={skills.length === 0 ? "At least one skill is required" : undefined}
                   required
+                  onKeyDown={(e) => {
+                    // Prevent numbers from being typed
+                    if (/[0-9]/.test(e.key) && !['Backspace', 'Delete', 'Tab', 'Enter'].includes(e.key)) {
+                      e.preventDefault();
+                    }
+                  }}
+                  onChange={(newTags) => {
+                    // Filter out numbers from all tags
+                    const filteredTags = newTags.map(tag => tag.replace(/[0-9]/g, ''));
+                    setSkills(filteredTags);
+                  }}
                 />
               </Grid.Col>
               <Grid.Col span={6}>
-                <TextInput
+                <RegisterTextInput
+                  register={register}
+                  name="certificate_name"
                   label="Certification Name (Optional)"
                   placeholder="Enter certification name"
-                  {...register("certificate_name")}
+                  errors={errors}
+                  allowNumbers={false}
+                  allowSpecialChars={true}
+                  maxLength={100}
                 />
               </Grid.Col>
               <Grid.Col span={6}>
-                <TextInput
+                <RegisterTextInput
+                  register={register}
                   label="Certification Link (Optional)"
                   placeholder="Enter certification link"
-                  {...register("certificate_link")}
+                  errors={errors}
+                  allowNumbers={true}
+                  allowSpecialChars={true}
+                  name="certificate_link"
+                  maxLength={200}
                 />
               </Grid.Col>
               <Grid.Col span={12}>
-                <TextInput
+                <RegisterTextInput
+                  register={register}
                   label="Highest Qualification (Optional)"
                   placeholder="Enter your highest qualification"
-                  error={errors.highestQualification?.message}
-                  {...register(
-                    "highestQualification",
-                    rules.qualification
-                  )}
+                  errors={errors}
+                  name="highestQualification"
+                  allowNumbers={true}
+                  allowSpecialChars={true}
+                  maxLength={200}
                 />
               </Grid.Col>
 
               <Grid.Col span={12}>
-                <TextInput
+                <RegisterTextInput
+                  register={register}
+                  errors={errors}
+                  name="linkedin"
                   label="LinkedIn Profile (Optional)"
                   placeholder="Enter your LinkedIn profile URL"
-                  {...register("linkedin")}
+                  allowNumbers={false}
+                  allowSpecialChars={true}
+                  maxLength={350}
                 />
               </Grid.Col>
               <Grid.Col span={12}>
-                <TextInput
+                <RegisterTextInput
+                  register={register}
+                  errors={errors}
+                  name="github"
                   label="GitHub Profile (Optional)"
                   placeholder="Enter your GitHub profile URL"
-                  {...register("github")}
+                  allowNumbers={true}
+                  allowSpecialChars={true}
+                  maxLength={350}
                 />
               </Grid.Col>
             </Grid>
@@ -474,6 +746,8 @@ const RegisterForm = ({ user }: { user: any }) => {
                           label="Hourly Rate"
                           placeholder="Enter your hourly rate"
                           type="number"
+                          max={99999}
+                          maxLength={5}
                           {...field}
                           required
                           error={errors.rate?.message}
@@ -506,7 +780,14 @@ const RegisterForm = ({ user }: { user: any }) => {
               <Button
                 type="submit"
                 loading={loading}
-                disabled={!isStep3Complete || !isValid}
+                disabled={
+                  !isStep3Complete ||
+                  !isValid ||
+                  isScanning ||
+                  isModelLoading ||
+                  (validationError !== null) ||
+                  (scanError !== null)
+                }
               >
                 Submit
               </Button>

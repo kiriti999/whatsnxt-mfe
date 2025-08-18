@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { TrainerAPI } from '../../../apis/v1/courses/trainer/trainer';
 import { useDebouncedValue, useMediaQuery } from '@mantine/hooks';
 import Link from 'next/link';
-import { ActionIcon, Box, Button, Center, Collapse, Grid, Group, Loader, Pagination, Select, Table, TextInput, Tooltip, Menu, Container, GridCol } from '@mantine/core';
+import { ActionIcon, Box, Button, Center, Collapse, Grid, Group, Loader, Pagination, Select, Table, TextInput, Tooltip, Menu, Container, GridCol, Title } from '@mantine/core';
 import { CourseAPI } from '../../../apis/v1/courses/course/course';
 import { notifications } from '@mantine/notifications';
 import { IconChevronDown, IconChevronUp, IconEye, IconEyeOff, IconPlus, IconDotsVertical } from '@tabler/icons-react';
@@ -290,10 +290,10 @@ const CourseHistory = () => {
 
   return (
     <div className={`${coursesStyles['courses-area']} courses-section pb-70`}>
-      <Container size={'xl'}>
+      <Container size={'xl'} mt="3em">
         <Grid>
-          <GridCol span={12} mt="md">
-
+          <GridCol span={12} >
+            <Title order={4}>Create or Edit the course</Title>
             <Grid mb={'xs'} justify="space-between" grow>
               <Grid.Col span={{ base: 12, md: 4 }}>
                 <TextInput

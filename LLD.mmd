@@ -1,0 +1,69 @@
+graph TD
+    subgraph "Client Side (Frontend)"
+        User(("User"))
+    end
+
+    subgraph "API Layer"
+        A[API Gateway<br/>Node.js Express Server]
+        B["Routes<br/>Modularized Routing"]
+    end
+
+    subgraph "Microservices"
+        C[Auth Service<br/>Handles Authentication]
+        D[Course Service<br/>Manages Courses]
+        E[Content Service<br/>Handles Content]
+        F[Media Service<br/>Media Uploads & Management]
+        G[Notification Service<br/>User Notifications]
+        H[Analytics Service<br/>Data Collection]
+    end
+
+    subgraph "Data Storage"
+        DB1[(MongoDB Database)]
+        DB2[(Analytics Database)]
+        DB3[(User Data Database)]
+    end
+
+    subgraph "External Integrations"
+        I["AWS SES<br/>Email Notifications"]
+        J["Cloudinary<br/>Media Storage"]
+        K["ImageKit<br/>Image Management"]
+        L["Algolia<br/>Search Indexing"]
+        M["LinkedIn API<br/>Social Media Integration"]
+        N["Google OAuth<br/>Social Login"]
+    end
+
+    subgraph "Caching & Worker Threads"
+        O[Redis<br/>Caching & Session Management]
+        P["Worker Threads<br/>Asynchronous Tasks"]
+    end
+
+    User -->|Requests API| A
+    A -->|Routes Requests| B
+    B -->|Auth Requests| C
+    B -->|Course Requests| D
+    B -->|Content Requests| E
+    B -->|Media Requests| F
+    B -->|Notification Requests| G
+    B -->|Analytics Requests| H
+
+    C -->|Stores User Data| DB3
+    D -->|Stores Course Data| DB1
+    E -->|Stores Content Data| DB1
+    H -->|Stores Analytics Data| DB2
+
+    F -->|Uploads Media| J
+    F -->|Uploads Images| K
+    F -->|Handles Media Tasks| P
+
+    G -->|Sends Emails| I
+    G -->|Triggers Notifications| P
+
+    D -->|Updates Search Index| L
+    C -->|Handles OAuth| N
+    C -->|Interacts with LinkedIn| M
+
+    O -->|Caches Data| DB1
+    O -->|Caches Sessions| DB3
+    P -->|Handles Async Tasks| F
+    P -->|Handles Email Dispatch| I
+    P -->|Handles Document Generation| P

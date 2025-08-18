@@ -42,8 +42,8 @@ const CourseReviewRequests = () => {
         try {
             const { data } = await CourseAPI.getCourseByStatus("pending_review", (activePage - 1) * LIMIT, LIMIT);
             setLoading(false);
-            setPendingRequests(data?.courses);
-            setTotalPages(data?.totalPages);
+            setPendingRequests(data?.courses || []);
+            setTotalPages(data?.totalPages || 0);
         } catch (error) {
             console.error('Error fetching pending requests:', error);
         }

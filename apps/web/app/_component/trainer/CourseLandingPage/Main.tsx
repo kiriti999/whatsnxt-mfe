@@ -11,7 +11,9 @@ import {
 	Select,
 	Box,
 	MultiSelect,
-	FileInput
+	FileInput,
+	Alert,
+	Loader
 } from '@mantine/core';
 import { useCallback, useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
@@ -26,8 +28,9 @@ import { getAssetFromLocalStorage } from '../../../../utils/worker/localStorageH
 import { useDashboardContext } from '../../../../context/DashboardContext';
 import { handleCategoryChange, handleLandingPageSubmit, handleSubCategoryChange } from './actions';
 import { useRouter } from "next/navigation";
-import { IconUpload } from '@tabler/icons-react';
+import { IconUpload, IconAlertCircle, IconCheck } from '@tabler/icons-react';
 import { unifiedDeleteWebWorker } from '../../../../utils/worker/assetManager';
+import { useImageSafety } from '../../../../hooks/useImageSafety';
 
 const INIT_COURSE = {
 	overview: '',
@@ -48,6 +51,19 @@ const Main = ({ courseWithSections, courseId }) => {
 	const [subCategories, setSubCategories] = useState([]);
 	const [nestedSubCategories, setNestedSubCategories] = useState([]);
 	const [courseImage, setCourseImage] = useState<File | null>(null);
+	const [imagePreview, setImagePreview] = useState<string | null>(null);
+	const [validationError, setValidationError] = useState<string | null>(null);
+	const [validationSuccess, setValidationSuccess] = useState<string | null>(null);
+
+	// Image safety hook
+	const {
+		scanImageClientSide,
+		preloadModel,
+		isScanning,
+		isModelLoading,
+		error: scanError,
+		clearError
+	} = useImageSafety();
 
 	const { data: languages } = useQuery({
 		queryKey: ['languages'],
@@ -74,6 +90,11 @@ const Main = ({ courseWithSections, courseId }) => {
 	});
 
 	const { setEnabledSections } = useDashboardContext();
+
+	// Preload AI model on component mount for better UX
+	useEffect(() => {
+		preloadModel().catch(console.warn);
+	}, [preloadModel]);
 
 	useEffect(() => {
 		setEnabledSections(prev => {
@@ -158,6 +179,129 @@ const Main = ({ courseWithSections, courseId }) => {
 		}
 	};
 
+	// Format file size for display
+	const formatFileSize = (bytes: number): string => {
+		if (bytes === 0) return '0 Bytes';
+		const k = 1024;
+		const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+		const i = Math.floor(Math.log(bytes) / Math.log(k));
+		return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+	};
+
+	// Validate image dimensions
+	const validateImageDimensions = (file: File): Promise<boolean> => {
+		return new Promise((resolve) => {
+			const img = document.createElement('img');
+			const url = URL.createObjectURL(file);
+
+			img.onload = () => {
+				URL.revokeObjectURL(url);
+				const minWidth = 750, minHeight = 422;
+				const maxWidth = 6000, maxHeight = 6000;
+
+				const isValidMin = img.width >= minWidth && img.height >= minHeight;
+				const isValidMax = img.width <= maxWidth && img.height <= maxHeight;
+
+				if (!isValidMin) {
+					setValidationError(
+						`Image dimensions too small. Min: ${minWidth}x${minHeight}px, Actual: ${img.width}x${img.height}px`
+					);
+				} else if (!isValidMax) {
+					setValidationError(
+						`Image dimensions too large. Max: ${maxWidth}x${maxHeight}px, Actual: ${img.width}x${img.height}px`
+					);
+				}
+
+				resolve(isValidMin && isValidMax);
+			};
+
+			img.onerror = () => {
+				URL.revokeObjectURL(url);
+				setValidationError('Invalid image file');
+				resolve(false);
+			};
+
+			img.src = url;
+		});
+	};
+
+	// Comprehensive file validation
+	const validateFile = async (file: File): Promise<boolean> => {
+		const maxSize = 5 * 1024 * 1024; // 5MB
+		const allowedTypes = ['image/png', 'image/jpg', 'image/jpeg'];
+
+		// Check file type
+		if (!allowedTypes.includes(file.type)) {
+			setValidationError(`Unsupported file format. Supported: ${allowedTypes.join(', ')}`);
+			return false;
+		}
+
+		// Check file size
+		if (file.size > maxSize) {
+			setValidationError(
+				`File too large: ${formatFileSize(file.size)}. Maximum allowed: ${formatFileSize(maxSize)}`
+			);
+			return false;
+		}
+
+		// Check image dimensions
+		const dimensionsValid = await validateImageDimensions(file);
+		return dimensionsValid;
+	};
+
+	const handleImageChange = async (file: File | null) => {
+		// Clear previous states
+		setValidationError(null);
+		setValidationSuccess(null);
+		clearError();
+
+		if (!file) {
+			setCourseImage(null);
+			setImagePreview(null);
+			return;
+		}
+
+		try {
+			console.log('🔍 Starting validation and safety scan for:', file.name);
+
+			// Step 1: Basic file validation
+			const isValidFile = await validateFile(file);
+			if (!isValidFile) {
+				return; // Error already set by validateFile
+			}
+
+			// Step 2: Safety scanning
+			console.log('🔍 Running AI safety scan...');
+			const safetyResult = await scanImageClientSide(file);
+
+			if (!safetyResult.safe) {
+				setValidationError(
+					`Image blocked by AI safety scan: ${safetyResult.blockedReasons.join(', ')}`
+				);
+				console.error('❌ Image failed safety check:', safetyResult);
+				return;
+			}
+
+			// Step 3: All checks passed - set the image
+			console.log('✅ Image passed all validation checks');
+			setCourseImage(file);
+			setValidationSuccess(`Image validated successfully (${formatFileSize(file.size)})`);
+
+			// Step 4: Create preview
+			const fileReader = new FileReader();
+			fileReader.onload = (e) => {
+				setImagePreview(e.target?.result as string);
+			};
+			fileReader.readAsDataURL(file);
+
+		} catch (error) {
+			console.error('❌ Image validation failed:', error);
+			setValidationError(
+				`Validation failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+			);
+		}
+	};
+
 	useEffect(() => {
 		if (!isFetching && categoryData) {
 			setSubCategories(categoryData.subcategories || []);
@@ -175,8 +319,19 @@ const Main = ({ courseWithSections, courseId }) => {
 
 	useEffect(() => {
 		const isOverviewEmpty = !overviewValue || overviewValue.replace(/<[^>]*>/g, '').trim() === '';
-		setDisabledButton(!isDirty || !isValid || isOverviewEmpty || imageUploading || isAssetsUploading || !categoryValue);
-	}, [overviewValue, categoryValue, imageUploading, isAssetsUploading, isValid, isDirty]);
+		setDisabledButton(
+			!isDirty ||
+			!isValid ||
+			isOverviewEmpty ||
+			imageUploading ||
+			isAssetsUploading ||
+			!categoryValue ||
+			isScanning ||
+			isModelLoading ||
+			(validationError !== null) ||
+			(scanError !== null)
+		);
+	}, [overviewValue, categoryValue, imageUploading, isAssetsUploading, isValid, isDirty, isScanning, isModelLoading, validationError, scanError]);
 
 	// Add this useEffect to set the image preview for existing courses
 	useEffect(() => {
@@ -185,22 +340,6 @@ const Main = ({ courseWithSections, courseId }) => {
 			setImagePreview(courseWithSections.imageUrl as string);
 		}
 	}, [courseId, courseWithSections]);
-
-	const [imagePreview, setImagePreview] = useState<string | null>(null);
-
-	const handleImageChange = (file: File | null) => {
-		setCourseImage(file);
-
-		if (file) {
-			const fileReader = new FileReader();
-			fileReader.onload = (e) => {
-				setImagePreview(e.target?.result as string); // Set image preview
-			};
-			fileReader.readAsDataURL(file); // Read the file as a data URL
-		} else {
-			setImagePreview(null); // Reset preview if no file is selected
-		}
-	};
 
 	// Prepare options for Select components
 	const languageOptions = languages && Array.isArray(languages)
@@ -380,23 +519,80 @@ const Main = ({ courseWithSections, courseId }) => {
 							)}
 						</Group>
 
+						{/* Course Image Upload */}
 						<Controller
 							name="courseImagePreview"
 							control={control}
 							rules={validationOptions.courseImage}
 							render={({ field }) => (
-								<FileInput
-									clearable
-									label={<Title order={5} className={!courseId ? 'required' : ''}>Course Image</Title>}
-									placeholder="Select course image"
-									leftSection={<IconUpload size={16} />}
-									value={courseImage}
-									onChange={(e) => {
-										handleImageChange(e);
-										field.onChange(e);
-									}}
-									accept=".png,.jpg,.jpeg"
-								/>
+								<div>
+									<FileInput
+										clearable
+										label={<Title order={5} className={!courseId ? 'required' : ''}>Course Image</Title>}
+										placeholder={
+											isScanning ? "🔍 Scanning image..." :
+												isModelLoading ? "🤖 Loading AI model..." :
+													"Select course image"
+										}
+										leftSection={
+											isScanning || isModelLoading ? (
+												<Loader size={16} />
+											) : (
+												<IconUpload size={16} />
+											)
+										}
+										value={courseImage}
+										onChange={(e) => {
+											handleImageChange(e);
+											field.onChange(e);
+										}}
+										accept=".png,.jpg,.jpeg"
+										disabled={isScanning || isModelLoading}
+									/>
+
+									{/* Status messages */}
+									{(validationError || scanError) && (
+										<Alert
+											icon={<IconAlertCircle size={16} />}
+											color="red"
+											mt="xs"
+											variant="light"
+										>
+											{validationError || scanError}
+										</Alert>
+									)}
+
+									{validationSuccess && !validationError && !scanError && (
+										<Alert
+											icon={<IconCheck size={16} />}
+											color="green"
+											mt="xs"
+											variant="light"
+										>
+											{validationSuccess}
+										</Alert>
+									)}
+
+									{/* Scanning status */}
+									{isScanning && (
+										<Group gap="xs" mt="xs">
+											<Loader size="xs" />
+											<Text size="xs" c="blue">
+												Running AI safety scan...
+											</Text>
+										</Group>
+									)}
+
+									{/* Model loading status */}
+									{isModelLoading && (
+										<Group gap="xs" mt="xs">
+											<Loader size="xs" />
+											<Text size="xs" c="gray">
+												Loading AI model in browser...
+											</Text>
+										</Group>
+									)}
+								</div>
 							)}
 						/>
 						{errors.courseImagePreview && <Text c="red" size="md" mb={0}>{errors.courseImagePreview?.message as string}</Text>}
@@ -416,16 +612,29 @@ const Main = ({ courseWithSections, courseId }) => {
 							<Text size="sm" mt="xs">
 								<strong>Maximum required dimensions:</strong> 6000 × 6000 pixels
 							</Text>
+							<Text size="sm" mt="xs">
+								<strong>File size:</strong> Maximum 5MB
+							</Text>
+							<Text size="sm" mt="xs" c="blue">
+								<strong>AI Safety:</strong> All images are automatically scanned for inappropriate content before upload.
+							</Text>
 						</Box>
 
 						{/* Image Preview */}
-						{imagePreview && (
+						{imagePreview && !validationError && !scanError && (
 							<Box mt="md">
 								<Title order={5}>Image Preview:</Title>
 								<img
 									src={imagePreview}
 									alt="Course Preview"
 									className='image-preview'
+									style={{
+										borderRadius: '8px',
+										border: '1px solid #e9ecef',
+										maxWidth: '300px',
+										maxHeight: '200px',
+										objectFit: 'cover'
+									}}
 								/>
 							</Box>
 						)}

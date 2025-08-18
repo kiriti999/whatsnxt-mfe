@@ -9,7 +9,7 @@ import { FormAPI, HistoryAPI } from '../../../apis/v1/blog';
 import Pagination from '../../Common/Pagination';
 import { RichTextEditor } from '../../RichTextEditor';
 import { useRouter } from 'next/navigation';
-import { Alert, Box, Button, Container, FileInput, Grid, Group, Input, Select, Stack, Text, Title, LoadingOverlay } from '@mantine/core';
+import { Alert, Box, Button, Container, FileInput, Grid, Group, Input, Select, Stack, Text, Title, LoadingOverlay, Loader } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { LoadingOverlay as CustomLoadingOverlay } from '@whatsnxt/core-ui';
 import { TiptapManageContextProvider } from '../../../context/TiptapManageContext';
@@ -18,10 +18,11 @@ import {
   cloudinaryAssetsUploadCleanup,
   cloudinaryAssetsUploadCleanupForUpdate,
 } from '../../RichTextEditor/common';
-import { IconUpload } from '@tabler/icons-react';
-import Image from 'next/image';
+import { IconUpload, IconAlertCircle, IconCheck } from '@tabler/icons-react';
+import { default as NextImage } from 'next/image';
 import { uploadImage } from './util';
 import { unifiedDeleteWebWorker } from '../../../utils/worker/assetManager';
+import { useImageSafety } from '../../../hooks/useImageSafety';
 
 interface TutorialFormProps {
   categories: Category[];
@@ -69,6 +70,18 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
   const [nestedSubCategories, setNestedSubCategories] = useState<any[]>([]);
   const [tutorialImage, setTutorialImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [validationError, setValidationError] = useState<string | null>(null);
+  const [validationSuccess, setValidationSuccess] = useState<string | null>(null);
+
+  // Image safety hook
+  const { 
+    scanImageClientSide, 
+    preloadModel,
+    isScanning, 
+    isModelLoading,
+    error: scanError, 
+    clearError 
+  } = useImageSafety();
 
   const {
     register,
@@ -96,6 +109,11 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
 
   const router = useRouter();
   useSaved(unsaved);
+
+  // Preload AI model on component mount for better UX
+  useEffect(() => {
+    preloadModel().catch(console.warn);
+  }, [preloadModel]);
 
   useEffect(() => {
     if (edit) {
@@ -139,6 +157,11 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
       if (edit.nestedSubCategory) {
         setValue('nestedSubCategory', edit.nestedSubCategory)
       }
+
+      // Set existing image preview if editing
+      if (edit.imageUrl) {
+        setImagePreview(edit.imageUrl);
+      }
     }
   }, [edit]);
 
@@ -163,6 +186,130 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
     tutorialName: { required: 'Tutorial name is required', maxLength: 250 },
     title: { required: 'Title is required', maxLength: 250 },
     description: { required: 'Description is required' },
+  };
+
+  // Format file size for display
+  const formatFileSize = (bytes: number): string => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  };
+
+  // Validate image dimensions
+  const validateImageDimensions = (file: File): Promise<boolean> => {
+    return new Promise((resolve) => {
+      // Use HTMLImageElement directly to avoid naming conflicts
+      const img = document.createElement('img');
+      const url = URL.createObjectURL(file);
+
+      img.onload = () => {
+        URL.revokeObjectURL(url);
+        const minWidth = 750, minHeight = 422;
+        const maxWidth = 6000, maxHeight = 6000;
+        
+        const isValidMin = img.width >= minWidth && img.height >= minHeight;
+        const isValidMax = img.width <= maxWidth && img.height <= maxHeight;
+        
+        if (!isValidMin) {
+          setValidationError(
+            `Image dimensions too small. Min: ${minWidth}x${minHeight}px, Actual: ${img.width}x${img.height}px`
+          );
+        } else if (!isValidMax) {
+          setValidationError(
+            `Image dimensions too large. Max: ${maxWidth}x${maxHeight}px, Actual: ${img.width}x${img.height}px`
+          );
+        }
+        
+        resolve(isValidMin && isValidMax);
+      };
+
+      img.onerror = () => {
+        URL.revokeObjectURL(url);
+        setValidationError('Invalid image file');
+        resolve(false);
+      };
+
+      img.src = url;
+    });
+  };
+
+  // Comprehensive file validation
+  const validateFile = async (file: File): Promise<boolean> => {
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    const allowedTypes = ['image/png', 'image/jpg', 'image/jpeg'];
+
+    // Check file type
+    if (!allowedTypes.includes(file.type)) {
+      setValidationError(`Unsupported file format. Supported: ${allowedTypes.join(', ')}`);
+      return false;
+    }
+
+    // Check file size
+    if (file.size > maxSize) {
+      setValidationError(
+        `File too large: ${formatFileSize(file.size)}. Maximum allowed: ${formatFileSize(maxSize)}`
+      );
+      return false;
+    }
+
+    // Check image dimensions
+    const dimensionsValid = await validateImageDimensions(file);
+    return dimensionsValid;
+  };
+
+  const handleImageChange = async (file: File | null) => {
+    // Clear previous states
+    setValidationError(null);
+    setValidationSuccess(null);
+    clearError();
+
+    if (!file) {
+      setTutorialImage(null);
+      setImagePreview(null);
+      return;
+    }
+
+    try {
+      console.log('🔍 Starting validation and safety scan for:', file.name);
+      
+      // Step 1: Basic file validation
+      const isValidFile = await validateFile(file);
+      if (!isValidFile) {
+        return; // Error already set by validateFile
+      }
+
+      // Step 2: Safety scanning
+      console.log('🔍 Running AI safety scan...');
+      const safetyResult = await scanImageClientSide(file);
+      
+      if (!safetyResult.safe) {
+        setValidationError(
+          `Image blocked by AI safety scan: ${safetyResult.blockedReasons.join(', ')}`
+        );
+        console.error('❌ Image failed safety check:', safetyResult);
+        return;
+      }
+
+      // Step 3: All checks passed - set the image
+      console.log('✅ Image passed all validation checks');
+      setTutorialImage(file);
+      setValidationSuccess(`Image validated successfully (${formatFileSize(file.size)})`);
+
+      // Step 4: Create preview
+      const fileReader = new FileReader();
+      fileReader.onload = (e) => {
+        setImagePreview(e.target?.result as string);
+      };
+      fileReader.readAsDataURL(file);
+
+    } catch (error) {
+      console.error('❌ Image validation failed:', error);
+      setValidationError(
+        `Validation failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
+    }
   };
 
   const addTutorial = useCallback(
@@ -287,12 +434,15 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
       let imageUrl = edit?.imageUrl || '';
       let cloudinaryAssets = edit?.cloudinaryAssets || [];
 
-      // Upload image via worker
-      const addToLocalStorage = false;
-      const bffApiUrl = process.env.NEXT_PUBLIC_BFF_HOST_IMAGEKIT_API;
-      const { secure_url, updatedAssets } = await uploadImage(tutorialImage, cloudinaryAssets, 'whatsnxt-tutorial', addToLocalStorage, bffApiUrl);
-      imageUrl = secure_url;
-      cloudinaryAssets = updatedAssets;
+      // Only upload new image if one was selected
+      if (tutorialImage) {
+        // Upload image via worker
+        const addToLocalStorage = false;
+        const bffApiUrl = process.env.NEXT_PUBLIC_BFF_HOST_IMAGEKIT_API;
+        const { secure_url, updatedAssets } = await uploadImage(tutorialImage, cloudinaryAssets, 'whatsnxt-tutorial', addToLocalStorage, bffApiUrl);
+        imageUrl = secure_url;
+        cloudinaryAssets = updatedAssets;
+      }
 
       const details = {
         title: getValues('tutorialName'),
@@ -350,10 +500,10 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
         });
 
         // Early return if no assets to clean up
-        if (!updatedAssets.length) {
+        if (!cloudinaryAssets.length) {
           return;
         }
-        await unifiedDeleteWebWorker({ assetsList: updatedAssets, clearLocalStorage: true, bffApiUrl });
+        await unifiedDeleteWebWorker({ assetsList: cloudinaryAssets, clearLocalStorage: true, bffApiUrl });
       } finally {
         close();
       }
@@ -406,19 +556,6 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
     },
     [subCategories]
   );
-
-  const handleImageChange = (file: File | null) => {
-    setTutorialImage(file);
-    if (file) {
-      const fileReader = new FileReader();
-      fileReader.onload = (e) => {
-        setImagePreview(e.target?.result as string); // Set image preview
-      };
-      fileReader.readAsDataURL(file); // Read the file as a data URL
-    } else {
-      setImagePreview(null); // Reset preview if no file is selected
-    }
-  };
 
   return (
     <Container>
@@ -556,28 +693,85 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
                 </Grid>
               </Stack>
 
+              {/* Tutorial Image Upload */}
               <Controller
                 name="tutorialImagePreview"
                 control={control}
                 rules={{ required: edit ? false : 'Tutorial Image is required' }}
                 render={({ field }) => (
-                  <FileInput
-                    clearable
-                    label={<Text fz={15}>Tutorial Image <Text component="span" m={0} size='lg' c="red">*</Text></Text>}
-                    placeholder="Select tutorial image"
-                    leftSection={<IconUpload size={16} />}
-                    value={tutorialImage}
-                    onChange={(e) => {
-                      handleImageChange(e);
-                      field.onChange(e);
-                    }}
-                    accept=".png,.jpg,.jpeg"
-                  />
+                  <div>
+                    <FileInput
+                      clearable
+                      label={<Text fz={15}>Tutorial Image <Text component="span" m={0} size='lg' c="red">*</Text></Text>}
+                      placeholder={
+                        isScanning ? "🔍 Scanning image..." : 
+                        isModelLoading ? "🤖 Loading AI model..." :
+                        "Select tutorial image"
+                      }
+                      leftSection={
+                        isScanning || isModelLoading ? (
+                          <Loader size={16} />
+                        ) : (
+                          <IconUpload size={16} />
+                        )
+                      }
+                      value={tutorialImage}
+                      onChange={(e) => {
+                        handleImageChange(e);
+                        field.onChange(e);
+                      }}
+                      accept=".png,.jpg,.jpeg"
+                      disabled={isScanning || isModelLoading}
+                    />
+
+                    {/* Status messages */}
+                    {(validationError || scanError) && (
+                      <Alert 
+                        icon={<IconAlertCircle size={16} />} 
+                        color="red" 
+                        mt="xs"
+                        variant="light"
+                      >
+                        {validationError || scanError}
+                      </Alert>
+                    )}
+
+                    {validationSuccess && !validationError && !scanError && (
+                      <Alert 
+                        icon={<IconCheck size={16} />} 
+                        color="green" 
+                        mt="xs"
+                        variant="light"
+                      >
+                        {validationSuccess}
+                      </Alert>
+                    )}
+
+                    {/* Scanning status */}
+                    {isScanning && (
+                      <Group gap="xs" mt="xs">
+                        <Loader size="xs" />
+                        <Text size="xs" c="blue">
+                          Running AI safety scan...
+                        </Text>
+                      </Group>
+                    )}
+
+                    {/* Model loading status */}
+                    {isModelLoading && (
+                      <Group gap="xs" mt="xs">
+                        <Loader size="xs" />
+                        <Text size="xs" c="gray">
+                          Loading AI model in browser...
+                        </Text>
+                      </Group>
+                    )}
+                  </div>
                 )}
               />
               {errors.tutorialImagePreview && <Text c="red">{errors.tutorialImagePreview.message}</Text>}
 
-              {/* Course Image Technical Requirements */}
+              {/* Tutorial Image Technical Requirements */}
               <Box mt="lg" style={{ textAlign: 'left' }}>
                 <Title order={5}>Tutorial Image Requirements</Title>
                 <Text size="sm" mt="xs">
@@ -592,18 +786,28 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
                 <Text size="sm" mt="xs">
                   <strong>Maximum required dimensions:</strong> 6000 × 6000 pixels
                 </Text>
+                <Text size="sm" mt="xs">
+                  <strong>File size:</strong> Maximum 5MB
+                </Text>
+                <Text size="sm" mt="xs" c="blue">
+                  <strong>AI Safety:</strong> All images are automatically scanned for inappropriate content before upload.
+                </Text>
               </Box>
 
               {/* Image Preview */}
-              {imagePreview && (
+              {imagePreview && !validationError && !scanError && (
                 <Box mt="md">
                   <Title order={5}>Image Preview:</Title>
-                  <Image
+                  <NextImage
                     alt="tutorial image preview"
                     width={300}
                     height={200}
                     sizes="(max-width: 480px) 300px, (max-width: 768px) 320px, 340px"
                     src={imagePreview}
+                    style={{ 
+                      borderRadius: '8px',
+                      border: '1px solid #e9ecef'
+                    }}
                   />
                 </Box>
               )}
@@ -643,8 +847,17 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
                       )}
 
                       <Group>
-                        <Button fullWidth
-                          disabled={isAssetsUploading} type="submit">
+                        <Button 
+                          fullWidth
+                          disabled={
+                            isAssetsUploading || 
+                            isScanning || 
+                            isModelLoading || 
+                            (validationError !== null) || 
+                            (scanError !== null)
+                          } 
+                          type="submit"
+                        >
                           {edit ? 'Update' : 'Create'}
                         </Button>
                       </Group>
