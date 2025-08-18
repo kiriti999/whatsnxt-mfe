@@ -23,6 +23,7 @@ import { default as NextImage } from 'next/image';
 import { uploadImage } from './util';
 import { unifiedDeleteWebWorker } from '../../../utils/worker/assetManager';
 import { useImageSafety } from '../../../hooks/useImageSafety';
+import { validateFile, formatFileSize, DEFAULT_VALIDATION_OPTIONS } from '../../../utils/imageValidation';
 
 interface TutorialFormProps {
   categories: Category[];
@@ -188,77 +189,6 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
     description: { required: 'Description is required' },
   };
 
-  // Format file size for display
-  const formatFileSize = (bytes: number): string => {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-  };
-
-  // Validate image dimensions
-  const validateImageDimensions = (file: File): Promise<boolean> => {
-    return new Promise((resolve) => {
-      // Use HTMLImageElement directly to avoid naming conflicts
-      const img = document.createElement('img');
-      const url = URL.createObjectURL(file);
-
-      img.onload = () => {
-        URL.revokeObjectURL(url);
-        const minWidth = 750, minHeight = 422;
-        const maxWidth = 6000, maxHeight = 6000;
-        
-        const isValidMin = img.width >= minWidth && img.height >= minHeight;
-        const isValidMax = img.width <= maxWidth && img.height <= maxHeight;
-        
-        if (!isValidMin) {
-          setValidationError(
-            `Image dimensions too small. Min: ${minWidth}x${minHeight}px, Actual: ${img.width}x${img.height}px`
-          );
-        } else if (!isValidMax) {
-          setValidationError(
-            `Image dimensions too large. Max: ${maxWidth}x${maxHeight}px, Actual: ${img.width}x${img.height}px`
-          );
-        }
-        
-        resolve(isValidMin && isValidMax);
-      };
-
-      img.onerror = () => {
-        URL.revokeObjectURL(url);
-        setValidationError('Invalid image file');
-        resolve(false);
-      };
-
-      img.src = url;
-    });
-  };
-
-  // Comprehensive file validation
-  const validateFile = async (file: File): Promise<boolean> => {
-    const maxSize = 5 * 1024 * 1024; // 5MB
-    const allowedTypes = ['image/png', 'image/jpg', 'image/jpeg'];
-
-    // Check file type
-    if (!allowedTypes.includes(file.type)) {
-      setValidationError(`Unsupported file format. Supported: ${allowedTypes.join(', ')}`);
-      return false;
-    }
-
-    // Check file size
-    if (file.size > maxSize) {
-      setValidationError(
-        `File too large: ${formatFileSize(file.size)}. Maximum allowed: ${formatFileSize(maxSize)}`
-      );
-      return false;
-    }
-
-    // Check image dimensions
-    const dimensionsValid = await validateImageDimensions(file);
-    return dimensionsValid;
-  };
-
   const handleImageChange = async (file: File | null) => {
     // Clear previous states
     setValidationError(null);
@@ -273,17 +203,18 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
 
     try {
       console.log('🔍 Starting validation and safety scan for:', file.name);
-      
-      // Step 1: Basic file validation
+
+      // Step 1: Basic file validation using the shared utility
       const isValidFile = await validateFile(file);
       if (!isValidFile) {
-        return; // Error already set by validateFile
+        setValidationError(`File validation failed. See details above.`); // Error already set by validateFile
+        return;
       }
 
       // Step 2: Safety scanning
       console.log('🔍 Running AI safety scan...');
       const safetyResult = await scanImageClientSide(file);
-      
+
       if (!safetyResult.safe) {
         setValidationError(
           `Image blocked by AI safety scan: ${safetyResult.blockedReasons.join(', ')}`

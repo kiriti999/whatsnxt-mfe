@@ -9,6 +9,7 @@ import {
   getClientSafetySummary,
   type ClientImageSafetyResult
 } from '../../../../utils/imageSafetyClient';
+import { validateFile, formatFileSize, DEFAULT_VALIDATION_OPTIONS } from '../../../../utils/imageValidation';
 
 // File size limits (in bytes)
 const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
@@ -34,65 +35,65 @@ const ImageControl = ({ editor }: any) => {
   const activeUploads = useRef(new Set<string>());
 
   // Format file size for display
-  const formatFileSize = (bytes: number): string => {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-  };
+  // const formatFileSize = (bytes: number): string => {
+  //   if (bytes === 0) return '0 Bytes';
+  //   const k = 1024;
+  //   const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+  //   const i = Math.floor(Math.log(bytes) / Math.log(k));
+  //   return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  // };
 
   // Validate image dimensions
-  const validateImageDimensions = (file: File): Promise<boolean> => {
-    return new Promise((resolve) => {
-      const img = new Image();
-      const url = URL.createObjectURL(file);
+  // const validateImageDimensions = (file: File): Promise<boolean> => {
+  //   return new Promise((resolve) => {
+  //     const img = new Image();
+  //     const url = URL.createObjectURL(file);
 
-      img.onload = () => {
-        URL.revokeObjectURL(url);
-        const isValid = img.width <= MAX_DIMENSIONS.width && img.height <= MAX_DIMENSIONS.height;
-        if (!isValid) {
-          setValidationError(`Image dimensions too large. Max: ${MAX_DIMENSIONS.width}x${MAX_DIMENSIONS.height}px, Actual: ${img.width}x${img.height}px`);
-        }
-        resolve(isValid);
-      };
+  //     img.onload = () => {
+  //       URL.revokeObjectURL(url);
+  //       const isValid = img.width <= MAX_DIMENSIONS.width && img.height <= MAX_DIMENSIONS.height;
+  //       if (!isValid) {
+  //         setValidationError(`Image dimensions too large. Max: ${MAX_DIMENSIONS.width}x${MAX_DIMENSIONS.height}px, Actual: ${img.width}x${img.height}px`);
+  //       }
+  //       resolve(isValid);
+  //     };
 
-      img.onerror = () => {
-        URL.revokeObjectURL(url);
-        setValidationError('Invalid image file');
-        resolve(false);
-      };
+  //     img.onerror = () => {
+  //       URL.revokeObjectURL(url);
+  //       setValidationError('Invalid image file');
+  //       resolve(false);
+  //     };
 
-      img.src = url;
-    });
-  };
+  //     img.src = url;
+  //   });
+  // };
 
   // Comprehensive file validation
-  const validateFile = async (file: File): Promise<boolean> => {
-    // Clear previous errors
-    setValidationError(null);
+  // const validateFile = async (file: File): Promise<boolean> => {
+  //   // Clear previous errors
+  //   setValidationError(null);
 
-    // Check file type
-    if (!SUPPORTED_FORMATS.includes(file.type)) {
-      setValidationError(`Unsupported file format. Supported: ${SUPPORTED_FORMATS.join(', ')}`);
-      return false;
-    }
+  //   // Check file type
+  //   if (!SUPPORTED_FORMATS.includes(file.type)) {
+  //     setValidationError(`Unsupported file format. Supported: ${SUPPORTED_FORMATS.join(', ')}`);
+  //     return false;
+  //   }
 
-    // Check file size
-    if (file.size > MAX_FILE_SIZE) {
-      setValidationError(`File too large: ${formatFileSize(file.size)}. Maximum allowed: ${formatFileSize(MAX_FILE_SIZE)}`);
-      return false;
-    }
+  //   // Check file size
+  //   if (file.size > MAX_FILE_SIZE) {
+  //     setValidationError(`File too large: ${formatFileSize(file.size)}. Maximum allowed: ${formatFileSize(MAX_FILE_SIZE)}`);
+  //     return false;
+  //   }
 
-    // Warn about large files
-    if (file.size > RECOMMENDED_SIZE) {
-      console.warn(`Large file detected: ${formatFileSize(file.size)}. Consider optimizing for better performance.`);
-    }
+  //   // Warn about large files
+  //   if (file.size > RECOMMENDED_SIZE) {
+  //     console.warn(`Large file detected: ${formatFileSize(file.size)}. Consider optimizing for better performance.`);
+  //   }
 
-    // Check image dimensions
-    const dimensionsValid = await validateImageDimensions(file);
-    return dimensionsValid;
-  };
+  //   // Check image dimensions
+  //   const dimensionsValid = await validateImageDimensions(file);
+  //   return dimensionsValid;
+  // };
 
   // Safety scan image before upload
   const performSafetyScan = async (file: File): Promise<ClientImageSafetyResult> => {
@@ -168,11 +169,16 @@ const ImageControl = ({ editor }: any) => {
       return;
     }
 
-    // Validate file before processing
-    const isValid = await validateFile(file);
-    if (!isValid) {
-      // Error message is already set by validateFile
-      setTimeout(() => setValidationError(null), 5000); // Clear error after 5s
+    // Validate file using shared utility
+    const validationOptions = {
+      ...DEFAULT_VALIDATION_OPTIONS.RICH_TEXT_EDITOR,
+      maxWidth: MAX_DIMENSIONS.width,
+      maxHeight: MAX_DIMENSIONS.height,
+      setValidationError
+    };
+
+    const isValidFile = await validateFile(file, validationOptions);
+    if (!isValidFile) {
       return;
     }
 

@@ -31,6 +31,7 @@ import TrainingConfirmationModal from "./TrainingConfirmationModal";
 import { uploadImage } from '../Blog/Form/util';
 import { ControllerTextInput, RegisterTextarea, RegisterTextInput } from "../hoc/TextInputHoc";
 import { useImageSafety } from "../../hooks/useImageSafety";
+import { validateFile, formatFileSize, DEFAULT_VALIDATION_OPTIONS } from '../../utils/imageValidation';
 
 type RegisterFormValues = {
   name: string;
@@ -121,76 +122,6 @@ const RegisterForm = ({ user }: { user: any }) => {
       return data || [];
     },
   });
-
-  // Format file size for display
-  const formatFileSize = (bytes: number): string => {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-  };
-
-  // Validate image dimensions
-  const validateImageDimensions = (file: File): Promise<boolean> => {
-    return new Promise((resolve) => {
-      const img = document.createElement('img');
-      const url = URL.createObjectURL(file);
-
-      img.onload = () => {
-        URL.revokeObjectURL(url);
-        const minWidth = 150, minHeight = 150;
-        const maxWidth = 2048, maxHeight = 2048;
-
-        const isValidMin = img.width >= minWidth && img.height >= minHeight;
-        const isValidMax = img.width <= maxWidth && img.height <= maxHeight;
-
-        if (!isValidMin) {
-          setValidationError(
-            `Profile image dimensions too small. Min: ${minWidth}x${minHeight}px, Actual: ${img.width}x${img.height}px`
-          );
-        } else if (!isValidMax) {
-          setValidationError(
-            `Profile image dimensions too large. Max: ${maxWidth}x${maxHeight}px, Actual: ${img.width}x${img.height}px`
-          );
-        }
-
-        resolve(isValidMin && isValidMax);
-      };
-
-      img.onerror = () => {
-        URL.revokeObjectURL(url);
-        setValidationError('Invalid image file');
-        resolve(false);
-      };
-
-      img.src = url;
-    });
-  };
-
-  // Comprehensive file validation
-  const validateFile = async (file: File): Promise<boolean> => {
-    const maxSize = 3 * 1024 * 1024; // 3MB for profile images
-    const allowedTypes = ['image/png', 'image/jpg', 'image/jpeg'];
-
-    // Check file type
-    if (!allowedTypes.includes(file.type)) {
-      setValidationError(`Unsupported file format. Supported: ${allowedTypes.join(', ')}`);
-      return false;
-    }
-
-    // Check file size
-    if (file.size > maxSize) {
-      setValidationError(
-        `File too large: ${formatFileSize(file.size)}. Maximum allowed: ${formatFileSize(maxSize)}`
-      );
-      return false;
-    }
-
-    // Check image dimensions
-    const dimensionsValid = await validateImageDimensions(file);
-    return dimensionsValid;
-  };
 
   const handleImageChange = async (file: File | null) => {
     // Clear previous states
