@@ -378,7 +378,7 @@ const BlogForm: React.FC<BlogFormProps> = ({ categories, edit }) => {
       <Container size="lg" mb={'4rem'} pos='relative'>
         <LoadingOverlay visible={isVisible} zIndex={1000} overlayProps={{ radius: "sm", blur: 2 }} />
         <Box>
-          <Title mb={'lg'} order={2}>{edit ? 'Edit blog' : 'Create blog'}</Title>
+          <Title my={'md'} order={2}>{edit ? 'Edit blog' : 'Create blog'}</Title>
           <form onSubmit={handleSubmit(handleFormSubmit)}>
             <Grid gutter="lg">
               {/* Title */}
