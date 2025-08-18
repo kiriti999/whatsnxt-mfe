@@ -53,9 +53,10 @@ export default function AppProvider({ children, user }: { children: ReactNode, u
     logo: 'https://res.cloudinary.com/cloudinary999/image/upload/v1713640702/whatsnxt/logo.png',
     links: [
       { title: 'Home', url: `${domain}/`, linkType: '_self' },
-      { title: 'Courses', url: `${domain}/courses`, linkType: '_self' },
       { title: 'Blogs', url: `${domain}/blogs`, linkType: '_self' },
       { title: 'Tutorials', url: `${domain}/tutorials`, linkType: '_self' },
+      { title: 'Learn AI', url: `${domain}/courses`, linkType: '_self' },
+      { title: 'Courses', url: `${domain}/courses`, linkType: '_self' },
     ],
     loginMenuLinks: [
       { title: 'My Courses', url: `${domain}/my-courses`, icon: IconCertificate },
