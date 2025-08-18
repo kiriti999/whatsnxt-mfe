@@ -169,10 +169,14 @@ const BlogForm: React.FC<BlogFormProps> = ({ categories, edit }) => {
     try {
       console.log('🔍 Starting validation and safety scan for:', file.name);
 
-      // Step 1: Basic file validation using shared utility
-      const { isValid, errorMessage } = await validateFile(file, DEFAULT_VALIDATION_OPTIONS);
+      const validationOptions = {
+        ...DEFAULT_VALIDATION_OPTIONS.BLOG_TUTORIAL,
+        setValidationError // Add the setValidationError function to options
+      };
+
+      const isValid = await validateFile(file, validationOptions);
+
       if (!isValid) {
-        setValidationError(errorMessage);
         return; // Error already set by validateFile
       }
 
@@ -515,7 +519,7 @@ const BlogForm: React.FC<BlogFormProps> = ({ categories, edit }) => {
                 <strong>Maximum required dimensions:</strong> 6000 × 6000 pixels
               </Text>
               <Text size="sm" mt="xs">
-                <strong>File size:</strong> Maximum 5MB
+                <strong>File size:</strong> Maximum 2MB
               </Text>
               <Text size="sm" mt="xs" c="blue">
                 <strong>AI Safety:</strong> All images are automatically scanned for inappropriate content before upload.

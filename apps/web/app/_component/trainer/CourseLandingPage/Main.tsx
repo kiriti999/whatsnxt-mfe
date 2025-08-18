@@ -180,76 +180,6 @@ const Main = ({ courseWithSections, courseId }) => {
 		}
 	};
 
-	// Format file size for display
-	// const formatFileSize = (bytes: number): string => {
-	// 	if (bytes === 0) return '0 Bytes';
-	// 	const k = 1024;
-	// 	const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-	// 	const i = Math.floor(Math.log(bytes) / Math.log(k));
-	// 	return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-	// };
-
-	// Validate image dimensions
-	// const validateImageDimensions = (file: File): Promise<boolean> => {
-	// 	return new Promise((resolve) => {
-	// 		const img = document.createElement('img');
-	// 		const url = URL.createObjectURL(file);
-
-	// 		img.onload = () => {
-	// 			URL.revokeObjectURL(url);
-	// 			const minWidth = 750, minHeight = 422;
-	// 			const maxWidth = 6000, maxHeight = 6000;
-
-	// 			const isValidMin = img.width >= minWidth && img.height >= minHeight;
-	// 			const isValidMax = img.width <= maxWidth && img.height <= maxHeight;
-
-	// 			if (!isValidMin) {
-	// 				setValidationError(
-	// 					`Image dimensions too small. Min: ${minWidth}x${minHeight}px, Actual: ${img.width}x${img.height}px`
-	// 				);
-	// 			} else if (!isValidMax) {
-	// 				setValidationError(
-	// 					`Image dimensions too large. Max: ${maxWidth}x${maxHeight}px, Actual: ${img.width}x${img.height}px`
-	// 				);
-	// 			}
-
-	// 			resolve(isValidMin && isValidMax);
-	// 		};
-
-	// 		img.onerror = () => {
-	// 			URL.revokeObjectURL(url);
-	// 			setValidationError('Invalid image file');
-	// 			resolve(false);
-	// 		};
-
-	// 		img.src = url;
-	// 	});
-	// };
-
-	// Comprehensive file validation
-	// const validateFile = async (file: File): Promise<boolean> => {
-	// 	const maxSize = 5 * 1024 * 1024; // 5MB
-	// 	const allowedTypes = ['image/png', 'image/jpg', 'image/jpeg'];
-
-	// 	// Check file type
-	// 	if (!allowedTypes.includes(file.type)) {
-	// 		setValidationError(`Unsupported file format. Supported: ${allowedTypes.join(', ')}`);
-	// 		return false;
-	// 	}
-
-	// 	// Check file size
-	// 	if (file.size > maxSize) {
-	// 		setValidationError(
-	// 			`File too large: ${formatFileSize(file.size)}. Maximum allowed: ${formatFileSize(maxSize)}`
-	// 		);
-	// 		return false;
-	// 	}
-
-	// 	// Check image dimensions
-	// 	const dimensionsValid = await validateImageDimensions(file);
-	// 	return dimensionsValid;
-	// };
-
 	const handleImageChange = async (file: File | null) => {
 		// Clear previous states
 		setValidationError(null);
@@ -267,8 +197,13 @@ const Main = ({ courseWithSections, courseId }) => {
 
 			// Step 1: Basic file validation
 			// Use the imported validateFile function
-			const isValidFile = await validateFile(file, setValidationError, DEFAULT_VALIDATION_OPTIONS);
-			if (!isValidFile) {
+			const validationOptions = {
+				...DEFAULT_VALIDATION_OPTIONS.BLOG_TUTORIAL,
+				setValidationError // Add the setValidationError function to options
+			};
+
+			const isValid = await validateFile(file, validationOptions);
+			if (!isValid) {
 				return; // Error already set by validateFile
 			}
 
@@ -616,7 +551,7 @@ const Main = ({ courseWithSections, courseId }) => {
 								<strong>Maximum required dimensions:</strong> 6000 × 6000 pixels
 							</Text>
 							<Text size="sm" mt="xs">
-								<strong>File size:</strong> Maximum 5MB
+								<strong>File size:</strong> Maximum 2MB
 							</Text>
 							<Text size="sm" mt="xs" c="blue">
 								<strong>AI Safety:</strong> All images are automatically scanned for inappropriate content before upload.

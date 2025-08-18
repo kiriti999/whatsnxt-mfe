@@ -1,4 +1,3 @@
-
 /**
  * Shared image validation utilities
  */
@@ -63,6 +62,7 @@ export const validateImageDimensions = (
 
 /**
  * Comprehensive file validation
+ * Returns a Promise<boolean> and uses setValidationError to set error messages
  */
 export const validateFile = async (
   file: File,
@@ -77,6 +77,17 @@ export const validateFile = async (
   }
 ): Promise<boolean> => {
   const { maxSize, allowedTypes, setValidationError } = options;
+
+  // Validate inputs
+  if (!allowedTypes || !Array.isArray(allowedTypes)) {
+    setValidationError('Invalid validation configuration: allowedTypes must be an array');
+    return false;
+  }
+
+  if (!maxSize || maxSize <= 0) {
+    setValidationError('Invalid validation configuration: maxSize must be a positive number');
+    return false;
+  }
 
   // Check file type
   if (!allowedTypes.includes(file.type)) {
@@ -102,7 +113,7 @@ export const validateFile = async (
  */
 export const DEFAULT_VALIDATION_OPTIONS = {
   BLOG_TUTORIAL: {
-    maxSize: 5 * 1024 * 1024, // 5MB
+    maxSize: 2 * 1024 * 1024, // 2MB
     allowedTypes: ['image/png', 'image/jpg', 'image/jpeg'],
     minWidth: 750,
     minHeight: 422,
@@ -110,7 +121,7 @@ export const DEFAULT_VALIDATION_OPTIONS = {
     maxHeight: 6000,
   },
   PROFILE: {
-    maxSize: 3 * 1024 * 1024, // 3MB
+    maxSize: 2 * 1024 * 1024, // 2MB
     allowedTypes: ['image/png', 'image/jpg', 'image/jpeg'],
     minWidth: 150,
     minHeight: 150,
@@ -118,7 +129,7 @@ export const DEFAULT_VALIDATION_OPTIONS = {
     maxHeight: 2048,
   },
   RICH_TEXT_EDITOR: {
-    maxSize: 5 * 1024 * 1024, // 5MB
+    maxSize: 2 * 1024 * 1024, // 2MB
     allowedTypes: ['image/png', 'image/jpg', 'image/jpeg'],
     minWidth: 1,
     minHeight: 1,

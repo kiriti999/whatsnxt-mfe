@@ -139,8 +139,13 @@ const RegisterForm = ({ user }: { user: any }) => {
       console.log('🔍 Starting validation and safety scan for profile image:', file.name);
 
       // Step 1: Basic file validation
-      const isValidFile = await validateFile(file);
-      if (!isValidFile) {
+      const validationOptions = {
+        ...DEFAULT_VALIDATION_OPTIONS.BLOG_TUTORIAL,
+        setValidationError // Add the setValidationError function to options
+      };
+
+      const isValid = await validateFile(file, validationOptions);
+      if (!isValid) {
         return; // Error already set by validateFile
       }
 

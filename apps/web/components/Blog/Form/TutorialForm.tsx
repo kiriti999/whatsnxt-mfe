@@ -75,13 +75,13 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
   const [validationSuccess, setValidationSuccess] = useState<string | null>(null);
 
   // Image safety hook
-  const { 
-    scanImageClientSide, 
+  const {
+    scanImageClientSide,
     preloadModel,
-    isScanning, 
+    isScanning,
     isModelLoading,
-    error: scanError, 
-    clearError 
+    error: scanError,
+    clearError
   } = useImageSafety();
 
   const {
@@ -205,10 +205,14 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
       console.log('🔍 Starting validation and safety scan for:', file.name);
 
       // Step 1: Basic file validation using the shared utility
-      const isValidFile = await validateFile(file);
-      if (!isValidFile) {
-        setValidationError(`File validation failed. See details above.`); // Error already set by validateFile
-        return;
+      const validationOptions = {
+        ...DEFAULT_VALIDATION_OPTIONS.BLOG_TUTORIAL,
+        setValidationError // Add the setValidationError function to options
+      };
+
+      const isValid = await validateFile(file, validationOptions);
+      if (!isValid) {
+        return; // Error already set by validateFile
       }
 
       // Step 2: Safety scanning
@@ -635,9 +639,9 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
                       clearable
                       label={<Text fz={15}>Tutorial Image <Text component="span" m={0} size='lg' c="red">*</Text></Text>}
                       placeholder={
-                        isScanning ? "🔍 Scanning image..." : 
-                        isModelLoading ? "🤖 Loading AI model..." :
-                        "Select tutorial image"
+                        isScanning ? "🔍 Scanning image..." :
+                          isModelLoading ? "🤖 Loading AI model..." :
+                            "Select tutorial image"
                       }
                       leftSection={
                         isScanning || isModelLoading ? (
@@ -657,9 +661,9 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
 
                     {/* Status messages */}
                     {(validationError || scanError) && (
-                      <Alert 
-                        icon={<IconAlertCircle size={16} />} 
-                        color="red" 
+                      <Alert
+                        icon={<IconAlertCircle size={16} />}
+                        color="red"
                         mt="xs"
                         variant="light"
                       >
@@ -668,9 +672,9 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
                     )}
 
                     {validationSuccess && !validationError && !scanError && (
-                      <Alert 
-                        icon={<IconCheck size={16} />} 
-                        color="green" 
+                      <Alert
+                        icon={<IconCheck size={16} />}
+                        color="green"
                         mt="xs"
                         variant="light"
                       >
@@ -718,7 +722,7 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
                   <strong>Maximum required dimensions:</strong> 6000 × 6000 pixels
                 </Text>
                 <Text size="sm" mt="xs">
-                  <strong>File size:</strong> Maximum 5MB
+                  <strong>File size:</strong> Maximum 2MB
                 </Text>
                 <Text size="sm" mt="xs" c="blue">
                   <strong>AI Safety:</strong> All images are automatically scanned for inappropriate content before upload.
@@ -735,7 +739,7 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
                     height={200}
                     sizes="(max-width: 480px) 300px, (max-width: 768px) 320px, 340px"
                     src={imagePreview}
-                    style={{ 
+                    style={{
                       borderRadius: '8px',
                       border: '1px solid #e9ecef'
                     }}
@@ -778,15 +782,15 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
                       )}
 
                       <Group>
-                        <Button 
+                        <Button
                           fullWidth
                           disabled={
-                            isAssetsUploading || 
-                            isScanning || 
-                            isModelLoading || 
-                            (validationError !== null) || 
+                            isAssetsUploading ||
+                            isScanning ||
+                            isModelLoading ||
+                            (validationError !== null) ||
                             (scanError !== null)
-                          } 
+                          }
                           type="submit"
                         >
                           {edit ? 'Update' : 'Create'}
