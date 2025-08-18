@@ -205,7 +205,7 @@ const createApiClient = (type: ApiClientType) => {
             // Apply type-specific request interceptor if exists
             if (config.requestInterceptor) {
                 // Check if this is the AI suggestion endpoint
-                const isAISuggestionEndpoint = requestConfig.url && requestConfig.url.includes('/posts/suggestionByChatGpt');
+                const isAISuggestionEndpoint = requestConfig.url && requestConfig.url.includes('/post/suggestionByChatGpt');
 
                 // Only apply timeout for non-AI suggestion endpoints
                 if (!isAISuggestionEndpoint) {
