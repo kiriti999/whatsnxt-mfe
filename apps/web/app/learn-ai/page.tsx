@@ -8,6 +8,5 @@ export default function LearnAiPage() {
         <Suspense fallback={<MantineLoader />}>
             <LearnAI />
         </Suspense>
-
     );
 }
