@@ -108,7 +108,7 @@ export const NavbarDesktop = ({ links, cartItems, loginMenuLinks, drawerOpened, 
                 </Anchor>
               ))}
             </Box>
-            <Box style={{ width: "40%", minWidth: 200 }}><Search /></Box>
+            <Box style={{ width: "35%", minWidth: 200 }}><Search /></Box>
           </Box>
 
           <Space w="md" mr={'xl'} />
