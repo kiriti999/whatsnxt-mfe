@@ -13,7 +13,7 @@ import { CacheAPI } from '../../../apis/v1/redis/index';
 import classes from '../Navbar.module.css';
 import { notifications } from '@mantine/notifications';
 import { resetCart } from '../../../store/slices/cartSlice';
-import { updateUserInfo, logout } from '../../../store/slices/userSlice';
+import { logout } from '../../../store/slices/userSlice';
 
 interface INavbarDesktop {
   links: NavLink[];

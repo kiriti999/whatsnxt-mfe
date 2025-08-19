@@ -52,6 +52,14 @@ const courses: CourseData[] = [
         description: 'Leverage AI to transform HR processes, optimize talent management, and build future-ready workforce strategies.',
         level: 'Intermediate',
         image: '/teacher.png'
+    },
+    {
+        id: '5',
+        title: 'AI for App Development',
+        subtitle: 'AI for App Development',
+        description: 'Leverage AI to create websites, mobile apps, and fullstack applications',
+        level: 'Intermediate',
+        image: '/teacher.png'
     }
 ];
 
