@@ -179,13 +179,9 @@ export const Footer = () => {
               <Text component="span">
                 {currentYear} whatsnxt
               </Text>
-              <Anchor
-                target="_blank"
-                href="https://www.whatsnxt.in/"
-                td="none"
-              >
+              <Text c={'blue'}>
                 Copyright reserved
-              </Anchor>
+              </Text>
             </Group>
             <List className='p-0 m-0'>
               <Flex wrap='wrap' justify='center'>
