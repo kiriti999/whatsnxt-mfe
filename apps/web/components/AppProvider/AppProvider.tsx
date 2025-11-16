@@ -35,13 +35,12 @@ const CartInitializer = () => {
 };
 
 export default function AppProvider({ children, user }: { children: ReactNode, user: User }): JSX.Element {
-  const isAuthenticated = user?.isAuthenticated || false;
   const [queryClient] = useState(
     () =>
       new QueryClient({
         defaultOptions: {
           queries: {
-            staleTime: 60 * 1000,
+            staleTime: 0,
           },
         },
       }),
