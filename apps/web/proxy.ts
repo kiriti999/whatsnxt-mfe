@@ -140,7 +140,7 @@ const isGoogleLoginCallback = (req: NextRequest): boolean => {
   return false;
 };
 
-export async function middleware(req: NextRequest) {
+export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   // Skip middleware for certain file types and API routes
