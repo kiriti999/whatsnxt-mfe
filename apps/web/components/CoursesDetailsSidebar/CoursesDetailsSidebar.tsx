@@ -3,7 +3,7 @@ import styles from './CoursesDetailsSidebar.module.css';
 import { notifications } from '@mantine/notifications';
 import { useSelector } from 'react-redux';
 import { useAppDispatch } from '../../store/hooks'; // Create this hook
-import { Anchor, LoadingOverlay, Text } from '@mantine/core';
+import { Anchor, LoadingOverlay, Text, Group } from '@mantine/core';
 import Link from 'next/link';
 import ReactPlayer from 'react-player';
 import ActionButtons from './ActionButtons';
@@ -152,52 +152,58 @@ export const CoursesDetailsSidebar: FC<CoursesDetailsSidebarProps> = ({
       <div className={`${styles['courses-details-info']}`}>
         <ul className={`${styles['info']}`}>
           <li>
-            <div className="d-flex justify-content-between align-items-center">
-              <span>
-                <i><IconUser size={20} /></i> Instructor
-              </span>
-              {courseData?.author}
-            </div>
+            <Group style={{ justifyContent: 'space-between', alignItems: 'center' }}>
+              <Text fw={700} style={{ display: 'flex', alignItems: 'center', gap: 8 }} m={0}>
+                <IconUser size={20} style={{ marginRight: 0 }} />
+                Instructor
+              </Text>
+
+              <Text style={{ display: 'flex', alignItems: 'center' }}>{courseData?.author}</Text>
+            </Group>
           </li>
 
           {price > 0 && (
             <li>
               {courseData?.paidType === 'live' && (
-                <div className="d-flex justify-content-between align-items-center">
-                  <span>
-                    <i><IconTimeDuration90 size={20} /></i> Live Training
-                  </span>
-                  {lessons} lessons
-                </div>
+                <Group style={{ justifyContent: 'space-between', alignItems: 'center' }}>
+                  <Text fw={700} style={{ display: 'flex', alignItems: 'center', gap: 8 }} m={0}>
+                    <IconTimeDuration90 size={20} style={{ marginRight: 0 }} />
+                    Live Training
+                  </Text>
+
+                  <Text style={{ display: 'flex', alignItems: 'center' }}>{lessons} lessons</Text>
+                </Group>
               )}
 
               {courseData?.paidType === 'video' && (
-                <div className="d-flex justify-content-between align-items-center">
-                  <span>
-                    <i><IconClock size={20} /></i> Video Courses
-                  </span>
-                  {duration}
-                </div>
+                <Group style={{ justifyContent: 'space-between', alignItems: 'center' }}>
+                  <Text fw={700} style={{ display: 'flex', alignItems: 'center', gap: 8 }} m={0}>
+                    <IconClock size={20} style={{ marginRight: 0 }} />
+                    Video Courses
+                  </Text>
+
+                  <Text style={{ display: 'flex', alignItems: 'center' }}>{duration}</Text>
+                </Group>
               )}
             </li>
           )}
 
           <li className={styles['price']}>
             {!isEnrolled ? (
-              <div className="d-flex justify-content-between align-items-center">
-                <span>
-                  <i><IconTags /></i>
+              <Group style={{ justifyContent: 'space-between', alignItems: 'center' }}>
+                <Text fw={700} style={{ display: 'flex', alignItems: 'center', gap: 8 }} m={0}>
+                  <IconTags size={18} style={{ display: 'inline-flex' }} />
                   {isFreeCourse ? 'Course Type' : 'Price'}
-                </span>
+                </Text>
 
                 {isFreeCourse ? (
-                  <Text c="red" fw={600}>
+                  <Text c="red" fw={600} style={{ display: 'flex', alignItems: 'center' }} m={0}>
                     {courseData.courseType}
                   </Text>
                 ) : (
-                  <span>&#8377;{price}</span>
+                  <Text style={{ display: 'flex', alignItems: 'center' }} m={0}>&#8377;{price}</Text>
                 )}
-              </div>
+              </Group>
             ) : <p>Already purchased this course</p>}
           </li>
         </ul>

@@ -81,7 +81,7 @@ const CourseCurriculum: FC<CourseCurriculumProps> = ({ courseId, userId, videos,
             </Paper>
           </>
         ) : (
-          <Paper p="md" shadow="md" withBorder>
+          <Paper py="md">
             <Title order={3} className='py-4'>Syllabus</Title>
             <Text size="md" fw={550} color="dimmed">
               Coming soon
