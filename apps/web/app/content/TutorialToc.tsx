@@ -19,7 +19,7 @@ const TutorialsToc: React.FC<TutorialsTocProps> = ({ tutorials, active, navigate
                     mb="5px"
                 >
                     <Stack gap={0}>
-                        <Text size='xs' fw={active === i ? 600 : 400} lineClamp={2}>
+                        <Text size='sm' fw={active === i ? 600 : 400} lineClamp={2}>
                             {tutorial.title}
                         </Text>
                     </Stack>
