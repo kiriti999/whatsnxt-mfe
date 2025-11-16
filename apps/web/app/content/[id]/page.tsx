@@ -13,7 +13,6 @@ const ContentPage = async (props: any) => {
 
   // Use REST API instead of GraphQL for SSR
   const slugData = await getPostBySlugServer(params.id);
-  console.log(' ContentPage :: slugData:', slugData)
 
   if (!slugData) {
     return (
