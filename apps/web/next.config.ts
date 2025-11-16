@@ -6,6 +6,8 @@ const withBundleAnalyzer = bundleAnalyzer({
 });
 
 const nextConfig: NextConfig = {
+    turbopack: {
+    },
     reactStrictMode: true,
     compress: true,
     productionBrowserSourceMaps: false, // Disable in production for better performance

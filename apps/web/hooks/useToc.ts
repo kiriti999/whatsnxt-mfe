@@ -1,15 +1,18 @@
 import { useCallback, useEffect, useRef } from 'react';
 import sanitizeHtml from 'sanitize-html';
 
-// Configure sanitize-html options to allow images
+// Configure sanitize-html options to allow images and preserve code block attributes
 const sanitizeOptions = {
   allowedTags: [
     ...sanitizeHtml.defaults.allowedTags,
     'img' // Add img to allowed tags
   ],
+  // Preserve class and data-language on <pre> and <code> so highlighting classes survive
   allowedAttributes: {
     ...sanitizeHtml.defaults.allowedAttributes,
-    img: ['src', 'alt', 'title', 'width', 'height', 'loading', 'class', 'style']
+    img: ['src', 'alt', 'title', 'width', 'height', 'loading', 'class', 'style'],
+    pre: ['class', 'data-language'],
+    code: ['class', 'data-language']
   },
   allowedSchemes: ['http', 'https', 'data']
 };
@@ -48,11 +51,98 @@ export const useAddIdsToHeadings = (desc: string) => {
     // Add unique IDs to headings
     addUniqueIdsToHeadings(doc);
 
+    // Convert paragraphs that are actually code blocks back into proper <pre><code>
+    const paragraphs = Array.from(doc.querySelectorAll('p'));
+    paragraphs.forEach((p) => {
+      // If paragraph contains exactly one child and it's a CODE element, convert it
+      if (p.children.length === 1 && p.children[0].tagName === 'CODE') {
+        const codeEl = p.children[0] as HTMLElement;
+
+        // Heuristics: treat as block code if code text contains a newline or has a language class
+        const text = codeEl.textContent || '';
+        const hasNewline = text.includes('\n');
+        const classAttr = codeEl.getAttribute('class') || '';
+        const hasLangClass = /language-/.test(classAttr);
+
+        if (hasNewline || hasLangClass) {
+          const pre = doc.createElement('pre');
+          const newCode = doc.createElement('code');
+
+          // Copy attributes from original code element
+          Array.from(codeEl.attributes).forEach((attr) => {
+            newCode.setAttribute(attr.name, attr.value);
+          });
+
+          // Set the text content (preserve inner text exactly)
+          newCode.textContent = codeEl.textContent;
+          pre.appendChild(newCode);
+
+          p.replaceWith(pre);
+        }
+      }
+    });
+
     // Serialize the DOM back to an HTML string
     const modifiedDescription = doc.body.innerHTML;
 
     // Set the modified HTML string to the container
     containerRef.current.innerHTML = modifiedDescription;
+      // Client-side: run highlight.js on any <pre><code> blocks so they get span classes
+      if (typeof window !== 'undefined') {
+        try {
+          // Dynamic import so this only runs in the browser and doesn't bloat server bundles
+          import('highlight.js/lib/common')
+            .then((mod) => {
+              const hljs: any = (mod && (mod.default || mod));
+              const contentEl = containerRef.current;
+              if (!contentEl || !hljs || typeof hljs.highlightElement !== 'function') return;
+
+              const codeBlocks = Array.from(contentEl.querySelectorAll('pre code')) as HTMLElement[];
+              codeBlocks.forEach((codeEl) => {
+                try {
+                  // If the block is marked as plaintext, allow auto-detection
+                  const classAttr = codeEl.getAttribute('class') || '';
+                  const text = codeEl.textContent || '';
+
+                  if (/language-(?:plain|plaintext)/.test(classAttr) || classAttr.trim() === '') {
+                    // Use auto-detection
+                    const result = hljs.highlightAuto ? hljs.highlightAuto(text) : null;
+                    if (result && result.value) {
+                      codeEl.innerHTML = result.value;
+                      // Update classes to include detected language if available
+                      codeEl.classList.add('hljs');
+                      if (result.language) {
+                        codeEl.classList.add(`language-${result.language}`);
+                      }
+                    }
+                  } else {
+                    hljs.highlightElement(codeEl as any);
+                  }
+                } catch (e) {
+                  // fall back to highlightAuto if highlightElement fails
+                  try {
+                    const text = codeEl.textContent || '';
+                    const result = hljs.highlightAuto ? hljs.highlightAuto(text) : null;
+                    if (result && result.value) {
+                      codeEl.innerHTML = result.value;
+                      codeEl.classList.add('hljs');
+                      if (result.language) {
+                        codeEl.classList.add(`language-${result.language}`);
+                      }
+                    }
+                  } catch (er) {
+                    // ignore
+                  }
+                }
+              });
+            })
+            .catch((err) => {
+              console.warn('highlight.js import failed:', err);
+            });
+        } catch (e) {
+          // ignore
+        }
+      }
   }, [desc, containerRef]);
 
   return { containerRef };

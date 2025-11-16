@@ -16,8 +16,6 @@ import Youtube from "@tiptap/extension-youtube";
 import Typography from "@tiptap/extension-typography";
 import Focus from "@tiptap/extension-focus";
 import CharacterCount from "@tiptap/extension-character-count";
-import { createLowlight } from "lowlight";
-import ts from "highlight.js/lib/languages/typescript";
 import Underline from "@tiptap/extension-underline";
 import { Indent } from "../extensions/Indent/IndentExtension";
 import Link from '@tiptap/extension-link';
@@ -29,6 +27,10 @@ import BulletList from '@tiptap/extension-bullet-list';
 import OrderedList from '@tiptap/extension-ordered-list';
 import ListItem from '@tiptap/extension-list-item';
 import Blockquote from '@tiptap/extension-blockquote';
+import {
+  createConfiguredLowlight,
+} from "../extensions/CodeHighlight/setupHighlightLanguages";
+import { configureCodeBlockWithAutoDetect } from "../extensions/CodeHighlight/CustomCodeBlock";
 
 import {
   IconBold,
@@ -66,8 +68,7 @@ import { FontSizeSelector } from "../extensions/Font/FontSizeSelector";
 import { HighlightColorPicker } from '../extensions/Highlight/HighlightColorPicker';
 import HardBreakControl from '../extensions/LineBreak/HardBreakControl';
 
-const lowlight = createLowlight();
-lowlight.register({ ts });
+const lowlight = createConfiguredLowlight();
 
 const limit = 25000;
 
@@ -318,10 +319,7 @@ export default function Tiptap({ content, onChange, onWordCountChange }) {
       maxLevel: 8
     }),
     TextAlign.configure({ types: ["heading", "paragraph"] }),
-    CodeBlockLowlight.configure({
-      lowlight,
-      defaultLanguage: null, // Better performance
-    }),
+    configureCodeBlockWithAutoDetect(lowlight),
     // Explicitly add list extensions
     BulletList.configure({
       HTMLAttributes: {
