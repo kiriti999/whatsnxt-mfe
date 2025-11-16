@@ -32,9 +32,9 @@ const nextConfig: NextConfig = {
         ];
     },
 
-    // NEXT.JS 15: Updated experimental features
+    // NEXT.JS 16: Updated experimental features
     experimental: {
-        // Next.js 15 specific optimizations
+        // Next.js 16 specific optimizations
         optimizePackageImports: [
             '@mantine/core',
             '@mantine/hooks',
@@ -42,55 +42,30 @@ const nextConfig: NextConfig = {
             'lodash',
             'react-icons'
         ],
-        // Turbopack is now stable in Next.js 15
-        turbo: {
-            rules: {
-                '*.svg': {
-                    loaders: ['@svgr/webpack'],
-                    as: '*.js',
-                },
-            },
-            resolveExtensions: [
-                '.mdx',
-                '.tsx',
-                '.ts',
-                '.jsx',
-                '.js',
-                '.mjs',
-                '.json',
-            ],
-            resolveAlias: {
-                '@': './src',
-                '@components': './src/components',
-                '@utils': './src/utils',
-                '@styles': './src/styles',
-            },
-        },
-        // New in Next.js 15
+        // New in Next.js 16
         // ppr: true, // Partial Prerendering
         // dynamicIO: true, // Dynamic IO for better streaming
         authInterrupts: true, // Better auth handling
         // instrumentationHook: true, // Performance monitoring
-        optimisticClientCache: true, // Client-side caching
     },
 
-    // NEXT.JS 15: Enhanced compiler options
+    // NEXT.JS 16: Enhanced compiler options
     compiler: {
         removeConsole: process.env.NODE_ENV === 'production' ? {
             exclude: ['error', 'warn'],
         } : false,
-        // Next.js 15 has better React compiler integration
+        // Next.js 16 has better React compiler integration
         reactRemoveProperties: process.env.NODE_ENV === 'production',
     },
 
-    // Specify packages to transpile (important for Next.js 15)
+    // Specify packages to transpile (important for Next.js 16)
     transpilePackages: [
         '@mantine/core',
         '@mantine/hooks',
         '@mantine/notifications'
     ],
 
-    // OPTIMIZATION: Enhanced image configuration for Next.js 15
+    // OPTIMIZATION: Enhanced image configuration for Next.js 16
     images: {
         remotePatterns: [
             {
@@ -128,10 +103,10 @@ const nextConfig: NextConfig = {
         loader: 'default',
     },
 
-    // NEXT.JS 15: Enhanced webpack configuration
+    // NEXT.JS 16: Enhanced webpack configuration
     webpack: (config, { buildId, dev, isServer, defaultLoaders, nextRuntime, webpack }) => {
         if (!dev && !isServer) {
-            // Enhanced chunk splitting for Next.js 15 with aggressive optimization
+            // Enhanced chunk splitting for Next.js 16 with aggressive optimization
             config.optimization.splitChunks = {
                 chunks: 'all',
                 minSize: 20000,
@@ -244,7 +219,7 @@ const nextConfig: NextConfig = {
             config.optimization.usedExports = true;
             config.optimization.sideEffects = false;
 
-            // Tree shaking improvements for Next.js 15
+            // Tree shaking improvements for Next.js 16
             config.plugins.push(
                 new webpack.IgnorePlugin({
                     resourceRegExp: /^\.\/locale$/,
@@ -481,7 +456,7 @@ const nextConfig: NextConfig = {
         ];
     },
 
-    // NEXT.JS 15: Updated environment variable handling
+    // NEXT.JS 16: Updated environment variable handling
     env: {
         NEXT_PUBLIC_ALGOLIA_SEARCH_ADMIN_KEY: process.env.ALGOLIA_SEARCH_ADMIN_KEY,
         NEXT_PUBLIC_CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY,
@@ -519,10 +494,10 @@ const nextConfig: NextConfig = {
         NEXT_PUBLIC_GA_ID: process.env.GA_ID,
     },
 
-    // NEXT.JS 15: Output configuration
+    // NEXT.JS 16: Output configuration
     output: 'standalone',
 
-    // NEXT.JS 15: Enhanced PWA and caching
+    // NEXT.JS 16: Enhanced PWA and caching
     async rewrites() {
         return [
             {
@@ -532,31 +507,25 @@ const nextConfig: NextConfig = {
         ];
     },
 
-    // NEXT.JS 15: Better asset optimization
+    // NEXT.JS 16: Better asset optimization
     assetPrefix: process.env.NODE_ENV === 'production' ? process.env.CDN_URL : '',
 
-    // NEXT.JS 15: Enhanced dev experience
+    // NEXT.JS 16: Enhanced dev experience
     devIndicators: {
-        buildActivity: true,
-        buildActivityPosition: 'bottom-right',
+        position: 'bottom-right',
     },
 
-    // NEXT.JS 15: Logging configuration
+    // NEXT.JS 16: Logging configuration
     logging: {
         fetches: {
             fullUrl: true,
         },
     },
 
-    // NEXT.JS 15: Type checking optimization
+    // NEXT.JS 16: Type checking optimization
     typescript: {
         // Only run type checking in development
         ignoreBuildErrors: process.env.NODE_ENV === 'production',
-    },
-
-    // NEXT.JS 15: ESLint configuration
-    eslint: {
-        ignoreDuringBuilds: process.env.NODE_ENV === 'production',
     },
 };
 
