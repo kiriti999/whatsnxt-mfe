@@ -29,6 +29,7 @@ import ListItem from '@tiptap/extension-list-item';
 import Blockquote from '@tiptap/extension-blockquote';
 import {
   createConfiguredLowlight,
+  SUPPORTED_LANGUAGES,
 } from "../extensions/CodeHighlight/setupHighlightLanguages";
 import { configureCodeBlockWithAutoDetect } from "../extensions/CodeHighlight/CustomCodeBlock";
 
@@ -782,6 +783,49 @@ export default function Tiptap({ content, onChange, onWordCountChange }) {
     { value: '6', label: 'H6' },
   ], []);
 
+  const languageOptions = useMemo(() => {
+    const labelMap: Record<string, string> = {
+      plaintext: "Plain Text",
+      javascript: "JavaScript",
+      typescript: "TypeScript",
+      python: "Python",
+      java: "Java",
+      csharp: "C#",
+      php: "PHP",
+      cpp: "C++",
+      c: "C",
+      go: "Go",
+      rust: "Rust",
+      kotlin: "Kotlin",
+      swift: "Swift",
+      ruby: "Ruby",
+      sql: "SQL",
+      html: "HTML",
+      css: "CSS",
+      scss: "SCSS",
+      less: "Less",
+      json: "JSON",
+      yaml: "YAML",
+      xml: "XML",
+      bash: "Bash",
+      shell: "Shell",
+      markdown: "Markdown",
+      r: "R",
+      docker: "Dockerfile",
+      graphql: "GraphQL",
+      diff: "Diff",
+    };
+    return SUPPORTED_LANGUAGES.map((lang) => ({
+      value: lang,
+      label: labelMap[lang] || lang,
+    }));
+  }, []);
+
+  const getCurrentCodeLanguage = useCallback(() => {
+    const attrs = editor.getAttributes('codeBlock') as { language?: string };
+    return (attrs?.language as string) || 'plaintext';
+  }, [editor?.state?.selection]);
+
   // Memoized current heading
   const getCurrentHeading = useCallback(() => {
     if (!editor) return '0';
@@ -875,6 +919,25 @@ export default function Tiptap({ content, onChange, onWordCountChange }) {
                   <IconCodeDots size={16} />
                 </Button>
               </Tooltip>
+              <Select
+                placeholder="Code Lang"
+                value={editor.isActive('codeBlock') ? getCurrentCodeLanguage() : undefined}
+                data={languageOptions}
+                onChange={(value) => {
+                  if (!value) return;
+                  editor.chain().focus().updateAttributes('codeBlock', { language: value }).run();
+                }}
+                size="xs"
+                disabled={!editor.isActive('codeBlock')}
+                styles={{
+                  input: {
+                    width: '120px',
+                    minWidth: '120px',
+                    padding: '0 8px',
+                  },
+                }}
+                comboboxProps={{ width: 'auto', position: 'bottom' }}
+              />
             </Group>
 
             <Group gap={0}>

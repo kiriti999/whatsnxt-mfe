@@ -80,6 +80,41 @@ export function createConfiguredLowlight() {
 }
 
 /**
+ * Export the list of supported base languages for UI selectors
+ */
+export const SUPPORTED_LANGUAGES = [
+    "plaintext",
+    "javascript",
+    "typescript",
+    "python",
+    "java",
+    "csharp",
+    "php",
+    "cpp",
+    "c",
+    "go",
+    "rust",
+    "kotlin",
+    "swift",
+    "ruby",
+    "sql",
+    "html",
+    "css",
+    "scss",
+    "less",
+    "json",
+    "yaml",
+    "xml",
+    "bash",
+    "shell",
+    "markdown",
+    "r",
+    "docker",
+    "graphql",
+    "diff",
+];
+
+/**
  * Language aliases for common variations
  * Maps user-provided language names to registered lowlight languages
  */
