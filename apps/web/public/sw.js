@@ -6,25 +6,20 @@ const STATIC_CACHE_NAME = 'whatsnxt-static-v1';
 
 // Critical resources to cache immediately
 const CRITICAL_RESOURCES = [
-  '/',
   '/favicon.ico',
   '/manifest.json'
 ];
 
 // Install event - cache critical resources
 self.addEventListener('install', (event) => {
-  console.log('Service Worker: Installing...');
 
   event.waitUntil(
     Promise.all([
       // Cache critical resources
       caches.open(CACHE_NAME).then((cache) => {
-        console.log('Service Worker: Caching critical resources');
         return cache.addAll(CRITICAL_RESOURCES);
       }),
     ]).then(() => {
-      console.log('Service Worker: Installation complete');
-      // Force activation of new service worker
       return self.skipWaiting();
     })
   );
@@ -32,7 +27,6 @@ self.addEventListener('install', (event) => {
 
 // Activate event - clean up old caches
 self.addEventListener('activate', (event) => {
-  console.log('Service Worker: Activating...');
 
   event.waitUntil(
     caches.keys().then((cacheNames) => {
@@ -40,14 +34,11 @@ self.addEventListener('activate', (event) => {
         cacheNames.map((cacheName) => {
           // Delete old caches
           if (cacheName !== CACHE_NAME && cacheName !== STATIC_CACHE_NAME) {
-            console.log('Service Worker: Deleting old cache:', cacheName);
             return caches.delete(cacheName);
           }
         })
       );
     }).then(() => {
-      console.log('Service Worker: Activation complete');
-      // Take control of all clients
       return self.clients.claim();
     })
   );
@@ -60,6 +51,11 @@ self.addEventListener('fetch', (event) => {
 
   // Skip cross-origin requests and non-GET requests
   if (url.origin !== location.origin || request.method !== 'GET') {
+    return;
+  }
+
+  // Skip top-level navigations to avoid serving stale HTML
+  if (request.mode === 'navigate') {
     return;
   }
 
@@ -123,7 +119,6 @@ async function cacheFirst(request) {
     }
     return networkResponse;
   } catch (error) {
-    console.error('Cache first failed:', error);
     return new Response('Offline content not available', {
       status: 503,
       statusText: 'Service Unavailable'
@@ -153,7 +148,6 @@ async function staleWhileRevalidate(request) {
     // Otherwise wait for network
     return await fetchPromise;
   } catch (error) {
-    console.error('Stale while revalidate failed:', error);
     const cachedResponse = await caches.match(request);
     return cachedResponse || new Response('Content not available', {
       status: 503,
@@ -175,7 +169,6 @@ async function networkFirst(request) {
 
     return networkResponse;
   } catch (error) {
-    console.error('Network first failed:', error);
 
     // Fallback to cache for API requests
     if (isAPIRequest(request)) {

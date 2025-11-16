@@ -7,13 +7,6 @@ interface FetcherOptions {
     cache?: RequestCache;
 }
 
-interface FetcherOptions {
-    method?: 'GET' | 'POST' | 'PUT' | 'DELETE';
-    body?: Record<string, any>;
-    headers?: Record<string, string>;
-    cache?: RequestCache;
-}
-
 export const serverFetcher = async (BASEURL: string, URL: string, options: FetcherOptions = {}): Promise<any> => {
     try {
         const tokenKeyName = process.env.NEXT_PUBLIC_COOKIES_ACCESS_TOKEN || 'whatsnxt_access_token';

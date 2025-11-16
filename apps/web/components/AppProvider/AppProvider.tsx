@@ -41,6 +41,7 @@ export default function AppProvider({ children, user }: { children: ReactNode, u
         defaultOptions: {
           queries: {
             staleTime: 0,
+            gcTime: 5 * 60 * 1000,
           },
         },
       }),
