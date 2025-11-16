@@ -160,7 +160,7 @@ const BlogComment = ({
                                         </div>
                                     </div>
 
-                                    <Stack gap={0} mb={'xs'}>
+                                    <Stack gap={0} mb={'xs'} mt={'sm'}>
                                         <Title size='xs' m={0} order={6} fz={12.5}>{(comment.email || email)?.split('@')[0]}</Title>
                                         <Text size='xs' style={{ opacity: '0.6' }} m={0}>
                                             {formatRelativeTime(comment?.updatedAt)}
