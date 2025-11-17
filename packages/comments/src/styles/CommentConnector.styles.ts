@@ -99,7 +99,7 @@ export const CommentContainer = styled.div<CommentContainerProps>`
 
   .send-comment-container {
     position:absolute;
-    right: 0.5rem;
+    right: 1.5rem;
     top: 74%;
     transform: translateY(-50%);
   }
