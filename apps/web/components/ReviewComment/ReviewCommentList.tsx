@@ -44,7 +44,7 @@ function ReviewCommentList({
 
     return (
         <div key={comment?._id}>
-            <div className="review-heading comment-heading mt-2">
+            <div className="review-heading comment-heading">
                 <div className="review-profile">
                     <Avatar color="#fe4a55">{(comment.email || email)?.charAt(0)?.toUpperCase() || '?'}</Avatar>
                 </div>
