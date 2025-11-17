@@ -142,7 +142,7 @@ const Comment = ({
                                 : ''
                                 } ${comment.parents?.length > 1 ? 'child-comment-connector ' : ''}`}
                         >
-                            <div className="review-heading comment-heading mb-1">
+                            <div className="review-heading comment-heading mb-1 mt-2">
                                 <div className="review-profile">
                                     <div className="d-flex gap-2">
                                         <Tooltip label={userName}>
@@ -150,7 +150,7 @@ const Comment = ({
                                                 {(userName)?.slice(0, 1)?.toUpperCase() || '?'}
                                             </Avatar>
                                         </Tooltip>
-                                        <Stack gap={0} mb={'xs'} mt={'sm'}>
+                                        <Stack gap={0} mb={'xs'}>
                                             <Title size='xs' m={0} order={6} fz={12.5}>{userName}</Title>
                                             <Text size='xs' style={{ opacity: '0.6' }} m={0}>
                                                 {formatRelativeTime(comment?.updatedAt)}
