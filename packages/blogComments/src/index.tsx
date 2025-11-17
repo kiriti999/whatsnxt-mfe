@@ -213,7 +213,7 @@ const BlogComment = ({
                                                 </span>
                                             )}
                                             <div className="d-flex justify-content-end gap-1 mt-1 send-comment-container">
-                                                <Button disabled={!!errors.comment?.message} type="submit" color="red" radius="lg" size='xs'>
+                                                <Button disabled={!!errors.comment?.message} type="submit" color="red" radius="lg" size='xs' mr={1}>
                                                     Submit
                                                 </Button>
                                                 <Button type="button" color="blue" radius="lg" onClick={() => setCommentExpand(commentId, false, 'I')} size='xs'>
