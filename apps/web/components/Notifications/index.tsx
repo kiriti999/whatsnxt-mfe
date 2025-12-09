@@ -13,7 +13,9 @@ import {
   IconReceipt,
   IconTrash,
   IconMail,
-  IconEye
+  IconEye,
+  IconSquareCheck,
+  IconSquare
 } from "@tabler/icons-react";
 import Pagination from '../pagination/pagination';
 import sanitizeHtml from 'sanitize-html';
@@ -32,7 +34,11 @@ const NotificationsHeader = ({ totalUnseen, onRefresh, onRead, onDelete, onSelec
       <Tooltip label='Refresh'><ActionIcon variant="filled" onClick={onRefresh}><IconRefresh /></ActionIcon></Tooltip>
       <Tooltip label='Mark as read'><ActionIcon variant="filled" color="indigo" onClick={onRead}><IconReceipt /></ActionIcon></Tooltip>
       <Tooltip label='Delete'><ActionIcon variant="filled" color="red" onClick={onDelete}><IconTrash /></ActionIcon></Tooltip>
-      <Checkbox ml={'sm'} onChange={onSelectAll} checked={isAllSelected} />
+      <Tooltip label={isAllSelected ? 'Deselect All' : 'Select All'}>
+        <ActionIcon variant="filled" onClick={onSelectAll} ml="sm">
+          {isAllSelected ? <IconSquareCheck /> : <IconSquare />}
+        </ActionIcon>
+      </Tooltip>
     </div>
   </div>
 );

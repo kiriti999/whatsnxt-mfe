@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { useDispatch } from 'react-redux';
 import { Cart, Logo } from '@whatsnxt/core-ui';
 import { useMediaQuery } from '@mantine/hooks';
-import { Button, rem, Burger, Space, Anchor, Box, Menu, ActionIcon, useMantineColorScheme, useComputedColorScheme } from '@mantine/core';
+import { Button, rem, Burger, Space, Anchor, Box, Menu, ActionIcon, useMantineColorScheme, useComputedColorScheme, Group } from '@mantine/core';
 import { IconLogin, IconLogout, IconSearch, IconX, IconSun, IconMoon } from '@tabler/icons-react';
 import type { Link as NavLink } from '../types';
 import { NavbarNotification } from '../NavbarNotification/index';
