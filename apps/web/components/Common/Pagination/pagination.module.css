@@ -11,8 +11,8 @@ Pagination CSS
 .pagination-area .page-numbers {
   width: 33px;
   height: 33px;
-  background-color: #f3f0f0;
-  color: #606060;
+  background-color: light-dark(#f3f0f0, var(--mantine-color-dark-6));
+  color: light-dark(#606060, var(--mantine-color-gray-4));
   text-align: center;
   display: inline-flex;
   justify-content: center;

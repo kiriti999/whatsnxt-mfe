@@ -14,6 +14,7 @@ import Providers from '../components/AppProvider/AppProvider'
 import Script from 'next/script';
 import { OrganizationStructuredData, WebSiteStructuredData } from '../components/StructuredData';
 import PartyTownScripts from '../components/PartyTownScripts';
+import { ColorSchemeScript } from '@mantine/core';
 
 const nunito = Nunito({
   subsets: ["latin"],
@@ -211,6 +212,7 @@ async function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" className={`${nunito.variable} ${nunito.className}`}>
       <head>
+        <ColorSchemeScript />
         {/* Resource hints for actual services you use */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />

@@ -1,5 +1,5 @@
 .courses-details-info {
-    background-color: #f8f9f8;
+    background-color: light-dark(#f8f9f8, var(--mantine-color-dark-6));
     border-radius: 5px;
     padding: 12px 12px 50px 12px;
 }
@@ -74,8 +74,8 @@
 }
 
 .courses-details-info .info li {
-    border-bottom: 1px solid #e5e5e7;
-    color: #606060;
+    border-bottom: 1px solid light-dark(#e5e5e7, var(--mantine-color-dark-4));
+    color: light-dark(#606060, var(--mantine-color-gray-4));
     font-size: 17px;
     font-weight: 600;
     padding-top: 15px;
@@ -84,7 +84,7 @@
 
 .courses-details-info .info li span {
     font-weight: 800;
-    color: #221638;
+    color: light-dark(#221638, var(--mantine-color-white));
     position: relative;
     padding-left: 28px;
 }

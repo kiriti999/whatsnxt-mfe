@@ -14,7 +14,7 @@
     margin-bottom: 25px;
     position: relative;
     padding-bottom: 7px;
-    border-bottom: 1px solid #eeeeee;
+    border-bottom: 1px solid light-dark(#eeeeee, var(--mantine-color-dark-4));
     font-size: 1rem;
     font-weight: 800;
 }
@@ -45,8 +45,8 @@
 
 .widget-area .widget_search form .search-field {
     height: 50px;
-    color: #221638;
-    background-color: #f2f4f5;
+    color: light-dark(#221638, var(--mantine-color-white));
+    background-color: light-dark(#f2f4f5, var(--mantine-color-dark-6));
     display: block;
     width: 100%;
     border-radius: 5px;
@@ -58,13 +58,13 @@
 }
 
 .widget-area .widget_search form .search-field::-moz-placeholder {
-    color: #606060;
+    color: light-dark(#606060, var(--mantine-color-dimmed));
     -moz-transition: 0.5s;
     transition: 0.5s;
 }
 
 .widget-area .widget_search form .search-field::placeholder {
-    color: #606060;
+    color: light-dark(#606060, var(--mantine-color-dimmed));
     transition: 0.5s;
 }
 
@@ -184,7 +184,7 @@
 
 .widget-area .widget_blog_posts_thumb .item .info span {
     display: block;
-    color: #606060;
+    color: light-dark(#606060, var(--mantine-color-dimmed));
     text-transform: uppercase;
     margin-top: -2px;
     margin-bottom: 5px;
@@ -219,7 +219,7 @@
     position: relative;
     margin-bottom: 12px;
     overflow: hidden;
-    color: #221638;
+    color: light-dark(#221638, var(--mantine-color-white));
     padding-left: 18px;
     font-weight: 700;
     font-size: 15px;
@@ -241,7 +241,7 @@
 }
 
 .widget-area .widget_categories ul li a {
-    color: #221638;
+    color: light-dark(#221638, var(--mantine-color-white));
     display: inline-block;
 }
 
@@ -250,7 +250,7 @@
 }
 
 .widget-area .widget_categories ul li .post-count {
-    color: #606060;
+    color: light-dark(#606060, var(--mantine-color-dimmed));
     font-size: 14px;
     display: inline-block;
     position: relative;
@@ -263,8 +263,8 @@
 
 .widget-area .tagcloud a {
     display: inline-block;
-    background: #f5f5f5;
-    color: #221638;
+    background: light-dark(#f5f5f5, var(--mantine-color-dark-6));
+    color: light-dark(#221638, var(--mantine-color-white));
     padding: 7px 15px;
     border: none;
     border-radius: 3px;
@@ -294,8 +294,8 @@
     position: relative;
     display: block;
     padding: 15px 25px 15px 40px;
-    color: #606060;
-    border: 1px solid #eeeeee;
+    color: light-dark(#606060, var(--mantine-color-dimmed));
+    border: 1px solid light-dark(#eeeeee, var(--mantine-color-dark-4));
     font-size: 16px;
     font-weight: 700;
 }

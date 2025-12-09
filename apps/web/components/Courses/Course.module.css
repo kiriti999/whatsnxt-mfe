@@ -7,7 +7,7 @@
 }
 
 .discounted-live-training-price {
-  color: rgba(0, 0, 0, 0.5)
+  color: light-dark(rgba(0, 0, 0, 0.5), rgba(255, 255, 255, 0.5));
 }
 
 .single-language-courses-box {
@@ -58,7 +58,7 @@
 .courses-details-desc .react-tabs__tab-list {
   margin-bottom: 0;
   list-style-type: none;
-  background-color: #f8f9f8;
+  background-color: light-dark(#f8f9f8, var(--mantine-color-dark-6));
   border: none;
   border-radius: 5px;
   padding-left: 14px;
@@ -72,7 +72,7 @@
   display: inline-block;
   margin-left: 15px;
   margin-right: 15px;
-  color: #221638;
+  color: light-dark(#221638, var(--mantine-color-white));
   border: none;
   border-bottom: 1px solid #aaa;
   padding: 0;
@@ -112,7 +112,7 @@
 
 .courses-details-desc .react-tabs__tab-list .react-tabs__tab:hover,
 .courses-details-desc .react-tabs__tab-list .react-tabs__tab.react-tabs__tab--selected {
-  color: #221638;
+  color: light-dark(#221638, var(--mantine-color-white));
 }
 
 .courses-details-desc .react-tabs__tab-list .react-tabs__tab:hover::before,
@@ -144,7 +144,7 @@
 }
 
 .courses-details-desc .react-tabs__tab-panel .courses-curriculum {
-  border: 1px solid #eeeeee;
+  border: 1px solid light-dark(#eeeeee, var(--mantine-color-dark-4));
   border-radius: 5px;
   padding: 30px;
   margin-left: -30px;
@@ -172,8 +172,8 @@
 }
 
 .courses-details-desc .react-tabs__tab-panel .courses-curriculum ul li button {
-  background: #f8f9f8;
-  color: #221638;
+  background: light-dark(#f8f9f8, var(--mantine-color-dark-6));
+  color: light-dark(#221638, var(--mantine-color-white));
   position: relative;
   padding-left: 55px;
   padding-right: 30px;
@@ -1145,13 +1145,16 @@
   margin-left: 5px;
 }
 
-.courses-review-comments .like-button, .courses-review-comments .report-button{
+.courses-review-comments .like-button,
+.courses-review-comments .report-button {
   background-color: transparent;
   border: none;
 }
-.courses-review-comments .report-button{
+
+.courses-review-comments .report-button {
   color: #f44336;
 }
+
 .related-courses {
   margin-top: 40px;
 }
@@ -1417,7 +1420,7 @@
   top: 0;
 }
 
-.single-courses-box .courses-content .courses-box-footer li i{
+.single-courses-box .courses-content .courses-box-footer li i {
   font-size: 18px;
   left: 3px;
 }

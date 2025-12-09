@@ -15,7 +15,7 @@
 .create-article-form form .form-group label {
   display: block;
   margin-bottom: 8px;
-  color: #221638;
+  color: light-dark(#221638, var(--mantine-color-white));
   font-weight: 700;
 }
 
@@ -30,7 +30,7 @@
 .form-types {
   min-width: 7.3rem;
   padding: 1.25rem;
-  background-color: #fff;
+  background-color: light-dark(#fff, var(--mantine-color-dark-6));
   border: 1px solid rgba(0, 0, 0, 0.125);
   border-radius: 0.25rem;
   text-align: center;

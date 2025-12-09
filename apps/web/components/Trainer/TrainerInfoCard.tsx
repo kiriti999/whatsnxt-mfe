@@ -148,7 +148,7 @@ const TrainerInfoCard: React.FC<TrainerInfoCardProps> = ({
                     <span
                       key={i}
                       style={{
-                        color: Math.ceil(trainer.rating) >= i + 1 ? 'rgb(255, 215, 0)' : 'black',
+                        color: Math.ceil(trainer.rating) >= i + 1 ? 'rgb(255, 215, 0)' : 'var(--mantine-color-dimmed)',
                       }}
                     >
                       &#9733;
@@ -215,7 +215,7 @@ const TrainerInfoCard: React.FC<TrainerInfoCardProps> = ({
             </div>
           </Flex>
           {trainer.about && (
-            <Text c="black" fz={15} lineClamp={4} mt={18}>
+            <Text c="var(--mantine-color-text)" fz={15} lineClamp={4} mt={18}>
               {trainer.about}
             </Text>
           )}

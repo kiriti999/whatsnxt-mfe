@@ -1,5 +1,5 @@
 .order-details .payment-box {
-    background-color: #ffffff;
+    background-color: light-dark(#ffffff, var(--mantine-color-dark-6));
     box-shadow: 0 2px 28px 0 rgba(0, 0, 0, 0.06);
     margin-top: 30px;
     padding: 30px;
@@ -15,7 +15,7 @@
     padding-left: 27px;
     cursor: pointer;
     display: block;
-    color: #221638;
+    color: light-dark(#221638, var(--mantine-color-white));
     position: relative;
     margin-bottom: 8px;
     font-weight: 800;
@@ -29,9 +29,9 @@
     top: 3px;
     width: 18px;
     height: 18px;
-    border: 1px solid #dddddd;
+    border: 1px solid light-dark(#dddddd, var(--mantine-color-dark-4));
     border-radius: 50%;
-    background: #ffffff;
+    background: light-dark(#ffffff, var(--mantine-color-dark-6));
 }
 
 .order-details .payment-box .payment-method p [type="radio"]:checked+label::after,

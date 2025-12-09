@@ -15,13 +15,13 @@
 
 .cart-table table tbody tr td {
     vertical-align: middle;
-    color: #606060;
+    color: light-dark(#606060, var(--mantine-color-white));
     white-space: nowrap;
     font-weight: 700;
     font-size: 15px;
     padding-left: 0;
     padding-right: 0;
-    border-color: #eaedff;
+    border-color: light-dark(#eaedff, var(--mantine-color-dark-4));
     border-left: none;
     border-right: none;
 }
@@ -82,11 +82,11 @@
 
 .cart-table table tbody tr td.product-quantity .input-counter input {
     height: 45px;
-    color: #221638;
+    color: light-dark(#221638, var(--mantine-color-white));
     outline: 0;
     display: block;
     border: none;
-    background-color: #f8f8f8;
+    background-color: light-dark(#f8f8f8, var(--mantine-color-dark-6));
     text-align: center;
     width: 100%;
     font-size: 17px;
@@ -94,11 +94,11 @@
 }
 
 .cart-table table tbody tr td.product-quantity .input-counter input::-moz-placeholder {
-    color: #221638;
+    color: light-dark(#221638, var(--mantine-color-dimmed));
 }
 
 .cart-table table tbody tr td.product-quantity .input-counter input::placeholder {
-    color: #221638;
+    color: light-dark(#221638, var(--mantine-color-dimmed));
 }
 
 .cart-table table tbody tr td.product-subtotal {
@@ -135,7 +135,7 @@
 }
 
 .cart-totals {
-    background: #ffffff;
+    background: light-dark(#ffffff, var(--mantine-color-dark-6));
     padding: 40px;
     max-width: 500px;
     box-shadow: 0 2px 48px 0 rgba(0, 0, 0, 0.08);
@@ -158,9 +158,9 @@
 }
 
 .cart-totals ul li {
-    border: 1px solid #eaedff;
+    border: 1px solid light-dark(#eaedff, var(--mantine-color-dark-4));
     padding: 10px 15px;
-    color: #221638;
+    color: light-dark(#221638, var(--mantine-color-white));
     overflow: hidden;
     font-weight: 700;
 }
@@ -175,13 +175,13 @@
 }
 
 .cart-totals ul li:last-child span {
-    color: #221638;
+    color: light-dark(#221638, var(--mantine-color-white));
     font-weight: 600;
 }
 
 .cart-totals ul li span {
     float: right;
-    color: #606060;
+    color: light-dark(#606060, var(--mantine-color-gray-4));
     font-weight: normal;
 }
 

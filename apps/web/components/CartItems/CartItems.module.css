@@ -54,11 +54,11 @@ table tbody tr td.product-subtotal .remove {
 
 .cart-items table tbody tr td.product-quantity .input-counter input {
     height: 45px;
-    color: #221638;
+    color: light-dark(#221638, var(--mantine-color-white));
     outline: 0;
     display: block;
     border: none;
-    background-color: #f8f8f8;
+    background-color: light-dark(#f8f8f8, var(--mantine-color-dark-6));
     text-align: center;
     width: 100%;
     font-size: 17px;
@@ -66,11 +66,11 @@ table tbody tr td.product-subtotal .remove {
 }
 
 .cart-items table tbody tr td.product-quantity .input-counter input::-moz-placeholder {
-    color: #221638;
+    color: light-dark(#221638, var(--mantine-color-dimmed));
 }
 
 .cart-items table tbody tr td.product-quantity .input-counter input::placeholder {
-    color: #221638;
+    color: light-dark(#221638, var(--mantine-color-dimmed));
 }
 
 .cart-items table tbody tr td.product-subtotal {

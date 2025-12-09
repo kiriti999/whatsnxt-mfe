@@ -12,38 +12,38 @@
 
 /* High contrast text improvements */
 .trendingTitle {
-    color: #1a1a1a !important;
+    color: light-dark(#1a1a1a, var(--mantine-color-white)) !important;
     font-weight: 600;
 }
 
 .trendingTitleClickable {
-    color: #1a1a1a !important;
+    color: light-dark(#1a1a1a, var(--mantine-color-white)) !important;
     font-weight: 600;
     cursor: pointer;
 }
 
 .trendingDescription {
-    color: #333333 !important;
+    color: light-dark(#333333, var(--mantine-color-dimmed)) !important;
     /* Better than dimmed for contrast */
 }
 
 .trendingMeta {
-    color: #555555 !important;
+    color: light-dark(#555555, var(--mantine-color-dimmed)) !important;
     /* High contrast for meta text */
     max-width: 120px;
 }
 
 /* Empty state high contrast */
 .trendingEmptyTitle {
-    color: #333333 !important;
+    color: light-dark(#333333, var(--mantine-color-white)) !important;
 }
 
 .trendingEmptyText {
-    color: #555555 !important;
+    color: light-dark(#555555, var(--mantine-color-dimmed)) !important;
 }
 
 .trendingEmptyIcon {
-    color: #666666 !important;
+    color: light-dark(#666666, var(--mantine-color-dimmed)) !important;
 }
 
 /* Button styles */
@@ -67,7 +67,7 @@
     flex-direction: column;
     transition: box-shadow 200ms ease;
     cursor: pointer;
-    border: 0.75px solid #d1d5db;
+    border: 0.75px solid light-dark(#d1d5db, var(--mantine-color-dark-4));
 }
 
 .trendingCard:hover {
@@ -82,12 +82,12 @@
 /* Image styles */
 .trendingImage {
     object-fit: cover;
-    border: 0.5px solid #e3dfdf;
+    border: 0.5px solid light-dark(#e3dfdf, var(--mantine-color-dark-4));
 }
 
 /* Paper styles */
 .trendingEmptyPaper {
-    border-color: #d1d5db;
+    border-color: light-dark(#d1d5db, var(--mantine-color-dark-4));
 }
 
 /* Stack styles */

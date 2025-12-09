@@ -3,8 +3,8 @@ import Link from 'next/link';
 import { useDispatch } from 'react-redux';
 import { Cart, Logo } from '@whatsnxt/core-ui';
 import { useMediaQuery } from '@mantine/hooks';
-import { Button, rem, Burger, Space, Anchor, Box, Menu } from '@mantine/core';
-import { IconLogin, IconLogout, IconSearch, IconX } from '@tabler/icons-react';
+import { Button, rem, Burger, Space, Anchor, Box, Menu, ActionIcon, useMantineColorScheme, useComputedColorScheme } from '@mantine/core';
+import { IconLogin, IconLogout, IconSearch, IconX, IconSun, IconMoon } from '@tabler/icons-react';
 import type { Link as NavLink } from '../types';
 import { NavbarNotification } from '../NavbarNotification/index';
 import Search from '../../Search';
@@ -81,6 +81,9 @@ export const NavbarDesktop = ({ links, cartItems, loginMenuLinks, drawerOpened, 
   // Check if we should use desktop or mobile layout
   const shouldUseDesktopLayout = isLargerThanIpadPro;
 
+  const { setColorScheme } = useMantineColorScheme();
+  const computedColorScheme = useComputedColorScheme('light', { getInitialValueInEffect: true });
+
   return (
     <header className={classes.header}>
       {shouldUseDesktopLayout ? (
@@ -113,6 +116,19 @@ export const NavbarDesktop = ({ links, cartItems, loginMenuLinks, drawerOpened, 
 
           <Space w="md" mr={'xl'} />
           <Box style={{ alignItems: "center" }} h="100%" display={"flex"}>
+            <ActionIcon
+              onClick={() => setColorScheme(computedColorScheme === 'light' ? 'dark' : 'light')}
+              variant="transparent"
+              size="sm"
+              aria-label="Toggle color scheme"
+              mr="md"
+            >
+              {computedColorScheme === 'dark' ? (
+                <IconSun />
+              ) : (
+                <IconMoon />
+              )}
+            </ActionIcon>
             <Anchor href={isAuthenticated ? '/labs' : '/consulting'} className={classes.link} component={Link}>
               {isAuthenticated ? 'Labs' : 'Consulting'}
             </Anchor>
@@ -267,6 +283,20 @@ export const NavbarDesktop = ({ links, cartItems, loginMenuLinks, drawerOpened, 
                 <Logo />
               </Box>
               <Box style={{ position: "absolute", right: "1rem", display: "flex", alignItems: "center" }}>
+                <ActionIcon
+                  onClick={() => setColorScheme(computedColorScheme === 'light' ? 'dark' : 'light')}
+                  variant="transparent"
+                  size="sm"
+                  aria-label="Toggle color scheme"
+                  c="dimmed"
+                >
+                  {computedColorScheme === 'dark' ? (
+                    <IconSun />
+                  ) : (
+                    <IconMoon />
+                  )}
+                </ActionIcon>
+                <Space w="sm" />
                 <Cart cartItems={cartItems} />
                 <Space w="lg" />
                 <IconSearch onClick={() => setIsSearch(prev => !prev)} />

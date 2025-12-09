@@ -1,6 +1,6 @@
 
 .partner-area.border-bottom {
-  border-bottom-color: #efeff1 !important;
+  border-bottom-color: light-dark(#efeff1, var(--mantine-color-dark-4)) !important;
 }
 
 .partner-item {

@@ -8,7 +8,8 @@ body {
   margin: 0;
   font-size: 16px;
   font-family: "Nunito", sans-serif;
-  background-color: #fffefe !important;
+  background-color: var(--mantine-color-body);
+  color: var(--mantine-color-text);
 }
 
 a {
@@ -27,16 +28,7 @@ a {
   padding: '20px';
 }
 
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
-  }
 
-  body {
-    color: white;
-    background: black;
-  }
-}
 
 a {
   color: inherit;
@@ -49,7 +41,7 @@ img {
 }
 
 p {
-  color: #606060;
+  color: light-dark(#606060, var(--mantine-color-dimmed));
   margin-bottom: 15px;
   line-height: 1.6;
   font-size: 16px;
@@ -71,7 +63,7 @@ h3,
 h4,
 h5,
 h6 {
-  color: #221638;
+  color: light-dark(#221638, var(--mantine-color-white));
   font-family: "Nunito", sans-serif;
 }
 

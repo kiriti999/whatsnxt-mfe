@@ -5,7 +5,7 @@
 @media (max-width: 768px) {
   .stickyHeader {
     width: 100%;
-    background-color: #fff;
+    background-color: light-dark(#fff, var(--mantine-color-dark-7));
     padding: 10px 0px 20px 0px;
     z-index: 1000;
     display: flex;
@@ -16,7 +16,7 @@
   .activeTitle {
     font-size: 16px;
     font-weight: bold;
-    color: black;
+    color: light-dark(black, var(--mantine-color-white));
   }
 
   .menuButton {
@@ -30,7 +30,7 @@
     position: absolute;
     top: 40px;
     right: 10px;
-    background-color: #fff;
+    background-color: light-dark(#fff, var(--mantine-color-dark-6));
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     z-index: 1001;
     display: flex;
@@ -43,6 +43,6 @@
   }
 
   .menuItem:hover {
-    background-color: #f0f0f0;
+    background-color: light-dark(#f0f0f0, var(--mantine-color-dark-5));
   }
 }

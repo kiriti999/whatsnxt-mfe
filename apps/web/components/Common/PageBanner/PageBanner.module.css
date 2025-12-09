@@ -1,6 +1,6 @@
 
 .page-title-area {
-  background-color: #f8f9f8;
+  background-color: light-dark(#f8f9f8, var(--mantine-color-dark-8));
   position: relative;
   z-index: 1;
   padding-top: 20px;
@@ -17,7 +17,7 @@
   display: inline-block;
   margin-right: 20px;
   position: relative;
-  color: #221638;
+  color: light-dark(#221638, var(--mantine-color-white));
   font-size: 16px;
   font-weight: 600;
 }
@@ -28,13 +28,13 @@
   right: -10px;
   top: 5px;
   transform: rotate(10deg);
-  background-color: #696969;
+  background-color: light-dark(#696969, var(--mantine-color-gray-5));
   height: 15px;
   width: 1px;
 }
 
 .page-title-content ul li a {
-  color: #606060;
+  color: light-dark(#606060, var(--mantine-color-dimmed));
   display: block;
   font-weight: 500;
 }

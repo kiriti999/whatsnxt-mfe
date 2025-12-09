@@ -57,7 +57,7 @@ export const LinkControl: React.FC<LinkControlProps> = ({ editor }) => {
         <Tooltip label="Add/Edit link">
           <ActionIcon
             variant="subtle"
-            color="black"
+            color="gray"
             onClick={handleOpen}
           >
             <IconLink size={16} />

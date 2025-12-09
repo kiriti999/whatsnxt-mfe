@@ -17,7 +17,7 @@
 .register-form form .form-group label {
   display: block;
   margin-bottom: 8px;
-  color: #221638;
+  color: light-dark(#221638, var(--mantine-color-white));
   font-weight: 700;
 }
 

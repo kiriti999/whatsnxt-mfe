@@ -5,7 +5,7 @@
 
 .page_404 {
     padding: 120px 0px 0px 0px;
-    background: #fff;
+    background: light-dark(#fff, var(--mantine-color-body));
     font-family: 'Arvo', serif;
     margin: 0 auto;
 }

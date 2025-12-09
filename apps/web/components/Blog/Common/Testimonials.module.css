@@ -25,7 +25,7 @@
 }
 
 .single-testimonials-item p {
-  color: #221638;
+  color: light-dark(#221638, var(--mantine-color-white));
   font-size: 20px;
   font-weight: 600;
   margin-top: 0;
@@ -42,7 +42,7 @@
 
 .single-testimonials-item span {
   display: block;
-  color: #606060;
+  color: light-dark(#606060, var(--mantine-color-dimmed));
   font-size: 15px;
   margin-top: 4px;
 }
@@ -51,7 +51,7 @@
   content: "\f10a";
   position: absolute;
   right: 0;
-  color: #e8e8e8;
+  color: light-dark(#e8e8e8, var(--mantine-color-dark-4));
   z-index: -1;
   bottom: 0;
   line-height: 1;

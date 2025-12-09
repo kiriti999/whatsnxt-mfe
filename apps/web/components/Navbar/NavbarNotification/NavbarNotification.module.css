@@ -4,10 +4,10 @@
  }
 
  .notification-btn a {
-     display: inline-block;
-     position: relative;
-     color: #221638;
- }
+    display: inline-block;
+    position: relative;
+    color: light-dark(#221638, var(--mantine-color-white));
+}
 
  .notification-item-count {
     position: absolute;
