@@ -8,6 +8,11 @@ export const fetchLabs = async (): Promise<Lab[]> => {
     return response?.data || [];
 };
 
+export const fetchLabById = async (id: string): Promise<Lab | null> => {
+    const response = await serverFetcher(BASEURL, `/labs/${id}`);
+    return response?.data || null;
+};
+
 export const createLab = async (labData: Lab): Promise<Lab> => {
     const response = await serverFetcher(BASEURL, '/labs', {
         method: 'POST',

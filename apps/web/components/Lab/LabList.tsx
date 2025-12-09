@@ -100,7 +100,15 @@ export const LabList = () => {
                   {lab.description}
                 </Text>
 
-                <Button variant="light" color="blue" fullWidth mt="md" radius="md">
+                <Button
+                  component={Link}
+                  href={`/lab/${lab.id}`}
+                  variant="light"
+                  color="blue"
+                  fullWidth
+                  mt="md"
+                  radius="md"
+                >
                   Start Lab
                 </Button>
               </Card>
