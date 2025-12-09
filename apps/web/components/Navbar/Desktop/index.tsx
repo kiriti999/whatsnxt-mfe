@@ -83,6 +83,11 @@ export const NavbarDesktop = ({ links, cartItems, loginMenuLinks, drawerOpened, 
 
   const { setColorScheme } = useMantineColorScheme();
   const computedColorScheme = useComputedColorScheme('light', { getInitialValueInEffect: true });
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   return (
     <header className={classes.header}>
@@ -123,7 +128,7 @@ export const NavbarDesktop = ({ links, cartItems, loginMenuLinks, drawerOpened, 
               aria-label="Toggle color scheme"
               mr="md"
             >
-              {computedColorScheme === 'dark' ? (
+              {mounted && computedColorScheme === 'dark' ? (
                 <IconSun />
               ) : (
                 <IconMoon />
@@ -290,7 +295,7 @@ export const NavbarDesktop = ({ links, cartItems, loginMenuLinks, drawerOpened, 
                   aria-label="Toggle color scheme"
                   c="dimmed"
                 >
-                  {computedColorScheme === 'dark' ? (
+                  {mounted && computedColorScheme === 'dark' ? (
                     <IconSun />
                   ) : (
                     <IconMoon />

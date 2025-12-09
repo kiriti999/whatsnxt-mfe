@@ -57,7 +57,7 @@ const NotificationItem = ({ notification, isSelected, onClick, onCheckboxChange 
         />
       </div>
     </div>
-    <Checkbox onChange={onCheckboxChange} checked={isSelected} m={0}/>
+    <Checkbox onChange={onCheckboxChange} checked={isSelected} m={0} />
   </Flex>
 
 );
@@ -138,6 +138,7 @@ const Notifications = () => {
                 src="https://ik.imagekit.io/freecodez/bell.webp"
                 alt="empty-notification"
                 width={200}
+                height={200}
               />
               <Title order={4}>No Notification Yet</Title>
               <Text ta="center">
