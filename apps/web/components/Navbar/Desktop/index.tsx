@@ -113,8 +113,8 @@ export const NavbarDesktop = ({ links, cartItems, loginMenuLinks, drawerOpened, 
 
           <Space w="md" mr={'xl'} />
           <Box style={{ alignItems: "center" }} h="100%" display={"flex"}>
-            <Anchor href='/consulting' className={classes.link} component={Link}>
-              Consulting
+            <Anchor href={isAuthenticated ? '/labs' : '/consulting'} className={classes.link} component={Link}>
+              {isAuthenticated ? 'Labs' : 'Consulting'}
             </Anchor>
             <Anchor href='/search-trainers' className={classes.link} component={Link}>
               Search Trainer

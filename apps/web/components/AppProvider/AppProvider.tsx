@@ -9,7 +9,7 @@ import { Notifications } from '@mantine/notifications';
 import Layout from '../Layout';
 import FilterStore from '../../context/filterStore';
 import { store } from '../../store/store';
-import { IconAddressBook, IconBell, IconBook2, IconCertificate, IconHistoryToggle, IconPasswordUser, IconPencil, IconUserEdit } from '@tabler/icons-react';
+import { IconAddressBook, IconBell, IconBook2, IconCertificate, IconFlask, IconHistoryToggle, IconPasswordUser, IconPencil, IconUserEdit } from '@tabler/icons-react';
 import { CourseManageContextProvider } from '../../context/CourseManageContext';
 import { AuthProvider } from '../../context/Authentication/AuthContext';
 import React from 'react';
@@ -61,6 +61,7 @@ export default function AppProvider({ children, user }: { children: ReactNode, u
     loginMenuLinks: [
       { title: 'My Courses', url: `${domain}/my-courses`, icon: IconCertificate },
       { title: 'Write', url: `${domain}/form`, icon: IconPencil },
+      { title: 'Create Lab', url: `${domain}/lab/create`, icon: IconFlask },
       {
         title: 'Profile',
         url: ``,
