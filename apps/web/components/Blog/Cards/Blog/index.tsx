@@ -48,10 +48,13 @@ function BlogCard({ blog }: IBlogCard) {
                   style={{
                     width: '100%',
                     height: 'auto',
+                    display: 'block',
                   }}
                 />
               </Card.Section>
-              <Divider />
+              <Card.Section>
+                <Divider my={0} />
+              </Card.Section>
               <Group justify="space-between" mt="md" mb="sm">
                 <Badge color="pink">{blog.categoryName}</Badge>
               </Group>
