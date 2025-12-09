@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
 import htmlReactParser from 'html-react-parser';
-import { Skeleton, Avatar, Text, Tooltip, Container, Grid, GridCol, Flex } from '@mantine/core';
+import { Skeleton, Avatar, Text, Tooltip, Container, Grid, GridCol, Flex, Box } from '@mantine/core';
 import { Amount, CardComponent, SortByComponent } from '@whatsnxt/core-ui';
 import type { CourseType, Category } from '@whatsnxt/core-util';
 import sortStyles from './index.module.css';
@@ -107,19 +107,23 @@ function Courses({ allCourses, courses, categories, totalRecords }: CourseProps)
                     paidType={course.paidType}
                     link={`/courses/${course.slug}`}
                     image={
-                      <Image
-                        fill
-                        src={course.imageUrl}
-                        alt={course.courseName}
-                        style={{ objectFit: "cover" }}
-                      />
+                      <div className={sortStyles['course-image-container']}>
+                        <Image
+                          fill
+                          src={course.imageUrl}
+                          alt={course.courseName}
+                          style={{ objectFit: "cover" }}
+                          priority={true}
+                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                        />
+                      </div>
                     }>
 
-                    <Flex pb="sm" align="center">
+                    <Flex align="center" h={45} mb="xs">
                       {course.userId?.profilePhoto ? (
                         <Image
-                          width={100}
-                          height={100}
+                          width={40}
+                          height={40}
                           src={`${course?.userId?.profilePhoto}`}
                           className="rounded-circle"
                           alt="avatar"
@@ -133,15 +137,19 @@ function Courses({ allCourses, courses, categories, totalRecords }: CourseProps)
                     </Flex>
 
 
-                    {course.overview && (
-                      <Text className='py-1' lineClamp={4}>{htmlReactParser(course.overview)}</Text>
-                    )}
-                    {course.price ? (
-                      <Amount amount={course.price} discount={course.discount} />
-                    ) : (
-                      <Tooltip label='Free course'><strong>free</strong></Tooltip>
-                    )}
-                    {(course.discount !== null && course?.discount > 0) && <b> ({course.discount}%)</b>}
+                    <Box style={{ flex: 1 }}>
+                      {course.overview && (
+                        <Text className='py-1' lineClamp={3}>{htmlReactParser(course.overview)}</Text>
+                      )}
+                    </Box>
+                    <Flex align="center" mt="sm">
+                      {course.price ? (
+                        <Amount amount={course.price} discount={course.discount} />
+                      ) : (
+                        <Tooltip label='Free course'><strong>free</strong></Tooltip>
+                      )}
+                      {(course.discount !== null && course?.discount > 0) && <b> ({course.discount}%)</b>}
+                    </Flex>
                   </CardComponent>
                 </div>
               ))}
