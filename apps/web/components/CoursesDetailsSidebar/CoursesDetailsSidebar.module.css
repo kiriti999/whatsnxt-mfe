@@ -1,12 +1,14 @@
 .courses-details-info {
     background-color: light-dark(#f8f9f8, var(--mantine-color-dark-6));
     border-radius: 5px;
-    padding: 12px 12px 50px 12px;
+    padding: 30px;
+    box-shadow: 0 0 20px 3px rgba(0, 0, 0, 0.05);
 }
 
 .courses-details-info .image {
     text-align: center;
     position: relative;
+    margin-bottom: 25px;
 }
 
 .courses-details-info .image .link-btn {
@@ -68,18 +70,18 @@
 .courses-details-info .info {
     margin-bottom: 0;
     list-style-type: none;
-    padding-left: 25px;
-    padding-right: 25px;
-    padding-top: 35px;
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 10px;
 }
 
 .courses-details-info .info li {
     border-bottom: 1px solid light-dark(#e5e5e7, var(--mantine-color-dark-4));
     color: light-dark(#606060, var(--mantine-color-gray-4));
-    font-size: 17px;
+    font-size: 16px;
     font-weight: 600;
-    padding-top: 15px;
-    padding-bottom: 14px;
+    padding-top: 20px;
+    padding-bottom: 20px;
 }
 
 .courses-details-info .info li span {
@@ -131,18 +133,19 @@
 
 .courses-details-info .btn-box {
     margin-top: 35px;
-    padding-left: 25px;
-    padding-right: 25px;
+    padding-left: 0;
+    padding-right: 0;
 }
 
 .courses-details-info .btn-box .default-btn {
     display: block;
     width: 100%;
-    padding-right: 30px;
-    padding-left: 30px;
-    padding-top: 12px;
-    padding-bottom: 12px;
+    padding-right: 20px;
+    padding-left: 20px;
+    padding-top: 15px;
+    padding-bottom: 15px;
     text-decoration: none;
+    border-radius: 8px;
 }
 
 .courses-details-info .btn-box .default-btn i {
@@ -171,8 +174,8 @@
 .courses-details-info .courses-share {
     text-align: center;
     margin-top: 20px;
-    padding-left: 25px;
-    padding-right: 25px;
+    padding-left: 0;
+    padding-right: 0;
 }
 
 .courses-details-info .courses-share .share-info {
@@ -182,7 +185,9 @@
 }
 
 .courses-details-info .courses-share .share-info span {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
     color: #fe4a55;
     line-height: 1;
     font-size: 16px;

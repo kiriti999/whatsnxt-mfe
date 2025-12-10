@@ -19,7 +19,7 @@ const CourseDescription = ({ courseTopics }) => {
         <>
             {/* Include the content styles */}
             <style> {codeBlockStyles}</style >
-            <div className={`rte ${styles['courses-overview']} my-4 px-0`}>
+            <div className={`rte ${styles['courses-overview']}`}>
                 <div style={{ display: 'contents' }}>
                     <Accordion variant="default" defaultValue="description" transitionDuration={250}>
                         <Accordion.Item value="description" p={0}>

@@ -3,7 +3,7 @@ import ReactPlayer from 'react-player';
 import { useDisclosure } from '@mantine/hooks';
 import { Modal, Group, Paper, Text, Button, Accordion, Title } from '@mantine/core';
 import { HireTrainerModal } from '../HireTrainerModal';
-import styles from './CourseCurriculum.module.css';
+import styles from '../Courses/Course.module.css';
 import VideosPanel from './VideosPanel';
 
 type CourseCurriculumProps = {
@@ -50,7 +50,7 @@ const CourseCurriculum: FC<CourseCurriculumProps> = ({ courseId, userId, videos,
       <div className={styles['courses-curriculum']}>
         {sections && sections.length > 0 ? (
           <>
-            <Paper>
+            <Paper mb={5}>
               <Title order={3} className='py-4'>Syllabus</Title>
             </Paper>
 

@@ -226,7 +226,7 @@ export const CoursesDetailsSidebar: FC<CoursesDetailsSidebarProps> = ({
             <div className={styles['courses-share']}>
               <div className={styles['share-info']}>
                 <span>
-                  Share This Course <IconShare size={22} />
+                  Share This Course <IconShare size={20} />
                 </span>
                 <ul className={styles['social-link']}>
                   <li>

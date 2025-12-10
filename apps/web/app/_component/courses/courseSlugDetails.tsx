@@ -47,8 +47,6 @@ const CourseSlugDetails = ({ course, courseReviews, setCourseReviews, reviewComm
                 </Grid>
             )}
 
-            <Instructor name={course?.author} designation={course?.userId?.designation} about={course?.userId?.about} />
-
             <CourseCurriculum
                 courseId={course?._id}
                 userId={course?.userId}
@@ -66,6 +64,8 @@ const CourseSlugDetails = ({ course, courseReviews, setCourseReviews, reviewComm
             />
 
             {course?.topics && <CourseDescription courseTopics={course.topics} />}
+
+            <Instructor name={course?.author} designation={course?.userId?.designation} about={course?.userId?.about} />
 
             {isCourseReviewMode && <InterviewComponent course={course} />}
 

@@ -1,8 +1,9 @@
 import { Text, Title, Box, Group, Stack } from '@mantine/core';
+import styles from '../../../../components/Courses/Course.module.css';
 
 const Instructor = ({ name, designation, about }) => {
     return (
-        <Box my="md">
+        <div className={styles['instructor-box']}>
             <Title order={3} mb="md">Instructor</Title>
             <Group align="flex-start">
                 {/* <Avatar size="xl" radius="xl" /> */}
@@ -16,7 +17,7 @@ const Instructor = ({ name, designation, about }) => {
                     </Text>
                 </Stack>
             </Group>
-        </Box>
+        </div>
     );
 };
 
