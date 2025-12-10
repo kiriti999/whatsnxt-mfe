@@ -3,7 +3,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Anchor } from '@mantine/core';
 import styles from './Logo.module.css';
-import logoSrc from './whatsnxt-logo.svg';
+import logoSrc from './whatsnxt-mobile-logo.svg';
 
 interface LogoProps {
   color?: 'white' | 'black';
@@ -12,7 +12,7 @@ interface LogoProps {
   height?: number | string;
 }
 
-export const Logo = ({
+export const MobileLogo = ({
   color = 'black',
   className = '',
   width = 300,

@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useDispatch } from 'react-redux';
-import { Cart, Logo } from '@whatsnxt/core-ui';
+import { Cart, Logo, MobileLogo } from '@whatsnxt/core-ui';
 import { useMediaQuery } from '@mantine/hooks';
-import { Button, rem, Burger, Space, Anchor, Box, Menu, ActionIcon, useMantineColorScheme, useComputedColorScheme, Group } from '@mantine/core';
-import { IconLogin, IconLogout, IconSearch, IconX, IconSun, IconMoon } from '@tabler/icons-react';
+import { Button, rem, Space, Anchor, Box, Menu, ActionIcon, useMantineColorScheme, useComputedColorScheme } from '@mantine/core';
+import { IconLogin, IconLogout, IconSearch, IconX, IconSun, IconMoon, IconMenu2 } from '@tabler/icons-react';
 import type { Link as NavLink } from '../types';
 import { NavbarNotification } from '../NavbarNotification/index';
 import Search from '../../Search';
@@ -102,7 +102,7 @@ export const NavbarDesktop = ({ links, cartItems, loginMenuLinks, drawerOpened, 
           <Box style={{ alignItems: "center", flex: 1, minWidth: 0 }} display={"flex"} h="100%">
             <Logo />
             <Space w={'xl'} />
-            <Box style={{ display: "flex", flex: 1, overflow: "hidden" }}>
+            <Box style={{ display: "flex", flex: 1 }}>
               {links.map((link, index) => (
                 <Anchor
                   href={link.url}
@@ -110,12 +110,13 @@ export const NavbarDesktop = ({ links, cartItems, loginMenuLinks, drawerOpened, 
                   className={classes.link}
                   key={index}
                   target={link.linkType}
-                  style={{ whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}
+                  style={{ whiteSpace: 'nowrap' }}
                 >
                   {link.title}
                 </Anchor>
               ))}
             </Box>
+            <Space w={'xl'} />
             <Box style={{ width: "35%", minWidth: 200 }}><Search /></Box>
           </Box>
 
@@ -282,29 +283,39 @@ export const NavbarDesktop = ({ links, cartItems, loginMenuLinks, drawerOpened, 
           ) : (
             <Box h={"100%"} style={{ alignItems: "center" }} display={"flex"}>
               <Box style={{ position: "absolute", left: "1rem" }}>
-                <Burger opened={drawerOpened} onClick={toggleDrawer} size={'1.3rem'} />
+                <ActionIcon onClick={toggleDrawer} variant="transparent" size="md" c="var(--mantine-color-text)">
+                  <IconMenu2 style={{ width: rem(20), height: rem(20) }} stroke={1.5} />
+                </ActionIcon>
               </Box>
               <Box style={{ width: "100%", display: "flex", justifyContent: "center" }}>
-                <Logo />
+                <MobileLogo />
               </Box>
               <Box style={{ position: "absolute", right: "1rem", display: "flex", alignItems: "center" }}>
                 <ActionIcon
                   onClick={() => setColorScheme(computedColorScheme === 'light' ? 'dark' : 'light')}
                   variant="transparent"
-                  size="sm"
+                  size="md"
                   aria-label="Toggle color scheme"
                   c="dimmed"
                 >
                   {mounted && computedColorScheme === 'dark' ? (
-                    <IconSun />
+                    <IconSun style={{ width: rem(20), height: rem(20) }} />
                   ) : (
-                    <IconMoon />
+                    <IconMoon style={{ width: rem(20), height: rem(20) }} />
                   )}
                 </ActionIcon>
-                <Space w="sm" />
-                <Cart cartItems={cartItems} />
-                <Space w="lg" />
-                <IconSearch onClick={() => setIsSearch(prev => !prev)} />
+                <Space w="xs" />
+                <Cart cartItems={cartItems} iconSize={20} buttonSize="md" />
+                <Space w="xs" />
+                <ActionIcon
+                  onClick={() => setIsSearch(prev => !prev)}
+                  variant="transparent"
+                  size="md"
+                  aria-label="Search"
+                  c="dimmed"
+                >
+                  <IconSearch style={{ width: rem(20), height: rem(20) }} />
+                </ActionIcon>
               </Box>
             </Box>
           )}
