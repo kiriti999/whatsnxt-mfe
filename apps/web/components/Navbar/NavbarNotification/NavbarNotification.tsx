@@ -1,16 +1,17 @@
 import React, { FC } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
-import styles from './NavbarNotification.module.css';
-import { Anchor } from '@mantine/core';
+import { ActionIcon, Indicator, rem } from '@mantine/core';
 import { IconBell } from '@tabler/icons-react';
 import { TrainerAPI } from '../../../apis/v1/courses/trainer/trainer';
 
 type NavbarNotificationProps = {
-  user: any
+  user: any;
+  iconSize?: number | string;
+  buttonSize?: string;
 }
 
-export const NavbarNotification: FC<NavbarNotificationProps> = ({ user }) => {
+export const NavbarNotification: FC<NavbarNotificationProps> = ({ user, iconSize = 24, buttonSize = "lg" }) => {
 
   if (!user) {
     return null;
@@ -27,15 +28,29 @@ export const NavbarNotification: FC<NavbarNotificationProps> = ({ user }) => {
   });
 
   return (
-    <div className={styles['option-item']}>
-      <div className={styles['notification-btn']}>
-        <Anchor component={Link} href="/notifications">
-          <IconBell stroke={2} />
-          <span className={styles['notification-item-count']}>{data?.totalUnseen}</span>
-        </Anchor>
-      </div>
-    </div>
+    <ActionIcon
+      component={Link}
+      href="/notifications"
+      variant="transparent"
+      size={buttonSize}
+      style={{
+        color: 'var(--mantine-color-text)',
+        overflow: 'visible'
+      }}
+    >
+      <Indicator
+        inline
+        label={data?.totalUnseen || 0}
+        size={16}
+        offset={-4}
+        color="red"
+        radius="xl"
+        disabled={!data?.totalUnseen}
+        withBorder
+        styles={{ indicator: { padding: '0 6px' } }}
+      >
+        <IconBell stroke={1.5} style={{ width: rem(iconSize), height: rem(iconSize) }} />
+      </Indicator>
+    </ActionIcon>
   );
 };
-
-

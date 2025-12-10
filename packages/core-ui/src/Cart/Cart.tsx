@@ -1,18 +1,38 @@
 import React, { FC } from 'react';
 import Link from 'next/link';
-import { Anchor } from '@mantine/core';
-import styles from './Cart.module.css';
+import { ActionIcon, Indicator, rem } from '@mantine/core';
 import { IconShoppingCart } from '@tabler/icons-react';
 
 type CartProps = {
-  cartItems: any[]
+  cartItems: any[];
+  iconSize?: number | string;
+  buttonSize?: string;
 }
 
-export const Cart: FC<CartProps> = ({ cartItems }) => {
+export const Cart: FC<CartProps> = ({ cartItems, iconSize = 24, buttonSize = "lg" }) => {
   return (
-    <Anchor component={Link} href="/cart" className={styles['cart-container']}>
-      <IconShoppingCart stroke={2} />
-      <span className={styles['cart-item-count']}>{cartItems.length}</span>
-    </Anchor>
+    <ActionIcon
+      component={Link}
+      href="/cart"
+      variant="transparent"
+      size={buttonSize}
+      style={{
+        color: 'var(--mantine-color-text)',
+        overflow: 'visible'
+      }}
+    >
+      <Indicator
+        inline
+        label={cartItems.length}
+        size={16}
+        offset={-4}
+        color="red"
+        radius="xl"
+        disabled={cartItems.length === 0}
+        styles={{ indicator: { padding: '0 6px' } }}
+      >
+        <IconShoppingCart stroke={1.5} style={{ width: rem(iconSize), height: rem(iconSize) }} />
+      </Indicator>
+    </ActionIcon>
   );
 };
