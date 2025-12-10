@@ -1,6 +1,6 @@
 import { Accordion, ActionIcon, Anchor, Box, Group, List, Text, Skeleton, Flex } from '@mantine/core';
 import classes from './Footer.module.css';
-import { Logo } from '../Logo';
+import { MobileLogo } from '../Logo';
 
 export const MobileFooter = ({ footerSections, socialMediaPlatforms, isLoading }: any) => {
     const renderSectionContent = (section: any) => {
@@ -39,7 +39,9 @@ export const MobileFooter = ({ footerSections, socialMediaPlatforms, isLoading }
         <Box className={classes['footer-area']}>
             {/* Logo and Social Media (for Mobile) */}
             <section>
-                <Logo color="white" className="w-75 mb-3" />
+                <Box style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+                    <MobileLogo color="white" className="mb-3" />
+                </Box>
                 <Text>
                     Working to bring significant changes in online-based learning by
                     doing extensive research for course curriculum preparation,
