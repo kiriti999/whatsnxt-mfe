@@ -52,6 +52,7 @@ export interface Lab {
 
     questions: Question[];
     practiceTest: PracticeTestConfig;
+    createdBy?: string;
     createdAt?: Date;
     updatedAt?: Date;
 }

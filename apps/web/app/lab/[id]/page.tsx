@@ -24,5 +24,15 @@ export default async function LabPage({ params }: { params: Promise<{ id: string
     );
   }
 
-  return <LabRunner lab={lab} />;
+  // Transform data to match frontend interfaces
+  const transformedLab = {
+    ...lab,
+    questions: lab.questions?.map((q: any) => ({
+      ...q,
+      id: q.id || q._id,
+      text: q.text || q.question
+    })) || []
+  };
+
+  return <LabRunner lab={transformedLab} />;
 }

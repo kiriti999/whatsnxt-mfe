@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState } from 'react';
 import { useForm, useFieldArray, Controller } from 'react-hook-form';
 import {
@@ -21,12 +23,48 @@ import { notifications } from '@mantine/notifications';
 import { Lab, QuestionType, LabType } from '../../types/lab';
 import { useRouter } from 'next/navigation';
 
-export const LabForm = () => {
+export const LabForm = ({ initialData }: { initialData?: Lab }) => {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const { control, register, handleSubmit, watch, setValue } = useForm<Lab>({
-    defaultValues: {
+  const { control, register, handleSubmit, watch, setValue, formState: { errors } } = useForm<Lab>({
+    defaultValues: initialData ? {
+      title: initialData.title || '',
+      description: initialData.description || '',
+      type: initialData.type || 'programming',
+      language: initialData.language || '',
+      questions: initialData.questions?.map(q => ({
+        ...q,
+        text: (q as any).question || q.text || '',
+        id: q.id || (q as any)._id,
+      })) || [],
+      practiceTest: {
+        enabled: initialData.practiceTest?.enabled || false,
+        timeLimitMinutes: initialData.practiceTest?.timeLimitMinutes || 30,
+        passingScorePercentage: initialData.practiceTest?.passingScorePercentage || 70,
+        shuffleQuestions: initialData.practiceTest?.shuffleQuestions || false,
+      },
+      kubernetesConfig: {
+        clusterVersion: initialData.kubernetesConfig?.clusterVersion || '1.27',
+        nodes: initialData.kubernetesConfig?.nodes || 1,
+        tools: initialData.kubernetesConfig?.tools || ['kubectl'],
+      },
+      cloudConfig: {
+        platform: initialData.cloudConfig?.platform || 'aws',
+        region: initialData.cloudConfig?.region || '',
+        services: initialData.cloudConfig?.services || [],
+      },
+      frameworkConfig: {
+        framework: initialData.frameworkConfig?.framework || 'nextjs',
+        version: initialData.frameworkConfig?.version || '',
+      },
+      architectureConfig: {
+        type: initialData.architectureConfig?.type || 'fullstack',
+        diagram: initialData.architectureConfig?.diagram || '',
+      },
+      id: initialData.id,
+      createdBy: initialData.createdBy,
+    } : {
       title: '',
       description: '',
       type: 'programming',
@@ -80,8 +118,11 @@ export const LabForm = () => {
         })),
       };
 
-      const response = await fetch('/api/lab/create', {
-        method: 'POST',
+      const url = initialData?.id ? `/api/lab/${initialData.id}` : '/api/lab/create';
+      const method = initialData?.id ? 'PUT' : 'POST';
+
+      const response = await fetch(url, {
+        method,
         headers: {
           'Content-Type': 'application/json',
         },
@@ -89,12 +130,12 @@ export const LabForm = () => {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to create lab');
+        throw new Error(`Failed to ${initialData ? 'update' : 'create'} lab`);
       }
 
       notifications.show({
         title: 'Success',
-        message: 'Lab created successfully',
+        message: `Lab ${initialData ? 'updated' : 'created'} successfully`,
         color: 'green',
       });
 
@@ -103,7 +144,7 @@ export const LabForm = () => {
     } catch (error) {
       notifications.show({
         title: 'Error',
-        message: 'Failed to create lab',
+        message: `Failed to ${initialData ? 'update' : 'create'} lab`,
         color: 'red',
       });
     } finally {
@@ -114,14 +155,15 @@ export const LabForm = () => {
   return (
     <Container size="lg" py="xl">
       <Paper shadow="xs" p="md">
-        <Title order={2} mb="lg">Create New Lab</Title>
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <Title order={2} mb="lg">{initialData ? 'Edit Lab' : 'Create New Lab'}</Title>
+        <form onSubmit={handleSubmit(onSubmit, (errors) => console.log('Form errors:', errors))}>
           <Stack gap="md">
             <TextInput
               label="Lab Title"
               placeholder="Enter lab title"
               required
-              {...register('title', { required: true })}
+              {...register('title', { required: 'Title is required' })}
+              error={errors.title?.message}
             />
 
             <Textarea
@@ -129,15 +171,16 @@ export const LabForm = () => {
               placeholder="Enter lab description"
               minRows={3}
               required
-              {...register('description', { required: true })}
+              {...register('description', { required: 'Description is required' })}
+              error={errors.description?.message}
             />
 
             <Group grow>
               <Controller
                 name="type"
                 control={control}
-                rules={{ required: true }}
-                render={({ field }) => (
+                rules={{ required: 'Lab Type is required' }}
+                render={({ field, fieldState: { error } }) => (
                   <Select
                     label="Lab Type"
                     placeholder="Select lab type"
@@ -148,6 +191,7 @@ export const LabForm = () => {
                       { value: 'architecture', label: 'Architecture' },
                     ]}
                     required
+                    error={error?.message}
                     {...field}
                   />
                 )}
@@ -157,8 +201,8 @@ export const LabForm = () => {
                 <Controller
                   name="language"
                   control={control}
-                  rules={{ required: labType === 'programming' }}
-                  render={({ field }) => (
+                  rules={{ required: 'Language is required' }}
+                  render={({ field, fieldState: { error } }) => (
                     <Select
                       label="Programming Language"
                       placeholder="Select language"
@@ -170,6 +214,7 @@ export const LabForm = () => {
                         { value: 'rust', label: 'Rust' },
                       ]}
                       required
+                      error={error?.message}
                       {...field}
                     />
                   )}
@@ -180,8 +225,8 @@ export const LabForm = () => {
                 <Controller
                   name="cloudConfig.platform"
                   control={control}
-                  rules={{ required: labType === 'cloud' }}
-                  render={({ field }) => (
+                  rules={{ required: 'Platform is required' }}
+                  render={({ field, fieldState: { error } }) => (
                     <Select
                       label="Cloud Platform"
                       placeholder="Select platform"
@@ -191,6 +236,7 @@ export const LabForm = () => {
                         { value: 'kubernetes', label: 'Kubernetes' },
                       ]}
                       required
+                      error={error?.message}
                       {...field}
                     />
                   )}
@@ -201,8 +247,8 @@ export const LabForm = () => {
                 <Controller
                   name="frameworkConfig.framework"
                   control={control}
-                  rules={{ required: labType === 'framework' }}
-                  render={({ field }) => (
+                  rules={{ required: 'Framework is required' }}
+                  render={({ field, fieldState: { error } }) => (
                     <Select
                       label="Framework"
                       placeholder="Select framework"
@@ -212,6 +258,7 @@ export const LabForm = () => {
                         { value: 'monorepo', label: 'Monorepo' },
                       ]}
                       required
+                      error={error?.message}
                       {...field}
                     />
                   )}
@@ -222,8 +269,8 @@ export const LabForm = () => {
                 <Controller
                   name="architectureConfig.type"
                   control={control}
-                  rules={{ required: labType === 'architecture' }}
-                  render={({ field }) => (
+                  rules={{ required: 'Architecture Type is required' }}
+                  render={({ field, fieldState: { error } }) => (
                     <Select
                       label="Architecture Type"
                       placeholder="Select type"
@@ -231,6 +278,7 @@ export const LabForm = () => {
                         { value: 'fullstack', label: 'Fullstack Architecture' },
                       ]}
                       required
+                      error={error?.message}
                       {...field}
                     />
                   )}
@@ -255,12 +303,20 @@ export const LabForm = () => {
                     onChange={(val) => setValue('kubernetesConfig.nodes', Number(val))}
                   />
                 </Group>
-                <TextInput
-                  label="Tools (comma separated)"
-                  placeholder="kubectl, helm"
-                  mt="sm"
-                  description="Tools available in the lab environment"
-                  onChange={(e) => setValue('kubernetesConfig.tools', e.target.value.split(',').map(s => s.trim()))}
+                <Controller
+                  name="kubernetesConfig.tools"
+                  control={control}
+                  render={({ field: { value, onChange, ...field } }) => (
+                    <TextInput
+                      label="Tools (comma separated)"
+                      placeholder="kubectl, helm"
+                      mt="sm"
+                      description="Tools available in the lab environment"
+                      value={Array.isArray(value) ? value.join(', ') : ''}
+                      onChange={(e) => onChange(e.target.value.split(',').map(s => s.trim()))}
+                      {...field}
+                    />
+                  )}
                 />
               </Paper>
             )}
@@ -274,10 +330,18 @@ export const LabForm = () => {
                     placeholder="e.g., us-east-1"
                     {...register('cloudConfig.region')}
                   />
-                  <TextInput
-                    label="Services (comma separated)"
-                    placeholder="EC2, S3"
-                    onChange={(e) => setValue('cloudConfig.services', e.target.value.split(',').map(s => s.trim()))}
+                  <Controller
+                    name="cloudConfig.services"
+                    control={control}
+                    render={({ field: { value, onChange, ...field } }) => (
+                      <TextInput
+                        label="Services (comma separated)"
+                        placeholder="EC2, S3"
+                        value={Array.isArray(value) ? value.join(', ') : ''}
+                        onChange={(e) => onChange(e.target.value.split(',').map(s => s.trim()))}
+                        {...field}
+                      />
+                    )}
                   />
                 </Group>
               </Paper>
@@ -303,7 +367,8 @@ export const LabForm = () => {
                     label={`Question ${index + 1}`}
                     placeholder="Enter question text"
                     required
-                    {...register(`questions.${index}.text`, { required: true })}
+                    {...register(`questions.${index}.text`, { required: 'Question text is required' })}
+                    error={errors.questions?.[index]?.text?.message}
                   />
 
                   <Controller
@@ -381,18 +446,30 @@ export const LabForm = () => {
 
             {practiceTestEnabled && (
               <Group grow mt="sm">
-                <NumberInput
-                  label="Time Limit (minutes)"
-                  min={5}
-                  defaultValue={30}
-                  onChange={(val) => setValue('practiceTest.timeLimitMinutes', Number(val))}
+                <Controller
+                  name="practiceTest.timeLimitMinutes"
+                  control={control}
+                  render={({ field }) => (
+                    <NumberInput
+                      label="Time Limit (minutes)"
+                      min={5}
+                      {...field}
+                      onChange={(val) => field.onChange(Number(val))}
+                    />
+                  )}
                 />
-                <NumberInput
-                  label="Passing Score (%)"
-                  min={0}
-                  max={100}
-                  defaultValue={70}
-                  onChange={(val) => setValue('practiceTest.passingScorePercentage', Number(val))}
+                <Controller
+                  name="practiceTest.passingScorePercentage"
+                  control={control}
+                  render={({ field }) => (
+                    <NumberInput
+                      label="Passing Score (%)"
+                      min={0}
+                      max={100}
+                      {...field}
+                      onChange={(val) => field.onChange(Number(val))}
+                    />
+                  )}
                 />
                 <Controller
                   name="practiceTest.shuffleQuestions"
@@ -411,7 +488,7 @@ export const LabForm = () => {
             )}
 
             <Button type="submit" loading={isSubmitting} mt="xl" size="md">
-              Create Lab
+              {initialData ? 'Update Lab' : 'Create Lab'}
             </Button>
           </Stack>
         </form>

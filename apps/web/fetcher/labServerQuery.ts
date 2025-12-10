@@ -20,3 +20,11 @@ export const createLab = async (labData: Lab): Promise<Lab> => {
     });
     return response?.data;
 };
+
+export const updateLab = async (id: string, labData: Lab): Promise<Lab> => {
+    const response = await serverFetcher(BASEURL, `/labs/${id}`, {
+        method: 'PUT',
+        body: labData
+    });
+    return response?.data;
+};

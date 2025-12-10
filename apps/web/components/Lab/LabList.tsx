@@ -1,22 +1,24 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Container, Title, Grid, Card, Text, Badge, Button, Group, Loader, Center, Stack } from '@mantine/core';
-import { IconPlus, IconCode, IconCloud, IconBrandNextjs, IconServer, IconBox } from '@tabler/icons-react';
+import { Container, Title, Grid, Card, Text, Badge, Button, Group, Loader, Center, Stack, ActionIcon, Tooltip } from '@mantine/core';
+import { IconPlus, IconCode, IconCloud, IconBrandNextjs, IconServer, IconBox, IconPencil } from '@tabler/icons-react';
 import Link from 'next/link';
 import { Lab } from '../../types/lab';
+import useAuth from '../../hooks/Authentication/useAuth';
 
 export const LabList = () => {
   const [labs, setLabs] = useState<Lab[]>([]);
   const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
 
   useEffect(() => {
-    const fetchLabs = async () => {
+    const fetchLabsData = async () => {
       try {
         const response = await fetch('/api/lab/list');
-        const result = await response.json();
-        if (result.success) {
-          setLabs(result.data);
+        const data = await response.json();
+        if (data.success) {
+          setLabs(data.data);
         }
       } catch (error) {
         console.error('Error fetching labs:', error);
@@ -25,7 +27,7 @@ export const LabList = () => {
       }
     };
 
-    fetchLabs();
+    fetchLabsData();
   }, []);
 
   const getIcon = (type: string) => {
@@ -88,7 +90,21 @@ export const LabList = () => {
                     <Badge color={getColor(lab.type)} variant="light">
                       {lab.type}
                     </Badge>
-                    {getIcon(lab.type)}
+                    <Group gap="xs">
+                      {(user?._id === lab.createdBy || !lab.createdBy) && (
+                        <Tooltip label="Edit Lab">
+                          <ActionIcon
+                            variant="subtle"
+                            color="gray"
+                            component={Link}
+                            href={`/lab/edit/${lab.id}`}
+                          >
+                            <IconPencil size={18} />
+                          </ActionIcon>
+                        </Tooltip>
+                      )}
+                      {getIcon(lab.type)}
+                    </Group>
                   </Group>
                 </Card.Section>
 
@@ -105,11 +121,11 @@ export const LabList = () => {
                   href={`/lab/${lab.id}`}
                   variant="light"
                   color="blue"
+                  radius="md"
                   fullWidth
                   mt="md"
-                  radius="md"
                 >
-                  Start Lab
+                  Start
                 </Button>
               </Card>
             </Grid.Col>
