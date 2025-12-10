@@ -106,7 +106,7 @@ function CourseCard({ course }: { course: CourseData }) {
 
             <Stack gap="sm" style={{ flex: 1, padding: '1rem 0' }}>
                 <Group justify="apart" align="flex-start">
-                    <Title order={4} c="white" style={{ flex: 1 }}>
+                    <Title order={4} style={{ flex: 1 }}>
                         {course.subtitle}
                     </Title>
                     <Badge color={getBadgeColor(course.level)} variant="filled" size="sm">
@@ -145,10 +145,10 @@ function CourseCard({ course }: { course: CourseData }) {
 function LearnAI() {
     return (
         <Container size="xl" py="xl">
-            <Title order={1} ta="center" mb="xl" c="#3a3c3e">
+            <Title order={1} ta="center" mb="xl">
                 Learn AI
             </Title>
-            <Title order={5} ta="center" mb="md" c="#3a3c3e">
+            <Title order={5} ta="center" mb="md" c="dimmed">
                 Expand your AI knowledge with our comprehensive self-guided courses
             </Title>
 
