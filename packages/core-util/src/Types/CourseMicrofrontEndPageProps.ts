@@ -1,3 +1,5 @@
+import { Review } from './Review';
+
 export type OgImage = {
   title: string;
   description: string;
@@ -52,7 +54,9 @@ export type CourseType = {
   };
   PageSeoProps?: PageSeoProps;
   isPurchased?: any;
-  interviewQuestions?: InterviewQuestionsProps[]
+  interviewQuestions?: InterviewQuestionsProps[];
+  reviews?: Review[];
+  reviewCount?: number;
 };
 export type InterviewQuestionsProps = {
   question: string;

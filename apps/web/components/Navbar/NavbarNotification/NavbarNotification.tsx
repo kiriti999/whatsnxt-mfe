@@ -25,6 +25,8 @@ export const NavbarNotification: FC<NavbarNotificationProps> = ({ user, iconSize
       const response = await TrainerAPI.getNotification()
       return response.data;
     },
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    refetchOnWindowFocus: false,
   });
 
   return (

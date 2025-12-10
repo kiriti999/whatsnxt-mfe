@@ -17,7 +17,7 @@ import { Amount, CardComponent } from '@whatsnxt/core-ui';
 import Pagination from '../../components/pagination/pagination';
 import styles from './TopCourses.module.css';
 
-const TopCourses = ({ courses, total }: { courses: any[], total: number }) => {
+const TopCourses = ({ courses, total, title }: { courses: any[], total: number, title?: string }) => {
   const [recordsPerPage] = useState(8);
   const [currentPage, setCurrentPage] = useState(1);
   const indexOfLastRecord = currentPage * recordsPerPage;
@@ -30,7 +30,7 @@ const TopCourses = ({ courses, total }: { courses: any[], total: number }) => {
       <Container size="xl">
         <Box className={styles.topCoursesInner}>
           <Title order={4} className={styles.topCoursesTitle}>
-            Top Selling Courses
+            {title || "Top Selling Courses"}
           </Title>
         </Box>
 

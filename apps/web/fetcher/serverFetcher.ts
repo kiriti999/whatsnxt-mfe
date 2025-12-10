@@ -1,10 +1,16 @@
 import { cookies } from 'next/headers';
 
+interface NextFetchRequestConfig {
+    revalidate?: number | false;
+    tags?: string[];
+}
+
 interface FetcherOptions {
     method?: 'GET' | 'POST' | 'PUT' | 'DELETE';
     body?: Record<string, any>;
     headers?: Record<string, string>;
     cache?: RequestCache;
+    next?: NextFetchRequestConfig;
 }
 
 export const serverFetcher = async (BASEURL: string, URL: string, options: FetcherOptions = {}): Promise<any> => {
@@ -23,6 +29,7 @@ export const serverFetcher = async (BASEURL: string, URL: string, options: Fetch
             method: options.method || 'GET',
             headers,
             cache: options.cache || 'no-store', // Don't cache during SSR by default
+            next: options.next,
         };
 
         if (options.method === 'POST' || options.method === 'PUT') {

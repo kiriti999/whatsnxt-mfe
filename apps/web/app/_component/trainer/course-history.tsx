@@ -91,7 +91,7 @@ const CourseHistory = () => {
         totalCount: response.data?.total || 0
       };
     },
-    staleTime: 0,
+    staleTime: 1000 * 30, // 30 seconds
   });
 
   const toggleCourse = (courseId: string | number) => {

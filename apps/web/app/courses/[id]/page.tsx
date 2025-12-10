@@ -1,5 +1,5 @@
 import React, { cache } from 'react';
-import { fetchCourseBySlug, fetchCourseReviews } from '../../../fetcher/courseServerQuery';
+import { fetchCourseBySlug, fetchCourseReviews, fetchCourses } from '../../../fetcher/courseServerQuery';
 import { CourseType } from '@whatsnxt/core-util';
 import CourseSlug from '../../_component/courses/course-slug';
 import { Metadata } from 'next';
@@ -81,13 +81,37 @@ async function Page({ params }) {
         let reviews = [];
         let reviewCount = 0;
 
-        try {
-            const reviewData = await fetchCourseReviews(courseId, 1);
+        // Parallelize fetching of reviews (if needed) and similar courses
+        // 1. Reviews Promise
+        let reviewsPromise: Promise<any> = Promise.resolve({ feedbackComments: [], total: 0 });
+        if (!course.reviews) {
+            reviewsPromise = fetchCourseReviews(courseId, 1).catch(reviewError => {
+                console.error('Error fetching reviews:', reviewError);
+                return { feedbackComments: [], total: 0 };
+            });
+        }
+
+        // 2. Similar Courses Promise
+        const similarCoursesPromise = fetchCourses(5, 0).then(res => {
+            return res?.courses?.filter((c: any) => c._id !== courseId).slice(0, 3) || [];
+        }).catch(err => {
+            console.error('Error fetching similar courses:', err);
+            return [];
+        });
+
+        // Await all promises
+        const [reviewData, similarCourses] = await Promise.all([
+            course.reviews ? Promise.resolve(null) : reviewsPromise,
+            similarCoursesPromise
+        ]);
+
+        // Process Reviews
+        if (course.reviews) {
+            reviews = course.reviews;
+            reviewCount = course.reviewCount || reviews.length;
+        } else if (reviewData) {
             reviews = reviewData.feedbackComments || [];
             reviewCount = reviewData.total || 0;
-        } catch (reviewError) {
-            console.error('Error fetching reviews:', reviewError);
-            // Continue without reviews rather than failing the whole page
         }
 
         return (
@@ -96,6 +120,7 @@ async function Page({ params }) {
                     course={course}
                     reviews={reviews}
                     reviewCommentCount={reviewCount}
+                    similarCourses={similarCourses}
                 />
             </Box>
         );

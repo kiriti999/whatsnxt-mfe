@@ -30,6 +30,8 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { IconLogin } from '@tabler/icons-react';
 import { PageBanner } from '@whatsnxt/core-ui';
 import { checkSuccessResponse, fetchUser, getErrorMessageFromResponse } from '../../../utils/commonHelper';
+import { updateCart, addToCart } from '../../../store/slices/cartSlice';
+import { updateUserInfo } from '../../../store/slices/userSlice';
 
 interface IFormData {
   email: string;
@@ -76,12 +78,60 @@ export const GuestCheckoutComponent: FC<GuestCheckoutComponentProps> = () => {
   }, [isRegisterForm])
 
   const fetchCartInfo = async () => {
-    const cartRes = await CartAPI.fetch();
+    try {
+      const cartRes = await CartAPI.fetch();
+      const localCarts = localStorage.getItem("cart");
 
-    if (cartRes.cart) {
-      dispatch({ type: 'UPDATE_CART', data: cartRes.cart });
-    } else {
+      if (cartRes.cart) {
+        // Update cart with server data
+        dispatch(updateCart({
+          cartItems: cartRes.cart.cartItems || [],
+          discount: cartRes.cart.discount || 0
+        }));
+
+        if (localCarts) {
+          const localCartObj = JSON.parse(localCarts) as { cartItems: any[] };
+
+          // Loop through localStorage items and add them to user's cart
+          localCartObj.cartItems.forEach(item => {
+            // Exclude course if already in user's cart
+            const itemExists = cartRes.cart.cartItems.some((cartItem: any) => item.id === cartItem.id);
+            if (itemExists) return;
+
+            // Clean up the item data and add to cart
+            const courseObj = {
+              ...item,
+              id: item.id.replace("price_", ""),
+              price: item.total_cost || item.price || 0,
+              quantity: item.quantity || 1
+            };
+
+            dispatch(addToCart(courseObj));
+          });
+        }
+        return;
+      }
+
+      // No cart exists, create one
       await CartAPI.createCart();
+
+      if (localCarts) {
+        const localCartObj = JSON.parse(localCarts) as { cartItems: any[] };
+
+        // Loop through localStorage and add items to new cart
+        localCartObj.cartItems.forEach(item => {
+          const courseObj = {
+            ...item,
+            id: item.id.replace("price_", ""),
+            price: item.total_cost || item.price || 0,
+            quantity: item.quantity || 1
+          };
+
+          dispatch(addToCart(courseObj));
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching cart info:', error);
     }
   };
 
@@ -133,10 +183,7 @@ export const GuestCheckoutComponent: FC<GuestCheckoutComponentProps> = () => {
           const token = response.token;
           const userObject = await fetchUser(token); // Pass token explicitly
 
-          dispatch({
-            type: 'UPDATE_USER_INFO',
-            data: userObject
-          });
+          dispatch(updateUserInfo(userObject));
 
           await login(userObject);
           router.push(redirectUrl);
@@ -181,10 +228,7 @@ export const GuestCheckoutComponent: FC<GuestCheckoutComponentProps> = () => {
           const token = response.token;
           const userObject = await fetchUser(token); // Pass token explicitly
 
-          // dispatch({
-          //   type: 'UPDATE_USER_INFO',
-          //   data: userObject
-          // });
+          dispatch(updateUserInfo(userObject));
 
           await fetchCartInfo();
           await login(userObject);

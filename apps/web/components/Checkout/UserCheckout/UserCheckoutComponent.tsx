@@ -8,7 +8,8 @@ import { PaymentButton } from '../paymentButton';
 import { calculateCartTotal } from '../../../utils/calculateCartTotal';
 
 // Import RTK actions and selectors
-import { selectCartItems, resetCart } from '../../../store/slices/cartSlice'; // Adjust path as needed
+import { selectCartItems, resetCart, updateCart, addToCart } from '../../../store/slices/cartSlice'; // Adjust path as needed
+import { CartAPI } from '../../../apis/v1/cart/cart';
 
 export const UserCheckoutComponent: FC = () => {
   // Use RTK selector
@@ -16,6 +17,62 @@ export const UserCheckoutComponent: FC = () => {
   const [cartAmount, setCartAmount] = useState(0);
   const dispatch = useDispatch();
   const [isVisible, { open, close }] = useDisclosure(false);
+  const [hasSynced, setHasSynced] = useState(false);
+
+  useEffect(() => {
+    const syncCart = async () => {
+      if (hasSynced) return;
+      setHasSynced(true);
+
+      try {
+        const cartRes = await CartAPI.fetch();
+        const localCarts = localStorage.getItem("cart");
+
+        if (cartRes.cart) {
+          dispatch(updateCart({
+            cartItems: cartRes.cart.cartItems || [],
+            discount: cartRes.cart.discount || 0
+          }));
+
+          if (localCarts) {
+            const localCartObj = JSON.parse(localCarts) as { cartItems: any[] };
+            localCartObj.cartItems.forEach(item => {
+              const itemExists = cartRes.cart.cartItems.some(cartItem => item.id === cartItem.id);
+              if (itemExists) return;
+
+              const courseObj = {
+                ...item,
+                id: item.id.replace("price_", ""),
+                price: item.total_cost || item.price || 0,
+                quantity: item.quantity || 1
+              };
+              dispatch(addToCart(courseObj));
+            });
+          }
+          return;
+        }
+
+        // If no server cart, create one and sync local items
+        if (localCarts) {
+          await CartAPI.createCart();
+          const localCartObj = JSON.parse(localCarts) as { cartItems: any[] };
+          localCartObj.cartItems.forEach(item => {
+            const courseObj = {
+              ...item,
+              id: item.id.replace("price_", ""),
+              price: item.total_cost || item.price || 0,
+              quantity: item.quantity || 1
+            };
+            dispatch(addToCart(courseObj));
+          });
+        }
+      } catch (error) {
+        console.error("Failed to sync cart", error);
+      }
+    };
+
+    syncCart();
+  }, [dispatch, hasSynced]);
 
   useEffect(() => {
     const { cartTotal } = calculateCartTotal(cartItems);

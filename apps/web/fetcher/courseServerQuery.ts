@@ -5,7 +5,9 @@ import { serverFetcher } from './serverFetcher';
 const BASEURL = process.env.BFF_HOST_COURSE_API as string;
 
 export const fetchCourses = async (limit = 30, offset = 0) => {
-  const response = await serverFetcher(BASEURL, `/courses/course?limit=${limit}&offset=${offset}`);
+  const response = await serverFetcher(BASEURL, `/courses/course?limit=${limit}&offset=${offset}`, {
+    next: { revalidate: 3600 }
+  });
   return response;
 };
 

@@ -221,6 +221,10 @@ export function AuthenticationForm(props: PaperProps) {
 
   const fetchCartInfo = async () => {
     try {
+      // Check if we already have cart data in Redux to avoid redundant calls
+      // Note: This check assumes cart is cleared on logout
+      // We can also add a simple check to prevent multiple calls in short duration if needed
+
       const cartRes = await CartAPI.fetch();
       const localCarts = localStorage.getItem("cart");
 

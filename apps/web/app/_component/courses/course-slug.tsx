@@ -8,9 +8,10 @@ import { CoursesDetailsSidebar } from '../../../components/CoursesDetailsSidebar
 import CourseSlugDetails from './courseSlugDetails';
 import useAuth from '../../../hooks/Authentication/useAuth';
 import CourseApproval from './admin/course-approval-section'
-import { Container, Grid, GridCol } from '@mantine/core';
+import { Container, Grid, GridCol, Box } from '@mantine/core';
+import SimilarCourses from './similar-courses';
 
-export default function CourseSlug({ course, reviews, reviewCommentCount }: CourseProps) {
+export default function CourseSlug({ course, reviews, reviewCommentCount, similarCourses = [] }: CourseProps) {
   const [courseReviews, setCourseReviews] = useState(reviews);
   const [isCourseReviewMode, setisCourseReviewMode] = useState(false);
   const { user: loggedInUser } = useAuth();
@@ -54,10 +55,11 @@ export default function CourseSlug({ course, reviews, reviewCommentCount }: Cour
           {loggedInUser?.role == "admin" && (
             <CourseApproval course={course} />
           )}
+
+          <SimilarCourses courses={similarCourses} />
         </Container>
       </div>
 
-      {/* <YouMightLikeTheCourses /> */}
     </div>
   );
 }
@@ -66,4 +68,5 @@ type CourseProps = {
   course: CourseType;
   reviews: Review[];
   reviewCommentCount: number;
+  similarCourses?: any[];
 }
