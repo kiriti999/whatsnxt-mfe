@@ -3,6 +3,7 @@ import { fetchLabById } from '../../../fetcher/labServerQuery';
 import { LabRunner } from '../../../components/Lab/LabRunner';
 import { Container, Title, Text, Button, Center, Stack } from '@mantine/core';
 import Link from 'next/link';
+import ArchitectureLabClient from '../../../components/architecture-lab/ArchitectureLabClient';
 
 export const dynamic = 'force-dynamic';
 
@@ -33,6 +34,23 @@ export default async function LabPage({ params }: { params: Promise<{ id: string
       text: q.text || q.question
     })) || []
   };
+
+  if (lab.type === 'architecture') {
+    return (
+      <ArchitectureLabClient
+        labId={id}
+        labCreatorId={lab.createdBy}
+        initialData={{
+          masterGraph: lab.masterGraph,
+          title: lab.title,
+          questions: transformedLab.questions,
+          status: lab.status,
+          _id: id
+        }}
+        initialMode="student"
+      />
+    );
+  }
 
   return <LabRunner lab={transformedLab} />;
 }

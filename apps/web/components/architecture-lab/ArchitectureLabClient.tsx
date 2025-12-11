@@ -2,11 +2,15 @@
 
 import React, { useState } from 'react';
 import DiagramEditor from './DiagramEditor';
-import { Button, Container, Title, Group, Badge, Text, Card, TextInput, ActionIcon, Stack, Divider, Select } from '@mantine/core';
+import { Button, Container, Title, Group, Badge, Text, Card, TextInput, ActionIcon, Stack, Divider, Select, Paper, Switch, NumberInput } from '@mantine/core';
+import { IconTrash, IconPlus } from '@tabler/icons-react';
 import { jumbleGraph, validateGraph } from '../../utils/lab-utils';
+import useAuth from '../../hooks/Authentication/useAuth';
 
 interface ArchitectureLabClientProps {
     labId?: string;
+    initialMode?: 'instructor' | 'student';
+    labCreatorId?: string;
     initialData?: {
         masterGraph?: any;
         title?: string;
@@ -19,31 +23,56 @@ interface ArchitectureLabClientProps {
 interface LabQuestion {
     id: string;
     text: string;
-    type: 'text' | 'count'; // simplified for now
+    type: string; // 'text' | 'multiple-choice' | 'coding'
     correctAnswer?: string;
+    options?: string[]; // For multiple choice
 }
 
 type LabStatus = 'DRAFT' | 'PUBLISHED';
 
-const ArchitectureLabClient: React.FC<ArchitectureLabClientProps> = ({ labId, initialData }) => {
-    const [mode, setMode] = useState<'instructor' | 'student'>('instructor');
+const ArchitectureLabClient: React.FC<ArchitectureLabClientProps> = ({ labId, initialData, initialMode = 'instructor', labCreatorId }) => {
+    const { user, loading: authLoading } = useAuth();
+    const [mode, setMode] = useState<'instructor' | 'student'>(initialMode);
+
+    // currentGraph tracks current STATE (for saving/validation)
     const [currentGraph, setCurrentGraph] = useState<any>(initialData?.masterGraph || null);
+
+    // editorViewGraph tracks what we seed the editor with. 
+    // We initializing this independently.
+    const [editorViewGraph, setEditorViewGraph] = useState<any>(
+        initialMode === 'student' && initialData?.masterGraph
+            ? jumbleGraph(initialData.masterGraph)
+            : initialData?.masterGraph || null
+    );
+
+    // If user is the creator, force instructor mode (unless exploring student view explicitly?)
+    React.useEffect(() => {
+        if (!authLoading && user && labCreatorId && user._id === labCreatorId) {
+            setMode('instructor');
+            // Seeding master graph to view
+            setEditorViewGraph(initialData?.masterGraph);
+            setCurrentGraph(initialData?.masterGraph);
+        }
+    }, [user, authLoading, labCreatorId, initialData]);
+
     const [title, setTitle] = useState(initialData?.title || 'New Architecture Lab');
     const [status, setStatus] = useState<LabStatus>(initialData?.status || 'DRAFT');
     const [questions, setQuestions] = useState<LabQuestion[]>(initialData?.questions || []);
     const [validationResult, setValidationResult] = useState<any>(null);
 
-    // Question Management
+    // ... (rest of question management)
+
     const addQuestion = () => {
         const newQ: LabQuestion = {
             id: Math.random().toString(36).substr(2, 9),
             text: '',
-            type: 'text'
+            type: 'multiple-choice',
+            options: []
         };
         setQuestions([...questions, newQ]);
     };
 
-    const updateQuestion = (id: string, field: keyof LabQuestion, value: string) => {
+    const updateQuestion = (id: string, field: keyof LabQuestion, value: any) => {
         setQuestions(questions.map(q => q.id === id ? { ...q, [field]: value } : q));
     };
 
@@ -53,6 +82,7 @@ const ArchitectureLabClient: React.FC<ArchitectureLabClientProps> = ({ labId, in
 
     // Instructor Actions
     const handleSave = async (newStatus: LabStatus = status) => {
+        // ... (save logic uses currentGraph)
         if (!currentGraph) return;
 
         try {
@@ -67,8 +97,8 @@ const ArchitectureLabClient: React.FC<ArchitectureLabClientProps> = ({ labId, in
             };
 
             const endpoint = labId
-                ? `${process.env.NEXT_PUBLIC_BFF_HOST_COMMON_API || 'http://localhost:4444'}/api/v1/lab/labs/${labId}`
-                : `${process.env.NEXT_PUBLIC_BFF_HOST_COMMON_API || 'http://localhost:4444'}/api/v1/lab/labs`;
+                ? `/api/lab/${labId}`
+                : `/api/lab/create`;
 
             const method = labId ? 'PUT' : 'POST';
 
@@ -103,10 +133,9 @@ const ArchitectureLabClient: React.FC<ArchitectureLabClientProps> = ({ labId, in
     const handleDelete = async () => {
         if (!labId || !confirm('Are you sure you want to delete this lab?')) return;
         try {
-            const endpoint = `${process.env.NEXT_PUBLIC_BFF_HOST_COMMON_API || 'http://localhost:4444'}/api/v1/lab/labs/${labId}`;
+            const endpoint = `/api/lab/${labId}`;
             await fetch(endpoint, { method: 'DELETE' });
             alert('Lab deleted');
-            // Navigate back
         } catch (error) {
             console.error('Delete error:', error);
         }
@@ -115,9 +144,11 @@ const ArchitectureLabClient: React.FC<ArchitectureLabClientProps> = ({ labId, in
     // Student Actions
     const handleStartLab = () => {
         // Switch to student mode and jumble
+        // We use currentGraph because maybe they added stuff before clicking test
         if (!currentGraph) return;
         const jumbled = jumbleGraph(currentGraph);
-        setCurrentGraph(jumbled);
+        setEditorViewGraph(jumbled); // Update the VIEW for the editor
+        setCurrentGraph(jumbled);    // Update our TRACKING state
         setMode('student');
         setValidationResult(null);
     };
@@ -164,43 +195,96 @@ const ArchitectureLabClient: React.FC<ArchitectureLabClientProps> = ({ labId, in
                             <Divider orientation="vertical" mx="xs" />
                         </>
                     )}
-                    <Button variant="outline" onClick={() => setMode('instructor')}>Instructor</Button>
-                    <Button variant="outline" onClick={() => setMode('student')}>Student</Button>
+                    {initialMode !== 'student' && (
+                        <>
+                            <Button variant="outline" onClick={() => setMode('instructor')}>Instructor</Button>
+                            <Button variant="outline" onClick={() => setMode('student')}>Student</Button>
+                        </>
+                    )}
                 </Group>
             </Group>
 
             {mode === 'instructor' ? (
                 <>
                     <DiagramEditor
+                        key="instructor-editor"
                         mode="instructor"
                         onGraphChange={setCurrentGraph}
-                        initialGraph={currentGraph}
+                        initialGraph={editorViewGraph}
                     />
                     <Card withBorder mt="md" p="md">
-                        <Group justify="space-between" mb="sm">
-                            <Text fw={600}>Lab Questions</Text>
-                            <Button size="xs" variant="light" onClick={addQuestion}>+ Add Question</Button>
-                        </Group>
+                        <Divider my="sm" label="Questions" labelPosition="center" />
                         <Stack gap="sm">
                             {questions.map((q, index) => (
-                                <Group key={q.id} align="flex-start">
-                                    <Text fw={500} mt={8} style={{ width: 20 }}>{index + 1}.</Text>
-                                    <TextInput
-                                        placeholder="Question text"
-                                        value={q.text}
-                                        onChange={(e) => updateQuestion(q.id, 'text', e.currentTarget.value)}
-                                        style={{ flex: 1 }}
-                                    />
-                                    <Select
-                                        data={[{ value: 'text', label: 'Text Answer' }, { value: 'count', label: 'Count Elements' }]}
-                                        value={q.type}
-                                        onChange={(val) => updateQuestion(q.id, 'type', val || 'text')}
-                                        w={150}
-                                    />
-                                    <Button color="red" variant="subtle" onClick={() => deleteQuestion(q.id)}>X</Button>
-                                </Group>
+                                <Paper key={q.id} withBorder p="md" pos="relative">
+                                    <ActionIcon
+                                        color="red"
+                                        variant="subtle"
+                                        pos="absolute"
+                                        top={10}
+                                        right={10}
+                                        onClick={() => deleteQuestion(q.id)}
+                                    >
+                                        <IconTrash size={16} />
+                                    </ActionIcon>
+
+                                    <Stack gap="sm">
+                                        <TextInput
+                                            label={
+                                                <Group gap={4}>
+                                                    <Text span>Question {index + 1}</Text>
+                                                    <Text span c="red">*</Text>
+                                                </Group>
+                                            }
+                                            placeholder="Enter question text"
+                                            value={q.text}
+                                            onChange={(e) => updateQuestion(q.id, 'text', e.currentTarget.value)}
+                                        />
+
+                                        <Select
+                                            label="Question Type"
+                                            data={[
+                                                { value: 'multiple-choice', label: 'Multiple Choice' },
+                                                { value: 'text', label: 'Text Answer' },
+                                                { value: 'count', label: 'Count Elements' }
+                                            ]}
+                                            value={q.type}
+                                            onChange={(val) => updateQuestion(q.id, 'type', val || 'text')}
+                                        />
+
+                                        {(q.type === 'multiple-choice') && (
+                                            <TextInput
+                                                label="Options (comma separated)"
+                                                placeholder="Option 1, Option 2, Option 3"
+                                                description="Enter options separated by commas"
+                                                value={q.options ? q.options.join(', ') : ''}
+                                                onChange={(e) => updateQuestion(q.id, 'options', e.target.value.split(',').map(s => s.trim()))}
+                                            />
+                                        )}
+
+                                        <TextInput
+                                            label="Correct Answer / Solution"
+                                            placeholder="Enter correct answer"
+                                            value={q.correctAnswer || ''}
+                                            onChange={(e) => updateQuestion(q.id, 'correctAnswer', e.currentTarget.value)}
+                                        />
+                                    </Stack>
+                                </Paper>
                             ))}
-                            {questions.length === 0 && <Text c="dimmed" fs="italic" size="sm">No questions added yet.</Text>}
+                            {questions.length === 0 && <Text c="dimmed" fs="italic" size="sm" ta="center">No questions added yet.</Text>}
+
+                            <Button
+                                variant="outline"
+                                leftSection={<IconPlus size={16} />}
+                                onClick={addQuestion}
+                                fullWidth
+                                mt="sm"
+                            >
+                                Add Question
+                            </Button>
+
+                            <Divider my="sm" label="Practice Test Configuration" labelPosition="center" />
+                            <Switch label="Enable Practice Test" />
                         </Stack>
                     </Card>
 
@@ -214,9 +298,10 @@ const ArchitectureLabClient: React.FC<ArchitectureLabClientProps> = ({ labId, in
             ) : (
                 <>
                     <DiagramEditor
+                        key="student-editor"
                         mode="student"
                         onGraphChange={setCurrentGraph}
-                        initialGraph={currentGraph}
+                        initialGraph={editorViewGraph}
                     />
                     <Group mt="md" justify="flex-end">
                         <Button color="blue" onClick={handleSubmit}>Validate Solution</Button>

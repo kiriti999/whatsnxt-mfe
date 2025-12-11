@@ -39,7 +39,7 @@ export interface Lab {
         version?: string;
     };
 
-    masterGraph?: any; // GoJS Model JSON
+    masterGraph?: any; // D3 Graph JSON
 
     architectureConfig?: {
         type: 'fullstack' | 'aws' | 'docker' | 'react' | 'nextjs' | 'kubernetes';
