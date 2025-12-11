@@ -39,7 +39,7 @@ export interface Lab {
         version?: string;
     };
 
-    masterGraph?: any; // JointJS JSON
+    masterGraph?: any; // GoJS Model JSON
 
     architectureConfig?: {
         type: 'fullstack' | 'aws' | 'docker' | 'react' | 'nextjs' | 'kubernetes';
