@@ -11,6 +11,11 @@
     "check-types": "tsc --noEmit"
   },
   "dependencies": {
+    "backbone": "^1.6.1",
+    "dagre": "^0.8.5",
+    "graphlib": "^2.1.8",
+    "jointjs": "^3.7.7",
+    "jquery": "^3.7.1",
     "next": "16.0.7",
     "react": "19.1.0",
     "react-dom": "^19.1.0",
@@ -18,6 +23,11 @@
   },
   "devDependencies": {
     "@next/bundle-analyzer": "16.0.3",
+    "@types/backbone": "^1.4.23",
+    "@types/dagre": "^0.7.53",
+    "@types/graphlib": "^2.1.12",
+    "@types/jointjs": "^2.0.0",
+    "@types/jquery": "^3.5.33",
     "@types/js-cookie": "^3.0.6",
     "@types/node": "^24.0.1",
     "@types/react": "19.1.0",

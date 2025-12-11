@@ -17,11 +17,13 @@ import {
   Box,
   Divider,
   Container,
+  Text,
 } from '@mantine/core';
 import { IconTrash, IconPlus } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
 import { Lab, QuestionType, LabType } from '../../types/lab';
 import { useRouter } from 'next/navigation';
+import DiagramEditor from '../architecture-lab/DiagramEditor';
 
 export const LabForm = ({ initialData }: { initialData?: Lab }) => {
   const router = useRouter();
@@ -62,8 +64,10 @@ export const LabForm = ({ initialData }: { initialData?: Lab }) => {
         type: initialData.architectureConfig?.type || 'fullstack',
         diagram: initialData.architectureConfig?.diagram || '',
       },
+      masterGraph: initialData.masterGraph || null,
       id: initialData.id,
       createdBy: initialData.createdBy,
+      status: initialData.status || 'DRAFT',
     } : {
       title: '',
       description: '',
@@ -90,6 +94,8 @@ export const LabForm = ({ initialData }: { initialData?: Lab }) => {
       architectureConfig: {
         type: 'fullstack',
       },
+      masterGraph: null,
+      status: 'DRAFT',
     },
   });
 
@@ -103,7 +109,7 @@ export const LabForm = ({ initialData }: { initialData?: Lab }) => {
   const practiceTestEnabled = watch('practiceTest.enabled');
   const questions = watch('questions');
 
-  const onSubmit = async (data: Lab) => {
+  const onSubmit = async (data: Lab, status: 'DRAFT' | 'PUBLISHED') => {
     setIsSubmitting(true);
     try {
       // Transform data to match backend schema
@@ -116,6 +122,7 @@ export const LabForm = ({ initialData }: { initialData?: Lab }) => {
           question: text,
           options: options ? options.filter(o => o.trim() !== '') : [],
         })),
+        status,
       };
 
       const url = initialData?.id ? `/api/lab/${initialData.id}` : '/api/lab/create';
@@ -152,11 +159,67 @@ export const LabForm = ({ initialData }: { initialData?: Lab }) => {
     }
   };
 
+  const saveDraft = handleSubmit((data) => onSubmit(data, 'DRAFT'));
+  const publishLab = handleSubmit((data) => onSubmit(data, 'PUBLISHED'));
+
+  const handleDelete = async () => {
+    if (!initialData?.id || !confirm('Are you sure you want to delete this lab?')) return;
+    setIsSubmitting(true);
+    try {
+      await fetch(`/api/lab/${initialData.id}`, { method: 'DELETE' });
+      notifications.show({ title: 'Success', message: 'Lab deleted', color: 'green' });
+      router.push('/labs');
+    } catch (error) {
+      notifications.show({ title: 'Error', message: 'Failed to delete lab', color: 'red' });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <Container size="lg" py="xl">
       <Paper shadow="xs" p="md">
-        <Title order={2} mb="lg">{initialData ? 'Edit Lab' : 'Create New Lab'}</Title>
-        <form onSubmit={handleSubmit(onSubmit, (errors) => console.log('Form errors:', errors))}>
+        <Group justify="space-between" mb="lg">
+          <Title order={2}>{initialData ? 'Edit Lab' : 'Create New Lab'}</Title>
+          <Group>
+            {initialData?.status === 'PUBLISHED' ? (
+              <>
+                <Button
+                  variant="default"
+                  loading={isSubmitting}
+                  onClick={saveDraft}
+                >
+                  Unpublish
+                </Button>
+                <Button
+                  color="green"
+                  loading={isSubmitting}
+                  onClick={publishLab}
+                >
+                  Save Changes
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button
+                  variant="default"
+                  loading={isSubmitting}
+                  onClick={saveDraft}
+                >
+                  Save Draft
+                </Button>
+                <Button
+                  color="green"
+                  loading={isSubmitting}
+                  onClick={publishLab}
+                >
+                  Publish Lab
+                </Button>
+              </>
+            )}
+          </Group>
+        </Group>
+        <form onSubmit={saveDraft}>
           <Stack gap="md">
             <TextInput
               label="Lab Title"
@@ -275,7 +338,12 @@ export const LabForm = ({ initialData }: { initialData?: Lab }) => {
                       label="Architecture Type"
                       placeholder="Select type"
                       data={[
-                        { value: 'fullstack', label: 'Fullstack Architecture' },
+                        { value: 'aws', label: 'AWS' },
+                        { value: 'docker', label: 'Docker' },
+                        { value: 'react', label: 'React' },
+                        { value: 'nextjs', label: 'Next.js' },
+                        { value: 'kubernetes', label: 'Kubernetes' },
+                        { value: 'fullstack', label: 'Full Stack (React + Node + Cloud)' },
                       ]}
                       required
                       error={error?.message}
@@ -344,6 +412,23 @@ export const LabForm = ({ initialData }: { initialData?: Lab }) => {
                     )}
                   />
                 </Group>
+              </Paper>
+            )}
+
+            {labType === 'architecture' && (
+              <Paper withBorder p="md" mt="sm">
+                <Title order={4} mb="sm">Architecture Diagram Design</Title>
+                <Text size="sm" c="dimmed" mb="md">
+                  Drag and drop components to create the master architecture for this lab.
+                  Students will receive a jumbled version of this diagram to solve.
+                </Text>
+                <DiagramEditor
+                  mode="instructor"
+                  initialGraph={initialData?.masterGraph}
+                  onGraphChange={(json) => {
+                    setValue('masterGraph', json);
+                  }}
+                />
               </Paper>
             )}
 
@@ -487,9 +572,54 @@ export const LabForm = ({ initialData }: { initialData?: Lab }) => {
               </Group>
             )}
 
-            <Button type="submit" loading={isSubmitting} mt="xl" size="md">
-              {initialData ? 'Update Lab' : 'Create Lab'}
-            </Button>
+            <Group justify="space-between" mt="xl">
+              {initialData?.id && (
+                <Button color="red" variant="subtle" onClick={handleDelete} loading={isSubmitting}>
+                  Delete Lab
+                </Button>
+              )}
+              <Group>
+                {initialData?.status === 'PUBLISHED' ? (
+                  <>
+                    <Button
+                      variant="default"
+                      type="button"
+                      loading={isSubmitting}
+                      onClick={saveDraft}
+                    >
+                      Unpublish
+                    </Button>
+                    <Button
+                      color="green"
+                      type="button"
+                      loading={isSubmitting}
+                      onClick={publishLab}
+                    >
+                      Save Changes
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Button
+                      variant="default"
+                      type="button"
+                      loading={isSubmitting}
+                      onClick={saveDraft}
+                    >
+                      Save Draft
+                    </Button>
+                    <Button
+                      color="green"
+                      type="button"
+                      loading={isSubmitting}
+                      onClick={publishLab}
+                    >
+                      Publish Lab
+                    </Button>
+                  </>
+                )}
+              </Group>
+            </Group>
           </Stack>
         </form>
       </Paper>
