@@ -1,6 +1,6 @@
 # Data Model: Lab Diagram Tests
 
-This document outlines the key entities and their relationships for the Lab Diagram Test feature, designed for a MongoDB NoSQL database, and integrated within the `apps/whatsnxt-bff` application.
+This document outlines the data model for the Lab Diagram Tests feature, detailing key entities, their attributes, and relationships. All entities are identified by UUIDs.
 
 ## Entities
 
@@ -8,86 +8,113 @@ This document outlines the key entities and their relationships for the Lab Diag
 
 Represents a learning module containing one or more pages.
 
--   **`_id`**: ObjectId (Primary Key)
--   **`title`**: String (Required)
-    -   *Validation*: Cannot be empty, max 255 characters.
--   **`description`**: String (Optional)
--   **`status`**: Enum (String) - "draft", "published" (Required)
-    -   *Default*: "draft"
--   **`creatorId`**: String (Required) - ID of the instructor who created the lab.
--   **`createdAt`**: Date (Required)
--   **`updatedAt`**: Date (Required)
--   **`publishedVersionId`**: ObjectId (Optional)
-    -   *Relationship*: Self-reference to the `_id` of the published `Lab` document when this `Lab` is a draft version of a previously published one.
--   **`pages`**: Array of ObjectId (Required)
-    -   *Relationship*: One-to-many reference to `LabPage` documents. (Assuming `LabPage`s will be in a separate collection for scalability).
+-   **id**: `UUID` (Primary Key)
+-   **status**: `String` (Enum: 'draft', 'published')
+-   **name**: `String` (Required - Lab title)
+-   **description**: `String` (Optional - Lab description)
+-   **labType**: `String` (Required - Category/type of the lab, e.g., 'Cloud Computing', 'Networking', 'Security')
+-   **architectureType**: `String` (Required - Architecture platform, e.g., 'AWS', 'Azure', 'GCP', 'Common', 'Hybrid')
+-   **instructorId**: `UUID` (Foreign Key to Instructor entity, not defined here)
+-   **createdAt**: `Date`
+-   **updatedAt**: `Date`
 
-**State Transitions**:
--   `draft` -> `published`
--   Editing a `published` lab creates a new `draft` lab, linking back to the original `publishedVersionId`.
+**Relationships**:
+-   One-to-many with `LabPage` (a Lab can have multiple LabPages).
+
+**Validation Rules**:
+-   `name` must be non-empty
+-   `labType` must be non-empty
+-   `architectureType` must be non-empty
+-   At least one `LabPage` with valid tests must exist before publishing
 
 ### LabPage
 
 A step or a page within a lab.
 
--   **`_id`**: ObjectId (Primary Key)
--   **`labId`**: ObjectId (Required)
-    -   *Relationship*: Many-to-one reference to `Lab` document.
--   **`pageNumber`**: Number (Required)
-    -   *Validation*: Must be a positive integer, unique within a `labId`.
--   **`type`**: Enum (String) - "question", "diagram", "mixed" (Required)
--   **`title`**: String (Optional)
--   **`questions`**: Array of Embedded Document (Optional)
-    -   *Relationship*: Embedded one-to-many `Question` documents.
-    -   *Validation*: Required if `type` is "question" or "mixed".
--   **`diagram`**: Embedded Document (Optional)
-    -   *Relationship*: Embedded one-to-one `DiagramTest` document.
-    -   *Validation*: Required if `type` is "diagram" or "mixed".
+-   **id**: `UUID` (Primary Key)
+-   **labId**: `UUID` (Foreign Key to `Lab`)
+-   **pageNumber**: `Number` (Order of the page within the lab)
+-   **hasQuestion**: `Boolean` (Indicates if the page contains a Question)
+-   **hasDiagramTest**: `Boolean` (Indicates if the page contains a DiagramTest)
+-   **createdAt**: `Date`
+-   **updatedAt**: `Date`
+
+**Relationships**:
+-   Many-to-one with `Lab` (a LabPage belongs to one Lab).
+-   One-to-one with `Question` (a LabPage can have one Question).
+-   One-to-one with `DiagramTest` (a LabPage can have one DiagramTest).
+
+**Validation Rules**:
+-   At least one of `hasQuestion` or `hasDiagramTest` must be `true`
+-   If `hasQuestion` is `true`, a valid `Question` entity must be associated
+-   If `hasDiagramTest` is `true`, a valid `DiagramTest` entity must be associated
+-   Empty questions or empty diagram tests must not be saved
 
 ### Question
 
-Represents a standard question, embedded within a `LabPage`.
+A standard question, with types like "Multiple Choice" or "Text".
 
--   **`_id`**: ObjectId (Primary Key, unique within `LabPage` array)
--   **`questionText`**: String (Required)
-    -   *Validation*: Cannot be empty.
--   **`type`**: Enum (String) - "MCQ", "Text" (Required)
--   **`options`**: Array of String (Optional)
-    -   *Validation*: Required if `type` is "MCQ", must have at least 2 options.
--   **`correctAnswer`**: String or Array of String (Required)
-    -   *Validation*: For "MCQ", must match one or more of the `options`. For "Text", any string.
+-   **id**: `UUID` (Primary Key)
+-   **labPageId**: `UUID` (Foreign Key to `LabPage`)
+-   **type**: `String` (Enum: 'Multiple Choice', 'Text')
+-   **questionText**: `String` (Required)
+-   **options**: `Array` of `String` (For Multiple Choice questions, Optional)
+-   **correctAnswer**: `String` (For Text questions) or `Array` of `String` (For Multiple Choice questions, storing selected options IDs/values)
+-   **createdAt**: `Date`
+-   **updatedAt**: `Date`
+
+**Relationships**:
+-   Many-to-one with `LabPage` (a Question belongs to one LabPage).
+
+**Validation Rules**:
+-   `questionText` must be non-empty
+-   If `type` is 'Multiple Choice', `options` array must contain at least 2 options
+-   If `type` is 'Multiple Choice', `correctAnswer` must be one or more of the provided options
+-   Empty questions must not be saved to database
 
 ### DiagramTest
 
-Represents an interactive diagramming exercise, embedded within a `LabPage`.
+An interactive diagramming exercise.
 
--   **`_id`**: ObjectId (Primary Key, unique within `LabPage` array)
--   **`initialDiagramState`**: Object (JSON) (Required)
-    -   Stores the initial configuration of shapes and connections when the test starts.
--   **`expectedDiagramState`**: Object (JSON) (Required)
-    -   Stores the desired final configuration for automated grading.
--   **`paletteCategory`**: String (Required)
-    -   *Example*: "AWS", "Generic". Defines which set of shapes are available in the palette.
+-   **id**: `UUID` (Primary Key)
+-   **labPageId**: `UUID` (Foreign Key to `LabPage`)
+-   **prompt**: `String` (Required - Instructions for the diagram test)
+-   **expectedDiagramState**: `JSON` (Required - Representing the correct diagram state/solution)
+-   **architectureType**: `String` (Required - e.g., 'AWS', 'Azure', 'GCP', 'Common', 'Hybrid')
+-   **createdAt**: `Date`
+-   **updatedAt**: `Date`
 
-### DiagramShape (Conceptual / within DiagramTest.initialDiagramState and expectedDiagramState)
+**Relationships**:
+-   Many-to-one with `LabPage` (a DiagramTest belongs to one LabPage).
+-   Many-to-many with `DiagramShape` (a DiagramTest uses multiple DiagramShapes).
 
-Represents a single graphical element within a diagram. This will likely be part of the `initialDiagramState` and `expectedDiagramState` JSON objects.
+**Validation Rules**:
+-   `prompt` must be non-empty
+-   `expectedDiagramState` must be a valid JSON object with at least one shape
+-   `architectureType` must be non-empty
+-   Empty diagram tests must not be saved to database
+-   The diagram must contain at least one shape to be considered valid
 
--   **`id`**: String (Unique identifier for the shape within the diagram)
--   **`type`**: String (e.g., "AWS_EC2", "Generic_Box", "Line")
--   **`position`**: Object (`{x: Number, y: Number}`)
--   **`size`**: Object (`{width: Number, height: Number}`)
--   **`properties`**: Object (JSON, e.g., `text: "Server"`, `color: "#FFFFFF"`, `instanceType: "t2.micro"`)
--   **`connections`**: Array of Object (e.g., `[{from: "shapeA", to: "shapeB", type: "arrow"}]`)
+### DiagramShape
 
-## Relationships & Validation Summary
+A graphical element used in a diagram test, categorized by architecture type.
 
--   **Lab <-> LabPage**: One-to-many (via `Lab.pages` array of ObjectIds and `LabPage.labId`).
-    -   `LabPage.pageNumber` must be unique per `labId`.
--   **LabPage <-> Question**: Embedded one-to-many.
-    -   `Question` data is directly part of the `LabPage` document.
--   **LabPage <-> DiagramTest**: Embedded one-to-one.
-    -   `DiagramTest` data is directly part of the `LabPage` document.
--   **Lab Status**: Enforced through `status` field and `publishedVersionId`.
--   All required fields must be present and pass type/format validation.
--   String lengths for `title`, `description`, `questionText` should have reasonable limits.
+-   **id**: `UUID` (Primary Key)
+-   **name**: `String` (Required - e.g., 'EC2 Instance', 'Virtual Network')
+-   **type**: `String` (Required - e.g., 'compute', 'network', 'storage', 'database', 'security')
+-   **architectureType**: `String` (Required - e.g., 'AWS', 'Azure', 'GCP', 'Common', 'Hybrid')
+-   **svgPath**: `String` (Required - SVG path data for rendering the shape)
+-   **metadata**: `JSON` (Optional - Additional properties like size, color, connection points, default dimensions)
+-   **createdAt**: `Date`
+-   **updatedAt**: `Date`
+
+**Relationships**:
+-   Many-to-many with `DiagramTest` (a DiagramShape can be used in multiple DiagramTests).
+
+**Implementation Notes**:
+-   Common shapes (architectureType = 'Common') must be isolated in a shared package (e.g., `@whatsnxt/diagram-shapes-common`)
+-   Architecture-specific shapes must be isolated in separate files based on architecture type:
+  - AWS shapes in `@whatsnxt/diagram-shapes-aws` or similar structure
+  - Azure shapes in `@whatsnxt/diagram-shapes-azure` or similar structure
+  - GCP shapes in `@whatsnxt/diagram-shapes-gcp` or similar structure
+-   This separation supports maintainability and follows SOLID principles (Single Responsibility Principle)

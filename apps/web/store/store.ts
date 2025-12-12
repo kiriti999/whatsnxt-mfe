@@ -1,5 +1,6 @@
-import { configureStore, ThunkAction, Action } from '@reduxjs/toolkit';
+import { configureStore, ThunkAction, Action, Reducer } from '@reduxjs/toolkit';
 import { createWrapper, HYDRATE } from 'next-redux-wrapper';
+import { DiagramState } from 'diagram-core';
 
 // Synchronous store creation for immediate use
 const makeStore = () => {
@@ -13,6 +14,7 @@ const makeStore = () => {
     const blogCategorySlice = require('./slices/blogCategorySlice');
     const blogSidebarSlice = require('./slices/blogSidebarSlice');
     const imageSlice = require('./slices/imageSlice');
+    const { diagramReducer } = require('diagram-core');
 
     // Extract reducers - try both default and named exports
     const cartReducer = cartSlice.default || cartSlice.cartReducer;
@@ -36,6 +38,7 @@ const makeStore = () => {
             blogSidebar: blogSidebarReducer,
             blogCategory: blogCategoryReducer,
             image: imageReducer,
+            diagram: diagramReducer as Reducer<DiagramState>,
         },
         devTools: process.env.NODE_ENV !== 'production',
         middleware: (getDefaultMiddleware) =>

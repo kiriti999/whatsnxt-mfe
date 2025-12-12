@@ -1,6 +1,10 @@
 {
   "name": "whatsnxt-mfe",
   "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "author": "Arjun Komaragiri",
   "type": "module",
   "pnpm": {
@@ -40,7 +44,6 @@
   },
   "dependencies": {
     "@builder.io/partytown": "0.10.2",
-    "@mantine/carousel": "8.1.2",
     "@mantine/core": "8.1.2",
     "@mantine/form": "8.1.2",
     "@mantine/hooks": "8.1.2",

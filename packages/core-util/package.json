@@ -18,5 +18,10 @@
     "@types/react": "19.1.0",
     "eslint": "^9.28.0",
     "typescript": "5.8.2"
+  },
+  "peerDependencies": {
+    "@mantine/core": "^7.11.1",
+    "@mantine/hooks": "^7.11.1",
+    "react": "^19.1.0"
   }
 }

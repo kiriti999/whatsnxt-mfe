@@ -1,26 +1,23 @@
 <!--
 Sync Impact Report
 
-- Version change: 5.0.0 → 5.0.1
-- List of modified principles: None (content updated as a whole)
-- Added sections: None
+- Version change: 5.0.1 → 5.1.0
+- List of modified principles: Added Section XI (Real Data and API Standards)
+- Added sections: Section XI - Real Data and API Standards
 - Removed sections: None
+- Modified content:
+  - Added prohibition of mock APIs, mock data, stub implementations, and hardcoded fake data
+  - Added requirement for real backend APIs and real data sources in all environments
+  - Added constraint to Additional Constraints section
 - Templates requiring updates:
-  - ✅ .specify/templates/plan-template.md (no changes needed)
-  - ✅ .specify/templates/spec-template.md (no changes needed)
-  - ✅ .specify/templates/tasks-template.md (no changes needed)
-  - ✅ .specify/templates/agent-file-template.md (no changes needed)
-  - ✅ .specifyy/templates/checklist-template.md (no changes needed)
-  - ✅ .gemini/commands/speckit.analyze.toml (no changes needed)
-  - ✅ .gemini/commands/speckit.checklist.toml (no changes needed)
-  - ✅ .gemini/commands/speckit.clarify.toml (no changes needed)
-  - ✅ .gemini/commands/speckit.implement.toml (no changes needed)
-  - ✅ .gemini/commands/speckit.plan.toml (no changes needed)
-  - ✅ .gemini/commands/speckit.specify.toml (no changes needed)
-  - ✅ .gemini/commands/speckit.tasks.toml (no changes needed)
-  - ✅ .gemini/commands/speckit.taskstoissues.toml (no changes needed)
-  - ✅ README.md (no changes needed)
-- Follow-up TODOs: None
+  - ⚠️ All development and testing documentation should reference real API usage requirement
+  - ⚠️ Code review templates should include check for mock data/API usage
+  - ⚠️ Testing guidelines should specify use of real backend services or sandboxed instances
+- Follow-up TODOs:
+  - Audit existing codebase for mock APIs and mock data
+  - Remove any existing mock implementations
+  - Update development setup documentation to require backend services
+  - Configure test environments with real database instances or sandboxes
 -->
 
 # WhatsNxt Constitution
@@ -61,6 +58,15 @@ All features MUST meet defined performance goals. Monorepo structure MUST use pn
 
 ### VI. API Communication Standards
 All backend APIs MUST be built using Express.js version 5 for consistent, well-documented, and maintainable API architecture.
+The backend code should reside inside the `apps/whatsnxt-bff` directory. It should follow the existing folder structure. The code should be written in typescript and should reside inside the `apps/whatsnxt-bff/app` directory.
+Utilise `apps/whatsnxt-bff/config/` folder for all configs.
+Utilise `apps/whatsnxt-bff/app/models/` folder for all models.
+Utilise `apps/whatsnxt-bff/app/routes/` folder for all routes.
+Utilise `apps/whatsnxt-bff/app/services/` folder for all services.
+Utilise `apps/whatsnxt-bff/app/utils/` folder for all utils.
+Utilise `apps/whatsnxt-bff/app/errors/` folder for all errors.
+Utilise `apps/whatsnxt-bff/app/tests/` folder for all tests.
+The `apps/whatsnxt-bff` is a javascript project. Utilise existing .js file instead of creating new ones. Convert to .ts typescript files before writing logic into it and fix typescript errors.
 
 **HTTP Client Reuse**: All HTTP communication MUST use the axios client from the `@whatsnxt/http-client` workspace package. Applications MUST NOT create new axios instances or HTTP clients. The shared HTTP client provides configured interceptors, error handling, retry logic, and timeout management. This applies to:
 - **Client-to-backend communication**: Frontend applications calling backend APIs
@@ -93,6 +99,13 @@ Applications MUST NOT define local constants when shared constants exist or can 
 
 **Rationale**: Using constants instead of string literals prevents typos, enables type checking, facilitates refactoring, improves code readability, and ensures consistency across the codebase. Centralized constants eliminate duplication and make global changes safer and easier.
 
+### XI. Real Data and API Standards
+All applications MUST use real backend APIs and real data sources. Mock APIs, mock data, stub implementations, and hardcoded fake data are strictly PROHIBITED in all environments including development, testing, and production.
+
+All API integrations MUST connect to actual backend services. Test environments MUST use dedicated test databases or sandboxed backend instances with real data structures. Development workflows MUST rely on functional backend services.
+
+**Rationale**: Mock data and mock APIs create false confidence in code quality, hide integration issues until late in development, cause divergence between test and production behavior, and lead to bugs that only surface in production. Real APIs and data ensure code is tested against actual system behavior from the start, catch integration issues early, and maintain consistency across all environments.
+
 ## Additional Constraints
 
 - Technology stack: Turbo monorepo, Next.js 16 (frontend) with React 19 and Webpack bundling, Node.js 24 LTS (runtime), Mantine UI (frontend components), pnpm 10+ workspace, Express.js v5 (backend APIs), axios from `@whatsnxt/http-client` for all HTTP communication, Winston (backend logging), Docker with Node Alpine base images for deployment
@@ -112,7 +125,6 @@ Applications MUST NOT define local constants when shared constants exist or can 
 - OpenAPI specifications MUST be in JSON format, not YAML.
 - Documentation (HLD, LLD, user flows, sequence diagrams) MUST accompany all features.
 - All Dockerfiles MUST use Node Alpine base images (e.g., node:24-alpine) for minimal size and improved security.
-- Each new or updated specification MUST have its Epic uploaded to JIRA based on branch name.
 
 ## Development Workflow & Quality Gates
 
@@ -127,10 +139,10 @@ Applications MUST NOT define local constants when shared constants exist or can 
 - All custom errors MUST use `@whatsnxt/errors` package.
 - All constants MUST use `@whatsnxt/constants` package.
 - All type interfaces MUST be defined in workspace package `types` folders.
-- After completing `/speckit.specify`, Epic MUST be uploaded to JIRA based on branch name.
+- Mock APIs, mock data, stub implementations, and hardcoded fake data are strictly PROHIBITED.
 
 ## Governance
 
 This constitution supersedes all other practices and guidance. Amendments require documentation, approval, and a migration plan. All PRs and reviews MUST verify compliance. Complexity MUST be justified. Use runtime guidance files for development reference.
 
-**Version**: 5.0.1 | **Ratified**: 2025-11-03 | **Last Amended**: 2025-12-11
+**Version**: 5.1.0 | **Ratified**: 2025-11-03 | **Last Amended**: 2025-12-12

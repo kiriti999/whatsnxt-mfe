@@ -11,6 +11,7 @@ async function Page() {
     fetchCourses(30, 0),
     fetchTrendingArticles(1, 15, 'both')
   ]);
+  console.log('data', data, 'articles', articles)
   return (
     <Box my={{ base: '2rem', sm: '3rem', md: '4rem' }}>
       <Home data={data} articles={articles} />

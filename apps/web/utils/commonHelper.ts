@@ -26,7 +26,11 @@ export const fetchUser = async (token: any) => {
     // const response = await AccountAPI.get(); // This is not working - dont use AccountAPI
     const response = await xior.get(url, payload);
     return response?.data;
-  } catch (error) {
+  } catch (error: any) {
+    // Suppress 404 errors as they indicate no user session/profile, which is expected
+    if (error?.response?.status === 404) {
+      return null;
+    }
     console.log('auth.js:: fetchUser:: error: ', error);
   }
 };

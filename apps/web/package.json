@@ -16,7 +16,16 @@
     "next": "16.0.7",
     "react": "19.1.0",
     "react-dom": "^19.1.0",
-    "typescript": "5.8.2"
+    "typescript": "5.8.2",
+    "@mantine/core": "^7.11.1",
+    "@mantine/hooks": "^7.11.1",
+    "@mantine/form": "^7.11.1",
+    "@mantine/notifications": "^7.11.1",
+    "@mantine/carousel": "^7.11.1",
+    "@mantine/modals": "^7.11.1",
+    "@whatsnxt/http-client": "workspace:*",
+    "@whatsnxt/core-util": "workspace:*",
+    "diagram-core": "workspace:*"
   },
   "devDependencies": {
     "@next/bundle-analyzer": "16.0.3",

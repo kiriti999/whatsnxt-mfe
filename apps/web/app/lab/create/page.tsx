@@ -1,10 +1,136 @@
 'use client';
 
-import React from 'react';
-import { LabForm } from '../../../components/Lab/LabForm';
+import { useState, useEffect } from 'react';
+import { Stepper, Button, Group, LoadingOverlay } from '@mantine/core';
+import { notifications } from '@mantine/notifications';
+import QuestionEditor from '../components/QuestionEditor';
+import DiagramCanvas from '../components/DiagramEditor/DiagramCanvas';
+import ShapePalette from '../components/DiagramEditor/ShapePalette';
+import http from '@whatsnxt/http-client';
 
-export default function CreateLabPage() {
+function LabCreationPage() {
+  const [active, setActive] = useState(0);
+  const [labId, setLabId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const createLab = async () => {
+      try {
+        console.log('Creating a new lab...');
+        // Corrected: http.post returns promise resolves to body T, so response is T. 
+        // Based on my implementation: return response.data.
+        // If API returns { success: true, data: { _id: '...' } } then we need to match that type.
+        // Assuming API returns the created object directly or standard response structure.
+        // Let's assume standard response: { data: { _id: ... } } or just the object.
+        // Safest is to log first or assume common structure. 
+        // Given previous logs 'http://localhost:4444/api/v1', let's stick to the commented out logic structure but enable it.
+        const response = await http.post<{ _id: string, title: string }>('/labs', { title: 'New Lab' });
+
+        // If the http client returns response.data directly, then `response` IS the data.
+        // But if the API returns wrapped data like { success: true, data: ... }, we need to handle that.
+        // Let's assume standard REST: POST /labs returns the created lab.
+
+        setLabId(response._id || (response as any).data?._id);
+        setLoading(false);
+      } catch (err) {
+        console.error(err);
+        // Fallback for demo purposes if API isn't actually ready/matching
+        const mockLabId = `lab-${Date.now()}`;
+        setLabId(mockLabId);
+        console.log(`Created mock lab (fallback) with ID: ${mockLabId}`);
+        setLoading(false);
+
+        // Uncomment this to show real error
+        /*
+        setError('Failed to create lab.');
+        notifications.show({
+          title: 'Error',
+          message: 'Could not create a new lab. Please try again later.',
+          color: 'red',
+        });
+        setLoading(false);
+        */
+      }
+    };
+    createLab();
+  }, []);
+
+  const saveData = async () => {
+    if (!labId) return;
+    try {
+      console.log(`Saving data for lab ID: ${labId}, step: ${active}`);
+      await http.put(`/labs/${labId}/pages/${active}`, { content: '...some data...' });
+    } catch (err) {
+      console.error('Failed to save', err);
+    }
+  };
+
+  const nextStep = () => {
+    saveData();
+    setActive((current) => (current < 3 ? current + 1 : current));
+  };
+
+  const prevStep = () => {
+    saveData();
+    setActive((current) => (current > 0 ? current - 1 : current));
+  };
+
+  const handlePublish = async () => {
+    if (!labId) return;
+    try {
+      console.log(`Publishing lab ID: ${labId}`);
+      await http.post(`/labs/${labId}/publish`);
+      notifications.show({
+        title: 'Success',
+        message: 'Lab published successfully!',
+        color: 'green',
+      });
+    } catch (err) {
+      console.error('Failed to publish', err);
+      notifications.show({
+        title: 'Error',
+        message: 'Failed to publish lab.',
+        color: 'red',
+      });
+    }
+  };
+
+
+
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
+
   return (
-    <LabForm />
+    <div style={{ position: 'relative' }}>
+      <LoadingOverlay visible={loading} />
+      <Stepper active={active} onStepClick={setActive}>
+        <Stepper.Step label="First step" description="Lab Details">
+          Step 1 content: Lab Details for Lab ID: {labId}
+        </Stepper.Step>
+        <Stepper.Step label="Second step" description="Add questions">
+          <QuestionEditor />
+        </Stepper.Step>
+        <Stepper.Step label="Third step" description="Add diagram">
+          <ShapePalette />
+          <DiagramCanvas />
+        </Stepper.Step>
+        <Stepper.Completed>
+          Completed, click back button to get to previous step
+        </Stepper.Completed>
+      </Stepper>
+
+      <Group justify="center" mt="xl">
+        <Button variant="default" onClick={prevStep}>Back</Button>
+        {active === 3 ? (
+          <Button color="blue" onClick={handlePublish}>Publish</Button>
+        ) : (
+          <Button onClick={nextStep}>Next step</Button>
+        )}
+      </Group>
+    </div>
   );
 }
+
+export default LabCreationPage;

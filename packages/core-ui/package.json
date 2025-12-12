@@ -19,6 +19,13 @@
     "eslint": "^9.28.0",
     "typescript": "5.8.2"
   },
+  "peerDependencies": {
+    "@mantine/core": "^7.11.1",
+    "@mantine/hooks": "^7.11.1",
+    "@mantine/form": "^7.11.1",
+    "@mantine/notifications": "^7.11.1",
+    "react": "^19.1.0"
+  },
   "dependencies": {
     "react": "^19.1.0"
   }

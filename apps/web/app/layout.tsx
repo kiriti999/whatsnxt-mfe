@@ -210,7 +210,7 @@ async function RootLayout({ children }: { children: ReactNode }) {
   console.log('RootLayout :: userData:', userData)
 
   return (
-    <html lang="en" className={`${nunito.variable} ${nunito.className}`}>
+    <html lang="en" className={`${nunito.variable} ${nunito.className}`} suppressHydrationWarning>
       <head>
         <ColorSchemeScript />
         {/* Resource hints for actual services you use */}

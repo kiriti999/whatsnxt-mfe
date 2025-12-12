@@ -21,7 +21,8 @@
     "isolatedModules": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./*"]
+      "@/*": ["./*"],
+      "@whatsnxt/*": ["../../packages/*/src"]
     }
   },
   "include": [

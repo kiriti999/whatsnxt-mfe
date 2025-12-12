@@ -50,7 +50,6 @@ export default function AppProvider({ children, user }: { children: ReactNode, u
   const domain = process.env.NEXT_PUBLIC_MFE_HOST;
 
   const headerProps = {
-    logo: 'https://res.cloudinary.com/cloudinary999/image/upload/v1713640702/whatsnxt/logo.png',
     links: [
       { title: 'Home', url: `${domain}/`, linkType: '_self' },
       { title: 'Blogs', url: `${domain}/blogs`, linkType: '_self' },
