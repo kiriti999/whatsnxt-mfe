@@ -55,6 +55,7 @@ All features MUST meet defined performance goals. Monorepo structure MUST use pn
 - All contributors MUST follow workspace conventions and dependency management best practices.
 - pnpm 10+ (or the latest version compatible with Node.js 24 LTS) MUST be used as the package manager.
 - Frontend applications MUST be bundled using Webpack.
+- Testing should be done using vitest
 
 **Rationale**: Node.js 24 LTS provides the latest stable features with extended support. Next.js 16 and React 19 deliver the latest performance optimizations, React Server Components improvements, and modern development patterns. pnpm 10+ ensures compatibility and optimal workspace management.
 
@@ -94,8 +95,8 @@ Applications MUST NOT define local constants when shared constants exist or can 
 
 ## Additional Constraints
 
-- Technology stack: Turbo monorepo, Next.js 16 (frontend) with React 19 and Webpack bundling, Node.js 24 LTS (runtime), Mantine UI (frontend components), pnpm 10+ workspace, Express.js v5 (backend APIs), axios from `@whatsnxt/http-client` for all HTTP communication, Winston (backend logging), Docker with Node Alpine base images for deployment, Vitest for all testing.
-- All components and packages MUST be reusable and independently testable.
+- Technology stack: Turbo monorepo, Next.js 16 (frontend) with React 19 and Webpack bundling, Node.js 24 LTS (runtime), Mantine UI (frontend components), pnpm 10+ workspace, Express.js v5 (backend APIs), axios from `@whatsnxt/http-client` for all HTTP communication, Winston (backend logging), Docker with Node Alpine base images for deployment
+- All components and packages MUST be reusable.
 - Common functionality MUST be extracted into `@whatsnxt/*` workspace packages in the `packages/` directory.
 - Applications MUST reuse existing workspace packages and MUST NOT create duplicate implementations.
 - All interfaces MUST be defined in `types` folders within workspace packages and imported where needed.
@@ -108,7 +109,6 @@ Applications MUST NOT define local constants when shared constants exist or can 
 - All backend APIs MUST use Express.js version 5 framework.
 - All frontend applications MUST use Next.js 16 with React 19.
 - All backend applications MUST use Winston for structured logging with contextual metadata.
-- All testing MUST use Vitest (no Playwright or other E2E frameworks).
 - OpenAPI specifications MUST be in JSON format, not YAML.
 - Documentation (HLD, LLD, user flows, sequence diagrams) MUST accompany all features.
 - All Dockerfiles MUST use Node Alpine base images (e.g., node:24-alpine) for minimal size and improved security.
@@ -116,11 +116,10 @@ Applications MUST NOT define local constants when shared constants exist or can 
 
 ## Development Workflow & Quality Gates
 
-- All code changes MUST pass code review, test coverage, and accessibility checks.
+- All code changes MUST pass code review and accessibility checks.
 - Pull requests MUST include evidence of compliance with all principles.
 - Automated CI/CD pipelines MUST enforce testing and linting standards.
 - All contributors MUST document rationale for any deviation from principles.
-- All tests MUST be written and executed using Vitest.
 - All backend applications MUST include Winston logger configuration with appropriate log levels and transports.
 - All frontend applications MUST use Next.js 16 with React 19.
 - All HTTP communication layers MUST use axios client from `@whatsnxt/http-client` with consistent configuration.

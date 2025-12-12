@@ -1,42 +1,44 @@
-# Implementation Plan: Lab Diagram Tests
+# Implementation Plan: [FEATURE]
 
-**Branch**: `001-lab-diagram-test` | **Date**: 2025-12-11 | **Spec**: [spec.md](./spec.md)
-**Input**: Feature specification from `/specs/001-lab-diagram-test/spec.md`
+**Branch**: `[###-feature-name]` | **Date**: [DATE] | **Spec**: [link]
+**Input**: Feature specification from `/specs/[###-feature-name]/spec.md`
 
 **Note**: This template is filled in by the `/speckit.plan` command. See `.specify/templates/commands/plan.md` for the execution workflow.
 
 ## Summary
 
-This feature will allow instructors to create labs that contain both standard questions (MCQ, text) and interactive diagramming exercises. The lab creation process will be a step-by-step form. Each step can be a question or a diagram test. The work will be saved as a draft automatically. Finally, the instructor can publish the lab.
+[Extract from feature spec: primary requirement + technical approach from research]
 
 ## Technical Context
 
-**Language/Version**: TypeScript
-**Primary Dependencies**: Next.js, React, Mantine UI
-**Storage**: [NEEDS CLARIFICATION: The specific database to be used is not specified.]
-**Testing**: Vitest
-**Target Platform**: Web
-**Project Type**: Web application
-**Performance Goals**: Page loads < 500ms
-**Constraints**: SOLID principles, max cyclomatic complexity of 5
-**Scale/Scope**: Used by a few hundred instructors to create labs for a few thousand students.
+<!--
+  ACTION REQUIRED: Replace the content in this section with the technical details
+  for the project. The structure here is presented in advisory capacity to guide
+  the iteration process.
+-->
+
+**Language/Version**: [e.g., Python 3.11, Swift 5.9, Rust 1.75 or NEEDS CLARIFICATION]  
+**Primary Dependencies**: [e.g., FastAPI, UIKit, LLVM or NEEDS CLARIFICATION]  
+**Storage**: [if applicable, e.g., PostgreSQL, CoreData, files or N/A]  
+**Testing**: [e.g., pytest, XCTest, cargo test or NEEDS CLARIFICATION]  
+**Target Platform**: [e.g., Linux server, iOS 15+, WASM or NEEDS CLARIFICATION]
+**Project Type**: [single/web/mobile - determines source structure]  
+**Performance Goals**: [domain-specific, e.g., 1000 req/s, 10k lines/sec, 60 fps or NEEDS CLARIFICATION]  
+**Constraints**: [domain-specific, e.g., <200ms p95, <100MB memory, offline-capable or NEEDS CLARIFICATION]  
+**Scale/Scope**: [domain-specific, e.g., 10k users, 1M LOC, 50 screens or NEEDS CLARIFICATION]
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-- **Code Quality**: All code MUST adhere to SOLID principles and have a maximum cyclomatic complexity of 5.
-- **UI**: UI MUST be built using Mantine UI, be responsive and accessible. CSS classes MUST be used over Mantine style attributes.
-- **Performance**: All features MUST meet defined performance goals.
-- **Architecture**: The project MUST use a Turbo monorepo structure with shared packages for reusable components and types.
-- **Tech Stack**: Next.js 16+, React 19, Node.js 24 LTS, pnpm 10+, Webpack, Express.js v5, Axios, Winston, Vitest, Docker with Node Alpine.
+[Gates determined based on constitution file]
 
 ## Project Structure
 
 ### Documentation (this feature)
 
 ```text
-specs/001-lab-diagram-test/
+specs/[###-feature]/
 ├── plan.md              # This file (/speckit.plan command output)
 ├── research.md          # Phase 0 output (/speckit.plan command)
 ├── data-model.md        # Phase 1 output (/speckit.plan command)
@@ -46,26 +48,51 @@ specs/001-lab-diagram-test/
 ```
 
 ### Source Code (repository root)
+<!--
+  ACTION REQUIRED: Replace the placeholder tree below with the concrete layout
+  for this feature. Delete unused options and expand the chosen structure with
+  real paths (e.g., apps/admin, packages/something). The delivered plan must
+  not include Option labels.
+-->
 
 ```text
-apps/
-└── web/
-    ├── app/
-    │   └── lab/
-    │       └── [id]/
-    │           └── page.tsx # Existing lab page to be modified
-    └── components/
-        └── architecture-lab/ # New components for diagram editor will be added here
+# [REMOVE IF UNUSED] Option 1: Single project (DEFAULT)
+src/
+├── models/
+├── services/
+├── cli/
+└── lib/
 
-packages/
-└── diagram-shapes/ # New package for shared diagram shapes
-    ├── src/
-    │   ├── common/ # Common shapes
-    │   └── aws/ # Example of architecture-specific shapes
-    └── index.ts
+tests/
+├── contract/
+├── integration/
+└── unit/
+
+# [REMOVE IF UNUSED] Option 2: Web application (when "frontend" + "backend" detected)
+backend/
+├── src/
+│   ├── models/
+│   ├── services/
+│   └── api/
+└── tests/
+
+frontend/
+├── src/
+│   ├── components/
+│   ├── pages/
+│   └── services/
+└── tests/
+
+# [REMOVE IF UNUSED] Option 3: Mobile + API (when "iOS/Android" detected)
+api/
+└── [same as backend above]
+
+ios/ or android/
+└── [platform-specific structure: feature modules, UI flows, platform tests]
 ```
 
-**Structure Decision**: The feature will be implemented within the existing Next.js application (`apps/web`). A new package (`diagram-shapes`) will be created to store the reusable diagram shapes.
+**Structure Decision**: [Document the selected structure and reference the real
+directories captured above]
 
 ## Complexity Tracking
 
@@ -73,4 +100,5 @@ packages/
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-|           |            |                                     |
+| [e.g., 4th project] | [current need] | [why 3 projects insufficient] |
+| [e.g., Repository pattern] | [specific problem] | [why direct DB access insufficient] |
