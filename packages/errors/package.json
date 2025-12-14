@@ -8,10 +8,17 @@
     "build": "tsc",
     "clean": "rm -rf dist"
   },
-  "keywords": ["errors", "exceptions", "whatsnxt"],
+  "keywords": [
+    "errors",
+    "exceptions",
+    "whatsnxt"
+  ],
   "author": "WhatsnXT Team",
   "license": "MIT",
   "devDependencies": {
     "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "http-status-codes": "2.3.0"
   }
 }

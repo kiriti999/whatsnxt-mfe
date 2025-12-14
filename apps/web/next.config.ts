@@ -291,9 +291,6 @@ const nextConfig: NextConfig = {
             'https://api.whatsnxt.in',
             // Legacy specific paths (remove these after testing)
             // ...apiHosts,
-            // Payment services
-            'https://api.razorpay.com',
-            'https://checkout.razorpay.com',
             // Search services
             'https://*.algolia.net',
             'https://*.algolianet.com',
@@ -349,14 +346,14 @@ const nextConfig: NextConfig = {
                         value: [
                             "default-src 'self'",
                             // PARTYTOWN: Allow all Partytown scripts and external analytics
-                            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com https://www.googletagmanager.com https://www.google-analytics.com https://checkout.razorpay.com data: blob:",
-                            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://checkout.razorpay.com",
-                            "font-src 'self' https://fonts.gstatic.com https://checkout.razorpay.com",
+                            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com https://www.googletagmanager.com https://www.google-analytics.com data: blob:",
+                            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+                            "font-src 'self' https://fonts.gstatic.com",
                             // Updated img-src to specifically include Cloudinary domains
                             "img-src 'self' data: https: blob: https://res.cloudinary.com https://*.cloudinary.com https://api.cloudinary.com https://ik.imagekit.io https://*.imagekit.io",
                             "media-src 'self' https: blob: https://res.cloudinary.com https://*.cloudinary.com https://api.cloudinary.com",
                             `connect-src ${connectSrc}`,
-                            "frame-src 'self' https://checkout.razorpay.com",
+                            "frame-src 'self'",
                             // PARTYTOWN SPECIFIC: Essential for web workers and service workers
                             "worker-src 'self' blob: data:",
                             "child-src 'self' blob: data:",
@@ -364,7 +361,7 @@ const nextConfig: NextConfig = {
                             "manifest-src 'self'",
                             "frame-ancestors 'none'",
                             "base-uri 'self'",
-                            "form-action 'self' https://checkout.razorpay.com",
+                            "form-action 'self'",
                             "upgrade-insecure-requests",
                             "block-all-mixed-content"
                         ].join('; ')
@@ -382,7 +379,7 @@ const nextConfig: NextConfig = {
                     // PERMISSIONS POLICY - Controls access to browser features
                     {
                         key: 'Permissions-Policy',
-                        value: 'camera=(), microphone=(), geolocation=(), payment=(self "https://checkout.razorpay.com"), fullscreen=(self)'
+                        value: 'camera=(), microphone=(), geolocation=(), payment=(self), fullscreen=(self)'
                     },
                     // CROSS-ORIGIN RESOURCE POLICY
                     {
@@ -467,9 +464,6 @@ const nextConfig: NextConfig = {
         NEXT_PUBLIC_CLOUDINARY_VIDEO_UPLOAD_URL: process.env.CLOUDINARY_VIDEO_UPLOAD_URL,
         NEXT_PUBLIC_CLOUDINARY_FILE_UPLOAD_URL: process.env.CLOUDINARY_FILE_UPLOAD_URL,
         NEXT_PUBLIC_ALGOLIA_INDEX_NAME: process.env.ALGOLIA_INDEX_NAME,
-
-        NEXT_PUBLIC_RAZORPAY_KEY: process.env.RAZORPAY_KEY,
-        NEXT_PUBLIC_RAZORPAY_LOGO: process.env.RAZORPAY_LOGO,
 
         NEXT_PUBLIC_COOKIES_DOMAIN: process.env.COOKIES_DOMAIN,
         NEXT_PUBLIC_COOKIES_USER: process.env.COOKIES_USER,

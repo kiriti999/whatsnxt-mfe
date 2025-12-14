@@ -6,6 +6,8 @@
  * and makes refactoring safer.
  */
 
+import { StatusCodes } from 'http-status-codes';
+
 // API Endpoints
 export const API_ENDPOINTS = {
   // Lab Management
@@ -86,18 +88,21 @@ export const VALIDATION = {
   MAX_DIAGRAM_PROMPT_LENGTH: 2000,
 } as const;
 
-// HTTP Status Codes
+// HTTP Status Codes - Re-export from http-status-codes for convenience
 export const HTTP_STATUS = {
-  OK: 200,
-  CREATED: 201,
-  NO_CONTENT: 204,
-  BAD_REQUEST: 400,
-  UNAUTHORIZED: 401,
-  FORBIDDEN: 403,
-  NOT_FOUND: 404,
-  CONFLICT: 409,
-  INTERNAL_SERVER_ERROR: 500,
+  OK: StatusCodes.OK,
+  CREATED: StatusCodes.CREATED,
+  NO_CONTENT: StatusCodes.NO_CONTENT,
+  BAD_REQUEST: StatusCodes.BAD_REQUEST,
+  UNAUTHORIZED: StatusCodes.UNAUTHORIZED,
+  FORBIDDEN: StatusCodes.FORBIDDEN,
+  NOT_FOUND: StatusCodes.NOT_FOUND,
+  CONFLICT: StatusCodes.CONFLICT,
+  INTERNAL_SERVER_ERROR: StatusCodes.INTERNAL_SERVER_ERROR,
 } as const;
+
+// Re-export StatusCodes for direct access to all status codes
+export { StatusCodes } from 'http-status-codes';
 
 // User Roles
 export const USER_ROLES = {

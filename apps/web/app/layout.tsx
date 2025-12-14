@@ -207,7 +207,7 @@ export const metadata: Metadata = {
 async function RootLayout({ children }: { children: ReactNode }) {
 
   const userData = await getAuthData();
-  console.log('RootLayout :: userData:', userData)
+  // console.log('RootLayout :: userData:', userData)
 
   return (
     <html lang="en" className={`${nunito.variable} ${nunito.className}`} suppressHydrationWarning>
