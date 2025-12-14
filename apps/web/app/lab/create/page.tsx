@@ -18,39 +18,30 @@ function LabCreationPage() {
     const createLab = async () => {
       try {
         console.log('Creating a new lab...');
-        // Corrected: http.post returns promise resolves to body T, so response is T. 
-        // Based on my implementation: return response.data.
-        // If API returns { success: true, data: { _id: '...' } } then we need to match that type.
-        // Assuming API returns the created object directly or standard response structure.
-        // Let's assume standard response: { data: { _id: ... } } or just the object.
-        // Safest is to log first or assume common structure. 
-        // Given previous logs 'http://localhost:4444/api/v1', let's stick to the commented out logic structure but enable it.
-        const response = await http.post<{ _id: string, title: string }>('/labs', { title: 'New Lab' });
 
-        // If the http client returns response.data directly, then `response` IS the data.
-        // But if the API returns wrapped data like { success: true, data: ... }, we need to handle that.
-        // Let's assume standard REST: POST /labs returns the created lab.
+        // Create lab with required fields
+        const response = await http.post<{ message: string; data: { _id: string } }>('/labs', {
+          name: 'New Lab',
+          description: 'Lab description',
+          labType: 'Cloud Computing',  // Required field
+          architectureType: 'AWS',      // Required field
+          instructorId: 'temp-instructor-id', // TODO: Get from auth context
+        });
 
-        setLabId(response._id || (response as any).data?._id);
+        // API returns { message: string, data: { _id: string, ... } }
+        const labId = response.data?._id || (response as any)._id;
+        setLabId(labId);
+        console.log(`Created lab with ID: ${labId}`);
         setLoading(false);
       } catch (err) {
-        console.error(err);
-        // Fallback for demo purposes if API isn't actually ready/matching
-        const mockLabId = `lab-${Date.now()}`;
-        setLabId(mockLabId);
-        console.log(`Created mock lab (fallback) with ID: ${mockLabId}`);
-        setLoading(false);
-
-        // Uncomment this to show real error
-        /*
+        console.error('Failed to create lab:', err);
         setError('Failed to create lab.');
         notifications.show({
           title: 'Error',
-          message: 'Could not create a new lab. Please try again later.',
+          message: err instanceof Error ? err.message : 'Could not create a new lab. Please try again later.',
           color: 'red',
         });
         setLoading(false);
-        */
       }
     };
     createLab();
