@@ -16,6 +16,8 @@ import {
   Divider,
   Switch,
   ActionIcon,
+  Tabs,
+  Textarea,
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { IconTrash } from '@tabler/icons-react';
@@ -46,6 +48,11 @@ const LabPageEditorPage = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
+  // Diagram test state
+  const [architectureType, setArchitectureType] = useState('');
+  const [prompt, setPrompt] = useState('');
+  const [expectedDiagramState, setExpectedDiagramState] = useState<any>(null);
+
   useEffect(() => {
     fetchPageData();
   }, [pageId]);
@@ -66,6 +73,14 @@ const LabPageEditorPage = () => {
           options: q.options ? q.options.map((opt: any) => opt.text).join(', ') : '',
           correctAnswer: q.correctAnswer || '',
         }]);
+      }
+
+      // If page has a diagram test, populate the form
+      if (pageData.diagramTest) {
+        const dt = pageData.diagramTest;
+        setPrompt(dt.prompt || '');
+        setArchitectureType(dt.architectureType || '');
+        setExpectedDiagramState(dt.expectedDiagramState || null);
       }
     } catch (error: any) {
       console.error('Failed to load page data:', error);
@@ -170,6 +185,71 @@ const LabPageEditorPage = () => {
     }
   };
 
+  const handleSaveDiagramTest = async () => {
+    // Validation
+    if (!architectureType) {
+      notifications.show({
+        title: 'Validation Error',
+        message: 'Architecture type is required',
+        color: 'red',
+      });
+      return;
+    }
+
+    if (!prompt || prompt.trim().length < 10) {
+      notifications.show({
+        title: 'Validation Error',
+        message: 'Prompt must be at least 10 characters',
+        color: 'red',
+      });
+      return;
+    }
+
+    if (prompt.trim().length > 2000) {
+      notifications.show({
+        title: 'Validation Error',
+        message: 'Prompt cannot exceed 2000 characters',
+        color: 'red',
+      });
+      return;
+    }
+
+    // For now, use a placeholder diagram state until we build the interactive editor
+    const diagramStateToSave = expectedDiagramState || {
+      shapes: [],
+      connections: [],
+      metadata: {}
+    };
+
+    setSaving(true);
+    try {
+      await labApi.saveDiagramTest(labId, pageId, {
+        prompt: prompt.trim(),
+        expectedDiagramState: diagramStateToSave,
+        architectureType: architectureType,
+      });
+
+      notifications.show({
+        title: 'Success',
+        message: 'Diagram test saved successfully!',
+        color: 'green',
+      });
+
+      // Navigate back to lab detail page
+      router.push(`/labs/${labId}`);
+    } catch (error: any) {
+      const errorMessage = error?.response?.data?.message || error?.message || 'Failed to save diagram test.';
+      notifications.show({
+        title: 'Error',
+        message: errorMessage,
+        color: 'red',
+      });
+      console.error('Failed to save diagram test:', error);
+    } finally {
+      setSaving(false);
+    }
+  };
+
   if (loading) {
     return (
       <Container size="lg" py="xl">
@@ -195,19 +275,26 @@ const LabPageEditorPage = () => {
       </Group>
 
       <Paper shadow="sm" p="xl" withBorder>
-        <Stack gap="xl">
-          {/* Add Question Button */}
-          {questions.length === 0 && (
-            <Button
-              variant="outline"
-              fullWidth
-              size="lg"
-              onClick={addQuestion}
-              leftSection="+"
-            >
-              Add Question
-            </Button>
-          )}
+        <Tabs defaultValue="question-test">
+          <Tabs.List>
+            <Tabs.Tab value="question-test">Question Test</Tabs.Tab>
+            <Tabs.Tab value="diagram-test">Diagram Test</Tabs.Tab>
+          </Tabs.List>
+
+          <Tabs.Panel value="question-test" pt="md">
+            <Stack gap="xl">
+              {/* Add Question Button */}
+              {questions.length === 0 && (
+                <Button
+                  variant="outline"
+                  fullWidth
+                  size="lg"
+                  onClick={addQuestion}
+                  leftSection="+"
+                >
+                  Add Question
+                </Button>
+              )}
 
           {/* Questions Section */}
           {questions.length > 0 && (
@@ -294,17 +381,63 @@ const LabPageEditorPage = () => {
             </>
           )}
 
-          {/* Practice Test Configuration */}
-          <Divider label="Practice Test Configuration" labelPosition="center" />
+              {/* Practice Test Configuration */}
+              <Divider label="Practice Test Configuration" labelPosition="center" />
 
-          <Group>
-            <Switch
-              checked={enablePracticeTest}
-              onChange={(event) => setEnablePracticeTest(event.currentTarget.checked)}
-              label="Enable Practice Test"
-            />
-          </Group>
-        </Stack>
+              <Group>
+                <Switch
+                  checked={enablePracticeTest}
+                  onChange={(event) => setEnablePracticeTest(event.currentTarget.checked)}
+                  label="Enable Practice Test"
+                />
+              </Group>
+            </Stack>
+          </Tabs.Panel>
+
+          <Tabs.Panel value="diagram-test" pt="md">
+            <Stack gap="md">
+              <Select
+                label="Architecture Type"
+                placeholder="Select architecture type"
+                data={['AWS', 'Azure', 'GCP', 'Hybrid', 'On-Premise']}
+                value={architectureType}
+                onChange={(value) => setArchitectureType(value || '')}
+                required
+              />
+
+              <Textarea
+                label="Prompt"
+                description="Instructions for students (10-2000 characters)"
+                placeholder="Describe what diagram students should create..."
+                minLength={10}
+                maxLength={2000}
+                rows={4}
+                value={prompt}
+                onChange={(e) => setPrompt(e.target.value)}
+                required
+              />
+
+              <Box>
+                <Text size="sm" fw={500} mb={8}>Diagram Editor</Text>
+                <Paper withBorder p="xl" style={{ minHeight: 400, backgroundColor: '#f8f9fa' }}>
+                  <Text c="dimmed" ta="center">
+                    Interactive diagram editor will be implemented here.
+                    Students will drag and drop shapes to create architecture diagrams.
+                  </Text>
+                </Paper>
+              </Box>
+
+              <Group justify="flex-end">
+                <Button variant="outline" onClick={() => router.push(`/labs/${labId}`)}>
+                  Cancel
+                </Button>
+                <Button onClick={handleSaveDiagramTest} loading={saving}>
+                  Save Diagram Test
+                </Button>
+              </Group>
+            </Stack>
+          </Tabs.Panel>
+        </Tabs>
       </Paper>
     </Container>
   );
