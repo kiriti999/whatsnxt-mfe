@@ -229,7 +229,7 @@ const LabDetailPage = () => {
       <Tabs defaultValue="details">
         <Tabs.List>
           <Tabs.Tab value="details">Lab Details</Tabs.Tab>
-          <Tabs.Tab value="pages">Pages ({pages.length})</Tabs.Tab>
+          <Tabs.Tab value="tests">Tests & Questions ({pages.length})</Tabs.Tab>
         </Tabs.List>
 
         <Tabs.Panel value="details" pt="md">
@@ -300,43 +300,120 @@ const LabDetailPage = () => {
           </Paper>
         </Tabs.Panel>
 
-        <Tabs.Panel value="pages" pt="md">
+        <Tabs.Panel value="tests" pt="md">
           <Stack>
             {canEdit && (
-              <Button onClick={handleCreatePage} mb="md">
-                Add New Page
-              </Button>
+              <Group justify="space-between" mb="md">
+                <Box>
+                  <Title order={4}>Tests & Questions</Title>
+                  <Text size="sm" c="dimmed">
+                    Each page can have a question test (MCQ, True/False, Fill in blank) and/or a diagram test
+                  </Text>
+                </Box>
+                <Button onClick={handleCreatePage} leftSection="+" size="md">
+                  Add New Page
+                </Button>
+              </Group>
             )}
 
             {pages.length === 0 ? (
               <Paper shadow="sm" p="xl" withBorder>
-                <Text c="dimmed" ta="center">
-                  No pages yet. Add a page to get started.
-                </Text>
+                <Stack align="center" gap="md">
+                  <Text size="xl" c="dimmed">No pages yet</Text>
+                  <Text c="dimmed" ta="center">
+                    Create your first page to start adding questions and diagram tests
+                  </Text>
+                  {canEdit && (
+                    <Button onClick={handleCreatePage} size="lg">
+                      Create First Page
+                    </Button>
+                  )}
+                </Stack>
               </Paper>
             ) : (
-              pages.map((page, index) => (
-                <Paper key={page.id} shadow="sm" p="md" withBorder>
-                  <Group justify="space-between">
-                    <Box>
-                      <Text fw={700}>Page {page.pageNumber}</Text>
-                      <Group gap="xs" mt="xs">
-                        {page.hasQuestion && <Badge size="sm" color="green">Has Question</Badge>}
-                        {page.hasDiagramTest && <Badge size="sm" color="blue">Has Diagram Test</Badge>}
-                        {!page.hasQuestion && !page.hasDiagramTest && (
-                          <Badge size="sm" color="gray">Empty</Badge>
-                        )}
-                      </Group>
-                    </Box>
-                    <Button
-                      size="sm"
-                      onClick={() => router.push(`/labs/${labId}/pages/${page.id}`)}
-                    >
-                      Edit Page
-                    </Button>
-                  </Group>
-                </Paper>
-              ))
+              <Stack gap="md">
+                {pages.map((page, index) => (
+                  <Paper key={page.id} shadow="sm" p="lg" withBorder>
+                    <Group justify="space-between" align="flex-start" mb="md">
+                      <Box>
+                        <Group gap="sm" mb="xs">
+                          <Text fw={700} size="lg">Page {page.pageNumber}</Text>
+                          {page.hasQuestion && (
+                            <Badge size="md" color="green" variant="light">
+                              Question Test
+                            </Badge>
+                          )}
+                          {page.hasDiagramTest && (
+                            <Badge size="md" color="blue" variant="light">
+                              Diagram Test
+                            </Badge>
+                          )}
+                          {!page.hasQuestion && !page.hasDiagramTest && (
+                            <Badge size="md" color="gray" variant="light">
+                              No Tests
+                            </Badge>
+                          )}
+                        </Group>
+                      </Box>
+                      <Button
+                        variant="filled"
+                        size="sm"
+                        onClick={() => router.push(`/labs/${labId}/pages/${page.id}`)}
+                      >
+                        {page.hasQuestion || page.hasDiagramTest ? 'Edit Tests' : 'Add Tests'}
+                      </Button>
+                    </Group>
+
+                    <Stack gap="sm">
+                      {page.hasQuestion ? (
+                        <Paper bg="green.0" p="md" radius="sm">
+                          <Group gap="xs">
+                            <Text size="sm" fw={600} c="green.9">✓ Question Test</Text>
+                            <Text size="sm" c="dimmed">configured and ready</Text>
+                          </Group>
+                        </Paper>
+                      ) : (
+                        <Paper bg="gray.0" p="md" radius="sm" style={{ border: '1px dashed #dee2e6' }}>
+                          <Group gap="xs">
+                            <Text size="sm" c="dimmed">○ Question Test</Text>
+                            <Text size="sm" c="dimmed">not configured</Text>
+                          </Group>
+                        </Paper>
+                      )}
+
+                      {page.hasDiagramTest ? (
+                        <Paper bg="blue.0" p="md" radius="sm">
+                          <Group gap="xs">
+                            <Text size="sm" fw={600} c="blue.9">✓ Diagram Test</Text>
+                            <Text size="sm" c="dimmed">configured and ready</Text>
+                          </Group>
+                        </Paper>
+                      ) : (
+                        <Paper bg="gray.0" p="md" radius="sm" style={{ border: '1px dashed #dee2e6' }}>
+                          <Group gap="xs">
+                            <Text size="sm" c="dimmed">○ Diagram Test</Text>
+                            <Text size="sm" c="dimmed">not configured</Text>
+                          </Group>
+                        </Paper>
+                      )}
+                    </Stack>
+                  </Paper>
+                ))}
+              </Stack>
+            )}
+
+            {canEdit && pages.length > 0 && (
+              <Paper shadow="sm" p="lg" withBorder bg="blue.0" mt="md">
+                <Group gap="sm">
+                  <Text size="lg">💡</Text>
+                  <Box style={{ flex: 1 }}>
+                    <Text fw={600} mb={4}>Publishing Requirement</Text>
+                    <Text size="sm" c="dimmed">
+                      At least one page must have a question test or diagram test before you can publish this lab.
+                    </Text>
+                  </Box>
+                </Group>
+              </Paper>
             )}
           </Stack>
         </Tabs.Panel>
