@@ -17,6 +17,7 @@ import {
   TextInput,
   Textarea,
   Select,
+  Pagination,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
@@ -44,6 +45,9 @@ const LabDetailPage = () => {
   const [pages, setPages] = useState<LabPage[]>([]);
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  
+  const PAGES_PER_PAGE = 3;
 
   const form = useForm({
     initialValues: {
@@ -200,6 +204,12 @@ const LabDetailPage = () => {
 
   const isPublished = lab.status === 'published';
   const canEdit = lab.status === 'draft';
+  
+  // Pagination calculations
+  const totalPages = Math.ceil(pages.length / PAGES_PER_PAGE);
+  const startIndex = (currentPage - 1) * PAGES_PER_PAGE;
+  const endIndex = startIndex + PAGES_PER_PAGE;
+  const paginatedPages = pages.slice(startIndex, endIndex);
 
   return (
     <Container size="lg" py="xl">
@@ -332,7 +342,7 @@ const LabDetailPage = () => {
               </Paper>
             ) : (
               <Stack gap="md">
-                {pages.map((page, index) => (
+                {paginatedPages.map((page, index) => (
                   <Paper key={page.id} shadow="sm" p="lg" withBorder>
                     <Group justify="space-between" align="flex-start" mb="md">
                       <Box>
@@ -399,6 +409,17 @@ const LabDetailPage = () => {
                     </Stack>
                   </Paper>
                 ))}
+                
+                {totalPages > 1 && (
+                  <Group justify="center" mt="lg">
+                    <Pagination 
+                      total={totalPages} 
+                      value={currentPage} 
+                      onChange={setCurrentPage}
+                      size="md"
+                    />
+                  </Group>
+                )}
               </Stack>
             )}
 
