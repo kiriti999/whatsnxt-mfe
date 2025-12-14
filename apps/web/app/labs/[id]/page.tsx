@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import {
   Container,
   Title,
@@ -18,9 +18,11 @@ import {
   Textarea,
   Select,
   Pagination,
+  ActionIcon,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
+import { IconTrash, IconSearch, IconX } from '@tabler/icons-react';
 import { Lab, LabPage } from '@whatsnxt/core-types';
 import labApi from '@/apis/lab.api';
 
@@ -39,15 +41,37 @@ const ARCHITECTURE_TYPES = ['AWS', 'Azure', 'GCP', 'Hybrid', 'On-Premise'];
 const LabDetailPage = () => {
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const labId = params.id as string;
+
+  // Get URL params for tab and page
+  const urlTab = searchParams.get('tab');
+  const urlPage = searchParams.get('page');
 
   const [lab, setLab] = useState<Lab | null>(null);
   const [pages, setPages] = useState<LabPage[]>([]);
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  
+  const [activeTab, setActiveTab] = useState<string | null>('details');
+  const [searchQuery, setSearchQuery] = useState('');
+
   const PAGES_PER_PAGE = 3;
+
+  // Update state when URL params change
+  useEffect(() => {
+    if (urlTab) {
+      setActiveTab(urlTab);
+    }
+    if (urlPage) {
+      setCurrentPage(parseInt(urlPage, 10));
+    }
+  }, [urlTab, urlPage]);
+
+  // Reset to page 1 when search query changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery]);
 
   const form = useForm({
     initialValues: {
@@ -186,6 +210,30 @@ const LabDetailPage = () => {
     }
   };
 
+  const handleDeletePage = async (pageId: string, pageNumber: number) => {
+    if (!confirm(`Are you sure you want to delete Page ${pageNumber}? This action cannot be undone.`)) {
+      return;
+    }
+
+    try {
+      await labApi.deleteLabPage(labId, pageId);
+      setPages(pages.filter(p => p.id !== pageId));
+      notifications.show({
+        title: 'Success',
+        message: 'Page deleted successfully!',
+        color: 'green',
+      });
+    } catch (error: any) {
+      const errorMessage = error?.response?.data?.message || error?.message || 'Failed to delete page.';
+      notifications.show({
+        title: 'Error',
+        message: errorMessage,
+        color: 'red',
+      });
+      console.error('Failed to delete page:', error);
+    }
+  };
+
   if (loading) {
     return (
       <Container size="lg" py="xl">
@@ -204,12 +252,41 @@ const LabDetailPage = () => {
 
   const isPublished = lab.status === 'published';
   const canEdit = lab.status === 'draft';
-  
-  // Pagination calculations
-  const totalPages = Math.ceil(pages.length / PAGES_PER_PAGE);
+
+  // Search and filter pages based on questions
+  const filteredPages = pages.filter(page => {
+    if (!searchQuery.trim()) return true;
+    const query = searchQuery.toLowerCase();
+    
+    // Search in page number
+    if (page.pageNumber.toString().includes(query)) return true;
+    
+    // Search in questions
+    if (page.questions && page.questions.length > 0) {
+      return page.questions.some((question: any) => 
+        question.questionText?.toLowerCase().includes(query) ||
+        question.type?.toLowerCase().includes(query) ||
+        question.correctAnswer?.toLowerCase().includes(query) ||
+        (question.options && JSON.stringify(question.options).toLowerCase().includes(query))
+      );
+    }
+    
+    // Search in diagram test
+    if (page.diagramTest) {
+      return (
+        page.diagramTest.prompt?.toLowerCase().includes(query) ||
+        page.diagramTest.architectureType?.toLowerCase().includes(query)
+      );
+    }
+    
+    return false;
+  });
+
+  // Pagination calculations (on filtered pages)
+  const totalPages = Math.ceil(filteredPages.length / PAGES_PER_PAGE);
   const startIndex = (currentPage - 1) * PAGES_PER_PAGE;
   const endIndex = startIndex + PAGES_PER_PAGE;
-  const paginatedPages = pages.slice(startIndex, endIndex);
+  const paginatedPages = filteredPages.slice(startIndex, endIndex);
 
   return (
     <Container size="lg" py="xl">
@@ -236,7 +313,7 @@ const LabDetailPage = () => {
         </Group>
       </Group>
 
-      <Tabs defaultValue="details">
+      <Tabs value={activeTab} onChange={setActiveTab}>
         <Tabs.List>
           <Tabs.Tab value="details">Lab Details</Tabs.Tab>
           <Tabs.Tab value="tests">Tests & Questions ({pages.length})</Tabs.Tab>
@@ -317,13 +394,39 @@ const LabDetailPage = () => {
                 <Box>
                   <Title order={4}>Tests & Questions</Title>
                   <Text size="sm" c="dimmed">
-                    Each page can have a question test (MCQ, True/False, Fill in blank) and/or a diagram test
+                    {searchQuery 
+                      ? `Showing ${filteredPages.length} of ${pages.length} pages`
+                      : 'Each page can have a question test (MCQ, True/False, Fill in blank) and/or a diagram test'
+                    }
                   </Text>
                 </Box>
                 <Button onClick={handleCreatePage} leftSection="+" size="md">
                   Add New Page
                 </Button>
               </Group>
+            )}
+
+            {/* Search Bar */}
+            {pages.length > 0 && (
+              <TextInput
+                placeholder="Search questions and tests across all pages..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                leftSection={<IconSearch size={16} />}
+                rightSection={
+                  searchQuery && (
+                    <ActionIcon
+                      variant="subtle"
+                      onClick={() => setSearchQuery('')}
+                      size="sm"
+                    >
+                      <IconX size={16} />
+                    </ActionIcon>
+                  )
+                }
+                size="md"
+                mb="md"
+              />
             )}
 
             {pages.length === 0 ? (
@@ -338,6 +441,19 @@ const LabDetailPage = () => {
                       Create First Page
                     </Button>
                   )}
+                </Stack>
+              </Paper>
+            ) : filteredPages.length === 0 ? (
+              <Paper shadow="sm" p="xl" withBorder bg="gray.0">
+                <Stack align="center" gap="md">
+                  <IconSearch size={48} color="gray" />
+                  <Text size="xl" c="dimmed">No results found</Text>
+                  <Text c="dimmed" ta="center">
+                    No pages match your search "{searchQuery}"
+                  </Text>
+                  <Button variant="subtle" onClick={() => setSearchQuery('')}>
+                    Clear Search
+                  </Button>
                 </Stack>
               </Paper>
             ) : (
@@ -365,56 +481,76 @@ const LabDetailPage = () => {
                           )}
                         </Group>
                       </Box>
-                      <Button
-                        variant="filled"
-                        size="sm"
-                        onClick={() => router.push(`/labs/${labId}/pages/${page.id}`)}
-                      >
-                        {page.hasQuestion || page.hasDiagramTest ? 'Edit Tests' : 'Add Tests'}
-                      </Button>
+                      <Group gap="sm">
+                        {!page.hasQuestion && !page.hasDiagramTest && canEdit && (
+                          <ActionIcon
+                            color="red"
+                            variant="subtle"
+                            onClick={() => handleDeletePage(page.id, page.pageNumber)}
+                            title="Delete Page"
+                          >
+                            <IconTrash size={18} />
+                          </ActionIcon>
+                        )}
+                        <Button
+                          variant="filled"
+                          size="sm"
+                          onClick={() => router.push(`/labs/${labId}/pages/${page.id}?returnPage=${currentPage}`)}
+                        >
+                          {page.hasQuestion || page.hasDiagramTest ? 'Edit Tests' : 'Add Tests'}
+                        </Button>
+                      </Group>
                     </Group>
 
                     <Stack gap="sm">
                       {page.hasQuestion ? (
                         <Paper bg="green.0" p="md" radius="sm">
-                          <Group gap="xs">
-                            <Text size="sm" fw={600} c="green.9">✓ Question Test</Text>
-                            <Text size="sm" c="dimmed">configured and ready</Text>
-                          </Group>
+                          <Stack gap="sm">
+                            <Text size="sm" fw={600} c="green.9" mb={0}>✓ Question Test</Text>
+                            {page.question?.questionText && (
+                              <Text size="sm" c="green.8" lineClamp={2} pl="md">
+                                {page.question.questionText}
+                              </Text>
+                            )}
+                          </Stack>
                         </Paper>
                       ) : (
                         <Paper bg="gray.0" p="md" radius="sm" style={{ border: '1px dashed #dee2e6' }}>
-                          <Group gap="xs">
-                            <Text size="sm" c="dimmed">○ Question Test</Text>
-                            <Text size="sm" c="dimmed">not configured</Text>
-                          </Group>
+                          <Stack gap="sm">
+                            <Text size="sm" c="dimmed" mb={0}>○ Question Test</Text>
+                            <Text size="sm" c="dimmed" pl="md">not configured</Text>
+                          </Stack>
                         </Paper>
                       )}
 
                       {page.hasDiagramTest ? (
                         <Paper bg="blue.0" p="md" radius="sm">
-                          <Group gap="xs">
-                            <Text size="sm" fw={600} c="blue.9">✓ Diagram Test</Text>
-                            <Text size="sm" c="dimmed">configured and ready</Text>
-                          </Group>
+                          <Stack gap="sm">
+                            <Text size="sm" fw={600} c="blue.9" mb={0}>✓ Diagram Test</Text>
+                            {page.diagramTest?.architectureType && (
+                              <Text size="sm" c="blue.8" pl="md">
+                                Architecture: {page.diagramTest.architectureType}
+                              </Text>
+                            )}
+                          </Stack>
                         </Paper>
                       ) : (
                         <Paper bg="gray.0" p="md" radius="sm" style={{ border: '1px dashed #dee2e6' }}>
-                          <Group gap="xs">
-                            <Text size="sm" c="dimmed">○ Diagram Test</Text>
-                            <Text size="sm" c="dimmed">not configured</Text>
-                          </Group>
+                          <Stack gap="sm">
+                            <Text size="sm" c="dimmed" mb={0}>○ Diagram Test</Text>
+                            <Text size="sm" c="dimmed" pl="md">not configured</Text>
+                          </Stack>
                         </Paper>
                       )}
                     </Stack>
                   </Paper>
                 ))}
-                
+
                 {totalPages > 1 && (
                   <Group justify="center" mt="lg">
-                    <Pagination 
-                      total={totalPages} 
-                      value={currentPage} 
+                    <Pagination
+                      total={totalPages}
+                      value={currentPage}
                       onChange={setCurrentPage}
                       size="md"
                     />

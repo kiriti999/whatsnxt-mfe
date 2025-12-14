@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import {
   Container,
   Title,
@@ -18,9 +18,11 @@ import {
   ActionIcon,
   Tabs,
   Textarea,
+  Pagination,
+  Badge,
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
-import { IconTrash } from '@tabler/icons-react';
+import { IconTrash, IconSearch, IconX } from '@tabler/icons-react';
 import labApi from '@/apis/lab.api';
 
 interface Question {
@@ -29,6 +31,8 @@ interface Question {
   type: 'MCQ' | 'True/False' | 'Fill in the blank';
   options: string;
   correctAnswer: string;
+  isEditing?: boolean;
+  isSaved?: boolean;
 }
 
 const QUESTION_TYPES = [
@@ -40,13 +44,20 @@ const QUESTION_TYPES = [
 const LabPageEditorPage = () => {
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const labId = params.id as string;
   const pageId = params.pageId as string;
+  const returnPage = searchParams.get('returnPage') || '1';
 
   const [questions, setQuestions] = useState<Question[]>([]);
   const [enablePracticeTest, setEnablePracticeTest] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [savingQuestionId, setSavingQuestionId] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const QUESTIONS_PER_PAGE = 3;
 
   // Diagram test state
   const [architectureType, setArchitectureType] = useState('');
@@ -63,16 +74,22 @@ const LabPageEditorPage = () => {
       const response = await labApi.getLabPageById(labId, pageId);
       const pageData = response.data;
 
-      // If page has a question, populate the form
-      if (pageData.question) {
-        const q = pageData.question;
-        setQuestions([{
-          id: '1',
-          questionText: q.questionText || '',
-          type: q.type || 'MCQ',
-          options: q.options ? q.options.map((opt: any) => opt.text).join(', ') : '',
-          correctAnswer: q.correctAnswer || '',
-        }]);
+      // If page has questions, populate the form
+      if (pageData.questions && pageData.questions.length > 0) {
+        const loadedQuestions = pageData.questions.map((q: any) => {
+          // Backend stores as 'MCQ', 'True/False', 'Fill in the blank' (same as frontend)
+          return {
+            id: q.id || Date.now().toString(),
+            questionText: q.questionText || '',
+            type: q.type as 'MCQ' | 'True/False' | 'Fill in the blank',
+            options: q.options ? q.options.map((opt: any) => opt.text).join(', ') : '',
+            correctAnswer: q.correctAnswer || '',
+            isEditing: false,
+            isSaved: true,
+          };
+        });
+        
+        setQuestions(loadedQuestions);
       }
 
       // If page has a diagram test, populate the form
@@ -90,24 +107,182 @@ const LabPageEditorPage = () => {
   };
 
   const addQuestion = () => {
+    // Check if we've reached the limit
+    if (questions.length >= 30) {
+      notifications.show({
+        title: 'Limit Reached',
+        message: 'Maximum 30 questions allowed per page',
+        color: 'orange',
+      });
+      return;
+    }
+
     const newQuestion: Question = {
       id: Date.now().toString(),
       questionText: '',
       type: 'MCQ',
       options: '',
       correctAnswer: '',
+      isEditing: true,
+      isSaved: false,
     };
     setQuestions([...questions, newQuestion]);
+    // Navigate to last page if adding would overflow current page
+    const newTotalPages = Math.ceil((questions.length + 1) / QUESTIONS_PER_PAGE);
+    setCurrentPage(newTotalPages);
   };
 
-  const removeQuestion = (id: string) => {
-    setQuestions(questions.filter((q) => q.id !== id));
+  const removeQuestion = async (id: string, isSaved: boolean) => {
+    if (confirm('Are you sure you want to delete this question?')) {
+      if (isSaved) {
+        // If question is saved on backend, delete it from backend
+        try {
+          await labApi.deleteQuestion(labId, pageId, id);
+          notifications.show({
+            title: 'Success',
+            message: 'Question deleted successfully!',
+            color: 'green',
+          });
+        } catch (error: any) {
+          const errorMessage = error?.response?.data?.message || error?.message || 'Failed to delete question.';
+          notifications.show({
+            title: 'Error',
+            message: errorMessage,
+            color: 'red',
+          });
+          console.error('Failed to delete question:', error);
+          return;
+        }
+      }
+      
+      // Remove from local state
+      setQuestions(questions.filter((q) => q.id !== id));
+    }
   };
 
-  const updateQuestion = (id: string, field: keyof Question, value: string) => {
+  const updateQuestion = (id: string, field: keyof Question, value: string | boolean) => {
     setQuestions(
       questions.map((q) => (q.id === id ? { ...q, [field]: value } : q))
     );
+  };
+
+  const toggleEditQuestion = (id: string) => {
+    setQuestions(
+      questions.map((q) => (q.id === id ? { ...q, isEditing: !q.isEditing } : q))
+    );
+  };
+
+  const saveIndividualQuestion = async (questionId: string) => {
+    const question = questions.find(q => q.id === questionId);
+    if (!question) return;
+
+    // Validation
+    if (!question.questionText.trim()) {
+      notifications.show({
+        title: 'Validation Error',
+        message: 'Question text is required',
+        color: 'red',
+      });
+      return;
+    }
+
+    if (question.questionText.trim().length < 5) {
+      notifications.show({
+        title: 'Validation Error',
+        message: 'Question text must be at least 10 characters',
+        color: 'red',
+      });
+      return;
+    }
+
+    if (question.questionText.trim().length > 1000) {
+      notifications.show({
+        title: 'Validation Error',
+        message: 'Question text cannot exceed 1000 characters',
+        color: 'red',
+      });
+      return;
+    }
+
+    if (question.type === 'MCQ' && !question.options.trim()) {
+      notifications.show({
+        title: 'Validation Error',
+        message: 'Options are required for Multiple Choice questions',
+        color: 'red',
+      });
+      return;
+    }
+
+    if (question.type === 'MCQ') {
+      const optionsArray = question.options.split(',').map((opt) => opt.trim()).filter((opt) => opt);
+      if (optionsArray.length < 2) {
+        notifications.show({
+          title: 'Validation Error',
+          message: 'MCQ questions must have at least 2 options',
+          color: 'red',
+        });
+        return;
+      }
+    }
+
+    if (!question.correctAnswer.trim()) {
+      notifications.show({
+        title: 'Validation Error',
+        message: 'Correct answer is required',
+        color: 'red',
+      });
+      return;
+    }
+
+    setSavingQuestionId(questionId);
+    try {
+      // Parse options from comma-separated string
+      let optionsArray: any[] = [];
+      
+      if (question.type === 'MCQ') {
+        optionsArray = question.options.split(',').map((opt) => ({ text: opt.trim() })).filter((opt) => opt.text);
+      } else if (question.type === 'True/False') {
+        optionsArray = [{ text: 'True' }, { text: 'False' }];
+      }
+
+      // Backend expects 'MCQ', 'True/False', or 'Fill in the blank' (same as frontend)
+      const response = await labApi.saveQuestion(labId, pageId, {
+        type: question.type, // Send type as-is, no conversion needed
+        questionText: question.questionText.trim(),
+        options: optionsArray,
+        correctAnswer: question.correctAnswer.trim(),
+        questionId: question.isSaved ? question.id : undefined, // Include questionId if updating
+      });
+
+      // Update question state with the returned ID and mark as saved
+      setQuestions(
+        questions.map((q) => 
+          q.id === questionId 
+            ? { ...q, id: response.data.id, isEditing: false, isSaved: true } 
+            : q
+        )
+      );
+
+      notifications.show({
+        title: 'Success',
+        message: 'Question saved successfully!',
+        color: 'green',
+      });
+    } catch (error: any) {
+      const errorMessage = error?.response?.data?.message || error?.message || 'Failed to save question.';
+      notifications.show({
+        title: 'Error',
+        message: errorMessage,
+        color: 'red',
+      });
+      console.error('Failed to save question:', error);
+    } finally {
+      setSavingQuestionId(null);
+    }
+  };
+
+  const handleBackToTestsAndQuestions = () => {
+    router.push(`/labs/${labId}?tab=tests&page=${returnPage}`);
   };
 
   const handleSaveQuestions = async () => {
@@ -235,20 +410,47 @@ const LabPageEditorPage = () => {
         color: 'green',
       });
 
-      // Navigate back to lab detail page
-      router.push(`/labs/${labId}`);
+      // Navigate back to lab detail page with tab and page params
+      router.push(`/labs/${labId}?tab=tests&page=${returnPage}`);
     } catch (error: any) {
       const errorMessage = error?.response?.data?.message || error?.message || 'Failed to save diagram test.';
+      const details = error?.response?.data?.errors || error?.response?.data?.details;
+      
       notifications.show({
         title: 'Error',
-        message: errorMessage,
+        message: details ? `${errorMessage}: ${JSON.stringify(details)}` : errorMessage,
         color: 'red',
+        autoClose: 8000,
       });
       console.error('Failed to save diagram test:', error);
+      console.error('Error details:', error?.response?.data);
     } finally {
       setSaving(false);
     }
   };
+
+  // Search and filter questions
+  const filteredQuestions = questions.filter(question => {
+    if (!searchQuery.trim()) return true;
+    const query = searchQuery.toLowerCase();
+    return (
+      question.questionText.toLowerCase().includes(query) ||
+      question.type.toLowerCase().includes(query) ||
+      question.correctAnswer.toLowerCase().includes(query) ||
+      (question.options && question.options.toLowerCase().includes(query))
+    );
+  });
+
+  // Pagination calculations (on filtered questions)
+  const totalPages = Math.ceil(filteredQuestions.length / QUESTIONS_PER_PAGE);
+  const startIndex = (currentPage - 1) * QUESTIONS_PER_PAGE;
+  const endIndex = startIndex + QUESTIONS_PER_PAGE;
+  const paginatedQuestions = filteredQuestions.slice(startIndex, endIndex);
+
+  // Reset to page 1 when search query changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery]);
 
   if (loading) {
     return (
@@ -261,11 +463,11 @@ const LabPageEditorPage = () => {
   return (
     <Container size="lg" py="xl">
       <Group justify="space-between" mb="xl">
-        <Button variant="subtle" onClick={() => router.push(`/labs/${labId}`)}>
+        <Button variant="subtle" onClick={handleBackToTestsAndQuestions}>
           ← Back to Lab
         </Button>
         <Group>
-          <Button variant="outline" onClick={() => router.push(`/labs/${labId}`)}>
+          <Button variant="outline" onClick={handleBackToTestsAndQuestions}>
             Cancel
           </Button>
           <Button onClick={handleSaveQuestions} loading={saving}>
@@ -283,103 +485,218 @@ const LabPageEditorPage = () => {
 
           <Tabs.Panel value="question-test" pt="md">
             <Stack gap="xl">
-              {/* Add Question Button */}
-              {questions.length === 0 && (
+              {/* Back to Tests & Questions Button */}
+              <Group justify="flex-start">
+                <Button
+                  variant="subtle"
+                  onClick={handleBackToTestsAndQuestions}
+                  leftSection="←"
+                >
+                  Back to Tests & Questions
+                </Button>
+              </Group>
+
+              {/* Questions Section Header with Add Button */}
+              <Group justify="space-between" align="center">
+                <Box>
+                  <Text size="lg" fw={600}>
+                    Questions ({filteredQuestions.length}/{questions.length})
+                  </Text>
+                  <Text size="sm" c="dimmed">
+                    {searchQuery ? `Showing ${filteredQuestions.length} of ${questions.length} questions` : 'Add up to 30 questions for this page'}
+                  </Text>
+                </Box>
                 <Button
                   variant="outline"
-                  fullWidth
-                  size="lg"
                   onClick={addQuestion}
                   leftSection="+"
+                  disabled={questions.length >= 30}
                 >
                   Add Question
                 </Button>
+              </Group>
+
+              {/* Search Bar */}
+              {questions.length > 0 && (
+                <TextInput
+                  placeholder="Search questions by text, type, answer, or options..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  leftSection={<IconSearch size={16} />}
+                  rightSection={
+                    searchQuery && (
+                      <ActionIcon
+                        variant="subtle"
+                        onClick={() => setSearchQuery('')}
+                        size="sm"
+                      >
+                        <IconX size={16} />
+                      </ActionIcon>
+                    )
+                  }
+                  size="md"
+                />
               )}
 
-          {/* Questions Section */}
-          {questions.length > 0 && (
-            <>
-              <Divider label="Questions" labelPosition="center" />
+              {/* Questions List */}
+              {questions.length === 0 ? (
+                <Paper shadow="sm" p="xl" withBorder bg="gray.0">
+                  <Stack align="center" gap="md">
+                    <Text size="xl" c="dimmed">No questions yet</Text>
+                    <Text c="dimmed" ta="center">
+                      Click "Add Question" above to create your first question
+                    </Text>
+                  </Stack>
+                </Paper>
+              ) : filteredQuestions.length === 0 ? (
+                <Paper shadow="sm" p="xl" withBorder bg="gray.0">
+                  <Stack align="center" gap="md">
+                    <IconSearch size={48} color="gray" />
+                    <Text size="xl" c="dimmed">No questions found</Text>
+                    <Text c="dimmed" ta="center">
+                      No questions match your search "{searchQuery}"
+                    </Text>
+                    <Button variant="subtle" onClick={() => setSearchQuery('')}>
+                      Clear Search
+                    </Button>
+                  </Stack>
+                </Paper>
+              ) : (
+                <>
+                  <Stack gap="xl">
+                    {paginatedQuestions.map((question, index) => {
+                      // Calculate the actual question number from the original list
+                      const originalIndex = questions.findIndex(q => q.id === question.id);
+                      const questionNumber = originalIndex + 1;
+                      const isEditable = question.isEditing || !question.isSaved;
+                      return (
+                        <Paper key={question.id} p="lg" withBorder>
+                          <Group justify="space-between" mb="md">
+                            <Group gap="xs">
+                              <Text fw={600}>
+                                Question {questionNumber}
+                              </Text>
+                              {question.isSaved && (
+                                <Badge size="sm" color="green" variant="light">
+                                  Saved
+                                </Badge>
+                              )}
+                            </Group>
+                            <Group gap="xs">
+                              {question.isSaved && !question.isEditing && (
+                                <Button
+                                  size="xs"
+                                  variant="subtle"
+                                  onClick={() => toggleEditQuestion(question.id)}
+                                >
+                                  Edit
+                                </Button>
+                              )}
+                              <ActionIcon
+                                color="red"
+                                variant="subtle"
+                                onClick={() => removeQuestion(question.id, question.isSaved || false)}
+                                title="Delete Question"
+                              >
+                                <IconTrash size={18} />
+                              </ActionIcon>
+                            </Group>
+                          </Group>
 
-              <Stack gap="xl">
-                {questions.map((question, index) => (
-                  <Paper key={question.id} p="lg" withBorder>
-                    <Group justify="space-between" mb="md">
-                      <Text fw={600}>
-                        Question {index + 1} <span style={{ color: 'red' }}>*</span>
-                      </Text>
-                      <ActionIcon
-                        color="red"
-                        variant="subtle"
-                        onClick={() => removeQuestion(question.id)}
-                      >
-                        <IconTrash size={18} />
-                      </ActionIcon>
-                    </Group>
+                          <Stack gap="md">
+                            <Textarea
+                              label="Question Text"
+                              placeholder="Enter question text (minimum 10 characters)"
+                              value={question.questionText}
+                              onChange={(e) =>
+                                updateQuestion(question.id, 'questionText', e.target.value)
+                              }
+                              required
+                              disabled={!isEditable}
+                              minRows={2}
+                              description="Must be unique within this lab - less than 85% similar to other questions (10-1000 characters)"
+                            />
 
-                    <Stack gap="md">
-                      <TextInput
-                        placeholder="Enter question text"
-                        value={question.questionText}
-                        onChange={(e) =>
-                          updateQuestion(question.id, 'questionText', e.target.value)
-                        }
-                        required
-                      />
+                            <Select
+                              label="Question Type"
+                              data={QUESTION_TYPES}
+                              value={question.type}
+                              onChange={(value) =>
+                                updateQuestion(question.id, 'type', value || 'MCQ')
+                              }
+                              required
+                              disabled={!isEditable}
+                            />
 
-                      <Select
-                        label="Question Type"
-                        data={QUESTION_TYPES}
-                        value={question.type}
-                        onChange={(value) =>
-                          updateQuestion(question.id, 'type', value || 'MCQ')
-                        }
-                        required
-                      />
+                            {question.type === 'MCQ' && (
+                              <Box>
+                                <Text size="sm" fw={500} mb={4}>
+                                  Options (comma separated)
+                                </Text>
+                                <Text size="xs" c="dimmed" mb={8}>
+                                  Enter options separated by commas
+                                </Text>
+                                <TextInput
+                                  placeholder="Option 1, Option 2, Option 3"
+                                  value={question.options}
+                                  onChange={(e) =>
+                                    updateQuestion(question.id, 'options', e.target.value)
+                                  }
+                                  required
+                                  disabled={!isEditable}
+                                />
+                              </Box>
+                            )}
 
-                      {question.type === 'MCQ' && (
-                        <Box>
-                          <Text size="sm" fw={500} mb={4}>
-                            Options (comma separated)
-                          </Text>
-                          <Text size="xs" c="dimmed" mb={8}>
-                            Enter options separated by commas
-                          </Text>
-                          <TextInput
-                            placeholder="Option 1, Option 2, Option 3"
-                            value={question.options}
-                            onChange={(e) =>
-                              updateQuestion(question.id, 'options', e.target.value)
-                            }
-                            required
-                          />
-                        </Box>
-                      )}
+                            <TextInput
+                              label="Correct Answer / Solution"
+                              placeholder="Enter correct answer"
+                              value={question.correctAnswer}
+                              onChange={(e) =>
+                                updateQuestion(question.id, 'correctAnswer', e.target.value)
+                              }
+                              required
+                              disabled={!isEditable}
+                            />
 
-                      <TextInput
-                        label="Correct Answer / Solution"
-                        placeholder="Enter correct answer"
-                        value={question.correctAnswer}
-                        onChange={(e) =>
-                          updateQuestion(question.id, 'correctAnswer', e.target.value)
-                        }
-                        required
-                      />
-                    </Stack>
-                  </Paper>
-                ))}
+                            {isEditable && (
+                              <Group justify="flex-end" mt="sm">
+                                {question.isSaved && (
+                                  <Button
+                                    variant="subtle"
+                                    size="sm"
+                                    onClick={() => toggleEditQuestion(question.id)}
+                                  >
+                                    Cancel
+                                  </Button>
+                                )}
+                                <Button
+                                  size="sm"
+                                  onClick={() => saveIndividualQuestion(question.id)}
+                                  loading={savingQuestionId === question.id}
+                                >
+                                  Save Question
+                                </Button>
+                              </Group>
+                            )}
+                          </Stack>
+                        </Paper>
+                      );
+                    })}
 
-                <Button
-                  variant="outline"
-                  fullWidth
-                  onClick={addQuestion}
-                  leftSection="+"
-                >
-                  Add Question
-                </Button>
-              </Stack>
-            </>
-          )}
+                    {totalPages > 1 && (
+                      <Group justify="center">
+                        <Pagination
+                          total={totalPages}
+                          value={currentPage}
+                          onChange={setCurrentPage}
+                          size="md"
+                        />
+                      </Group>
+                    )}
+                  </Stack>
+                </>
+              )}
 
               {/* Practice Test Configuration */}
               <Divider label="Practice Test Configuration" labelPosition="center" />
@@ -396,6 +713,17 @@ const LabPageEditorPage = () => {
 
           <Tabs.Panel value="diagram-test" pt="md">
             <Stack gap="md">
+              {/* Back to Tests & Questions Button */}
+              <Group justify="flex-start">
+                <Button
+                  variant="subtle"
+                  onClick={handleBackToTestsAndQuestions}
+                  leftSection="←"
+                >
+                  Back to Tests & Questions
+                </Button>
+              </Group>
+
               <Select
                 label="Architecture Type"
                 placeholder="Select architecture type"

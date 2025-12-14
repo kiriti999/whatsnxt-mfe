@@ -46,6 +46,7 @@ export interface CreateQuestionRequest {
   questionText: string;
   options?: Array<{ text: string }>;
   correctAnswer: string;
+  questionId?: string; // For updates
 }
 
 export interface CreateDiagramTestRequest {
@@ -203,9 +204,14 @@ const labApi = {
    * Delete a question from a lab page
    * @param labId - Lab UUID
    * @param pageId - Page UUID
+   * @param questionId - Optional question UUID to delete specific question
    */
-  deleteQuestion: (labId: string, pageId: string) =>
-    http.delete<{ message: string }>(`/labs/${labId}/pages/${pageId}/question`),
+  deleteQuestion: (labId: string, pageId: string, questionId?: string) =>
+    http.delete<{ message: string }>(
+      questionId 
+        ? `/labs/${labId}/pages/${pageId}/question/${questionId}`
+        : `/labs/${labId}/pages/${pageId}/question`
+    ),
 
   /**
    * Save a diagram test for a lab page
