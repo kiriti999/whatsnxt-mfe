@@ -38,7 +38,7 @@ export function renderResizeHandles(
     { cx: 0, cy: shape.height, c: 'sw-resize', k: 'sw' },
     { cx: shape.width, cy: shape.height, c: 'se-resize', k: 'se' }
   ];
-  
+
   handlePositions.forEach(p => {
     element.append('circle')
       .classed('resize-handle', true)
@@ -65,10 +65,10 @@ export function renderShapeLabel(
     // Pool has its own label rendering
     return;
   }
-  
+
   const fontSize = shape.width < 60 ? '11px' : '14px';
   const textColor = shape.fill === '#000000' ? '#FFF' : '#333';
-  
+
   element.append('foreignObject')
     .attr('x', 4)
     .attr('y', 4)
@@ -127,13 +127,13 @@ export function renderDeleteIcon(
         onDelete();
       }
     });
-  
+
   delIcon.append('circle')
     .attr('r', 10)
     .attr('fill', '#e74c3c')
     .attr('stroke', '#fff')
     .attr('stroke-width', 1);
-  
+
   delIcon.append('text')
     .attr('text-anchor', 'middle')
     .attr('dy', '0.35em')
@@ -141,7 +141,7 @@ export function renderDeleteIcon(
     .attr('font-size', '14px')
     .attr('font-weight', 'bold')
     .text('×');
-  
+
   return delIcon;
 }
 
