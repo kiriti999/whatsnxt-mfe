@@ -67,6 +67,10 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
     const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
     const [selectedLinkIndex, setSelectedLinkIndex] = useState<number | null>(null);
 
+    // Drag performance optimization refs
+    const dragRAFRef = useRef<number | null>(null);
+    const pendingDragRef = useRef<{ nodeId: string; x: number; y: number; containedUpdates: { id: string; x: number; y: number }[] } | null>(null);
+
     const [history, setHistory] = useState<{ nodes: NodeType[], links: LinkType[] }[]>([]);
     const [historyIndex, setHistoryIndex] = useState(-1);
 
@@ -122,12 +126,12 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
         nodes.forEach((n, i) => console.log(`  Node[${i}]`, n.id, 'dimensions:', n.width, 'x', n.height));
         if (!svgRef.current) return;
         const svg = d3.select(svgRef.current);
-        
+
         // IMPORTANT: Save current zoom transform before clearing
-        const currentTransform = zoomRef.current ? 
-            d3.zoomTransform(svgRef.current) : 
+        const currentTransform = zoomRef.current ?
+            d3.zoomTransform(svgRef.current) :
             d3.zoomIdentity;
-        
+
         svg.selectAll('*').remove(); // Clear canvas
 
         const width = 800; // Fixed inner width or dynamic
@@ -151,21 +155,21 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
             .filter((event) => {
                 // Block all mouse/pointer drag events (mousedown, mousemove)
                 // We handle node dragging separately, so zoom should not pan
-                if (event.type === 'mousedown' || event.type === 'mousemove' || 
+                if (event.type === 'mousedown' || event.type === 'mousemove' ||
                     event.type === 'pointermove' || event.type === 'pointerdown') {
                     return false; // Block all drag-based pan/zoom
                 }
-                
+
                 // Allow zoom only on wheel if Ctrl/Cmd is pressed
                 if (event.type === 'wheel') {
                     return event.ctrlKey || event.metaKey;
                 }
-                
+
                 // Allow touch events for pinch zoom (multi-touch only)
                 if (event.type === 'touchstart' || event.type === 'touchmove') {
                     return event.touches && event.touches.length > 1;
                 }
-                
+
                 // Block everything else
                 return false;
             })
@@ -176,7 +180,7 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
         zoomRef.current = zoom;
 
         svg.call(zoom).on('dblclick.zoom', null);
-        
+
         // IMPORTANT: Restore the saved transform after setting up zoom
         svg.call(zoom.transform, currentTransform);
         g.attr('transform', currentTransform.toString());
@@ -199,7 +203,7 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
                 // If container, identify contained nodes
                 const currentNodes = nodesRef.current;
                 containedNodesState = [];
-                
+
                 if (['pool', 'group', 'zone', 'container'].includes(d.type || '')) {
                     const containerRect = { x: d.x || 0, y: d.y || 0, w: d.width, h: d.height };
                     currentNodes.forEach(n => {
@@ -220,32 +224,72 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
             .on('drag', (event, d) => {
                 event.sourceEvent.stopPropagation();
                 event.sourceEvent.preventDefault();
-                
+
                 const dx = Math.abs(event.x - dragStartPos.x);
                 const dy = Math.abs(event.y - dragStartPos.y);
                 if (dx > 3 || dy > 3) hasDragged = true;
 
                 const moveDx = event.dx;
                 const moveDy = event.dy;
+
+                // Update data model immediately (needed for correct delta calculations)
                 d.x = event.x;
                 d.y = event.y;
 
-                d3.select(event.sourceEvent.target.parentNode).attr('transform', `translate(${d.x},${d.y})`);
-
+                // Collect contained node updates
+                const containedUpdates: { id: string; x: number; y: number }[] = [];
                 if (containedNodesState.length > 0) {
                     containedNodesState.forEach(item => {
                         const childNode = nodesRef.current.find(n => n.id === item.id);
                         if (childNode) {
                             childNode.x = (childNode.x || 0) + moveDx;
                             childNode.y = (childNode.y || 0) + moveDy;
-                            d3.select(`#node-${childNode.id}`).attr('transform', `translate(${childNode.x},${childNode.y})`);
+                            containedUpdates.push({ id: childNode.id!, x: childNode.x, y: childNode.y });
                         }
+                    });
+                }
+
+                // Store pending drag update
+                pendingDragRef.current = { nodeId: d.id!, x: d.x, y: d.y, containedUpdates };
+
+                // Use RAF to batch DOM updates for smooth 60fps
+                if (!dragRAFRef.current) {
+                    dragRAFRef.current = requestAnimationFrame(() => {
+                        if (pendingDragRef.current) {
+                            const { nodeId, x, y, containedUpdates } = pendingDragRef.current;
+
+                            // Update main node transform
+                            d3.select(`#node-${nodeId}`).attr('transform', `translate(${x},${y})`);
+
+                            // Update contained nodes transforms
+                            containedUpdates.forEach(update => {
+                                d3.select(`#node-${update.id}`).attr('transform', `translate(${update.x},${update.y})`);
+                            });
+
+                            pendingDragRef.current = null;
+                        }
+                        dragRAFRef.current = null;
                     });
                 }
             })
             .on('end', (event, d) => {
                 event.sourceEvent.stopPropagation();
                 event.sourceEvent.preventDefault();
+
+                // Cancel any pending RAF and apply final position immediately
+                if (dragRAFRef.current) {
+                    cancelAnimationFrame(dragRAFRef.current);
+                    dragRAFRef.current = null;
+                }
+                if (pendingDragRef.current) {
+                    const { nodeId, x, y, containedUpdates } = pendingDragRef.current;
+                    d3.select(`#node-${nodeId}`).attr('transform', `translate(${x},${y})`);
+                    containedUpdates.forEach(update => {
+                        d3.select(`#node-${update.id}`).attr('transform', `translate(${update.x},${update.y})`);
+                    });
+                    pendingDragRef.current = null;
+                }
+
                 d3.select(event.sourceEvent.target).attr('cursor', 'grab');
                 if (!hasDragged) {
                     const now = Date.now();
@@ -566,7 +610,7 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
     const addShape = (shapeId: string, x?: number, y?: number) => {
         // Find shape definition from common shapes, architecture-specific shapes, or architecturalShapes
         let shapeDef;
-        
+
         // First, check if it's a common shape (from genericD3Shapes)
         const commonShape = commonShapes.find(s => s.id === shapeId || s.type === shapeId.toLowerCase());
         if (commonShape) {
@@ -584,7 +628,7 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
                 }
             }
         }
-        
+
         if (!shapeDef) {
             console.warn(`Shape definition not found for: ${shapeId}`);
             return;
@@ -615,23 +659,23 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
 
     const handleCanvasDrop = (e: React.DragEvent) => {
         e.preventDefault();
-        
+
         if (!draggingShapeId || !svgRef.current || !zoomRef.current) return;
 
         // Get the SVG element's bounding rect
         const svgRect = svgRef.current.getBoundingClientRect();
-        
+
         // Calculate position relative to SVG
         const clientX = e.clientX - svgRect.left;
         const clientY = e.clientY - svgRect.top;
-        
+
         // Get current zoom transform
         const transform = d3.zoomTransform(svgRef.current);
-        
+
         // Convert screen coordinates to canvas coordinates (accounting for zoom/pan)
         const canvasX = (clientX - transform.x) / transform.k;
         const canvasY = (clientY - transform.y) / transform.k;
-        
+
         // Add shape at drop position
         addShape(draggingShapeId, canvasX, canvasY);
         setDraggingShapeId(null);
@@ -690,7 +734,7 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
             case 'Generic':
             default:
                 // For Generic, return a subset of architecture shapes from genericD3Shapes
-                return Object.values(genericD3Shapes).filter(shape => 
+                return Object.values(genericD3Shapes).filter(shape =>
                     ['client', 'server', 'mobile', 'router', 'firewall', 'database', 'cache', 'loadbalancer', 'api'].includes(shape.type)
                 );
         }
@@ -755,16 +799,16 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
                     {/* Main canvas with common shapes on left */}
                     <Group align="flex-start" gap="sm">
                         {/* Common Shapes - Left Sidebar with ScrollArea */}
-                        <MantinePaper 
-                            withBorder 
-                            p="xs" 
-                            style={{ 
-                                width: 85, 
+                        <MantinePaper
+                            withBorder
+                            p="xs"
+                            style={{
+                                width: 85,
                                 flexShrink: 0,
                             }}
                         >
                             <Text size="xs" fw={600} mb="xs" ta="center">Common</Text>
-                            
+
                             <ScrollArea h="88.5vh" type="always" offsetScrollbars scrollbarSize={8}>
                                 <Stack gap="xs">
                                     {commonShapes.map((shape) => (
@@ -806,8 +850,8 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
 
                         {/* Canvas */}
                         <div style={{ flex: 1 }}>
-                            <div 
-                                ref={wrapperRef} 
+                            <div
+                                ref={wrapperRef}
                                 style={{ position: 'relative', width: '100%', height: '600px', border: '1px solid #ddd', overflow: 'hidden' }}
                                 onDrop={handleCanvasDrop}
                                 onDragOver={handleCanvasDragOver}
