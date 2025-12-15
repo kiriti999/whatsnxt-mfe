@@ -23,6 +23,7 @@ import ShapePreview from './ShapePreview';
 import { genericD3Shapes, ShapeDefinition } from '../../utils/shape-libraries/generic-d3-shapes';
 import { awsD3Shapes, AWSShapeDefinition } from '../../utils/shape-libraries/aws-d3-shapes';
 import { kubernetesD3Shapes, KubernetesShapeDefinition } from '../../utils/shape-libraries/kubernetes-d3-shapes';
+import { addShape } from '@whatsnxt/diagram-core';
 
 // Union type for all shape definitions
 type ArchitectureShapeDefinition = ShapeDefinition | AWSShapeDefinition | KubernetesShapeDefinition;
@@ -79,6 +80,12 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
 
     // Drag and Drop State
     const [draggingShapeId, setDraggingShapeId] = useState<string | null>(null);
+
+    // Dynamic canvas size - Auto-extends on drag
+    // Start with a standard size that fits most screens, but allow expansion
+    const [canvasSize, setCanvasSize] = useState({ width: 1050, height: 800 });
+    const canvasSizeRef = useRef({ width: 1050, height: 800 });
+    const CANVAS_PADDING = 200; // Extra space to add when extending
 
     // Save history
     const saveToHistory = useCallback((newNodes: NodeType[], newLinks: LinkType[]) => {
@@ -265,6 +272,60 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
                             containedUpdates.forEach(update => {
                                 d3.select(`#node-${update.id}`).attr('transform', `translate(${update.x},${update.y})`);
                             });
+
+                            // Check if we need to extend canvas bounds
+                            const nodeRight = x + d.width + CANVAS_PADDING;
+                            const nodeBottom = y + d.height + CANVAS_PADDING;
+
+                            let needsUpdate = false;
+                            let newWidth = canvasSizeRef.current.width;
+                            let newHeight = canvasSizeRef.current.height;
+
+                            if (nodeRight > canvasSizeRef.current.width) {
+                                newWidth = Math.max(nodeRight, canvasSizeRef.current.width + CANVAS_PADDING);
+                                needsUpdate = true;
+                            }
+                            if (nodeBottom > canvasSizeRef.current.height) {
+                                newHeight = Math.max(nodeBottom, canvasSizeRef.current.height + CANVAS_PADDING);
+                                needsUpdate = true;
+                            }
+
+                            if (needsUpdate) {
+                                canvasSizeRef.current = { width: newWidth, height: newHeight };
+                                setCanvasSize({ width: newWidth, height: newHeight });
+                            }
+
+                            // Auto-scroll to keep dragged node visible
+                            if (wrapperRef.current) {
+                                const wrapper = wrapperRef.current;
+                                const transform = zoomRef.current ? d3.zoomTransform(svgRef.current!) : d3.zoomIdentity;
+
+                                // Calculate node position in screen coordinates relative to wrapper
+                                const nodeScreenX = x * transform.k + transform.x - wrapper.scrollLeft;
+                                const nodeScreenY = y * transform.k + transform.y - wrapper.scrollTop;
+                                const nodeScreenRight = nodeScreenX + d.width * transform.k;
+                                const nodeScreenBottom = nodeScreenY + d.height * transform.k;
+
+                                const scrollMargin = 30;
+                                const scrollSpeed = 15;
+
+                                // Scroll right if node is near or beyond right edge
+                                if (nodeScreenRight > wrapper.clientWidth - scrollMargin) {
+                                    wrapper.scrollLeft += scrollSpeed;
+                                }
+                                // Scroll down if node is near or beyond bottom edge
+                                if (nodeScreenBottom > wrapper.clientHeight - scrollMargin) {
+                                    wrapper.scrollTop += scrollSpeed;
+                                }
+                                // Scroll left if node is near or beyond left edge
+                                if (nodeScreenX < scrollMargin) {
+                                    wrapper.scrollLeft = Math.max(0, wrapper.scrollLeft - scrollSpeed);
+                                }
+                                // Scroll up if node is near or beyond top edge
+                                if (nodeScreenY < scrollMargin) {
+                                    wrapper.scrollTop = Math.max(0, wrapper.scrollTop - scrollSpeed);
+                                }
+                            }
 
                             pendingDragRef.current = null;
                         }
@@ -849,25 +910,25 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
                         </MantinePaper>
 
                         {/* Canvas */}
-                        <div style={{ flex: 1 }}>
+                        <div style={{ flex: 1, minWidth: 0 }}>
                             <div
                                 ref={wrapperRef}
-                                style={{ position: 'relative', width: '100%', height: '600px', border: '1px solid #ddd', overflow: 'hidden' }}
+                                style={{ position: 'relative', width: '100%', height: '732px', border: '1px solid #ddd', overflow: 'auto' }}
                                 onDrop={handleCanvasDrop}
                                 onDragOver={handleCanvasDragOver}
                             >
                                 <svg
                                     ref={svgRef}
-                                    width="100%"
-                                    height="100%"
-                                    style={{ background: computedColorScheme === 'dark' ? '#1A1B1E' : '#f8f9fa' }}
+                                    width={canvasSize.width}
+                                    height={canvasSize.height}
+                                    style={{ background: computedColorScheme === 'dark' ? '#1A1B1E' : '#f8f9fa', minWidth: '100%', minHeight: '100%' }}
                                 >
                                     <defs>
                                         <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
                                             <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#e0e0e0" strokeWidth="0.5" />
                                         </pattern>
                                     </defs>
-                                    <rect width="100%" height="100%" fill="url(#grid)" opacity={0.5} />
+                                    <rect width={canvasSize.width} height={canvasSize.height} fill="url(#grid)" opacity={0.5} />
                                 </svg>
 
                                 {/* Floating Controls */}

@@ -576,7 +576,7 @@ const LabPageEditorPage = () => {
   }
 
   return (
-    <Container size="lg" py="xl">
+    <Container size="xl" py="xl">
       <Group justify="space-between" mb="xl">
         <Button variant="subtle" onClick={handleBackToTestsAndQuestions}>
           ← Back to Lab
@@ -868,7 +868,7 @@ const LabPageEditorPage = () => {
 
                 <Group align="flex-start" gap="md">
                   {/* Canvas - DiagramEditor */}
-                  <Box style={{ flex: 1 }}>
+                  <Box style={{ flex: 1, minWidth: 0 }}>
                     {!architectureType ? (
                       <Paper
                         withBorder
