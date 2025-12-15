@@ -83,11 +83,23 @@ const labApi = {
    * Get draft labs for an instructor (paginated)
    * @param instructorId - Instructor UUID
    * @param page - Page number (default: 1)
+   * @param perPage - Items per page (default: 10)
    * @returns Paginated draft labs
    */
-  getDraftLabs: (instructorId: string, page?: number) =>
+  getDraftLabs: (instructorId: string, page?: number, perPage?: number) =>
     http.get<PaginatedResponse<Lab>>('/labs', {
-      params: { instructorId, page },
+      params: { instructorId, page, perPage, status: 'draft' },
+    }),
+
+  /**
+   * Get published labs (paginated)
+   * @param page - Page number (default: 1)
+   * @param perPage - Items per page (default: 10)
+   * @returns Paginated published labs
+   */
+  getPublishedLabs: (page?: number, perPage?: number) =>
+    http.get<PaginatedResponse<Lab>>('/labs', {
+      params: { page, perPage, status: 'published' },
     }),
 
   /**
