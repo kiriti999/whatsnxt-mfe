@@ -1,17 +1,25 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Container, Title, Button, Group, Box, Paper, Text, Pagination, ActionIcon } from '@mantine/core';
+import { Container, Title, Button, Group, Box, Paper, Text, Pagination, ActionIcon, Badge, Progress, Stack } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { modals } from '@mantine/modals';
 import { useRouter } from 'next/navigation';
-import { IconEye, IconEdit } from '@tabler/icons-react';
+import { IconEye, IconEdit, IconTrophy } from '@tabler/icons-react';
 import { Lab } from '@whatsnxt/core-types';
 import labApi from '@/apis/lab.api';
 import useAuth from '@/hooks/Authentication/useAuth';
 
+interface LabWithProgress extends Lab {
+  progress?: {
+    totalPages: number;
+    passedPages: number;
+    percentage: number;
+  };
+}
+
 const LabsPage = () => {
-  const [publishedLabs, setPublishedLabs] = useState<Lab[]>([]);
+  const [publishedLabs, setPublishedLabs] = useState<LabWithProgress[]>([]);
   const [draftLabs, setDraftLabs] = useState<Lab[]>([]);
   const [publishedPage, setPublishedPage] = useState(1);
   const [draftPage, setDraftPage] = useState(1);
@@ -22,13 +30,37 @@ const LabsPage = () => {
   const { user, isAuthenticated } = useAuth();
 
   const isTrainer = isAuthenticated && user?.role === 'trainer';
+  const isStudent = isAuthenticated && user?.role !== 'trainer';
+  const studentId = user?._id || '';
   const instructorId = user?._id || '';
   const pageSize = 3;
 
   const fetchPublishedLabs = async (page: number) => {
     try {
       const response: any = await labApi.getPublishedLabs(page);
-      setPublishedLabs(response.data);
+      const labs = response.data;
+
+      // Fetch progress for each lab if user is a student
+      if (isStudent && studentId) {
+        const labsWithProgress = await Promise.all(
+          labs.map(async (lab: Lab) => {
+            try {
+              const progressResponse = await labApi.getStudentProgress(lab.id, studentId);
+              return {
+                ...lab,
+                progress: progressResponse.data,
+              };
+            } catch (error) {
+              // If no progress found, continue without progress data
+              return lab;
+            }
+          })
+        );
+        setPublishedLabs(labsWithProgress);
+      } else {
+        setPublishedLabs(labs);
+      }
+
       setPublishedTotal(response.total || 0);
     } catch (error: any) {
       const errorMessage = error?.response?.data?.message || error?.message || 'Failed to load published labs.';
@@ -80,7 +112,7 @@ const LabsPage = () => {
     };
 
     loadLabs();
-  }, [isAuthenticated, instructorId, isTrainer, publishedPage, draftPage]);
+  }, [isAuthenticated, instructorId, isTrainer, isStudent, studentId, publishedPage, draftPage]);
 
   if (loading) {
     return (
@@ -89,8 +121,6 @@ const LabsPage = () => {
       </Container>
     );
   }
-
-  console.log('publishedLabs', publishedLabs)
 
   return (
     <Container size="lg" py="xl">
@@ -103,18 +133,43 @@ const LabsPage = () => {
 
       {/* Published Labs Section */}
       <Box mb="xl">
-        <Title order={2} mb="md">Published Labs</Title>
         {publishedLabs.length === 0 ? (
           <Text c="dimmed">No published labs available.</Text>
         ) : (
           <>
             {publishedLabs.map((lab) => (
               <Paper key={lab.id} shadow="xs" p="md" withBorder mb="sm">
-                <Group justify="space-between">
-                  <Box>
-                    <Text fw={700}>{lab.name}</Text>
-                    <Text size="sm" c="dimmed">{lab.description || 'No description'}</Text>
-                    <Text size="xs" c="green">{lab.status.toUpperCase()}</Text>
+                <Group justify="space-between" align="flex-start">
+                  <Box style={{ flex: 1 }}>
+                    <Group mb="xs">
+                      <Text fw={700}>{lab.name}</Text>
+                      {lab.progress && lab.progress.percentage === 100 && (
+                        <Badge color="teal" size="sm" leftSection={<IconTrophy size={12} />}>
+                          Completed
+                        </Badge>
+                      )}
+                    </Group>
+                    <Text size="sm" c="dimmed" mb="sm">{lab.description || 'No description'}</Text>
+
+                    {/* Show progress for students */}
+                    {isStudent && lab.progress && lab.progress.totalPages > 0 && (
+                      <Stack gap="xs">
+                        <Group gap="xs">
+                          <Text size="sm" fw={500}>
+                            Progress: {lab.progress.passedPages}/{lab.progress.totalPages} pages
+                          </Text>
+                          <Text size="sm" fw={700} c={lab.progress.percentage === 100 ? 'teal' : 'blue'}>
+                            {lab.progress.percentage}%
+                          </Text>
+                        </Group>
+                        <Progress
+                          value={lab.progress.percentage}
+                          color={lab.progress.percentage === 100 ? 'teal' : 'blue'}
+                          size="sm"
+                          radius="xl"
+                        />
+                      </Stack>
+                    )}
                   </Box>
                   <ActionIcon
                     variant="subtle"

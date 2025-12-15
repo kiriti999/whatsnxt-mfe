@@ -263,6 +263,52 @@ const labApi = {
     http.get<{ data: DiagramShape[] }>('/diagram-shapes', {
       params: architectureType ? { architectureType } : undefined,
     }),
+
+  /**
+   * Submit student test (questions and/or diagram)
+   * @param labId - Lab ID
+   * @param pageId - Page ID
+   * @param submission - Student submission data
+   * @returns Submission result with score
+   */
+  submitTest: (
+    labId: string,
+    pageId: string,
+    submission: {
+      studentId: string;
+      questionAnswers?: Record<string, string>;
+      diagramAnswer?: any;
+      score: number;
+      passed: boolean;
+    }
+  ) =>
+    http.post<{ message: string; submissionId: string; score: number; passed: boolean }>(
+      `/labs/${labId}/pages/${pageId}/submit`,
+      submission
+    ),
+
+  /**
+   * Get student's previous submission
+   * @param labId - Lab ID
+   * @param pageId - Page ID
+   * @param studentId - Student ID
+   * @returns Previous submission if exists
+   */
+  getSubmission: (labId: string, pageId: string, studentId: string) =>
+    http.get<{ data: any }>(
+      `/labs/${labId}/pages/${pageId}/submit?studentId=${studentId}`
+    ),
+
+  /**
+   * Get student's progress in a lab
+   * @param labId - Lab ID
+   * @param studentId - Student ID
+   * @returns Progress statistics (totalPages, passedPages, percentage)
+   */
+  getStudentProgress: (labId: string, studentId: string) =>
+    http.get<{ data: { totalPages: number; passedPages: number; percentage: number } }>(
+      `/labs/${labId}/progress?studentId=${studentId}`
+    ),
 };
 
 export default labApi;

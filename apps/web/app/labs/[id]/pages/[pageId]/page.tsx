@@ -24,6 +24,8 @@ import { notifications } from '@mantine/notifications';
 import { IconTrash, IconSearch, IconX } from '@tabler/icons-react';
 import labApi from '@/apis/lab.api';
 import DiagramEditor from '@/components/architecture-lab/DiagramEditor';
+import { StudentTestRunner } from '@/components/Lab/StudentTestRunner';
+import useAuth from '@/hooks/Authentication/useAuth';
 
 interface Question {
   id: string;
@@ -45,9 +47,15 @@ const LabPageEditorPage = () => {
   const params = useParams();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { user, isAuthenticated } = useAuth();
+  
   const labId = params.id as string;
   const pageId = params.pageId as string;
   const returnPage = searchParams.get('returnPage') || '1';
+
+  // Determine user role
+  const isStudent = isAuthenticated && user?.role === 'student';
+  const isTrainer = isAuthenticated && user?.role === 'trainer';
 
   const [questions, setQuestions] = useState<Question[]>([]);
   const [enablePracticeTest, setEnablePracticeTest] = useState(false);
@@ -57,6 +65,7 @@ const LabPageEditorPage = () => {
   const [savingQuestionId, setSavingQuestionId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [labStatus, setLabStatus] = useState<'draft' | 'published'>('draft');
+  const [diagramTestData, setDiagramTestData] = useState<any>(null);
 
   const QUESTIONS_PER_PAGE = 3;
 
@@ -105,6 +114,9 @@ const LabPageEditorPage = () => {
         const dt = pageData.diagramTest;
         setPrompt(dt.prompt || '');
         setArchitectureType(dt.architectureType || '');
+
+        // Store diagram test data for student mode
+        setDiagramTestData(dt);
 
         // Transform backend format (shapes/connections) to DiagramEditor format (nodes/links)
         if (dt.expectedDiagramState) {
@@ -551,6 +563,39 @@ const LabPageEditorPage = () => {
     }
   };
 
+  // Student submission handler
+  const handleStudentSubmit = async (submission: {
+    questionAnswers?: Record<string, string>;
+    diagramAnswer?: any;
+    score: number;
+    passed: boolean;
+  }) => {
+    if (!user?._id) {
+      notifications.show({
+        title: 'Error',
+        message: 'You must be logged in to submit',
+        color: 'red',
+      });
+      return;
+    }
+
+    try {
+      await labApi.submitTest(labId, pageId, {
+        studentId: user._id,
+        ...submission,
+      });
+
+      notifications.show({
+        title: 'Success',
+        message: 'Your test has been submitted successfully!',
+        color: 'green',
+      });
+    } catch (error: any) {
+      console.error('Failed to submit test:', error);
+      throw error; // Re-throw to be handled by StudentTestRunner
+    }
+  };
+
   // Search and filter questions
   const filteredQuestions = questions.filter(question => {
     if (!searchQuery.trim()) return true;
@@ -582,20 +627,51 @@ const LabPageEditorPage = () => {
     );
   }
 
+  // Student mode - show test runner
+  if (isStudent && isPublished) {
+    // Transform questions for StudentTestRunner
+    const transformedQuestions = questions.map(q => ({
+      id: q.id,
+      questionText: q.questionText,
+      type: q.type,
+      options: q.options ? q.options.split(',').map(opt => ({ text: opt.trim() })) : [],
+      correctAnswer: q.correctAnswer,
+    }));
+
+    const diagramTestForStudent = diagramTestData ? {
+      id: diagramTestData.id || pageId,
+      prompt: diagramTestData.prompt || '',
+      architectureType: diagramTestData.architectureType || 'Generic',
+      expectedDiagramState: expectedDiagramState,
+    } : undefined;
+
+    return (
+      <StudentTestRunner
+        labId={labId}
+        pageId={pageId}
+        questions={transformedQuestions}
+        diagramTest={diagramTestForStudent}
+        onSubmit={handleStudentSubmit}
+      />
+    );
+  }
+
   return (
     <Container size="xl" py="xl">
       <Group justify="space-between" mb="xl">
         <Button variant="subtle" onClick={handleBackToTestsAndQuestions}>
           ← Back to Lab
         </Button>
-        <Group>
-          <Button variant="outline" onClick={handleBackToTestsAndQuestions}>
-            Cancel
-          </Button>
-          <Button onClick={handleSaveQuestions} loading={saving}>
-            Save Questions
-          </Button>
-        </Group>
+        {!isPublished && (
+          <Group>
+            <Button variant="outline" onClick={handleBackToTestsAndQuestions}>
+              Cancel
+            </Button>
+            <Button onClick={handleSaveQuestions} loading={saving}>
+              Save Questions
+            </Button>
+          </Group>
+        )}
       </Group>
 
       <Paper shadow="sm" p="xl" withBorder>
@@ -827,13 +903,15 @@ const LabPageEditorPage = () => {
               {/* Practice Test Configuration */}
               <Divider label="Practice Test Configuration" labelPosition="center" />
 
-              <Group>
-                <Switch
-                  checked={enablePracticeTest}
-                  onChange={(event) => setEnablePracticeTest(event.currentTarget.checked)}
-                  label="Enable Practice Test"
-                />
-              </Group>
+              {!isPublished && (
+                <Group>
+                  <Switch
+                    checked={enablePracticeTest}
+                    onChange={(event) => setEnablePracticeTest(event.currentTarget.checked)}
+                    label="Enable Practice Test"
+                  />
+                </Group>
+              )}
             </Stack>
           </Tabs.Panel>
 

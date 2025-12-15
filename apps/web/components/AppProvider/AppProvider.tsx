@@ -49,6 +49,8 @@ export default function AppProvider({ children, user }: { children: ReactNode, u
 
   const domain = process.env.NEXT_PUBLIC_MFE_HOST;
 
+  const isStudent = user?.role === 'student';
+  
   const headerProps = {
     links: [
       { title: 'Home', url: `${domain}/`, linkType: '_self' },
@@ -60,7 +62,8 @@ export default function AppProvider({ children, user }: { children: ReactNode, u
     loginMenuLinks: [
       { title: 'My Courses', url: `${domain}/my-courses`, icon: IconCertificate },
       { title: 'Write', url: `${domain}/form`, icon: IconPencil },
-      { title: 'Create Lab', url: `${domain}/lab/create`, icon: IconFlask },
+      // Hide Create Lab for students
+      ...(!isStudent ? [{ title: 'Create Lab', url: `${domain}/lab/create`, icon: IconFlask }] : []),
       {
         title: 'Profile',
         url: ``,
