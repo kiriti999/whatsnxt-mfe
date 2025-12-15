@@ -21,7 +21,7 @@ export interface LabPage extends BaseEntity {
   pageNumber: number;
   hasQuestion: boolean;
   hasDiagramTest: boolean;
-  question?: Question; // Optional: can be embedded or linked
+  questions?: Question; // Optional: can be embedded or linked
   diagramTest?: DiagramTest; // Optional: can be embedded or linked
 }
 

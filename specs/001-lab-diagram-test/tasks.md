@@ -25,9 +25,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Update Lab interface with labType and architectureType in packages/core-types/src/index.d.ts
-- [ ] T002 Add PaginatedResponse interface in packages/core-types/src/index.d.ts
-- [ ] T003 [P] Add CreateLabRequest and UpdateLabRequest types in packages/core-types/src/index.d.ts
+- [X] T001 Update Lab interface with labType and architectureType in packages/core-types/src/index.d.ts
+- [X] T002 Add PaginatedResponse interface in packages/core-types/src/index.d.ts
+- [X] T003 [P] Add CreateLabRequest and UpdateLabRequest types in packages/core-types/src/index.d.ts
 - [ ] T004 [P] Verify MongoDB connection and indexes in apps/whatsnxt-bff/config/database.ts
 - [ ] T005 [P] Convert JavaScript utility files to TypeScript in apps/whatsnxt-bff/app/utils/
 
@@ -39,16 +39,16 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T006 Create Lab model with UUID, status, labType, architectureType in apps/whatsnxt-bff/app/models/lab/Lab.ts
-- [ ] T007 Create LabPage model with UUID, pageNumber, hasQuestion, hasDiagramTest in apps/whatsnxt-bff/app/models/lab/LabPage.ts
-- [ ] T008 Create Question model with UUID, type, questionText, options, correctAnswer in apps/whatsnxt-bff/app/models/lab/Question.ts
-- [ ] T009 Create DiagramTest model with UUID, prompt, expectedDiagramState, architectureType in apps/whatsnxt-bff/app/models/lab/DiagramTest.ts
-- [ ] T010 Create DiagramShape model with UUID, name, type, architectureType, svgPath in apps/whatsnxt-bff/app/models/lab/DiagramShape.ts
-- [ ] T011 Implement string similarity utility using Levenshtein algorithm in apps/whatsnxt-bff/app/utils/stringSimilarity.ts
-- [ ] T012 Create ValidationService with page validation and fuzzy matching in apps/whatsnxt-bff/app/services/ValidationService.ts
-- [ ] T013 Create PaginationService for list pagination in apps/whatsnxt-bff/app/services/PaginationService.ts
-- [ ] T014 Setup API error handling middleware in apps/whatsnxt-bff/app/middleware/errorHandler.ts
-- [ ] T015 Setup validation middleware in apps/whatsnxt-bff/app/middleware/validation.ts
+- [X] T006 Create Lab model with UUID, status, labType, architectureType in apps/whatsnxt-bff/app/models/lab/Lab.ts
+- [X] T007 Create LabPage model with UUID, pageNumber, hasQuestion, hasDiagramTest in apps/whatsnxt-bff/app/models/lab/LabPage.ts
+- [X] T008 Create Question model with UUID, type, questionText, options, correctAnswer in apps/whatsnxt-bff/app/models/lab/Question.ts
+- [X] T009 Create DiagramTest model with UUID, prompt, expectedDiagramState, architectureType in apps/whatsnxt-bff/app/models/lab/DiagramTest.ts
+- [X] T010 Create DiagramShape model with UUID, name, type, architectureType, svgPath in apps/whatsnxt-bff/app/models/lab/DiagramShape.ts
+- [X] T011 Implement string similarity utility using Levenshtein algorithm in apps/whatsnxt-bff/app/utils/stringSimilarity.ts
+- [X] T012 Create ValidationService with page validation and fuzzy matching in apps/whatsnxt-bff/app/services/ValidationService.ts
+- [X] T013 Create PaginationService for list pagination in apps/whatsnxt-bff/app/services/PaginationService.ts
+- [X] T014 Setup API error handling middleware in apps/whatsnxt-bff/app/middleware/errorHandler.ts
+- [X] T015 Setup validation middleware in apps/whatsnxt-bff/app/middleware/validation.ts
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -223,12 +223,12 @@
 
 ### Implementation for User Story 8
 
-- [ ] T084 [US8] Import DiagramEditor component into page editor in apps/web/app/labs/[id]/pages/[pageId]/page.tsx
-- [ ] T085 [US8] Pass shapes to DiagramEditor as toolbar shapes in apps/web/app/labs/[id]/pages/[pageId]/page.tsx
-- [ ] T086 [US8] Implement onExport handler to capture diagram state in apps/web/app/labs/[id]/pages/[pageId]/page.tsx
-- [ ] T087 [US8] Save diagram state to expectedDiagramState on "Save Diagram Test" in apps/web/app/labs/[id]/pages/[pageId]/page.tsx
-- [ ] T088 [US8] Load existing diagram state into DiagramEditor on page load in apps/web/app/labs/[id]/pages/[pageId]/page.tsx
-- [ ] T089 [US8] Add validation to prevent empty diagram saves in apps/web/app/labs/[id]/pages/[pageId]/page.tsx
+- [X] T084 [US8] Import DiagramEditor component into page editor in apps/web/app/labs/[id]/pages/[pageId]/page.tsx
+- [X] T085 [US8] Pass shapes to DiagramEditor as toolbar shapes in apps/web/app/labs/[id]/pages/[pageId]/page.tsx
+- [X] T086 [US8] Implement onExport handler to capture diagram state in apps/web/app/labs/[id]/pages/[pageId]/page.tsx
+- [X] T087 [US8] Save diagram state to expectedDiagramState on "Save Diagram Test" in apps/web/app/labs/[id]/pages/[pageId]/page.tsx
+- [X] T088 [US8] Load existing diagram state into DiagramEditor on page load in apps/web/app/labs/[id]/pages/[pageId]/page.tsx
+- [X] T089 [US8] Add validation to prevent empty diagram saves in apps/web/app/labs/[id]/pages/[pageId]/page.tsx
 
 **Checkpoint**: DiagramEditor fully integrated with save/load functionality
 

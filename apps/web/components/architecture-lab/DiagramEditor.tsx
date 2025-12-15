@@ -3,8 +3,30 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import * as d3 from 'd3';
 import { architecturalShapes, NodeType } from '../../utils/lab-utils';
-import { Button, Group, Paper as MantinePaper, Text, Divider, useComputedColorScheme, ActionIcon, Tooltip } from '@mantine/core';
+import { renderShape } from '../../utils/d3-shape-renderers';
+import {
+    renderSelectionOutline,
+    renderResizeHandles,
+    renderShapeLabel,
+    renderLinkHandle,
+    renderDeleteIcon
+} from './d3-diagram-utils';
+import {
+    createArrowMarkers,
+    renderLink,
+    renderWaypointHandles,
+    calculateConnectionPoints,
+} from '../../utils/d3-link-renderers';
+import { Button, Group, Paper as MantinePaper, Text, Divider, useComputedColorScheme, ActionIcon, Tooltip, Stack } from '@mantine/core';
 import { IconZoomReset } from '@tabler/icons-react';
+import ShapePreview from './ShapePreview';
+import { genericD3Shapes, ShapeDefinition } from '../../utils/shape-libraries/generic-d3-shapes';
+import { awsD3Shapes, AWSShapeDefinition } from '../../utils/shape-libraries/aws-d3-shapes';
+import { kubernetesD3Shapes, KubernetesShapeDefinition } from '../../utils/shape-libraries/kubernetes-d3-shapes';
+
+// Union type for all shape definitions
+type ArchitectureShapeDefinition = ShapeDefinition | AWSShapeDefinition | KubernetesShapeDefinition;
+
 
 interface LinkType {
     source: string; // ID
@@ -17,13 +39,15 @@ interface DiagramEditorProps {
     mode: 'instructor' | 'student';
     onGraphChange?: (json: any) => void;
     className?: string;
+    architectureType?: string;
 }
 
 const DiagramEditor: React.FC<DiagramEditorProps> = ({
     initialGraph,
     mode,
     onGraphChange,
-    className
+    className,
+    architectureType,
 }) => {
     const computedColorScheme = useComputedColorScheme('light');
     const svgRef = useRef<SVGSVGElement>(null);
@@ -42,7 +66,6 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
     // Interaction State
     const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
     const [selectedLinkIndex, setSelectedLinkIndex] = useState<number | null>(null);
-    const [tempLink, setTempLink] = useState<{ x1: number, y1: number, x2: number, y2: number } | null>(null);
 
     const [history, setHistory] = useState<{ nodes: NodeType[], links: LinkType[] }[]>([]);
     const [historyIndex, setHistoryIndex] = useState(-1);
@@ -102,30 +125,8 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
         const height = 600;
 
         // Define Arrow Markers
-        const defs = svg.append('defs');
-        defs.append('marker')
-            .attr('id', 'arrow')
-            .attr('viewBox', '0 -5 10 10')
-            .attr('refX', 8) // adjusted for connection
-            .attr('refY', 0)
-            .attr('markerWidth', 6)
-            .attr('markerHeight', 6)
-            .attr('orient', 'auto')
-            .append('path')
-            .attr('d', 'M0,-5L10,0L0,5')
-            .attr('fill', computedColorScheme === 'dark' ? '#FFF' : '#333');
-
-        defs.append('marker')
-            .attr('id', 'arrow-temp')
-            .attr('viewBox', '0 -5 10 10')
-            .attr('refX', 8)
-            .attr('refY', 0)
-            .attr('markerWidth', 6)
-            .attr('markerHeight', 6)
-            .attr('orient', 'auto')
-            .append('path')
-            .attr('d', 'M0,-5L10,0L0,5')
-            .attr('fill', 'blue');
+        // Arrow markers using isolated renderer
+        createArrowMarkers(svg, computedColorScheme);
 
         // Main Group for Zoom
         const g = svg.append('g');
@@ -163,6 +164,7 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
                 // If container, identify contained nodes
                 const currentNodes = nodesRef.current;
                 containedNodesState = [];
+                
                 if (['pool', 'group', 'zone', 'container'].includes(d.type || '')) {
                     const containerRect = { x: d.x || 0, y: d.y || 0, w: d.width, h: d.height };
                     currentNodes.forEach(n => {
@@ -393,138 +395,54 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
                     }
                 });
 
+
+
+            selection.call(nodeDrag);
+
+            // Render each shape using isolated renderers
             selection.each(function (d) {
                 const el = d3.select(this);
                 const color = computedColorScheme === 'dark' && d.stroke === '#333' ? '#FFF' : d.stroke;
                 const fill = d.fill === 'transparent' ? 'transparent' : d.fill;
 
-                if (['rect', 'group', 'zone'].includes(d.type || '')) {
-                    el.append('rect').attr('width', d.width).attr('height', d.height).attr('fill', fill).attr('stroke', color).attr('stroke-width', d.strokeWidth).attr('rx', d.rx || 0).attr('stroke-dasharray', d.strokeDashArray || '');
-                } else if (d.type === 'circle') {
-                    el.append('circle').attr('cx', d.width / 2).attr('cy', d.height / 2).attr('r', d.width / 2).attr('fill', fill).attr('stroke', color).attr('stroke-width', d.strokeWidth).attr('stroke-dasharray', d.strokeDashArray || '');
-                } else if (d.type === 'path' && d.pathData) {
-                    el.append('path').attr('d', d.pathData).attr('fill', fill).attr('stroke', color).attr('stroke-width', d.strokeWidth);
-                } else if (d.type === 'database') {
-                    el.append('path').attr('d', `M0,${d.height * 0.15} v${d.height * 0.7} c0,${d.height * 0.15} ${d.width},${d.height * 0.15} ${d.width},0 v-${d.height * 0.7}`).attr('fill', fill).attr('stroke', color).attr('stroke-width', 2);
-                    el.append('ellipse').attr('cx', d.width / 2).attr('cy', d.height * 0.15).attr('rx', d.width / 2).attr('ry', d.height * 0.15).attr('fill', fill).attr('stroke', color).attr('stroke-width', 2);
-                    el.append('path').attr('d', `M0,${d.height * 0.15} c0,${d.height * 0.15} ${d.width},${d.height * 0.15} ${d.width},0`).attr('fill', 'none').attr('stroke', color).attr('stroke-width', 2);
-                } else if (d.type === 'diamond') {
-                    el.append('path').attr('d', `M${d.width / 2},0 L${d.width},${d.height / 2} L${d.width / 2},${d.height} L0,${d.height / 2} Z`).attr('fill', fill).attr('stroke', color).attr('stroke-width', 2);
-                } else if (d.type === 'pool') {
-                    const headerWidth = 40;
-                    el.append('rect').attr('width', d.width).attr('height', d.height).attr('fill', d.fill === 'transparent' ? 'transparent' : d.fill).attr('stroke', color).attr('stroke-width', 2);
-                    el.append('rect').attr('x', 0).attr('y', 0).attr('width', headerWidth).attr('height', d.height).attr('fill', '#f0f0f0').attr('stroke', color).attr('stroke-width', 2);
-                    el.append('text').text(d.label).attr('x', -d.height / 2).attr('y', headerWidth / 2).attr('transform', 'rotate(-90)').attr('text-anchor', 'middle').attr('dominant-baseline', 'middle').attr('fill', '#000').style('font-size', '14px').style('pointer-events', 'none');
-                } else if (d.type === 'cloud') {
-                    // Cloud path... retained for simplicity
-                    el.append('path').attr('d', `M${d.width * 0.2},${d.height * 0.6} Q${d.width * 0.1},${d.height * 0.4} ${d.width * 0.3},${d.height * 0.3} Q${d.width * 0.4},${d.height * 0.1} ${d.width * 0.6},${d.height * 0.3} Q${d.width * 0.8},${d.height * 0.1} ${d.width * 0.9},${d.height * 0.4} Q${d.width},${d.height * 0.6} ${d.width * 0.8},${d.height * 0.8} Q${d.width * 0.5},${d.height} ${d.width * 0.2},${d.height * 0.8} Q${d.width * 0.1},${d.height * 0.9} ${d.width * 0.2},${d.height * 0.6} Z`).attr('fill', fill).attr('stroke', color).attr('stroke-width', 2);
+                // Use isolated shape renderer
+                renderShape({ element: el, shape: d, fill, color, architecture: architectureType });
 
-                } else if (d.type === 'cloud') {
-                    // Better cloud path
-                    const w = d.width;
-                    const h = d.height;
-                    const path = `M ${w * 0.2} ${h * 0.6} 
-                                   Q ${w * 0.1} ${h * 0.4} ${w * 0.3} ${h * 0.3} 
-                                   Q ${w * 0.4} ${h * 0.1} ${w * 0.6} ${h * 0.3} 
-                                   Q ${w * 0.8} ${h * 0.1} ${w * 0.9} ${h * 0.4} 
-                                   Q ${w} ${h * 0.6} ${w * 0.8} ${h * 0.8} 
-                                   Q ${w * 0.5} ${h} ${w * 0.2} ${h * 0.8} 
-                                   Q ${w * 0.1} ${h * 0.9} ${w * 0.2} ${h * 0.6} Z`;
-                    el.append('path').attr('d', path).attr('fill', fill).attr('stroke', color).attr('stroke-width', 2);
-
-                } else if (d.type === 'heart') {
-                    const w = d.width;
-                    const h = d.height;
-                    const dPath = `
-                        M ${w / 2} ${h * 0.3}
-                        C ${w / 2} ${h * 0.05}, ${0} ${h * 0.05}, ${0} ${h * 0.4}
-                        C ${0} ${h * 0.65}, ${w * 0.3} ${h * 0.8}, ${w / 2} ${h}
-                        C ${w * 0.7} ${h * 0.8}, ${w} ${h * 0.65}, ${w} ${h * 0.4}
-                        C ${w} ${h * 0.05}, ${w / 2} ${h * 0.05}, ${w / 2} ${h * 0.3}
-                        Z
-                    `;
-                    el.append('path').attr('d', dPath).attr('fill', fill).attr('stroke', color).attr('stroke-width', 2);
-
-                } else if (d.type === 'star') {
-                    const w = d.width;
-                    const h = d.height;
-                    const cx = w / 2;
-                    const cy = h / 2;
-                    const outerRadius = Math.min(w, h) / 2;
-                    const innerRadius = outerRadius / 2;
-                    let dPath = "";
-                    for (let i = 0; i < 10; i++) {
-                        const r = i % 2 === 0 ? outerRadius : innerRadius;
-                        const angle = (Math.PI / 5) * i - Math.PI / 2;
-                        const x = cx + Math.cos(angle) * r;
-                        const y = cy + Math.sin(angle) * r;
-                        dPath += (i === 0 ? "M" : "L") + x + "," + y;
-                    }
-                    dPath += "Z";
-                    el.append('path').attr('d', dPath).attr('fill', fill).attr('stroke', color).attr('stroke-width', 2);
-
-                } else if (d.type === 'container') {
-                    el.append('rect').attr('x', -5).attr('y', -5).attr('width', d.width + 10).attr('height', d.height + 10).attr('fill', 'none');
-                }
-
+                // Render selection outline if selected
                 if (selectedNodeId === d.id) {
-                    el.append('rect').attr('x', -5).attr('y', -5).attr('width', d.width + 10).attr('height', d.height + 10).attr('fill', 'none').attr('stroke', 'blue').attr('stroke-width', 2).attr('stroke-dasharray', '4,2');
-                    const handlePositions = [{ cx: 0, cy: 0, c: 'nw-resize', k: 'nw' }, { cx: d.width, cy: 0, c: 'ne-resize', k: 'ne' }, { cx: 0, cy: d.height, c: 'sw-resize', k: 'sw' }, { cx: d.width, cy: d.height, c: 'se-resize', k: 'se' }];
-                    handlePositions.forEach(p => el.append('circle').classed('resize-handle', true).attr('cx', p.cx).attr('cy', p.cy).attr('r', 4).attr('fill', 'white').attr('stroke', 'blue').attr('stroke-width', 2).attr('cursor', p.c).attr('data-corner', p.k).attr('data-node-id', d.id));
+                    renderSelectionOutline(el, d);
+                    renderResizeHandles(el, d);
                 }
 
-                if (d.type !== 'pool') {
-                    const fontSize = d.width < 60 ? '11px' : '14px';
-                    el.append('foreignObject').attr('x', 4).attr('y', 4).attr('width', d.width - 8).attr('height', d.height - 8).style('pointer-events', 'none').append('xhtml:div').style('width', '100%').style('height', '100%').style('display', 'flex').style('align-items', 'center').style('justify-content', 'center').style('text-align', 'center').style('font-weight', 'bold').style('font-size', fontSize).style('color', d.fill === '#000000' ? '#FFF' : '#333').style('word-wrap', 'break-word').text(d.label);
-                }
+                // Render shape label
+                renderShapeLabel(el, d);
 
-                // Add Link Handle for non-containers
+                // Add link handle for non-containers
                 if (!['pool', 'group', 'zone'].includes(d.type || '')) {
-                    const lh = el.append('circle').classed('link-handle', true).attr('cx', d.width / 2).attr('cy', d.height).attr('r', 8).attr('fill', 'blue').attr('stroke', 'white').attr('stroke-width', 2).attr('opacity', 0).attr('cursor', 'crosshair');
-                    el.on('mouseenter', () => { lh.attr('opacity', 1); delIcon.style('display', 'block'); })
-                        .on('mouseleave', () => { lh.attr('opacity', 0); delIcon.style('display', 'none'); });
+                    const lh = renderLinkHandle(el, d);
+                    el.on('mouseenter', () => {
+                        lh.attr('opacity', 1);
+                        delIcon.style('display', 'block');
+                    }).on('mouseleave', () => {
+                        lh.attr('opacity', 0);
+                        delIcon.style('display', 'none');
+                    });
                 } else {
                     el.on('mouseenter', () => delIcon.style('display', 'block'))
                         .on('mouseleave', () => delIcon.style('display', 'none'));
                 }
 
-                // Delete Icon for Node
-                const delIcon = el.append('g')
-                    .attr('transform', `translate(${d.width}, -10)`) // Floating slightly above top-right
-                    .attr('cursor', 'pointer')
-                    .style('display', 'none')
-                    .on('mousedown', (e) => e.stopPropagation()) // Prevent node drag from catching this
-                    .on('click', (e) => {
-                        e.stopPropagation();
-                        if (confirm('Delete this node?')) {
-                            // Helper to remove node and its links
-                            const nodeId = d.id!;
-                            const newNodes = nodes.filter(n => n.id !== nodeId);
-                            const newLinks = links.filter(l => l.source !== nodeId && l.target !== nodeId);
-
-                            setNodes(newNodes);
-                            setLinks(newLinks);
-                            saveToHistory(newNodes, newLinks);
-                            setSelectedNodeId(null);
-                        }
-                    });
-
-                delIcon.append('circle')
-                    .attr('r', 10)
-                    .attr('fill', '#e74c3c')
-                    .attr('stroke', '#fff')
-                    .attr('stroke-width', 1);
-
-                delIcon.append('text')
-                    .attr('text-anchor', 'middle')
-                    .attr('dy', '0.35em')
-                    .attr('fill', 'white')
-                    .attr('font-size', '14px')
-                    .attr('font-weight', 'bold')
-                    .text('×');
-
+                // Render delete icon
+                const delIcon = renderDeleteIcon(el, d, () => {
+                    const nodeId = d.id!;
+                    const newNodes = nodes.filter(n => n.id !== nodeId);
+                    const newLinks = links.filter(l => l.source !== nodeId && l.target !== nodeId);
+                    setNodes(newNodes);
+                    setLinks(newLinks);
+                    saveToHistory(newNodes, newLinks);
+                    setSelectedNodeId(null);
+                });
             });
-            selection.call(nodeDrag);
         };
 
         // 5. Execution
@@ -536,64 +454,59 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
         // We need to re-implement link rendering here or copy it back.
         // Wait, I removed the link logic in Chunk 1. I need to put it back here!
 
-        const linkGroup = linkLayer; // Alias
-        // ... Re-paste link rendering ...
-        const getWaypointPath = (x1: number, y1: number, x2: number, y2: number, waypoints?: { x: number; y: number }[]) => {
-            if (!waypoints || waypoints.length === 0) {
-                const midX = (x1 + x2) / 2;
-                return { path: `M ${x1} ${y1} L ${midX} ${y1} L ${midX} ${y2} L ${x2} ${y2}`, waypoints: [{ x: midX, y: y1 }, { x: midX, y: y2 }] };
-            }
-            let pathD = `M ${x1} ${y1}`; waypoints.forEach(wp => pathD += ` L ${wp.x} ${wp.y}`); pathD += ` L ${x2} ${y2}`;
-            return { path: pathD, waypoints };
-        };
-
+        // Link Rendering using isolated renderer
+        const linkGroup = linkLayer; // Alias for consistency
         links.forEach((link, i) => {
             const sourceNode = nodes.find(n => n.id === link.source);
             const targetNode = nodes.find(n => n.id === link.target);
             if (!sourceNode || !targetNode) return;
-            // ... connection points logic ...
-            let sx = sourceNode.x || 0, sy = sourceNode.y || 0, tx = targetNode.x || 0, ty = targetNode.y || 0;
-            let x1, y1, x2, y2;
-            if (tx > sx + sourceNode.width) { x1 = sx + sourceNode.width; y1 = sy + sourceNode.height / 2; x2 = tx; y2 = ty + targetNode.height / 2; }
-            else if (tx + targetNode.width < sx) { x1 = sx; y1 = sy + sourceNode.height / 2; x2 = tx + targetNode.width; y2 = ty + targetNode.height / 2; }
-            else if (ty > sy + sourceNode.height) { x1 = sx + sourceNode.width / 2; y1 = sy + sourceNode.height; x2 = tx + targetNode.width / 2; y2 = ty; }
-            else { x1 = sx + sourceNode.width / 2; y1 = sy; x2 = tx + targetNode.width / 2; y2 = ty + targetNode.height; }
 
-            const pathResult = getWaypointPath(x1, y1, x2, y2, link.waypoints);
             const isSelected = selectedLinkIndex === i;
-            const lw = linkGroup.append('g').attr('class', 'link-wrapper');
-            const vp = lw.append('path').attr('d', pathResult.path).attr('class', 'visible-path').attr('stroke', isSelected ? '#3498db' : (computedColorScheme === 'dark' ? '#FFF' : '#333')).attr('stroke-width', isSelected ? 3 : 2).attr('fill', 'none').attr('marker-end', 'url(#arrow)');
-            lw.append('path').attr('d', pathResult.path).attr('stroke', 'transparent').attr('stroke-width', 20).attr('fill', 'none').attr('cursor', 'pointer')
-                .on('click', (e) => { e.stopPropagation(); setSelectedLinkIndex(isSelected ? null : i); setSelectedNodeId(null); });
 
-            // Delete icon
-            const diPos = pathResult.waypoints && pathResult.waypoints.length > 0 ? { x: pathResult.waypoints[0].x, y: pathResult.waypoints[0].y - 20 } : { x: (x1 + x2) / 2, y: (y1 + y2) / 2 };
-            const di = lw.append('g').attr('transform', `translate(${diPos.x},${diPos.y})`).attr('cursor', 'pointer').style('display', 'none').on('click', (e) => { e.stopPropagation(); const nl = links.filter((_, idx) => idx !== i); setLinks(nl); setSelectedLinkIndex(null); saveToHistory(nodes, nl); });
-            di.append('circle').attr('r', 12).attr('fill', '#e74c3c');
-            di.append('text').attr('text-anchor', 'middle').attr('dy', '0.35em').attr('fill', 'white').text('×');
+            // Render link using isolated renderer
+            const { linkWrapper, visiblePath, pathResult } = renderLink(
+                linkGroup,
+                link,
+                i,
+                sourceNode,
+                targetNode,
+                {
+                    isSelected,
+                    colorScheme: computedColorScheme,
+                    onLinkClick: () => {
+                        setSelectedLinkIndex(isSelected ? null : i);
+                        setSelectedNodeId(null);
+                    },
+                    onDeleteClick: () => {
+                        const nl = links.filter((_, idx) => idx !== i);
+                        setLinks(nl);
+                        setSelectedLinkIndex(null);
+                        saveToHistory(nodes, nl);
+                    }
+                }
+            );
 
-            lw.on('mouseenter', () => { if (!isSelected) vp.attr('stroke', '#3498db').attr('stroke-width', 3); di.style('display', 'block'); })
-                .on('mouseleave', () => { if (!isSelected) vp.attr('stroke', computedColorScheme === 'dark' ? '#FFF' : '#333').attr('stroke-width', 2); di.style('display', 'none'); });
-
-            // Waypoint handles
-            if (isSelected && pathResult.waypoints) {
-                pathResult.waypoints.forEach((wp, wpi) => {
-                    const cp = lw.append('circle').attr('cx', wp.x).attr('cy', wp.y).attr('r', 7).attr('fill', '#3498db').attr('stroke', '#FFF').attr('stroke-width', 2).attr('cursor', 'move');
-                    const cd = d3.drag<SVGCircleElement, unknown>().on('drag', function (e) {
-                        const [mx, my] = d3.pointer(e, g.node());
-                        d3.select(this).attr('cx', mx).attr('cy', my);
-                        // Reconstruct path locally for drag viz
-                        let np = `M ${x1} ${y1}`;
-                        pathResult.waypoints!.forEach((w, wi) => { if (wi === wpi) np += ` L ${mx} ${my}`; else np += ` L ${w.x} ${w.y}`; });
-                        np += ` L ${x2} ${y2}`;
-                        vp.attr('d', np); lw.select('path[stroke="transparent"]').attr('d', np);
-                    }).on('end', (e) => {
-                        const [mx, my] = d3.pointer(e, g.node());
-                        const nl = [...links]; const nw = [...(nl[i].waypoints || [])]; nw[wpi] = { x: mx, y: my };
-                        nl[i] = { ...nl[i], waypoints: nw }; setLinks(nl); saveToHistory(nodes, nl);
-                    });
-                    cp.call(cd);
-                });
+            // Render waypoint handles for selected link
+            if (isSelected) {
+                const { x1, y1, x2, y2 } = calculateConnectionPoints(sourceNode, targetNode);
+                renderWaypointHandles(
+                    linkWrapper,
+                    pathResult,
+                    visiblePath,
+                    x1,
+                    y1,
+                    x2,
+                    y2,
+                    (wpi, mx, my) => {
+                        const nl = [...links];
+                        const nw = [...(nl[i].waypoints || [])];
+                        nw[wpi] = { x: mx, y: my };
+                        nl[i] = { ...nl[i], waypoints: nw };
+                        setLinks(nl);
+                        saveToHistory(nodes, nl);
+                    },
+                    g
+                );
             }
         });
 
@@ -605,29 +518,50 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
     }, [nodes, links, selectedNodeId, selectedLinkIndex, computedColorScheme, setEditingNode]);
 
 
-    const handleNodeClick = (id: string) => {
-        // Just select
-        setSelectedNodeId(id === selectedNodeId ? null : id);
-    };
+    const addShape = (shapeId: string) => {
+        // Find shape definition from common shapes, architecture-specific shapes, or architecturalShapes
+        let shapeDef;
+        
+        // First, check if it's a common shape (from genericD3Shapes)
+        const commonShape = commonShapes.find(s => s.id === shapeId || s.type === shapeId.toLowerCase());
+        if (commonShape) {
+            shapeDef = commonShape;
+        } else {
+            // Check if it's an architecture-specific shape
+            const archShape = architectureSpecificShapes.find(s => s.id === shapeId || s.type === shapeId.toLowerCase());
+            if (archShape) {
+                shapeDef = archShape;
+            } else {
+                // Try to find in architecturalShapes (legacy/fallback)
+                const type = Object.keys(architecturalShapes).find(k => k.toLowerCase() === shapeId.toLowerCase());
+                if (type) {
+                    shapeDef = architecturalShapes[type];
+                }
+            }
+        }
+        
+        if (!shapeDef) {
+            console.warn(`Shape definition not found for: ${shapeId}`);
+            return;
+        }
 
-    const addShape = (type: string) => {
-        const shapeDef = architecturalShapes[type];
-        if (!shapeDef) return;
-
+        // Create new node with only the properties needed by NodeType
         const newNode: NodeType = {
-            ...shapeDef,
             id: Date.now().toString(),
             x: 50 + Math.random() * 50,
             y: 50 + Math.random() * 50,
             type: shapeDef.type || 'rect',
-            label: shapeDef.label || 'Node',
+            label: shapeDef.name || shapeDef.label || 'Node',
             width: shapeDef.width || 50,
             height: shapeDef.height || 50,
             fill: shapeDef.fill || '#fff',
             stroke: shapeDef.stroke || '#000',
             strokeWidth: shapeDef.strokeWidth || 1,
+            rx: shapeDef.rx,
+            strokeDashArray: shapeDef.strokeDashArray,
+            pathData: shapeDef.pathData,
         };
-        console.log('Adding new shape:', newNode.type, 'pathData:', newNode.pathData);
+        console.log('Adding new shape:', newNode.type, 'label:', newNode.label);
 
         const newNodes = [...nodes, newNode];
         setNodes(newNodes);
@@ -670,113 +604,264 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
     };
 
 
+    // Common shapes (left sidebar) - directly from genericD3Shapes metadata
+    const commonShapes = Object.values(genericD3Shapes);
+
+    // Architecture-specific shapes based on architectureType - load from respective libraries
+    const getArchitectureShapes = (): ArchitectureShapeDefinition[] => {
+        switch (architectureType) {
+            case 'AWS':
+                return Object.values(awsD3Shapes);
+            case 'Kubernetes':
+                return Object.values(kubernetesD3Shapes);
+            case 'Generic':
+            default:
+                // For Generic, return a subset of architecture shapes from genericD3Shapes
+                return Object.values(genericD3Shapes).filter(shape => 
+                    ['client', 'server', 'mobile', 'router', 'firewall', 'database', 'cache', 'loadbalancer', 'api'].includes(shape.type)
+                );
+        }
+    };
+
+    const architectureSpecificShapes = getArchitectureShapes();
+
     return (
         <div className={className}>
             {mode === 'instructor' && (
-                <MantinePaper p="md" mb="md" withBorder>
-                    <Group justify="space-between" mb="xs">
-                        <Text size="sm" fw={500}>D3 Component Palette</Text>
-                        <Group gap="xs">
-                            <Button size="xs" color="red" variant="subtle" onClick={clearGraph}>Clear</Button>
-                            <Divider orientation="vertical" />
-                            <Button size="xs" variant="outline" onClick={undo} disabled={historyIndex <= 0}>Undo</Button>
-                            <Button size="xs" variant="outline" onClick={redo} disabled={historyIndex >= history.length - 1}>Redo</Button>
+                <>
+                    {/* Architecture-specific shapes - Top Bar */}
+                    <MantinePaper withBorder p="md" mb="md">
+                        <Group justify="space-between" mb="sm">
+                            <Group gap="xs">
+                                <Text size="sm" fw={600}>Architecture Shapes</Text>
+                                <Text size="xs" c="dimmed">(Drag to canvas)</Text>
+                            </Group>
+                            <Group gap="xs">
+                                <Button size="xs" color="red" variant="subtle" onClick={clearGraph}>Clear</Button>
+                                <Divider orientation="vertical" />
+                                <Button size="xs" variant="outline" onClick={undo} disabled={historyIndex <= 0}>Undo</Button>
+                                <Button size="xs" variant="outline" onClick={redo} disabled={historyIndex >= history.length - 1}>Redo</Button>
+                            </Group>
                         </Group>
+
+                        <Group gap="md" style={{ flexWrap: 'wrap' }}>
+                            {architectureSpecificShapes.map((shape) => (
+                                <Tooltip key={shape.id} label={shape.name} position="bottom" withArrow>
+                                    <MantinePaper
+                                        p="xs"
+                                        withBorder
+                                        style={{
+                                            cursor: 'pointer',
+                                            textAlign: 'center',
+                                            backgroundColor: '#fafafa',
+                                            transition: 'transform 0.2s',
+                                        }}
+                                        onMouseEnter={(e) => {
+                                            e.currentTarget.style.transform = 'scale(1.05)';
+                                        }}
+                                        onMouseLeave={(e) => {
+                                            e.currentTarget.style.transform = 'scale(1)';
+                                        }}
+                                        onClick={() => addShape(shape.id)}
+                                    >
+                                        <ShapePreview shape={shape} size={30} />
+                                    </MantinePaper>
+                                </Tooltip>
+                            ))}
+                        </Group>
+                    </MantinePaper>
+
+                    {/* Main canvas with common shapes on left */}
+                    <Group align="flex-start" gap="sm">
+                        {/* Common Shapes - Left Sidebar */}
+                        <MantinePaper withBorder p="xs" style={{ width: 70, flexShrink: 0 }}>
+                            <Text size="xs" fw={600} mb="xs" ta="center">Common</Text>
+                            
+                            <Stack gap="xs">
+                                {commonShapes.map((shape) => (
+                                    <Tooltip key={shape.id} label={shape.name} position="right" withArrow>
+                                        <MantinePaper
+                                            p={4}
+                                            withBorder
+                                            style={{
+                                                cursor: 'pointer',
+                                                backgroundColor: '#fafafa',
+                                                transition: 'transform 0.2s',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                            }}
+                                            onMouseEnter={(e) => {
+                                                e.currentTarget.style.transform = 'scale(1.08)';
+                                            }}
+                                            onMouseLeave={(e) => {
+                                                e.currentTarget.style.transform = 'scale(1)';
+                                            }}
+                                            onClick={() => addShape(shape.id)}
+                                        >
+                                            <ShapePreview shape={shape} size={30} architecture={architectureType} />
+                                        </MantinePaper>
+                                    </Tooltip>
+                                ))}
+                            </Stack>
+                        </MantinePaper>
+
+                        {/* Canvas */}
+                        <div style={{ flex: 1 }}>
+                            <div ref={wrapperRef} style={{ position: 'relative', width: '100%', height: '600px', border: '1px solid #ddd', overflow: 'hidden' }}>
+                                <svg
+                                    ref={svgRef}
+                                    width="100%"
+                                    height="100%"
+                                    style={{ background: computedColorScheme === 'dark' ? '#1A1B1E' : '#f8f9fa' }}
+                                >
+                                    <defs>
+                                        <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+                                            <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#e0e0e0" strokeWidth="0.5" />
+                                        </pattern>
+                                    </defs>
+                                    <rect width="100%" height="100%" fill="url(#grid)" opacity={0.5} />
+                                </svg>
+
+                                {/* Floating Controls */}
+                                <div style={{ position: 'absolute', top: 10, right: 10, zIndex: 100 }}>
+                                    <Tooltip label="Reset Zoom">
+                                        <ActionIcon variant="default" size="lg" onClick={resetZoom} bg="var(--mantine-color-body)">
+                                            <IconZoomReset size={20} />
+                                        </ActionIcon>
+                                    </Tooltip>
+                                </div>
+
+                                {/* React Overlay Input for Text Editing */}
+                                {editingNode && (
+                                    <input
+                                        type="text"
+                                        defaultValue={editingNode.label}
+                                        autoFocus
+                                        onFocus={(e) => e.target.select()}
+                                        style={{
+                                            position: 'absolute',
+                                            left: editingNode.x - 60,
+                                            top: editingNode.y - 14,
+                                            width: '120px',
+                                            height: '28px',
+                                            textAlign: 'center',
+                                            fontSize: '14px',
+                                            fontWeight: 'bold',
+                                            border: '2px solid #228be6',
+                                            borderRadius: '4px',
+                                            outline: 'none',
+                                            zIndex: 1000,
+                                            boxShadow: '0 2px 10px rgba(0,0,0,0.1)'
+                                        }}
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter') {
+                                                const newLabel = e.currentTarget.value;
+                                                const newNodes = nodes.map(n =>
+                                                    n.id === editingNode.id ? { ...n, label: newLabel } : n
+                                                );
+                                                setNodes(newNodes);
+                                                saveToHistory(newNodes, links);
+                                                setEditingNode(null);
+                                            } else if (e.key === 'Escape') {
+                                                setEditingNode(null);
+                                            }
+                                        }}
+                                        onBlur={(e) => {
+                                            const newLabel = e.currentTarget.value;
+                                            if (newLabel !== editingNode.label) {
+                                                const newNodes = nodes.map(n =>
+                                                    n.id === editingNode.id ? { ...n, label: newLabel } : n
+                                                );
+                                                setNodes(newNodes);
+                                                saveToHistory(newNodes, links);
+                                            }
+                                            setEditingNode(null);
+                                        }}
+                                    />
+                                )}
+                            </div>
+                        </div>
                     </Group>
-                    <Group>
-                        <Button size="xs" variant="light" onClick={() => addShape('Server')}>Add Server</Button>
-                        <Button size="xs" variant="light" onClick={() => addShape('Database')}>Add DB</Button>
-                        <Button size="xs" variant="light" onClick={() => addShape('LoadBalancer')}>Add LB</Button>
-                        <Button size="xs" variant="light" onClick={() => addShape('Client')}>Add Client</Button>
-                        <Divider orientation="vertical" />
-                        <Button size="xs" variant="outline" color="blue" onClick={() => addShape('Kubernetes')}>K8s</Button>
-                        <Button size="xs" variant="outline" color="dark" onClick={() => addShape('Nextjs')}>Next.js</Button>
-                        <Button size="xs" variant="outline" color="cyan" onClick={() => addShape('React')}>React</Button>
-                        <Button size="xs" variant="outline" color="blue" onClick={() => addShape('Docker')}>Docker</Button>
-                        <Divider orientation="vertical" />
-                        <Button size="xs" variant="filled" color="grape" onClick={() => addShape('Group')}>Group</Button>
-                        <Button size="xs" variant="filled" color="grape" onClick={() => addShape('Zone')}>Zone</Button>
-                        <Button size="xs" variant="filled" color="indigo" onClick={() => addShape('Pool')}>Pool</Button>
-                        <Button size="xs" variant="filled" color="red" onClick={() => addShape('Heart')}>Heart</Button>
-                        <Button size="xs" variant="filled" color="yellow" onClick={() => addShape('Star')}>Star</Button>
-                        <Button size="xs" variant="filled" color="cyan" onClick={() => addShape('Cloud')}>Cloud</Button>
-                    </Group>
-                </MantinePaper>
+                </>
             )}
 
-            <div ref={wrapperRef} style={{ position: 'relative', width: '100%', height: '600px', border: '1px solid #ddd', overflow: 'hidden' }}>
-                <svg
-                    ref={svgRef}
-                    width="100%"
-                    height="100%"
-                    style={{ background: computedColorScheme === 'dark' ? '#1A1B1E' : '#f8f9fa' }}
-                >
-                    <defs>
-                        <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
-                            <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#e0e0e0" strokeWidth="0.5" />
-                        </pattern>
-                    </defs>
-                    <rect width="100%" height="100%" fill="url(#grid)" opacity={0.5} />
-                </svg>
+            {mode === 'student' && (
+                <div ref={wrapperRef} style={{ position: 'relative', width: '100%', height: '600px', border: '1px solid #ddd', overflow: 'hidden' }}>
+                    <svg
+                        ref={svgRef}
+                        width="100%"
+                        height="100%"
+                        style={{ background: computedColorScheme === 'dark' ? '#1A1B1E' : '#f8f9fa' }}
+                    >
+                        <defs>
+                            <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+                                <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#e0e0e0" strokeWidth="0.5" />
+                            </pattern>
+                        </defs>
+                        <rect width="100%" height="100%" fill="url(#grid)" opacity={0.5} />
+                    </svg>
 
-                {/* Floating Controls */}
-                <div style={{ position: 'absolute', top: 10, right: 10, zIndex: 100 }}>
-                    <Tooltip label="Reset Zoom">
-                        <ActionIcon variant="default" size="lg" onClick={resetZoom} bg="var(--mantine-color-body)">
-                            <IconZoomReset size={20} />
-                        </ActionIcon>
-                    </Tooltip>
-                </div>
+                    {/* Floating Controls */}
+                    <div style={{ position: 'absolute', top: 10, right: 10, zIndex: 100 }}>
+                        <Tooltip label="Reset Zoom">
+                            <ActionIcon variant="default" size="lg" onClick={resetZoom} bg="var(--mantine-color-body)">
+                                <IconZoomReset size={20} />
+                            </ActionIcon>
+                        </Tooltip>
+                    </div>
 
-                {/* React Overlay Input for Text Editing */}
-                {editingNode && (
-                    <input
-                        type="text"
-                        defaultValue={editingNode.label}
-                        autoFocus
-                        onFocus={(e) => e.target.select()}
-                        style={{
-                            position: 'absolute',
-                            left: editingNode.x - 60, // x is already node center in screen coords
-                            top: editingNode.y - 14, // y is already node center in screen coords
-                            width: '120px',
-                            height: '28px',
-                            textAlign: 'center',
-                            fontSize: '14px',
-                            fontWeight: 'bold',
-                            border: '2px solid #228be6',
-                            borderRadius: '4px',
-                            outline: 'none',
-                            zIndex: 1000,
-                            boxShadow: '0 2px 10px rgba(0,0,0,0.1)'
-                        }}
-                        onKeyDown={(e) => {
-                            if (e.key === 'Enter') {
+                    {/* React Overlay Input for Text Editing */}
+                    {editingNode && (
+                        <input
+                            type="text"
+                            defaultValue={editingNode.label}
+                            autoFocus
+                            onFocus={(e) => e.target.select()}
+                            style={{
+                                position: 'absolute',
+                                left: editingNode.x - 60,
+                                top: editingNode.y - 14,
+                                width: '120px',
+                                height: '28px',
+                                textAlign: 'center',
+                                fontSize: '14px',
+                                fontWeight: 'bold',
+                                border: '2px solid #228be6',
+                                borderRadius: '4px',
+                                outline: 'none',
+                                zIndex: 1000,
+                                boxShadow: '0 2px 10px rgba(0,0,0,0.1)'
+                            }}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                    const newLabel = e.currentTarget.value;
+                                    const newNodes = nodes.map(n =>
+                                        n.id === editingNode.id ? { ...n, label: newLabel } : n
+                                    );
+                                    setNodes(newNodes);
+                                    saveToHistory(newNodes, links);
+                                    setEditingNode(null);
+                                } else if (e.key === 'Escape') {
+                                    setEditingNode(null);
+                                }
+                            }}
+                            onBlur={(e) => {
                                 const newLabel = e.currentTarget.value;
-                                const newNodes = nodes.map(n =>
-                                    n.id === editingNode.id ? { ...n, label: newLabel } : n
-                                );
-                                setNodes(newNodes);
-                                saveToHistory(newNodes, links);
+                                if (newLabel !== editingNode.label) {
+                                    const newNodes = nodes.map(n =>
+                                        n.id === editingNode.id ? { ...n, label: newLabel } : n
+                                    );
+                                    setNodes(newNodes);
+                                    saveToHistory(newNodes, links);
+                                }
                                 setEditingNode(null);
-                            } else if (e.key === 'Escape') {
-                                setEditingNode(null);
-                            }
-                        }}
-                        onBlur={(e) => {
-                            const newLabel = e.currentTarget.value;
-                            if (newLabel !== editingNode.label) {
-                                const newNodes = nodes.map(n =>
-                                    n.id === editingNode.id ? { ...n, label: newLabel } : n
-                                );
-                                setNodes(newNodes);
-                                saveToHistory(newNodes, links);
-                            }
-                            setEditingNode(null);
-                        }}
-                    />
-                )}
-            </div>
+                            }}
+                        />
+                    )}
+                </div>
+            )}
+
             {mode === 'student' && (
                 <Text size="xs" c="dimmed" mt="xs">
                     Click a node to select (blue outline), then click another node to link them. Drag to move.

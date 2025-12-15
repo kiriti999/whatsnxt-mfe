@@ -197,3 +197,60 @@ export const validateGraph = (masterJson: any, studentJson: any) => {
         details: `${correctLinks}/${totalMasterLinks} correct connections`
     };
 };
+
+/**
+ * Shape definition for architecture-specific shapes
+ */
+export interface ArchitectureShape {
+    id: string;
+    name: string;
+    type: string;
+    width: number;
+    height: number;
+}
+
+/**
+ * Get architecture-specific shapes based on architecture type
+ * @param architectureType - 'AWS', 'Kubernetes', or 'Generic'
+ * @returns Array of architecture-specific shape definitions
+ */
+export function getArchitectureSpecificShapes(architectureType: string): ArchitectureShape[] {
+    if (architectureType === 'AWS') {
+        return [
+            { id: 'ec2', name: 'EC2', type: 'rect', width: 80, height: 80 },
+            { id: 'lambda', name: 'Lambda', type: 'rect', width: 80, height: 80 },
+            { id: 's3', name: 'S3', type: 'rect', width: 80, height: 70 },
+            { id: 'rds', name: 'RDS', type: 'database', width: 80, height: 80 },
+            { id: 'dynamodb', name: 'DynamoDB', type: 'database', width: 80, height: 80 },
+            { id: 'vpc', name: 'VPC', type: 'group', width: 500, height: 400 },
+            { id: 'elb', name: 'ELB', type: 'diamond', width: 80, height: 80 },
+            { id: 'cloudfront', name: 'CloudFront', type: 'circle', width: 80, height: 80 },
+            { id: 'iam', name: 'IAM', type: 'rect', width: 80, height: 60 },
+        ];
+    } else if (architectureType === 'Kubernetes') {
+        return [
+            { id: 'pod', name: 'Pod', type: 'rect', width: 80, height: 80 },
+            { id: 'deployment', name: 'Deployment', type: 'rect', width: 90, height: 90 },
+            { id: 'service', name: 'Service', type: 'circle', width: 80, height: 80 },
+            { id: 'ingress', name: 'Ingress', type: 'diamond', width: 80, height: 80 },
+            { id: 'persistentvolume', name: 'PersistentVolume', type: 'database', width: 80, height: 80 },
+            { id: 'configmap', name: 'ConfigMap', type: 'rect', width: 80, height: 60 },
+            { id: 'secret', name: 'Secret', type: 'rect', width: 80, height: 60 },
+            { id: 'namespace', name: 'Namespace', type: 'group', width: 500, height: 400 },
+            { id: 'node', name: 'Node', type: 'rect', width: 300, height: 250 },
+        ];
+    } else {
+        // Generic architecture shapes with professional D3 rendering
+        return [
+            { id: 'client', name: 'Client', type: 'rect', width: 80, height: 70 },
+            { id: 'server', name: 'Server', type: 'rect', width: 80, height: 90 },
+            { id: 'mobile', name: 'Mobile', type: 'rect', width: 60, height: 100 },
+            { id: 'router', name: 'Router', type: 'rect', width: 90, height: 70 },
+            { id: 'firewall', name: 'Firewall', type: 'rect', width: 80, height: 90 },
+            { id: 'database', name: 'Database', type: 'database', width: 80, height: 80 },
+            { id: 'cache', name: 'Cache', type: 'database', width: 80, height: 70 },
+            { id: 'loadbalancer', name: 'Load Balancer', type: 'diamond', width: 80, height: 80 },
+            { id: 'api', name: 'API', type: 'rect', width: 80, height: 60 },
+        ];
+    }
+}

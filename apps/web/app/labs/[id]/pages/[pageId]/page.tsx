@@ -4,7 +4,6 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import {
   Container,
-  Title,
   Button,
   Group,
   Box,
@@ -24,6 +23,7 @@ import {
 import { notifications } from '@mantine/notifications';
 import { IconTrash, IconSearch, IconX } from '@tabler/icons-react';
 import labApi from '@/apis/lab.api';
+import DiagramEditor from '@/components/architecture-lab/DiagramEditor';
 
 interface Question {
   id: string;
@@ -64,6 +64,7 @@ const LabPageEditorPage = () => {
   const [prompt, setPrompt] = useState('');
   const [expectedDiagramState, setExpectedDiagramState] = useState<any>(null);
 
+
   useEffect(() => {
     fetchPageData();
   }, [pageId]);
@@ -88,7 +89,7 @@ const LabPageEditorPage = () => {
             isSaved: true,
           };
         });
-        
+
         setQuestions(loadedQuestions);
       }
 
@@ -97,10 +98,56 @@ const LabPageEditorPage = () => {
         const dt = pageData.diagramTest;
         setPrompt(dt.prompt || '');
         setArchitectureType(dt.architectureType || '');
-        setExpectedDiagramState(dt.expectedDiagramState || null);
+
+        // Transform backend format (shapes/connections) to DiagramEditor format (nodes/links)
+        if (dt.expectedDiagramState) {
+          console.log('Loading diagram state from backend:', dt.expectedDiagramState);
+          const transformedState = {
+            nodes: (dt.expectedDiagramState.shapes || []).map((shape: any) => {
+              console.log('Transforming shape:', shape);
+              return {
+                id: shape.shapeId,
+                shapeId: shape.shapeId,
+                x: shape.x,
+                y: shape.y,
+                width: shape.width,
+                height: shape.height,
+                rotation: shape.rotation || 0,
+                label: shape.label || '',
+                // Restore ALL rendering properties from metadata
+                type: shape.metadata?.type,
+                fill: shape.metadata?.fill,
+                stroke: shape.metadata?.stroke,
+                strokeWidth: shape.metadata?.strokeWidth,
+                strokeDashArray: shape.metadata?.strokeDashArray,
+                pathData: shape.metadata?.pathData,
+                rx: shape.metadata?.rx,
+                metadata: shape.metadata || {},
+              };
+            }),
+            links: (dt.expectedDiagramState.connections || []).map((conn: any) => ({
+              id: conn.id,
+              source: conn.sourceShapeId,
+              target: conn.targetShapeId,
+              type: conn.type || 'arrow',
+              label: conn.label || '',
+              waypoints: conn.metadata?.waypoints || [],
+            })),
+          };
+          console.log('Transformed state for DiagramEditor:', transformedState);
+          setExpectedDiagramState(transformedState);
+        } else {
+          setExpectedDiagramState(null);
+        }
       }
     } catch (error: any) {
       console.error('Failed to load page data:', error);
+      // Show error notification
+      notifications.show({
+        title: 'Error Loading Page',
+        message: error?.response?.data?.message || error?.message || 'Failed to load page data. Please ensure the lab and page exist.',
+        color: 'red',
+      });
     } finally {
       setLoading(false);
     }
@@ -154,7 +201,7 @@ const LabPageEditorPage = () => {
           return;
         }
       }
-      
+
       // Remove from local state
       setQuestions(questions.filter((q) => q.id !== id));
     }
@@ -238,7 +285,7 @@ const LabPageEditorPage = () => {
     try {
       // Parse options from comma-separated string
       let optionsArray: any[] = [];
-      
+
       if (question.type === 'MCQ') {
         optionsArray = question.options.split(',').map((opt) => ({ text: opt.trim() })).filter((opt) => opt.text);
       } else if (question.type === 'True/False') {
@@ -256,9 +303,9 @@ const LabPageEditorPage = () => {
 
       // Update question state with the returned ID and mark as saved
       setQuestions(
-        questions.map((q) => 
-          q.id === questionId 
-            ? { ...q, id: response.data.id, isEditing: false, isSaved: true } 
+        questions.map((q) =>
+          q.id === questionId
+            ? { ...q, id: response.data.id, isEditing: false, isSaved: true }
             : q
         )
       );
@@ -389,18 +436,55 @@ const LabPageEditorPage = () => {
       return;
     }
 
-    // For now, use a placeholder diagram state until we build the interactive editor
-    const diagramStateToSave = expectedDiagramState || {
-      shapes: [],
-      connections: [],
-      metadata: {}
-    };
+    // Validate diagram is not empty (T089) - REMOVED
+    // Allow saving empty diagrams for future editing
 
     setSaving(true);
     try {
+      console.log('Saving diagram state:', expectedDiagramState);
+
+      // Transform DiagramEditor format (nodes/links) to backend format (shapes/connections)
+      // Handle empty diagram case
+      const transformedDiagramState = {
+        shapes: expectedDiagramState?.nodes?.map((node: any) => {
+          console.log('Saving node:', node);
+          return {
+            shapeId: node.shapeId || node.id,
+            x: node.x,
+            y: node.y,
+            width: node.width,
+            height: node.height,
+            rotation: node.rotation || 0,
+            label: node.label || '',
+            metadata: {
+              // Store ALL node properties needed for rendering
+              type: node.type,
+              fill: node.fill,
+              stroke: node.stroke,
+              strokeWidth: node.strokeWidth,
+              strokeDashArray: node.strokeDashArray,
+              pathData: node.pathData,
+              rx: node.rx,
+              ...node.metadata,
+            },
+          };
+        }) || [],
+        connections: expectedDiagramState?.links?.map((link: any) => ({
+          id: link.id || `${link.source}-${link.target}`,
+          sourceShapeId: link.source,
+          targetShapeId: link.target,
+          type: link.type || 'arrow',
+          label: link.label || '',
+          metadata: { waypoints: link.waypoints || [] },
+        })) || [],
+        metadata: {},
+      };
+
+      console.log('Transformed diagram state for backend:', transformedDiagramState);
+
       await labApi.saveDiagramTest(labId, pageId, {
         prompt: prompt.trim(),
-        expectedDiagramState: diagramStateToSave,
+        expectedDiagramState: transformedDiagramState,
         architectureType: architectureType,
       });
 
@@ -415,7 +499,7 @@ const LabPageEditorPage = () => {
     } catch (error: any) {
       const errorMessage = error?.response?.data?.message || error?.message || 'Failed to save diagram test.';
       const details = error?.response?.data?.errors || error?.response?.data?.details;
-      
+
       notifications.show({
         title: 'Error',
         message: details ? `${errorMessage}: ${JSON.stringify(details)}` : errorMessage,
@@ -424,6 +508,37 @@ const LabPageEditorPage = () => {
       });
       console.error('Failed to save diagram test:', error);
       console.error('Error details:', error?.response?.data);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+
+  const handleDeleteDiagramTest = async () => {
+    if (!confirm('Are you sure you want to delete this diagram test? This action cannot be undone.')) {
+      return;
+    }
+
+    setSaving(true);
+    try {
+      await labApi.deleteDiagramTest(labId, pageId);
+
+      notifications.show({
+        title: 'Success',
+        message: 'Diagram test deleted successfully!',
+        color: 'green',
+      });
+
+      // Navigate back to lab detail page
+      router.push(`/labs/${labId}?tab=tests&page=${returnPage}`);
+    } catch (error: any) {
+      const errorMessage = error?.response?.data?.message || error?.message || 'Failed to delete diagram test.';
+
+      notifications.show({
+        title: 'Error',
+        message: errorMessage,
+        color: 'red',
+      });
     } finally {
       setSaving(false);
     }
@@ -747,21 +862,65 @@ const LabPageEditorPage = () => {
 
               <Box>
                 <Text size="sm" fw={500} mb={8}>Diagram Editor</Text>
-                <Paper withBorder p="xl" style={{ minHeight: 400, backgroundColor: '#f8f9fa' }}>
-                  <Text c="dimmed" ta="center">
-                    Interactive diagram editor will be implemented here.
-                    Students will drag and drop shapes to create architecture diagrams.
-                  </Text>
-                </Paper>
+                <Text size="xs" c="dimmed" mb={8}>
+                  Drag shapes onto the canvas to create your expected diagram
+                </Text>
+
+                <Group align="flex-start" gap="md">
+                  {/* Canvas - DiagramEditor */}
+                  <Box style={{ flex: 1 }}>
+                    {!architectureType ? (
+                      <Paper
+                        withBorder
+                        p="xl"
+                        style={{
+                          minHeight: 400,
+                          backgroundColor: '#f8f9fa',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                        }}
+                      >
+                        <Text c="dimmed" ta="center" size="sm">
+                          Select an architecture type to enable diagram editor
+                        </Text>
+                      </Paper>
+                    ) : (
+                      <DiagramEditor
+                        initialGraph={expectedDiagramState}
+                        mode="instructor"
+                        architectureType={architectureType}
+                        onGraphChange={(graph) => {
+                          setExpectedDiagramState(graph);
+                        }}
+                        className="diagram-editor"
+                      />
+                    )}
+                  </Box>
+                </Group>
               </Box>
 
-              <Group justify="flex-end">
-                <Button variant="outline" onClick={() => router.push(`/labs/${labId}`)}>
-                  Cancel
-                </Button>
-                <Button onClick={handleSaveDiagramTest} loading={saving}>
-                  Save Diagram Test
-                </Button>
+              <Group justify="space-between">
+                <Group>
+                  <Button
+                    variant="subtle"
+                    color="red"
+                    leftSection={<IconTrash size={16} />}
+                    onClick={handleDeleteDiagramTest}
+                    loading={saving}
+                  >
+                    Delete Test
+                  </Button>
+                </Group>
+
+                <Group>
+                  <Button variant="outline" onClick={() => router.push(`/labs/${labId}`)}>
+                    Cancel
+                  </Button>
+                  <Button onClick={handleSaveDiagramTest} loading={saving}>
+                    Save Diagram Test
+                  </Button>
+                </Group>
               </Group>
             </Stack>
           </Tabs.Panel>
