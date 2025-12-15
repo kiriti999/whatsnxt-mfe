@@ -56,6 +56,7 @@ const LabPageEditorPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [savingQuestionId, setSavingQuestionId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [labStatus, setLabStatus] = useState<'draft' | 'published'>('draft');
 
   const QUESTIONS_PER_PAGE = 3;
 
@@ -63,6 +64,8 @@ const LabPageEditorPage = () => {
   const [architectureType, setArchitectureType] = useState('');
   const [prompt, setPrompt] = useState('');
   const [expectedDiagramState, setExpectedDiagramState] = useState<any>(null);
+
+  const isPublished = labStatus === 'published';
 
 
   useEffect(() => {
@@ -72,6 +75,10 @@ const LabPageEditorPage = () => {
   const fetchPageData = async () => {
     setLoading(true);
     try {
+      // Fetch lab status
+      const labResponse = await labApi.getLabById(labId);
+      setLabStatus(labResponse.data.status || 'draft');
+
       const response = await labApi.getLabPageById(labId, pageId);
       const pageData = response.data;
 
@@ -612,24 +619,26 @@ const LabPageEditorPage = () => {
               </Group>
 
               {/* Questions Section Header with Add Button */}
-              <Group justify="space-between" align="center">
-                <Box>
-                  <Text size="lg" fw={600}>
-                    Questions ({filteredQuestions.length}/{questions.length})
-                  </Text>
-                  <Text size="sm" c="dimmed">
-                    {searchQuery ? `Showing ${filteredQuestions.length} of ${questions.length} questions` : 'Add up to 30 questions for this page'}
-                  </Text>
-                </Box>
-                <Button
-                  variant="outline"
-                  onClick={addQuestion}
-                  leftSection="+"
-                  disabled={questions.length >= 30}
-                >
-                  Add Question
-                </Button>
-              </Group>
+              {!isPublished && (
+                <Group justify="space-between" align="center">
+                  <Box>
+                    <Text size="lg" fw={600}>
+                      Questions ({filteredQuestions.length}/{questions.length})
+                    </Text>
+                    <Text size="sm" c="dimmed">
+                      {searchQuery ? `Showing ${filteredQuestions.length} of ${questions.length} questions` : 'Add up to 30 questions for this page'}
+                    </Text>
+                  </Box>
+                  <Button
+                    variant="outline"
+                    onClick={addQuestion}
+                    leftSection="+"
+                    disabled={questions.length >= 30}
+                  >
+                    Add Question
+                  </Button>
+                </Group>
+              )}
 
               {/* Search Bar */}
               {questions.length > 0 && (
@@ -683,7 +692,7 @@ const LabPageEditorPage = () => {
                       // Calculate the actual question number from the original list
                       const originalIndex = questions.findIndex(q => q.id === question.id);
                       const questionNumber = originalIndex + 1;
-                      const isEditable = question.isEditing || !question.isSaved;
+                      const isEditable = !isPublished && (question.isEditing || !question.isSaved);
                       return (
                         <Paper key={question.id} p="lg" withBorder>
                           <Group justify="space-between" mb="md">
@@ -698,7 +707,7 @@ const LabPageEditorPage = () => {
                               )}
                             </Group>
                             <Group gap="xs">
-                              {question.isSaved && !question.isEditing && (
+                              {!isPublished && question.isSaved && !question.isEditing && (
                                 <Button
                                   size="xs"
                                   variant="subtle"
@@ -707,14 +716,16 @@ const LabPageEditorPage = () => {
                                   Edit
                                 </Button>
                               )}
-                              <ActionIcon
-                                color="red"
-                                variant="subtle"
-                                onClick={() => removeQuestion(question.id, question.isSaved || false)}
-                                title="Delete Question"
-                              >
-                                <IconTrash size={18} />
-                              </ActionIcon>
+                              {!isPublished && (
+                                <ActionIcon
+                                  color="red"
+                                  variant="subtle"
+                                  onClick={() => removeQuestion(question.id, question.isSaved || false)}
+                                  title="Delete Question"
+                                >
+                                  <IconTrash size={18} />
+                                </ActionIcon>
+                              )}
                             </Group>
                           </Group>
 
@@ -846,6 +857,7 @@ const LabPageEditorPage = () => {
                 value={architectureType}
                 onChange={(value) => setArchitectureType(value || '')}
                 required
+                disabled={isPublished}
               />
 
               <Textarea
@@ -858,6 +870,7 @@ const LabPageEditorPage = () => {
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
                 required
+                disabled={isPublished}
               />
 
               <Box>
@@ -888,7 +901,7 @@ const LabPageEditorPage = () => {
                     ) : (
                       <DiagramEditor
                         initialGraph={expectedDiagramState}
-                        mode="instructor"
+                        mode={isPublished ? "student" : "instructor"}
                         architectureType={architectureType}
                         onGraphChange={(graph) => {
                           setExpectedDiagramState(graph);
@@ -901,26 +914,36 @@ const LabPageEditorPage = () => {
               </Box>
 
               <Group justify="space-between">
-                <Group>
-                  <Button
-                    variant="subtle"
-                    color="red"
-                    leftSection={<IconTrash size={16} />}
-                    onClick={handleDeleteDiagramTest}
-                    loading={saving}
-                  >
-                    Delete Test
-                  </Button>
-                </Group>
+                {!isPublished && (
+                  <Group>
+                    <Button
+                      variant="subtle"
+                      color="red"
+                      leftSection={<IconTrash size={16} />}
+                      onClick={handleDeleteDiagramTest}
+                      loading={saving}
+                    >
+                      Delete Test
+                    </Button>
+                  </Group>
+                )}
 
-                <Group>
+                {!isPublished && (
+                  <Group>
+                    <Button variant="outline" onClick={() => router.push(`/labs/${labId}`)}>
+                      Cancel
+                    </Button>
+                    <Button onClick={handleSaveDiagramTest} loading={saving}>
+                      Save Diagram Test
+                    </Button>
+                  </Group>
+                )}
+
+                {isPublished && (
                   <Button variant="outline" onClick={() => router.push(`/labs/${labId}`)}>
-                    Cancel
+                    Back to Lab
                   </Button>
-                  <Button onClick={handleSaveDiagramTest} loading={saving}>
-                    Save Diagram Test
-                  </Button>
-                </Group>
+                )}
               </Group>
             </Stack>
           </Tabs.Panel>

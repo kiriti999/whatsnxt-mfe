@@ -257,20 +257,20 @@ const LabDetailPage = () => {
   const filteredPages = pages.filter(page => {
     if (!searchQuery.trim()) return true;
     const query = searchQuery.toLowerCase();
-    
+
     // Search in page number
     if (page.pageNumber.toString().includes(query)) return true;
-    
+
     // Search in questions
     if (page.questions && page.questions.length > 0) {
-      return page.questions.some((question: any) => 
+      return page.questions.some((question: any) =>
         question.questionText?.toLowerCase().includes(query) ||
         question.type?.toLowerCase().includes(query) ||
         question.correctAnswer?.toLowerCase().includes(query) ||
         (question.options && JSON.stringify(question.options).toLowerCase().includes(query))
       );
     }
-    
+
     // Search in diagram test
     if (page.diagramTest) {
       return (
@@ -278,7 +278,7 @@ const LabDetailPage = () => {
         page.diagramTest.architectureType?.toLowerCase().includes(query)
       );
     }
-    
+
     return false;
   });
 
@@ -394,7 +394,7 @@ const LabDetailPage = () => {
                 <Box>
                   <Title order={4}>Tests & Questions</Title>
                   <Text size="sm" c="dimmed">
-                    {searchQuery 
+                    {searchQuery
                       ? `Showing ${filteredPages.length} of ${pages.length} pages`
                       : 'Each page can have a question test (MCQ, True/False, Fill in blank) and/or a diagram test'
                     }
@@ -482,23 +482,24 @@ const LabDetailPage = () => {
                         </Group>
                       </Box>
                       <Group gap="sm">
-                        {!page.hasQuestion && !page.hasDiagramTest && canEdit && (
-                          <ActionIcon
-                            color="red"
-                            variant="subtle"
-                            onClick={() => handleDeletePage(page.id, page.pageNumber)}
-                            title="Delete Page"
+                        {lab?.status === 'published' && (page.hasQuestion || page.hasDiagramTest) && (
+                          <Button
+                            variant="filled"
+                            size="sm"
+                            onClick={() => router.push(`/labs/${labId}/pages/${page.id}?returnPage=${currentPage}`)}
                           >
-                            <IconTrash size={18} />
-                          </ActionIcon>
+                            View Tests
+                          </Button>
                         )}
-                        <Button
-                          variant="filled"
-                          size="sm"
-                          onClick={() => router.push(`/labs/${labId}/pages/${page.id}?returnPage=${currentPage}`)}
-                        >
-                          {page.hasQuestion || page.hasDiagramTest ? 'Edit Tests' : 'Add Tests'}
-                        </Button>
+                        {lab?.status !== 'published' && (
+                          <Button
+                            variant="filled"
+                            size="sm"
+                            onClick={() => router.push(`/labs/${labId}/pages/${page.id}?returnPage=${currentPage}`)}
+                          >
+                            {page.hasQuestion || page.hasDiagramTest ? 'Edit Tests' : 'Add Tests'}
+                          </Button>
+                        )}
                       </Group>
                     </Group>
 
