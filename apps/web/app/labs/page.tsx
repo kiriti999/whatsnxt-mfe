@@ -1,139 +1,86 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Container, Title, Button, Group, Box, Paper, Text, TextInput, Textarea, Select } from '@mantine/core';
-import { useForm } from '@mantine/form';
+import { Container, Title, Button, Group, Box, Paper, Text, Pagination, ActionIcon } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
+import { modals } from '@mantine/modals';
 import { useRouter } from 'next/navigation';
+import { IconEye, IconEdit } from '@tabler/icons-react';
 import { Lab } from '@whatsnxt/core-types';
 import labApi from '@/apis/lab.api';
+import useAuth from '@/hooks/Authentication/useAuth';
 
-// TODO: Get instructorId from authentication context
-const TEMP_INSTRUCTOR_ID = 'temp-instructor-id';
+const LabsPage = () => {
+  const [publishedLabs, setPublishedLabs] = useState<Lab[]>([]);
+  const [draftLabs, setDraftLabs] = useState<Lab[]>([]);
+  const [publishedPage, setPublishedPage] = useState(1);
+  const [draftPage, setDraftPage] = useState(1);
+  const [publishedTotal, setPublishedTotal] = useState(0);
+  const [draftTotal, setDraftTotal] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
+  const { user, isAuthenticated } = useAuth();
 
-const LAB_TYPES = [
-  'Cloud Computing',
-  'Networking',
-  'Cybersecurity',
-  'Database Management',
-  'DevOps & Automation',
-  'Software Architecture',
-  'System Design',
-];
+  const isTrainer = isAuthenticated && user?.role === 'trainer';
+  const instructorId = user?._id || '';
+  const pageSize = 3;
 
-const ARCHITECTURE_TYPES = ['AWS', 'Azure', 'GCP', 'Hybrid', 'On-Premise'];
-
-const LabCreator = ({ onCreateSuccess }: { onCreateSuccess: (lab: Lab) => void }) => {
-  const form = useForm({
-    initialValues: {
-      name: '',
-      description: '',
-      labType: '',
-      architectureType: '',
-    },
-    validate: {
-      name: (value) => (value ? null : 'Lab name is required'),
-      labType: (value) => (value ? null : 'Lab type is required'),
-      architectureType: (value) => (value ? null : 'Architecture type is required'),
-    },
-  });
-
-  const handleSubmit = async (values: { name: string; description: string; labType: string; architectureType: string }) => {
+  const fetchPublishedLabs = async (page: number) => {
     try {
-      const response = await labApi.createLab({
-        ...values,
-        instructorId: TEMP_INSTRUCTOR_ID
-      });
-      const newLab = response.data;
-      notifications.show({
-        title: 'Success',
-        message: `Lab "${newLab.name}" created successfully!`,
-        color: 'green',
-      });
-      form.reset();
-      onCreateSuccess(newLab);
+      const response: any = await labApi.getPublishedLabs(page);
+      setPublishedLabs(response.data);
+      setPublishedTotal(response.total || 0);
     } catch (error: any) {
-      const errorMessage = error?.response?.data?.message || error?.message || 'Failed to create lab.';
+      const errorMessage = error?.response?.data?.message || error?.message || 'Failed to load published labs.';
       notifications.show({
         title: 'Error',
         message: errorMessage,
         color: 'red',
       });
-      console.error('Failed to create lab:', error);
+      console.error('Failed to load published labs:', error);
     }
   };
 
-  return (
-    <Box maw={600} mx="auto">
-      <Title order={2} mb="md">Create New Lab</Title>
-      <form onSubmit={form.onSubmit(handleSubmit)}>
-        <TextInput
-          label="Lab Name"
-          placeholder="e.g., AWS Cloud Fundamentals"
-          {...form.getInputProps('name')}
-          required
-          mb="md"
-        />
-        <Textarea
-          label="Description"
-          placeholder="Brief description of the lab"
-          {...form.getInputProps('description')}
-          mb="md"
-        />
-        <Select
-          label="Lab Type"
-          placeholder="Select lab type"
-          data={LAB_TYPES}
-          {...form.getInputProps('labType')}
-          required
-          mb="md"
-        />
-        <Select
-          label="Architecture Type"
-          placeholder="Select architecture type"
-          data={ARCHITECTURE_TYPES}
-          {...form.getInputProps('architectureType')}
-          required
-          mb="md"
-        />
-        <Group justify="flex-end" mt="xl">
-          <Button type="submit">Create Lab</Button>
-        </Group>
-      </form>
-    </Box>
-  );
-};
+  const fetchDraftLabs = async (page: number) => {
+    if (!instructorId || !isTrainer) {
+      setDraftLabs([]);
+      setDraftTotal(0);
+      return;
+    }
 
-const LabsPage = () => {
-  const [labs, setLabs] = useState<Lab[]>([]);
-  const [loading, setLoading] = useState(true);
-  const router = useRouter();
-
-  const fetchLabs = async () => {
-    setLoading(true);
     try {
-      const response = await labApi.getDraftLabs(TEMP_INSTRUCTOR_ID, 1);
-      setLabs(response.data);
+      const response = await labApi.getDraftLabs(instructorId, page);
+      setDraftLabs(response.data);
+      setDraftTotal(response.total || 0);
     } catch (error: any) {
-      const errorMessage = error?.response?.data?.message || error?.message || 'Failed to load labs.';
+      const errorMessage = error?.response?.data?.message || error?.message || 'Failed to load draft labs.';
       notifications.show({
         title: 'Error',
         message: errorMessage,
         color: 'red',
       });
-      console.error('Failed to load labs:', error);
-    } finally {
-      setLoading(false);
+      console.error('Failed to load draft labs:', error);
     }
   };
 
   useEffect(() => {
-    fetchLabs();
-  }, []);
+    const loadLabs = async () => {
+      setLoading(true);
+      await fetchPublishedLabs(publishedPage);
 
-  const handleLabCreated = (newLab: Lab) => {
-    setLabs((prev) => [...prev, newLab]);
-  };
+      // Only fetch draft labs if user is authenticated as trainer with valid ID
+      if (isTrainer && instructorId) {
+        await fetchDraftLabs(draftPage);
+      } else {
+        setDraftLabs([]);
+        setDraftTotal(0);
+      }
+
+      setLoading(false);
+    };
+
+    loadLabs();
+  }, [isAuthenticated, instructorId, isTrainer, publishedPage, draftPage]);
 
   if (loading) {
     return (
@@ -143,36 +90,93 @@ const LabsPage = () => {
     );
   }
 
+  console.log('publishedLabs', publishedLabs)
+
   return (
     <Container size="lg" py="xl">
       <Group justify="space-between" mb="xl">
-        <Title order={1}>My Labs</Title>
+        <Title order={1}>Labs</Title>
+        {isTrainer && (
+          <Button onClick={() => router.push('/lab/create')}>Create New Lab</Button>
+        )}
       </Group>
 
+      {/* Published Labs Section */}
       <Box mb="xl">
-        <LabCreator onCreateSuccess={handleLabCreated} />
+        <Title order={2} mb="md">Published Labs</Title>
+        {publishedLabs.length === 0 ? (
+          <Text c="dimmed">No published labs available.</Text>
+        ) : (
+          <>
+            {publishedLabs.map((lab) => (
+              <Paper key={lab.id} shadow="xs" p="md" withBorder mb="sm">
+                <Group justify="space-between">
+                  <Box>
+                    <Text fw={700}>{lab.name}</Text>
+                    <Text size="sm" c="dimmed">{lab.description || 'No description'}</Text>
+                    <Text size="xs" c="green">{lab.status.toUpperCase()}</Text>
+                  </Box>
+                  <ActionIcon
+                    variant="subtle"
+                    color="blue"
+                    onClick={() => router.push(`/labs/${lab.id}`)}
+                    title="View Lab"
+                  >
+                    <IconEye size={18} />
+                  </ActionIcon>
+                </Group>
+              </Paper>
+            ))}
+            {Math.ceil(publishedTotal / pageSize) > 1 && (
+              <Pagination
+                total={Math.ceil(publishedTotal / pageSize)}
+                value={publishedPage}
+                onChange={setPublishedPage}
+                mt="md"
+              />
+            )}
+          </>
+        )}
       </Box>
 
-      {labs.length === 0 ? (
-        <Text>No labs created yet. Start by creating one!</Text>
-      ) : (
-        <Paper shadow="sm" p="md" withBorder>
-          <Title order={3} mb="md">Existing Labs</Title>
-          {labs.map((lab) => (
-            <Paper key={lab.id} shadow="xs" p="md" withBorder mb="sm">
-              <Group justify="space-between">
-                <Box>
-                  <Text fw={700}>{lab.name}</Text>
-                  <Text size="sm" c="dimmed">{lab.description || 'No description'}</Text>
-                  <Text size="xs" c="blue">{lab.status.toUpperCase()}</Text>
-                </Box>
-                <Button size="sm" onClick={() => router.push(`/labs/${lab.id}`)}>
-                  View/Edit
-                </Button>
-              </Group>
-            </Paper>
-          ))}
-        </Paper>
+      {/* Draft Labs Section - Only for trainers */}
+      {isTrainer && (
+        <Box>
+          <Title order={2} mb="md">My Draft Labs</Title>
+          {draftLabs.length === 0 ? (
+            <Text c="dimmed">No draft labs. Create one to get started!</Text>
+          ) : (
+            <>
+              {draftLabs.map((lab) => (
+                <Paper key={lab.id} shadow="xs" p="md" withBorder mb="sm">
+                  <Group justify="space-between">
+                    <Box>
+                      <Text fw={700}>{lab.name}</Text>
+                      <Text size="sm" c="dimmed">{lab.description || 'No description'}</Text>
+                      <Text size="xs" c="orange">{lab.status.toUpperCase()}</Text>
+                    </Box>
+                    <ActionIcon
+                      variant="subtle"
+                      color="blue"
+                      onClick={() => router.push(`/labs/${lab.id}`)}
+                      title="Edit Lab"
+                    >
+                      <IconEdit size={18} />
+                    </ActionIcon>
+                  </Group>
+                </Paper>
+              ))}
+              {Math.ceil(draftTotal / pageSize) > 1 && (
+                <Pagination
+                  total={Math.ceil(draftTotal / pageSize)}
+                  value={draftPage}
+                  onChange={setDraftPage}
+                  mt="md"
+                />
+              )}
+            </>
+          )}
+        </Box>
       )}
     </Container>
   );
