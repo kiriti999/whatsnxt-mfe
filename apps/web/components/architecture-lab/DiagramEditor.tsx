@@ -589,10 +589,9 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
                 const delIcon = renderDeleteIcon(el, d, () => {
                     const nodeId = d.id!;
                     const newNodes = nodes.filter(n => n.id !== nodeId);
-                    const newLinks = links.filter(l => l.source !== nodeId && l.target !== nodeId);
+                    // Keep all links - don't delete arrows when node is deleted
                     setNodes(newNodes);
-                    setLinks(newLinks);
-                    saveToHistory(newNodes, newLinks);
+                    saveToHistory(newNodes, links);
                     setSelectedNodeId(null);
                 });
             });
@@ -787,11 +786,10 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
     const deleteSelectedNode = useCallback(() => {
         if (selectedNodeId) {
             const newNodes = nodes.filter(n => n.id !== selectedNodeId);
-            const newLinks = links.filter(l => l.source !== selectedNodeId && l.target !== selectedNodeId);
+            // Keep all links - don't delete arrows when node is deleted
             setNodes(newNodes);
-            setLinks(newLinks);
             setSelectedNodeId(null);
-            saveToHistory(newNodes, newLinks);
+            saveToHistory(newNodes, links);
         }
     }, [selectedNodeId, nodes, links, saveToHistory]);
 
