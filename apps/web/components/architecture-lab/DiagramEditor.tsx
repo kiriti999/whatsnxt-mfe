@@ -126,6 +126,9 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
         }
     }, [nodes, links, onGraphChange]);
 
+    // Handle keyboard events for delete
+
+
 
     // D3 Render Logic
     useEffect(() => {
@@ -780,6 +783,32 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
                 .call(zoomRef.current.transform, d3.zoomIdentity);
         }
     };
+
+    const deleteSelectedNode = useCallback(() => {
+        if (selectedNodeId) {
+            const newNodes = nodes.filter(n => n.id !== selectedNodeId);
+            const newLinks = links.filter(l => l.source !== selectedNodeId && l.target !== selectedNodeId);
+            setNodes(newNodes);
+            setLinks(newLinks);
+            setSelectedNodeId(null);
+            saveToHistory(newNodes, newLinks);
+        }
+    }, [selectedNodeId, nodes, links, saveToHistory]);
+
+    // Keyboard handler for Delete key
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            // Delete or Backspace key
+            if ((e.key === 'Delete' || e.key === 'Backspace') && selectedNodeId) {
+                // Prevent default behavior (e.g., browser back navigation)
+                e.preventDefault();
+                deleteSelectedNode();
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [selectedNodeId, deleteSelectedNode]);
 
 
     // Common shapes (left sidebar) - directly from genericD3Shapes metadata
