@@ -1,993 +1,444 @@
-# Tasks for Lab Diagram Tests
+# Tasks: Lab Diagram Tests
 
-**Feature Branch**: `001-lab-diagram-test`
-**Date**: 2025-12-12
-**Updated**: 2025-12-12
+**Input**: Design documents from `/specs/001-lab-diagram-test/`
+**Prerequisites**: plan.md, spec.md, research.md, data-model.md, contracts/
 
-## Task Status Legend
-- [ ] Not Started
-- [~] In Progress
-- [X] Completed
-- [B] Blocked
+**Tests**: Tests are OPTIONAL and only included where explicitly needed. This feature focuses on TDD approach for critical functionality.
 
-## Priority Legend
-- [P0] Critical - Must have for MVP
-- [P1] High - Important for core functionality
-- [P2] Medium - Enhances user experience
-- [P3] Low - Nice to have
+**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
 
----
+## Format: `[ID] [P?] [Story] Description`
 
-## Phase 0: Research and Setup
+- **[P]**: Can run in parallel (different files, no dependencies)
+- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
+- Include exact file paths in descriptions
 
-### Research Tasks
-- [ ] **T001** [P0] Research existing Labs page implementation (`apps/web/app/labs/page.tsx`)
-  - Document current structure and components
-  - Identify what can be reused vs needs refactoring
-  - **Estimate**: 2h | **File**: `specs/001-lab-diagram-test/research.md`
+## Path Conventions
 
-- [ ] **T002** [P0] Research existing lab creation page (`apps/web/app/lab/create/page.tsx`)
-  - Document current implementation
-  - Identify integration points for new features
-  - **Estimate**: 2h | **File**: `specs/001-lab-diagram-test/research.md`
-
-- [ ] **T003** [P0] Analyze current API structure (`apps/web/apis/lab.api.ts`)
-  - Document existing mock API implementation
-  - Plan migration to real APIs (NO mock data allowed)
-  - **Estimate**: 1h | **File**: `specs/001-lab-diagram-test/research.md`
-
-- [ ] **T004** [P0] Review `packages/core-types` structure
-  - Verify existing Lab types
-  - Plan additions for labType and architectureType
-  - **Estimate**: 1h | **File**: `specs/001-lab-diagram-test/research.md`
-
-- [ ] **T005** [P0] Review `packages/diagram-core` package
-  - Document current diagram functionality
-  - Plan shape package integration
-  - **Estimate**: 1h | **File**: `specs/001-lab-diagram-test/research.md`
-
-- [ ] **T006** [P0] Review `apps/whatsnxt-bff` backend structure
-  - Identify JavaScript files needing TypeScript conversion
-  - Document MongoDB connection setup
-  - Check Winston logger configuration
-  - **Estimate**: 2h | **File**: `specs/001-lab-diagram-test/research.md`
-
-### Workspace Package Setup
-- [ ] **T007** [P0] Verify `@whatsnxt/http-client` configuration
-  - Ensure axios instance properly configured
-  - Verify retry logic and interceptors
-  - **Estimate**: 1h | **File**: `packages/http-client/`
-
-- [ ] **T008** [P0] Verify `@whatsnxt/errors` package exists
-  - Check for ValidationError, NotFoundError, etc.
-  - Create if missing
-  - **Estimate**: 2h | **File**: `packages/errors/`
-
-- [ ] **T009** [P0] Verify `@whatsnxt/constants` package exists
-  - Check for API endpoint constants
-  - Plan additions for lab APIs
-  - **Estimate**: 1h | **File**: `packages/constants/`
+- **Backend**: `apps/whatsnxt-bff/app/`
+- **Frontend**: `apps/web/`
+- **Packages**: `packages/`
 
 ---
 
-## Phase 1: Design and Architecture
+## Phase 1: Setup (Shared Infrastructure)
 
-### Design Documents
-- [ ] **T010** [P0] Create High-Level Design (HLD)
-  - System architecture diagram
-  - Component interaction diagram
-  - Data flow diagrams (Labs page, Lab creation)
-  - Authentication flow
-  - Error handling strategy
-  - **Estimate**: 4h | **File**: `specs/001-lab-diagram-test/HLD.md`
+**Purpose**: Project initialization and basic structure
 
-- [ ] **T011** [P0] Create Low-Level Design (LLD)
-  - Frontend component hierarchy
-  - Backend service layer design
-  - Database schema with indexes
-  - Validation logic design
-  - State management design
-  - **Estimate**: 4h | **File**: `specs/001-lab-diagram-test/LLD.md`
-
-- [ ] **T012** [P1] Create quickstart guide
-  - Development environment setup
-  - Running the application
-  - Testing procedures
-  - API testing examples
-  - **Estimate**: 2h | **File**: `specs/001-lab-diagram-test/quickstart.md`
+- [ ] T001 Update Lab interface with labType and architectureType in packages/core-types/src/index.d.ts
+- [ ] T002 Add PaginatedResponse interface in packages/core-types/src/index.d.ts
+- [ ] T003 [P] Add CreateLabRequest and UpdateLabRequest types in packages/core-types/src/index.d.ts
+- [ ] T004 [P] Verify MongoDB connection and indexes in apps/whatsnxt-bff/config/database.ts
+- [ ] T005 [P] Convert JavaScript utility files to TypeScript in apps/whatsnxt-bff/app/utils/
 
 ---
 
-## Phase 2: Backend - Type Definitions and Models
+## Phase 2: Foundational (Blocking Prerequisites)
 
-### Type Definitions
-- [ ] **T013** [P0] Update Lab interface in `@whatsnxt/core-types`
-  - Add `labType: string` field
-  - Add `architectureType: string` field
-  - Update validation types
-  - **Estimate**: 1h | **File**: `packages/core-types/src/index.d.ts`
-  - **Depends on**: T004
+**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
 
-- [ ] **T014** [P0] Create PaginatedResponse type in `@whatsnxt/core-types`
-  - Generic type for paginated API responses
-  - Include data, page, limit, totalItems, totalPages
-  - **Estimate**: 0.5h | **File**: `packages/core-types/src/index.d.ts`
+**⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] **T015** [P0] Add validation types for Lab requests
-  - CreateLabRequest with labType, architectureType
-  - UpdateLabRequest with optional fields
-  - **Estimate**: 1h | **File**: `packages/core-types/src/index.d.ts`
+- [ ] T006 Create Lab model with UUID, status, labType, architectureType in apps/whatsnxt-bff/app/models/lab/Lab.ts
+- [ ] T007 Create LabPage model with UUID, pageNumber, hasQuestion, hasDiagramTest in apps/whatsnxt-bff/app/models/lab/LabPage.ts
+- [ ] T008 Create Question model with UUID, type, questionText, options, correctAnswer in apps/whatsnxt-bff/app/models/lab/Question.ts
+- [ ] T009 Create DiagramTest model with UUID, prompt, expectedDiagramState, architectureType in apps/whatsnxt-bff/app/models/lab/DiagramTest.ts
+- [ ] T010 Create DiagramShape model with UUID, name, type, architectureType, svgPath in apps/whatsnxt-bff/app/models/lab/DiagramShape.ts
+- [ ] T011 Implement string similarity utility using Levenshtein algorithm in apps/whatsnxt-bff/app/utils/stringSimilarity.ts
+- [ ] T012 Create ValidationService with page validation and fuzzy matching in apps/whatsnxt-bff/app/services/ValidationService.ts
+- [ ] T013 Create PaginationService for list pagination in apps/whatsnxt-bff/app/services/PaginationService.ts
+- [ ] T014 Setup API error handling middleware in apps/whatsnxt-bff/app/middleware/errorHandler.ts
+- [ ] T015 Setup validation middleware in apps/whatsnxt-bff/app/middleware/validation.ts
 
-### Backend Setup
-- [ ] **T016** [P0] Convert `apps/whatsnxt-bff` existing JS files to TypeScript
-  - Convert models/*.js to *.ts
-  - Convert routes/*.js to *.ts
-  - Convert services/*.js to *.ts
-  - Fix all TypeScript errors
-  - **Estimate**: 6h | **File**: `apps/whatsnxt-bff/app/`
-  - **Depends on**: T006
-
-- [ ] **T017** [P0] Configure TypeScript in `apps/whatsnxt-bff`
-  - Update tsconfig.json
-  - Configure build scripts
-  - **Estimate**: 1h | **File**: `apps/whatsnxt-bff/tsconfig.json`
-
-- [ ] **T018** [P0] Configure Vitest for backend testing
-  - Setup vitest.config.ts
-  - Configure test environment
-  - **Estimate**: 1h | **File**: `apps/whatsnxt-bff/vitest.config.ts`
-
-### Database Models
-- [ ] **T019** [P0] Create Lab MongoDB model
-  - Fields: id (UUID), status, name, description, labType, architectureType, instructorId
-  - Indexes: instructorId, status, createdAt, architectureType
-  - Validation: name, labType, architectureType required
-  - **Estimate**: 2h | **File**: `apps/whatsnxt-bff/app/models/Lab.ts`
-  - **Depends on**: T013, T016
-
-- [ ] **T020** [P0] Create LabPage MongoDB model
-  - Fields: id (UUID), labId, pageNumber, hasQuestion, hasDiagramTest
-  - Relationships: references Lab, Question, DiagramTest
-  - Indexes: labId, pageNumber
-  - Validation: at least one test type required
-  - **Estimate**: 2h | **File**: `apps/whatsnxt-bff/app/models/LabPage.ts`
-  - **Depends on**: T019
-
-- [ ] **T021** [P0] Create Question MongoDB model
-  - Fields: id (UUID), labPageId, type, questionText, options, correctAnswer
-  - Indexes: labPageId
-  - Validation: questionText required, MCQ must have ≥2 options
-  - **Estimate**: 1.5h | **File**: `apps/whatsnxt-bff/app/models/Question.ts`
-
-- [ ] **T022** [P0] Create DiagramTest MongoDB model
-  - Fields: id (UUID), labPageId, prompt, expectedDiagramState, architectureType
-  - Indexes: labPageId, architectureType
-  - Validation: prompt, expectedDiagramState, architectureType required
-  - **Estimate**: 1.5h | **File**: `apps/whatsnxt-bff/app/models/DiagramTest.ts`
-
-- [ ] **T023** [P1] Create DiagramShape MongoDB model
-  - Fields: id (UUID), name, type, architectureType, svgPath, metadata
-  - Indexes: architectureType, type
-  - Seed common shapes data
-  - **Estimate**: 2h | **File**: `apps/whatsnxt-bff/app/models/DiagramShape.ts`
+**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
 ---
 
-## Phase 3: Backend - Services and Validation
+## Phase 3: User Story 1 - Instructor Manages Lab Drafts (Priority: P1) 🎯 MVP
 
-### Validation Services
-- [ ] **T024** [P0] Create ValidationService
-  - validateLabData(data) - max complexity 5
-  - validateLabPageData(data) - max complexity 5
-  - validateQuestionData(data) - max complexity 5
-  - validateDiagramTestData(data) - max complexity 5
-  - Return descriptive error messages
-  - **Estimate**: 3h | **File**: `apps/whatsnxt-bff/app/services/ValidationService.ts`
-  - **Depends on**: T019-T023
+**Goal**: Enable instructors to view, create, edit, and delete lab drafts from the Labs page
 
-- [ ] **T025** [P0] Create PaginationService
-  - calculatePagination(page, limit, total) - max complexity 5
-  - buildPaginationResponse(data, pagination) - max complexity 5
-  - **Estimate**: 1h | **File**: `apps/whatsnxt-bff/app/services/PaginationService.ts`
-  - **Depends on**: T014
+**Independent Test**: An instructor can navigate to the Labs page, view existing labs, create a new lab draft with labType and architectureType, and navigate to edit an existing draft
 
-### Business Logic Services
-- [ ] **T026** [P0] Create LabService
-  - createLab(data) - validate and create lab - max complexity 5
-  - getLabs(filters, pagination) - get paginated labs - max complexity 5
-  - getLabById(labId) - max complexity 5
-  - updateLab(labId, data) - draft only - max complexity 5
-  - deleteLab(labId) - draft only - max complexity 5
-  - publishLab(labId) - validate before publish - max complexity 5
-  - **Estimate**: 5h | **File**: `apps/whatsnxt-bff/app/services/LabService.ts`
-  - **Depends on**: T019, T024, T025
+### Implementation for User Story 1
 
-- [ ] **T027** [P0] Create LabPageService
-  - createLabPage(labId, data) - validate - max complexity 5
-  - getLabPage(labId, pageId) - max complexity 5
-  - updateLabPage(labId, pageId, data) - validate - max complexity 5
-  - validateLabPageTests(pageData) - ensure at least one test - max complexity 5
-  - **Estimate**: 4h | **File**: `apps/whatsnxt-bff/app/services/LabPageService.ts`
-  - **Depends on**: T020-T022, T024
+- [ ] T016 [P] [US1] Create LabService with createLab, getLabs, getLabById, updateLab, deleteLab, publishLab in apps/whatsnxt-bff/app/services/LabService.ts
+- [ ] T017 [US1] Implement POST /api/v1/labs endpoint in apps/whatsnxt-bff/app/routes/lab.routes.ts
+- [ ] T018 [US1] Implement GET /api/v1/labs endpoint with pagination in apps/whatsnxt-bff/app/routes/lab.routes.ts
+- [ ] T019 [US1] Implement GET /api/v1/labs/:labId endpoint in apps/whatsnxt-bff/app/routes/lab.routes.ts
+- [ ] T020 [US1] Implement PUT /api/v1/labs/:labId endpoint in apps/whatsnxt-bff/app/routes/lab.routes.ts
+- [ ] T021 [US1] Implement DELETE /api/v1/labs/:labId endpoint in apps/whatsnxt-bff/app/routes/lab.routes.ts
+- [ ] T022 [US1] Implement POST /api/v1/labs/:labId/publish endpoint in apps/whatsnxt-bff/app/routes/lab.routes.ts
+- [ ] T023 [US1] Remove ALL mock implementations from apps/web/apis/lab.api.ts
+- [ ] T024 [US1] Implement real createLab API call using @whatsnxt/http-client in apps/web/apis/lab.api.ts
+- [ ] T025 [US1] Implement real getLabs API call with pagination in apps/web/apis/lab.api.ts
+- [ ] T026 [US1] Implement real getLabById API call in apps/web/apis/lab.api.ts
+- [ ] T027 [US1] Implement real updateLab API call in apps/web/apis/lab.api.ts
+- [ ] T028 [US1] Implement real deleteLab API call in apps/web/apis/lab.api.ts
+- [ ] T029 [US1] Implement real publishLab API call in apps/web/apis/lab.api.ts
+- [ ] T030 [US1] Add labType and architectureType fields to create lab form in apps/web/app/labs/page.tsx
+- [ ] T031 [US1] Add pagination UI for labs list (3 per page) in apps/web/app/labs/page.tsx
+- [ ] T032 [US1] Add sorting by createdAt descending in apps/web/app/labs/page.tsx
+- [ ] T033 [US1] Add delete button with confirmation dialog in apps/web/app/labs/page.tsx
+- [ ] T034 [US1] Add loading states and error handling in apps/web/app/labs/page.tsx
 
-- [ ] **T028** [P1] Create DiagramShapeService
-  - getShapes(architectureType) - filter by architecture - max complexity 5
-  - Implement caching for shape data
-  - **Estimate**: 2h | **File**: `apps/whatsnxt-bff/app/services/DiagramShapeService.ts`
-  - **Depends on**: T023
+**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
 ---
 
-## Phase 4: Backend - API Routes and Middleware
+## Phase 4: User Story 2 - Instructor Edits Lab Details and Manages Pages (Priority: P1)
 
-### Error Handling Middleware
-- [ ] **T029** [P0] Create global error handler middleware
-  - Use `@whatsnxt/errors` custom error classes
-  - Map errors to HTTP status codes
-  - Log errors with Winston
-  - Return structured error responses
-  - **Estimate**: 2h | **File**: `apps/whatsnxt-bff/app/middleware/errorHandler.ts`
-  - **Depends on**: T008
+**Goal**: Enable instructors to edit lab metadata, view all pages with pagination, search across tests, and manage pages
 
-- [ ] **T030** [P0] Create validation middleware
-  - validateRequest(schema) - express middleware
-  - Use with route handlers
-  - **Estimate**: 1h | **File**: `apps/whatsnxt-bff/app/middleware/validation.ts`
+**Independent Test**: An instructor can open a lab, edit its details, view all pages with pagination, search for specific questions, create new pages, and delete pages
 
-### Authentication and Authorization
-- [ ] **T031** [P0] Integrate OAuth2/OIDC authentication
-  - Configure authentication middleware
-  - Extract user info from tokens
-  - **Estimate**: 3h | **File**: `apps/whatsnxt-bff/app/middleware/auth.ts`
+### Implementation for User Story 2
 
-- [ ] **T032** [P0] Implement RBAC authorization middleware
-  - requireRole(role) middleware
-  - Check instructor vs student roles
-  - **Estimate**: 2h | **File**: `apps/whatsnxt-bff/app/middleware/rbac.ts`
-  - **Depends on**: T031
+- [ ] T035 [P] [US2] Create LabPageService with createPage, getPageById, updatePage, deletePage in apps/whatsnxt-bff/app/services/LabPageService.ts
+- [ ] T036 [US2] Implement POST /api/v1/labs/:labId/pages endpoint in apps/whatsnxt-bff/app/routes/lab.routes.ts
+- [ ] T037 [US2] Implement GET /api/v1/labs/:labId/pages/:pageId endpoint in apps/whatsnxt-bff/app/routes/lab.routes.ts
+- [ ] T038 [US2] Implement PUT /api/v1/labs/:labId/pages/:pageId endpoint in apps/whatsnxt-bff/app/routes/lab.routes.ts
+- [ ] T039 [US2] Implement DELETE /api/v1/labs/:labId/pages/:pageId endpoint in apps/whatsnxt-bff/app/routes/lab.routes.ts
+- [ ] T040 [US2] Create labPage.api.ts with page operations in apps/web/apis/labPage.api.ts
+- [ ] T041 [US2] Enhance lab detail page with metadata form (labType, architectureType) in apps/web/app/labs/[id]/page.tsx
+- [ ] T042 [US2] Implement page list with pagination (3 per page) in apps/web/app/labs/[id]/page.tsx
+- [ ] T043 [US2] Implement global search across all questions and tests in apps/web/app/labs/[id]/page.tsx
+- [ ] T044 [US2] Add "Create New Page" button with navigation in apps/web/app/labs/[id]/page.tsx
+- [ ] T045 [US2] Add delete page functionality with confirmation in apps/web/app/labs/[id]/page.tsx
+- [ ] T046 [US2] Add "Publish Lab" button with validation in apps/web/app/labs/[id]/page.tsx
 
-### API Routes - Labs
-- [ ] **T033** [P0] Implement POST /api/v1/labs
-  - Create lab with validation
-  - Require: name, labType, architectureType
-  - Return created lab as draft
-  - **Estimate**: 2h | **File**: `apps/whatsnxt-bff/app/routes/labs.ts`
-  - **Depends on**: T026, T029, T030, T032
-
-- [ ] **T034** [P0] Implement GET /api/v1/labs
-  - Support pagination (page, limit params)
-  - Support filtering (status param)
-  - Sort by createdAt descending
-  - Return PaginatedResponse
-  - **Estimate**: 2h | **File**: `apps/whatsnxt-bff/app/routes/labs.ts`
-  - **Depends on**: T026, T029
-
-- [ ] **T035** [P0] Implement GET /api/v1/labs/:labId
-  - Get single lab by ID
-  - Include basic page data
-  - **Estimate**: 1h | **File**: `apps/whatsnxt-bff/app/routes/labs.ts`
-  - **Depends on**: T026, T029
-
-- [ ] **T036** [P0] Implement PUT /api/v1/labs/:labId
-  - Update lab metadata (draft only)
-  - Validate status before update
-  - **Estimate**: 1.5h | **File**: `apps/whatsnxt-bff/app/routes/labs.ts`
-  - **Depends on**: T026, T029, T030, T032
-
-- [ ] **T037** [P0] Implement DELETE /api/v1/labs/:labId
-  - Delete lab (draft only)
-  - Validate status before delete
-  - Cascade delete pages, questions, diagram tests
-  - **Estimate**: 2h | **File**: `apps/whatsnxt-bff/app/routes/labs.ts`
-  - **Depends on**: T026, T029, T032
-
-- [ ] **T038** [P0] Implement POST /api/v1/labs/:labId/publish
-  - Validate lab has at least one page with valid tests
-  - Validate no empty tests
-  - Change status to published
-  - **Estimate**: 2h | **File**: `apps/whatsnxt-bff/app/routes/labs.ts`
-  - **Depends on**: T026, T027, T029, T032
-
-### API Routes - Lab Pages
-- [ ] **T039** [P0] Implement POST /api/v1/labs/:labId/pages
-  - Create lab page
-  - Validate at least one test type
-  - Create associated Question or DiagramTest
-  - **Estimate**: 3h | **File**: `apps/whatsnxt-bff/app/routes/labPages.ts`
-  - **Depends on**: T027, T029, T030, T032
-
-- [ ] **T040** [P0] Implement GET /api/v1/labs/:labId/pages/:pageId
-  - Get lab page with Question and DiagramTest data
-  - **Estimate**: 1h | **File**: `apps/whatsnxt-bff/app/routes/labPages.ts`
-  - **Depends on**: T027, T029
-
-- [ ] **T041** [P0] Implement PUT /api/v1/labs/:labId/pages/:pageId
-  - Update lab page
-  - Validate at least one test type
-  - Update associated Question or DiagramTest
-  - **Estimate**: 3h | **File**: `apps/whatsnxt-bff/app/routes/labPages.ts`
-  - **Depends on**: T027, T029, T030, T032
-
-### API Routes - Diagram Shapes
-- [ ] **T042** [P1] Implement GET /api/v1/diagram-shapes
-  - Support architectureType query parameter
-  - Return filtered shapes
-  - Implement caching
-  - **Estimate**: 1.5h | **File**: `apps/whatsnxt-bff/app/routes/diagramShapes.ts`
-  - **Depends on**: T028, T029
+**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
 ---
 
-## Phase 5: Backend - Testing
+## Phase 5: User Story 3 - Instructor Creates Multiple Questions per Page (Priority: P1)
 
-### Unit Tests
-- [ ] **T043** [P0] Write unit tests for ValidationService
-  - Test all validation functions
-  - Test error messages
-  - **Estimate**: 2h | **File**: `apps/whatsnxt-bff/app/tests/unit/ValidationService.test.ts`
-  - **Depends on**: T024
+**Goal**: Enable instructors to add up to 30 questions per page with different types (MCQ, True/False, Fill in the blank)
 
-- [ ] **T044** [P0] Write unit tests for PaginationService
-  - Test pagination calculations
-  - Test edge cases
-  - **Estimate**: 1h | **File**: `apps/whatsnxt-bff/app/tests/unit/PaginationService.test.ts`
-  - **Depends on**: T025
+**Independent Test**: An instructor can add multiple questions to a page, save each individually, edit questions, delete questions, and see them paginated
 
-- [ ] **T045** [P0] Write unit tests for LabService
-  - Test all CRUD operations
-  - Test validation
-  - Test publish logic
-  - Target: >80% coverage
-  - **Estimate**: 4h | **File**: `apps/whatsnxt-bff/app/tests/unit/LabService.test.ts`
-  - **Depends on**: T026
+### Implementation for User Story 3
 
-- [ ] **T046** [P0] Write unit tests for LabPageService
-  - Test CRUD operations
-  - Test validation logic
-  - Target: >80% coverage
-  - **Estimate**: 3h | **File**: `apps/whatsnxt-bff/app/tests/unit/LabPageService.test.ts`
-  - **Depends on**: T027
+- [ ] T047 [US3] Implement POST /api/v1/labs/:labId/pages/:pageId/question endpoint in apps/whatsnxt-bff/app/routes/lab.routes.ts
+- [ ] T048 [US3] Implement DELETE /api/v1/labs/:labId/pages/:pageId/question/:questionId endpoint in apps/whatsnxt-bff/app/routes/lab.routes.ts
+- [ ] T049 [US3] Add question validation (type, text length, options) in apps/whatsnxt-bff/app/services/ValidationService.ts
+- [ ] T050 [US3] Add 30 questions per page limit validation in apps/whatsnxt-bff/app/services/LabPageService.ts
+- [ ] T051 [US3] Implement saveQuestion API call in apps/web/apis/labPage.api.ts
+- [ ] T052 [US3] Implement deleteQuestion API call in apps/web/apis/labPage.api.ts
+- [ ] T053 [US3] Create page editor with Question Test tab in apps/web/app/labs/[id]/pages/[pageId]/page.tsx
+- [ ] T054 [US3] Implement "Add Question" form with type selector in apps/web/app/labs/[id]/pages/[pageId]/page.tsx
+- [ ] T055 [US3] Implement individual question save/edit/delete buttons in apps/web/app/labs/[id]/pages/[pageId]/page.tsx
+- [ ] T056 [US3] Add question pagination (3 per view) in apps/web/app/labs/[id]/pages/[pageId]/page.tsx
+- [ ] T057 [US3] Add question counter display (X/30 format) in apps/web/app/labs/[id]/pages/[pageId]/page.tsx
+- [ ] T058 [US3] Disable "Add Question" when limit reached in apps/web/app/labs/[id]/pages/[pageId]/page.tsx
+- [ ] T059 [US3] Add "Back to Tests & Questions" button with context preservation in apps/web/app/labs/[id]/pages/[pageId]/page.tsx
 
-- [ ] **T047** [P1] Write unit tests for DiagramShapeService
-  - Test filtering by architectureType
-  - Test caching
-  - **Estimate**: 1.5h | **File**: `apps/whatsnxt-bff/app/tests/unit/DiagramShapeService.test.ts`
-  - **Depends on**: T028
-
-### Integration Tests
-- [ ] **T048** [P0] Write integration tests for Lab routes
-  - Test POST, GET, PUT, DELETE, publish endpoints
-  - Test authentication/authorization
-  - Test validation errors
-  - Test pagination
-  - **Estimate**: 5h | **File**: `apps/whatsnxt-bff/app/tests/integration/labs.test.ts`
-  - **Depends on**: T033-T038
-
-- [ ] **T049** [P0] Write integration tests for LabPage routes
-  - Test POST, GET, PUT endpoints
-  - Test validation
-  - **Estimate**: 4h | **File**: `apps/whatsnxt-bff/app/tests/integration/labPages.test.ts`
-  - **Depends on**: T039-T041
-
-- [ ] **T050** [P1] Write integration tests for DiagramShape routes
-  - Test GET with filtering
-  - **Estimate**: 1h | **File**: `apps/whatsnxt-bff/app/tests/integration/diagramShapes.test.ts`
-  - **Depends on**: T042
+**Checkpoint**: At this point, User Stories 1, 2, AND 3 should all work independently
 
 ---
 
-## Phase 6: Shared Packages - Diagram Shapes
+## Phase 6: User Story 4 - Instructor Creates Unique Questions (Priority: P1)
 
-### Common Shapes Package
-- [ ] **T051** [P1] Create `@whatsnxt/diagram-shapes-common` package
-  - Setup package.json
-  - Configure TypeScript
-  - **Estimate**: 1h | **File**: `packages/diagram-shapes-common/`
+**Goal**: Prevent instructors from creating duplicate or very similar questions (85% similarity threshold)
 
-- [ ] **T052** [P1] Define common shape types and interfaces
-  - Shape interface
-  - Metadata interface
-  - **Estimate**: 1h | **File**: `packages/diagram-shapes-common/src/types.ts`
+**Independent Test**: An instructor attempts to create a question that is 85% or more similar to an existing question in the lab, and the system rejects it with a clear error message
 
-- [ ] **T053** [P1] Implement common shapes (Server, Database, User, Network, etc.)
-  - Create shape definitions with SVG paths
-  - Add metadata (size, connection points)
-  - **Estimate**: 4h | **File**: `packages/diagram-shapes-common/src/shapes/`
-  - **Depends on**: T052
+### Implementation for User Story 4
 
-### AWS Shapes Package
-- [ ] **T054** [P1] Create `@whatsnxt/diagram-shapes-aws` package
-  - Setup package.json
-  - Configure TypeScript
-  - **Estimate**: 1h | **File**: `packages/diagram-shapes-aws/`
+- [ ] T060 [US4] Implement fuzzy matching validation in question save endpoint in apps/whatsnxt-bff/app/routes/lab.routes.ts
+- [ ] T061 [US4] Add cross-page question similarity check in apps/whatsnxt-bff/app/services/ValidationService.ts
+- [ ] T062 [US4] Return detailed error with similarity percentage and existing question in apps/whatsnxt-bff/app/services/ValidationService.ts
+- [ ] T063 [US4] Display fuzzy matching error with details in apps/web/app/labs/[id]/pages/[pageId]/page.tsx
 
-- [ ] **T055** [P1] Implement AWS shapes (EC2, S3, VPC, Lambda, RDS, etc.)
-  - Create shape definitions with SVG paths
-  - Add AWS-specific metadata
-  - **Estimate**: 5h | **File**: `packages/diagram-shapes-aws/src/shapes/`
-  - **Depends on**: T052
-
-### Azure Shapes Package
-- [ ] **T056** [P2] Create `@whatsnxt/diagram-shapes-azure` package
-  - Setup package.json
-  - Configure TypeScript
-  - **Estimate**: 1h | **File**: `packages/diagram-shapes-azure/`
-
-- [ ] **T057** [P2] Implement Azure shapes (VM, Storage, Functions, SQL, etc.)
-  - Create shape definitions with SVG paths
-  - Add Azure-specific metadata
-  - **Estimate**: 5h | **File**: `packages/diagram-shapes-azure/src/shapes/`
-  - **Depends on**: T052
-
-### GCP Shapes Package
-- [ ] **T058** [P2] Create `@whatsnxt/diagram-shapes-gcp` package
-  - Setup package.json
-  - Configure TypeScript
-  - **Estimate**: 1h | **File**: `packages/diagram-shapes-gcp/`
-
-- [ ] **T059** [P2] Implement GCP shapes (Compute Engine, Cloud Storage, etc.)
-  - Create shape definitions with SVG paths
-  - Add GCP-specific metadata
-  - **Estimate**: 5h | **File**: `packages/diagram-shapes-gcp/src/shapes/`
-  - **Depends on**: T052
-
-### Shape Registry
-- [ ] **T060** [P1] Create ShapeRegistry in `@whatsnxt/diagram-core`
-  - registerShapes(architectureType, shapes)
-  - getShapes(architectureType) - max complexity 5
-  - Support lazy loading of architecture-specific shapes
-  - **Estimate**: 3h | **File**: `packages/diagram-core/src/ShapeRegistry.ts`
-  - **Depends on**: T051-T059
+**Checkpoint**: Question uniqueness validation working across all pages in a lab
 
 ---
 
-## Phase 7: Frontend - Labs Page
+## Phase 7: User Story 5 - Instructor Searches Questions Efficiently (Priority: P2)
 
-### API Client
-- [ ] **T061** [P0] Add API endpoint constants to `@whatsnxt/constants`
-  - LABS_API, LAB_PAGES_API, DIAGRAM_SHAPES_API
-  - **Estimate**: 0.5h | **File**: `packages/constants/src/api.ts`
-  - **Depends on**: T009
+**Goal**: Enable instructors to search questions within a page and across all pages
 
-- [ ] **T062** [P0] Implement Lab API client functions
-  - getLabs(status, page, limit) using `@whatsnxt/http-client`
-  - createLab(data)
-  - updateLab(labId, data)
-  - deleteLab(labId)
-  - publishLab(labId)
-  - Remove all mock data/APIs
-  - **Estimate**: 3h | **File**: `apps/web/apis/lab.api.ts`
-  - **Depends on**: T033-T038, T061
+**Independent Test**: An instructor searches for questions using per-page search and global search, seeing filtered results in real-time
 
-### Components
-- [ ] **T063** [P0] Create LabCard component
-  - Display: title, description, labType badge, architectureType badge
-  - Edit button (routes to `/lab/create?id=${labId}`)
-  - Delete button (opens confirmation dialog)
-  - Responsive layout with Mantine components
-  - Max complexity 5
-  - **Estimate**: 3h | **File**: `apps/web/components/Labs/LabCard.tsx`
+### Implementation for User Story 5
 
-- [ ] **T064** [P0] Create DeleteLabDialog component
-  - Confirmation modal with lab name
-  - Cancel and Confirm buttons
-  - Call deleteLab API
-  - Show success notification
-  - Handle errors
-  - Max complexity 5
-  - **Estimate**: 2h | **File**: `apps/web/components/Labs/DeleteLabDialog.tsx`
-  - **Depends on**: T062
+- [ ] T064 [P] [US5] Add per-page search input with real-time filtering in apps/web/app/labs/[id]/pages/[pageId]/page.tsx
+- [ ] T065 [P] [US5] Add "No questions match your search" empty state in apps/web/app/labs/[id]/pages/[pageId]/page.tsx
+- [ ] T066 [US5] Update global search to include question text, type, and options in apps/web/app/labs/[id]/page.tsx
+- [ ] T067 [US5] Add results counter "Showing X of Y" in apps/web/app/labs/[id]/page.tsx
 
-- [ ] **T065** [P0] Create CreateLabModal component
-  - Form: name, description, labType, architectureType
-  - Validation: name, labType, architectureType required
-  - Submit creates lab via API
-  - Navigate to `/lab/create?id=${labId}` on success
-  - Max complexity 5
-  - **Estimate**: 3h | **File**: `apps/web/components/Labs/CreateLabModal.tsx`
-  - **Depends on**: T062
-
-- [ ] **T066** [P0] Create LabsList component
-  - Fetch labs with pagination from API
-  - Display LabCard components in grid
-  - Pagination controls (Mantine Pagination component)
-  - Loading state with spinner
-  - Empty state message
-  - Error state with retry button
-  - Sort by createdAt descending
-  - Max complexity 5
-  - **Estimate**: 4h | **File**: `apps/web/components/Labs/LabsList.tsx`
-  - **Depends on**: T062, T063, T064
-
-### Page Implementation
-- [ ] **T067** [P0] Refactor LabsPage component
-  - Display all labs section (published)
-  - Display draft labs section with LabsList
-  - "Create New Lab" button opens CreateLabModal
-  - Handle lab creation success (close modal, refresh list)
-  - Handle lab deletion success (refresh list)
-  - Max complexity 5
-  - **Estimate**: 3h | **File**: `apps/web/app/labs/page.tsx`
-  - **Depends on**: T065, T066
-
-### Frontend Tests
-- [ ] **T068** [P1] Write tests for LabCard component
-  - Test rendering
-  - Test Edit button click
-  - Test Delete button click
-  - **Estimate**: 1.5h | **File**: `apps/web/__tests__/components/Labs/LabCard.test.tsx`
-  - **Depends on**: T063
-
-- [ ] **T069** [P1] Write tests for DeleteLabDialog component
-  - Test modal open/close
-  - Test delete confirmation
-  - Test API call
-  - **Estimate**: 1.5h | **File**: `apps/web/__tests__/components/Labs/DeleteLabDialog.test.tsx`
-  - **Depends on**: T064
-
-- [ ] **T070** [P1] Write tests for CreateLabModal component
-  - Test form validation
-  - Test submission
-  - Test navigation
-  - **Estimate**: 2h | **File**: `apps/web/__tests__/components/Labs/CreateLabModal.test.tsx`
-  - **Depends on**: T065
-
-- [ ] **T071** [P1] Write tests for LabsList component
-  - Test data fetching
-  - Test pagination
-  - Test loading/error states
-  - **Estimate**: 2h | **File**: `apps/web/__tests__/components/Labs/LabsList.test.tsx`
-  - **Depends on**: T066
-
-- [ ] **T072** [P1] Write tests for LabsPage component
-  - Test rendering
-  - Test create lab flow
-  - Test delete lab flow
-  - **Estimate**: 2h | **File**: `apps/web/__tests__/app/labs/page.test.tsx`
-  - **Depends on**: T067
+**Checkpoint**: Search functionality working at both page and lab levels
 
 ---
 
-## Phase 8: Frontend - Lab Creation Page
+## Phase 8: User Story 6 - Instructor Navigates with Context Preservation (Priority: P2)
 
-### API Client Extensions
-- [ ] **T073** [P0] Implement LabPage API client functions
-  - getLabPages(labId)
-  - createLabPage(labId, data)
-  - updateLabPage(labId, pageId, data)
-  - **Estimate**: 2h | **File**: `apps/web/apis/labPage.api.ts`
-  - **Depends on**: T039-T041, T061
+**Goal**: Enable instructors to return to the exact page they came from when navigating between pages
 
-- [ ] **T074** [P1] Implement DiagramShape API client functions
-  - getShapes(architectureType)
-  - **Estimate**: 1h | **File**: `apps/web/apis/diagramShape.api.ts`
-  - **Depends on**: T042, T061
+**Independent Test**: An instructor on Page 2 clicks "Edit Tests", makes changes, then clicks "Back to Tests & Questions" and returns to Page 2
 
-### Lab Metadata Components
-- [ ] **T075** [P0] Create LabMetadataForm component
-  - Fields: name, description, labType, architectureType
-  - Real-time validation
-  - Auto-save on blur (debounced)
-  - Error messages
-  - Max complexity 5
-  - **Estimate**: 3h | **File**: `apps/web/components/LabCreation/LabMetadataForm.tsx`
-  - **Depends on**: T062
+### Implementation for User Story 6
 
-### Question Editor Components
-- [ ] **T076** [P0] Refactor QuestionEditor component
-  - Question type selector (MCQ, Text)
-  - Question text input
-  - Dynamic options list for MCQ (add/remove)
-  - Correct answer selection
-  - Validation: questionText required, MCQ ≥2 options
-  - Max complexity 5
-  - **Estimate**: 4h | **File**: `apps/web/components/LabCreation/QuestionEditor.tsx`
+- [ ] T068 [US6] Add URL state management for tab and page parameters in apps/web/app/labs/[id]/page.tsx
+- [ ] T069 [US6] Update page editor to accept and preserve return URL parameters in apps/web/app/labs/[id]/pages/[pageId]/page.tsx
+- [ ] T070 [US6] Update "Back to Tests & Questions" to use return URL in apps/web/app/labs/[id]/pages/[pageId]/page.tsx
+- [ ] T071 [US6] Update "Edit Tests" button to include current tab and page in URL in apps/web/app/labs/[id]/page.tsx
 
-### Diagram Editor Components
-- [ ] **T077** [P0] Create DiagramTestToggle component
-  - Toggle switch to enable/disable diagram test
-  - Show/hide diagram editor based on state
-  - Max complexity 5
-  - **Estimate**: 1h | **File**: `apps/web/components/LabCreation/DiagramTestToggle.tsx`
-
-- [ ] **T078** [P1] Refactor ShapePalette component
-  - Use ShapeRegistry to get shapes
-  - Filter by architectureType (from lab metadata)
-  - Display common shapes + architecture-specific shapes
-  - Drag-and-drop support
-  - Max complexity 5
-  - **Estimate**: 4h | **File**: `apps/web/components/DiagramEditor/ShapePalette.tsx`
-  - **Depends on**: T060, T074
-
-- [ ] **T079** [P1] Refactor DiagramCanvas component
-  - Drop target for shapes from palette
-  - Render shapes on canvas
-  - Support shape connections
-  - Store diagram state (shapes, positions, connections)
-  - Max complexity 5
-  - **Estimate**: 5h | **File**: `apps/web/components/DiagramEditor/DiagramCanvas.tsx`
-  - **Depends on**: T060
-
-### Validation Services
-- [ ] **T080** [P0] Create PageValidator client-side service
-  - validatePage(pageData) - max complexity 5
-  - Validate at least one test type
-  - Validate question if present (questionText, options)
-  - Validate diagram if present (at least one shape)
-  - Return descriptive error messages
-  - **Estimate**: 2h | **File**: `apps/web/utils/PageValidator.ts`
-
-### Page Navigation and Actions
-- [ ] **T081** [P0] Create PageNavigator component
-  - Stepper or tabs for page navigation
-  - Show page numbers and status (completed, current)
-  - Click to navigate between pages
-  - Max complexity 5
-  - **Estimate**: 3h | **File**: `apps/web/components/LabCreation/PageNavigator.tsx`
-
-- [ ] **T082** [P0] Implement page save logic
-  - "Next" button handler
-  - Validate current page using PageValidator
-  - Call createLabPage or updateLabPage API
-  - Navigate to next page on success
-  - Show error on validation failure
-  - Max complexity 5
-  - **Estimate**: 3h | **File**: `apps/web/app/lab/create/page.tsx`
-  - **Depends on**: T073, T080
-
-- [ ] **T083** [P0] Implement draft save logic
-  - "Save as Draft" button handler
-  - Validate current page
-  - Save page via API
-  - Show success notification
-  - Stay on current page
-  - Max complexity 5
-  - **Estimate**: 2h | **File**: `apps/web/app/lab/create/page.tsx`
-  - **Depends on**: T073, T080
-
-- [ ] **T084** [P0] Implement publish logic
-  - "Publish" button handler
-  - Validate all pages have at least one test
-  - Validate no empty tests
-  - Show confirmation dialog
-  - Call publishLab API
-  - Navigate to Labs page on success
-  - Max complexity 5
-  - **Estimate**: 3h | **File**: `apps/web/app/lab/create/page.tsx`
-  - **Depends on**: T062, T080
-
-- [ ] **T085** [P0] Implement edit draft logic
-  - Load draft data when labId in URL query
-  - Fetch lab metadata and pre-fill LabMetadataForm
-  - Fetch existing pages and populate PageNavigator
-  - Load current page data
-  - Preserve changes during page navigation
-  - Max complexity 5
-  - **Estimate**: 4h | **File**: `apps/web/app/lab/create/page.tsx`
-  - **Depends on**: T062, T073
-
-### Lab Creation Page Assembly
-- [ ] **T086** [P0] Refactor LabCreationPage component
-  - Back button to navigate to Labs page
-  - LabMetadataForm at top
-  - PageNavigator below metadata
-  - Current page editor area (Question + Diagram)
-  - Action buttons: Back, Save as Draft, Next, Publish
-  - Max complexity 5
-  - **Estimate**: 4h | **File**: `apps/web/app/lab/create/page.tsx`
-  - **Depends on**: T075-T085
-
-### Frontend Tests
-- [ ] **T087** [P1] Write tests for LabMetadataForm
-  - Test validation
-  - Test auto-save
-  - **Estimate**: 1.5h | **File**: `apps/web/__tests__/components/LabCreation/LabMetadataForm.test.tsx`
-  - **Depends on**: T075
-
-- [ ] **T088** [P1] Write tests for QuestionEditor
-  - Test question type switching
-  - Test option management
-  - Test validation
-  - **Estimate**: 2h | **File**: `apps/web/__tests__/components/LabCreation/QuestionEditor.test.tsx`
-  - **Depends on**: T076
-
-- [ ] **T089** [P1] Write tests for DiagramTestToggle
-  - Test toggle behavior
-  - **Estimate**: 0.5h | **File**: `apps/web/__tests__/components/LabCreation/DiagramTestToggle.test.tsx`
-  - **Depends on**: T077
-
-- [ ] **T090** [P2] Write tests for ShapePalette
-  - Test shape rendering
-  - Test filtering by architectureType
-  - **Estimate**: 1.5h | **File**: `apps/web/__tests__/components/DiagramEditor/ShapePalette.test.tsx`
-  - **Depends on**: T078
-
-- [ ] **T091** [P2] Write tests for DiagramCanvas
-  - Test shape rendering
-  - Test drag-and-drop
-  - **Estimate**: 2h | **File**: `apps/web/__tests__/components/DiagramEditor/DiagramCanvas.test.tsx`
-  - **Depends on**: T079
-
-- [ ] **T092** [P1] Write tests for PageValidator
-  - Test all validation rules
-  - Test error messages
-  - **Estimate**: 1.5h | **File**: `apps/web/__tests__/utils/PageValidator.test.ts`
-  - **Depends on**: T080
-
-- [ ] **T093** [P1] Write tests for LabCreationPage
-  - Test page load with draft data
-  - Test page navigation
-  - Test save operations
-  - Test publish flow
-  - **Estimate**: 4h | **File**: `apps/web/__tests__/app/lab/create/page.test.tsx`
-  - **Depends on**: T086
+**Checkpoint**: Navigation context preserved across all page transitions
 
 ---
 
-## Phase 9: Integration and Testing
+## Phase 9: User Story 7 - Instructor Creates Diagram Test with Architecture Shapes (Priority: P1)
 
-### End-to-End Testing
-- [ ] **T094** [P0] E2E test: Create lab draft flow
-  - Navigate to Labs page
-  - Click "Create New Lab"
-  - Fill lab metadata
-  - Navigate to creation page
-  - Create page with question
-  - Save as draft
-  - Verify draft in list
-  - **Estimate**: 3h | **File**: `apps/web/__tests__/e2e/createLabDraft.test.ts`
+**Goal**: Enable instructors to create a diagram test by selecting an architecture type and building a diagram with specific shapes
 
-- [ ] **T095** [P0] E2E test: Edit and delete draft flow
-  - Load Labs page with draft
-  - Click Edit on draft
-  - Modify lab metadata
-  - Save changes
-  - Return to Labs page
-  - Delete draft
-  - Verify deletion
-  - **Estimate**: 2.5h | **File**: `apps/web/__tests__/e2e/editDeleteDraft.test.ts`
+**Independent Test**: An instructor selects AWS architecture, sees AWS shapes, drags them onto a canvas, connects them, and saves the diagram
 
-- [ ] **T096** [P0] E2E test: Publish lab flow
-  - Create lab with multiple pages
-  - Add questions and diagram tests
-  - Validate all pages
-  - Click Publish
-  - Verify lab status changed
-  - **Estimate**: 3h | **File**: `apps/web/__tests__/e2e/publishLab.test.ts`
+### Implementation for User Story 7
 
-- [ ] **T097** [P1] E2E test: Validation errors flow
-  - Attempt to save page without tests
-  - Verify error message
-  - Attempt to save empty question
-  - Verify error message
-  - Attempt to save empty diagram
-  - Verify error message
-  - **Estimate**: 2h | **File**: `apps/web/__tests__/e2e/validationErrors.test.ts`
+- [ ] T072 [P] [US7] Create DiagramShapeService with getShapes method in apps/whatsnxt-bff/app/services/DiagramShapeService.ts
+- [ ] T073 [US7] Implement GET /api/v1/diagram-shapes endpoint with architectureType filter in apps/whatsnxt-bff/app/routes/lab.routes.ts
+- [ ] T074 [US7] Implement POST /api/v1/labs/:labId/pages/:pageId/diagram-test endpoint in apps/whatsnxt-bff/app/routes/lab.routes.ts
+- [ ] T075 [US7] Implement DELETE /api/v1/labs/:labId/pages/:pageId/diagram-test endpoint in apps/whatsnxt-bff/app/routes/lab.routes.ts
+- [ ] T076 [US7] Create diagramShape.api.ts with getShapes method in apps/web/apis/diagramShape.api.ts
+- [ ] T077 [US7] Add saveDiagramTest API call in apps/web/apis/labPage.api.ts
+- [ ] T078 [US7] Add deleteDiagramTest API call in apps/web/apis/labPage.api.ts
+- [ ] T079 [US7] Create Diagram Test tab in page editor in apps/web/app/labs/[id]/pages/[pageId]/page.tsx
+- [ ] T080 [US7] Add architecture type selector in Diagram Test tab in apps/web/app/labs/[id]/pages/[pageId]/page.tsx
+- [ ] T081 [US7] Add prompt input field (10-2000 characters) in Diagram Test tab in apps/web/app/labs/[id]/pages/[pageId]/page.tsx
+- [ ] T082 [US7] Load and display shapes based on architecture type in apps/web/app/labs/[id]/pages/[pageId]/page.tsx
+- [ ] T083 [US7] Add "Save Diagram Test" button with validation in apps/web/app/labs/[id]/pages/[pageId]/page.tsx
 
-- [ ] **T098** [P1] E2E test: Pagination flow
-  - Create >3 draft labs
-  - Verify pagination controls appear
-  - Navigate between pages
-  - Verify latest on top
-  - **Estimate**: 2h | **File**: `apps/web/__tests__/e2e/pagination.test.ts`
-
-### Performance Testing
-- [ ] **T099** [P1] Performance test: Labs page load time
-  - Measure page load with 50 labs
-  - Target: <2 seconds
-  - **Estimate**: 2h
-
-- [ ] **T100** [P1] Performance test: Diagram editor performance
-  - Measure rendering time with 20+ shapes
-  - Optimize if needed
-  - **Estimate**: 3h
-
-### Code Quality Checks
-- [ ] **T101** [P0] Verify cyclomatic complexity ≤ 5
-  - Run complexity analysis on all new functions
-  - Refactor if complexity > 5
-  - **Estimate**: 3h
-
-- [ ] **T102** [P0] Verify no mock data or APIs in codebase
-  - Code review of all API client files
-  - Search for "mock" keyword
-  - Verify all APIs connect to real backend
-  - **Estimate**: 2h
-
-- [ ] **T103** [P0] Verify code coverage targets
-  - Backend: >80% coverage
-  - Frontend: >70% coverage
-  - Write additional tests if needed
-  - **Estimate**: 4h
-
-### Accessibility Testing
-- [ ] **T104** [P1] Accessibility test: Keyboard navigation
-  - Test all forms with keyboard only
-  - Test modal dialogs
-  - Test pagination controls
-  - **Estimate**: 2h
-
-- [ ] **T105** [P1] Accessibility test: Screen reader compatibility
-  - Test with NVDA/JAWS
-  - Add ARIA labels where needed
-  - **Estimate**: 2h
-
-### Security Testing
-- [ ] **T106** [P0] Security test: Authentication flows
-  - Test protected routes
-  - Test token expiration
-  - **Estimate**: 2h
-
-- [ ] **T107** [P0] Security test: Authorization (RBAC)
-  - Test instructor-only operations
-  - Test student cannot create/edit/delete labs
-  - **Estimate**: 2h
-
-- [ ] **T108** [P1] Security test: Input validation
-  - Test XSS prevention
-  - Test SQL injection prevention (MongoDB)
-  - **Estimate**: 2h
+**Checkpoint**: Diagram test creation functional with architecture-specific shapes
 
 ---
 
-## Phase 10: Documentation and Deployment
+## Phase 10: User Story 8 - Instructor Uses D3.js Diagram Editor (Priority: P1)
 
-### Documentation
-- [ ] **T109** [P1] Update README with new features
-  - Document Labs page functionality
-  - Document lab creation workflow
-  - **Estimate**: 2h | **File**: `README.md`
+**Goal**: Integrate existing DiagramEditor component into Diagram Test tab with save/load functionality
 
-- [ ] **T110** [P1] Create API documentation
-  - Document all new endpoints
-  - Include request/response examples
-  - **Estimate**: 3h | **File**: `docs/api/labs.md`
+**Independent Test**: An instructor opens the diagram editor, adds multiple shapes, connects them, moves them around, undoes actions, zooms in/out, and saves the diagram
 
-- [ ] **T111** [P2] Create user guide for instructors
-  - How to create labs
-  - How to manage drafts
-  - How to publish labs
-  - **Estimate**: 3h | **File**: `docs/guides/instructor-guide.md`
+**Note**: DiagramEditor component already exists at apps/web/components/architecture-lab/DiagramEditor.tsx
 
-### Deployment Preparation
-- [ ] **T112** [P0] Configure environment variables
-  - MongoDB connection string
-  - OAuth2 configuration
-  - API base URLs
-  - **Estimate**: 1h | **File**: `.env.example`
+### Implementation for User Story 8
 
-- [ ] **T113** [P0] Create database migration scripts
-  - Add indexes to MongoDB collections
-  - Seed DiagramShape data
-  - **Estimate**: 2h | **File**: `apps/whatsnxt-bff/migrations/`
+- [ ] T084 [US8] Import DiagramEditor component into page editor in apps/web/app/labs/[id]/pages/[pageId]/page.tsx
+- [ ] T085 [US8] Pass shapes to DiagramEditor as toolbar shapes in apps/web/app/labs/[id]/pages/[pageId]/page.tsx
+- [ ] T086 [US8] Implement onExport handler to capture diagram state in apps/web/app/labs/[id]/pages/[pageId]/page.tsx
+- [ ] T087 [US8] Save diagram state to expectedDiagramState on "Save Diagram Test" in apps/web/app/labs/[id]/pages/[pageId]/page.tsx
+- [ ] T088 [US8] Load existing diagram state into DiagramEditor on page load in apps/web/app/labs/[id]/pages/[pageId]/page.tsx
+- [ ] T089 [US8] Add validation to prevent empty diagram saves in apps/web/app/labs/[id]/pages/[pageId]/page.tsx
 
-- [ ] **T114** [P1] Update Docker configuration
-  - Update Dockerfile for backend
-  - Update docker-compose.yml
-  - **Estimate**: 2h | **File**: `docker/`
-
-### Deployment
-- [ ] **T115** [P0] Deploy backend to staging
-  - Build backend
-  - Deploy to staging environment
-  - Run smoke tests
-  - **Estimate**: 2h
-
-- [ ] **T116** [P0] Deploy frontend to staging
-  - Build frontend
-  - Deploy to staging environment
-  - Run smoke tests
-  - **Estimate**: 2h
-
-- [ ] **T117** [P0] Staging verification
-  - Test all user flows in staging
-  - Test with real data
-  - **Estimate**: 3h
-
-- [ ] **T118** [P0] Deploy to production
-  - Deploy backend to production
-  - Deploy frontend to production
-  - Run smoke tests
-  - Monitor for errors
-  - **Estimate**: 3h
-
-### Monitoring Setup
-- [ ] **T119** [P0] Configure Winston logs integration
-  - Setup log aggregation service
-  - Configure log levels
-  - **Estimate**: 2h
-
-- [ ] **T120** [P0] Setup error alerting
-  - Configure alerts for 5xx errors
-  - Configure alerts for failed validations
-  - **Estimate**: 1.5h
-
-- [ ] **T121** [P1] Setup performance monitoring
-  - Monitor API response times
-  - Monitor page load times
-  - **Estimate**: 2h
-
-- [ ] **T122** [P1] Post-deployment verification
-  - Test all user flows in production
-  - Monitor error rates
-  - Gather initial user feedback
-  - **Estimate**: 4h
+**Checkpoint**: DiagramEditor fully integrated with save/load functionality
 
 ---
 
-## Task Summary
+## Phase 11: User Story 11 - Student Reconstructs Architecture Diagram (Priority: P1)
 
-### By Phase
-- **Phase 0 (Research)**: 9 tasks
-- **Phase 1 (Design)**: 3 tasks
-- **Phase 2 (Backend Types/Models)**: 11 tasks
-- **Phase 3 (Backend Services)**: 5 tasks
-- **Phase 4 (Backend Routes)**: 18 tasks
-- **Phase 5 (Backend Tests)**: 8 tasks
-- **Phase 6 (Diagram Shapes)**: 10 tasks
-- **Phase 7 (Labs Page)**: 12 tasks
-- **Phase 8 (Lab Creation)**: 21 tasks
-- **Phase 9 (Integration)**: 16 tasks
-- **Phase 10 (Docs & Deploy)**: 14 tasks
+**Goal**: Implement diagram jumbling algorithm and student test interface
 
-**Total**: 127 tasks
+**Independent Test**: A student opens a diagram test, sees shapes randomized with no connections, reconstructs the architecture by dragging shapes and creating links, submits their answer, and receives immediate grading
 
-### By Priority
-- **P0 (Critical)**: 77 tasks
-- **P1 (High)**: 35 tasks
-- **P2 (Medium)**: 15 tasks
+### Implementation for User Story 11
 
-### Estimated Time
-- **Total estimated hours**: ~310 hours
-- **Estimated weeks (40h/week)**: ~7.75 weeks
-- **Estimated weeks (with 20% buffer)**: ~9.5 weeks
+- [ ] T090 [P] [US11] Implement extractNestedShapes utility function in apps/web/utils/lab-utils.ts
+- [ ] T091 [US11] Enhance jumbleGraph to move at least one nested shape outside in apps/web/utils/lab-utils.ts
+- [ ] T092 [US11] Test jumbleGraph and validateGraph algorithms in apps/web/utils/lab-utils.ts
+- [ ] T093 [US11] Create student test page at apps/web/app/labs/[id]/test/page.tsx
+- [ ] T094 [US11] Implement role-based diagram display (jumbled for students, original for instructors) in apps/web/app/labs/[id]/test/page.tsx
+- [ ] T095 [US11] Add submit button for student diagram in apps/web/app/labs/[id]/test/page.tsx
+- [ ] T096 [US11] Display grading results with score and feedback in apps/web/app/labs/[id]/test/page.tsx
+- [ ] T097 [US11] Show green checkmarks on correct connections in apps/web/app/labs/[id]/test/page.tsx
+- [ ] T098 [US11] Show red X marks on incorrect connections in apps/web/app/labs/[id]/test/page.tsx
+
+**Checkpoint**: Student diagram reconstruction and grading fully functional
 
 ---
 
-## Dependencies Graph
+## Phase 12: Polish & Cross-Cutting Concerns
 
-### Critical Path
-```
-T001-T006 (Research)
-  → T010-T012 (Design)
-    → T013-T023 (Types & Models)
-      → T024-T028 (Services)
-        → T029-T042 (Routes & Middleware)
-          → T062 (API Client)
-            → T063-T067 (Labs Page)
-            → T073-T086 (Lab Creation Page)
-              → T094-T098 (E2E Tests)
-                → T115-T118 (Deployment)
+**Purpose**: Improvements that affect multiple user stories
+
+- [ ] T099 [P] Add comprehensive unit tests for all services in apps/whatsnxt-bff/app/tests/unit/
+- [ ] T100 [P] Add integration tests for all API endpoints in apps/whatsnxt-bff/app/tests/integration/
+- [ ] T101 [P] Add contract tests for OpenAPI specs in apps/whatsnxt-bff/app/tests/contract/
+- [ ] T102 [P] Add frontend unit tests for components in apps/web/__tests__/unit/
+- [ ] T103 [P] Add frontend integration tests in apps/web/__tests__/integration/
+- [ ] T104 [P] Add E2E tests for critical user journeys in apps/web/__tests__/e2e/
+- [ ] T105 Code quality audit (cyclomatic complexity ≤5, SOLID principles) across all new code
+- [ ] T106 [P] Add retry logic with exponential backoff in packages/http-client/src/index.ts
+- [ ] T107 [P] Add detailed logging for all API operations in apps/whatsnxt-bff/app/middleware/logger.ts
+- [ ] T108 [P] Optimize database queries with indexes in apps/whatsnxt-bff/app/models/
+- [ ] T109 [P] Add API documentation with Swagger UI in apps/whatsnxt-bff/app/routes/
+- [ ] T110 [P] Update README with feature documentation in docs/
+- [ ] T111 Validate all scenarios from quickstart.md in specs/001-lab-diagram-test/quickstart.md
+- [ ] T112 Performance testing (load time <2s, API response <1s) across all endpoints
+
+---
+
+## Dependencies & Execution Order
+
+### Phase Dependencies
+
+- **Setup (Phase 1)**: No dependencies - can start immediately
+- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
+- **User Stories (Phase 3-11)**: All depend on Foundational phase completion
+  - US1 (Labs Management) → Can start after Foundational
+  - US2 (Lab Detail/Pages) → Depends on US1 (needs lab to exist)
+  - US3 (Multiple Questions) → Depends on US2 (needs page to exist)
+  - US4 (Question Uniqueness) → Depends on US3 (needs questions to validate)
+  - US5 (Search) → Depends on US3 (needs questions to search)
+  - US6 (Navigation Context) → Depends on US2 (needs pages to navigate)
+  - US7 (Diagram Test) → Depends on US2 (needs page to add diagram)
+  - US8 (DiagramEditor Integration) → Depends on US7 (needs diagram test structure)
+  - US11 (Student Interface) → Depends on US8 (needs complete diagram functionality)
+- **Polish (Phase 12)**: Depends on all desired user stories being complete
+
+### User Story Dependencies
+
+- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
+- **User Story 2 (P1)**: Depends on US1 completion - Needs labs to exist
+- **User Story 3 (P1)**: Depends on US2 completion - Needs pages to exist
+- **User Story 4 (P1)**: Depends on US3 completion - Needs questions to validate
+- **User Story 5 (P2)**: Depends on US3 completion - Needs questions to search
+- **User Story 6 (P2)**: Depends on US2 completion - Needs pages to navigate
+- **User Story 7 (P1)**: Depends on US2 completion - Needs pages to add diagram
+- **User Story 8 (P1)**: Depends on US7 completion - Needs diagram test structure
+- **User Story 11 (P1)**: Depends on US8 completion - Needs complete diagram functionality
+
+### Within Each User Story
+
+- Backend models before services
+- Services before API routes
+- API routes before frontend API clients
+- Frontend API clients before UI components
+- Core implementation before validation and error handling
+- Story complete before moving to next priority
+
+### Parallel Opportunities
+
+- All Setup tasks marked [P] can run in parallel
+- All Foundational tasks marked [P] can run in parallel (within Phase 2)
+- T016 (LabService) can be developed in parallel with T006-T010 (Models) once models are defined
+- Within US1: T023-T029 (Frontend API client) can be written while backend is being tested
+- Within US2: T040 (labPage.api.ts) can be written in parallel with T041-T046 (UI components)
+- Within US7: T072-T075 (Backend) and T076-T078 (API client) can proceed independently once models exist
+- All Polish tasks marked [P] can run in parallel once feature complete
+
+---
+
+## Parallel Example: User Story 1
+
+```bash
+# After Foundational phase completes, all US1 backend work can start together:
+Task: "Create LabService with createLab, getLabs, getLabById..." (T016)
+Task: "Implement POST /api/v1/labs endpoint" (T017)
+Task: "Implement GET /api/v1/labs endpoint with pagination" (T018)
+
+# Once backend APIs are ready, all frontend API client work can start:
+Task: "Remove ALL mock implementations from apps/web/apis/lab.api.ts" (T023)
+Task: "Implement real createLab API call" (T024)
+Task: "Implement real getLabs API call" (T025)
+
+# Once API client is ready, all UI enhancements can start in parallel:
+Task: "Add labType and architectureType fields to create lab form" (T030)
+Task: "Add pagination UI for labs list" (T031)
+Task: "Add sorting by createdAt descending" (T032)
+Task: "Add delete button with confirmation dialog" (T033)
 ```
 
-### Parallel Work Opportunities
-- **Backend Services** (T024-T028) can be developed in parallel
-- **Backend Routes** (T033-T042) can be developed in parallel after services
-- **Backend Unit Tests** (T043-T047) can run parallel with route development
-- **Diagram Shape Packages** (T051-T059) can be developed independently
-- **Frontend Components** (T063-T066, T075-T079) can be developed in parallel
-- **Frontend Tests** (T068-T072, T087-T093) can run parallel with component development
+---
+
+## Implementation Strategy
+
+### MVP First (User Stories 1-4 Only)
+
+1. Complete Phase 1: Setup
+2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
+3. Complete Phase 3: User Story 1 (Labs Management)
+4. Complete Phase 4: User Story 2 (Lab Detail/Pages)
+5. Complete Phase 5: User Story 3 (Multiple Questions)
+6. Complete Phase 6: User Story 4 (Question Uniqueness)
+7. **STOP and VALIDATE**: Test all 4 user stories independently
+8. Deploy/demo if ready
+
+**MVP Scope**: Instructors can create labs, manage pages, add up to 30 unique questions per page
+
+### Incremental Delivery
+
+1. Complete Setup + Foundational → Foundation ready
+2. Add User Story 1 → Test independently → Deploy/Demo (Basic lab management!)
+3. Add User Story 2 → Test independently → Deploy/Demo (Lab detail editing!)
+4. Add User Story 3 → Test independently → Deploy/Demo (Multiple questions!)
+5. Add User Story 4 → Test independently → Deploy/Demo (Question uniqueness!)
+6. Add User Story 7 + 8 → Test independently → Deploy/Demo (Diagram tests!)
+7. Add User Story 11 → Test independently → Deploy/Demo (Student interface!)
+8. Each story adds value without breaking previous stories
+
+### Parallel Team Strategy
+
+With multiple developers:
+
+1. Team completes Setup + Foundational together
+2. Once Foundational is done:
+   - Developer A: User Story 1 + User Story 5 (Labs + Search)
+   - Developer B: User Story 2 + User Story 6 (Pages + Navigation)
+   - Developer C: User Story 3 + User Story 4 (Questions + Uniqueness)
+   - Developer D: User Story 7 + User Story 8 (Diagram Test + Editor)
+3. Stories complete and integrate independently
 
 ---
 
 ## Notes
 
-1. **No Mock Data**: All tasks must use real backend APIs. Tasks T003 and T062 specifically address removing mock implementations.
+- [P] tasks = different files, no dependencies
+- [Story] label maps task to specific user story for traceability
+- Each user story should be independently completable and testable
+- Commit after each task or logical group
+- Stop at any checkpoint to validate story independently
+- **CRITICAL**: Remove ALL mock implementations (T023) - violates constitution
+- **CRITICAL**: Complete backend before frontend for each user story
+- **DiagramEditor component**: Already exists and is fully functional - only integration needed
+- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
+- All new code must follow SOLID principles and maintain cyclomatic complexity ≤5
+- All tests must use Vitest (not Jest)
+- No mock data or APIs in any environment
 
-2. **Cyclomatic Complexity**: All functions must maintain complexity ≤ 5. Task T101 verifies this requirement.
+---
 
-3. **Diagram Shape Separation**: Tasks T051-T060 implement proper architectural separation of shapes.
+## Task Statistics
 
-4. **Validation at Multiple Layers**: Validation occurs at:
-   - Frontend (T080)
-   - Backend middleware (T030)
-   - Backend services (T024)
-   - Database models (T019-T023)
+**Total Tasks**: 112
+**Task Distribution by User Story**:
+- Setup: 5 tasks
+- Foundational: 10 tasks
+- User Story 1: 19 tasks
+- User Story 2: 12 tasks
+- User Story 3: 13 tasks
+- User Story 4: 4 tasks
+- User Story 5: 4 tasks
+- User Story 6: 4 tasks
+- User Story 7: 12 tasks
+- User Story 8: 6 tasks
+- User Story 11: 9 tasks
+- Polish: 14 tasks
 
-5. **TypeScript Conversion**: Task T016 handles converting existing JavaScript files to TypeScript before adding new logic.
+**Parallel Opportunities**: 28 tasks marked [P]
 
-6. **Testing Coverage**:
-   - Backend target: >80% (verified in T103)
-   - Frontend target: >70% (verified in T103)
+**Suggested MVP Scope**: Setup + Foundational + US1 + US2 + US3 + US4 (53 tasks)
 
-7. **SOLID Principles**: All new code follows SOLID principles with services separated by responsibility and max complexity enforced.
+**Estimated Timeline**:
+- Setup + Foundational: 1 week
+- MVP (US1-US4): 3 weeks
+- Diagram Features (US7-US8): 2 weeks
+- Student Interface (US11): 1 week
+- Polish: 1 week
+- **Total**: ~8 weeks with 1 developer, ~4 weeks with 2 developers
+
+---
+
+**Generated**: 2025-12-15
+**Feature**: Lab Diagram Tests (001-lab-diagram-test)
+**Status**: 80% complete (backend + some frontend), integration pending
+**Next Phase**: DiagramEditor integration (US8), then student interface (US11)

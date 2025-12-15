@@ -1,23 +1,24 @@
 <!--
 Sync Impact Report
 
-- Version change: 5.0.1 → 5.1.0
-- List of modified principles: Added Section XI (Real Data and API Standards)
-- Added sections: Section XI - Real Data and API Standards
+- Version change: 5.1.0 → 5.2.0
+- List of modified principles: Updated Section VI (API Communication Standards)
+- Added sections: None
 - Removed sections: None
 - Modified content:
-  - Added prohibition of mock APIs, mock data, stub implementations, and hardcoded fake data
-  - Added requirement for real backend APIs and real data sources in all environments
-  - Added constraint to Additional Constraints section
+  - Added requirement for D3.js library for all diagram and shape rendering
+  - Added D3.js to technology stack in Additional Constraints
+  - Updated rationale to include justification for D3.js requirement
 - Templates requiring updates:
-  - ⚠️ All development and testing documentation should reference real API usage requirement
-  - ⚠️ Code review templates should include check for mock data/API usage
-  - ⚠️ Testing guidelines should specify use of real backend services or sandboxed instances
+  - ⚠️ Diagram and visualization components should be reviewed to use D3.js
+  - ⚠️ Development documentation should specify D3.js for diagram features
+  - ⚠️ Component library documentation should include D3.js usage guidelines
 - Follow-up TODOs:
-  - Audit existing codebase for mock APIs and mock data
-  - Remove any existing mock implementations
-  - Update development setup documentation to require backend services
-  - Configure test environments with real database instances or sandboxes
+  - Install D3.js library (npm install d3 @types/d3)
+  - Audit existing diagram components for D3.js migration
+  - Create D3.js diagram component templates and utilities
+  - Update development setup documentation to include D3.js
+  - Create D3.js best practices guide for diagram rendering
 -->
 
 # WhatsNxt Constitution
@@ -75,7 +76,9 @@ This ensures consistent error handling, request/response interceptors, retry log
 
 All backend applications MUST use Winston for structured logging. Winston provides consistent log formatting, multiple transport options (console, file, cloud services), log level management, and production-ready error tracking. Logs MUST include contextual metadata (request IDs, user IDs, timestamps) to enable effective debugging and observability.
 
-**Rationale**: Express.js version 5 is the latest stable release of the industry-standard, battle-tested framework with extensive ecosystem support, improved performance, and modern async/await patterns. Reusing the shared axios client from `@whatsnxt/http-client` eliminates configuration drift, ensures consistent behavior across all services, and simplifies debugging and monitoring. Winston is the most mature and widely adopted Node.js logging library, offering structured logging with minimum overhead.
+**Diagram and Shape Rendering**: All diagrams and diagram shapes MUST be created and rendered using the D3.js library. Applications MUST NOT use alternative visualization libraries for diagram-related features. D3.js provides powerful, flexible, and performant SVG-based rendering with extensive support for data-driven transformations, animations, and interactions.
+
+**Rationale**: Express.js version 5 is the latest stable release of the industry-standard, battle-tested framework with extensive ecosystem support, improved performance, and modern async/await patterns. Reusing the shared axios client from `@whatsnxt/http-client` eliminates configuration drift, ensures consistent behavior across all services, and simplifies debugging and monitoring. Winston is the most mature and widely adopted Node.js logging library, offering structured logging with minimum overhead. D3.js is the industry-standard library for complex data visualizations and diagrams, providing complete control over SVG rendering, excellent performance, and extensive community support for architectural diagrams and interactive visualizations.
 
 ### VII. Documentation Standards
 All features MUST include High-Level Design (HLD) and Low-Level Design (LLD) architectural diagrams. User stories MUST be accompanied by user flow diagrams or sequence diagrams. Documentation MUST be maintained alongside code changes. OpenAPI specifications MUST be in JSON format (not YAML) for consistency and tooling compatibility.
@@ -108,7 +111,7 @@ All API integrations MUST connect to actual backend services. Test environments 
 
 ## Additional Constraints
 
-- Technology stack: Turbo monorepo, Next.js 16 (frontend) with React 19 and Webpack bundling, Node.js 24 LTS (runtime), Mantine UI (frontend components), pnpm 10+ workspace, Express.js v5 (backend APIs), axios from `@whatsnxt/http-client` for all HTTP communication, Winston (backend logging), Docker with Node Alpine base images for deployment
+- Technology stack: Turbo monorepo, Next.js 16 (frontend) with React 19 and Webpack bundling, Node.js 24 LTS (runtime), Mantine UI (frontend components), pnpm 10+ workspace, Express.js v5 (backend APIs), axios from `@whatsnxt/http-client` for all HTTP communication, Winston (backend logging), D3.js (diagram and shape rendering), Docker with Node Alpine base images for deployment
 - All components and packages MUST be reusable.
 - Common functionality MUST be extracted into `@whatsnxt/*` workspace packages in the `packages/` directory.
 - Applications MUST reuse existing workspace packages and MUST NOT create duplicate implementations.
@@ -116,6 +119,7 @@ All API integrations MUST connect to actual backend services. Test environments 
 - All custom errors MUST use error classes from `@whatsnxt/errors` workspace package.
 - All constants MUST be defined in `@whatsnxt/constants` workspace package and imported where needed.
 - All HTTP communication MUST reuse axios client from `@whatsnxt/http-client` workspace package.
+- All diagrams and diagram shapes MUST be created using D3.js library.
 - Maximum cyclomatic complexity is 5 for all functions and methods.
 - Accessibility and code readability are non-negotiable.
 - CSS classes preferred over inline Mantine styles for performance optimization.
@@ -145,4 +149,4 @@ All API integrations MUST connect to actual backend services. Test environments 
 
 This constitution supersedes all other practices and guidance. Amendments require documentation, approval, and a migration plan. All PRs and reviews MUST verify compliance. Complexity MUST be justified. Use runtime guidance files for development reference.
 
-**Version**: 5.1.0 | **Ratified**: 2025-11-03 | **Last Amended**: 2025-12-12
+**Version**: 5.2.0 | **Ratified**: 2025-11-03 | **Last Amended**: 2025-12-15
