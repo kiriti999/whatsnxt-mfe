@@ -136,9 +136,24 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
         const linkLayer = g.append('g').attr('class', 'layer-links');
         const nodeLayer = g.append('g').attr('class', 'layer-nodes');
 
-        // Zoom Behavior
+        // Zoom Behavior - Only zoom with Ctrl+wheel or pinch, not regular scroll
         const zoom = d3.zoom<SVGSVGElement, unknown>()
             .scaleExtent([0.1, 4])
+            .filter((event) => {
+                // Allow zoom only if:
+                // 1. Ctrl/Cmd key is pressed (for mouse wheel zoom)
+                // 2. It's a touch event with multiple touches (pinch gesture)
+                // 3. It's not a wheel event without modifier keys (prevent scroll zoom)
+                if (event.type === 'wheel') {
+                    return event.ctrlKey || event.metaKey; // Only zoom with Ctrl/Cmd + wheel
+                }
+                // Allow touch events (pinch zoom)
+                if (event.type === 'touchstart' || event.type === 'touchmove') {
+                    return event.touches && event.touches.length > 1; // Multi-touch only
+                }
+                // Allow other events (pan with mouse drag)
+                return !event.button; // No right-click
+            })
             .on('zoom', (event) => {
                 g.attr('transform', event.transform);
             });
