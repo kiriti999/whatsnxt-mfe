@@ -28,3 +28,10 @@ export const updateLab = async (id: string, labData: Lab): Promise<Lab> => {
     });
     return response?.data;
 };
+
+export const deleteLabPage = async (labId: string, pageId: string): Promise<Lab> => {
+    const response = await serverFetcher(BASEURL, `/labs/${labId}/pages/${pageId}`, {
+        method: 'DELETE'
+    });
+    return response?.data;
+};
