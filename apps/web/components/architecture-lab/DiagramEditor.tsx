@@ -73,6 +73,9 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
     // Text Editing State
     const [editingNode, setEditingNode] = useState<{ id: string, label: string, x: number, y: number, width: number, height: number } | null>(null);
 
+    // Drag and Drop State
+    const [draggingShapeId, setDraggingShapeId] = useState<string | null>(null);
+
     // Save history
     const saveToHistory = useCallback((newNodes: NodeType[], newLinks: LinkType[]) => {
         const entry = { nodes: JSON.parse(JSON.stringify(newNodes)), links: JSON.parse(JSON.stringify(newLinks)) };
@@ -119,6 +122,12 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
         nodes.forEach((n, i) => console.log(`  Node[${i}]`, n.id, 'dimensions:', n.width, 'x', n.height));
         if (!svgRef.current) return;
         const svg = d3.select(svgRef.current);
+        
+        // IMPORTANT: Save current zoom transform before clearing
+        const currentTransform = zoomRef.current ? 
+            d3.zoomTransform(svgRef.current) : 
+            d3.zoomIdentity;
+        
         svg.selectAll('*').remove(); // Clear canvas
 
         const width = 800; // Fixed inner width or dynamic
@@ -136,23 +145,29 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
         const linkLayer = g.append('g').attr('class', 'layer-links');
         const nodeLayer = g.append('g').attr('class', 'layer-nodes');
 
-        // Zoom Behavior - Only zoom with Ctrl+wheel or pinch, not regular scroll
+        // Zoom Behavior - Only zoom with Ctrl+wheel or pinch, disable pan on drag
         const zoom = d3.zoom<SVGSVGElement, unknown>()
             .scaleExtent([0.1, 4])
             .filter((event) => {
-                // Allow zoom only if:
-                // 1. Ctrl/Cmd key is pressed (for mouse wheel zoom)
-                // 2. It's a touch event with multiple touches (pinch gesture)
-                // 3. It's not a wheel event without modifier keys (prevent scroll zoom)
+                // Block all mouse/pointer drag events (mousedown, mousemove)
+                // We handle node dragging separately, so zoom should not pan
+                if (event.type === 'mousedown' || event.type === 'mousemove' || 
+                    event.type === 'pointermove' || event.type === 'pointerdown') {
+                    return false; // Block all drag-based pan/zoom
+                }
+                
+                // Allow zoom only on wheel if Ctrl/Cmd is pressed
                 if (event.type === 'wheel') {
-                    return event.ctrlKey || event.metaKey; // Only zoom with Ctrl/Cmd + wheel
+                    return event.ctrlKey || event.metaKey;
                 }
-                // Allow touch events (pinch zoom)
+                
+                // Allow touch events for pinch zoom (multi-touch only)
                 if (event.type === 'touchstart' || event.type === 'touchmove') {
-                    return event.touches && event.touches.length > 1; // Multi-touch only
+                    return event.touches && event.touches.length > 1;
                 }
-                // Allow other events (pan with mouse drag)
-                return !event.button; // No right-click
+                
+                // Block everything else
+                return false;
             })
             .on('zoom', (event) => {
                 g.attr('transform', event.transform);
@@ -161,6 +176,10 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
         zoomRef.current = zoom;
 
         svg.call(zoom).on('dblclick.zoom', null);
+        
+        // IMPORTANT: Restore the saved transform after setting up zoom
+        svg.call(zoom.transform, currentTransform);
+        g.attr('transform', currentTransform.toString());
 
         // State for drag
         let dragStartPos = { x: 0, y: 0 };
@@ -172,6 +191,7 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
             .filter(event => !event.ctrlKey && !event.button)
             .on('start', (event, d) => {
                 event.sourceEvent.stopPropagation();
+                event.sourceEvent.preventDefault();
                 dragStartPos = { x: event.x, y: event.y };
                 hasDragged = false;
                 d3.select(event.sourceEvent.target).attr('cursor', 'grabbing');
@@ -198,6 +218,9 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
                 }
             })
             .on('drag', (event, d) => {
+                event.sourceEvent.stopPropagation();
+                event.sourceEvent.preventDefault();
+                
                 const dx = Math.abs(event.x - dragStartPos.x);
                 const dy = Math.abs(event.y - dragStartPos.y);
                 if (dx > 3 || dy > 3) hasDragged = true;
@@ -221,6 +244,8 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
                 }
             })
             .on('end', (event, d) => {
+                event.sourceEvent.stopPropagation();
+                event.sourceEvent.preventDefault();
                 d3.select(event.sourceEvent.target).attr('cursor', 'grab');
                 if (!hasDragged) {
                     const now = Date.now();
@@ -261,6 +286,7 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
         const linkDrag = d3.drag<SVGCircleElement, NodeType>()
             .on('start', (event, d) => {
                 event.sourceEvent.stopPropagation();
+                event.sourceEvent.preventDefault();
                 const startX = (d.x || 0) + d.width / 2;
                 const startY = (d.y || 0) + d.height / 2;
 
@@ -276,6 +302,8 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
                     .style('pointer-events', 'none');
             })
             .on('drag', (event, d) => {
+                event.sourceEvent.stopPropagation();
+                event.sourceEvent.preventDefault();
                 if (!tempLinkLine) return;
                 const [mx, my] = d3.pointer(event, g.node());
                 const startX = (d.x || 0) + d.width / 2;
@@ -283,6 +311,8 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
                 tempLinkLine.attr('x1', startX).attr('y1', startY).attr('x2', mx).attr('y2', my);
             })
             .on('end', (event, d) => {
+                event.sourceEvent.stopPropagation();
+                event.sourceEvent.preventDefault();
                 if (tempLinkLine) {
                     tempLinkLine.remove();
                     tempLinkLine = null;
@@ -533,7 +563,7 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
     }, [nodes, links, selectedNodeId, selectedLinkIndex, computedColorScheme, setEditingNode]);
 
 
-    const addShape = (shapeId: string) => {
+    const addShape = (shapeId: string, x?: number, y?: number) => {
         // Find shape definition from common shapes, architecture-specific shapes, or architecturalShapes
         let shapeDef;
         
@@ -563,8 +593,8 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
         // Create new node with only the properties needed by NodeType
         const newNode: NodeType = {
             id: Date.now().toString(),
-            x: 50 + Math.random() * 50,
-            y: 50 + Math.random() * 50,
+            x: x !== undefined ? x : 50 + Math.random() * 50,
+            y: y !== undefined ? y : 50 + Math.random() * 50,
             type: shapeDef.type || 'rect',
             label: shapeDef.name || shapeDef.label || 'Node',
             width: shapeDef.width || 50,
@@ -581,6 +611,34 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
         const newNodes = [...nodes, newNode];
         setNodes(newNodes);
         saveToHistory(newNodes, links);
+    };
+
+    const handleCanvasDrop = (e: React.DragEvent) => {
+        e.preventDefault();
+        
+        if (!draggingShapeId || !svgRef.current || !zoomRef.current) return;
+
+        // Get the SVG element's bounding rect
+        const svgRect = svgRef.current.getBoundingClientRect();
+        
+        // Calculate position relative to SVG
+        const clientX = e.clientX - svgRect.left;
+        const clientY = e.clientY - svgRect.top;
+        
+        // Get current zoom transform
+        const transform = d3.zoomTransform(svgRef.current);
+        
+        // Convert screen coordinates to canvas coordinates (accounting for zoom/pan)
+        const canvasX = (clientX - transform.x) / transform.k;
+        const canvasY = (clientY - transform.y) / transform.k;
+        
+        // Add shape at drop position
+        addShape(draggingShapeId, canvasX, canvasY);
+        setDraggingShapeId(null);
+    };
+
+    const handleCanvasDragOver = (e: React.DragEvent) => {
+        e.preventDefault(); // Allow drop
     };
 
     const clearGraph = () => {
@@ -665,11 +723,19 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
                                     <MantinePaper
                                         p="xs"
                                         withBorder
+                                        draggable
                                         style={{
-                                            cursor: 'pointer',
+                                            cursor: 'grab',
                                             textAlign: 'center',
                                             backgroundColor: '#fafafa',
                                             transition: 'transform 0.2s',
+                                        }}
+                                        onDragStart={(e) => {
+                                            setDraggingShapeId(shape.id);
+                                            e.currentTarget.style.cursor = 'grabbing';
+                                        }}
+                                        onDragEnd={(e) => {
+                                            e.currentTarget.style.cursor = 'grab';
                                         }}
                                         onMouseEnter={(e) => {
                                             e.currentTarget.style.transform = 'scale(1.05)';
@@ -706,13 +772,21 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
                                             <MantinePaper
                                                 p={4}
                                                 withBorder
+                                                draggable
                                                 style={{
-                                                    cursor: 'pointer',
+                                                    cursor: 'grab',
                                                     backgroundColor: '#fafafa',
                                                     transition: 'transform 0.2s',
                                                     display: 'flex',
                                                     alignItems: 'center',
                                                     justifyContent: 'center',
+                                                }}
+                                                onDragStart={(e) => {
+                                                    setDraggingShapeId(shape.id);
+                                                    e.currentTarget.style.cursor = 'grabbing';
+                                                }}
+                                                onDragEnd={(e) => {
+                                                    e.currentTarget.style.cursor = 'grab';
                                                 }}
                                                 onMouseEnter={(e) => {
                                                     e.currentTarget.style.transform = 'scale(1.08)';
@@ -732,7 +806,12 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
 
                         {/* Canvas */}
                         <div style={{ flex: 1 }}>
-                            <div ref={wrapperRef} style={{ position: 'relative', width: '100%', height: '600px', border: '1px solid #ddd', overflow: 'hidden' }}>
+                            <div 
+                                ref={wrapperRef} 
+                                style={{ position: 'relative', width: '100%', height: '600px', border: '1px solid #ddd', overflow: 'hidden' }}
+                                onDrop={handleCanvasDrop}
+                                onDragOver={handleCanvasDragOver}
+                            >
                                 <svg
                                     ref={svgRef}
                                     width="100%"
