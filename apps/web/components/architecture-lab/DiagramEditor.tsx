@@ -17,7 +17,7 @@ import {
     renderWaypointHandles,
     calculateConnectionPoints,
 } from '../../utils/d3-link-renderers';
-import { Button, Group, Paper as MantinePaper, Text, Divider, useComputedColorScheme, ActionIcon, Tooltip, Stack } from '@mantine/core';
+import { Button, Group, Paper as MantinePaper, Text, Divider, useComputedColorScheme, ActionIcon, Tooltip, Stack, ScrollArea } from '@mantine/core';
 import { IconZoomReset } from '@tabler/icons-react';
 import ShapePreview from './ShapePreview';
 import { genericD3Shapes, ShapeDefinition } from '../../utils/shape-libraries/generic-d3-shapes';
@@ -673,37 +673,46 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
 
                     {/* Main canvas with common shapes on left */}
                     <Group align="flex-start" gap="sm">
-                        {/* Common Shapes - Left Sidebar */}
-                        <MantinePaper withBorder p="xs" style={{ width: 70, flexShrink: 0 }}>
+                        {/* Common Shapes - Left Sidebar with ScrollArea */}
+                        <MantinePaper 
+                            withBorder 
+                            p="xs" 
+                            style={{ 
+                                width: 85, 
+                                flexShrink: 0,
+                            }}
+                        >
                             <Text size="xs" fw={600} mb="xs" ta="center">Common</Text>
                             
-                            <Stack gap="xs">
-                                {commonShapes.map((shape) => (
-                                    <Tooltip key={shape.id} label={shape.name} position="right" withArrow>
-                                        <MantinePaper
-                                            p={4}
-                                            withBorder
-                                            style={{
-                                                cursor: 'pointer',
-                                                backgroundColor: '#fafafa',
-                                                transition: 'transform 0.2s',
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'center',
-                                            }}
-                                            onMouseEnter={(e) => {
-                                                e.currentTarget.style.transform = 'scale(1.08)';
-                                            }}
-                                            onMouseLeave={(e) => {
-                                                e.currentTarget.style.transform = 'scale(1)';
-                                            }}
-                                            onClick={() => addShape(shape.id)}
-                                        >
-                                            <ShapePreview shape={shape} size={30} architecture={architectureType} />
-                                        </MantinePaper>
-                                    </Tooltip>
-                                ))}
-                            </Stack>
+                            <ScrollArea h="88.5vh" type="always" offsetScrollbars scrollbarSize={8}>
+                                <Stack gap="xs">
+                                    {commonShapes.map((shape) => (
+                                        <Tooltip key={shape.id} label={shape.name} position="right" withArrow>
+                                            <MantinePaper
+                                                p={4}
+                                                withBorder
+                                                style={{
+                                                    cursor: 'pointer',
+                                                    backgroundColor: '#fafafa',
+                                                    transition: 'transform 0.2s',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'center',
+                                                }}
+                                                onMouseEnter={(e) => {
+                                                    e.currentTarget.style.transform = 'scale(1.08)';
+                                                }}
+                                                onMouseLeave={(e) => {
+                                                    e.currentTarget.style.transform = 'scale(1)';
+                                                }}
+                                                onClick={() => addShape(shape.id)}
+                                            >
+                                                <ShapePreview shape={shape} size={30} architecture={architectureType} />
+                                            </MantinePaper>
+                                        </Tooltip>
+                                    ))}
+                                </Stack>
+                            </ScrollArea>
                         </MantinePaper>
 
                         {/* Canvas */}
