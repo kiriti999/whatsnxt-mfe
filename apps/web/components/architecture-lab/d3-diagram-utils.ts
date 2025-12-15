@@ -55,7 +55,7 @@ export function renderResizeHandles(
 }
 
 /**
- * Render shape label
+ * Render shape label (below the shape)
  */
 export function renderShapeLabel(
   element: d3.Selection<SVGGElement, NodeType, null, undefined>,
@@ -66,27 +66,21 @@ export function renderShapeLabel(
     return;
   }
 
-  const fontSize = shape.width < 60 ? '11px' : '14px';
-  const textColor = shape.fill === '#000000' ? '#FFF' : '#333';
+  const fontSize = '12px';
+  const labelY = shape.height + 5; // Position below the shape
 
-  element.append('foreignObject')
-    .attr('x', 4)
-    .attr('y', 4)
-    .attr('width', shape.width - 8)
-    .attr('height', shape.height - 8)
-    .style('pointer-events', 'none')
-    .append('xhtml:div')
-    .style('width', '100%')
-    .style('height', '100%')
-    .style('display', 'flex')
-    .style('align-items', 'center')
-    .style('justify-content', 'center')
-    .style('text-align', 'center')
-    .style('font-weight', 'bold')
+  element.append('text')
+    .classed('shape-label', true)
+    .attr('x', shape.width / 2)
+    .attr('y', labelY)
+    .attr('text-anchor', 'middle')
+    .attr('dominant-baseline', 'hanging')
     .style('font-size', fontSize)
-    .style('color', textColor)
-    .style('word-wrap', 'break-word')
-    .text(shape.label);
+    .style('font-weight', '500')
+    .style('fill', '#333')
+    .style('pointer-events', 'none')
+    .style('user-select', 'none')
+    .text(shape.label || shape.type);
 }
 
 /**
