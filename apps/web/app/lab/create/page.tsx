@@ -1,126 +1,128 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Stepper, Button, Group, LoadingOverlay } from '@mantine/core';
+import { Container, Title, Button, Group, Box, TextInput, Textarea, Select } from '@mantine/core';
+import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
-import QuestionEditor from '../components/QuestionEditor';
-import DiagramCanvas from '../components/DiagramEditor/DiagramCanvas';
-import ShapePalette from '../components/DiagramEditor/ShapePalette';
-import http from '@whatsnxt/http-client';
+import { useRouter } from 'next/navigation';
+import labApi from '@/apis/lab.api';
+import useAuth from '@/hooks/Authentication/useAuth';
+
+const LAB_TYPES = [
+  'Cloud Computing',
+  'Networking',
+  'Cybersecurity',
+  'Database Management',
+  'DevOps & Automation',
+  'Software Architecture',
+  'System Design',
+];
+
+const ARCHITECTURE_TYPES = ['AWS', 'Azure', 'GCP', 'Hybrid', 'On-Premise'];
 
 function LabCreationPage() {
-  const [active, setActive] = useState(0);
-  const [labId, setLabId] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
+  const { user, isAuthenticated } = useAuth();
+  const isTrainer = isAuthenticated && user?.role === 'trainer';
+  const instructorId = user?._id || '';
 
-  useEffect(() => {
-    const createLab = async () => {
-      try {
-        console.log('Creating a new lab...');
+  const form = useForm({
+    initialValues: {
+      name: '',
+      description: '',
+      labType: '',
+      architectureType: '',
+    },
+    validate: {
+      name: (value) => (value ? null : 'Lab name is required'),
+      labType: (value) => (value ? null : 'Lab type is required'),
+      architectureType: (value) => (value ? null : 'Architecture type is required'),
+    },
+  });
 
-        // Create lab with required fields
-        const response = await http.post<{ message: string; data: { _id: string } }>('/labs', {
-          name: 'New Lab',
-          description: 'Lab description',
-          labType: 'Cloud Computing',  // Required field
-          architectureType: 'AWS',      // Required field
-          instructorId: 'temp-instructor-id', // TODO: Get from auth context
-        });
-
-        // API returns { message: string, data: { _id: string, ... } }
-        const labId = response.data?._id || (response as any)._id;
-        setLabId(labId);
-        console.log(`Created lab with ID: ${labId}`);
-        setLoading(false);
-      } catch (err) {
-        console.error('Failed to create lab:', err);
-        setError('Failed to create lab.');
-        notifications.show({
-          title: 'Error',
-          message: err instanceof Error ? err.message : 'Could not create a new lab. Please try again later.',
-          color: 'red',
-        });
-        setLoading(false);
-      }
-    };
-    createLab();
-  }, []);
-
-  const saveData = async () => {
-    if (!labId) return;
+  const handleSubmit = async (values: { name: string; description: string; labType: string; architectureType: string }) => {
     try {
-      console.log(`Saving data for lab ID: ${labId}, step: ${active}`);
-      await http.put(`/labs/${labId}/pages/${active}`, { content: '...some data...' });
-    } catch (err) {
-      console.error('Failed to save', err);
-    }
-  };
-
-  const nextStep = () => {
-    saveData();
-    setActive((current) => (current < 3 ? current + 1 : current));
-  };
-
-  const prevStep = () => {
-    saveData();
-    setActive((current) => (current > 0 ? current - 1 : current));
-  };
-
-  const handlePublish = async () => {
-    if (!labId) return;
-    try {
-      console.log(`Publishing lab ID: ${labId}`);
-      await http.post(`/labs/${labId}/publish`);
+      const response = await labApi.createLab({
+        ...values,
+        instructorId
+      });
+      const newLab = response.data;
       notifications.show({
         title: 'Success',
-        message: 'Lab published successfully!',
+        message: `Lab "${newLab.name}" created successfully!`,
         color: 'green',
       });
-    } catch (err) {
-      console.error('Failed to publish', err);
+      router.push(`/labs/${newLab.id}`);
+    } catch (error: any) {
+      const errorMessage = error?.response?.data?.message || error?.message || 'Failed to create lab.';
       notifications.show({
         title: 'Error',
-        message: 'Failed to publish lab.',
+        message: errorMessage,
         color: 'red',
       });
+      console.error('Failed to create lab:', error);
     }
   };
 
+  if (!isAuthenticated) {
+    return (
+      <Container size="lg" py="xl">
+        <Title order={1} mb="md">Create Lab</Title>
+        <Box c="red">Please log in to create labs.</Box>
+      </Container>
+    );
+  }
 
-
-  if (error) {
-    return <div>Error: {error}</div>;
+  if (!isTrainer) {
+    return (
+      <Container size="lg" py="xl">
+        <Title order={1} mb="md">Create Lab</Title>
+        <Box c="red">Only trainers can create labs.</Box>
+      </Container>
+    );
   }
 
   return (
-    <div style={{ position: 'relative' }}>
-      <LoadingOverlay visible={loading} />
-      <Stepper active={active} onStepClick={setActive}>
-        <Stepper.Step label="First step" description="Lab Details">
-          Step 1 content: Lab Details for Lab ID: {labId}
-        </Stepper.Step>
-        <Stepper.Step label="Second step" description="Add questions">
-          <QuestionEditor />
-        </Stepper.Step>
-        <Stepper.Step label="Third step" description="Add diagram">
-          <ShapePalette />
-          <DiagramCanvas />
-        </Stepper.Step>
-        <Stepper.Completed>
-          Completed, click back button to get to previous step
-        </Stepper.Completed>
-      </Stepper>
-
-      <Group justify="center" mt="xl">
-        <Button variant="default" onClick={prevStep}>Back</Button>
-        {active === 3 ? (
-          <Button color="blue" onClick={handlePublish}>Publish</Button>
-        ) : (
-          <Button onClick={nextStep}>Next step</Button>
-        )}
-      </Group>
-    </div>
+    <Container size="lg" py="xl">
+      <Title order={1} mb="xl">Create New Lab</Title>
+      <Box maw={600} mx="auto">
+        <form onSubmit={form.onSubmit(handleSubmit)}>
+          <TextInput
+            label="Lab Name"
+            placeholder="e.g., AWS Cloud Fundamentals"
+            {...form.getInputProps('name')}
+            required
+            mb="md"
+          />
+          <Textarea
+            label="Description"
+            placeholder="Brief description of the lab"
+            {...form.getInputProps('description')}
+            mb="md"
+          />
+          <Select
+            label="Lab Type"
+            placeholder="Select lab type"
+            data={LAB_TYPES}
+            {...form.getInputProps('labType')}
+            required
+            mb="md"
+          />
+          <Select
+            label="Architecture Type"
+            placeholder="Select architecture type"
+            data={ARCHITECTURE_TYPES}
+            {...form.getInputProps('architectureType')}
+            required
+            mb="md"
+          />
+          <Group justify="flex-end" mt="xl">
+            <Button variant="default" onClick={() => router.push('/labs')}>Cancel</Button>
+            <Button type="submit">Create Lab</Button>
+          </Group>
+        </form>
+      </Box>
+    </Container>
   );
 }
 
