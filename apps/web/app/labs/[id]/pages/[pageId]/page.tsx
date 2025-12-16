@@ -19,6 +19,7 @@ import {
   Textarea,
   Pagination,
   Badge,
+  Accordion,
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { IconTrash, IconSearch, IconX } from '@tabler/icons-react';
@@ -945,6 +946,61 @@ const LabPageEditorPage = () => {
                 required
                 disabled={isPublished}
               />
+
+              {/* Instructor Information Accordion */}
+              <Accordion 
+                defaultValue="instructor-info" 
+                styles={{
+                  root: {
+                    backgroundColor: '#e7f5ff',
+                    borderRadius: '8px',
+                    border: '1px solid #339af0',
+                  },
+                  item: {
+                    border: 'none',
+                  },
+                  control: {
+                    padding: '12px 16px',
+                    '&:hover': {
+                      backgroundColor: '#d0ebff',
+                    },
+                  },
+                  content: {
+                    padding: '0 16px 16px 16px',
+                  },
+                }}
+              >
+                <Accordion.Item value="instructor-info">
+                  <Accordion.Control>
+                    <Group gap="xs">
+                      <Text size="sm" fw={600} c="blue.9">
+                        💡 How Diagram Tests Work
+                      </Text>
+                    </Group>
+                  </Accordion.Control>
+                  <Accordion.Panel>
+                    <Stack gap="xs">
+                      <Text size="xs" c="blue.9">
+                        <strong>What You Do:</strong> Create the correct diagram below by placing shapes inside containers (VPC, Namespace, Zones) and connecting them with arrows.
+                      </Text>
+                      <Text size="xs" c="blue.9">
+                        <strong>What Students See:</strong> Your diagram is automatically jumbled - shapes are scattered randomly outside containers with no arrow connections.
+                      </Text>
+                      <Text size="xs" c="blue.9">
+                        <strong>What Students Must Do:</strong> Reconstruct your exact diagram by (1) dragging shapes INTO the correct containers, and (2) drawing correct arrow connections.
+                      </Text>
+                      <Text size="xs" c="blue.9">
+                        <strong>Grading:</strong> Students are graded on both <strong>nesting</strong> (50% - shapes in correct containers) and <strong>connections</strong> (50% - correct arrows). They must achieve 100% to pass.
+                      </Text>
+                      <Group gap="xs" mt="xs">
+                        <Badge size="xs" color="blue" variant="light">Tip: Use 5-10 shapes for best results</Badge>
+                        <Badge size="xs" color="blue" variant="light">Make containers large enough (400×300+)</Badge>
+                        <Badge size="xs" color="blue" variant="light">Use clear labels</Badge>
+                      </Group>
+                    </Stack>
+                  </Accordion.Panel>
+                </Accordion.Item>
+              </Accordion>
 
               <Box>
                 <Text size="sm" fw={500} mb={8}>Diagram Editor</Text>
