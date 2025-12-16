@@ -159,15 +159,99 @@ export const jumbleGraph = (graphJson: any) => {
     return jumbled;
 };
 
+/**
+ * Check if a shape is inside a container based on position and dimensions
+ */
+const isShapeInsideContainer = (
+    shape: any,
+    container: any,
+    tolerance: number = 5
+): boolean => {
+    if (!shape || !container) return false;
+    
+    const shapeLeft = shape.x || 0;
+    const shapeTop = shape.y || 0;
+    const shapeRight = shapeLeft + (shape.width || 0);
+    const shapeBottom = shapeTop + (shape.height || 0);
+    
+    const containerLeft = container.x || 0;
+    const containerTop = container.y || 0;
+    const containerRight = containerLeft + (container.width || 0);
+    const containerBottom = containerTop + (container.height || 0);
+    
+    // Check if shape is inside container with tolerance
+    return (
+        shapeLeft >= (containerLeft - tolerance) &&
+        shapeTop >= (containerTop - tolerance) &&
+        shapeRight <= (containerRight + tolerance) &&
+        shapeBottom <= (containerBottom + tolerance)
+    );
+};
+
+/**
+ * Build nesting relationships for all shapes
+ * Returns a map of shape ID to container ID
+ */
+const buildNestingMap = (nodes: any[]): Map<string, string> => {
+    const nestingMap = new Map<string, string>();
+    
+    // Container types that can contain other shapes
+    const containerTypes = ['group', 'zone', 'vpc', 'namespace', 'node', 'virtualnetwork'];
+    
+    // Get all container shapes
+    const containers = nodes.filter(n => 
+        containerTypes.includes(n.type?.toLowerCase() || '')
+    );
+    
+    // Sort containers by size (smaller containers first for nested containers)
+    containers.sort((a, b) => {
+        const areaA = (a.width || 0) * (a.height || 0);
+        const areaB = (b.width || 0) * (b.height || 0);
+        return areaA - areaB;
+    });
+    
+    // For each non-container shape, find its container
+    nodes.forEach(shape => {
+        // Skip containers themselves
+        if (containerTypes.includes(shape.type?.toLowerCase() || '')) {
+            return;
+        }
+        
+        // Find the smallest container that contains this shape
+        for (const container of containers) {
+            if (container.id === shape.id) continue;
+            
+            if (isShapeInsideContainer(shape, container)) {
+                nestingMap.set(shape.id, container.id);
+                break; // Use the smallest (first) matching container
+            }
+        }
+    });
+    
+    return nestingMap;
+};
+
+/**
+ * Validate graph connections and nesting order
+ * Enhanced to check both link connections and shape nesting
+ */
 export const validateGraph = (masterJson: any, studentJson: any) => {
-    if (!masterJson || !studentJson) return { score: 0, passed: false, details: 'Missing data' };
+    if (!masterJson || !studentJson) {
+        return { 
+            score: 0, 
+            passed: false, 
+            details: 'Missing data',
+            linkScore: 0,
+            nestingScore: 0
+        };
+    }
 
     const masterLinks = masterJson.links || [];
     const studentLinks = studentJson.links || [];
+    const masterNodes = masterJson.nodes || [];
+    const studentNodes = studentJson.nodes || [];
 
-    // Check connections
-    // D3 links might store source/target as objects after simulation, or ids.
-    // We assume JSON persistence stores IDs.
+    // ========== PART 1: Validate Link Connections ==========
     const masterConnections = new Set(
         // @ts-ignore
         masterLinks.map(l => {
@@ -189,12 +273,65 @@ export const validateGraph = (masterJson: any, studentJson: any) => {
     });
 
     const totalMasterLinks = masterLinks.length;
-    const score = totalMasterLinks > 0 ? (correctLinks / totalMasterLinks) * 100 : 100;
+    const linkScore = totalMasterLinks > 0 
+        ? Math.round((correctLinks / totalMasterLinks) * 100) 
+        : 100;
+
+    // ========== PART 2: Validate Nesting Order ==========
+    const masterNestingMap = buildNestingMap(masterNodes);
+    const studentNestingMap = buildNestingMap(studentNodes);
+    
+    let correctNesting = 0;
+    let totalNesting = masterNestingMap.size;
+    
+    // Check if student has same nesting relationships as master
+    masterNestingMap.forEach((containerId, shapeId) => {
+        const studentContainerId = studentNestingMap.get(shapeId);
+        
+        // Find the container labels for better error reporting
+        const masterContainer = masterNodes.find((n: any) => n.id === containerId);
+        const studentContainer = studentNodes.find((n: any) => n.id === studentContainerId);
+        const shape = masterNodes.find((n: any) => n.id === shapeId);
+        
+        if (studentContainerId === containerId) {
+            correctNesting++;
+        }
+    });
+    
+    const nestingScore = totalNesting > 0 
+        ? Math.round((correctNesting / totalNesting) * 100) 
+        : 100;
+
+    // ========== PART 3: Calculate Overall Score ==========
+    // If there's no nesting in master diagram, only use link score
+    // Otherwise, weight both equally
+    let overallScore: number;
+    let details: string;
+    
+    if (totalNesting === 0) {
+        // No nesting to validate, only links matter
+        overallScore = linkScore;
+        details = `Links: ${correctLinks}/${totalMasterLinks} correct`;
+    } else if (totalMasterLinks === 0) {
+        // No links to validate, only nesting matters
+        overallScore = nestingScore;
+        details = `Nesting: ${correctNesting}/${totalNesting} shapes in correct containers`;
+    } else {
+        // Both links and nesting matter - weight them equally
+        overallScore = Math.round((linkScore + nestingScore) / 2);
+        details = `Links: ${correctLinks}/${totalMasterLinks}, Nesting: ${correctNesting}/${totalNesting}`;
+    }
 
     return {
-        score,
-        passed: score === 100,
-        details: `${correctLinks}/${totalMasterLinks} correct connections`
+        score: overallScore,
+        passed: overallScore === 100,
+        details,
+        linkScore,
+        nestingScore,
+        correctLinks,
+        totalLinks: totalMasterLinks,
+        correctNesting,
+        totalNesting
     };
 };
 

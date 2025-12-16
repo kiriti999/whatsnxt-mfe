@@ -1,167 +1,496 @@
-# Student Test Mode Implementation - Summary
+# Diagram Test Nesting Validation - Enhanced Grading
 
-## What Was Implemented
+## Overview
+Enhanced the diagram test validation to check not only arrow/link connections but also the **correct nesting order of shapes**. Students must now place shapes inside the correct containers (VPC, Namespace, Zones, etc.) to pass the test.
 
-### 1. Frontend Components
+---
 
-#### StudentTestRunner Component (`apps/web/components/Lab/StudentTestRunner.tsx`)
-- Unified test runner for both question tests and diagram tests
-- Handles question navigation with Previous/Next buttons
-- Shows jumbled diagrams for diagram tests (uses `jumbleGraph` utility)
-- Calculates scores for both test types
-- Submits answers to backend
-- Shows completion screen with score and pass/fail status
-- Supports retry for failed tests
+## What Changed
 
-### 2. Backend API
+### Before ❌
+```typescript
+// Only validated link connections
+const score = (correctLinks / totalLinks) * 100;
+return { score, passed, details: `${correctLinks}/${totalLinks} correct connections` };
+```
 
-#### Student Submission Model (`apps/whatsnxt-bff/app/models/lab/StudentSubmission.ts`)
-- Stores student submissions with:
-  - Student ID, Lab ID, Page ID
-  - Question answers (key-value map)
-  - Diagram answer (nodes and links)
-  - Score (0-100)
-  - Pass/fail status
-  - Submission timestamp
-- Compound indexes for efficient queries
-- Static methods for finding submissions and calculating progress
+**Problem**: 
+- Students could pass by just connecting arrows correctly
+- Shape placement inside containers wasn't validated
+- VPC/Namespace/Zone organization was ignored
 
-#### API Endpoints (`apps/whatsnxt-bff/app/routes/lab.routes.ts`)
-- `POST /api/v1/lab/:labId/pages/:pageId/submit` - Submit student test
-- `GET /api/v1/lab/:labId/pages/:pageId/submission` - Get previous submission
+### After ✅
+```typescript
+// Validates BOTH links AND nesting
+const linkScore = (correctLinks / totalLinks) * 100;
+const nestingScore = (correctNesting / totalNesting) * 100;
+const overallScore = (linkScore + nestingScore) / 2;
 
-#### Lab Service Methods (`apps/whatsnxt-bff/app/services/lab/LabService.ts`)
-- `submitTest()` - Creates/updates student submission
-- `getStudentSubmission()` - Retrieves student's previous submission
-- `getStudentProgress()` - Calculates student progress in a lab
+return {
+    score: overallScore,
+    linkScore,
+    nestingScore,
+    details: `Links: ${correctLinks}/${totalLinks}, Nesting: ${correctNesting}/${totalNesting}`
+};
+```
 
-### 3. Frontend Integration
+**Benefits**:
+- ✅ Validates link connections (arrows)
+- ✅ Validates nesting order (shape placement in containers)
+- ✅ Weighted scoring (50% links + 50% nesting)
+- ✅ Detailed feedback for students
 
-#### Modified Page Component (`apps/web/app/labs/[id]/pages/[pageId]/page.tsx`)
-- Added user role detection (student vs trainer)
-- Conditional rendering:
-  - Students see `StudentTestRunner` for published labs
-  - Trainers see editor mode
-- Added `handleStudentSubmit()` function to submit tests
-- Transforms question/diagram data for StudentTestRunner
+---
 
-#### API Client (`apps/web/apis/lab.api.ts`)
-- Added `submitTest()` method
-- Added `getSubmission()` method
+## How Nesting Validation Works
 
-#### Next.js API Route (`apps/web/app/api/lab/[id]/pages/[pageId]/submit/route.ts`)
-- Forwards submission requests to backend
-- Handles both POST (submit) and GET (retrieve) requests
+### 1. Identify Container Shapes
+Container types that can hold other shapes:
+- `group` - Generic group/container
+- `zone` - Zone/Subnet
+- `vpc` - AWS VPC / Virtual Network
+- `namespace` - Kubernetes Namespace
+- `node` - Kubernetes Node
+- `virtualnetwork` - Azure Virtual Network
 
-### 4. Existing Features Used
+### 2. Build Nesting Relationships
+```typescript
+// Master diagram (instructor's correct answer)
+VPC_1 contains: [EC2_1, RDS_1, ELB_1]
+Namespace_1 contains: [Pod_1, Pod_2, Service_1]
 
-#### Utilities (`apps/web/utils/lab-utils.ts`)
-- `jumbleGraph()` - Randomizes shape positions, removes all links
-- `validateGraph()` - Compares student diagram to master, calculates score
+// Student diagram
+VPC_1 contains: [EC2_1, RDS_1]  // Missing ELB_1 ❌
+Namespace_1 contains: [Pod_1, Pod_2, Service_1]  // Correct ✅
+```
 
-## How It Works
+### 3. Position-Based Detection
+Shapes are considered "inside" a container if their bounding box is within the container's bounds:
 
-### Student Flow
+```typescript
+const isInside = (
+    shape.x >= container.x &&
+    shape.y >= container.y &&
+    (shape.x + shape.width) <= (container.x + container.width) &&
+    (shape.y + shape.height) <= (container.y + container.height)
+);
+```
 
-1. **Login**: Student logs in with role = 'student'
-2. **View Lab**: Student navigates to published lab
-3. **Start Test**: Student opens a page with tests
-4. **Take Test**: 
-   - For questions: Answer multiple choice questions, navigate with Previous/Next
-   - For diagrams: Reconstruct architecture by dragging shapes and creating connections
-5. **Submit**: Student clicks "Submit Test"
-6. **Scoring**:
-   - Question score: % of correct answers
-   - Diagram score: % of correct connections (via `validateGraph`)
-   - Overall score: Average of both (if both exist)
-7. **Result**: 
-   - Pass: score === 100%
-   - Fail: score < 100%, option to retry
-8. **Storage**: Submission saved to database with timestamp
+### 4. Scoring
+- Each correct nesting = 1 point
+- Total nesting relationships = total possible points
+- Nesting score = (correct / total) × 100%
 
-### Trainer Flow
+---
 
-1. **Create Test**: Trainer creates questions and diagram test
-2. **Publish Lab**: Trainer publishes lab (makes it available to students)
-3. **View Mode**: Trainer can view published tests but cannot edit
-4. **Future**: View student submissions and scores (not yet implemented)
+## Validation Algorithm
 
-## Key Features
+### Step 1: Extract Nodes and Links
+```typescript
+const masterNodes = masterJson.nodes || [];
+const studentNodes = studentJson.nodes || [];
+const masterLinks = masterJson.links || [];
+const studentLinks = studentJson.links || [];
+```
 
-- **Jumbled Diagrams**: All connections removed, shapes randomized
-- **Scoring**: Automatic scoring based on correct answers/connections
-- **Pass Criteria**: 100% score required to pass
-- **Retry**: Students can retry failed tests
-- **Persistence**: Submissions stored in database
-- **Role-Based**: Different views for students vs trainers
-- **Real-time Validation**: Immediate feedback on submission
+### Step 2: Validate Links (Part 1)
+```typescript
+// Build set of expected connections
+const expectedConnections = new Set(['EC2-1 → RDS-1', 'ELB-1 → EC2-1']);
 
-## Testing Checklist
+// Check student connections
+let correctLinks = 0;
+studentLinks.forEach(link => {
+    if (expectedConnections.has(link)) correctLinks++;
+});
 
-- [ ] Student can login with role='student'
-- [ ] Student sees StudentTestRunner for published labs
-- [ ] Questions display correctly with options
-- [ ] Diagram test shows jumbled shapes (no connections)
-- [ ] Student can drag shapes and create connections
-- [ ] Previous/Next navigation works for questions
-- [ ] Submit button disabled until all questions answered
-- [ ] Score calculation is correct
-- [ ] Pass/fail status displays correctly
-- [ ] Submission saved to database
-- [ ] Retry button works for failed tests
-- [ ] Trainer sees view-only mode for published labs
-- [ ] Trainer can still edit draft labs
+const linkScore = (correctLinks / totalLinks) * 100;
+```
+
+### Step 3: Validate Nesting (Part 2)
+```typescript
+// Build nesting maps
+const masterNesting = {
+    'EC2-1': 'VPC-1',
+    'RDS-1': 'VPC-1',
+    'Pod-1': 'Namespace-1'
+};
+
+const studentNesting = {
+    'EC2-1': 'VPC-1',  // Correct ✅
+    'RDS-1': 'Zone-2', // Wrong container ❌
+    'Pod-1': 'Namespace-1'  // Correct ✅
+};
+
+let correctNesting = 0;
+for (const [shapeId, containerId] of masterNesting) {
+    if (studentNesting[shapeId] === containerId) {
+        correctNesting++;
+    }
+}
+
+const nestingScore = (correctNesting / totalNesting) * 100;
+```
+
+### Step 4: Calculate Overall Score
+```typescript
+// Case 1: Both links and nesting exist
+if (totalLinks > 0 && totalNesting > 0) {
+    overallScore = (linkScore + nestingScore) / 2;
+    details = `Links: ${correctLinks}/${totalLinks}, Nesting: ${correctNesting}/${totalNesting}`;
+}
+
+// Case 2: Only links (no containers)
+else if (totalLinks > 0) {
+    overallScore = linkScore;
+    details = `Links: ${correctLinks}/${totalLinks} correct`;
+}
+
+// Case 3: Only nesting (no connections)
+else {
+    overallScore = nestingScore;
+    details = `Nesting: ${correctNesting}/${totalNesting} correct`;
+}
+```
+
+---
+
+## Example Scenarios
+
+### Scenario 1: AWS VPC Architecture
+
+**Instructor's Diagram**:
+```
+VPC (vpc-main)
+├── EC2 Instance
+├── RDS Database  
+└── ELB Load Balancer
+
+Connections:
+- Internet → ELB
+- ELB → EC2
+- EC2 → RDS
+```
+
+**Student Must**:
+1. ✅ Place EC2, RDS, and ELB **inside VPC**
+2. ✅ Connect arrows correctly
+
+**Scoring**:
+- Links: 3/3 correct = 100%
+- Nesting: 3/3 shapes in correct container = 100%
+- **Overall: (100 + 100) / 2 = 100% ✅ PASS**
+
+**Common Mistake**:
+- Student places ELB outside VPC
+- Links: 3/3 = 100%
+- Nesting: 2/3 = 67%
+- **Overall: (100 + 67) / 2 = 83.5% ❌ FAIL**
+
+---
+
+### Scenario 2: Kubernetes Namespace
+
+**Instructor's Diagram**:
+```
+Namespace (production)
+├── Pod (app-1)
+├── Pod (app-2)
+├── Service (app-svc)
+└── ConfigMap (config)
+
+Connections:
+- Service → Pod-1
+- Service → Pod-2
+```
+
+**Student Must**:
+1. ✅ Place all resources **inside Namespace**
+2. ✅ Connect Service to both Pods
+
+**Scoring**:
+- Links: 2/2 = 100%
+- Nesting: 4/4 = 100%
+- **Overall: 100% ✅ PASS**
+
+**Common Mistake**:
+- Student places ConfigMap outside Namespace
+- Links: 2/2 = 100%
+- Nesting: 3/4 = 75%
+- **Overall: (100 + 75) / 2 = 87.5% ❌ FAIL**
+
+---
+
+### Scenario 3: Multi-Zone Architecture
+
+**Instructor's Diagram**:
+```
+VPC
+├── Zone-1 (Public Subnet)
+│   ├── ELB
+│   └── NAT Gateway
+└── Zone-2 (Private Subnet)
+    ├── EC2
+    └── RDS
+
+Connections:
+- Internet → ELB
+- ELB → NAT
+- NAT → EC2
+- EC2 → RDS
+```
+
+**Student Must**:
+1. ✅ Place Zone-1 and Zone-2 **inside VPC**
+2. ✅ Place ELB and NAT **inside Zone-1**
+3. ✅ Place EC2 and RDS **inside Zone-2**
+4. ✅ Connect arrows correctly
+
+**Scoring**:
+- Links: 4/4 = 100%
+- Nesting: 6/6 = 100% (2 zones + 4 services)
+- **Overall: 100% ✅ PASS**
+
+---
+
+## Detailed Feedback
+
+Students now receive detailed feedback on what they got right/wrong:
+
+### Example 1: Perfect Score
+```
+✅ Test Passed!
+Your score: 100%
+Links: 5/5 correct connections
+Nesting: 3/3 shapes in correct containers
+```
+
+### Example 2: Partial Score - Wrong Nesting
+```
+⚠️ Test Completed
+Your score: 75%
+Links: 5/5 correct connections (100%)
+Nesting: 2/3 shapes in correct containers (67%)
+
+Hint: Check which shapes should be inside containers
+```
+
+### Example 3: Partial Score - Wrong Links
+```
+⚠️ Test Completed
+Your score: 87%
+Links: 4/5 correct connections (80%)
+Nesting: 3/3 shapes in correct containers (100%)
+
+Hint: Review your arrow connections
+```
+
+### Example 4: Low Score
+```
+❌ Test Failed
+Your score: 50%
+Links: 3/5 correct connections (60%)
+Nesting: 1/3 shapes in correct containers (33%)
+
+Please review the architecture diagram carefully
+```
+
+---
+
+## Return Value Structure
+
+```typescript
+interface ValidationResult {
+    // Overall metrics
+    score: number;           // 0-100 (weighted average)
+    passed: boolean;         // true if score === 100
+    details: string;         // Human-readable summary
+    
+    // Link validation
+    linkScore: number;       // 0-100
+    correctLinks: number;    // Count
+    totalLinks: number;      // Count
+    
+    // Nesting validation
+    nestingScore: number;    // 0-100
+    correctNesting: number;  // Count
+    totalNesting: number;    // Count
+}
+```
+
+**Example**:
+```typescript
+{
+    score: 87,
+    passed: false,
+    details: "Links: 4/5, Nesting: 5/5",
+    linkScore: 80,
+    correctLinks: 4,
+    totalLinks: 5,
+    nestingScore: 100,
+    correctNesting: 5,
+    totalNesting: 5
+}
+```
+
+---
+
+## Edge Cases Handled
+
+### 1. Diagrams Without Containers
+If instructor doesn't use containers (VPC, Namespace, etc.):
+- Only link validation is performed
+- Nesting score = N/A
+- Overall score = link score
+
+### 2. Diagrams Without Links
+If instructor creates a diagram with only shape placement:
+- Only nesting validation is performed
+- Link score = N/A
+- Overall score = nesting score
+
+### 3. Nested Containers
+Handles containers inside containers:
+```
+VPC
+└── Zone
+    └── EC2
+```
+- Smallest containing shape is used
+- Proper hierarchy is validated
+
+### 4. Overlapping Containers
+If two containers overlap:
+- Smallest container takes precedence
+- Most specific nesting is validated
+
+### 5. Tolerance
+5-pixel tolerance for boundaries:
+- Shapes slightly outside containers (< 5px) are still considered "inside"
+- Accounts for minor positioning differences
+
+---
+
+## File Modified
+
+**File**: `apps/web/utils/lab-utils.ts`
+
+### Functions Added
+```typescript
+// Check if shape is inside container based on position
+const isShapeInsideContainer(shape, container, tolerance = 5): boolean
+
+// Build nesting relationships for all shapes
+const buildNestingMap(nodes): Map<string, string>
+```
+
+### Function Enhanced
+```typescript
+// Enhanced with nesting validation
+export const validateGraph(masterJson, studentJson): ValidationResult
+```
+
+---
+
+## Testing Instructions
+
+### Test 1: AWS VPC with Correct Nesting
+```
+1. Create lab with AWS architecture
+2. Add Diagram Test
+3. Draw: VPC → place EC2 and RDS inside
+4. Connect: EC2 → RDS
+5. Save and publish
+6. As student: Solve correctly
+7. Submit
+8. Expected: 100% score
+```
+
+### Test 2: Wrong Nesting
+```
+1. Same setup as Test 1
+2. As student: Place EC2 outside VPC
+3. Connect: EC2 → RDS correctly
+4. Submit
+5. Expected: ~83% score (Links: 100%, Nesting: 67%)
+```
+
+### Test 3: Kubernetes Namespace
+```
+1. Create lab with Kubernetes architecture
+2. Add Diagram Test
+3. Draw: Namespace → place Pod, Service, ConfigMap inside
+4. Connect: Service → Pod
+5. Save and publish
+6. As student: Place ConfigMap outside Namespace
+7. Submit
+8. Expected: ~87% score (Links: 100%, Nesting: 67%)
+```
+
+### Test 4: Only Links (No Containers)
+```
+1. Create simple diagram: Server → Database
+2. No containers used
+3. Student connects correctly
+4. Expected: 100% score (only link validation)
+```
+
+---
+
+## Benefits
+
+### For Instructors
+- ✅ Test deeper understanding of architecture
+- ✅ Validate proper resource organization
+- ✅ Enforce best practices (VPC design, namespaces)
+- ✅ More comprehensive assessment
+
+### For Students
+- ✅ Learn proper shape placement
+- ✅ Understand container hierarchies
+- ✅ Practice real-world architecture patterns
+- ✅ Get detailed feedback on mistakes
+
+### For Platform
+- ✅ More accurate grading
+- ✅ Better learning outcomes
+- ✅ Industry-aligned assessments
+- ✅ Reduced false positives
+
+---
+
+## Common Architecture Patterns
+
+### AWS Patterns
+1. **VPC Organization**: EC2, RDS, Lambda inside VPC
+2. **Multi-Zone**: Public/Private subnets in different zones
+3. **Security Groups**: Resources grouped by function
+
+### Kubernetes Patterns
+1. **Namespace Isolation**: Pods, Services in namespace
+2. **Node Distribution**: Pods distributed across nodes
+3. **Storage**: PersistentVolumes attached to specific pods
+
+### Azure Patterns
+1. **Virtual Network**: VMs, databases in VNet
+2. **Resource Groups**: Related resources grouped
+3. **Subnets**: Network segmentation
+
+---
 
 ## Future Enhancements
 
-1. **Nested Shape Extraction**: Extract shapes from containers (Group/Zone/Pool)
-2. **Position Scoring**: Award partial credit for shape placement
-3. **Time Tracking**: Record time spent on tests
-4. **Attempt Limits**: Limit number of retry attempts
-5. **Progress Dashboard**: Show student progress across all labs
-6. **Leaderboard**: Compare scores with other students
-7. **Feedback System**: Allow trainers to provide manual feedback
-8. **Analytics**: Track common mistakes, completion rates, etc.
+### Potential Additions
+- Label validation (correct shape names)
+- Property validation (correct sizes, colors)
+- Port/protocol validation (for network diagrams)
+- Security group validation (for cloud diagrams)
+- Resource count validation (exact number of instances)
 
-## Files Modified/Created
+---
 
-### Created:
-- `apps/web/components/Lab/StudentTestRunner.tsx`
-- `apps/web/app/api/lab/[id]/pages/[pageId]/submit/route.ts`
-- `apps/whatsnxt-bff/app/models/lab/StudentSubmission.ts`
-
-### Modified:
-- `apps/web/app/labs/[id]/pages/[pageId]/page.tsx`
-- `apps/web/apis/lab.api.ts`
-- `apps/whatsnxt-bff/app/routes/lab.routes.ts`
-- `apps/whatsnxt-bff/app/services/lab/LabService.ts`
-
-## Database Schema
-
-```typescript
-StudentSubmission {
-  studentId: ObjectId (ref: users)
-  labId: ObjectId (ref: labs)
-  pageId: ObjectId (ref: labPages)
-  questionAnswers: Map<string, string>
-  diagramAnswer: { nodes: [], links: [] }
-  score: Number (0-100)
-  passed: Boolean
-  submittedAt: Date
-  timeSpentSeconds: Number (optional)
-}
-```
-
-## API Endpoints
-
-```
-POST /api/v1/lab/:labId/pages/:pageId/submit
-Body: {
-  studentId, questionAnswers, diagramAnswer, score, passed
-}
-Response: { message, data: submission }
-
-GET /api/v1/lab/:labId/pages/:pageId/submission?studentId=xxx
-Response: { message, data: submission }
-```
-
+**Status**: ✅ Implemented and Ready
+**Date**: December 16, 2025
+**Version**: 2.0
+**Breaking Changes**: None (backward compatible)
+**Test Coverage**: Enhanced validation for all diagram tests
