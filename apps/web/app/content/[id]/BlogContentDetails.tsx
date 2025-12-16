@@ -1,9 +1,10 @@
 'use client';
 import { useEffect, useState, useCallback } from 'react';
 import { AnalyticsAPI } from '../../../apis/v1/blog/analyticsApi';
-import { usePathname } from 'next/navigation';
 import SidebarPost from '../../../components/Blog/sidebar';
-import { BlogComment, CommentContextProvider, CommentReplyContextProvider } from '@whatsnxt/blogcomments';
+import BlogComment from '@whatsnxt/blogcomments/src';
+import { CommentContextProvider } from '@whatsnxt/blogcomments/src/contexts/comment-context';
+import { CommentReplyContextProvider } from '@whatsnxt/blogcomments/src/contexts/comment-reply-context';
 import BlogContent from '../../../components/Blog/Content/Blog';
 import SidebarHeadings from '../../../components/Blog/sidebar-headings';
 import StickyHeader from '../../../components/Blog/Content/StickyHeader';
