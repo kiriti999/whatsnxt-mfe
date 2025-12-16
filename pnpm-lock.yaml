@@ -281,6 +281,9 @@ importers:
       '@mantine/notifications':
         specifier: ^7.11.1
         version: 7.17.8(@mantine/core@7.17.8(@mantine/hooks@7.17.8(react@19.1.0))(@types/react@19.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(@mantine/hooks@7.17.8(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@whatsnxt/comments':
+        specifier: workspace:*
+        version: link:../../packages/comments
       '@whatsnxt/core-util':
         specifier: workspace:*
         version: link:../../packages/core-util

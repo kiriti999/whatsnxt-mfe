@@ -25,6 +25,7 @@
     "@mantine/modals": "^7.11.1",
     "@whatsnxt/http-client": "workspace:*",
     "@whatsnxt/core-util": "workspace:*",
+    "@whatsnxt/comments": "workspace:*",
     "diagram-core": "workspace:*"
   },
   "devDependencies": {
