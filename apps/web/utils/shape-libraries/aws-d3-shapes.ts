@@ -17,7 +17,8 @@ export interface AWSShapeDefinition {
 
 export const awsD3Shapes: Record<string, AWSShapeDefinition> = {
   /**
-   * AWS EC2 Instance - Server icon with AWS orange
+   * AWS EC2 Instance - Compute cube with AWS orange
+   * Based on official AWS Architecture Icons
    */
   ec2: {
     id: 'aws-ec2',
@@ -26,42 +27,75 @@ export const awsD3Shapes: Record<string, AWSShapeDefinition> = {
     width: 80,
     height: 80,
     render: (g, width = 80, height = 80) => {
-  const color = '#FF9900';
-  const dark = '#232F3E';
+  const orange = '#FF9900';
+  const darkOrange = '#CC7A00';
+  const white = '#FFFFFF';
+  const cx = width / 2;
+  const cy = height / 2;
   
-  // Main server body
+  // Outer square with rounded corners
   g.append('rect')
-    .attr('x', width * 0.2)
+    .attr('x', width * 0.1)
     .attr('y', height * 0.1)
-    .attr('width', width * 0.6)
+    .attr('width', width * 0.8)
     .attr('height', height * 0.8)
-    .attr('fill', color)
-    .attr('stroke', dark)
+    .attr('fill', orange)
+    .attr('stroke', darkOrange)
     .attr('stroke-width', 2)
-    .attr('rx', 4);
+    .attr('rx', 6);
   
-  // Server details (horizontal lines)
-  for (let i = 0; i < 3; i++) {
+  // 3D cube representation (isometric view)
+  // Front face
+  g.append('rect')
+    .attr('x', width * 0.25)
+    .attr('y', height * 0.35)
+    .attr('width', width * 0.3)
+    .attr('height', width * 0.3)
+    .attr('fill', white)
+    .attr('opacity', 0.9);
+  
+  // Top face (parallelogram)
+  const topPath = `
+    M ${width * 0.25} ${height * 0.35}
+    L ${width * 0.35} ${height * 0.25}
+    L ${width * 0.65} ${height * 0.25}
+    L ${width * 0.55} ${height * 0.35}
+    Z
+  `;
+  g.append('path')
+    .attr('d', topPath)
+    .attr('fill', white)
+    .attr('opacity', 0.7);
+  
+  // Right face (parallelogram)
+  const rightPath = `
+    M ${width * 0.55} ${height * 0.35}
+    L ${width * 0.65} ${height * 0.25}
+    L ${width * 0.65} ${height * 0.55}
+    L ${width * 0.55} ${height * 0.65}
+    Z
+  `;
+  g.append('path')
+    .attr('d', rightPath)
+    .attr('fill', white)
+    .attr('opacity', 0.5);
+  
+  // EC2 icon detail - server lines
+  for (let i = 0; i < 2; i++) {
     g.append('line')
-      .attr('x1', width * 0.25)
-      .attr('y1', height * (0.25 + i * 0.2))
-      .attr('x2', width * 0.75)
-      .attr('y2', height * (0.25 + i * 0.2))
-      .attr('stroke', dark)
+      .attr('x1', width * 0.28)
+      .attr('y1', height * (0.42 + i * 0.1))
+      .attr('x2', width * 0.52)
+      .attr('y2', height * (0.42 + i * 0.1))
+      .attr('stroke', orange)
       .attr('stroke-width', 2);
   }
-  
-  // LED indicators
-  g.append('circle')
-    .attr('cx', width * 0.3)
-    .attr('cy', height * 0.85)
-    .attr('r', 3)
-    .attr('fill', '#00FF00');
     }
   },
 
   /**
-   * AWS Lambda - Hexagon with lambda symbol
+   * AWS Lambda - Function icon with orange background
+   * Lambda symbol in a squared border
    */
   lambda: {
     id: 'aws-lambda',
@@ -70,42 +104,56 @@ export const awsD3Shapes: Record<string, AWSShapeDefinition> = {
     width: 80,
     height: 80,
     render: (g, width = 80, height = 80) => {
-  const color = '#FF9900';
-  const dark = '#232F3E';
+  const orange = '#FF9900';
+  const darkOrange = '#CC7A00';
+  const white = '#FFFFFF';
   const cx = width / 2;
   const cy = height / 2;
   
-  // Hexagon path
-  const hexPath = `
-    M ${cx - width * 0.4} ${cy}
-    L ${cx - width * 0.2} ${cy - height * 0.35}
-    L ${cx + width * 0.2} ${cy - height * 0.35}
-    L ${cx + width * 0.4} ${cy}
-    L ${cx + width * 0.2} ${cy + height * 0.35}
-    L ${cx - width * 0.2} ${cy + height * 0.35}
+  // Outer square
+  g.append('rect')
+    .attr('x', width * 0.1)
+    .attr('y', height * 0.1)
+    .attr('width', width * 0.8)
+    .attr('height', height * 0.8)
+    .attr('fill', orange)
+    .attr('stroke', darkOrange)
+    .attr('stroke-width', 2)
+    .attr('rx', 6);
+  
+  // Inner white rounded square for icon
+  g.append('rect')
+    .attr('x', width * 0.2)
+    .attr('y', height * 0.2)
+    .attr('width', width * 0.6)
+    .attr('height', height * 0.6)
+    .attr('fill', white)
+    .attr('rx', 4);
+  
+  // Lambda symbol (λ) - custom drawn
+  const lambdaPath = `
+    M ${width * 0.35} ${height * 0.3}
+    L ${width * 0.45} ${height * 0.3}
+    L ${width * 0.55} ${height * 0.55}
+    L ${width * 0.65} ${height * 0.7}
+    L ${width * 0.57} ${height * 0.7}
+    L ${width * 0.5} ${height * 0.6}
+    L ${width * 0.43} ${height * 0.7}
+    L ${width * 0.35} ${height * 0.7}
     Z
   `;
   
   g.append('path')
-    .attr('d', hexPath)
-    .attr('fill', color)
-    .attr('stroke', dark)
-    .attr('stroke-width', 2);
-  
-  // Lambda symbol (λ)
-  g.append('text')
-    .attr('x', cx)
-    .attr('y', cy + 8)
-    .attr('text-anchor', 'middle')
-    .attr('font-size', width * 0.5)
-    .attr('font-weight', 'bold')
-    .attr('fill', dark)
-    .text('λ');
+    .attr('d', lambdaPath)
+    .attr('fill', orange)
+    .attr('stroke', orange)
+    .attr('stroke-width', 1);
     }
   },
 
 /**
- * AWS S3 - Bucket icon
+ * AWS S3 - Storage bucket with gradient
+ * Based on AWS official S3 icon
  */
   s3: {
     id: 'aws-s3',
@@ -114,39 +162,57 @@ export const awsD3Shapes: Record<string, AWSShapeDefinition> = {
     width: 80,
     height: 70,
     render: (g, width = 80, height = 70) => {
-  const color = '#569A31';
-  const dark = '#232F3E';
+  const green = '#569A31';
+  const darkGreen = '#3D6E24';
+  const white = '#FFFFFF';
   
-  // Top ellipse
-  g.append('ellipse')
-    .attr('cx', width / 2)
-    .attr('cy', height * 0.2)
-    .attr('rx', width * 0.35)
-    .attr('ry', height * 0.12)
-    .attr('fill', color)
-    .attr('stroke', dark)
-    .attr('stroke-width', 2);
+  // Outer square
+  g.append('rect')
+    .attr('x', width * 0.1)
+    .attr('y', height * 0.05)
+    .attr('width', width * 0.8)
+    .attr('height', height * 0.9)
+    .attr('fill', green)
+    .attr('stroke', darkGreen)
+    .attr('stroke-width', 2)
+    .attr('rx', 6);
   
-  // Bucket body
-  const bucketPath = `
-    M ${width * 0.15} ${height * 0.2}
-    L ${width * 0.2} ${height * 0.8}
-    Q ${width * 0.5} ${height * 0.9} ${width * 0.8} ${height * 0.8}
-    L ${width * 0.85} ${height * 0.2}
-  `;
+  // S3 bucket icon - three horizontal sections
+  const sectionHeight = height * 0.15;
+  const startY = height * 0.25;
   
-  g.append('path')
-    .attr('d', bucketPath)
-    .attr('fill', color)
-    .attr('stroke', dark)
-    .attr('stroke-width', 2);
-  
-  // Bottom curve
-  g.append('path')
-    .attr('d', `M ${width * 0.2} ${height * 0.8} Q ${width * 0.5} ${height * 0.9} ${width * 0.8} ${height * 0.8}`)
-    .attr('fill', 'none')
-    .attr('stroke', dark)
-    .attr('stroke-width', 2);
+  for (let i = 0; i < 3; i++) {
+    const y = startY + (i * sectionHeight);
+    
+    // Section rectangle
+    g.append('rect')
+      .attr('x', width * 0.2)
+      .attr('y', y)
+      .attr('width', width * 0.6)
+      .attr('height', sectionHeight * 0.8)
+      .attr('fill', white)
+      .attr('opacity', 0.9)
+      .attr('rx', 2);
+    
+    // Small circles (bucket representation)
+    g.append('circle')
+      .attr('cx', width * 0.3)
+      .attr('cy', y + sectionHeight * 0.4)
+      .attr('r', 3)
+      .attr('fill', green);
+    
+    g.append('circle')
+      .attr('cx', width * 0.5)
+      .attr('cy', y + sectionHeight * 0.4)
+      .attr('r', 3)
+      .attr('fill', green);
+    
+    g.append('circle')
+      .attr('cx', width * 0.7)
+      .attr('cy', y + sectionHeight * 0.4)
+      .attr('r', 3)
+      .attr('fill', green);
+  }
     }
   },
 
@@ -425,7 +491,7 @@ export const awsD3Shapes: Record<string, AWSShapeDefinition> = {
   },
 
   /**
- * AWS IAM - Identity shield
+ * AWS IAM - Identity shield with user icon
  */
   iam: {
     id: 'aws-iam',
@@ -434,36 +500,336 @@ export const awsD3Shapes: Record<string, AWSShapeDefinition> = {
     width: 80,
     height: 60,
     render: (g, width = 80, height = 60) => {
-  const color = '#DD344C';
-  const dark = '#232F3E';
+  const red = '#DD344C';
+  const darkRed = '#A91B2E';
+  const white = '#FFFFFF';
   const cx = width / 2;
   
-  // Shield shape
+  // Outer square
+  g.append('rect')
+    .attr('x', width * 0.1)
+    .attr('y', height * 0.05)
+    .attr('width', width * 0.8)
+    .attr('height', height * 0.9)
+    .attr('fill', red)
+    .attr('stroke', darkRed)
+    .attr('stroke-width', 2)
+    .attr('rx', 6);
+  
+  // Shield shape inside
   const shieldPath = `
-    M ${cx} ${height * 0.1}
-    L ${width * 0.8} ${height * 0.25}
-    L ${width * 0.8} ${height * 0.6}
-    Q ${cx} ${height * 0.9} ${width * 0.2} ${height * 0.6}
-    L ${width * 0.2} ${height * 0.25}
+    M ${cx} ${height * 0.2}
+    L ${width * 0.75} ${height * 0.3}
+    L ${width * 0.75} ${height * 0.6}
+    Q ${cx} ${height * 0.8} ${width * 0.25} ${height * 0.6}
+    L ${width * 0.25} ${height * 0.3}
     Z
   `;
   
   g.append('path')
     .attr('d', shieldPath)
-    .attr('fill', color)
-    .attr('stroke', dark)
-    .attr('stroke-width', 2);
+    .attr('fill', white)
+    .attr('opacity', 0.9);
   
-  // User icon
+  // User icon inside shield
   g.append('circle')
     .attr('cx', cx)
-    .attr('cy', height * 0.35)
-    .attr('r', width * 0.12)
-    .attr('fill', dark);
+    .attr('cy', height * 0.42)
+    .attr('r', width * 0.08)
+    .attr('fill', red);
   
   g.append('path')
-    .attr('d', `M ${width * 0.35} ${height * 0.55} Q ${cx} ${height * 0.65} ${width * 0.65} ${height * 0.55}`)
-    .attr('fill', dark);
+    .attr('d', `M ${width * 0.38} ${height * 0.6} Q ${cx} ${height * 0.67} ${width * 0.62} ${height * 0.6}`)
+    .attr('fill', red)
+    .attr('stroke', red)
+    .attr('stroke-width', 2);
+    }
+  },
+
+  /**
+   * AWS EKS - Elastic Kubernetes Service
+   * Kubernetes wheel inside AWS square
+   */
+  eks: {
+    id: 'aws-eks',
+    name: 'EKS',
+    type: 'eks',
+    width: 80,
+    height: 80,
+    render: (g, width = 80, height = 80) => {
+      const orange = '#FF9900';
+      const darkOrange = '#CC7A00';
+      const white = '#FFFFFF';
+      const blue = '#326CE5';
+      const cx = width / 2;
+      const cy = height / 2;
+      
+      // Outer AWS square
+      g.append('rect')
+        .attr('x', width * 0.1)
+        .attr('y', height * 0.1)
+        .attr('width', width * 0.8)
+        .attr('height', height * 0.8)
+        .attr('fill', orange)
+        .attr('stroke', darkOrange)
+        .attr('stroke-width', 2)
+        .attr('rx', 6);
+      
+      // Kubernetes wheel (simplified)
+      const spokeCount = 7;
+      const innerRadius = width * 0.15;
+      const outerRadius = width * 0.3;
+      
+      for (let i = 0; i < spokeCount; i++) {
+        const angle = (i * 360) / spokeCount;
+        const rad = (angle * Math.PI) / 180;
+        
+        const x1 = cx + Math.cos(rad) * innerRadius;
+        const y1 = cy + Math.sin(rad) * innerRadius;
+        const x2 = cx + Math.cos(rad) * outerRadius;
+        const y2 = cy + Math.sin(rad) * outerRadius;
+        
+        g.append('line')
+          .attr('x1', x1)
+          .attr('y1', y1)
+          .attr('x2', x2)
+          .attr('y2', y2)
+          .attr('stroke', white)
+          .attr('stroke-width', 3);
+      }
+      
+      // Center circle
+      g.append('circle')
+        .attr('cx', cx)
+        .attr('cy', cy)
+        .attr('r', innerRadius)
+        .attr('fill', blue)
+        .attr('stroke', white)
+        .attr('stroke-width', 2);
+    }
+  },
+
+  /**
+   * AWS API Gateway - API management
+   */
+  apigateway: {
+    id: 'aws-apigateway',
+    name: 'API Gateway',
+    type: 'apigateway',
+    width: 80,
+    height: 80,
+    render: (g, width = 80, height = 80) => {
+      const purple = '#8C4FFF';
+      const darkPurple = '#6B3CC5';
+      const white = '#FFFFFF';
+      const cx = width / 2;
+      const cy = height / 2;
+      
+      // Outer square
+      g.append('rect')
+        .attr('x', width * 0.1)
+        .attr('y', height * 0.1)
+        .attr('width', width * 0.8)
+        .attr('height', height * 0.8)
+        .attr('fill', purple)
+        .attr('stroke', darkPurple)
+        .attr('stroke-width', 2)
+        .attr('rx', 6);
+      
+      // API symbol - gateway representation
+      // Left bracket
+      g.append('path')
+        .attr('d', `
+          M ${width * 0.25} ${height * 0.3}
+          L ${width * 0.3} ${height * 0.3}
+          L ${width * 0.3} ${height * 0.7}
+          L ${width * 0.25} ${height * 0.7}
+        `)
+        .attr('stroke', white)
+        .attr('stroke-width', 3)
+        .attr('fill', 'none')
+        .attr('stroke-linecap', 'round');
+      
+      // Right bracket
+      g.append('path')
+        .attr('d', `
+          M ${width * 0.75} ${height * 0.3}
+          L ${width * 0.7} ${height * 0.3}
+          L ${width * 0.7} ${height * 0.7}
+          L ${width * 0.75} ${height * 0.7}
+        `)
+        .attr('stroke', white)
+        .attr('stroke-width', 3)
+        .attr('fill', 'none')
+        .attr('stroke-linecap', 'round');
+      
+      // Center diamond
+      const diamondSize = width * 0.12;
+      const diamondPath = `
+        M ${cx} ${cy - diamondSize}
+        L ${cx + diamondSize} ${cy}
+        L ${cx} ${cy + diamondSize}
+        L ${cx - diamondSize} ${cy}
+        Z
+      `;
+      
+      g.append('path')
+        .attr('d', diamondPath)
+        .attr('fill', white)
+        .attr('opacity', 0.9);
+    }
+  },
+
+  /**
+   * AWS SNS - Simple Notification Service
+   */
+  sns: {
+    id: 'aws-sns',
+    name: 'SNS',
+    type: 'sns',
+    width: 80,
+    height: 80,
+    render: (g, width = 80, height = 80) => {
+      const pink = '#E7157B';
+      const darkPink = '#B4115F';
+      const white = '#FFFFFF';
+      const cx = width / 2;
+      const cy = height / 2;
+      
+      // Outer square
+      g.append('rect')
+        .attr('x', width * 0.1)
+        .attr('y', height * 0.1)
+        .attr('width', width * 0.8)
+        .attr('height', height * 0.8)
+        .attr('fill', pink)
+        .attr('stroke', darkPink)
+        .attr('stroke-width', 2)
+        .attr('rx', 6);
+      
+      // Notification bell
+      const bellPath = `
+        M ${cx - width * 0.15} ${cy}
+        Q ${cx - width * 0.15} ${cy - height * 0.2} ${cx} ${cy - height * 0.2}
+        Q ${cx + width * 0.15} ${cy - height * 0.2} ${cx + width * 0.15} ${cy}
+        L ${cx + width * 0.18} ${cy + height * 0.05}
+        L ${cx - width * 0.18} ${cy + height * 0.05}
+        Z
+      `;
+      
+      g.append('path')
+        .attr('d', bellPath)
+        .attr('fill', white)
+        .attr('opacity', 0.9);
+      
+      // Bell clapper
+      g.append('circle')
+        .attr('cx', cx)
+        .attr('cy', cy + height * 0.08)
+        .attr('r', width * 0.05)
+        .attr('fill', white);
+      
+      // Notification waves
+      for (let i = 1; i <= 2; i++) {
+        g.append('path')
+          .attr('d', `
+            M ${cx - width * 0.08 * i} ${cy - height * 0.25}
+            Q ${cx - width * 0.15 * i} ${cy - height * 0.3} ${cx - width * 0.2 * i} ${cy - height * 0.25}
+          `)
+          .attr('stroke', white)
+          .attr('stroke-width', 2)
+          .attr('fill', 'none')
+          .attr('stroke-linecap', 'round');
+        
+        g.append('path')
+          .attr('d', `
+            M ${cx + width * 0.08 * i} ${cy - height * 0.25}
+            Q ${cx + width * 0.15 * i} ${cy - height * 0.3} ${cx + width * 0.2 * i} ${cy - height * 0.25}
+          `)
+          .attr('stroke', white)
+          .attr('stroke-width', 2)
+          .attr('fill', 'none')
+          .attr('stroke-linecap', 'round');
+      }
+    }
+  },
+
+  /**
+   * AWS SQS - Simple Queue Service
+   */
+  sqs: {
+    id: 'aws-sqs',
+    name: 'SQS',
+    type: 'sqs',
+    width: 80,
+    height: 80,
+    render: (g, width = 80, height = 80) => {
+      const pink = '#E7157B';
+      const darkPink = '#B4115F';
+      const white = '#FFFFFF';
+      
+      // Outer square
+      g.append('rect')
+        .attr('x', width * 0.1)
+        .attr('y', height * 0.1)
+        .attr('width', width * 0.8)
+        .attr('height', height * 0.8)
+        .attr('fill', pink)
+        .attr('stroke', darkPink)
+        .attr('stroke-width', 2)
+        .attr('rx', 6);
+      
+      // Queue representation - 3 message boxes
+      const boxWidth = width * 0.18;
+      const boxHeight = height * 0.15;
+      const spacing = width * 0.05;
+      const startX = width * 0.2;
+      const startY = height * 0.35;
+      
+      for (let i = 0; i < 3; i++) {
+        const x = startX + i * (boxWidth + spacing);
+        
+        g.append('rect')
+          .attr('x', x)
+          .attr('y', startY)
+          .attr('width', boxWidth)
+          .attr('height', boxHeight)
+          .attr('fill', white)
+          .attr('opacity', 0.9)
+          .attr('rx', 2);
+        
+        // Message lines
+        g.append('line')
+          .attr('x1', x + boxWidth * 0.2)
+          .attr('y1', startY + boxHeight * 0.4)
+          .attr('x2', x + boxWidth * 0.8)
+          .attr('y2', startY + boxHeight * 0.4)
+          .attr('stroke', pink)
+          .attr('stroke-width', 1.5);
+        
+        g.append('line')
+          .attr('x1', x + boxWidth * 0.2)
+          .attr('y1', startY + boxHeight * 0.7)
+          .attr('x2', x + boxWidth * 0.8)
+          .attr('y2', startY + boxHeight * 0.7)
+          .attr('stroke', pink)
+          .attr('stroke-width', 1.5);
+      }
+      
+      // Arrow showing queue flow
+      g.append('path')
+        .attr('d', `
+          M ${width * 0.25} ${height * 0.6}
+          L ${width * 0.75} ${height * 0.6}
+          M ${width * 0.7} ${height * 0.55}
+          L ${width * 0.75} ${height * 0.6}
+          L ${width * 0.7} ${height * 0.65}
+        `)
+        .attr('stroke', white)
+        .attr('stroke-width', 2)
+        .attr('fill', 'none')
+        .attr('stroke-linecap', 'round')
+        .attr('stroke-linejoin', 'round');
     }
   },
 

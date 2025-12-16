@@ -7,6 +7,7 @@ import { notifications } from '@mantine/notifications';
 import { useRouter } from 'next/navigation';
 import labApi from '@/apis/lab.api';
 import useAuth from '@/hooks/Authentication/useAuth';
+import { getAvailableArchitectures } from '@/utils/shape-libraries';
 
 const LAB_TYPES = [
   'Cloud Computing',
@@ -18,7 +19,9 @@ const LAB_TYPES = [
   'System Design',
 ];
 
-const ARCHITECTURE_TYPES = ['AWS', 'Azure', 'GCP', 'Hybrid', 'On-Premise'];
+// Get architecture types dynamically from centralized registry
+// This automatically includes: AWS, Azure, Kubernetes, Generic
+const ARCHITECTURE_TYPES = getAvailableArchitectures();
 
 function LabCreationPage() {
   const router = useRouter();

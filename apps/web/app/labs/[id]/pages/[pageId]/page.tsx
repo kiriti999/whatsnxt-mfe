@@ -26,6 +26,10 @@ import labApi from '@/apis/lab.api';
 import DiagramEditor from '@/components/architecture-lab/DiagramEditor';
 import { StudentTestRunner } from '@/components/Lab/StudentTestRunner';
 import useAuth from '@/hooks/Authentication/useAuth';
+import { getAvailableArchitectures } from '@/utils/shape-libraries';
+
+// Get architecture types dynamically from centralized registry
+const ARCHITECTURE_TYPES = getAvailableArchitectures();
 
 interface Question {
   id: string;
@@ -48,7 +52,7 @@ const LabPageEditorPage = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, isAuthenticated } = useAuth();
-  
+
   const labId = params.id as string;
   const pageId = params.pageId as string;
   const returnPage = searchParams.get('returnPage') || '1';
@@ -662,16 +666,7 @@ const LabPageEditorPage = () => {
         <Button variant="subtle" onClick={handleBackToTestsAndQuestions}>
           ← Back to Lab
         </Button>
-        {!isPublished && (
-          <Group>
-            <Button variant="outline" onClick={handleBackToTestsAndQuestions}>
-              Cancel
-            </Button>
-            <Button onClick={handleSaveQuestions} loading={saving}>
-              Save Questions
-            </Button>
-          </Group>
-        )}
+
       </Group>
 
       <Paper shadow="sm" p="xl" withBorder>
@@ -764,13 +759,13 @@ const LabPageEditorPage = () => {
               ) : (
                 <>
                   <Stack gap="xl">
-                    {paginatedQuestions.map((question, index) => {
+                    {paginatedQuestions.map((question) => {
                       // Calculate the actual question number from the original list
                       const originalIndex = questions.findIndex(q => q.id === question.id);
                       const questionNumber = originalIndex + 1;
                       const isEditable = !isPublished && (question.isEditing || !question.isSaved);
                       return (
-                        <Paper key={question.id} p="lg" withBorder>
+                        <Paper key={question.id} p="lg" withBorder >
                           <Group justify="space-between" mb="md">
                             <Group gap="xs">
                               <Text fw={600}>
@@ -931,7 +926,7 @@ const LabPageEditorPage = () => {
               <Select
                 label="Architecture Type"
                 placeholder="Select architecture type"
-                data={['AWS', 'Azure', 'GCP', 'Hybrid', 'On-Premise']}
+                data={ARCHITECTURE_TYPES}
                 value={architectureType}
                 onChange={(value) => setArchitectureType(value || '')}
                 required

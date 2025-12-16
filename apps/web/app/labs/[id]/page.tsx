@@ -25,6 +25,7 @@ import { notifications } from '@mantine/notifications';
 import { IconTrash, IconSearch, IconX } from '@tabler/icons-react';
 import { Lab, LabPage } from '@whatsnxt/core-types';
 import labApi from '@/apis/lab.api';
+import { getAvailableArchitectures } from '@/utils/shape-libraries';
 
 const LAB_TYPES = [
   'Cloud Computing',
@@ -36,7 +37,8 @@ const LAB_TYPES = [
   'System Design',
 ];
 
-const ARCHITECTURE_TYPES = ['AWS', 'Azure', 'GCP', 'Hybrid', 'On-Premise'];
+// Get architecture types dynamically from centralized registry
+const ARCHITECTURE_TYPES = getAvailableArchitectures();
 
 const LabDetailPage = () => {
   const params = useParams();

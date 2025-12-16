@@ -20,13 +20,8 @@ import {
 import { Button, Group, Paper as MantinePaper, Text, Divider, useComputedColorScheme, ActionIcon, Tooltip, Stack, ScrollArea } from '@mantine/core';
 import { IconZoomReset } from '@tabler/icons-react';
 import ShapePreview from './ShapePreview';
-import { genericD3Shapes, ShapeDefinition } from '../../utils/shape-libraries/generic-d3-shapes';
-import { awsD3Shapes, AWSShapeDefinition } from '../../utils/shape-libraries/aws-d3-shapes';
-import { kubernetesD3Shapes, KubernetesShapeDefinition } from '../../utils/shape-libraries/kubernetes-d3-shapes';
-import { addShape } from '@whatsnxt/diagram-core';
-
-// Union type for all shape definitions
-type ArchitectureShapeDefinition = ShapeDefinition | AWSShapeDefinition | KubernetesShapeDefinition;
+import { genericD3Shapes } from '../../utils/shape-libraries/generic-d3-shapes';
+import { getArchitectureShapes } from '../../utils/shape-libraries';
 
 
 interface LinkType {
@@ -812,23 +807,9 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
     // Common shapes (left sidebar) - directly from genericD3Shapes metadata
     const commonShapes = Object.values(genericD3Shapes);
 
-    // Architecture-specific shapes based on architectureType - load from respective libraries
-    const getArchitectureShapes = (): ArchitectureShapeDefinition[] => {
-        switch (architectureType) {
-            case 'AWS':
-                return Object.values(awsD3Shapes);
-            case 'Kubernetes':
-                return Object.values(kubernetesD3Shapes);
-            case 'Generic':
-            default:
-                // For Generic, return a subset of architecture shapes from genericD3Shapes
-                return Object.values(genericD3Shapes).filter(shape =>
-                    ['client', 'server', 'mobile', 'router', 'firewall', 'database', 'cache', 'loadbalancer', 'api'].includes(shape.type)
-                );
-        }
-    };
-
-    const architectureSpecificShapes = getArchitectureShapes();
+    // Architecture-specific shapes based on architectureType
+    // Uses centralized ARCHITECTURE_LIBRARIES registry - no switch case needed
+    const architectureSpecificShapes = getArchitectureShapes(architectureType);
 
     return (
         <div className={className}>
@@ -838,7 +819,7 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
                     <MantinePaper withBorder p="md" mb="md">
                         <Group justify="space-between" mb="sm">
                             <Group gap="xs">
-                                <Text size="sm" fw={600}>Architecture Shapes</Text>
+                                <Text size="sm" fw={600} mb={0}>Architecture Shapes</Text>
                                 <Text size="xs" c="dimmed">(Drag to canvas)</Text>
                             </Group>
                             <Group gap="xs">
@@ -877,7 +858,7 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
                                         }}
                                         onClick={() => addShape(shape.id)}
                                     >
-                                        <ShapePreview shape={shape} size={30} />
+                                        <ShapePreview shape={shape} size={30} architecture={architectureType} />
                                     </MantinePaper>
                                 </Tooltip>
                             ))}
@@ -940,7 +921,7 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
                         <div style={{ flex: 1, minWidth: 0 }}>
                             <div
                                 ref={wrapperRef}
-                                style={{ position: 'relative', width: '100%', height: '732px', border: '1px solid #ddd', overflow: 'auto' }}
+                                style={{ position: 'relative', width: '100%', height: '970px', border: '1px solid #ddd', overflow: 'auto' }}
                                 onDrop={handleCanvasDrop}
                                 onDragOver={handleCanvasDragOver}
                             >
