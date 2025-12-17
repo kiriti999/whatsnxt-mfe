@@ -53,7 +53,6 @@ export default function AppProvider({ children, user }: { children: ReactNode, u
 
   const theme = createTheme({
     /** Put your mantine theme override here */
-
   });
 
   const headerProps = {
