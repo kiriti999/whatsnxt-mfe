@@ -1,12 +1,51 @@
-import { useCallback } from 'react';
-import { useRazorpay, RazorpayOrderOptions } from 'react-razorpay';
+import { useCallback, useEffect, useState } from 'react';
 import { notifications } from '@mantine/notifications';
 import { razorPaymentAPI } from '../../../apps/web/apis/v1/payment/razorpay';
 import { UseRazorProps, HandleResponseArgs, Payload } from './Types/RazorPay';
 
+// Declare Razorpay type for window object
+declare global {
+    interface Window {
+        Razorpay: any;
+    }
+}
 
 export const useRazorPayment = ({ processPayment, verifyPayment = () => ({ status: 200 }) }: UseRazorProps) => {
-    const { error, isLoading, Razorpay } = useRazorpay();
+    const [isLoading, setIsLoading] = useState(false);
+    const [isRazorpayReady, setIsRazorpayReady] = useState(false);
+
+    // Check if Razorpay script is loaded
+    useEffect(() => {
+        const checkRazorpay = () => {
+            if (typeof window !== 'undefined' && window.Razorpay) {
+                setIsRazorpayReady(true);
+            }
+        };
+
+        // Check immediately
+        checkRazorpay();
+
+        // Poll for Razorpay to be available
+        const interval = setInterval(() => {
+            if (window.Razorpay) {
+                setIsRazorpayReady(true);
+                clearInterval(interval);
+            }
+        }, 100);
+
+        // Cleanup after 10 seconds
+        const timeout = setTimeout(() => {
+            clearInterval(interval);
+            if (!window.Razorpay) {
+                console.error('Razorpay script failed to load');
+            }
+        }, 10000);
+
+        return () => {
+            clearInterval(interval);
+            clearTimeout(timeout);
+        };
+    }, []);
 
     const handleRazorpayResponse = useCallback(
         async (
@@ -45,7 +84,6 @@ export const useRazorPayment = ({ processPayment, verifyPayment = () => ({ statu
                         amount,
                         amount_paid: amount,
                         gstAmount,
-                        // gstRate: '18%',
                         method: data?.method,
                         bank: data?.bank,
                         wallet: data?.wallet,
@@ -78,52 +116,60 @@ export const useRazorPayment = ({ processPayment, verifyPayment = () => ({ statu
         payload: Payload,
         close: () => void,
     ) => {
-        if (!Razorpay) {
+        // Check if Razorpay is available
+        if (typeof window === 'undefined' || !window.Razorpay) {
             notifications.show({
                 position: 'bottom-right',
-                title: 'Payment Error',
-                message: 'Razorpay is not loaded',
-                color: 'red',
+                title: 'Payment System Not Ready',
+                message: 'Please wait a moment and try again. The payment system is still loading.',
+                color: 'yellow',
             });
+            close();
             return;
         }
 
         try {
+            setIsLoading(true);
+
             // Convert amount to number if it's a string
             const amountInPaise = typeof payload.amount === 'string'
                 ? parseInt(payload.amount)
                 : payload.amount;
 
-            const options: RazorpayOrderOptions = {
-                key: process.env.NEXT_PUBLIC_RAZORPAY_KEY as string, // Use NEXT_PUBLIC_ prefix
+            const options = {
+                key: process.env.NEXT_PUBLIC_RAZORPAY_KEY as string,
                 order_id: orderId,
                 amount: amountInPaise,
                 currency: payload.currency || 'INR',
                 name: payload.name,
                 description: payload.description,
                 image: process.env.NEXT_PUBLIC_RAZORPAY_LOGO,
-                handler: (response) => handleRazorpayResponse({
-                    response,
-                    amount: payload.amount,
-                    amount_paid: payload.amount,
-                    gstAmount: payload.gstAmount,
-                    userId: payload.userId,
-                    trainerId: payload.trainerId,
-                    buyerEmail: payload.buyerEmail,
-                    buyerName: payload.buyerName
-                }),
-                prefill: payload.prefill as {
-                    name?: string;
-                    email?: string;
-                    contact?: string;
+                handler: async (response: any) => {
+                    await handleRazorpayResponse({
+                        response,
+                        amount: payload.amount,
+                        amount_paid: payload.amount,
+                        gstAmount: payload.gstAmount,
+                        userId: payload.userId,
+                        trainerId: payload.trainerId,
+                        buyerEmail: payload.buyerEmail,
+                        buyerName: payload.buyerName
+                    });
+                    setIsLoading(false);
                 },
-                notes: payload.notes || '', // Changed to string
-                theme: payload.theme ? {
-                    color: (payload.theme as any).color || '#3399cc'
-                } : { color: '#3399cc' },
+                prefill: {
+                    name: payload.prefill?.name || '',
+                    email: payload.prefill?.email || '',
+                    contact: payload.prefill?.contact || '',
+                },
+                notes: payload.notes || {},
+                theme: {
+                    color: payload.theme?.color || '#3399cc'
+                },
                 modal: {
                     ondismiss: () => {
                         console.log('Payment modal dismissed by user.');
+                        setIsLoading(false);
                         close();
                         notifications.show({
                             position: 'bottom-right',
@@ -135,11 +181,12 @@ export const useRazorPayment = ({ processPayment, verifyPayment = () => ({ statu
                 }
             };
 
-            const rzpay = new Razorpay(options);
+            const rzpay = new window.Razorpay(options);
 
             // Handle payment failure
             rzpay.on('payment.failed', (response: any) => {
                 console.error('Payment failed:', response);
+                setIsLoading(false);
                 close();
                 notifications.show({
                     position: 'bottom-right',
@@ -153,6 +200,7 @@ export const useRazorPayment = ({ processPayment, verifyPayment = () => ({ statu
         }
         catch (error) {
             console.error('Error occurred during payment:', error);
+            setIsLoading(false);
             close();
             notifications.show({
                 position: 'bottom-right',
@@ -161,8 +209,8 @@ export const useRazorPayment = ({ processPayment, verifyPayment = () => ({ statu
                 color: 'red',
             });
         }
-    }, [Razorpay, handleRazorpayResponse]);
+    }, [handleRazorpayResponse]);
 
 
-    return { makePayment, isLoading, error };
+    return { makePayment, isLoading: isLoading || !isRazorpayReady, error: null };
 }

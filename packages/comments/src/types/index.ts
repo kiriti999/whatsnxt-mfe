@@ -58,7 +58,7 @@ export interface CommentContainerProps {
 export interface CommentConnectorProps {
     commentId: number;
     commentItems: any; // Replace 'any' with the actual type of commentItems if known
-    connectorElementRef: React.RefObject<HTMLDivElement>;
+    connectorElementRef: any;
     name: string;
     children: ReactNode;
 }

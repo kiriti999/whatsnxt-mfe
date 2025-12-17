@@ -1,10 +1,8 @@
 // Update the content page to use the new fetcher
 import { createExcerpt } from '@whatsnxt/core-util/src/GenerateMetaTags';
-import BlogContentDetails from './BlogContentDetails';
-import TutorialContentDetails from './TutorialContentDetails';
 import { getPostBySlugServer } from '../../../fetcher/serverFetcher';
 import React from 'react';
-import { Box } from '@mantine/core';
+import ContentWrapper from './ContentWrapper';
 
 export const dynamic = 'force-dynamic'
 
@@ -24,7 +22,7 @@ const ContentPage = async (props: any) => {
   }
 
   return (
-    <Box my={'xl'}>
+    <>
       {/* Your existing JSON-LD script */}
       <script
         type="application/ld+json"
@@ -66,12 +64,8 @@ const ContentPage = async (props: any) => {
         }}
       />
 
-      {slugData?.tutorial ? (
-        <TutorialContentDetails details={slugData} />
-      ) : (
-        <BlogContentDetails details={slugData} />
-      )}
-    </Box>
+      <ContentWrapper details={slugData} />
+    </>
   );
 };
 
