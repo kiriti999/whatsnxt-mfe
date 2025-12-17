@@ -1,7 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Anchor } from '@mantine/core';
 import styles from './Logo.module.css';
 import logoSrc from './whatsnxt-mobile-logo.svg';
 
@@ -22,7 +21,7 @@ export const MobileLogo = ({
   const heightNum = typeof height === 'number' ? height : parseInt(height as string) || 75;
 
   return (
-    <Anchor href="/" component={Link} className={`${className}`}>
+    <Link href="/" className={`${className}`}>
       <Image
         src={logoSrc}
         width={widthNum}
@@ -37,6 +36,6 @@ export const MobileLogo = ({
         }}
         priority
       />
-    </Anchor>
+    </Link>
   );
 };

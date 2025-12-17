@@ -1,0 +1,317 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Lab Page Management API",
+    "version": "1.0.0",
+    "description": "API for managing pages within a lab."
+  },
+  "servers": [
+    {
+      "url": "/api"
+    }
+  ],
+  "paths": {
+    "/labs/{labId}/pages": {
+      "post": {
+        "summary": "Add a new page to a lab",
+        "operationId": "addPageToLab",
+        "parameters": [
+          {
+            "name": "labId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "ID of the lab to add the page to"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LabPageCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Page added successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LabPage"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lab not found"
+          }
+        }
+      },
+      "get": {
+        "summary": "Get all pages for a lab",
+        "operationId": "getLabPages",
+        "parameters": [
+          {
+            "name": "labId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "ID of the lab to retrieve pages from"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Pages retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/LabPage"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lab not found"
+          }
+        }
+      }
+    },
+    "/labs/{labId}/pages/{pageId}": {
+      "get": {
+        "summary": "Retrieve a specific page from a lab",
+        "operationId": "getLabPageById",
+        "parameters": [
+          {
+            "name": "labId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "ID of the lab"
+          },
+          {
+            "name": "pageId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "ID of the page to retrieve"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Page retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LabPage"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lab or Page not found"
+          }
+        }
+      },
+      "put": {
+        "summary": "Update a specific page in a lab",
+        "operationId": "updateLabPageById",
+        "parameters": [
+          {
+            "name": "labId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "ID of the lab"
+          },
+          {
+            "name": "pageId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "ID of the page to update"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LabPageUpdateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Page updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LabPage"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lab or Page not found"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "LabPage": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "description": "Unique identifier for the page"
+          },
+          "labId": {
+            "type": "string",
+            "description": "ID of the parent lab"
+          },
+          "pageNumber": {
+            "type": "integer"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["question", "diagram", "mixed"]
+          },
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "questions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Question"
+            },
+            "nullable": true
+          },
+          "diagram": {
+            "$ref": "#/components/schemas/DiagramTest",
+            "nullable": true
+          }
+        },
+        "required": ["_id", "labId", "pageNumber", "type"]
+      },
+      "LabPageCreateRequest": {
+        "type": "object",
+        "properties": {
+          "pageNumber": {
+            "type": "integer",
+            "description": "Order of the page within the lab"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["question", "diagram", "mixed"],
+            "description": "Type of content on the page"
+          },
+          "title": {
+            "type": "string",
+            "description": "Optional title for the page",
+            "nullable": true
+          }
+        },
+        "required": ["pageNumber", "type"]
+      },
+      "LabPageUpdateRequest": {
+        "type": "object",
+        "properties": {
+          "pageNumber": {
+            "type": "integer"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["question", "diagram", "mixed"]
+          },
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "questions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Question"
+            },
+            "nullable": true
+          },
+          "diagram": {
+            "$ref": "#/components/schemas/DiagramTest",
+            "nullable": true
+          }
+        }
+      },
+      "Question": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string"
+          },
+          "questionText": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["MCQ", "Text"]
+          },
+          "options": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "correctAnswer": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": ["_id", "questionText", "type", "correctAnswer"]
+      },
+      "DiagramTest": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string"
+          },
+          "initialDiagramState": {
+            "type": "object",
+            "description": "JSON representation of the initial diagram state"
+          },
+          "expectedDiagramState": {
+            "type": "object",
+            "description": "JSON representation of the expected final diagram state for grading"
+          },
+          "paletteCategory": {
+            "type": "string",
+            "description": "Category of shapes available in the palette (e.g., 'AWS', 'Generic')"
+          }
+        },
+        "required": ["_id", "initialDiagramState", "expectedDiagramState", "paletteCategory"]
+      }
+    }
+  }
+}

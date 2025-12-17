@@ -1,3 +1,5 @@
+"use client";
+
 import React from 'react';
 import {
   Container,
@@ -97,12 +99,7 @@ const TrendingArticles = ({ articles, total }: TrendingArticlesProps) => {
             controlSize={40}
             nextControlIcon={<IconChevronRight size={20} />}
             previousControlIcon={<IconChevronLeft size={20} />}
-            emblaOptions={{
-              loop: true,
-              align: 'center',
-              dragFree: true,
-              slidesToScroll: 1
-            }}
+            draggable
             styles={{
               indicator: {
                 width: rem(12),
@@ -205,6 +202,7 @@ const TrendingArticles = ({ articles, total }: TrendingArticlesProps) => {
                       <Text
                         size="xs"
                         className={styles.trendingMeta}
+                        suppressHydrationWarning
                       >
                         {formatDate(article.updatedAt)}
                       </Text>

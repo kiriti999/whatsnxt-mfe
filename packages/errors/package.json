@@ -1,0 +1,24 @@
+{
+  "name": "@whatsnxt/errors",
+  "version": "1.0.0",
+  "description": "Custom error classes for WhatsnXT platform",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf dist"
+  },
+  "keywords": [
+    "errors",
+    "exceptions",
+    "whatsnxt"
+  ],
+  "author": "WhatsnXT Team",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "http-status-codes": "2.3.0"
+  }
+}

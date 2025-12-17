@@ -1,0 +1,24 @@
+{
+  "name": "@whatsnxt/constants",
+  "version": "1.0.0",
+  "description": "Shared constants for WhatsnXT platform",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf dist"
+  },
+  "keywords": [
+    "constants",
+    "config",
+    "whatsnxt"
+  ],
+  "author": "WhatsnXT Team",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "http-status-codes": "2.3.0"
+  }
+}

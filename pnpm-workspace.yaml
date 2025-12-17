@@ -1,3 +1,5 @@
 packages:
   - "apps/*"
   - "packages/*"
+  - "packages/diagram-core"
+  - "apps/whatsnxt-bff"

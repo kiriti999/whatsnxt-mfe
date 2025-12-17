@@ -16,7 +16,9 @@ import TutorialsToc from '../TutorialToc';
 import useAuth from '../../../hooks/Authentication/useAuth';
 import { useMediaQuery } from '@mantine/hooks';
 import useCommentHandlers from '@whatsnxt/blogcomments/src/hooks/useCommentHandlers';
-import { BlogComment, CommentReplyContextProvider, CommentContextProvider } from '@whatsnxt/blogcomments';
+import BlogComment from '@whatsnxt/blogcomments/src';
+import { CommentReplyContextProvider } from '@whatsnxt/blogcomments/src/contexts/comment-reply-context';
+import { CommentContextProvider } from '@whatsnxt/blogcomments/src/contexts/comment-context';
 
 const initialProps = {
   title: '',

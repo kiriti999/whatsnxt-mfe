@@ -1,11 +1,17 @@
 import { useState } from "react";
 import { Title } from "@mantine/core";
-import { Comment, CommentContextProvider, CommentReplyContextProvider } from '@whatsnxt/comments';
+import Comment from '@whatsnxt/comments/src';
+import { CommentReplyContextProvider } from '@whatsnxt/comments/src/contexts/comment-reply-context';
+import { CommentContextProvider } from '@whatsnxt/comments/src/contexts/comment-context';
 import type { Comments } from "@whatsnxt/comments/src/types";
 import useCommentHandlers from '@whatsnxt/comments/src/hooks/useCommentHandlers';
 import useAuth from "../../hooks/Authentication/useAuth";
 
-const Discussion = ({ lessonId }) => {
+interface DiscussionProps {
+	lessonId: string;
+}
+
+const Discussion = ({ lessonId }: DiscussionProps) => {
 	const { user } = useAuth();
 	const [comments, setComments] = useState<Comments>({
 		id: 1,

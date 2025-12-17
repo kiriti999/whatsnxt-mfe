@@ -173,13 +173,13 @@ export const NavbarDesktop = ({ links, cartItems, loginMenuLinks, drawerOpened, 
                     // Handle Profile with Menu.Sub for proper submenu
                     if (link.title === 'Profile' && link.children) {
                       return (
-                        <Menu.Sub key={index}>
-                          <Menu.Sub.Target>
-                            <Menu.Sub.Item>
+                        <Menu key={index}>
+                          <Menu.Target>
+                            <Menu.Item>
                               {link.title}
-                            </Menu.Sub.Item>
-                          </Menu.Sub.Target>
-                          <Menu.Sub.Dropdown>
+                            </Menu.Item>
+                          </Menu.Target>
+                          <Menu.Dropdown>
                             {link.children.map((child, childIndex) => {
                               const ChildIcon = child.icon;
                               return (
@@ -193,21 +193,21 @@ export const NavbarDesktop = ({ links, cartItems, loginMenuLinks, drawerOpened, 
                                 </Menu.Item>
                               );
                             })}
-                          </Menu.Sub.Dropdown>
-                        </Menu.Sub>
+                          </Menu.Dropdown>
+                        </Menu>
                       );
                     }
 
                     // Handle Blog with Menu.Sub for proper submenu
                     if (link.title === 'Article' && link.children) {
                       return (
-                        <Menu.Sub key={index}>
-                          <Menu.Sub.Target>
-                            <Menu.Sub.Item>
+                        <Menu key={index}>
+                          <Menu.Target>
+                            <Menu.Item>
                               {link.title}
-                            </Menu.Sub.Item>
-                          </Menu.Sub.Target>
-                          <Menu.Sub.Dropdown>
+                            </Menu.Item>
+                          </Menu.Target>
+                          <Menu.Dropdown>
                             {link.children.map((child, childIndex) => {
                               const ChildIcon = child.icon;
                               return (
@@ -221,8 +221,8 @@ export const NavbarDesktop = ({ links, cartItems, loginMenuLinks, drawerOpened, 
                                 </Menu.Item>
                               );
                             })}
-                          </Menu.Sub.Dropdown>
-                        </Menu.Sub>
+                          </Menu.Dropdown>
+                        </Menu>
                       );
                     }
 

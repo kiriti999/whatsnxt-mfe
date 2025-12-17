@@ -39,9 +39,11 @@ export interface Lab {
         version?: string;
     };
 
+    masterGraph?: any; // D3 Graph JSON
+
     architectureConfig?: {
-        type: 'fullstack';
-        diagram?: string; // URL or definition
+        type: 'fullstack' | 'aws' | 'docker' | 'react' | 'nextjs' | 'kubernetes';
+        diagram?: string; // Legacy or specific URL
     };
 
     kubernetesConfig?: {
@@ -55,4 +57,5 @@ export interface Lab {
     createdBy?: string;
     createdAt?: Date;
     updatedAt?: Date;
+    status: 'DRAFT' | 'PUBLISHED';
 }

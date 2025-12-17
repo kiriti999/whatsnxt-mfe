@@ -1,0 +1,980 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Lab Diagram Tests API",
+    "version": "1.0.0",
+    "description": "API for managing labs, lab pages, questions, and diagram tests."
+  },
+  "servers": [
+    {
+      "url": "/api/v1",
+      "description": "Base URL for Lab Diagram Tests API"
+    }
+  ],
+  "security": [
+    {
+      "OAuth2": []
+    }
+  ],
+  "paths": {
+    "/labs": {
+      "post": {
+        "summary": "Create a new lab",
+        "operationId": "createLab",
+        "tags": ["Labs"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateLabRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Lab created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Lab"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "Get a list of labs (for instructor) or published labs (for student)",
+        "operationId": "getLabs",
+        "tags": ["Labs"],
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "description": "Filter labs by status (draft, published)",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": ["draft", "published"]
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number for pagination (1-indexed)",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Number of labs per page",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 3
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Paginated list of labs",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedLabsResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/labs/{labId}": {
+      "get": {
+        "summary": "Get a specific lab by ID",
+        "operationId": "getLabById",
+        "tags": ["Labs"],
+        "parameters": [
+          {
+            "name": "labId",
+            "in": "path",
+            "required": true,
+            "description": "ID of the lab to retrieve",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lab details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Lab"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lab not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Update a draft lab",
+        "operationId": "updateLab",
+        "tags": ["Labs"],
+        "parameters": [
+          {
+            "name": "labId",
+            "in": "path",
+            "required": true,
+            "description": "ID of the lab to update",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateLabRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Lab updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Lab"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lab not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete a draft lab",
+        "operationId": "deleteLab",
+        "tags": ["Labs"],
+        "parameters": [
+          {
+            "name": "labId",
+            "in": "path",
+            "required": true,
+            "description": "ID of the lab to delete",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Lab deleted successfully"
+          },
+          "400": {
+            "description": "Cannot delete published lab",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lab not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/labs/{labId}/publish": {
+      "post": {
+        "summary": "Publish a lab",
+        "operationId": "publishLab",
+        "tags": ["Labs"],
+        "parameters": [
+          {
+            "name": "labId",
+            "in": "path",
+            "required": true,
+            "description": "ID of the lab to publish",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lab published successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Lab"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lab not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/labs/{labId}/pages": {
+      "post": {
+        "summary": "Create a new lab page within a lab",
+        "operationId": "createLabPage",
+        "tags": ["Lab Pages"],
+        "parameters": [
+          {
+            "name": "labId",
+            "in": "path",
+            "required": true,
+            "description": "ID of the lab to add the page to",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateLabPageRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Lab page created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LabPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lab not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/labs/{labId}/pages/{pageId}": {
+      "get": {
+        "summary": "Get a specific lab page by ID",
+        "operationId": "getLabPageById",
+        "tags": ["Lab Pages"],
+        "parameters": [
+          {
+            "name": "labId",
+            "in": "path",
+            "required": true,
+            "description": "ID of the lab",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "pageId",
+            "in": "path",
+            "required": true,
+            "description": "ID of the lab page to retrieve",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lab page details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LabPage"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lab or page not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Update a lab page (add question, diagram test)",
+        "operationId": "updateLabPage",
+        "tags": ["Lab Pages"],
+        "parameters": [
+          {
+            "name": "labId",
+            "in": "path",
+            "required": true,
+            "description": "ID of the lab",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "pageId",
+            "in": "path",
+            "required": true,
+            "description": "ID of the lab page to update",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateLabPageRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Lab page updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LabPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lab or page not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/diagram-shapes": {
+      "get": {
+        "summary": "Get available diagram shapes",
+        "operationId": "getDiagramShapes",
+        "tags": ["Diagrams"],
+        "parameters": [
+          {
+            "name": "architectureType",
+            "in": "query",
+            "description": "Filter shapes by architecture type (e.g., AWS, Azure, GCP, Common)",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of diagram shapes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DiagramShape"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "OAuth2": {
+        "type": "oauth2",
+        "flows": {
+          "implicit": {
+            "authorizationUrl": "https://example.com/oauth/authorize",
+            "scopes": {
+              "read:labs": "read labs data",
+              "write:labs": "modify labs data"
+            }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "Lab": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "readOnly": true
+          },
+          "status": {
+            "type": "string",
+            "enum": ["draft", "published"],
+            "readOnly": true
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "labType": {
+            "type": "string",
+            "description": "Category/type of the lab (e.g., 'Cloud Computing', 'Networking', 'Security')"
+          },
+          "architectureType": {
+            "type": "string",
+            "description": "Architecture platform (e.g., 'AWS', 'Azure', 'GCP', 'Common', 'Hybrid')"
+          },
+          "instructorId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true
+          }
+        }
+      },
+      "PaginatedLabsResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Lab"
+            }
+          },
+          "pagination": {
+            "type": "object",
+            "properties": {
+              "page": {
+                "type": "integer",
+                "description": "Current page number"
+              },
+              "limit": {
+                "type": "integer",
+                "description": "Number of items per page"
+              },
+              "totalItems": {
+                "type": "integer",
+                "description": "Total number of labs"
+              },
+              "totalPages": {
+                "type": "integer",
+                "description": "Total number of pages"
+              }
+            }
+          }
+        }
+      },
+      "CreateLabRequest": {
+        "type": "object",
+        "required": ["name", "labType", "architectureType", "instructorId"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "labType": {
+            "type": "string",
+            "minLength": 1
+          },
+          "architectureType": {
+            "type": "string",
+            "minLength": 1
+          },
+          "instructorId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "UpdateLabRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "labType": {
+            "type": "string",
+            "minLength": 1
+          },
+          "architectureType": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
+      "LabPage": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "readOnly": true
+          },
+          "labId": {
+            "type": "string",
+            "format": "uuid",
+            "readOnly": true
+          },
+          "pageNumber": {
+            "type": "integer",
+            "readOnly": true
+          },
+          "hasQuestion": {
+            "type": "boolean"
+          },
+          "hasDiagramTest": {
+            "type": "boolean"
+          },
+          "question": {
+            "$ref": "#/components/schemas/Question",
+            "nullable": true
+          },
+          "diagramTest": {
+            "$ref": "#/components/schemas/DiagramTest",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true
+          }
+        }
+      },
+      "CreateLabPageRequest": {
+        "type": "object",
+        "properties": {
+          "hasQuestion": {
+            "type": "boolean",
+            "default": false
+          },
+          "hasDiagramTest": {
+            "type": "boolean",
+            "default": false
+          },
+          "question": {
+            "$ref": "#/components/schemas/QuestionContent",
+            "nullable": true
+          },
+          "diagramTest": {
+            "$ref": "#/components/schemas/DiagramTestContent",
+            "nullable": true
+          }
+        }
+      },
+      "UpdateLabPageRequest": {
+        "type": "object",
+        "properties": {
+          "hasQuestion": {
+            "type": "boolean"
+          },
+          "hasDiagramTest": {
+            "type": "boolean"
+          },
+          "question": {
+            "$ref": "#/components/schemas/QuestionContent",
+            "nullable": true
+          },
+          "diagramTest": {
+            "$ref": "#/components/schemas/DiagramTestContent",
+            "nullable": true
+          }
+        }
+      },
+      "Question": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "readOnly": true
+          },
+          "labPageId": {
+            "type": "string",
+            "format": "uuid",
+            "readOnly": true
+          },
+          "type": {
+            "type": "string",
+            "enum": ["Multiple Choice", "Text"]
+          },
+          "questionText": {
+            "type": "string"
+          },
+          "options": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "correctAnswer": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true
+          }
+        }
+      },
+      "QuestionContent": {
+        "type": "object",
+        "required": ["type", "questionText"],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["Multiple Choice", "Text"]
+          },
+          "questionText": {
+            "type": "string"
+          },
+          "options": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "correctAnswer": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "DiagramTest": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "readOnly": true
+          },
+          "labPageId": {
+            "type": "string",
+            "format": "uuid",
+            "readOnly": true
+          },
+          "prompt": {
+            "type": "string"
+          },
+          "expectedDiagramState": {
+            "type": "object"
+          },
+          "architectureType": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true
+          }
+        }
+      },
+      "DiagramTestContent": {
+        "type": "object",
+        "required": ["prompt", "expectedDiagramState", "architectureType"],
+        "properties": {
+          "prompt": {
+            "type": "string"
+          },
+          "expectedDiagramState": {
+            "type": "object",
+            "description": "JSON representation of the expected diagram state/solution"
+          },
+          "architectureType": {
+            "type": "string"
+          }
+        }
+      },
+      "DiagramShape": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "readOnly": true
+          },
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "architectureType": {
+            "type": "string"
+          },
+          "svgPath": {
+            "type": "string"
+          },
+          "metadata": {
+            "type": "object"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "details": {
+            "type": "object",
+            "nullable": true
+          }
+        }
+      }
+    }
+  }
+}

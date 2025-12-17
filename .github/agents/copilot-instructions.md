@@ -1,0 +1,32 @@
+# whatsnxt-mfe Development Guidelines
+
+Auto-generated from all feature plans. Last updated: 2025-12-15
+
+## Active Technologies
+- TypeScript, Node.js 24.12.0 LTS + Next.js 16, React 19, Mantine UI, Express.js 5, D3.js, MongoDB (001-lab-diagram-test)
+- MongoDB (Lab, LabPage, Question, DiagramTest, DiagramShape models) (001-lab-diagram-test)
+
+- TypeScript 5.x + Node.js 24.12.0 LTS + Next.js 16, React 19, Mantine UI, Express.js 5, D3.js, MongoDB (001-lab-diagram-test)
+
+## Project Structure
+
+```text
+src/
+tests/
+```
+
+## Commands
+
+npm test && npm run lint
+
+## Code Style
+
+TypeScript 5.x + Node.js 24.12.0 LTS: Follow standard conventions
+
+## Recent Changes
+- 001-lab-diagram-test: Added TypeScript, Node.js 24.12.0 LTS + Next.js 16, React 19, Mantine UI, Express.js 5, D3.js, MongoDB
+
+- 001-lab-diagram-test: Added TypeScript 5.x + Node.js 24.12.0 LTS + Next.js 16, React 19, Mantine UI, Express.js 5, D3.js, MongoDB
+
+<!-- MANUAL ADDITIONS START -->
+<!-- MANUAL ADDITIONS END -->

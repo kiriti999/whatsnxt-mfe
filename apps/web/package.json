@@ -8,9 +8,22 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint --max-warnings 0",
-    "check-types": "tsc --noEmit"
+    "check-types": "tsc --noEmit",
+    "test": "vitest"
   },
   "dependencies": {
+    "@mantine/carousel": "8.3.10",
+    "@mantine/core": "8.3.10",
+    "@mantine/form": "8.3.10",
+    "@mantine/hooks": "8.3.10",
+    "@mantine/modals": "8.3.10",
+    "@mantine/notifications": "8.3.10",
+    "@whatsnxt/comments": "workspace:*",
+    "@whatsnxt/core-util": "workspace:*",
+    "@whatsnxt/http-client": "workspace:*",
+    "clsx": "2.1.1",
+    "d3": "^7.9.0",
+    "diagram-core": "workspace:*",
     "next": "16.0.7",
     "react": "19.1.0",
     "react-dom": "^19.1.0",
@@ -18,9 +31,13 @@
   },
   "devDependencies": {
     "@next/bundle-analyzer": "16.0.3",
+    "@types/d3": "^7.4.3",
     "@types/js-cookie": "^3.0.6",
     "@types/node": "^24.0.1",
     "@types/react": "19.1.0",
-    "@types/react-dom": "19.1.1"
+    "@types/react-dom": "19.1.1",
+    "@vitejs/plugin-react": "^5.1.2",
+    "jsdom": "^24.1.0",
+    "vitest": "^4.0.15"
   }
 }
