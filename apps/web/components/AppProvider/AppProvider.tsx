@@ -4,7 +4,7 @@ import { JSX, ReactNode, useState, useEffect } from 'react';
 import { Provider, useDispatch } from 'react-redux';
 import NextTopLoader from 'nextjs-toploader';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { DEFAULT_THEME, MantineProvider, TypographyStylesProvider } from '@mantine/core';
+import { MantineProvider, createTheme } from '@mantine/core';
 import { Notifications } from '@mantine/notifications';
 import Layout from '../Layout';
 import FilterStore from '../../context/filterStore';
@@ -50,7 +50,12 @@ export default function AppProvider({ children, user }: { children: ReactNode, u
   const domain = process.env.NEXT_PUBLIC_MFE_HOST;
 
   const isStudent = user?.role === 'student';
-  
+
+  const theme = createTheme({
+    /** Put your mantine theme override here */
+
+  });
+
   const headerProps = {
     links: [
       { title: 'Home', url: `${domain}/`, linkType: '_self' },
@@ -92,32 +97,30 @@ export default function AppProvider({ children, user }: { children: ReactNode, u
   return (
     <Provider store={store}>
       <CartInitializer />
-      <QueryClientProvider client={queryClient}>
-        <AuthProvider userData={user}>
-          <FilterStore>
-            <MantineProvider theme={DEFAULT_THEME}>
+      <MantineProvider theme={theme}>
+        <QueryClientProvider client={queryClient}>
+          <AuthProvider userData={user}>
+            <FilterStore>
               <Notifications position="top-left" zIndex={1000} />
-              <TypographyStylesProvider>
-                <ModalsProvider>
-                  <SearchProvider>
-                    <Layout {...headerProps}>
-                      <CourseManageContextProvider>
-                        {children}
-                      </CourseManageContextProvider>
-                    </Layout>
-                  </SearchProvider>
-                </ModalsProvider>
-              </TypographyStylesProvider>
+              <ModalsProvider>
+                <SearchProvider>
+                  <Layout {...headerProps}>
+                    <CourseManageContextProvider>
+                      {children}
+                    </CourseManageContextProvider>
+                  </Layout>
+                </SearchProvider>
+              </ModalsProvider>
               <NextTopLoader
                 color="red"
                 height={2}
                 shadow="none"
                 showSpinner={false}
               />
-            </MantineProvider>
-          </FilterStore>
-        </AuthProvider>
-      </QueryClientProvider>
+            </FilterStore>
+          </AuthProvider>
+        </QueryClientProvider>
+      </MantineProvider>
     </Provider>
   )
 }

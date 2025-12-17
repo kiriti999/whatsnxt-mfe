@@ -299,11 +299,20 @@ const nextConfig: NextConfig = {
             'https://api.cloudinary.com',
             'https://*.cloudinary.com',
             'https://ik.imagekit.io',
-            // Analytics services - ADD MISSING DOMAINS
+            // Payment services - Razorpay
+            'https://api.razorpay.com',
+            'https://checkout.razorpay.com',
+            'https://lumberjack.razorpay.com',
+            'https://*.razorpay.com',
+            // Analytics services - Google Analytics (all domains)
             'https://www.google-analytics.com',
-            'https://analytics.google.com',  // MISSING - This was causing Partytown errors
+            'https://analytics.google.com',
             'https://www.googletagmanager.com',
-            'https://*.google-analytics.com'  // Wildcard for any GA subdomain
+            'https://*.google-analytics.com',
+            'https://*.google.com',
+            'https://*.google.co.in',
+            'https://stats.g.doubleclick.net',
+            'https://www.google.com',
         ].join(' ');
 
         return [
@@ -346,14 +355,14 @@ const nextConfig: NextConfig = {
                         value: [
                             "default-src 'self'",
                             // PARTYTOWN: Allow all Partytown scripts and external analytics
-                            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com https://www.googletagmanager.com https://www.google-analytics.com data: blob:",
+                            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com https://www.googletagmanager.com https://www.google-analytics.com https://checkout.razorpay.com data: blob:",
                             "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
                             "font-src 'self' https://fonts.gstatic.com",
-                            // Updated img-src to specifically include Cloudinary domains
-                            "img-src 'self' data: https: blob: https://res.cloudinary.com https://*.cloudinary.com https://api.cloudinary.com https://ik.imagekit.io https://*.imagekit.io",
-                            "media-src 'self' https: blob: https://res.cloudinary.com https://*.cloudinary.com https://api.cloudinary.com",
+                            // Updated img-src to specifically include Cloudinary domains and localhost for development
+                            `img-src 'self' data: https: blob: https://res.cloudinary.com https://*.cloudinary.com https://api.cloudinary.com https://ik.imagekit.io https://*.imagekit.io${isDevelopment ? ' http://localhost:*' : ''}`,
+                            `media-src 'self' https: blob: https://res.cloudinary.com https://*.cloudinary.com https://api.cloudinary.com${isDevelopment ? ' http://localhost:*' : ''}`,
                             `connect-src ${connectSrc}`,
-                            "frame-src 'self'",
+                            "frame-src 'self' https://api.razorpay.com",
                             // PARTYTOWN SPECIFIC: Essential for web workers and service workers
                             "worker-src 'self' blob: data:",
                             "child-src 'self' blob: data:",
@@ -379,7 +388,7 @@ const nextConfig: NextConfig = {
                     // PERMISSIONS POLICY - Controls access to browser features
                     {
                         key: 'Permissions-Policy',
-                        value: 'camera=(), microphone=(), geolocation=(), payment=(self), fullscreen=(self)'
+                        value: 'camera=(), microphone=(), geolocation=(), payment=(self "https://api.razorpay.com" "https://checkout.razorpay.com"), fullscreen=(self)'
                     },
                     // CROSS-ORIGIN RESOURCE POLICY
                     {
@@ -488,6 +497,10 @@ const nextConfig: NextConfig = {
         NEXT_PUBLIC_BFF_HOST_IMAGEKIT_API: process.env.BFF_HOST_IMAGEKIT_API,
         NEXT_PUBLIC_COOKIES_ACCESS_TOKEN: process.env.COOKIES_ACCESS_TOKEN,
         NEXT_PUBLIC_GA_ID: process.env.GA_ID,
+        
+        // Razorpay Configuration
+        NEXT_PUBLIC_RAZORPAY_KEY: process.env.RAZOR_PAY_KEY,
+        NEXT_PUBLIC_RAZORPAY_LOGO: process.env.RAZORPAY_LOGO,
     },
 
     // NEXT.JS 16: Output configuration

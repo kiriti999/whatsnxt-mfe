@@ -14,7 +14,6 @@ import Providers from '../components/AppProvider/AppProvider'
 import Script from 'next/script';
 import { OrganizationStructuredData, WebSiteStructuredData } from '../components/StructuredData';
 import PartyTownScripts from '../components/PartyTownScripts';
-import { ColorSchemeScript } from '@mantine/core';
 
 const nunito = Nunito({
   subsets: ["latin"],
@@ -212,7 +211,6 @@ async function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" className={`${nunito.variable} ${nunito.className}`} suppressHydrationWarning>
       <head>
-        <ColorSchemeScript />
         {/* Resource hints for actual services you use */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
@@ -234,6 +232,13 @@ async function RootLayout({ children }: { children: ReactNode }) {
         <OrganizationStructuredData />
         <WebSiteStructuredData />
         <PartyTownScripts />
+        
+        {/* Razorpay Script - Required for payment processing */}
+        <Script
+          id="razorpay-checkout-js"
+          src="https://checkout.razorpay.com/v1/checkout.js"
+          strategy="beforeInteractive"
+        />
       </head>
       <body className="antialiased">
         <Providers user={userData}>
@@ -290,8 +295,6 @@ async function RootLayout({ children }: { children: ReactNode }) {
             />
           </>
         )}
-
-        {/* REMOVED: Algolia and Razorpay script tags - use npm packages instead */}
 
       </body>
     </html>

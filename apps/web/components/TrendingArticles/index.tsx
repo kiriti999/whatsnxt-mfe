@@ -99,10 +99,7 @@ const TrendingArticles = ({ articles, total }: TrendingArticlesProps) => {
             controlSize={40}
             nextControlIcon={<IconChevronRight size={20} />}
             previousControlIcon={<IconChevronLeft size={20} />}
-            loop
-            align="center"
-            dragFree
-            slidesToScroll={1}
+            draggable
             styles={{
               indicator: {
                 width: rem(12),

@@ -623,6 +623,21 @@ importers:
 
   packages/blogcomments:
     dependencies:
+      '@mantine/core':
+        specifier: 8.3.10
+        version: 8.3.10(@mantine/hooks@8.3.10(react@19.1.0))(@types/react@19.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@mantine/hooks':
+        specifier: 8.3.10
+        version: 8.3.10(react@19.1.0)
+      react:
+        specifier: ^19.1.0
+        version: 19.1.0
+      react-dom:
+        specifier: ^19.1.0
+        version: 19.1.0(react@19.1.0)
+      react-hook-form:
+        specifier: ^7.57.0
+        version: 7.57.0(react@19.1.0)
       styled-components:
         specifier: ^6.1.13
         version: 6.1.19(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
