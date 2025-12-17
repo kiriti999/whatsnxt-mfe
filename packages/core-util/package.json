@@ -9,7 +9,9 @@
     "check-types": "tsc --noEmit"
   },
   "dependencies": {
-    "react": "^19.1.0"
+    "algoliasearch": "4.23.2",
+    "react": "^19.1.0",
+    "swr": "2.3.3"
   },
   "devDependencies": {
     "@repo/eslint-config": "workspace:*",
@@ -20,8 +22,12 @@
     "typescript": "5.8.2"
   },
   "peerDependencies": {
-    "@mantine/core": "^7.11.1",
-    "@mantine/hooks": "^7.11.1",
+    "@mantine/carousel": "8.3.10",
+    "@mantine/core": "8.3.10",
+    "@mantine/form": "8.3.10",
+    "@mantine/hooks": "8.3.10",
+    "@mantine/modals": "8.3.10",
+    "@mantine/notifications": "8.3.10",
     "react": "^19.1.0"
   }
 }
