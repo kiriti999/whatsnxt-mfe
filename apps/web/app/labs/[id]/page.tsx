@@ -26,6 +26,8 @@ import { IconTrash, IconSearch, IconX } from '@tabler/icons-react';
 import { Lab, LabPage } from '@whatsnxt/core-types';
 import labApi from '@/apis/lab.api';
 import { getAvailableArchitectures } from '@/utils/shape-libraries';
+import { LabAccessButton } from '@/components/Lab/LabAccessButton';
+import useAuth from '@/hooks/Authentication/useAuth';
 
 const LAB_TYPES = [
   'Cloud Computing',
@@ -45,6 +47,7 @@ const LabDetailPage = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const labId = params.id as string;
+  const { user, isAuthenticated } = useAuth();
 
   // Get URL params for tab and page
   const urlTab = searchParams.get('tab');
@@ -57,6 +60,10 @@ const LabDetailPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [activeTab, setActiveTab] = useState<string | null>('details');
   const [searchQuery, setSearchQuery] = useState('');
+
+  // Derived values (must come after state declarations)
+  const isTrainer = isAuthenticated && user?.role === 'trainer';
+  const isOwner = isTrainer && lab?.instructorId === user?._id;
 
   const PAGES_PER_PAGE = 3;
 
@@ -254,6 +261,7 @@ const LabDetailPage = () => {
 
   const isPublished = lab.status === 'published';
   const canEdit = lab.status === 'draft';
+  const canViewAccess = isPublished && !isOwner; // Students can see access/purchase options
 
   // Search and filter pages based on questions
   const filteredPages = pages.filter(page => {
@@ -314,6 +322,28 @@ const LabDetailPage = () => {
           )}
         </Group>
       </Group>
+
+      {/* Access/Purchase Section for Students */}
+      {canViewAccess && (
+        <Paper shadow="sm" p="xl" withBorder mb="xl" bg="blue.0">
+          <Stack align="center" gap="md">
+            <Title order={3}>Access This Lab</Title>
+            <LabAccessButton
+              labId={labId}
+              labTitle={lab.name}
+              pricing={lab.pricing}
+              onAccessGranted={() => {
+                notifications.show({
+                  title: 'Access Granted',
+                  message: 'You can now start this lab',
+                  color: 'green',
+                });
+                fetchLabData();
+              }}
+            />
+          </Stack>
+        </Paper>
+      )}
 
       <Tabs value={activeTab} onChange={setActiveTab}>
         <Tabs.List>
