@@ -10,7 +10,7 @@ const TransactionSchema = new Schema(
       index: true,
     },
     labId: {
-      type: Schema.Types.ObjectId,
+      type: String, // UUID from Lab model
       ref: "Lab",
       required: true,
       index: true,

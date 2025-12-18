@@ -22,7 +22,7 @@ class PurchaseService {
   }> {
     try {
       // Check if lab exists and is paid
-      const lab: any = await Lab.findById(labId).select("title pricing").lean();
+      const lab: any = await Lab.findOne({ id: labId }).select("title pricing").lean();
       if (!lab) {
         throw new HttpException("Lab not found", HttpStatus.NOT_FOUND);
       }
@@ -37,7 +37,7 @@ class PurchaseService {
       // Check if student already purchased
       const existingPurchase = await LabPurchase.findOne({
         studentId: new mongoose.Types.ObjectId(studentId),
-        labId: new mongoose.Types.ObjectId(labId),
+        labId: labId, // UUID string
         status: "completed",
       }).lean();
 
@@ -226,7 +226,7 @@ class PurchaseService {
       // Create new purchase
       const purchase = new LabPurchase({
         studentId: new mongoose.Types.ObjectId(data.studentId),
-        labId: new mongoose.Types.ObjectId(data.labId),
+        labId: data.labId, // UUID string
         purchaseDate: new Date(),
         transactionId: data.transactionId,
         amountPaid: data.amountPaid,
@@ -269,7 +269,7 @@ class PurchaseService {
     try {
       const transaction = new Transaction({
         studentId: new mongoose.Types.ObjectId(data.studentId),
-        labId: new mongoose.Types.ObjectId(data.labId),
+        labId: data.labId, // UUID string
         timestamp: new Date(),
         type: data.type,
         amount: data.amount,

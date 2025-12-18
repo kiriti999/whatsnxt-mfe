@@ -27,7 +27,7 @@ class AccessControlService {
 
     try {
       // 1. Load lab
-      const lab: any = await Lab.findById(labId).select("pricing").lean();
+      const lab: any = await Lab.findOne({ id: labId }).select("pricing").lean();
       if (!lab) {
         return { hasAccess: false, reason: "lab_not_found" };
       }
@@ -41,7 +41,7 @@ class AccessControlService {
       // 3. Check for direct purchase
       const purchase = await LabPurchase.findOne({
         studentId: new mongoose.Types.ObjectId(studentId),
-        labId: new mongoose.Types.ObjectId(labId),
+        labId: labId, // UUID string
         status: "completed",
       }).lean();
 
