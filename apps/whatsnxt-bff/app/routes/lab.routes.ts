@@ -30,7 +30,7 @@ const logger = getLogger("LabRoutes");
  */
 router.post("/", async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { name, description, labType, architectureType, instructorId } =
+    const { name, description, labType, architectureType, instructorId, pricing } =
       req.body;
 
     const lab = await LabService.createLab({
@@ -39,9 +39,10 @@ router.post("/", async (req: Request, res: Response, next: NextFunction) => {
       labType,
       architectureType,
       instructorId,
+      pricing,
     });
 
-    logger.info(`Lab created: ${lab.id}`);
+    logger.info(`Lab created: ${lab.id} with pricing: ${pricing?.purchaseType || 'not set'}`);
     res.status(HTTP_STATUS.CREATED).json({
       message: SUCCESS_MESSAGES.LAB_CREATED,
       data: lab,

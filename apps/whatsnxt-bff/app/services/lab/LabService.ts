@@ -26,6 +26,11 @@ export interface CreateLabDTO {
   labType: string;
   architectureType: string;
   instructorId: string;
+  pricing?: {
+    purchaseType?: 'free' | 'paid';
+    price?: number;
+    currency?: string;
+  };
 }
 
 export interface UpdateLabDTO {
@@ -48,15 +53,28 @@ export class LabService {
     ValidationService.validateArchitectureType(data.architectureType);
     ValidationService.validateInstructorId(data.instructorId);
 
-    // Create lab
-    const lab = new LabModel({
+    // Create lab with optional pricing
+    const labData: any = {
       name: data.name.trim(),
       description: data.description?.trim(),
       labType: data.labType.trim(),
       architectureType: data.architectureType.trim(),
       instructorId: data.instructorId,
       status: "draft",
-    });
+    };
+
+    // Add pricing if provided
+    if (data.pricing) {
+      labData.pricing = {
+        purchaseType: data.pricing.purchaseType || 'free',
+        price: data.pricing.price,
+        currency: data.pricing.currency || 'INR',
+        updatedAt: new Date(),
+        updatedBy: data.instructorId,
+      };
+    }
+
+    const lab = new LabModel(labData);
 
     await lab.save();
     return lab;
