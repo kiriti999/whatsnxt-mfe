@@ -13,14 +13,23 @@ class PaymentGatewayService {
     this.webhookSecret = process.env.RAZOR_PAY_WEBHOOK_SECRET || "";
 
     if (!keyId || !keySecret) {
+      console.error("Razorpay credentials missing!", { keyId: !!keyId, keySecret: !!keySecret });
       throw new Error("Razorpay credentials not configured");
     }
 
+    console.log("Initializing Razorpay with key:", keyId.substring(0, 10) + "...");
+    
     this.keySecret = keySecret;
-    this.razorpay = new Razorpay({
-      key_id: keyId,
-      key_secret: keySecret,
-    });
+    try {
+      this.razorpay = new Razorpay({
+        key_id: keyId,
+        key_secret: keySecret,
+      });
+      console.log("Razorpay initialized successfully");
+    } catch (error) {
+      console.error("Failed to initialize Razorpay:", error);
+      throw error;
+    }
   }
 
   /**
@@ -42,8 +51,10 @@ class PaymentGatewayService {
       const order = await this.razorpay.orders.create(options);
       return order;
     } catch (error: any) {
+      console.error("Razorpay order creation error:", error);
+      const errorMessage = error?.error?.description || error?.message || error?.description || JSON.stringify(error);
       throw new HttpException(
-        `Failed to create payment order: ${error.message}`,
+        `Failed to create payment order: ${errorMessage}`,
         HttpStatus.INTERNAL_SERVER_ERROR
       );
     }
