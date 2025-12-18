@@ -77,10 +77,15 @@ class AccessControlService {
     labId: string
   ): Promise<boolean> {
     try {
-      // Find courses that include this lab
+      // Course enrollment feature not yet implemented
+      // Labs use UUID strings, courses may use ObjectId
+      // TODO: Implement when course-lab relationship is defined
+      return false;
+      
+      /* Original implementation commented out until course schema is updated
       const Course = mongoose.model("course");
       const coursesWithLab = await Course.find({
-        labs: new mongoose.Types.ObjectId(labId),
+        labs: labId, // UUID string
       })
         .select("_id")
         .lean();
@@ -91,15 +96,14 @@ class AccessControlService {
 
       const courseIds = coursesWithLab.map((c: any) => c._id);
 
-      // Check if student is enrolled in any of those courses
       const EnrolledCourse = mongoose.model("enrolledCourses");
       const enrollment = await EnrolledCourse.findOne({
         userId: new mongoose.Types.ObjectId(studentId),
         courseId: { $in: courseIds },
-        // Assuming active enrollment has no explicit status or status: 'active'
       }).lean();
 
       return !!enrollment;
+      */
     } catch (error) {
       console.error("Error checking course enrollment:", error);
       return false;
