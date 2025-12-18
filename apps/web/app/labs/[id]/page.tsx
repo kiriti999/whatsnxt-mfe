@@ -334,12 +334,20 @@ const LabDetailPage = () => {
               labTitle={lab.name}
               pricing={lab.pricing}
               onAccessGranted={() => {
-                notifications.show({
-                  title: 'Access Granted',
-                  message: 'You can now start this lab',
-                  color: 'green',
-                });
+                // Refresh lab data first to get updated access status
                 fetchLabData();
+                
+                // Navigate to first page if lab has pages
+                if (pages.length > 0) {
+                  const firstPage = pages[0];
+                  router.push(`/labs/${labId}/pages/${firstPage.id}`);
+                } else {
+                  notifications.show({
+                    title: 'Lab Has No Content',
+                    message: 'This lab does not have any pages yet. Please contact the instructor.',
+                    color: 'yellow',
+                  });
+                }
               }}
             />
           </Stack>
