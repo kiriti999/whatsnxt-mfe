@@ -259,6 +259,7 @@ const LabDetailPage = () => {
     );
   }
 
+  // Derived values after lab is loaded
   const isPublished = lab.status === 'published';
   const canEdit = lab.status === 'draft';
   const canViewAccess = isPublished && !isOwner; // Students can see access/purchase options
