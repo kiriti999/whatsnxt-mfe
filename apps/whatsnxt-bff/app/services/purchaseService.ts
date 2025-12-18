@@ -22,12 +22,12 @@ class PurchaseService {
   }> {
     try {
       // Check if lab exists and is paid
-      const lab = await Lab.findById(labId).select("title pricing").lean();
+      const lab: any = await Lab.findById(labId).select("title pricing").lean();
       if (!lab) {
         throw new HttpException("Lab not found", HttpStatus.NOT_FOUND);
       }
 
-      if (!lab.pricing || lab.pricing.purchaseType !== "paid") {
+      if (!(lab as any).pricing || (lab as any).pricing.purchaseType !== "paid") {
         throw new HttpException(
           "This lab is not available for purchase",
           HttpStatus.BAD_REQUEST

@@ -30,7 +30,7 @@ router.post("/:labId/purchase/initiate", async (req: Request, res: Response) => 
     });
   } catch (error: any) {
     if (error instanceof HttpException) {
-      return res.status(error.status).json({
+      return res.status(error.statusCode).json({
         success: false,
         message: error.message,
       });
@@ -78,7 +78,7 @@ router.post("/:labId/purchase/verify", async (req: Request, res: Response) => {
     res.status(HttpStatus.OK).json(result);
   } catch (error: any) {
     if (error instanceof HttpException) {
-      return res.status(error.status).json({
+      return res.status(error.statusCode).json({
         success: false,
         message: error.message,
       });

@@ -27,13 +27,13 @@ class AccessControlService {
 
     try {
       // 1. Load lab
-      const lab = await Lab.findById(labId).select("pricing").lean();
+      const lab: any = await Lab.findById(labId).select("pricing").lean();
       if (!lab) {
         return { hasAccess: false, reason: "lab_not_found" };
       }
 
       // 2. Check if lab is free
-      if (lab.pricing?.purchaseType === "free") {
+      if ((lab as any).pricing?.purchaseType === "free") {
         this.setCache(cacheKey, true);
         return { hasAccess: true, reason: "free" };
       }

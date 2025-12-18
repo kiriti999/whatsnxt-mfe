@@ -4,6 +4,7 @@ import { HttpException, HttpStatus } from "../utils/dbHelper";
 
 class PaymentGatewayService {
   private razorpay: Razorpay;
+  private keySecret: string;
   private webhookSecret: string;
 
   constructor() {
@@ -15,6 +16,7 @@ class PaymentGatewayService {
       throw new Error("Razorpay credentials not configured");
     }
 
+    this.keySecret = keySecret;
     this.razorpay = new Razorpay({
       key_id: keyId,
       key_secret: keySecret,
@@ -58,7 +60,7 @@ class PaymentGatewayService {
     try {
       const body = orderId + "|" + paymentId;
       const expectedSignature = crypto
-        .createHmac("sha256", this.razorpay.key_secret)
+        .createHmac("sha256", this.keySecret)
         .update(body.toString())
         .digest("hex");
 

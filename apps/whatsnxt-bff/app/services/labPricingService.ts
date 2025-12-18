@@ -78,15 +78,15 @@ class LabPricingService {
    */
   async getPricing(labId: string): Promise<any> {
     try {
-      const lab = await Lab.findById(labId).select("title pricing").lean();
+      const lab: any = await Lab.findById(labId).select("title pricing").lean();
       if (!lab) {
         throw new HttpException("Lab not found", HttpStatus.NOT_FOUND);
       }
 
       return {
-        labId: lab._id,
-        title: lab.title,
-        pricing: lab.pricing || null,
+        labId: (lab as any)._id,
+        title: (lab as any).title,
+        pricing: (lab as any).pricing || null,
       };
     } catch (error: any) {
       if (error instanceof HttpException) {

@@ -45,7 +45,7 @@ router.put("/:labId/pricing", async (req: Request, res: Response) => {
     });
   } catch (error: any) {
     if (error instanceof HttpException) {
-      return res.status(error.status).json({
+      return res.status(error.statusCode).json({
         success: false,
         message: error.message,
       });
@@ -74,7 +74,7 @@ router.get("/:labId/pricing", async (req: Request, res: Response) => {
     });
   } catch (error: any) {
     if (error instanceof HttpException) {
-      return res.status(error.status).json({
+      return res.status(error.statusCode).json({
         success: false,
         message: error.message,
       });
