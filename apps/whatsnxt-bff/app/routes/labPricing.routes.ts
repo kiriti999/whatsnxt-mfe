@@ -1,6 +1,7 @@
 import { Router, Request, Response } from "express";
 import labPricingService from "../services/labPricingService";
 import { HttpException, HttpStatus } from "../utils/dbHelper";
+import authMiddleware from "../common/middlewares/auth-middleware";
 
 const router = Router();
 
@@ -8,11 +9,11 @@ const router = Router();
  * PUT /api/v1/labs/:labId/pricing
  * Set or update pricing for a lab
  */
-router.put("/:labId/pricing", async (req: Request, res: Response) => {
+router.put("/:labId/pricing", authMiddleware, async (req: Request, res: Response) => {
   try {
     const { labId } = req.params;
     const { purchaseType, price } = req.body;
-    const instructorId = (req as any).user?.id || (req as any).userId;
+    const instructorId = (req as any).userId;
 
     if (!instructorId) {
       return res.status(HttpStatus.UNAUTHORIZED).json({

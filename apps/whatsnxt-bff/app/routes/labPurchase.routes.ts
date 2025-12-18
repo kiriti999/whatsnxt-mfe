@@ -2,6 +2,7 @@ import { Router, Request, Response } from "express";
 import purchaseService from "../services/purchaseService";
 import accessControlService from "../services/accessControlService";
 import { HttpException, HttpStatus } from "../utils/dbHelper";
+import authMiddleware from "../common/middlewares/auth-middleware";
 
 const router = Router();
 
@@ -9,10 +10,10 @@ const router = Router();
  * POST /api/v1/labs/:labId/purchase/initiate
  * Initiate purchase process for a lab
  */
-router.post("/:labId/purchase/initiate", async (req: Request, res: Response) => {
+router.post("/:labId/purchase/initiate", authMiddleware, async (req: Request, res: Response) => {
   try {
     const { labId } = req.params;
-    const studentId = (req as any).user?.id || (req as any).userId;
+    const studentId = (req as any).userId;
 
     if (!studentId) {
       return res.status(HttpStatus.UNAUTHORIZED).json({
@@ -47,11 +48,11 @@ router.post("/:labId/purchase/initiate", async (req: Request, res: Response) => 
  * POST /api/v1/labs/:labId/purchase/verify
  * Verify payment and complete purchase
  */
-router.post("/:labId/purchase/verify", async (req: Request, res: Response) => {
+router.post("/:labId/purchase/verify", authMiddleware, async (req: Request, res: Response) => {
   try {
     const { labId } = req.params;
     const { razorpayOrderId, razorpayPaymentId, razorpaySignature } = req.body;
-    const studentId = (req as any).user?.id || (req as any).userId;
+    const studentId = (req as any).userId;
 
     if (!studentId) {
       return res.status(HttpStatus.UNAUTHORIZED).json({
@@ -95,10 +96,10 @@ router.post("/:labId/purchase/verify", async (req: Request, res: Response) => {
  * GET /api/v1/labs/:labId/access
  * Check if student has access to a lab
  */
-router.get("/:labId/access", async (req: Request, res: Response) => {
+router.get("/:labId/access", authMiddleware, async (req: Request, res: Response) => {
   try {
     const { labId } = req.params;
-    const studentId = (req as any).user?.id || (req as any).userId;
+    const studentId = (req as any).userId;
 
     if (!studentId) {
       return res.status(HttpStatus.UNAUTHORIZED).json({
