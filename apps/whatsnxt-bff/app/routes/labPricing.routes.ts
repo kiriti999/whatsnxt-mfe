@@ -13,7 +13,7 @@ router.put("/:labId/pricing", authMiddleware, async (req: Request, res: Response
   try {
     const { labId } = req.params;
     const { purchaseType, price } = req.body;
-    const instructorId = (req as any).userId;
+    const instructorId = (req as any).userId?.toString() || (req as any).userId;
 
     if (!instructorId) {
       return res.status(HttpStatus.UNAUTHORIZED).json({

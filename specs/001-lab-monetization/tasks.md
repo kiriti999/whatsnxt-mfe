@@ -61,9 +61,9 @@
 - [X] T021 [US1] Create GET /labs/:labId/pricing endpoint in apps/whatsnxt-bff/src/routes/labPricing.ts
 - [X] T022 [US1] Register labPricing routes in apps/whatsnxt-bff/src/app.ts
 - [X] T023 [P] [US1] Create LabPricingForm component in apps/web/src/components/lab/LabPricingForm.tsx
-- [ ] T024 [US1] Add pricing selection to lab creation flow in apps/web/src/pages/labs/create.tsx
-- [X] T025 [P] [US1] Create LabAccessButton component for free labs in apps/web/src/components/lab/LabAccessButton.tsx
-- [ ] T026 [US1] Update lab detail page to show access button in apps/web/src/pages/labs/[id].tsx
+- [X] T024 [US1] Add pricing selection to lab creation flow in apps/web/app/lab/create/page.tsx
+- [X] T025 [P] [US1] Create LabAccessButton component for free labs in apps/web/components/Lab/LabAccessButton.tsx
+- [X] T026 [US1] Update lab detail page to show access button in apps/web/app/labs/[id]/page.tsx
 - [X] T027 [US1] Add pricing API client methods in apps/web/src/services/labPricingService.ts
 
 **Checkpoint**: User Story 1 complete - instructors can create free labs, students can access them
@@ -82,9 +82,9 @@
 - [X] T029 [US2] Implement validation rules (min ₹10, max ₹100,000) in apps/whatsnxt-bff/src/services/labPricingService.ts
 - [X] T030 [US2] Add price field validation to PUT /labs/:labId/pricing endpoint in apps/whatsnxt-bff/src/routes/labPricing.ts
 - [X] T031 [US2] Add paid pricing UI to LabPricingForm component in apps/web/src/components/lab/LabPricingForm.tsx
-- [X] T032 [US2] Implement price input validation in LabPricingForm in apps/web/src/components/lab/LabPricingForm.tsx
-- [X] T033 [US2] Add error messaging for invalid prices in apps/web/src/components/lab/LabPricingForm.tsx
-- [ ] T034 [US2] Update lab creation flow to handle paid pricing in apps/web/src/pages/labs/create.tsx
+- [X] T032 [US2] Implement price input validation in LabPricingForm in apps/web/components/Lab/LabPricingForm.tsx
+- [X] T033 [US2] Add error messaging for invalid prices in apps/web/components/Lab/LabPricingForm.tsx
+- [X] T034 [US2] Update lab creation flow to handle paid pricing in apps/web/app/lab/create/page.tsx
 
 **Checkpoint**: User Story 2 complete - instructors can set paid lab pricing with validation
 
@@ -109,8 +109,8 @@
 - [X] T043 [P] [US3] Create LabPurchaseButton component in apps/web/src/components/lab/LabPurchaseButton.tsx
 - [X] T044 [P] [US3] Implement Razorpay modal integration in apps/web/src/services/paymentService.ts
 - [X] T045 [US3] Add purchase API client methods in apps/web/src/services/labPricingService.ts
-- [ ] T046 [US3] Update lab detail page to show purchase button for paid labs in apps/web/src/pages/labs/[id].tsx
-- [ ] T047 [US3] Implement payment success callback handling in apps/web/src/pages/labs/[id].tsx
+- [X] T046 [US3] Update lab detail page to show purchase button for paid labs in apps/web/app/labs/[id]/page.tsx
+- [X] T047 [US3] Implement payment success callback handling in apps/web/app/labs/[id]/page.tsx
 - [X] T048 [US3] Implement payment failure/cancellation handling in apps/web/src/components/lab/LabPurchaseButton.tsx
 - [X] T049 [US3] Create POST /webhooks/razorpay webhook endpoint in apps/whatsnxt-bff/src/routes/paymentCallback.ts
 - [X] T050 [US3] Implement signature verification in webhook handler in apps/whatsnxt-bff/src/routes/paymentCallback.ts
@@ -132,8 +132,8 @@
 - [X] T053 [US4] Extend canAccessLab to check course enrollment in apps/whatsnxt-bff/src/services/accessControlService.ts
 - [X] T054 [US4] Add course-lab relationship query logic in apps/whatsnxt-bff/src/services/accessControlService.ts
 - [X] T055 [US4] Update GET /labs/:labId/access to return access reason in apps/whatsnxt-bff/src/routes/labPurchase.ts
-- [X] T056 [US4] Update LabAccessButton to show course-based access in apps/web/src/components/lab/LabAccessButton.tsx
-- [ ] T057 [US4] Update lab detail page to handle course enrollment access in apps/web/src/pages/labs/[id].tsx
+- [X] T056 [US4] Update LabAccessButton to show course-based access in apps/web/components/Lab/LabAccessButton.tsx
+- [X] T057 [US4] Update lab detail page to handle course enrollment access in apps/web/app/labs/[id]/page.tsx
 
 **Checkpoint**: User Story 4 complete - course enrollment grants lab access seamlessly
 
@@ -151,9 +151,9 @@
 - [X] T059 [US5] Implement paid-to-free conversion check in apps/whatsnxt-bff/src/services/labPricingService.ts
 - [X] T060 [US5] Implement free-to-paid conversion with grandfathering in apps/whatsnxt-bff/src/services/labPricingService.ts
 - [X] T061 [US5] Update PUT /labs/:labId/pricing to include validation in apps/whatsnxt-bff/src/routes/labPricing.ts
-- [ ] T062 [US5] Add pricing update UI to lab edit page in apps/web/src/pages/labs/[id]/edit.tsx
-- [X] T063 [US5] Implement validation error messages in LabPricingForm in apps/web/src/components/lab/LabPricingForm.tsx
-- [ ] T064 [US5] Add confirmation dialog for free-to-paid conversion in apps/web/src/components/lab/LabPricingForm.tsx
+- [X] T062 [US5] Add pricing update UI to lab edit page in apps/web/components/Lab/LabForm.tsx
+- [X] T063 [US5] Implement validation error messages in LabPricingForm in apps/web/components/Lab/LabPricingForm.tsx
+- [X] T064 [US5] Add confirmation dialog for free-to-paid conversion in apps/web/components/Lab/LabPricingForm.tsx
 
 **Checkpoint**: User Story 5 complete - instructors can update pricing with proper constraints
 
@@ -170,11 +170,11 @@
 - [X] T069 [P] Add error tracking for failed transactions in apps/whatsnxt-bff/src/services/purchaseService.ts
 - [X] T070 [P] Implement currency formatting utility in packages/core-util/src/currency.ts
 - [X] T071 Add user-friendly error messages for payment failures in apps/web/src/components/lab/LabPurchaseButton.tsx
-- [X] T072 [P] Add loading states to LabPurchaseButton in apps/web/src/components/lab/LabPurchaseButton.tsx
-- [X] T073 [P] Add loading states to LabAccessButton in apps/web/src/components/lab/LabAccessButton.tsx
-- [ ] T074 Document API endpoints in apps/whatsnxt-bff/README.md
-- [ ] T075 Update quickstart.md with final setup instructions in specs/001-lab-monetization/quickstart.md
-- [ ] T076 Run quickstart.md validation to verify all setup steps work
+- [X] T072 [P] Add loading states to LabPurchaseButton in apps/web/components/Lab/LabPurchaseButton.tsx
+- [X] T073 [P] Add loading states to LabAccessButton in apps/web/components/Lab/LabAccessButton.tsx
+- [X] T074 Document API endpoints in apps/whatsnxt-bff/README.md
+- [X] T075 Update quickstart.md with final setup instructions in specs/001-lab-monetization/quickstart.md
+- [X] T076 Run quickstart.md validation to verify all setup steps work
 
 ---
 

@@ -13,7 +13,7 @@ const router = Router();
 router.post("/:labId/purchase/initiate", authMiddleware, async (req: Request, res: Response) => {
   try {
     const { labId } = req.params;
-    const studentId = (req as any).userId;
+    const studentId = (req as any).userId?.toString() || (req as any).userId;
 
     if (!studentId) {
       return res.status(HttpStatus.UNAUTHORIZED).json({
@@ -52,7 +52,7 @@ router.post("/:labId/purchase/verify", authMiddleware, async (req: Request, res:
   try {
     const { labId } = req.params;
     const { razorpayOrderId, razorpayPaymentId, razorpaySignature } = req.body;
-    const studentId = (req as any).userId;
+    const studentId = (req as any).userId?.toString() || (req as any).userId;
 
     if (!studentId) {
       return res.status(HttpStatus.UNAUTHORIZED).json({
@@ -99,7 +99,7 @@ router.post("/:labId/purchase/verify", authMiddleware, async (req: Request, res:
 router.get("/:labId/access", authMiddleware, async (req: Request, res: Response) => {
   try {
     const { labId } = req.params;
-    const studentId = (req as any).userId;
+    const studentId = (req as any).userId?.toString() || (req as any).userId;
 
     if (!studentId) {
       return res.status(HttpStatus.UNAUTHORIZED).json({

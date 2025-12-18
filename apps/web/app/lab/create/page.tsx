@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation';
 import labApi from '@/apis/lab.api';
 import useAuth from '@/hooks/Authentication/useAuth';
 import { getAvailableArchitectures } from '@/utils/shape-libraries';
+import { LabPricingForm } from '@/components/Lab/LabPricingForm';
 
 const LAB_TYPES = [
   'Cloud Computing',
@@ -29,6 +30,10 @@ function LabCreationPage() {
   const isTrainer = isAuthenticated && user?.role === 'trainer';
   const instructorId = user?._id || '';
 
+  const [pricing, setPricing] = useState<{ purchaseType: 'free' | 'paid'; price?: number }>({
+    purchaseType: 'free'
+  });
+
   const form = useForm({
     initialValues: {
       name: '',
@@ -44,10 +49,21 @@ function LabCreationPage() {
   });
 
   const handleSubmit = async (values: { name: string; description: string; labType: string; architectureType: string }) => {
+    // Validate pricing for paid labs
+    if (pricing.purchaseType === 'paid' && (!pricing.price || pricing.price < 10 || pricing.price > 100000)) {
+      notifications.show({
+        title: 'Invalid Pricing',
+        message: 'Please set a valid price between ₹10 and ₹100,000 for paid labs',
+        color: 'red',
+      });
+      return;
+    }
+
     try {
       const response = await labApi.createLab({
         ...values,
-        instructorId
+        instructorId,
+        pricing
       });
       const newLab = response.data;
       notifications.show({
@@ -119,6 +135,12 @@ function LabCreationPage() {
             required
             mb="md"
           />
+          <Box mt="xl">
+            <LabPricingForm
+              initialPricing={pricing}
+              onChange={setPricing}
+            />
+          </Box>
           <Group justify="flex-end" mt="xl">
             <Button variant="default" onClick={() => router.push('/labs')}>Cancel</Button>
             <Button type="submit">Create Lab</Button>
