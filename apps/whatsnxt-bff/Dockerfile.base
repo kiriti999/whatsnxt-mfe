@@ -1,0 +1,14 @@
+# Dockerfile.base
+FROM node:24.11.0-alpine
+
+USER node
+
+ENV NPM_CONFIG_PREFIX=/home/node/.npm-global
+ENV PATH=/home/node/.npm-global/bin:$PATH
+ENV NODE_ENV docker
+
+WORKDIR /app
+
+RUN npm install -g pm2
+
+# Note: No CMD or EXPOSE in the base image

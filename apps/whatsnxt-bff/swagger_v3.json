@@ -1,0 +1,1589 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/api/v1/health": {
+      "get": {
+        "summary": "/api/v1/health",
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/profile": {
+      "get": {
+        "summary": "/api/v1/profile",
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/profile/edit-profile": {
+      "patch": {
+        "summary": "/api/v1/profile/edit-profile",
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/profile/edit-password": {
+      "patch": {
+        "summary": "/api/v1/profile/edit-password",
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/profile/edit-profile-info": {
+      "patch": {
+        "summary": "/api/v1/profile/edit-profile-info",
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/profile/reset-password-request": {
+      "post": {
+        "summary": "/api/v1/profile/reset-password-request",
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/profile/reset-password/{userId}/{token}": {
+      "post": {
+        "summary": "/api/v1/profile/reset-password/{userId}/{token}",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tokens",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/account": {
+      "get": {
+        "summary": "/api/v1/account",
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/account/new": {
+      "post": {
+        "summary": "/api/v1/account/new",
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/account/update": {
+      "put": {
+        "summary": "/api/v1/account/update",
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/auth/google": {
+      "get": {
+        "summary": "/api/v1/auth/google",
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/auth/google/callback": {
+      "get": {
+        "summary": "/api/v1/auth/google/callback",
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/auth/login": {
+      "post": {
+        "summary": "/api/v1/auth/login",
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/auth/otp": {
+      "post": {
+        "summary": "/api/v1/auth/otp",
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/auth/register": {
+      "post": {
+        "summary": "/api/v1/auth/register",
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/auth/logout": {
+      "post": {
+        "summary": "/api/v1/auth/logout",
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/apply/approve": {
+      "post": {
+        "summary": "/api/v1/apply/approve",
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/apply/pending": {
+      "post": {
+        "summary": "/api/v1/apply/pending",
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/apply/decline": {
+      "post": {
+        "summary": "/api/v1/apply/decline",
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/cart": {
+      "post": {
+        "summary": "/api/v1/cart",
+        "responses": {},
+        "tags": []
+      },
+      "get": {
+        "summary": "/api/v1/cart",
+        "responses": {},
+        "tags": []
+      },
+      "delete": {
+        "summary": "/api/v1/cart",
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/orders": {
+      "post": {
+        "summary": "/api/v1/orders",
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/orders/{orderId}": {
+      "get": {
+        "summary": "/api/v1/orders/{orderId}",
+        "parameters": [
+          {
+            "name": "orderId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/orders/{orderId}/verify": {
+      "post": {
+        "summary": "/api/v1/orders/{orderId}/verify",
+        "parameters": [
+          {
+            "name": "orderId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/orders/user/{userId}": {
+      "get": {
+        "summary": "/api/v1/orders/user/{userId}",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/courses/categories/categoryByCount": {
+      "get": {
+        "summary": "/api/v1/courses/categories/categoryByCount",
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/courses/categories/{categoryName}": {
+      "get": {
+        "summary": "/api/v1/courses/categories/{categoryName}",
+        "parameters": [
+          {
+            "name": "categoryName",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/courses/categories": {
+      "get": {
+        "summary": "/api/v1/courses/categories",
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/courses/course": {
+      "get": {
+        "summary": "/api/v1/courses/course",
+        "responses": {},
+        "tags": []
+      },
+      "post": {
+        "summary": "/api/v1/courses/course",
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/courses/course/{courseId}/publish": {
+      "post": {
+        "summary": "/api/v1/courses/course/{courseId}/publish",
+        "parameters": [
+          {
+            "name": "courseId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/courses/course/{courseId}/reviews": {
+      "get": {
+        "summary": "/api/v1/courses/course/{courseId}/reviews",
+        "parameters": [
+          {
+            "name": "courseId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {},
+        "tags": []
+      },
+      "post": {
+        "summary": "/api/v1/courses/course/{courseId}/reviews",
+        "parameters": [
+          {
+            "name": "courseId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/courses/course/{courseId}/rating": {
+      "post": {
+        "summary": "/api/v1/courses/course/{courseId}/rating",
+        "parameters": [
+          {
+            "name": "courseId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {},
+        "tags": []
+      },
+      "get": {
+        "summary": "/api/v1/courses/course/{courseId}/rating",
+        "parameters": [
+          {
+            "name": "courseId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {},
+        "tags": []
+      },
+      "patch": {
+        "summary": "/api/v1/courses/course/{courseId}/rating",
+        "parameters": [
+          {
+            "name": "courseId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/courses/course/slug/{slug}": {
+      "get": {
+        "summary": "/api/v1/courses/course/slug/{slug}",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/courses/course/status": {
+      "get": {
+        "summary": "/api/v1/courses/course/status",
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/courses/course/{id}": {
+      "get": {
+        "summary": "/api/v1/courses/course/{id}",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {},
+        "tags": []
+      },
+      "delete": {
+        "summary": "/api/v1/courses/course/{id}",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/courses/course/sections/{sectionId}/videos/publishAll": {
+      "post": {
+        "summary": "/api/v1/courses/course/sections/{sectionId}/videos/publishAll",
+        "parameters": [
+          {
+            "name": "sectionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/courses/course/sections/{sectionId}/videos/{videoId}/publish": {
+      "post": {
+        "summary": "/api/v1/courses/course/sections/{sectionId}/videos/{videoId}/publish",
+        "parameters": [
+          {
+            "name": "sectionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "videoId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/courses/course-builder/{id}": {
+      "get": {
+        "summary": "/api/v1/courses/course-builder/{id}",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/courses/course-builder/{courseId}/update-course-name": {
+      "patch": {
+        "summary": "/api/v1/courses/course-builder/{courseId}/update-course-name",
+        "parameters": [
+          {
+            "name": "courseId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/courses/course-builder/{courseId}": {
+      "delete": {
+        "summary": "/api/v1/courses/course-builder/{courseId}",
+        "parameters": [
+          {
+            "name": "courseId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/courses/course-builder/{courseId}/update-course-type": {
+      "patch": {
+        "summary": "/api/v1/courses/course-builder/{courseId}/update-course-type",
+        "parameters": [
+          {
+            "name": "courseId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/courses/course-builder/{courseId}/add-section": {
+      "post": {
+        "summary": "/api/v1/courses/course-builder/{courseId}/add-section",
+        "parameters": [
+          {
+            "name": "courseId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/courses/course-builder/{courseId}/update-overview": {
+      "patch": {
+        "summary": "/api/v1/courses/course-builder/{courseId}/update-overview",
+        "parameters": [
+          {
+            "name": "courseId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/courses/course-builder/{courseId}/update-description": {
+      "patch": {
+        "summary": "/api/v1/courses/course-builder/{courseId}/update-description",
+        "parameters": [
+          {
+            "name": "courseId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/courses/course-builder/{courseId}/update-pricing": {
+      "patch": {
+        "summary": "/api/v1/courses/course-builder/{courseId}/update-pricing",
+        "parameters": [
+          {
+            "name": "courseId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/courses/course-builder/{courseId}/update-details": {
+      "patch": {
+        "summary": "/api/v1/courses/course-builder/{courseId}/update-details",
+        "parameters": [
+          {
+            "name": "courseId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/courses/course-builder/{courseId}/submit-for-review": {
+      "patch": {
+        "summary": "/api/v1/courses/course-builder/{courseId}/submit-for-review",
+        "parameters": [
+          {
+            "name": "courseId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/courses/course-builder/{courseId}/approve-course": {
+      "patch": {
+        "summary": "/api/v1/courses/course-builder/{courseId}/approve-course",
+        "parameters": [
+          {
+            "name": "courseId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/courses/course-builder/{courseId}/reject-course": {
+      "patch": {
+        "summary": "/api/v1/courses/course-builder/{courseId}/reject-course",
+        "parameters": [
+          {
+            "name": "courseId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/courses/course-builder/{courseId}/sections/{sectionId}/add-lecture": {
+      "post": {
+        "summary": "/api/v1/courses/course-builder/{courseId}/sections/{sectionId}/add-lecture",
+        "parameters": [
+          {
+            "name": "courseId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sectionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/courses/course-builder/sections/{sectionId}/reorder-video": {
+      "patch": {
+        "summary": "/api/v1/courses/course-builder/sections/{sectionId}/reorder-video",
+        "parameters": [
+          {
+            "name": "sectionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/courses/course-builder/{courseId}/sections/{sectionId}/lectures/{lectureId}/delete-video": {
+      "delete": {
+        "summary": "/api/v1/courses/course-builder/{courseId}/sections/{sectionId}/lectures/{lectureId}/delete-video",
+        "parameters": [
+          {
+            "name": "courseId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sectionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "lectureId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/courses/course-builder/{courseId}/sections/{sectionId}/lectures/{lectureId}/add-video": {
+      "patch": {
+        "summary": "/api/v1/courses/course-builder/{courseId}/sections/{sectionId}/lectures/{lectureId}/add-video",
+        "parameters": [
+          {
+            "name": "courseId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sectionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "lectureId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/courses/course-builder/{courseId}/sections/{sectionId}/lectures/{lectureId}/add-lecture-link": {
+      "patch": {
+        "summary": "/api/v1/courses/course-builder/{courseId}/sections/{sectionId}/lectures/{lectureId}/add-lecture-link",
+        "parameters": [
+          {
+            "name": "courseId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sectionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "lectureId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/courses/course-builder/{courseId}/sections/{sectionId}/lectures/{lectureId}/links/{linkId}/update-lecture-link": {
+      "patch": {
+        "summary": "/api/v1/courses/course-builder/{courseId}/sections/{sectionId}/lectures/{lectureId}/links/{linkId}/update-lecture-link",
+        "parameters": [
+          {
+            "name": "courseId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sectionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "lectureId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "linkId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/courses/course-builder/{courseId}/sections/{sectionId}/lectures/{lectureId}/links/{linkId}/delete-lecture-link": {
+      "delete": {
+        "summary": "/api/v1/courses/course-builder/{courseId}/sections/{sectionId}/lectures/{lectureId}/links/{linkId}/delete-lecture-link",
+        "parameters": [
+          {
+            "name": "courseId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sectionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "lectureId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "linkId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/courses/course-builder/{courseId}/sections/{sectionId}/lectures/{lectureId}/update-video-preview": {
+      "patch": {
+        "summary": "/api/v1/courses/course-builder/{courseId}/sections/{sectionId}/lectures/{lectureId}/update-video-preview",
+        "parameters": [
+          {
+            "name": "courseId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sectionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "lectureId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/courses/course-builder/{courseId}/sections/{sectionId}/lectures/{lectureId}/add-doc": {
+      "patch": {
+        "summary": "/api/v1/courses/course-builder/{courseId}/sections/{sectionId}/lectures/{lectureId}/add-doc",
+        "parameters": [
+          {
+            "name": "courseId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sectionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "lectureId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/courses/course-builder/{courseId}/sections/{sectionId}/lectures/{lectureId}/delete-doc": {
+      "delete": {
+        "summary": "/api/v1/courses/course-builder/{courseId}/sections/{sectionId}/lectures/{lectureId}/delete-doc",
+        "parameters": [
+          {
+            "name": "courseId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sectionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "lectureId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/courses/course-builder/{courseId}/delete-section": {
+      "delete": {
+        "summary": "/api/v1/courses/course-builder/{courseId}/delete-section",
+        "parameters": [
+          {
+            "name": "courseId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/courses/course-builder/{courseId}/sections/reorder-section": {
+      "patch": {
+        "summary": "/api/v1/courses/course-builder/{courseId}/sections/reorder-section",
+        "parameters": [
+          {
+            "name": "courseId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/courses/course-builder/{id}/update-title": {
+      "patch": {
+        "summary": "/api/v1/courses/course-builder/{id}/update-title",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/courses/course-builder/{courseId}/delete-video": {
+      "delete": {
+        "summary": "/api/v1/courses/course-builder/{courseId}/delete-video",
+        "parameters": [
+          {
+            "name": "courseId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/courses/enrolled": {
+      "post": {
+        "summary": "/api/v1/courses/enrolled",
+        "responses": {},
+        "tags": []
+      },
+      "get": {
+        "summary": "/api/v1/courses/enrolled",
+        "responses": {},
+        "tags": []
+      },
+      "patch": {
+        "summary": "/api/v1/courses/enrolled",
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/courses/enrolled/exist": {
+      "get": {
+        "summary": "/api/v1/courses/enrolled/exist",
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/courses/enrolled/video": {
+      "get": {
+        "summary": "/api/v1/courses/enrolled/video",
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/courses/enrolled/{id}": {
+      "get": {
+        "summary": "/api/v1/courses/enrolled/{id}",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/courses/popularity": {
+      "get": {
+        "summary": "/api/v1/courses/popularity",
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/courses/search": {
+      "get": {
+        "summary": "/api/v1/courses/search",
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/courses/search/algolia": {
+      "get": {
+        "summary": "/api/v1/courses/search/algolia",
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/courses/trainer/get-details/{id}": {
+      "get": {
+        "summary": "/api/v1/courses/trainer/get-details/{id}",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/courses/trainer/notifications": {
+      "get": {
+        "summary": "/api/v1/courses/trainer/notifications",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "notifications": {
+                      "type": "array",
+                      "items": {},
+                      "example": [
+                        null
+                      ]
+                    },
+                    "total": {
+                      "type": "number",
+                      "example": 0
+                    },
+                    "totalUnseen": {
+                      "type": "number",
+                      "example": 0
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": []
+      }
+    },
+    "/api/v1/courses/trainer/delete-notifications": {
+      "delete": {
+        "summary": "/api/v1/courses/trainer/delete-notifications",
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/courses/trainer/read-notifications": {
+      "post": {
+        "summary": "/api/v1/courses/trainer/read-notifications",
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/courses/trainer/my-courses": {
+      "get": {
+        "summary": "/api/v1/courses/trainer/my-courses",
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/courses/trainer/get-sections": {
+      "get": {
+        "summary": "/api/v1/courses/trainer/get-sections",
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/courses/trainer/get-course-names": {
+      "get": {
+        "summary": "/api/v1/courses/trainer/get-course-names",
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/courses/trainer/get-sections-by-video": {
+      "get": {
+        "summary": "/api/v1/courses/trainer/get-sections-by-video",
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/courses/trainer/get-bookings": {
+      "get": {
+        "summary": "/api/v1/courses/trainer/get-bookings",
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/courses/trainer/update-booking": {
+      "post": {
+        "summary": "/api/v1/courses/trainer/update-booking",
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/courses/trainer/checkout": {
+      "post": {
+        "summary": "/api/v1/courses/trainer/checkout",
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/courses/trainer/trainers": {
+      "get": {
+        "summary": "/api/v1/courses/trainer/trainers",
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/courses/trainer/hire-trainer": {
+      "post": {
+        "summary": "/api/v1/courses/trainer/hire-trainer",
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/courses/trainer/search-trainers": {
+      "get": {
+        "summary": "/api/v1/courses/trainer/search-trainers",
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/courses/trainer/update-contacted/{id}": {
+      "post": {
+        "summary": "/api/v1/courses/trainer/update-contacted/{id}",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/comment": {
+      "post": {
+        "summary": "/api/v1/comment",
+        "responses": {},
+        "tags": []
+      },
+      "get": {
+        "summary": "/api/v1/comment",
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/comment/{id}/flag": {
+      "patch": {
+        "summary": "/api/v1/comment/{id}/flag",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/comment/{id}/edit": {
+      "patch": {
+        "summary": "/api/v1/comment/{id}/edit",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/comment/{id}": {
+      "delete": {
+        "summary": "/api/v1/comment/{id}",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/comment/{id}/toggleLike": {
+      "post": {
+        "summary": "/api/v1/comment/{id}/toggleLike",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/comment/{id}/toggleDislike": {
+      "post": {
+        "summary": "/api/v1/comment/{id}/toggleDislike",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/comment-review": {
+      "post": {
+        "summary": "/api/v1/comment-review",
+        "responses": {},
+        "tags": []
+      },
+      "get": {
+        "summary": "/api/v1/comment-review",
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/comment-review/course": {
+      "get": {
+        "summary": "/api/v1/comment-review/course",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "nullable": true
+                }
+              }
+            }
+          }
+        },
+        "tags": []
+      }
+    },
+    "/api/v1/comment-review/{id}/flag": {
+      "patch": {
+        "summary": "/api/v1/comment-review/{id}/flag",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/comment-review/{id}/edit": {
+      "patch": {
+        "summary": "/api/v1/comment-review/{id}/edit",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/comment-review/{id}": {
+      "delete": {
+        "summary": "/api/v1/comment-review/{id}",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/comment-review/{id}/toggleLike": {
+      "post": {
+        "summary": "/api/v1/comment-review/{id}/toggleLike",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/comment-review/{id}/toggleDislike": {
+      "post": {
+        "summary": "/api/v1/comment-review/{id}/toggleDislike",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/mail/sendCoursePurchaseMail": {
+      "post": {
+        "summary": "/api/v1/mail/sendCoursePurchaseMail",
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/mail/contactUsMail": {
+      "post": {
+        "summary": "/api/v1/mail/contactUsMail",
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/user/apply": {
+      "post": {
+        "summary": "/api/v1/user/apply",
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/user": {
+      "post": {
+        "summary": "/api/v1/user",
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/payment/save": {
+      "post": {
+        "summary": "/api/v1/payment/save",
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/cloudinary/upload": {
+      "post": {
+        "summary": "/api/v1/cloudinary/upload",
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/cloudinary/delete-asset": {
+      "delete": {
+        "summary": "/api/v1/cloudinary/delete-asset",
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/cloudinary/delete-multiple-assets": {
+      "delete": {
+        "summary": "/api/v1/cloudinary/delete-multiple-assets",
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/algolia/reset": {
+      "post": {
+        "summary": "/api/v1/algolia/reset",
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/video/{sectionId}": {
+      "get": {
+        "summary": "/api/v1/video/{sectionId}",
+        "parameters": [
+          {
+            "name": "sectionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {},
+        "tags": []
+      }
+    },
+    "/api/v1/language": {
+      "get": {
+        "summary": "/api/v1/language",
+        "responses": {},
+        "tags": []
+      }
+    }
+  },
+  "tags": [],
+  "info": {
+    "title": "whatsnxt-courses-be",
+    "version": "1.0.0",
+    "description": "Specification JSONs: [v2](/api-spec/v2), [v3](/api-spec/v3).\n\nwhatsnxt backend"
+  }
+}

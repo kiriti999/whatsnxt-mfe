@@ -1,0 +1,21 @@
+FROM node:24.11.0-alpine
+
+USER node
+
+ENV NPM_CONFIG_PREFIX=/home/node/.npm-global
+ENV PATH=/home/node/.npm-global/bin:$PATH
+ENV NODE_ENV docker
+
+WORKDIR /app
+
+COPY --chown=node:node . .
+
+RUN npm install -g pm2
+RUN npm install --production
+
+RUN npm cache clean --force
+
+EXPOSE 4445
+
+CMD [ "npm", "run", "pm2-dev" ]
+

@@ -6,6 +6,7 @@ import {
   TextInput,
   Textarea,
   Select,
+  MultiSelect,
   Button,
   Group,
   Stack,
@@ -14,20 +15,21 @@ import {
   ActionIcon,
   NumberInput,
   Switch,
-  Box,
   Divider,
   Container,
   Text,
 } from '@mantine/core';
 import { IconTrash, IconPlus } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
-import { Lab, QuestionType, LabType } from '../../types/lab';
+import { Lab } from '../../types/lab';
 import { useRouter } from 'next/navigation';
 import DiagramEditor from '../architecture-lab/DiagramEditor';
+import { getAvailableArchitectures, getArchitectureMetadata } from '../../utils/shape-libraries';
 
 export const LabForm = ({ initialData }: { initialData?: Lab }) => {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [architectureDropdownOpened, setArchitectureDropdownOpened] = useState(false);
 
   const { control, register, handleSubmit, watch, setValue, formState: { errors } } = useForm<Lab>({
     defaultValues: initialData ? {
@@ -64,6 +66,7 @@ export const LabForm = ({ initialData }: { initialData?: Lab }) => {
         type: initialData.architectureConfig?.type || 'fullstack',
         diagram: initialData.architectureConfig?.diagram || '',
       },
+      architectureTypes: initialData.architectureTypes || (initialData.architectureConfig?.type ? [initialData.architectureConfig.type] : []),
       masterGraph: initialData.masterGraph || null,
       id: initialData.id,
       createdBy: initialData.createdBy,
@@ -94,6 +97,7 @@ export const LabForm = ({ initialData }: { initialData?: Lab }) => {
       architectureConfig: {
         type: 'fullstack',
       },
+      architectureTypes: [],
       masterGraph: null,
       status: 'DRAFT',
     },
@@ -108,6 +112,7 @@ export const LabForm = ({ initialData }: { initialData?: Lab }) => {
   const cloudPlatform = watch('cloudConfig.platform');
   const practiceTestEnabled = watch('practiceTest.enabled');
   const questions = watch('questions');
+  const architectureTypes = watch('architectureTypes') || [];
 
   const onSubmit = async (data: Lab, status: 'DRAFT' | 'PUBLISHED') => {
     setIsSubmitting(true);
@@ -330,24 +335,34 @@ export const LabForm = ({ initialData }: { initialData?: Lab }) => {
 
               {labType === 'architecture' && (
                 <Controller
-                  name="architectureConfig.type"
+                  name="architectureTypes"
                   control={control}
-                  rules={{ required: 'Architecture Type is required' }}
-                  render={({ field, fieldState: { error } }) => (
-                    <Select
-                      label="Architecture Type"
-                      placeholder="Select type"
-                      data={[
-                        { value: 'aws', label: 'AWS' },
-                        { value: 'docker', label: 'Docker' },
-                        { value: 'react', label: 'React' },
-                        { value: 'nextjs', label: 'Next.js' },
-                        { value: 'kubernetes', label: 'Kubernetes' },
-                        { value: 'fullstack', label: 'Full Stack (React + Node + Cloud)' },
-                      ]}
+                  rules={{ required: 'At least one architecture type is required' }}
+                  render={({ field: { value, onChange, onBlur, ref }, fieldState: { error } }) => (
+                    <MultiSelect
+                      label="Architecture Types"
+                      placeholder="Select one or more architecture types"
+                      description="Select multiple architecture types to mix shapes from different architectures in your diagram"
+                      data={getAvailableArchitectures().map(arch => ({
+                        value: arch,
+                        label: getArchitectureMetadata(arch).name
+                      }))}
+                      value={value || []}
+                      onChange={(val) => {
+                        onChange(val);
+                        setArchitectureDropdownOpened(true);
+                      }}
+                      onBlur={onBlur}
+                      ref={ref}
+                      searchable
+                      clearable
                       required
                       error={error?.message}
-                      {...field}
+                      hidePickedOptions={false}
+                      withCheckIcon
+                      comboboxProps={{
+                        withinPortal: false
+                      }}
                     />
                   )}
                 />
@@ -425,6 +440,7 @@ export const LabForm = ({ initialData }: { initialData?: Lab }) => {
                 <DiagramEditor
                   mode="instructor"
                   initialGraph={initialData?.masterGraph}
+                  architectureTypes={architectureTypes}
                   onGraphChange={(json) => {
                     setValue('masterGraph', json);
                   }}

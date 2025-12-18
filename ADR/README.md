@@ -5,6 +5,7 @@ This system tracks which Cloudinary assets (images, videos, files) are actively 
 ## Overview
 
 The system prevents storage bloat by:
+
 - Tracking assets that are currently in use
 - Identifying orphaned assets when content is updated
 - Managing cleanup of unused assets
@@ -94,3 +95,4 @@ Upload → localStorage (staging) → Content Save → Remove from localStorage 
                                               ↓
                                     Periodic cleanup of orphaned assets
 This sophisticated asset lifecycle management system effectively prevents Cloudinary storage bloat by ensuring only actively used assets are retained in storage.
+```

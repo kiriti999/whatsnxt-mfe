@@ -13,6 +13,7 @@ import { azureD3Shapes, AzureShapeDefinition } from './azure-d3-shapes';
 import { gcpD3Shapes, GCPShapeDefinition } from './gcp-d3-shapes';
 import { kubernetesD3Shapes, KubernetesShapeDefinition } from './kubernetes-d3-shapes';
 import { genericD3Shapes, ShapeDefinition } from './generic-d3-shapes';
+import { techStackD3Shapes, TechStackShapeDefinition } from './tech-stack-d3-shapes';
 
 /**
  * Union type for all shape definitions across architectures
@@ -22,12 +23,13 @@ export type ArchitectureShapeDefinition =
   | AWSShapeDefinition
   | AzureShapeDefinition
   | GCPShapeDefinition
-  | KubernetesShapeDefinition;
+  | KubernetesShapeDefinition
+  | TechStackShapeDefinition;
 
 /**
  * Supported architecture types
  */
-export type ArchitectureType = 'AWS' | 'Azure' | 'GCP' | 'Kubernetes' | 'Generic';
+export type ArchitectureType = 'AWS' | 'Azure' | 'GCP' | 'Kubernetes' | 'Generic' | 'TechStack';
 
 /**
  * Architecture Libraries Registry
@@ -46,6 +48,7 @@ export const ARCHITECTURE_LIBRARIES: Record<string, Record<string, ArchitectureS
   GCP: gcpD3Shapes,
   Kubernetes: kubernetesD3Shapes,
   Generic: genericD3Shapes,
+  TechStack: techStackD3Shapes,
 };
 
 /**
@@ -141,6 +144,11 @@ export const getArchitectureMetadata = (architectureType: string) => {
       color: '#666666',
       description: 'Generic architecture diagram shapes',
     },
+    TechStack: {
+      name: 'Tech Stack',
+      color: '#5C7CFA',
+      description: 'Modern web development technology shapes',
+    },
   };
   
   return metadata[architectureType] || {
@@ -151,5 +159,5 @@ export const getArchitectureMetadata = (architectureType: string) => {
 };
 
 // Export individual libraries for direct access if needed
-export { awsD3Shapes, azureD3Shapes, gcpD3Shapes, kubernetesD3Shapes, genericD3Shapes };
-export type { AWSShapeDefinition, AzureShapeDefinition, GCPShapeDefinition, KubernetesShapeDefinition, ShapeDefinition };
+export { awsD3Shapes, azureD3Shapes, gcpD3Shapes, kubernetesD3Shapes, genericD3Shapes, techStackD3Shapes };
+export type { AWSShapeDefinition, AzureShapeDefinition, GCPShapeDefinition, KubernetesShapeDefinition, ShapeDefinition, TechStackShapeDefinition };

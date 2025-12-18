@@ -1,0 +1,39 @@
+{
+  "compilerOptions": {
+    "target": "es2022",
+    "module": "commonjs",
+    "outDir": "./dist",
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": false,
+    "noImplicitAny": false,
+    "strictNullChecks": false,
+    "skipLibCheck": true,
+    "sourceMap": true,
+    "inlineSources": true,
+    "baseUrl": ".",
+    "paths": {
+      "@whatsnxt/*": ["../../packages/*/src"]
+    },
+    "resolveJsonModule": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "allowSyntheticDefaultImports": true
+  },
+  "include": [
+    "app/**/*.ts",
+    "config/**/*.ts",
+    "server.ts",
+    "seed.js",
+    "declarations.d.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "**/*.spec.ts",
+    "**/*.test.ts",
+    "app/*-migrations/**/*",
+    "app/public/**/*",
+    "app/seed.ts",
+    "app/indexing/**/*"
+  ]
+}

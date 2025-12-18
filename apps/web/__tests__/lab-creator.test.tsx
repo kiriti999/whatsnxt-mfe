@@ -1,17 +1,16 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import LabsPage from '../../app/labs/page';
-import labApi from '../../app/apis/lab.api';
 import { notifications } from '@mantine/notifications';
-import { useRouter } from 'next/navigation';
+import LabsPage from '@/app/labs/page';
+import labApi from '@/apis/lab.api';
 
 // Mock API calls
 vi.mock('../../app/apis/lab.api', () => ({
   default: {
-    getLabs: vi.fn(() => Promise.resolve([
-      { id: '1', name: 'Existing Lab 1', status: 'draft', instructorId: 'inst1' },
-    ])),
-    createLab: vi.fn((data) => Promise.resolve({ ...data, id: 'new-lab-id', status: 'draft' })),
+    getLabs: vi.fn(() =>
+      Promise.resolve([{ id: '1', name: 'Existing Lab 1', status: 'draft', instructorId: 'inst1' }])
+    ),
+    createLab: vi.fn(data => Promise.resolve({ ...data, id: 'new-lab-id', status: 'draft' })),
   },
 }));
 
@@ -46,18 +45,26 @@ describe('LabsPage and LabCreator', () => {
     await waitFor(() => expect(screen.getByText('Create New Lab')).toBeInTheDocument());
 
     fireEvent.change(screen.getByLabelText('Lab Name'), { target: { value: 'My New Lab' } });
-    fireEvent.change(screen.getByLabelText('Description'), { target: { value: 'This is a description' } });
+    fireEvent.change(screen.getByLabelText('Description'), {
+      target: { value: 'This is a description' },
+    });
     fireEvent.click(screen.getByText('Create Lab'));
 
-    await waitFor(() => expect(labApi.createLab).toHaveBeenCalledWith({
-      name: 'My New Lab',
-      description: 'This is a description',
-      instructorId: 'mock-instructor-id',
-    }));
-    await waitFor(() => expect(notifications.show).toHaveBeenCalledWith(expect.objectContaining({
-      title: 'Success',
-      message: 'Lab "My New Lab" created successfully!',
-    })));
+    await waitFor(() =>
+      expect(labApi.createLab).toHaveBeenCalledWith({
+        name: 'My New Lab',
+        description: 'This is a description',
+        instructorId: 'mock-instructor-id',
+      })
+    );
+    await waitFor(() =>
+      expect(notifications.show).toHaveBeenCalledWith(
+        expect.objectContaining({
+          title: 'Success',
+          message: 'Lab "My New Lab" created successfully!',
+        })
+      )
+    );
     await waitFor(() => expect(screen.getByText('My New Lab')).toBeInTheDocument());
   });
 
@@ -70,9 +77,13 @@ describe('LabsPage and LabCreator', () => {
     fireEvent.change(screen.getByLabelText('Lab Name'), { target: { value: 'Failing Lab' } });
     fireEvent.click(screen.getByText('Create Lab'));
 
-    await waitFor(() => expect(notifications.show).toHaveBeenCalledWith(expect.objectContaining({
-      title: 'Error',
-      message: 'Failed to create lab.',
-    })));
+    await waitFor(() =>
+      expect(notifications.show).toHaveBeenCalledWith(
+        expect.objectContaining({
+          title: 'Error',
+          message: 'Failed to create lab.',
+        })
+      )
+    );
   });
 });

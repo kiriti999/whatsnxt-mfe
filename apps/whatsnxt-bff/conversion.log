@@ -1,0 +1,101 @@
+=== JavaScript to TypeScript Batch Conversion ===
+Started: Sat Dec 13 00:31:40 IST 2025
+
+Converting middleware files...
+Converting: /Users/arjun/whatsnxt-mfe/apps/whatsnxt-bff/app/common/middlewares/extract-user.js
+  ✓ Created: /Users/arjun/whatsnxt-mfe/apps/whatsnxt-bff/app/common/middlewares/extract-user.ts
+Converting: /Users/arjun/whatsnxt-mfe/apps/whatsnxt-bff/app/common/middlewares/course/redis-middleware.js
+  ✓ Created: /Users/arjun/whatsnxt-mfe/apps/whatsnxt-bff/app/common/middlewares/course/redis-middleware.ts
+Converting: /Users/arjun/whatsnxt-mfe/apps/whatsnxt-bff/app/common/middlewares/course/authorization.js
+  ✓ Created: /Users/arjun/whatsnxt-mfe/apps/whatsnxt-bff/app/common/middlewares/course/authorization.ts
+Converting: /Users/arjun/whatsnxt-mfe/apps/whatsnxt-bff/app/common/middlewares/redis-middleware.js
+  ✓ Created: /Users/arjun/whatsnxt-mfe/apps/whatsnxt-bff/app/common/middlewares/redis-middleware.ts
+Converting: /Users/arjun/whatsnxt-mfe/apps/whatsnxt-bff/app/common/middlewares/auth-middleware.js
+  ✓ Created: /Users/arjun/whatsnxt-mfe/apps/whatsnxt-bff/app/common/middlewares/auth-middleware.ts
+Converting: /Users/arjun/whatsnxt-mfe/apps/whatsnxt-bff/app/common/middlewares/error-middleware.js
+  ✓ Created: /Users/arjun/whatsnxt-mfe/apps/whatsnxt-bff/app/common/middlewares/error-middleware.ts
+
+Converting controller files...
+Converting: /Users/arjun/whatsnxt-mfe/apps/whatsnxt-bff/app/controllers/lab.controller.js
+  ✓ Created: /Users/arjun/whatsnxt-mfe/apps/whatsnxt-bff/app/controllers/lab.controller.ts
+Converting: /Users/arjun/whatsnxt-mfe/apps/whatsnxt-bff/app/controllers/course/sentryController.js
+  ✓ Created: /Users/arjun/whatsnxt-mfe/apps/whatsnxt-bff/app/controllers/course/sentryController.ts
+Converting: /Users/arjun/whatsnxt-mfe/apps/whatsnxt-bff/app/controllers/course/courseAccountController.js
+  ✓ Created: /Users/arjun/whatsnxt-mfe/apps/whatsnxt-bff/app/controllers/course/courseAccountController.ts
+Converting: /Users/arjun/whatsnxt-mfe/apps/whatsnxt-bff/app/controllers/course/courseFeedbackController.js
+  ✓ Created: /Users/arjun/whatsnxt-mfe/apps/whatsnxt-bff/app/controllers/course/courseFeedbackController.ts
+Converting: /Users/arjun/whatsnxt-mfe/apps/whatsnxt-bff/app/controllers/course/courseBuilderController.js
+  ✓ Created: /Users/arjun/whatsnxt-mfe/apps/whatsnxt-bff/app/controllers/course/courseBuilderController.ts
+Converting: /Users/arjun/whatsnxt-mfe/apps/whatsnxt-bff/app/controllers/course/commentController.js
+  ✓ Created: /Users/arjun/whatsnxt-mfe/apps/whatsnxt-bff/app/controllers/course/commentController.ts
+Converting: /Users/arjun/whatsnxt-mfe/apps/whatsnxt-bff/app/controllers/course/paymentController.js
+  ✓ Created: /Users/arjun/whatsnxt-mfe/apps/whatsnxt-bff/app/controllers/course/paymentController.ts
+Converting: /Users/arjun/whatsnxt-mfe/apps/whatsnxt-bff/app/controllers/course/cacheController.js
+  ✓ Created: /Users/arjun/whatsnxt-mfe/apps/whatsnxt-bff/app/controllers/course/cacheController.ts
+Converting: /Users/arjun/whatsnxt-mfe/apps/whatsnxt-bff/app/controllers/course/courseSearchController.js
+  ✓ Created: /Users/arjun/whatsnxt-mfe/apps/whatsnxt-bff/app/controllers/course/courseSearchController.ts
+Converting: /Users/arjun/whatsnxt-mfe/apps/whatsnxt-bff/app/controllers/course/home.js
+  ✓ Created: /Users/arjun/whatsnxt-mfe/apps/whatsnxt-bff/app/controllers/course/home.ts
+Converting: /Users/arjun/whatsnxt-mfe/apps/whatsnxt-bff/app/controllers/course/userController.js
+  ✓ Created: /Users/arjun/whatsnxt-mfe/apps/whatsnxt-bff/app/controllers/course/userController.ts
+Converting: /Users/arjun/whatsnxt-mfe/apps/whatsnxt-bff/app/controllers/course/languageController.js
+  ✓ Created: /Users/arjun/whatsnxt-mfe/apps/whatsnxt-bff/app/controllers/course/languageController.ts
+Converting: /Users/arjun/whatsnxt-mfe/apps/whatsnxt-bff/app/controllers/course/analyticsController.js
+  ✓ Created: /Users/arjun/whatsnxt-mfe/apps/whatsnxt-bff/app/controllers/course/analyticsController.ts
+Converting: /Users/arjun/whatsnxt-mfe/apps/whatsnxt-bff/app/controllers/course/ordersController.js
+  ✓ Created: /Users/arjun/whatsnxt-mfe/apps/whatsnxt-bff/app/controllers/course/ordersController.ts
+Converting: /Users/arjun/whatsnxt-mfe/apps/whatsnxt-bff/app/controllers/course/courseController.js
+  ✓ Created: /Users/arjun/whatsnxt-mfe/apps/whatsnxt-bff/app/controllers/course/courseController.ts
+Converting: /Users/arjun/whatsnxt-mfe/apps/whatsnxt-bff/app/controllers/course/coursePopularityController.js
+  ✓ Created: /Users/arjun/whatsnxt-mfe/apps/whatsnxt-bff/app/controllers/course/coursePopularityController.ts
+Converting: /Users/arjun/whatsnxt-mfe/apps/whatsnxt-bff/app/controllers/course/webhooks.js
+  ✓ Created: /Users/arjun/whatsnxt-mfe/apps/whatsnxt-bff/app/controllers/course/webhooks.ts
+Converting: /Users/arjun/whatsnxt-mfe/apps/whatsnxt-bff/app/controllers/course/trainerContactedPayment.js
+  ✓ Created: /Users/arjun/whatsnxt-mfe/apps/whatsnxt-bff/app/controllers/course/trainerContactedPayment.ts
+Converting: /Users/arjun/whatsnxt-mfe/apps/whatsnxt-bff/app/controllers/course/video.js
+  ✓ Created: /Users/arjun/whatsnxt-mfe/apps/whatsnxt-bff/app/controllers/course/video.ts
+Converting: /Users/arjun/whatsnxt-mfe/apps/whatsnxt-bff/app/controllers/course/courseEnrolledController.js
+  ✓ Created: /Users/arjun/whatsnxt-mfe/apps/whatsnxt-bff/app/controllers/course/courseEnrolledController.ts
+Converting: /Users/arjun/whatsnxt-mfe/apps/whatsnxt-bff/app/controllers/course/interviewController.js
+  ✓ Created: /Users/arjun/whatsnxt-mfe/apps/whatsnxt-bff/app/controllers/course/interviewController.ts
+Converting: /Users/arjun/whatsnxt-mfe/apps/whatsnxt-bff/app/controllers/course/courseTrainerController.js
+  ✓ Created: /Users/arjun/whatsnxt-mfe/apps/whatsnxt-bff/app/controllers/course/courseTrainerController.ts
+Converting: /Users/arjun/whatsnxt-mfe/apps/whatsnxt-bff/app/controllers/course/razorpayController.js
+  ✓ Created: /Users/arjun/whatsnxt-mfe/apps/whatsnxt-bff/app/controllers/course/razorpayController.ts
+Converting: /Users/arjun/whatsnxt-mfe/apps/whatsnxt-bff/app/controllers/course/mailController.js
+  ✓ Created: /Users/arjun/whatsnxt-mfe/apps/whatsnxt-bff/app/controllers/course/mailController.ts
+Converting: /Users/arjun/whatsnxt-mfe/apps/whatsnxt-bff/app/controllers/course/cartController.js
+  ✓ Created: /Users/arjun/whatsnxt-mfe/apps/whatsnxt-bff/app/controllers/course/cartController.ts
+Converting: /Users/arjun/whatsnxt-mfe/apps/whatsnxt-bff/app/controllers/course/courseCategoryController.js
+  ✓ Created: /Users/arjun/whatsnxt-mfe/apps/whatsnxt-bff/app/controllers/course/courseCategoryController.ts
+
+Converting model files...
+Converting: /Users/arjun/whatsnxt-mfe/apps/whatsnxt-bff/app/models/order.js
+  ✓ Created: /Users/arjun/whatsnxt-mfe/apps/whatsnxt-bff/app/models/order.ts
+Converting: /Users/arjun/whatsnxt-mfe/apps/whatsnxt-bff/app/models/otp.js
+  ✓ Created: /Users/arjun/whatsnxt-mfe/apps/whatsnxt-bff/app/models/otp.ts
+Converting: /Users/arjun/whatsnxt-mfe/apps/whatsnxt-bff/app/models/notification.js
+  ✓ Created: /Users/arjun/whatsnxt-mfe/apps/whatsnxt-bff/app/models/notification.ts
+Converting: /Users/arjun/whatsnxt-mfe/apps/whatsnxt-bff/app/models/courseComments.js
+  ✓ Created: /Users/arjun/whatsnxt-mfe/apps/whatsnxt-bff/app/models/courseComments.ts
+Converting: /Users/arjun/whatsnxt-mfe/apps/whatsnxt-bff/app/models/courseCategory.js
+  ✓ Created: /Users/arjun/whatsnxt-mfe/apps/whatsnxt-bff/app/models/courseCategory.ts
+Converting: /Users/arjun/whatsnxt-mfe/apps/whatsnxt-bff/app/models/section.js
+  ✓ Created: /Users/arjun/whatsnxt-mfe/apps/whatsnxt-bff/app/models/section.ts
+Converting: /Users/arjun/whatsnxt-mfe/apps/whatsnxt-bff/app/models/tutorialSchema.js
+  ✓ Created: /Users/arjun/whatsnxt-mfe/apps/whatsnxt-bff/app/models/tutorialSchema.ts
+Converting: /Users/arjun/whatsnxt-mfe/apps/whatsnxt-bff/app/models/enrolledCourses.js
+  ✓ Created: /Users/arjun/whatsnxt-mfe/apps/whatsnxt-bff/app/models/enrolledCourses.ts
+Converting: /Users/arjun/whatsnxt-mfe/apps/whatsnxt-bff/app/models/authSchema.js
+  ✓ Created: /Users/arjun/whatsnxt-mfe/apps/whatsnxt-bff/app/models/authSchema.ts
+Converting: /Users/arjun/whatsnxt-mfe/apps/whatsnxt-bff/app/models/analyticsDataSchema.js
+  ✓ Created: /Users/arjun/whatsnxt-mfe/apps/whatsnxt-bff/app/models/analyticsDataSchema.ts
+Converting: /Users/arjun/whatsnxt-mfe/apps/whatsnxt-bff/app/models/cart.js
+  ✓ Created: /Users/arjun/whatsnxt-mfe/apps/whatsnxt-bff/app/models/cart.ts
+Converting: /Users/arjun/whatsnxt-mfe/apps/whatsnxt-bff/app/models/bookingDetail.js
+  ✓ Created: /Users/arjun/whatsnxt-mfe/apps/whatsnxt-bff/app/models/bookingDetail.ts
+Converting: /Users/arjun/whatsnxt-mfe/apps/whatsnxt-bff/app/models/course.js
+  ✓ Created: /Users/arjun/whatsnxt-mfe/apps/whatsnxt-bff/app/models/course.ts
+Converting: /Users/arjun/whatsnxt-mfe/apps/whatsnxt-bff/app/models/interview.js
+  ✓ Created: /Users/arjun/whatsnxt-mfe/apps/whatsnxt-bff/app/models/interview.ts
+Converting: /Users/arjun/whatsnxt-mfe/apps/whatsnxt-bff/app/models/token.js

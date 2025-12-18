@@ -17,11 +17,11 @@ import {
     renderWaypointHandles,
     calculateConnectionPoints,
 } from '../../utils/d3-link-renderers';
-import { Button, Group, Paper as MantinePaper, Text, Divider, useComputedColorScheme, ActionIcon, Tooltip, Stack, ScrollArea } from '@mantine/core';
+import { Button, Group, Paper as MantinePaper, Text, Divider, useComputedColorScheme, ActionIcon, Tooltip, Stack, ScrollArea, Box } from '@mantine/core';
 import { IconZoomReset } from '@tabler/icons-react';
 import ShapePreview from './ShapePreview';
 import { genericD3Shapes } from '../../utils/shape-libraries/generic-d3-shapes';
-import { getArchitectureShapes } from '../../utils/shape-libraries';
+import { getArchitectureShapes, getArchitectureMetadata } from '../../utils/shape-libraries';
 
 
 interface LinkType {
@@ -35,7 +35,8 @@ interface DiagramEditorProps {
     mode: 'instructor' | 'student';
     onGraphChange?: (json: any) => void;
     className?: string;
-    architectureType?: string;
+    architectureType?: string; // Deprecated: kept for backward compatibility
+    architectureTypes?: string[]; // New: array of architecture types for multi-select
 }
 
 const DiagramEditor: React.FC<DiagramEditorProps> = ({
@@ -44,7 +45,11 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
     onGraphChange,
     className,
     architectureType,
+    architectureTypes,
 }) => {
+    // Normalize architecture types: handle both single type and array for backward compatibility
+    const normalizedArchitectureTypes = architectureTypes || (architectureType ? [architectureType] : []);
+
     const computedColorScheme = useComputedColorScheme('light');
     const svgRef = useRef<SVGSVGElement>(null);
     const wrapperRef = useRef<HTMLDivElement>(null);
@@ -807,9 +812,16 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
     // Common shapes (left sidebar) - directly from genericD3Shapes metadata
     const commonShapes = Object.values(genericD3Shapes);
 
-    // Architecture-specific shapes based on architectureType
-    // Uses centralized ARCHITECTURE_LIBRARIES registry - no switch case needed
-    const architectureSpecificShapes = getArchitectureShapes(architectureType);
+    // Architecture-specific shapes based on architectureTypes
+    // Fetch shapes from all selected architecture types and group them by architecture
+    const architectureShapesGrouped = normalizedArchitectureTypes.map(archType => ({
+        architectureType: archType,
+        architectureName: getArchitectureMetadata(archType).name,
+        shapes: getArchitectureShapes(archType)
+    })).filter(group => group.shapes.length > 0);
+
+    // Flat list of all architecture shapes for backward compatibility
+    const architectureSpecificShapes = architectureShapesGrouped.flatMap(group => group.shapes);
 
     return (
         <div className={className}>
@@ -831,36 +843,48 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
                         </Group>
 
                         <Group gap="md" style={{ flexWrap: 'wrap' }}>
-                            {architectureSpecificShapes.map((shape) => (
-                                <Tooltip key={shape.id} label={shape.name} position="bottom" withArrow>
-                                    <MantinePaper
-                                        p="xs"
-                                        withBorder
-                                        draggable
-                                        style={{
-                                            cursor: 'grab',
-                                            textAlign: 'center',
-                                            backgroundColor: '#fafafa',
-                                            transition: 'transform 0.2s',
-                                        }}
-                                        onDragStart={(e) => {
-                                            setDraggingShapeId(shape.id);
-                                            e.currentTarget.style.cursor = 'grabbing';
-                                        }}
-                                        onDragEnd={(e) => {
-                                            e.currentTarget.style.cursor = 'grab';
-                                        }}
-                                        onMouseEnter={(e) => {
-                                            e.currentTarget.style.transform = 'scale(1.05)';
-                                        }}
-                                        onMouseLeave={(e) => {
-                                            e.currentTarget.style.transform = 'scale(1)';
-                                        }}
-                                        onClick={() => addShape(shape.id)}
-                                    >
-                                        <ShapePreview shape={shape} size={30} architecture={architectureType} />
-                                    </MantinePaper>
-                                </Tooltip>
+                            {architectureShapesGrouped.map((group) => (
+                                <React.Fragment key={group.architectureType}>
+                                    {/* Section header for each architecture type */}
+                                    <Box w="100%">
+                                        <Text size="xs" fw={700} c="dimmed" tt="uppercase" mt="xs" mb="xs">
+                                            {group.architectureName}
+                                        </Text>
+                                    </Box>
+
+                                    {/* Shapes for this architecture */}
+                                    {group.shapes.map((shape) => (
+                                        <Tooltip key={shape.id} label={shape.name} position="bottom" withArrow>
+                                            <MantinePaper
+                                                p="xs"
+                                                withBorder
+                                                draggable
+                                                style={{
+                                                    cursor: 'grab',
+                                                    textAlign: 'center',
+                                                    backgroundColor: '#fafafa',
+                                                    transition: 'transform 0.2s',
+                                                }}
+                                                onDragStart={(e) => {
+                                                    setDraggingShapeId(shape.id);
+                                                    e.currentTarget.style.cursor = 'grabbing';
+                                                }}
+                                                onDragEnd={(e) => {
+                                                    e.currentTarget.style.cursor = 'grab';
+                                                }}
+                                                onMouseEnter={(e) => {
+                                                    e.currentTarget.style.transform = 'scale(1.05)';
+                                                }}
+                                                onMouseLeave={(e) => {
+                                                    e.currentTarget.style.transform = 'scale(1)';
+                                                }}
+                                                onClick={() => addShape(shape.id)}
+                                            >
+                                                <ShapePreview shape={shape} size={30} architecture={group.architectureType} />
+                                            </MantinePaper>
+                                        </Tooltip>
+                                    ))}
+                                </React.Fragment>
                             ))}
                         </Group>
                     </MantinePaper>
