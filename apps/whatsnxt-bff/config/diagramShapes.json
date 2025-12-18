@@ -1,0 +1,42 @@
+[
+  {
+    "id": "1",
+    "name": "EC2 Instance",
+    "type": "compute",
+    "architectureType": "AWS",
+    "svgPath": "<svg>...</svg>",
+    "metadata": {}
+  },
+  {
+    "id": "2",
+    "name": "VPC",
+    "type": "network",
+    "architectureType": "AWS",
+    "svgPath": "<svg>...</svg>",
+    "metadata": {}
+  },
+  {
+    "id": "3",
+    "name": "Virtual Machine",
+    "type": "compute",
+    "architectureType": "Azure",
+    "svgPath": "<svg>...</svg>",
+    "metadata": {}
+  },
+  {
+    "id": "4",
+    "name": "Virtual Network",
+    "type": "network",
+    "architectureType": "Azure",
+    "svgPath": "<svg>...</svg>",
+    "metadata": {}
+  },
+  {
+    "id": "5",
+    "name": "Generic Server",
+    "type": "compute",
+    "architectureType": "Common",
+    "svgPath": "<svg>...</svg>",
+    "metadata": {}
+  }
+]

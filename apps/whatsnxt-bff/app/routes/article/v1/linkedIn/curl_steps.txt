@@ -1,0 +1,26 @@
+Get auth code in browser:
+https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=86ozrblvc3ml9t&redirect_uri=https://whatsnxt.in/callback&scope=openid%20profile%20email%20r_1st_connections_size%20r_ads%20r_ads_reporting%20r_basicprofile%20r_organization_admin%20r_organization_social%20rw_ads%20rw_organization_admin%20w_member_social%20w_organization_social
+
+auth code returned:
+https://whatsnxt.in/callback?code=AQQZLml7Voxt--iKb-SWSk1n6Dfbmmu9e-lCpub_wx7gYHDlN49hIMoHIaV9DHfT4Om2K2jtYIBx6c_607QGxRBGXosghKZpPAPqEVVvuGDlyqDjkfgoi_KFB35zQKIaThWX4nBWFabw_xbd9VOlksq7xRm-DGRk34glnrGcppH8YoSSxV5EUZNQR5d2GR2hCEOx6jznJ59OEV39wNs
+
+get access token:
+
+curl -X POST 'https://www.linkedin.com/oauth/v2/accessToken' \
+  -H 'Content-Type: application/x-www-form-urlencoded' \
+  -d 'grant_type=authorization_code' \
+  -d 'code=AQQZLml7Voxt--iKb-SWSk1n6Dfbmmu9e-lCpub_wx7gYHDlN49hIMoHIaV9DHfT4Om2K2jtYIBx6c_607QGxRBGXosghKZpPAPqEVVvuGDlyqDjkfgoi_KFB35zQKIaThWX4nBWFabw_xbd9VOlksq7xRm-DGRk34glnrGcppH8YoSSxV5EUZNQR5d2GR2hCEOx6jznJ59OEV39wNs' \
+  -d 'redirect_uri=https://whatsnxt.in/callback' \
+  -d 'client_id=86ozrblvc3ml9t' \
+  -d 'client_secret=WPL_AP1.4G1Rg2LVR0wCUkqd.iLN%2FmA%3D%3D'
+
+
+Share to linked:
+
+curl -X POST 'https://api.linkedin.com/v2/ugcPosts' \
+  -H 'Authorization: Bearer AQWtIkacOTY-yPhbIQLOBR1X3JMRJGhRZFd6Wcf2xsMhi2eU6sZVjd5fj64aEVK3Eu7de3wagRVHRy_KfoRxy0yqujMiOjTFlhd82Am8KbmWBIlfZneUDdXVObXETzT5dWdJYLqW5LcGOCNrODL2J2EDI_zCGXBl0cF0kE09hpc-OM3UqJNhfaQVkpQsyHdC6SB6RHFtxXyMp7lVMtQwrDylU6iNOFv6pvYDfJAueo31eFp5smxPmGWtUvMm3Z_cjIKJkfiwdTztn-61_y5ZkknrLKqnvc6OTKRdydLiOlw7rA-7NQHwtQkx3cMTKfpH3odWH8amGO2UgnSz2ZWdtOYt8OYkWA' \
+  -H 'Content-Type: application/json' \
+  -d '{"author": "urn:li:organization:105606569", "lifecycleState": "PUBLISHED", "specificContent": {"com.linkedin.ugc.ShareContent": {"shareCommentary": {"text": "Hello, LinkedIn! This is a test post from Whatsnxt.in."}, "shareMediaCategory": "NONE"}}, "visibility": {"com.linkedin.ugc.MemberNetworkVisibility": "PUBLIC"}}'
+
+
+

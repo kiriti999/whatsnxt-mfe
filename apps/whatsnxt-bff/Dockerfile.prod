@@ -1,0 +1,13 @@
+# Dockerfile
+# Build stage
+FROM kiriti999/whatsnxt-base as build
+
+COPY --chown=node:node . .
+
+RUN npm install --legacy-peer-deps --production
+
+RUN npm cache clean --force
+
+EXPOSE 4444
+
+CMD [ "npm", "run", "pm2-prod" ]

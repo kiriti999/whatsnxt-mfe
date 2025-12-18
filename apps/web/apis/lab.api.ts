@@ -107,16 +107,14 @@ const labApi = {
    * @param data - Lab creation data
    * @returns Created lab
    */
-  createLab: (data: CreateLabRequest) =>
-    http.post<{ message: string; data: Lab }>('/labs', data),
+  createLab: (data: CreateLabRequest) => http.post<{ message: string; data: Lab }>('/labs', data),
 
   /**
    * Get a lab by ID with all pages
    * @param labId - Lab UUID
    * @returns Lab with populated pages
    */
-  getLabById: (labId: string) =>
-    http.get<{ data: Lab & { pages: LabPage[] } }>(`/labs/${labId}`),
+  getLabById: (labId: string) => http.get<{ data: Lab & { pages: LabPage[] } }>(`/labs/${labId}`),
 
   /**
    * Update a draft lab
@@ -133,8 +131,7 @@ const labApi = {
    * Cannot delete published labs
    * @param labId - Lab UUID
    */
-  deleteLab: (labId: string) =>
-    http.delete<{ message: string }>(`/labs/${labId}`),
+  deleteLab: (labId: string) => http.delete<{ message: string }>(`/labs/${labId}`),
 
   /**
    * Publish a lab
@@ -150,8 +147,7 @@ const labApi = {
    * @param labId - Lab UUID
    * @returns Array of lab pages
    */
-  getLabPages: (labId: string) =>
-    http.get<{ data: LabPage[] }>(`/labs/${labId}/pages`),
+  getLabPages: (labId: string) => http.get<{ data: LabPage[] }>(`/labs/${labId}/pages`),
 
   /**
    * Create a new lab page
@@ -184,11 +180,7 @@ const labApi = {
     labId: string,
     pageId: string,
     data: { hasQuestion?: boolean; hasDiagramTest?: boolean }
-  ) =>
-    http.put<{ message: string; data: LabPage }>(
-      `/labs/${labId}/pages/${pageId}`,
-      data
-    ),
+  ) => http.put<{ message: string; data: LabPage }>(`/labs/${labId}/pages/${pageId}`, data),
 
   /**
    * Delete a lab page
@@ -207,10 +199,7 @@ const labApi = {
    * @returns Created/updated question
    */
   saveQuestion: (labId: string, pageId: string, data: CreateQuestionRequest) =>
-    http.post<{ message: string; data: Question }>(
-      `/labs/${labId}/pages/${pageId}/question`,
-      data
-    ),
+    http.post<{ message: string; data: Question }>(`/labs/${labId}/pages/${pageId}/question`, data),
 
   /**
    * Delete a question from a lab page
@@ -220,7 +209,7 @@ const labApi = {
    */
   deleteQuestion: (labId: string, pageId: string, questionId?: string) =>
     http.delete<{ message: string }>(
-      questionId 
+      questionId
         ? `/labs/${labId}/pages/${pageId}/question/${questionId}`
         : `/labs/${labId}/pages/${pageId}/question`
     ),
@@ -233,11 +222,7 @@ const labApi = {
    * @param data - Diagram test data
    * @returns Created/updated diagram test
    */
-  saveDiagramTest: (
-    labId: string,
-    pageId: string,
-    data: CreateDiagramTestRequest
-  ) =>
+  saveDiagramTest: (labId: string, pageId: string, data: CreateDiagramTestRequest) =>
     http.post<{ message: string; data: DiagramTest }>(
       `/labs/${labId}/pages/${pageId}/diagram-test`,
       data
@@ -249,9 +234,7 @@ const labApi = {
    * @param pageId - Page UUID
    */
   deleteDiagramTest: (labId: string, pageId: string) =>
-    http.delete<{ message: string }>(
-      `/labs/${labId}/pages/${pageId}/diagram-test`
-    ),
+    http.delete<{ message: string }>(`/labs/${labId}/pages/${pageId}/diagram-test`),
 
   /**
    * Get diagram shapes
@@ -295,9 +278,7 @@ const labApi = {
    * @returns Previous submission if exists
    */
   getSubmission: (labId: string, pageId: string, studentId: string) =>
-    http.get<{ data: any }>(
-      `/labs/${labId}/pages/${pageId}/submit?studentId=${studentId}`
-    ),
+    http.get<{ data: any }>(`/labs/${labId}/pages/${pageId}/submit?studentId=${studentId}`),
 
   /**
    * Get student's progress in a lab
