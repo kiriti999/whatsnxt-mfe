@@ -29,10 +29,10 @@ npm test && npm run lint
 TypeScript 5.x + Node.js 24.12.0 LTS: Follow standard conventions
 
 ## Recent Changes
+- 001-lab-monetization: Added [if applicable, e.g., PostgreSQL, CoreData, files or N/A]
 - 001-tech-stack-shapes: Added TypeScript 5.8.2, Node.js >=18 + D3.js (for SVG rendering), React 19, Next.js 16, Mantine UI
 
 - 001-tech-stack-shapes: Added TypeScript 5.8.2, Node.js >=18 + D3.js (for SVG rendering), React 19, Next.js 16, Mantine UI
-- 001-tech-stack-shapes: Added TypeScript 5.8.2 + Node.js ≥18 + D3.js (d3), Next.js 16.0.7, React 19.1.0, Mantine UI 8.1.2
 
 <!-- MANUAL ADDITIONS START -->
 <!-- MANUAL ADDITIONS END -->
