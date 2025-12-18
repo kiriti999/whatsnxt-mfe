@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import Lab from "../models/Lab";
+import Lab from "../models/lab/Lab";
 import LabPurchase from "../models/LabPurchase";
 import { HttpException, HttpStatus } from "../utils/dbHelper";
 import accessControlService from "./accessControlService";
