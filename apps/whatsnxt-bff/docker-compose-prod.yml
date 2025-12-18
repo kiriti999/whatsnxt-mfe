@@ -1,10 +1,10 @@
 services:
   node:
     build:
-      context: .
-      dockerfile: ./Dockerfile.prod
+      context: ../..  # Build from monorepo root
+      dockerfile: apps/whatsnxt-bff/Dockerfile.prod
     container_name: "whatsnxt"
-    image: "whatsnxt:prod-v4.357"
+    image: "whatsnxt:prod-v4.358"
     env_file:
       - .env.prod
     ports:
