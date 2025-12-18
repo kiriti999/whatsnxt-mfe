@@ -1,0 +1,79 @@
+# Dockerfile - Production build with pnpm workspace support
+# Must be built from monorepo root with: docker build -f apps/whatsnxt-bff/Dockerfile.prod .
+FROM node:24.11.0-alpine AS deps
+
+# Install pnpm and pm2
+RUN corepack enable && corepack prepare pnpm@latest --activate
+RUN npm install -g pm2
+
+WORKDIR /monorepo
+
+# Copy workspace configuration
+COPY pnpm-workspace.yaml package.json pnpm-lock.yaml ./
+
+# Copy all workspace packages for dependency resolution
+COPY packages ./packages/
+
+# Copy app package.json
+COPY apps/whatsnxt-bff/package.json ./apps/whatsnxt-bff/
+
+# Install ALL dependencies (including devDependencies for build)
+RUN pnpm install --filter whatsnxt-bff --frozen-lockfile
+
+# Build stage
+FROM node:24.11.0-alpine AS build
+
+RUN corepack enable && corepack prepare pnpm@latest --activate
+
+WORKDIR /monorepo
+
+# Copy installed dependencies
+COPY --from=deps /monorepo/node_modules ./node_modules
+COPY --from=deps /monorepo/apps/whatsnxt-bff/node_modules ./apps/whatsnxt-bff/node_modules
+COPY --from=deps /monorepo/packages ./packages
+
+# Copy app source code
+COPY apps/whatsnxt-bff ./apps/whatsnxt-bff/
+
+WORKDIR /monorepo/apps/whatsnxt-bff
+
+# Build TypeScript (with skipLibCheck for faster build)
+RUN pnpm run build || npx tsc --skipLibCheck
+
+# Production stage - Install only production dependencies
+FROM node:24.11.0-alpine AS prod-deps
+
+RUN corepack enable && corepack prepare pnpm@latest --activate
+
+WORKDIR /monorepo
+
+# Copy workspace configuration
+COPY pnpm-workspace.yaml package.json pnpm-lock.yaml ./
+COPY packages ./packages/
+COPY apps/whatsnxt-bff/package.json ./apps/whatsnxt-bff/
+
+# Install only production dependencies
+RUN pnpm install --filter whatsnxt-bff --prod --frozen-lockfile
+
+# Final production stage
+FROM node:24.11.0-alpine AS production
+
+RUN npm install -g pm2
+
+USER node
+WORKDIR /app
+
+# Copy only production files
+COPY --chown=node:node --from=build /monorepo/apps/whatsnxt-bff/dist ./dist
+COPY --chown=node:node --from=prod-deps /monorepo/apps/whatsnxt-bff/node_modules ./node_modules
+COPY --chown=node:node --from=build /monorepo/apps/whatsnxt-bff/package.json ./package.json
+COPY --chown=node:node --from=build /monorepo/apps/whatsnxt-bff/ecosystem.config.js ./ecosystem.config.js
+
+# Copy service account key
+COPY --chown=node:node apps/whatsnxt-bff/app/whatsnxt-be3287170e8e.json ./app/whatsnxt-be3287170e8e.json
+
+ENV NODE_ENV=production
+
+EXPOSE 4444
+
+CMD ["npm", "run", "pm2-prod"]

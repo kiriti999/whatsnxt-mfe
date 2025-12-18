@@ -46,6 +46,9 @@ export interface Lab {
         diagram?: string; // Legacy or specific URL
     };
 
+    // Multi-select architecture types support (new field)
+    architectureTypes?: string[];
+
     kubernetesConfig?: {
         clusterVersion?: string;
         nodes?: number;

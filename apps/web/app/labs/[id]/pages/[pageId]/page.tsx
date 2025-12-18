@@ -948,8 +948,7 @@ const LabPageEditorPage = () => {
               />
 
               {/* Instructor Information Accordion */}
-              <Accordion 
-                defaultValue="instructor-info" 
+              <Accordion transitionDuration={1000}
                 styles={{
                   root: {
                     backgroundColor: '#e7f5ff',

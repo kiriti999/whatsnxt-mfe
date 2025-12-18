@@ -1,0 +1,13 @@
+{
+    "type": "service_account",
+    "project_id": "idyllic-cabinet-440906-s2",
+    "private_key_id": "db968940e8e34bf89c3318d7e7ef7455f2147f61",
+    "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCl6juuEUF83C9t\nTLnL3FqFkXYgi3JgY+2I0vkGQis+yXaSNbubbTlyG3uSN4M7vIbpJ0ZyNvvg1ll3\nD9mJKQW0qzO7XfzsL+oFazNv4QBagJz/a2FspOD98nMO4yniKjs2HHGi2zt44unU\nZ/MPIHXN3gJ8fJNyxDTAHGmwbMmEfPN3LZ/8VNT+x9J4QM180zjrY1q+qTGN3XBR\npDJeEBfifXHfR/jgtQZA/15uI5fxxLL7Za/WNaGWfiqtwTha+pLrg7Zsxu6KX7gI\ns/ef/0Ftl+j5MWg+lDa0UVZKDywfRzAHLQPmzw8B2FLwK6iBV/GRsCsooYO2HP2X\neW8RNIcBAgMBAAECggEAASMl3CncwaB6Cc4VWXUSYNV7t7Zdb/GETT77Tu4h71a7\nRyHSvj4LsQ2sFzc0AUwWBX4YVNhmx+hBkpnRpK7XUWhZhc5Q8kF3U0xSjqYlZe7A\nWE7tjoVxM6huiQ8TUwUgOkCMMJYqKASv16wEzAzKHtNSY3Uz/CeQLmTGIfhdmW4C\nLK8rTL/jEvT14+/0PSp7sUpf7HgNRwYmyMtzt+2h4gJ6JEn47RTFRmBF+y9vVD19\n9TVCXghtSa5cImd5R5IzBZR0rE8tjxIzeOmMWGJ5+87T4X4Uo95ppJg/lyX4ZHfn\nyrn+lJyLaDuR8xYVfy+j8MKiqC8BZYGBjtH4pl5J4QKBgQDaMKZy4vDcLdpKNE3e\n5rZz9oA0PXATyhgrQbhf4We/+JIiI5lGWG+Qq8yd3493vSOLyaFUJACwvgfzktBu\nRpVLxwY+OqC2hJ5lashpMvm83/Gpg+6J95jBx2og/POvuihaKgvCIXQjRQ6Ldjam\nKqVpXSaGDhi0GIEDO5Ce3tgrEQKBgQDCqo4+wXJyDAnmAG40lijxkOUF18y+JNhN\njbmGXlmrHm8FLwFexcRbrHSo6merONLGqfRHNGrg6D0U3cMKbpptaL5B3nMQ9tCE\nlLYq58zuhOBujs7XwLQbciMmu9atIQDVPAuwR0pOJA5RvFeQECmtuNHftkgeSfeX\n76rn69w88QKBgQCTi96jRjAW1LMPBvu5xk6PcJwVt44486sQZWrm+6iLOu6nQ2d9\nGISpUmQWRn3gPPjyqLD+EzKcUoVSA3ALgpOnILlqD39qrZfngSRxb1VOkin7tgnz\nJooYUF/GWwf3R23OOyykZLcCusoxKQmfqKse6y0H7jRqZT+pDfioVo3b4QKBgAQ/\nYHcyFWMzrAueusje9em/dZ/ZA5iqiSW4D/JEoMRBF78PNYJx4kT10F3XL4fm54J6\nNuBO3n4l0x9fb2AM5cW5YV1ikzQtjoM2E3uAL1KNB7Ch4RWIGOX4aZfwxVBlxfTh\nKIgiJhbqZn2WFHsKPz6RJ9Mv0QcIKiTgj+Qbm2ShAoGASKWacN5MQ4i1/llAsdMH\nBOm9hog6z662Lbd1k5pES+BtJkaQ+cJ1n220EdAnAkE7IbaS9xdaFc0BH6VHFhCW\nqVV8ZmXvPjvOG+eCmWLLlJm/VFEkqyj4KztViMdReqJqM9kR/wIQn6FY3zjq7ECO\n1NHbaLuXos0BS31RgXR5FZc=\n-----END PRIVATE KEY-----\n",
+    "client_email": "analytics-service-account@idyllic-cabinet-440906-s2.iam.gserviceaccount.com",
+    "client_id": "106358165758724687620",
+    "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+    "token_uri": "https://oauth2.googleapis.com/token",
+    "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+    "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/analytics-service-account%40idyllic-cabinet-440906-s2.iam.gserviceaccount.com",
+    "universe_domain": "googleapis.com"
+  }
