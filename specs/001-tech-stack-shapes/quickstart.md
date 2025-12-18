@@ -1,8 +1,8 @@
 # Quickstart Guide: Tech Stack Shape Library Implementation
 
 **Feature**: 001-tech-stack-shapes  
-**Date**: 2025-12-16  
-**Estimated Time**: 4-6 hours
+**Date**: 2025-12-18 (Updated with Multi-Select)  
+**Estimated Time**: 6-8 hours (includes multi-select dropdown feature)
 
 ## Prerequisites
 
@@ -14,7 +14,14 @@
 
 ## Overview
 
-This feature adds 7 new technology shapes (Next.js, React, Node.js, Docker, MongoDB, MCP agent, AI) to the shape library system. Implementation follows the established pattern from kubernetes-d3-shapes.ts.
+This feature adds 7 new technology shapes (Next.js, React, Node.js, Docker, MongoDB, MCP agent, AI) to the shape library system and enables multi-select architecture type dropdown. Implementation follows the established pattern from kubernetes-d3-shapes.ts.
+
+**Key Changes**:
+1. Create tech-stack-d3-shapes.ts with 7 shapes
+2. Register TechStack in ARCHITECTURE_LIBRARIES
+3. Replace single-select architecture dropdown with MultiSelect
+4. Update Lab data model to support array of architecture types
+5. Modify shape library panel to display shapes from multiple selected types
 
 ## Step 1: Create Tech Stack Shapes File (2-3 hours)
 
@@ -202,7 +209,202 @@ export { awsD3Shapes, azureD3Shapes, gcpD3Shapes, kubernetesD3Shapes, genericD3S
 export type { AWSShapeDefinition, AzureShapeDefinition, GCPShapeDefinition, KubernetesShapeDefinition, ShapeDefinition, TechStackShapeDefinition }; // Add TechStackShapeDefinition
 ```
 
-## Step 3: Build and Test (30 minutes)
+## Step 4: Update Lab Type Definition (15 minutes)
+
+### Location
+`apps/web/types/lab.ts`
+
+### Changes Required
+
+Add new `architectureTypes` field to Lab interface:
+
+```typescript
+export interface Lab {
+  // ... existing fields
+  
+  /**
+   * NEW: Multi-select architecture types
+   * Replaces single architectureConfig.type field
+   */
+  architectureTypes?: string[];
+  
+  /**
+   * LEGACY: Keep for backward compatibility
+   */
+  architectureConfig?: {
+    type?: string;
+    diagram?: string;
+  };
+  
+  // ... other fields
+}
+```
+
+## Step 5: Update Architecture Dropdown to MultiSelect (30 minutes)
+
+### Location
+`apps/web/components/Lab/LabForm.tsx`
+
+### Changes Required
+
+1. **Import MultiSelect** (add to existing imports):
+```typescript
+import { MultiSelect } from '@mantine/core';
+```
+
+2. **Update state management**:
+```typescript
+// BEFORE (single-select):
+const architectureType = watch('architectureConfig.type');
+
+// AFTER (multi-select):
+const architectureTypes = watch('architectureTypes') || [];
+```
+
+3. **Replace Select with MultiSelect** (find architecture type dropdown):
+```typescript
+// BEFORE:
+<Select
+  label="Architecture Type"
+  data={getAvailableArchitectures()}
+  value={architectureType}
+  onChange={(value) => setValue('architectureConfig.type', value)}
+/>
+
+// AFTER:
+<MultiSelect
+  label="Architecture Types"
+  description="Select one or more architecture types for this lab"
+  data={getAvailableArchitectures()}
+  value={architectureTypes}
+  onChange={(value) => setValue('architectureTypes', value)}
+  placeholder="Select architecture types"
+  searchable
+  clearable
+/>
+```
+
+### Similar Changes Required In:
+- `apps/web/components/architecture-lab/ArchitectureLabClient.tsx`
+- `apps/web/app/lab/create/page.tsx`
+- `apps/web/app/lab/[id]/page.tsx`
+
+## Step 6: Update DiagramEditor for Multi-Select (45 minutes)
+
+### Location
+`apps/web/components/architecture-lab/DiagramEditor.tsx`
+
+### Changes Required
+
+1. **Accept array of architecture types**:
+```typescript
+interface DiagramEditorProps {
+  // BEFORE:
+  // architectureType?: string;
+  
+  // AFTER:
+  architectureTypes?: string[];
+  // ... other props
+}
+```
+
+2. **Fetch shapes from all selected types**:
+```typescript
+// BEFORE:
+const shapes = getArchitectureShapes(architectureType);
+
+// AFTER:
+const shapesGrouped = (architectureTypes || ['Generic']).flatMap(type => {
+  const shapes = getArchitectureShapes(type);
+  const metadata = getArchitectureMetadata(type);
+  return [
+    { type: 'header', name: metadata.name, key: `header-${type}` },
+    ...shapes.map(shape => ({ type: 'shape', data: shape, key: shape.id }))
+  ];
+});
+```
+
+3. **Render shape panel with headers**:
+```typescript
+{shapesGrouped.map((item) => {
+  if (item.type === 'header') {
+    return (
+      <Text key={item.key} fw={700} size="sm" mt="md" mb="xs">
+        {item.name}
+      </Text>
+    );
+  }
+  
+  return (
+    <ShapeItem
+      key={item.key}
+      shape={item.data}
+      onDragStart={(e) => handleShapeDragStart(e, item.data)}
+    />
+  );
+})}
+```
+
+## Step 7: Update Backend API (30 minutes)
+
+### Location
+`apps/web/app/api/lab/create/route.ts` and `apps/web/app/api/lab/[id]/route.ts`
+
+### Changes Required
+
+1. **Accept architectureTypes in request body**:
+```typescript
+const body = await req.json();
+
+// Normalize to array
+let architectureTypes = body.architectureTypes;
+if (!architectureTypes?.length && body.architectureConfig?.type) {
+  architectureTypes = [body.architectureConfig.type];
+}
+if (!architectureTypes?.length) {
+  architectureTypes = ['Generic'];
+}
+
+// Validate
+const validTypes = getAvailableArchitectures();
+architectureTypes = architectureTypes.filter(type => validTypes.includes(type));
+```
+
+2. **Save to database**:
+```typescript
+const lab = new Lab({
+  ...body,
+  architectureTypes, // Save normalized array
+  // Keep architectureConfig for backward compat (optional)
+});
+
+await lab.save();
+```
+
+3. **Update MongoDB schema** (if using Mongoose):
+```typescript
+// In lab.model.ts or similar:
+const labSchema = new Schema({
+  // ... existing fields
+  
+  architectureTypes: {
+    type: [String],
+    required: false,
+    validate: {
+      validator: (arr) => arr.length <= 10,
+      message: 'Maximum 10 architecture types allowed'
+    }
+  },
+  
+  // Keep for backward compatibility
+  architectureConfig: {
+    type: { type: String },
+    diagram: String
+  }
+});
+```
+
+## Step 8: Build and Test (30 minutes)
 
 ### TypeScript Compilation
 ```bash
@@ -238,25 +440,36 @@ Expected: Server starts on port 3001.
    - [ ] Repeat for all 7 shapes
    - [ ] Verify each shape has correct brand colors
 
-4. **Shape Operations**
+4. **Multi-Select Functionality** ✨ NEW
+   - [ ] Select multiple architecture types (e.g., Tech Stack + AWS)
+   - [ ] Verify shape panel shows shapes from both types
+   - [ ] Verify section headers appear (e.g., "Tech Stack", "AWS")
+   - [ ] Verify chips display selected types above shape panel
+   - [ ] Drag shapes from different architectures onto same canvas
+   - [ ] Verify mixed-architecture diagram saves correctly
+   - [ ] Reload page and verify all architecture types load correctly
+
+5. **Shape Operations**
    - [ ] Resize a shape - verify it scales correctly
    - [ ] Move a shape - verify position updates
    - [ ] Connect two shapes with arrow - verify connection draws
    - [ ] Delete a shape - verify it removes
 
-5. **Persistence**
+6. **Persistence**
    - [ ] Create diagram with tech stack shapes
    - [ ] Save diagram
    - [ ] Reload page
    - [ ] Verify shapes appear in correct positions with correct styling
 
-6. **Edge Cases**
+7. **Edge Cases**
    - [ ] Zoom canvas to 50% - verify shapes remain crisp (SVG scaling)
    - [ ] Zoom canvas to 200% - verify no pixelation
    - [ ] Place 50+ shapes on canvas - verify performance (<2s load time)
    - [ ] Mix tech stack shapes with AWS/Kubernetes shapes - verify no ID collisions
+   - [ ] Test backward compatibility: Load old lab with single architectureConfig.type
+   - [ ] Verify old lab displays correctly with single type converted to array
 
-## Step 4: Update Agent Context (5 minutes)
+## Step 9: Update Agent Context (5 minutes)
 
 ```bash
 cd /Users/arjun/whatsnxt-mfe
@@ -283,6 +496,14 @@ This updates `.copilot/context/implementation-plan.md` with the new tech stack s
 ### Shape Distorted When Resized
 - **Cause**: Using absolute coordinates instead of relative
 - **Fix**: Use percentages of width/height (e.g., `width * 0.5` not `40`)
+
+### Multi-Select Not Working
+- **Cause**: Component not imported or wrong value type
+- **Fix**: Verify `import { MultiSelect } from '@mantine/core'` and value is array
+
+### Backward Compatibility Issues
+- **Cause**: Old labs not loading correctly
+- **Fix**: Add normalization function in DiagramEditor to convert single type to array
 
 ### Performance Issues
 - **Cause**: Too many DOM elements or complex paths
@@ -325,8 +546,12 @@ Automated testing (if desired):
 Feature is complete when:
 - ✅ All 7 shapes render correctly with brand-accurate colors
 - ✅ Shapes appear in "Tech Stack" dropdown option
+- ✅ MultiSelect dropdown allows selecting multiple architecture types
+- ✅ Shape panel displays shapes from all selected types with section headers
 - ✅ All shape operations work (drag, resize, move, connect, delete)
-- ✅ Diagrams save and reload with tech stack shapes
+- ✅ Mixed-architecture diagrams work (Tech Stack + AWS + Kubernetes)
+- ✅ Diagrams save and reload with multiple architecture types
+- ✅ Backward compatibility: Old labs with single type still load correctly
 - ✅ No TypeScript errors
 - ✅ Performance targets met (<50ms render, <2s load)
 - ✅ Agent context updated

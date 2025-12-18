@@ -5,6 +5,14 @@
 **Status**: Draft  
 **Input**: User description: "Add new SVG shapes to the shape library system similar to kubernetes-d3-shapes.ts for Next.js, Docker, React, Node.js, MongoDB, MCP agent, and AI"
 
+## Clarifications
+
+### Session 2025-12-18
+
+- Q: How should "Tech Stack" be positioned in the Architecture Type dropdown? → A: As a standalone new option "Tech Stack" at the same level as AWS, Azure, Kubernetes, GCP
+- Q: Should instructors be restricted to one architecture type per diagram, or can they mix types? → A: Allow mixing different architecture types in the same diagram (Tech Stack + AWS + Kubernetes, etc.)
+- Q: How should the Architecture Type dropdown allow selection of multiple types? → A: Architecture dropdown allows multi-select, enabling instructors to select multiple types simultaneously and see all selected type shapes in the library panel
+
 ## User Scenarios & Testing *(mandatory)*
 
 <!--
@@ -31,6 +39,7 @@ An instructor creating a modern full-stack web application architecture lab need
 **Acceptance Scenarios**:
 
 1. **Given** an instructor is creating a lab diagram, **When** they select "Tech Stack" from the architecture type dropdown, **Then** they see shapes for Next.js, React, Node.js, Docker, and MongoDB in the shape library panel
+1a. **Given** an instructor has Tech Stack shapes on the canvas, **When** they also select AWS or Kubernetes from the architecture type dropdown, **Then** both Tech Stack and the newly selected architecture shapes are available simultaneously for mixed-architecture diagrams
 2. **Given** the Tech Stack architecture is selected, **When** the instructor drags a Next.js shape onto the canvas, **Then** the shape renders with proper styling consistent with the Next.js brand (black/white color scheme)
 3. **Given** shapes are on the canvas, **When** the instructor connects a React shape to a Node.js shape with an arrow, **Then** the connection clearly shows the frontend-backend relationship
 4. **Given** a Docker shape is placed on the canvas, **When** the instructor resizes it to contain other shapes, **Then** the Docker container shape expands to show it contains the wrapped applications
@@ -81,6 +90,7 @@ Instructors and students viewing diagrams expect shapes to match the official br
 - What if a technology doesn't have official brand guidelines (e.g., "MCP agent" is abstract)? Use a generic agent/bot icon with neutral colors that fit the overall design system.
 - How are shapes positioned when first dragged to canvas? Should snap to grid or place at exact cursor position? Follow existing shape library behavior for consistency.
 - What happens if two shapes have overlapping names or IDs? System should enforce unique IDs (e.g., 'tech-react', 'tech-nodejs') to avoid collisions with existing shape libraries.
+- How does the architecture type dropdown behave when multi-select is enabled? The dropdown should support selecting multiple architecture types simultaneously (e.g., Tech Stack + AWS + Kubernetes), and the shape library panel should display shapes from all selected types in an organized manner (grouped by type or in a unified list).
 - How does the system handle color contrast for accessibility? All shapes should have sufficient contrast between foreground and background colors (WCAG AA standard minimum).
 
 ## Requirements *(mandatory)*
@@ -89,8 +99,11 @@ Instructors and students viewing diagrams expect shapes to match the official br
 
 - **FR-001**: System MUST provide SVG shape definitions for Next.js, Docker, React, Node.js, MongoDB, MCP agent, and AI technologies
 - **FR-002**: System MUST render each shape using D3.js following the same pattern as kubernetes-d3-shapes.ts (ShapeDefinition interface with id, name, type, width, height, and render function)
-- **FR-003**: System MUST register all tech stack shapes in a centralized shape library registry accessible via `getAvailableArchitectures()` or similar function
-- **FR-004**: System MUST display tech stack shapes in the shape library panel when "Tech Stack" (or appropriate category name) architecture type is selected
+- **FR-003**: System MUST register all tech stack shapes in a centralized shape library registry as a top-level architecture type "Tech Stack" at the same level as AWS, Azure, Kubernetes, and GCP
+- **FR-004**: System MUST display tech stack shapes in the shape library panel when "Tech Stack" architecture type is selected from the dropdown
+- **FR-004a**: System MUST support mixing shapes from multiple architecture types in the same diagram (e.g., Tech Stack + AWS + Kubernetes shapes together)
+- **FR-004b**: Architecture Type dropdown MUST support multi-select functionality, allowing instructors to select multiple architecture types simultaneously (e.g., Tech Stack + AWS + Kubernetes)
+- **FR-004c**: Shape library panel MUST display shapes from all selected architecture types simultaneously when multiple types are selected in the dropdown
 - **FR-005**: Users MUST be able to drag tech stack shapes from the shape library onto the diagram canvas
 - **FR-006**: System MUST render shapes with brand-accurate colors matching official technology logos (React blue #61DAFB, MongoDB green #00684A, Docker blue #2496ED, Node.js green #339933, Next.js black/white)
 - **FR-007**: System MUST support shape resizing while maintaining aspect ratio and SVG path integrity (no pixelation)
@@ -133,7 +146,8 @@ Instructors and students viewing diagrams expect shapes to match the official br
 - **SC-003**: Shape colors match official brand guidelines with 95% accuracy when compared side-by-side with official logos (verified through visual inspection or color picker tools)
 - **SC-004**: Students can identify each technology by its shape without reading labels with 90% accuracy (shapes are immediately recognizable)
 - **SC-005**: Diagrams containing tech stack shapes load and render in under 2 seconds for diagrams with up to 50 shapes
-- **SC-006**: Zero shape collision errors occur when tech stack shapes are used alongside existing AWS, Azure, Kubernetes, and GCP shapes in the same diagram
+- **SC-006**: Zero shape collision errors occur when tech stack shapes are used alongside existing AWS, Azure, Kubernetes, and GCP shapes in the same diagram (multi-architecture-type diagrams are explicitly supported)
+- **SC-006a**: Instructors can successfully select multiple architecture types from the dropdown (e.g., Tech Stack + AWS + Kubernetes) and see all selected types' shapes available in the shape library panel within 2 seconds of selection
 - **SC-007**: Tech stack shapes maintain visual quality (crisp edges, no pixelation) when scaled from 50% to 200% of default size
 - **SC-008**: 95% of instructors successfully create their first tech stack diagram without requiring documentation or support (measured through user testing)
 
@@ -144,7 +158,7 @@ Instructors and students viewing diagrams expect shapes to match the official br
 - The diagrams.net platform uses SVG paths that can be adapted to D3.js rendering patterns
 - The current diagram canvas system supports drag-and-drop, resizing, connecting, and persisting shapes without requiring infrastructure changes
 - Instructors creating labs will need to represent modern web application stacks and will benefit from technology-specific shapes beyond generic rectangles/circles
-- The shape registry system (ARCHITECTURE_LIBRARIES in index.ts) can be extended with a new "TechStack" category without breaking existing functionality
+- The shape registry system (ARCHITECTURE_LIBRARIES in index.ts) can be extended with a new "Tech Stack" top-level architecture type at the same hierarchy level as AWS, Azure, Kubernetes, and GCP without breaking existing functionality
 - Standard web browser SVG rendering is sufficient for all target shapes (no special rendering engine required)
 - Users have basic familiarity with the technologies represented (shapes serve as visual aids, not educational content about the technologies themselves)
 
@@ -180,9 +194,9 @@ Instructors and students viewing diagrams expect shapes to match the official br
 
 - **Shape Library Infrastructure**: Relies on apps/web/utils/shape-libraries/ directory structure and existing shape definition patterns
 - **D3.js Library**: All shapes use D3.js for SVG rendering (current version in package.json)
-- **Shape Registry**: Depends on ARCHITECTURE_LIBRARIES object and getAvailableArchitectures() function in index.ts
+- **Shape Registry**: Depends on ARCHITECTURE_LIBRARIES object and getAvailableArchitectures() function in index.ts; "Tech Stack" will be registered as a new top-level architecture type
 - **Diagram Canvas**: Requires existing canvas drag-and-drop, selection, and manipulation functionality
-- **Architecture Type Dropdown**: Needs dropdown component that populates from getAvailableArchitectures()
+- **Architecture Type Dropdown**: Needs dropdown component with multi-select capability that populates from getAvailableArchitectures() and displays "Tech Stack" alongside AWS, Azure, Kubernetes, GCP; instructors should be able to select multiple types simultaneously
 - **Lab Creation/Edit Pages**: Shape selection appears in lab configuration pages (/lab/create, /labs/[id])
 
 ### External Resources
@@ -198,7 +212,8 @@ Instructors and students viewing diagrams expect shapes to match the official br
 
 ### Integration Points
 
-- **Shape Library Registry** (apps/web/utils/shape-libraries/index.ts): Must add TechStack to ARCHITECTURE_LIBRARIES and update getArchitectureMetadata()
-- **Lab Architecture Type Field**: Database field that stores selected architecture type (e.g., 'AWS', 'Azure', 'TechStack')
+- **Shape Library Registry** (apps/web/utils/shape-libraries/index.ts): Must add "Tech Stack" to ARCHITECTURE_LIBRARIES as a top-level architecture type alongside AWS, Azure, Kubernetes, GCP, and update getArchitectureMetadata()
+- **Architecture Type Dropdown**: Must include "Tech Stack" as a selectable option at the same hierarchy level as existing architecture types (AWS, Azure, Kubernetes, GCP); dropdown must support multi-select to allow instructors to select multiple types simultaneously
+- **Lab Architecture Type Field**: Database field that stores selected architecture types (may need to support multiple values as array or comma-separated string, e.g., ['TechStack', 'AWS', 'Kubernetes'])
 - **Diagram Canvas Renderer**: Component that reads shape definitions and renders them on canvas using D3.js
 - **Shape Library Panel UI**: Panel component that displays available shapes filtered by architecture type

@@ -1,8 +1,22 @@
 # Research: Tech Stack Shape Library
 
 **Feature**: 001-tech-stack-shapes  
-**Date**: 2025-12-16  
+**Date**: 2025-12-18 (Updated)  
 **Phase**: 0 - Outline & Research
+
+## Critical Clarifications (Added 2025-12-18)
+
+### Multi-Select Architecture Type Dropdown
+
+**Key Requirement Update**: The Architecture Type dropdown must support multi-select functionality, allowing instructors to select multiple architecture types simultaneously (e.g., Tech Stack + AWS + Kubernetes).
+
+**Impact**: This changes the original assumption of single architecture type selection and requires:
+1. Updating Lab data model to store array of architecture types
+2. Modifying Architecture Type dropdown component to MultiSelect
+3. Shape library panel must display shapes from all selected types
+4. Backend API must handle array of architecture types
+
+See Tasks 7-9 below for detailed research on these multi-select requirements.
 
 ## Research Tasks
 
@@ -167,6 +181,132 @@ TechStack: {
 
 ---
 
+### Task 7: Multi-Select Architecture Dropdown Implementation (NEW)
+
+**Question**: How should the Architecture Type dropdown be modified to support multi-select while maintaining UX clarity?
+
+**Findings**:
+- Current implementation uses Mantine `<Select>` component (single-select)
+- Mantine provides `<MultiSelect>` component with built-in chip display for selected values
+- Example in LabForm.tsx shows consistent Mantine UI patterns throughout codebase
+- Multi-select allows selecting multiple architecture types simultaneously
+
+**Decision**: Replace `<Select>` with Mantine `<MultiSelect>` component
+
+**Implementation Pattern**:
+```typescript
+// Before (single-select):
+<Select
+  data={getAvailableArchitectures()}
+  value={architectureType}
+  onChange={setArchitectureType}
+/>
+
+// After (multi-select):
+<MultiSelect
+  data={getAvailableArchitectures()}
+  value={architectureTypes}  // string[]
+  onChange={setArchitectureTypes}
+  placeholder="Select architecture types"
+  searchable
+  clearable
+/>
+```
+
+**Rationale**: 
+- Native Mantine component ensures UI consistency
+- Built-in chip display clearly shows all selected architecture types
+- Standard React controlled component pattern
+- Existing pattern in codebase for multi-value inputs
+
+**Alternatives Considered**:
+- Custom multi-select: More work, inconsistent with design system
+- Checkbox list: Takes more vertical space, less compact
+- Multiple single dropdowns: Confusing UX, unclear how many to show
+
+---
+
+### Task 8: Shape Library Panel with Multiple Architecture Types (NEW)
+
+**Question**: When multiple architecture types are selected (e.g., Tech Stack + AWS + Kubernetes), how should shapes be displayed in the shape library panel?
+
+**Findings**:
+- Shape library panel currently calls `getArchitectureShapes(architectureType)` for single type
+- Returns array of shapes that are rendered in a scrollable panel
+- No grouping or categorization currently exists in UI
+
+**Decision**: Concatenate shapes from all selected types with section headers
+
+**Implementation Approach**:
+```typescript
+// Generate grouped shape list
+const shapesWithHeaders = selectedArchitectureTypes.flatMap(archType => {
+  const shapes = getArchitectureShapes(archType);
+  return [
+    { type: 'header', name: getArchitectureMetadata(archType).name },
+    ...shapes.map(shape => ({ type: 'shape', data: shape }))
+  ];
+});
+```
+
+**Rationale**:
+- Maintains flat list structure for easy scrolling
+- Section headers provide visual grouping
+- Simple implementation using flatMap
+- Consistent with current UI patterns
+
+**Alternatives Considered**:
+- Tabs for each architecture type: Forces switching between types, can't see all at once
+- Accordion/collapsible sections: Adds interaction complexity, harder to scan
+- Grouped grid: Complex layout, harder to implement with D3 canvas
+
+---
+
+### Task 9: Data Model for Multiple Architecture Types (NEW)
+
+**Question**: How should the Lab schema store multiple architecture types (currently single string field)?
+
+**Findings**:
+- Current Lab type has `architectureConfig: { type: string }` field
+- MongoDB supports both string and array storage natively
+- Need backward compatibility for existing labs with single architecture type
+
+**Decision**: Change field type to `string | string[]` with migration support
+
+**Migration Strategy**:
+1. Frontend: Accept both `string | string[]`, normalize to array for rendering
+2. Backend: Update Lab schema to allow both types
+3. API: When saving, allow both formats (single string → wrap in array)
+4. No forced migration - existing labs continue working with single type
+
+**Type Definition**:
+```typescript
+interface Lab {
+  // ... other fields
+  architectureConfig?: {
+    type?: string | string[];  // Union type for backward compatibility
+    diagram?: string;
+  };
+  // Alternative: Add new field to avoid confusion
+  architectureTypes?: string[];  // Preferred approach
+}
+```
+
+**Rationale**:
+- Supports both single and multiple architecture types (backward compatible)
+- TypeScript union type provides type safety
+- MongoDB handles arrays efficiently with indexing support
+- Frontend can normalize single → array for consistent processing
+
+**Alternatives Considered**:
+- Always array (break compatibility): Forces migration of existing labs
+- Separate field `architectureTypes: string[]`: Creates dual-field pattern but clearer semantics
+- JSON string: Poor queryability, loses type safety
+
+**Recommended Approach**: Use new `architectureTypes?: string[]` field, deprecate old `architectureConfig.type` field gracefully.
+
+---
+
 ## Summary of Key Decisions
 
 1. **SVG Sources**: Official logos from brand websites, simplified for performance. Tabler icons for abstract concepts.
@@ -175,6 +315,28 @@ TechStack: {
 4. **Colors**: Use exact official brand hex codes. Mantine colors for abstract shapes.
 5. **Accessibility**: Include strokes on all shapes for contrast and definition.
 6. **Docker Container**: Standard shape with resize capability. Visual containment only.
+7. **Multi-Select Dropdown**: Use Mantine MultiSelect component for architecture type selection. *(NEW)*
+8. **Shape Panel Layout**: Flat list with section headers when multiple architecture types selected. *(NEW)*
+9. **Data Model**: Add `architectureTypes: string[]` field to Lab type, maintain backward compatibility. *(NEW)*
+
+## Impact Analysis of Multi-Select Feature
+
+**Components Requiring Changes**:
+- `apps/web/components/Lab/LabForm.tsx` - Replace Select with MultiSelect
+- `apps/web/components/architecture-lab/DiagramEditor.tsx` - Handle array of architecture types
+- `apps/web/components/architecture-lab/ShapePreview.tsx` - Render shapes from multiple types
+- `apps/web/types/lab.ts` - Add `architectureTypes?: string[]` field
+- `apps/web/app/api/lab/[...routes]` - Handle array in API endpoints
+
+**No Changes Needed**:
+- Shape library files (tech-stack-d3-shapes.ts, index.ts) - Architecture-agnostic
+- Backend schema - MongoDB supports arrays natively
+- Canvas rendering - Works with shapes from any architecture type
+
+**Testing Strategy**:
+- Unit tests: Shape rendering (tech-stack-shapes.test.ts)
+- Integration tests: Multi-select dropdown + shape panel interaction
+- E2E tests: Create lab with mixed architecture types (Tech Stack + AWS + Kubernetes)
 
 ## Next Steps (Phase 1)
 
