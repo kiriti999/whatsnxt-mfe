@@ -158,6 +158,9 @@ importers:
       knip:
         specifier: 5.61.0
         version: 5.61.0(@types/node@22.15.31)(typescript@5.8.2)
+      lefthook:
+        specifier: ^2.0.12
+        version: 2.0.12
       lowlight:
         specifier: 3.3.0
         version: 3.3.0
@@ -240,9 +243,6 @@ importers:
       eslint:
         specifier: 9.29.0
         version: 9.29.0(jiti@2.4.2)
-      lefthook:
-        specifier: ^2.0.12
-        version: 2.0.12
       prettier:
         specifier: 3.5.3
         version: 3.5.3
