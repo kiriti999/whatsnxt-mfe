@@ -108,3 +108,228 @@ example: http://<ec2-ip>:8081/
 Intermediary data api's:
 getCourseById
 ```
+
+## Lab Monetization API Endpoints
+
+### Lab Pricing Endpoints
+
+#### Set/Update Lab Pricing
+```http
+PUT /labs/:labId/pricing
+```
+
+**Description**: Set or update pricing configuration for a lab. Instructors can set labs as free or paid.
+
+**Authentication**: Required (Instructor only)
+
+**Request Body**:
+```json
+{
+  "purchaseType": "free" | "paid",
+  "price": 500  // Required if purchaseType is "paid", range: ₹10-₹100,000
+}
+```
+
+**Response** (200 OK):
+```json
+{
+  "success": true,
+  "data": {
+    "labId": "64a1b2c3d4e5f6...",
+    "pricing": {
+      "purchaseType": "paid",
+      "price": 500,
+      "currency": "INR",
+      "updatedAt": "2025-12-18T12:00:00Z"
+    }
+  }
+}
+```
+
+**Validation Rules**:
+- Cannot change paid to free if purchases exist
+- Price must be between ₹10 and ₹100,000
+- Free-to-paid conversion grandfathers existing free accessors
+
+---
+
+#### Get Lab Pricing
+```http
+GET /labs/:labId/pricing
+```
+
+**Description**: Retrieve pricing configuration for a specific lab.
+
+**Authentication**: Optional (public data)
+
+**Response** (200 OK):
+```json
+{
+  "success": true,
+  "data": {
+    "purchaseType": "paid",
+    "price": 500,
+    "currency": "INR"
+  }
+}
+```
+
+---
+
+### Lab Purchase Endpoints
+
+#### Initiate Purchase
+```http
+POST /labs/:labId/purchase/initiate
+```
+
+**Description**: Create Razorpay order for lab purchase. Returns order details to open payment modal.
+
+**Authentication**: Required (Student only)
+
+**Response** (200 OK):
+```json
+{
+  "success": true,
+  "data": {
+    "orderId": "order_xxxxx",
+    "amount": 500,
+    "currency": "INR",
+    "key": "rzp_test_xxxxx",
+    "labTitle": "AWS Architecture Lab"
+  }
+}
+```
+
+**Error** (400 Bad Request):
+```json
+{
+  "success": false,
+  "message": "You have already purchased this lab"
+}
+```
+
+---
+
+#### Verify Purchase
+```http
+POST /labs/:labId/purchase/verify
+```
+
+**Description**: Verify Razorpay payment signature and create purchase record to grant access.
+
+**Authentication**: Required (Student only)
+
+**Request Body**:
+```json
+{
+  "razorpayOrderId": "order_xxxxx",
+  "razorpayPaymentId": "pay_xxxxx",
+  "razorpaySignature": "signature_hash"
+}
+```
+
+**Response** (200 OK):
+```json
+{
+  "success": true,
+  "data": {
+    "purchaseId": "64a1b2c3d4e5f6...",
+    "labId": "64a1b2c3d4e5f6...",
+    "amountPaid": 500,
+    "hasAccess": true
+  }
+}
+```
+
+**Error** (400 Bad Request):
+```json
+{
+  "success": false,
+  "message": "Invalid payment signature"
+}
+```
+
+---
+
+#### Check Lab Access
+```http
+GET /labs/:labId/access
+```
+
+**Description**: Check if student has access to a lab (via purchase, course enrollment, or free access).
+
+**Authentication**: Required (Student only)
+
+**Response** (200 OK):
+```json
+{
+  "success": true,
+  "data": {
+    "hasAccess": true,
+    "reason": "purchased" | "course_enrollment" | "free"
+  }
+}
+```
+
+---
+
+### Payment Webhook
+
+#### Razorpay Webhook Handler
+```http
+POST /webhooks/razorpay
+```
+
+**Description**: Handles payment notifications from Razorpay. Verifies signature and updates transaction status.
+
+**Authentication**: Webhook signature verification
+
+**Request Headers**:
+```
+X-Razorpay-Signature: webhook_signature_hash
+```
+
+**Request Body**: Razorpay event payload (varies by event type)
+
+**Response** (200 OK):
+```json
+{
+  "success": true,
+  "message": "Webhook processed successfully"
+}
+```
+
+**Features**:
+- Idempotent transaction handling
+- Signature verification for security
+- Audit trail creation
+- Handles payment.captured, payment.failed events
+
+---
+
+### Access Control
+
+All lab monetization endpoints enforce:
+- **Authentication**: JWT token required
+- **Authorization**: Role-based access (instructor/student)
+- **Rate Limiting**: Prevents abuse
+- **Caching**: Access checks cached for 5 minutes (Redis)
+
+### Error Codes
+
+| Status Code | Description |
+|-------------|-------------|
+| 400 | Bad Request - Invalid input or validation error |
+| 401 | Unauthorized - Authentication required |
+| 403 | Forbidden - Insufficient permissions |
+| 404 | Not Found - Lab or resource doesn't exist |
+| 409 | Conflict - Already purchased or pricing constraint |
+| 500 | Internal Server Error - Server-side failure |
+
+---
+
+For complete API documentation with interactive testing, see:
+- Swagger UI: http://localhost:4444/api-docs
+- OpenAPI Spec: http://localhost:4444/api-spec/v3
+```

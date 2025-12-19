@@ -1,0 +1,662 @@
+openapi: 3.0.3
+info:
+  title: Lab Monetization API
+  description: API endpoints for lab pricing configuration, purchase flow, and access control
+  version: 1.0.0
+  contact:
+    name: WhatsNxt Platform
+    
+servers:
+  - url: http://localhost:3000/api
+    description: Local BFF (Backend-for-Frontend)
+  - url: https://api.whatsnxt.com/api
+    description: Production BFF
+
+paths:
+  /labs/{labId}/pricing:
+    get:
+      summary: Get lab pricing configuration
+      description: Retrieve pricing information for a specific lab
+      operationId: getLabPricing
+      tags:
+        - Lab Pricing
+      parameters:
+        - name: labId
+          in: path
+          required: true
+          description: Lab identifier
+          schema:
+            type: string
+            pattern: '^[0-9a-fA-F]{24}$'
+            example: '507f1f77bcf86cd799439011'
+      responses:
+        '200':
+          description: Lab pricing retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LabPricingResponse'
+        '404':
+          description: Lab not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    
+    put:
+      summary: Update lab pricing configuration
+      description: Update pricing type and/or price for a lab (instructor only)
+      operationId: updateLabPricing
+      tags:
+        - Lab Pricing
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: labId
+          in: path
+          required: true
+          description: Lab identifier
+          schema:
+            type: string
+            pattern: '^[0-9a-fA-F]{24}$'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateLabPricingRequest'
+      responses:
+        '200':
+          description: Pricing updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LabPricingResponse'
+        '400':
+          description: Validation error (invalid price, paid-to-free with purchases)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+        '401':
+          description: Unauthorized (not authenticated)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden (not lab instructor)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Lab not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  
+  /labs/{labId}/purchase/initiate:
+    post:
+      summary: Initiate lab purchase
+      description: Create Razorpay order for lab purchase (student only)
+      operationId: initiatePurchase
+      tags:
+        - Lab Purchase
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: labId
+          in: path
+          required: true
+          description: Lab identifier to purchase
+          schema:
+            type: string
+            pattern: '^[0-9a-fA-F]{24}$'
+      responses:
+        '200':
+          description: Purchase initiated, Razorpay order created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InitiatePurchaseResponse'
+        '400':
+          description: Bad request (lab is free, already purchased, or invalid state)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized (not authenticated)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Lab not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  
+  /labs/{labId}/purchase/verify:
+    post:
+      summary: Verify lab purchase
+      description: Verify Razorpay payment signature and complete purchase
+      operationId: verifyPurchase
+      tags:
+        - Lab Purchase
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: labId
+          in: path
+          required: true
+          description: Lab identifier
+          schema:
+            type: string
+            pattern: '^[0-9a-fA-F]{24}$'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VerifyPurchaseRequest'
+      responses:
+        '200':
+          description: Purchase verified and access granted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VerifyPurchaseResponse'
+        '400':
+          description: Invalid signature or payment details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized (not authenticated)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Lab not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  
+  /labs/{labId}/access:
+    get:
+      summary: Check lab access
+      description: Determine if current student can access the lab
+      operationId: checkLabAccess
+      tags:
+        - Lab Access
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: labId
+          in: path
+          required: true
+          description: Lab identifier
+          schema:
+            type: string
+            pattern: '^[0-9a-fA-F]{24}$'
+      responses:
+        '200':
+          description: Access status retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LabAccessResponse'
+        '401':
+          description: Unauthorized (not authenticated)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Lab not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  
+  /students/me/purchases:
+    get:
+      summary: Get student's purchase history
+      description: Retrieve all lab purchases for the authenticated student
+      operationId: getStudentPurchases
+      tags:
+        - Lab Purchase
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          description: Page number (1-indexed)
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          description: Results per page
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        '200':
+          description: Purchase history retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PurchaseHistoryResponse'
+        '401':
+          description: Unauthorized (not authenticated)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  
+  /webhooks/razorpay:
+    post:
+      summary: Razorpay webhook callback
+      description: Webhook endpoint for Razorpay payment events
+      operationId: razorpayWebhook
+      tags:
+        - Webhooks
+      security:
+        - webhookSignature: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RazorpayWebhookPayload'
+      responses:
+        '200':
+          description: Webhook processed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+        '400':
+          description: Invalid webhook signature or payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    webhookSignature:
+      type: apiKey
+      in: header
+      name: X-Razorpay-Signature
+  
+  schemas:
+    LabPricingResponse:
+      type: object
+      required:
+        - labId
+        - purchaseType
+        - currency
+      properties:
+        labId:
+          type: string
+          format: objectId
+          example: '507f1f77bcf86cd799439011'
+        purchaseType:
+          type: string
+          enum: [free, paid]
+          example: paid
+        price:
+          type: number
+          minimum: 10
+          maximum: 100000
+          example: 500
+          description: Required if purchaseType is 'paid'
+        currency:
+          type: string
+          enum: [INR]
+          example: INR
+        updatedAt:
+          type: string
+          format: date-time
+          example: '2025-12-18T10:30:00.000Z'
+    
+    UpdateLabPricingRequest:
+      type: object
+      required:
+        - purchaseType
+      properties:
+        purchaseType:
+          type: string
+          enum: [free, paid]
+          example: paid
+        price:
+          type: number
+          minimum: 10
+          maximum: 100000
+          example: 750
+          description: Required if purchaseType is 'paid', must be omitted if 'free'
+    
+    InitiatePurchaseResponse:
+      type: object
+      required:
+        - orderId
+        - amount
+        - currency
+        - labId
+      properties:
+        orderId:
+          type: string
+          example: 'order_MN4t8xJ7qKzPqM'
+          description: Razorpay order ID to use in payment modal
+        amount:
+          type: number
+          example: 500
+          description: Amount in rupees
+        currency:
+          type: string
+          enum: [INR]
+          example: INR
+        labId:
+          type: string
+          format: objectId
+          example: '507f1f77bcf86cd799439011'
+        labTitle:
+          type: string
+          example: 'AWS Network Architecture Lab'
+    
+    VerifyPurchaseRequest:
+      type: object
+      required:
+        - razorpayOrderId
+        - razorpayPaymentId
+        - razorpaySignature
+      properties:
+        razorpayOrderId:
+          type: string
+          example: 'order_MN4t8xJ7qKzPqM'
+        razorpayPaymentId:
+          type: string
+          example: 'pay_MN4t8xJ7qKzPqN'
+        razorpaySignature:
+          type: string
+          example: '9ef4dffbfd84f1318f6739a3ce19f9d85851857ae648f114332d8401e0949a3d'
+    
+    VerifyPurchaseResponse:
+      type: object
+      required:
+        - success
+        - purchaseId
+        - labId
+      properties:
+        success:
+          type: boolean
+          example: true
+        purchaseId:
+          type: string
+          format: objectId
+          example: '507f1f77bcf86cd799439012'
+        labId:
+          type: string
+          format: objectId
+          example: '507f1f77bcf86cd799439011'
+        message:
+          type: string
+          example: 'Purchase completed successfully. You now have access to this lab.'
+    
+    LabAccessResponse:
+      type: object
+      required:
+        - labId
+        - hasAccess
+        - accessReason
+      properties:
+        labId:
+          type: string
+          format: objectId
+          example: '507f1f77bcf86cd799439011'
+        hasAccess:
+          type: boolean
+          example: true
+        accessReason:
+          type: string
+          enum: [free_lab, purchased, course_enrollment, no_access]
+          example: purchased
+        purchaseDate:
+          type: string
+          format: date-time
+          example: '2025-12-15T14:20:00.000Z'
+          description: Present if accessReason is 'purchased'
+        courseName:
+          type: string
+          example: 'Cloud Architecture Masterclass'
+          description: Present if accessReason is 'course_enrollment'
+    
+    PurchaseHistoryResponse:
+      type: object
+      required:
+        - purchases
+        - pagination
+      properties:
+        purchases:
+          type: array
+          items:
+            $ref: '#/components/schemas/PurchaseRecord'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+    
+    PurchaseRecord:
+      type: object
+      required:
+        - purchaseId
+        - labId
+        - labTitle
+        - amountPaid
+        - currency
+        - purchaseDate
+        - status
+      properties:
+        purchaseId:
+          type: string
+          format: objectId
+          example: '507f1f77bcf86cd799439012'
+        labId:
+          type: string
+          format: objectId
+          example: '507f1f77bcf86cd799439011'
+        labTitle:
+          type: string
+          example: 'AWS Network Architecture Lab'
+        amountPaid:
+          type: number
+          example: 500
+        currency:
+          type: string
+          enum: [INR]
+          example: INR
+        purchaseDate:
+          type: string
+          format: date-time
+          example: '2025-12-15T14:20:00.000Z'
+        status:
+          type: string
+          enum: [completed, refunded]
+          example: completed
+        transactionId:
+          type: string
+          example: 'pay_MN4t8xJ7qKzPqN'
+    
+    Pagination:
+      type: object
+      required:
+        - page
+        - limit
+        - total
+        - totalPages
+      properties:
+        page:
+          type: integer
+          example: 1
+        limit:
+          type: integer
+          example: 20
+        total:
+          type: integer
+          example: 45
+        totalPages:
+          type: integer
+          example: 3
+    
+    RazorpayWebhookPayload:
+      type: object
+      required:
+        - event
+        - payload
+      properties:
+        event:
+          type: string
+          example: 'payment.captured'
+          enum:
+            - payment.captured
+            - payment.failed
+            - payment.authorized
+        payload:
+          type: object
+          properties:
+            payment:
+              type: object
+              properties:
+                entity:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                      example: 'pay_MN4t8xJ7qKzPqN'
+                    order_id:
+                      type: string
+                      example: 'order_MN4t8xJ7qKzPqM'
+                    amount:
+                      type: integer
+                      example: 50000
+                      description: Amount in paise (divide by 100 for rupees)
+                    currency:
+                      type: string
+                      example: INR
+                    status:
+                      type: string
+                      example: captured
+    
+    Error:
+      type: object
+      required:
+        - error
+        - message
+      properties:
+        error:
+          type: string
+          example: 'LAB_NOT_FOUND'
+        message:
+          type: string
+          example: 'The requested lab does not exist'
+        details:
+          type: object
+          description: Additional error details (optional)
+    
+    ValidationError:
+      type: object
+      required:
+        - error
+        - message
+        - validationErrors
+      properties:
+        error:
+          type: string
+          example: 'VALIDATION_ERROR'
+        message:
+          type: string
+          example: 'Request validation failed'
+        validationErrors:
+          type: array
+          items:
+            type: object
+            required:
+              - field
+              - message
+            properties:
+              field:
+                type: string
+                example: 'price'
+              message:
+                type: string
+                example: 'Price must be between ₹10 and ₹100,000'
+
+tags:
+  - name: Lab Pricing
+    description: Instructor endpoints for managing lab pricing
+  - name: Lab Purchase
+    description: Student endpoints for purchasing labs
+  - name: Lab Access
+    description: Access control endpoints
+  - name: Webhooks
+    description: External webhook callbacks

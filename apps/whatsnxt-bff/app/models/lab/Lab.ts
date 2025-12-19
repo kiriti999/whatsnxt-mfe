@@ -23,6 +23,13 @@ export interface ILab extends Document {
   labType: string;
   architectureType: string;
   instructorId: string; // UUID
+  pricing?: {
+    purchaseType?: "free" | "paid";
+    price?: number;
+    currency?: string;
+    updatedAt?: Date;
+    updatedBy?: any;
+  };
   createdAt: Date;
   updatedAt: Date;
 }
@@ -66,6 +73,41 @@ const LabSchema = new Schema<ILab>(
     instructorId: {
       type: String,
       required: [true, "Instructor ID is required"],
+    },
+    // Lab Monetization: Pricing configuration
+    pricing: {
+      purchaseType: {
+        type: String,
+        enum: ["free", "paid"],
+        required: false, // Optional for backward compatibility with existing labs
+      },
+      price: {
+        type: Number,
+        min: 10,
+        max: 100000,
+        validate: {
+          validator: function(this: any, value: number) {
+            // Price required if purchaseType is 'paid'
+            if (this.pricing?.purchaseType === "paid") {
+              return value !== undefined && value >= 10 && value <= 100000;
+            }
+            return true;
+          },
+          message: "Price must be between ₹10 and ₹100,000 for paid labs",
+        },
+      },
+      currency: {
+        type: String,
+        default: "INR",
+        enum: ["INR"],
+      },
+      updatedAt: {
+        type: Date,
+      },
+      updatedBy: {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+      },
     },
   },
   {

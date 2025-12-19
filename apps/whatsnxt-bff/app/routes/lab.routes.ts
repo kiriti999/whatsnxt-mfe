@@ -7,6 +7,8 @@ import {
 } from "@whatsnxt/errors";
 import { SUCCESS_MESSAGES, HTTP_STATUS } from "@whatsnxt/constants";
 import { getLogger } from "../../config/logger";
+import accessControlService from "../services/accessControlService";
+import auth from '../common/middlewares/auth-middleware';
 
 const router = Router();
 const logger = getLogger("LabRoutes");
@@ -30,7 +32,7 @@ const logger = getLogger("LabRoutes");
  */
 router.post("/", async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { name, description, labType, architectureType, instructorId } =
+    const { name, description, labType, architectureType, instructorId, pricing } =
       req.body;
 
     const lab = await LabService.createLab({
@@ -39,9 +41,10 @@ router.post("/", async (req: Request, res: Response, next: NextFunction) => {
       labType,
       architectureType,
       instructorId,
+      pricing,
     });
 
-    logger.info(`Lab created: ${lab.id}`);
+    logger.info(`Lab created: ${lab.id} with pricing: ${pricing?.purchaseType || 'not set'}`);
     res.status(HTTP_STATUS.CREATED).json({
       message: SUCCESS_MESSAGES.LAB_CREATED,
       data: lab,
@@ -90,14 +93,53 @@ router.get("/", async (req: Request, res: Response, next: NextFunction) => {
 /**
  * GET /api/v1/labs/:labId
  * Get a specific lab by ID with all pages populated
+ * For students viewing published paid labs, access control is enforced
  */
 router.get(
-  "/:labId",
+  "/:labId", auth,
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { labId } = req.params;
+      // extractUser middleware sets req.userId and req.userRole (not req.user)
+      const userId = (req as any).userId;
+      const userRole = (req as any).userRole;
 
       const lab = await LabService.getLabWithPages(labId);
+      
+      logger.info(`Lab access check: labId=${labId}, userRole=${userRole}, labStatus=${lab.status}, userId=${userId}, pricing=${JSON.stringify(lab.pricing)}`);
+
+      // If it's a published lab and user is a student, check access
+      if (lab.status === 'published' && userRole === 'student') {
+        if (!userId) {
+          logger.warn(`Student userId not found in request, denying access`);
+          const sanitizedLab = {
+            ...lab,
+            pages: [],
+          };
+          return res.status(HTTP_STATUS.OK).json({ 
+            data: sanitizedLab,
+            requiresAccess: true,
+            accessReason: 'user_id_missing',
+          });
+        }
+
+        const accessResult = await accessControlService.canAccessLab(userId.toString(), labId);
+        
+        logger.info(`Access check result: hasAccess=${accessResult.hasAccess}, reason=${accessResult.reason}`);
+        
+        if (!accessResult.hasAccess) {
+          // Return lab details but hide pages and sensitive content
+          const sanitizedLab = {
+            ...lab,
+            pages: [], // Hide pages
+          };
+          return res.status(HTTP_STATUS.OK).json({ 
+            data: sanitizedLab,
+            requiresAccess: true,
+            accessReason: accessResult.reason,
+          });
+        }
+      }
 
       res.status(HTTP_STATUS.OK).json({ data: lab });
     } catch (error) {

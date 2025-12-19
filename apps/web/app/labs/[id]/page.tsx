@@ -22,10 +22,12 @@ import {
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
-import { IconTrash, IconSearch, IconX } from '@tabler/icons-react';
+import { IconSearch, IconX } from '@tabler/icons-react';
 import { Lab, LabPage } from '@whatsnxt/core-types';
 import labApi from '@/apis/lab.api';
 import { getAvailableArchitectures } from '@/utils/shape-libraries';
+import { LabAccessButton } from '@/components/Lab/LabAccessButton';
+import useAuth from '@/hooks/Authentication/useAuth';
 
 const LAB_TYPES = [
   'Cloud Computing',
@@ -45,6 +47,7 @@ const LabDetailPage = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const labId = params.id as string;
+  const { user, isAuthenticated } = useAuth();
 
   // Get URL params for tab and page
   const urlTab = searchParams.get('tab');
@@ -57,6 +60,11 @@ const LabDetailPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [activeTab, setActiveTab] = useState<string | null>('details');
   const [searchQuery, setSearchQuery] = useState('');
+  const [requiresAccess, setRequiresAccess] = useState(false);
+
+  // Derived values (must come after state declarations)
+  const isTrainer = isAuthenticated && user?.role === 'trainer';
+  const isOwner = isTrainer && lab?.instructorId === user?._id;
 
   const PAGES_PER_PAGE = 3;
 
@@ -95,6 +103,23 @@ const LabDetailPage = () => {
       const response = await labApi.getLabById(labId);
       const labData = response.data;
       setLab(labData);
+      
+      // Check if access is required (returned from backend)
+      const accessRequired = (response as any).requiresAccess || false;
+      setRequiresAccess(accessRequired);
+      
+      // Debug logging
+      console.log('[Lab Access Debug]', {
+        labId,
+        labStatus: labData.status,
+        requiresAccess: accessRequired,
+        userRole: user?.role,
+        isAuthenticated,
+        pricing: labData.pricing,
+        pagesCount: labData.pages?.length || 0,
+      });
+      
+      // Set pages - backend already filtered them if access is required
       setPages(labData.pages || []);
 
       // Populate form with lab data
@@ -252,8 +277,26 @@ const LabDetailPage = () => {
     );
   }
 
+  // Derived values after lab is loaded
   const isPublished = lab.status === 'published';
   const canEdit = lab.status === 'draft';
+  const isStudent = isAuthenticated && user?.role === 'student';
+  // Show purchase button when: published + student + requires access
+  const canViewAccess = isPublished && isStudent && requiresAccess;
+  // Can view tests when: owner OR (student AND has access = not requiring access)
+  const canViewTests = isOwner || (isStudent && !requiresAccess);
+
+  // Debug logging for access control
+  console.log('[Access Control Debug]', {
+    isPublished,
+    isStudent,
+    isOwner,
+    isTrainer,
+    requiresAccess,
+    canViewAccess,
+    canViewTests,
+    userRole: user?.role,
+  });
 
   // Search and filter pages based on questions
   const filteredPages = pages.filter(page => {
@@ -314,6 +357,36 @@ const LabDetailPage = () => {
           )}
         </Group>
       </Group>
+
+      {/* Access/Purchase Section for Students */}
+      {canViewAccess && (
+        <Paper shadow="sm" p="xl" withBorder mb="xl" bg="blue.0">
+          <Stack align="center" gap="md">
+            <Title order={3}>Access This Lab</Title>
+            <LabAccessButton
+              labId={labId}
+              labTitle={lab.name}
+              pricing={lab.pricing}
+              onAccessGranted={() => {
+                // Refresh lab data first to get updated access status
+                fetchLabData();
+                
+                // Navigate to first page if lab has pages
+                if (pages.length > 0) {
+                  const firstPage = pages[0];
+                  router.push(`/labs/${labId}/pages/${firstPage.id}`);
+                } else {
+                  notifications.show({
+                    title: 'Lab Has No Content',
+                    message: 'This lab does not have any pages yet. Please contact the instructor.',
+                    color: 'yellow',
+                  });
+                }
+              }}
+            />
+          </Stack>
+        </Paper>
+      )}
 
       <Tabs value={activeTab} onChange={setActiveTab}>
         <Tabs.List>
@@ -390,6 +463,24 @@ const LabDetailPage = () => {
         </Tabs.Panel>
 
         <Tabs.Panel value="tests" pt="md">
+          {!canViewTests && isPublished && isStudent && requiresAccess ? (
+            <Paper shadow="sm" p="xl" withBorder bg="yellow.0">
+              <Stack align="center" gap="md">
+                <Text size="xl" fw={600}>🔒 Access Required</Text>
+                <Text c="dimmed" ta="center" size="lg">
+                  You need to purchase this lab or enroll in a course to view tests and questions.
+                </Text>
+                <LabAccessButton
+                  labId={labId}
+                  labTitle={lab.name}
+                  pricing={lab.pricing}
+                  onAccessGranted={() => {
+                    fetchLabData();
+                  }}
+                />
+              </Stack>
+            </Paper>
+          ) : (
           <Stack>
             {canEdit && (
               <Group justify="space-between" mb="md">
@@ -576,6 +667,7 @@ const LabDetailPage = () => {
               </Paper>
             )}
           </Stack>
+          )}
         </Tabs.Panel>
       </Tabs>
     </Container>

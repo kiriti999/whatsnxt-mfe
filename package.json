@@ -22,22 +22,25 @@
     "start": "turbo run start",
     "start:web": "cd apps/web && next start -p 3001",
     "lint": "turbo run lint",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "lint:fix": "turbo run lint:fix",
     "check-types": "turbo run check-types",
     "find-deadcode": "ts-prune | grep -v -e 'export' -e 'used in module'",
     "knip": "knip",
     "deploy": "vercel --prod -l",
     "analyze": "cd apps/web && ANALYZE=true next build",
-    "partytown": "npx partytown copylib apps/web/public/~partytown"
+    "partytown": "npx partytown copylib apps/web/public/~partytown",
+    "postinstall": "lefthook install"
   },
   "devDependencies": {
     "@types/node": "22.15.31",
     "@types/react": "19.1.0",
     "@types/react-dom": "19.1.1",
     "eslint": "9.29.0",
+    "lefthook": "^2.0.12",
     "prettier": "3.5.3",
     "turbo": "2.5.4",
-    "typescript": "5.8.2"
+    "typescript": "5.8.2",
+    "@whatsnxt/eslint-config": "workspace:*"
   },
   "packageManager": "pnpm@9.0.0",
   "engines": {

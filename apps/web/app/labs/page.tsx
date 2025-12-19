@@ -33,7 +33,7 @@ const LabsPage = () => {
   const isStudent = isAuthenticated && user?.role !== 'trainer';
   const studentId = user?._id || '';
   const instructorId = user?._id || '';
-  const pageSize = 3;
+  const pageSize = 6;
 
   const fetchPublishedLabs = async (page: number) => {
     try {
@@ -171,14 +171,14 @@ const LabsPage = () => {
                       </Stack>
                     )}
                   </Box>
-                  <ActionIcon
-                    variant="subtle"
-                    color="blue"
+                  <Button
+                    variant="filled"
+                    color="orange"
+                    size="sm"
                     onClick={() => router.push(`/labs/${lab.id}`)}
-                    title="View Lab"
                   >
-                    <IconEye size={18} />
-                  </ActionIcon>
+                    Access Now
+                  </Button>
                 </Group>
               </Paper>
             ))}

@@ -1,0 +1,717 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Lab Monetization API",
+    "description": "API endpoints for lab pricing management and purchase operations",
+    "version": "1.0.0",
+    "contact": {
+      "name": "WhatsNxt Platform Team"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://api.whatsnxt.in",
+      "description": "Production server"
+    },
+    {
+      "url": "http://localhost:4444",
+      "description": "Development server"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Lab Pricing",
+      "description": "Instructor operations for managing lab pricing"
+    },
+    {
+      "name": "Lab Purchase",
+      "description": "Student operations for purchasing labs"
+    },
+    {
+      "name": "Access Control",
+      "description": "Operations for checking lab access"
+    }
+  ],
+  "paths": {
+    "/api/labs/{labId}/pricing": {
+      "put": {
+        "tags": ["Lab Pricing"],
+        "summary": "Set or update lab pricing",
+        "description": "Allows instructors to set pricing configuration (free or paid) for their labs. Includes validation for paid-to-free conversions and automatic grandfathering for free-to-paid.",
+        "operationId": "setLabPricing",
+        "security": [{"bearerAuth": []}],
+        "parameters": [
+          {
+            "name": "labId",
+            "in": "path",
+            "required": true,
+            "schema": {"type": "string", "format": "uuid"},
+            "description": "Lab identifier (UUID)"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["purchaseType"],
+                "properties": {
+                  "purchaseType": {
+                    "type": "string",
+                    "enum": ["free", "paid"],
+                    "description": "Access model for the lab"
+                  },
+                  "price": {
+                    "type": "number",
+                    "minimum": 10,
+                    "maximum": 100000,
+                    "description": "Price in INR (required if purchaseType is 'paid')"
+                  }
+                }
+              },
+              "examples": {
+                "free-lab": {
+                  "summary": "Set lab as free",
+                  "value": {
+                    "purchaseType": "free"
+                  }
+                },
+                "paid-lab": {
+                  "summary": "Set lab as paid",
+                  "value": {
+                    "purchaseType": "paid",
+                    "price": 999
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Pricing updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Lab"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid pricing configuration",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "missing-price": {
+                    "summary": "Price missing for paid lab",
+                    "value": {
+                      "message": "Price must be between ₹10 and ₹100,000 for paid labs",
+                      "code": "INVALID_PRICING",
+                      "statusCode": 400
+                    }
+                  },
+                  "paid-to-free-blocked": {
+                    "summary": "Cannot convert paid to free",
+                    "value": {
+                      "message": "Cannot change paid lab to free - students have already purchased this lab",
+                      "code": "INVALID_PRICING_CHANGE",
+                      "statusCode": 400
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - not the lab owner",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lab not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": ["Lab Pricing"],
+        "summary": "Get lab pricing information",
+        "description": "Retrieves pricing configuration for a specific lab",
+        "operationId": "getLabPricing",
+        "parameters": [
+          {
+            "name": "labId",
+            "in": "path",
+            "required": true,
+            "schema": {"type": "string", "format": "uuid"},
+            "description": "Lab identifier (UUID)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Pricing information retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "labId": {"type": "string", "format": "uuid"},
+                    "title": {"type": "string"},
+                    "pricing": {
+                      "$ref": "#/components/schemas/Pricing"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lab not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/labs/{labId}/purchase/initiate": {
+      "post": {
+        "tags": ["Lab Purchase"],
+        "summary": "Initiate lab purchase",
+        "description": "Creates a Razorpay order for purchasing a paid lab. Returns order details for client-side Razorpay checkout.",
+        "operationId": "initiatePurchase",
+        "security": [{"bearerAuth": []}],
+        "parameters": [
+          {
+            "name": "labId",
+            "in": "path",
+            "required": true,
+            "schema": {"type": "string", "format": "uuid"},
+            "description": "Lab identifier (UUID)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Purchase initiated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "orderId": {
+                      "type": "string",
+                      "description": "Razorpay order ID"
+                    },
+                    "amount": {
+                      "type": "number",
+                      "description": "Amount in INR"
+                    },
+                    "currency": {
+                      "type": "string",
+                      "example": "INR"
+                    },
+                    "key": {
+                      "type": "string",
+                      "description": "Razorpay API key for frontend"
+                    },
+                    "labTitle": {
+                      "type": "string",
+                      "description": "Lab title for display"
+                    }
+                  }
+                },
+                "example": {
+                  "orderId": "order_Nj2xF8sHdPR4aB",
+                  "amount": 999,
+                  "currency": "INR",
+                  "key": "rzp_live_xxxxxxxxxxx",
+                  "labTitle": "Kubernetes Networking Deep Dive"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid purchase request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "not-for-sale": {
+                    "summary": "Lab not available for purchase",
+                    "value": {
+                      "message": "This lab is not available for purchase",
+                      "code": "LAB_NOT_FOR_SALE",
+                      "statusCode": 400
+                    }
+                  },
+                  "already-purchased": {
+                    "summary": "Already purchased",
+                    "value": {
+                      "message": "You have already purchased this lab",
+                      "code": "ALREADY_PURCHASED",
+                      "statusCode": 400
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lab not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/labs/{labId}/purchase/verify": {
+      "post": {
+        "tags": ["Lab Purchase"],
+        "summary": "Verify payment and complete purchase",
+        "description": "Verifies Razorpay payment signature and creates purchase record. Called after successful payment in Razorpay checkout modal.",
+        "operationId": "verifyPurchase",
+        "security": [{"bearerAuth": []}],
+        "parameters": [
+          {
+            "name": "labId",
+            "in": "path",
+            "required": true,
+            "schema": {"type": "string", "format": "uuid"},
+            "description": "Lab identifier (UUID)"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["razorpayOrderId", "razorpayPaymentId", "razorpaySignature"],
+                "properties": {
+                  "razorpayOrderId": {
+                    "type": "string",
+                    "description": "Razorpay order ID from initiate response"
+                  },
+                  "razorpayPaymentId": {
+                    "type": "string",
+                    "description": "Payment ID from Razorpay checkout"
+                  },
+                  "razorpaySignature": {
+                    "type": "string",
+                    "description": "Payment signature from Razorpay"
+                  }
+                }
+              },
+              "example": {
+                "razorpayOrderId": "order_Nj2xF8sHdPR4aB",
+                "razorpayPaymentId": "pay_Nj2xK9mRbPV8nQ",
+                "razorpaySignature": "a7b8c9d0e1f2g3h4i5j6k7l8m9n0o1p2"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Purchase completed successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {"type": "boolean", "example": true},
+                    "message": {"type": "string", "example": "Purchase completed successfully"},
+                    "purchase": {
+                      "$ref": "#/components/schemas/LabPurchase"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Payment verification failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "invalid-signature": {
+                    "summary": "Invalid payment signature",
+                    "value": {
+                      "message": "Payment verification failed",
+                      "code": "INVALID_PAYMENT_SIGNATURE",
+                      "statusCode": 400
+                    }
+                  },
+                  "payment-not-captured": {
+                    "summary": "Payment not completed",
+                    "value": {
+                      "message": "Payment was not completed successfully",
+                      "code": "PAYMENT_NOT_CAPTURED",
+                      "statusCode": 400
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/labs/{labId}/access": {
+      "get": {
+        "tags": ["Access Control"],
+        "summary": "Check lab access",
+        "description": "Determines if the authenticated student has access to the lab (via free, purchase, or course enrollment)",
+        "operationId": "checkLabAccess",
+        "security": [{"bearerAuth": []}],
+        "parameters": [
+          {
+            "name": "labId",
+            "in": "path",
+            "required": true,
+            "schema": {"type": "string", "format": "uuid"},
+            "description": "Lab identifier (UUID)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Access check completed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "hasAccess": {
+                      "type": "boolean",
+                      "description": "Whether student can access the lab"
+                    },
+                    "reason": {
+                      "type": "string",
+                      "enum": ["free", "purchased", "course-enrolled", "not-purchased"],
+                      "description": "Reason for access decision"
+                    },
+                    "pricing": {
+                      "$ref": "#/components/schemas/Pricing",
+                      "description": "Lab pricing (if lab is paid and not accessed)"
+                    }
+                  }
+                },
+                "examples": {
+                  "free-access": {
+                    "summary": "Free lab",
+                    "value": {
+                      "hasAccess": true,
+                      "reason": "free"
+                    }
+                  },
+                  "purchased": {
+                    "summary": "Purchased lab",
+                    "value": {
+                      "hasAccess": true,
+                      "reason": "purchased"
+                    }
+                  },
+                  "course-enrolled": {
+                    "summary": "Access via course",
+                    "value": {
+                      "hasAccess": true,
+                      "reason": "course-enrolled"
+                    }
+                  },
+                  "no-access": {
+                    "summary": "Paid lab, not purchased",
+                    "value": {
+                      "hasAccess": false,
+                      "reason": "not-purchased",
+                      "pricing": {
+                        "purchaseType": "paid",
+                        "price": 999,
+                        "currency": "INR"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lab not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/students/purchases": {
+      "get": {
+        "tags": ["Lab Purchase"],
+        "summary": "Get student purchase history",
+        "description": "Retrieves all lab purchases for the authenticated student",
+        "operationId": "getStudentPurchases",
+        "security": [{"bearerAuth": []}],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {"type": "integer", "minimum": 1, "default": 1},
+            "description": "Page number"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {"type": "integer", "minimum": 1, "maximum": 100, "default": 20},
+            "description": "Items per page"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Purchase history retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "purchases": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/LabPurchase"
+                      }
+                    },
+                    "pagination": {
+                      "type": "object",
+                      "properties": {
+                        "total": {"type": "integer"},
+                        "page": {"type": "integer"},
+                        "limit": {"type": "integer"},
+                        "pages": {"type": "integer"}
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "JWT authentication token obtained via login"
+      }
+    },
+    "schemas": {
+      "Pricing": {
+        "type": "object",
+        "properties": {
+          "purchaseType": {
+            "type": "string",
+            "enum": ["free", "paid"],
+            "description": "Access model"
+          },
+          "price": {
+            "type": "number",
+            "minimum": 10,
+            "maximum": 100000,
+            "description": "Price in INR (only for paid labs)"
+          },
+          "currency": {
+            "type": "string",
+            "example": "INR",
+            "description": "Currency code"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Last pricing update timestamp"
+          },
+          "updatedBy": {
+            "type": "string",
+            "description": "User ID who updated pricing"
+          }
+        }
+      },
+      "Lab": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Lab identifier"
+          },
+          "title": {
+            "type": "string",
+            "description": "Lab title"
+          },
+          "pricing": {
+            "$ref": "#/components/schemas/Pricing"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "LabPurchase": {
+        "type": "object",
+        "properties": {
+          "studentId": {
+            "type": "string",
+            "description": "Student user ID"
+          },
+          "labId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Lab identifier"
+          },
+          "purchaseDate": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Purchase completion timestamp"
+          },
+          "transactionId": {
+            "type": "string",
+            "description": "Razorpay payment ID"
+          },
+          "amountPaid": {
+            "type": "number",
+            "description": "Amount paid in INR"
+          },
+          "currency": {
+            "type": "string",
+            "example": "INR"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["completed", "refunded"]
+          },
+          "metadata": {
+            "type": "object",
+            "properties": {
+              "razorpayOrderId": {"type": "string"},
+              "razorpayPaymentId": {"type": "string"},
+              "reason": {
+                "type": "string",
+                "enum": ["purchase", "free_to_paid_conversion"]
+              }
+            }
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "required": ["message", "statusCode"],
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "Human-readable error message"
+          },
+          "code": {
+            "type": "string",
+            "description": "Machine-readable error code"
+          },
+          "statusCode": {
+            "type": "integer",
+            "description": "HTTP status code"
+          },
+          "context": {
+            "type": "object",
+            "description": "Additional error context"
+          }
+        }
+      }
+    }
+  }
+}

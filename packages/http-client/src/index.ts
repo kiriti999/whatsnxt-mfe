@@ -9,6 +9,7 @@ export class HttpClient {
             headers: {
                 'Content-Type': 'application/json',
             },
+            withCredentials: true, // Send cookies for authentication
         });
 
         // Add response interceptor for universal error handling if needed

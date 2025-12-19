@@ -25,11 +25,16 @@ import { Lab } from '../../types/lab';
 import { useRouter } from 'next/navigation';
 import DiagramEditor from '../architecture-lab/DiagramEditor';
 import { getAvailableArchitectures, getArchitectureMetadata } from '../../utils/shape-libraries';
+import { LabPricingForm } from './LabPricingForm';
 
 export const LabForm = ({ initialData }: { initialData?: Lab }) => {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [architectureDropdownOpened, setArchitectureDropdownOpened] = useState(false);
+  const [pricing, setPricing] = useState<{ purchaseType: 'free' | 'paid'; price?: number }>({
+    purchaseType: initialData?.pricing?.purchaseType || 'free',
+    price: initialData?.pricing?.price
+  });
 
   const { control, register, handleSubmit, watch, setValue, formState: { errors } } = useForm<Lab>({
     defaultValues: initialData ? {
@@ -117,6 +122,17 @@ export const LabForm = ({ initialData }: { initialData?: Lab }) => {
   const onSubmit = async (data: Lab, status: 'DRAFT' | 'PUBLISHED') => {
     setIsSubmitting(true);
     try {
+      // Validate pricing for paid labs
+      if (pricing.purchaseType === 'paid' && (!pricing.price || pricing.price < 10 || pricing.price > 100000)) {
+        notifications.show({
+          title: 'Invalid Pricing',
+          message: 'Please set a valid price between ₹10 and ₹100,000 for paid labs',
+          color: 'red',
+        });
+        setIsSubmitting(false);
+        return;
+      }
+
       // Transform data to match backend schema
       // 1. Remove frontend-only 'id' from questions
       // 2. Map 'text' to 'question' as expected by backend
@@ -127,6 +143,7 @@ export const LabForm = ({ initialData }: { initialData?: Lab }) => {
           question: text,
           options: options ? options.filter(o => o.trim() !== '') : [],
         })),
+        pricing,
         status,
       };
 
@@ -447,6 +464,14 @@ export const LabForm = ({ initialData }: { initialData?: Lab }) => {
                 />
               </Paper>
             )}
+
+            <Divider my="sm" label="Lab Pricing" labelPosition="center" />
+
+            <LabPricingForm
+              initialPricing={pricing}
+              onChange={setPricing}
+              disabled={isSubmitting}
+            />
 
             <Divider my="sm" label="Questions" labelPosition="center" />
 
