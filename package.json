@@ -19,7 +19,7 @@
     "build": "turbo run build",
     "dev": "turbo run dev",
     "dev:turbo": "cd apps/web && next dev --turbo -p 3001",
-    "start": "turbo run start",
+    "start": "cd apps/web && next start -p 3001",
     "start:web": "cd apps/web && next start -p 3001",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
