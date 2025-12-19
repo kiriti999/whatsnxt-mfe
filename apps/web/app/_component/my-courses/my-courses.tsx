@@ -231,13 +231,13 @@ const CourseCard = ({ course, lessonsWatched, lessons, commentData, ratingData }
         <Flex justify="space-between" align='flex-end'>
           <div>
             <Rating value={rating} readOnly fractions={2} size={18} mt={'xs'} />
-            <Text ref={ref} onClick={open} style={{ cursor: 'pointer' }}>
+            <Text ref={ref} onClick={open} style={{ cursor: 'pointer' }} component="span">
               {isReviewed ? (
                 <>
-                  {hovered ? <Text size='sm'>Edit Review</Text> : <Text size='sm'>Your Review</Text>}
+                  {hovered ? <Text size='sm' component="span">Edit Review</Text> : <Text size='sm' component="span">Your Review</Text>}
                 </>
               ) : (
-                <Text size='sm'>Add Review</Text>
+                <Text size='sm' component="span">Add Review</Text>
               )}
             </Text>
           </div>

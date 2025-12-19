@@ -8,7 +8,7 @@ instance_name = "main-webserver"
 
 # Application Configuration
 dev_image_version = "whatsnxt:dev-v1"
-prod_image_version = "prod-v4.358"
+prod_image_version = "prod-v4.361"
 port = "4444"
 redis_port = "6379"
 redis_commander_port = "8081"

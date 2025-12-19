@@ -1,5 +1,7 @@
 import { useState } from 'react';
-import ReactPlayer from 'react-player';
+import dynamic from 'next/dynamic';
+
+const ReactPlayer = dynamic(() => import('react-player/lazy'), { ssr: false });
 import { Avatar, Box, Group, Paper, Tabs, Text, Title } from '@mantine/core'
 import { useMediaQuery } from '@mantine/hooks';
 import styles from './lesson.module.css';
@@ -68,7 +70,7 @@ const LessonPlayer = ({ lessonId, course, courseOverview, videoUrl = '', section
                         url={videoUrls[currentVideoIndex]} // Dynamically update the video URL
                         light={videoUrls[currentVideoIndex] + "&poster=true"}
                         playing={play}
-                        onClickPreview={()=>{setPlay(true)}}
+                        onClickPreview={() => { setPlay(true) }}
                         width="100%"
                         height="500px"
                         controls={true}
