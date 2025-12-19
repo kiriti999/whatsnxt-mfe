@@ -29,7 +29,7 @@
     "deploy": "vercel --prod -l",
     "analyze": "cd apps/web && ANALYZE=true next build",
     "partytown": "npx partytown copylib apps/web/public/~partytown",
-    "postinstall": "lefthook install"
+    "postinstall": "lefthook install || true"
   },
   "devDependencies": {
     "@types/node": "22.15.31",
