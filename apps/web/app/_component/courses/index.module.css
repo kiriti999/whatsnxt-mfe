@@ -56,3 +56,48 @@
       font-size: 14px;
     }
   }
+
+  /* Copied and adapted from TopCourses.module.css */
+  .card-paper {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    transition: box-shadow 200ms ease;
+  }
+
+  .card-paper:hover {
+    box-shadow: 0 10px 25px -5px rgba(0, 102, 204, 0.25), 0 10px 10px -5px rgba(0, 102, 204, 0.1);
+  }
+
+  /* Force title color inside CardComponent */
+  .card-paper :is(h3, h4, h5, h6, a) {
+      color: light-dark(#1a1a1a, var(--mantine-color-white)) !important;
+      text-decoration: none;
+  }
+
+  .course-image {
+    object-fit: cover;
+    border: 0.5px solid light-dark(#e3dfdf, var(--mantine-color-dark-4));
+  }
+
+  .free-text {
+      font-weight: 600;
+      color: light-dark(#1a1a1a, var(--mantine-color-white)) !important;
+  }
+
+  .discount-text {
+      font-weight: 700;
+      color: light-dark(#1a1a1a, var(--mantine-color-white)) !important;
+  }
+
+  .meta-text {
+      color: light-dark(#555555, var(--mantine-color-dimmed)) !important;
+  }
+
+  .best-seller-badge {
+    text-transform: uppercase;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }

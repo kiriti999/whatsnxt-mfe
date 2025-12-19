@@ -14,11 +14,11 @@ const CourseBuilder: React.FC<CourseBuilderProps> = ({ id, courseData }) => {
     useEffect(() => {
         close()
     }, [])
-    
+
     return (
         <DashboardContextProvider>
             <LoadingOverlay visible={isVisible} zIndex={1000} overlayProps={{ radius: "sm", blur: 2 }} />
-            <Container mb="xl" fluid px={"10%"}>
+            <Container mb="xl" fluid px={"10%"} mt={80}>
                 <Grid>
                     <Grid.Col span={{ base: 12, md: 4, lg: 3 }}>
                         <Dashboard id={id} open={open} />

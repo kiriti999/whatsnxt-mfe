@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
 import htmlReactParser from 'html-react-parser';
-import { Skeleton, Avatar, Text, Tooltip, Container, Grid, GridCol, Flex, Box } from '@mantine/core';
+import { Skeleton, Avatar, Text, Tooltip, Container, Grid, GridCol, Flex, Box, Paper, Group, Badge, Rating } from '@mantine/core';
 import { Amount, CardComponent, SortByComponent } from '@whatsnxt/core-ui';
 import type { CourseType, Category } from '@whatsnxt/core-util';
 import sortStyles from './index.module.css';
@@ -65,7 +65,7 @@ export default function CoursePage({ courses, enrolled, categories }: { courses:
 }
 
 function Courses({ allCourses, courses, categories, totalRecords }: CourseProps) {
-  const [recordsPerPage] = useState(6);
+  const [recordsPerPage] = useState(9);
   const [currentPage, setCurrentPage] = useState(1);
   const indexOfLastRecord = currentPage * recordsPerPage;
   const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
@@ -99,64 +99,119 @@ function Courses({ allCourses, courses, categories, totalRecords }: CourseProps)
 
             </div>
 
-            <div className="all-posts">
+            <Grid gutter="xl">
               {currentRecords.map((course) => (
-                <div className="posts" key={course._id}>
-                  <CardComponent
-                    courseName={`${course.courseName}`}
-                    paidType={course.paidType}
-                    link={`/courses/${course.slug}`}
-                    image={
-                      <div className={sortStyles['course-image-container']}>
-                        <Image
-                          fill
-                          src={course.imageUrl}
-                          alt={course.courseName}
-                          style={{ objectFit: "cover" }}
-                          priority={true}
-                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                        />
-                      </div>
-                    }>
+                <GridCol span={{ base: 12, sm: 6, lg: 4 }} key={course._id}>
+                  <Paper
+                    shadow="xs"
+                    p={0}
+                    radius="md"
+                    className={sortStyles['card-paper']}
+                  >
+                    <CardComponent
+                      courseName={`${course.courseName}`}
+                      paidType={course.paidType}
+                      link={`/courses/${course.slug}`}
+                      image={
+                        <div className={sortStyles['course-image-container']}>
+                          <Image
+                            fill
+                            src={course.imageUrl}
+                            alt={course.courseName}
+                            className={sortStyles['course-image']}
+                            style={{ objectFit: "cover" }}
+                            priority={true}
+                            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                          />
+                        </div>
+                      }
+                    >
+                      {/* Price and Badges Row */}
+                      <Group justify="space-between" mt="xs" mb="xs">
+                        <Box>
+                          {course.price ? (
+                            <Amount amount={course.price} discount={course.discount} />
+                          ) : (
+                            <Text size="sm" className={sortStyles['free-text']}>
+                              Free Course
+                            </Text>
+                          )}
+                          {(course.discount !== null && course?.discount > 0) && (
+                            <Text span className={sortStyles['discount-text']}>
+                              {" "}({course.discount}%)
+                            </Text>
+                          )}
+                        </Box>
+                        {course.purchaseCount > 0 && (
+                          <Badge
+                            color="yellow"
+                            c="dark"
+                            variant="filled"
+                            className={sortStyles['best-seller-badge']}
+                          >
+                            Best Seller
+                          </Badge>
+                        )}
+                      </Group>
 
-                    <Flex align="center" h={45} mb="xs">
-                      {course.userId?.profilePhoto ? (
-                        <Image
-                          width={40}
-                          height={40}
-                          src={`${course?.userId?.profilePhoto}`}
-                          className="rounded-circle"
-                          alt="avatar"
-                        />
-                      ) : (
-                        <Avatar variant="light" radius="xl" size="md" />
-                      )}
-                      <Text ml="sm" fw="bold" size="sm">
-                        Led by experts
-                      </Text>
-                    </Flex>
+                      {/* Author Info (kept compact) */}
+                      <Flex align="center" mb="xs">
+                        {course.userId?.profilePhoto ? (
+                          <Image
+                            width={24}
+                            height={24}
+                            src={`${course?.userId?.profilePhoto}`}
+                            className="rounded-circle"
+                            alt="avatar"
+                          />
+                        ) : (
+                          <Avatar variant="light" radius="xl" size="sm" />
+                        )}
+                        <Text ml="xs" size="xs" c="dimmed">
+                          Led by experts
+                        </Text>
+                      </Flex>
 
+                      {/* Overview Text */}
+                      <Box style={{ flex: 1, marginBottom: '10px' }}>
+                        {course.overview && (
+                          <Text
+                            className={sortStyles['overview-style']}
+                            c="dimmed"
+                            size="sm"
+                            lineClamp={3}
+                          >
+                            {htmlReactParser(course.overview)}
+                          </Text>
+                        )}
+                      </Box>
 
-                    <Box style={{ flex: 1 }}>
-                      {course.overview && (
-                        <Text className='py-1' lineClamp={3}>{htmlReactParser(course.overview)}</Text>
-                      )}
-                    </Box>
-                    <Flex align="center" mt="sm">
-                      {course.price ? (
-                        <Amount amount={course.price} discount={course.discount} />
-                      ) : (
-                        <Tooltip label='Free course'><strong>free</strong></Tooltip>
-                      )}
-                      {(course.discount !== null && course?.discount > 0) && <b> ({course.discount}%)</b>}
-                    </Flex>
-                  </CardComponent>
-                </div>
+                      {/* Rating and Duration/Lessons */}
+                      <Flex align='center' justify='space-between' mt="auto">
+                        <Rating defaultValue={course.rating || 4.5} fractions={2} size="xs" readOnly />
+                        {course.paidType === 'video' && (
+                          <Text size='xs' className={sortStyles['meta-text']}>
+                            {course.duration || '0m'}
+                          </Text>
+                        )}
+                        {course.paidType === 'live' && (
+                          <Text size='xs' className={sortStyles['meta-text']}>
+                            {course.lessons || 0} lessons
+                          </Text>
+                        )}
+                      </Flex>
+                    </CardComponent>
+                  </Paper>
+                </GridCol>
               ))}
               {totalRecords > 0 && currentRecords.length === 0 && (
-                [...Array(3).keys()].map((i) => <Skeleton key={i} width={300} height={400} radius="sm" />)
+                [...Array(3).keys()].map((i) => (
+                  <GridCol span={{ base: 12, sm: 6, lg: 4 }} key={i}>
+                    <Skeleton width="100%" height={400} radius="sm" />
+                  </GridCol>
+                ))
               )}
-            </div>
+            </Grid>
 
             <GridCol span={12}>
               {currentRecords?.length > 0 && (

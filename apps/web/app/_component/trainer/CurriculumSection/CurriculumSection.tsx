@@ -10,6 +10,7 @@ import {
   Accordion,
   ActionIcon,
   Stack,
+  Box,
 } from "@mantine/core";
 import {
   IconEdit,
@@ -55,104 +56,105 @@ export const CurriculumSection: FC<CurriculumSectionProps> = ({
   };
 
   return (
-    <Card shadow="sm" padding="lg" radius="md" withBorder>
-      {/* Section Title */}
-      <Accordion defaultValue="lecture">
-        <Accordion.Item value="lecture">
+    <Card shadow="sm" radius="md" withBorder mb="lg" style={{ overflow: 'visible' }}>
+      <Accordion defaultCheck>
+        <Accordion.Item value="lecture" style={{ borderBottom: 0 }}>
           <Accordion.Control>
-            <Stack gap={"sm"}>
-              <Group align="center">
+            <Group justify="space-between" align="center" style={{ width: '100%' }}>
+              <Group>
+                <Title order={5} style={{ whiteSpace: 'nowrap' }}>Section {sectionOrder}:</Title>
                 {isEditing ? (
                   <TextInput
                     value={newTitle}
                     onClick={(e) => e.stopPropagation()}
                     onChange={(e) => setNewTitle(e.target.value)}
                     placeholder="Section Title"
-                    size={"sm"}
+                    size="xs"
+                    style={{ minWidth: 300 }}
                   />
                 ) : (
-                  <Title order={5} mb={0}>
-                    Section: {title}
-                  </Title>
+                  <Title order={5} fw={600}>{title}</Title>
                 )}
-                <Group align="center">
-                  {isEditing ? (
-                    <>
-                      <Tooltip label="Save section">
-                        <ActionIcon
-                          ml="xl"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleSaveSectionTitle()
-                          }}
-                          size="md"
-                          aria-label="Save section"
-                        >
-                          <IconDeviceFloppy size={26} />
-                        </ActionIcon>
-                      </Tooltip>
-
-                      <Tooltip label="Cancel">
-                        <ActionIcon
-                          color="red"
-                          variant="outline"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setIsEditing(false);
-                          }}
-                          size="md"
-                          aria-label="Cancel section title edit"
-                        >
-                          <IconX size={20} />
-                        </ActionIcon>
-                      </Tooltip>
-                    </>
-                  ) : (
-                    <Group align="center">
-                      <Tooltip label="Edit Section">
-                        <ActionIcon
-                          variant="outline"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setIsEditing(true);
-                          }}
-                          size="md"
-                          aria-label="edit section name"
-                        >
-                          <IconEdit size={16} />
-                        </ActionIcon>
-                      </Tooltip>
-
-                      <Tooltip label="Delete Section">
-                        <ActionIcon
-                          variant="outline"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onDelete()
-                          }}
-                          size="md"
-                          aria-label="delete section"
-                        >
-                          <IconTrash size={16} />
-                        </ActionIcon>
-                      </Tooltip>
-                    </Group>
-                  )}
-                </Group>
               </Group>
-              <EditOrderIndex
-                placeholder="Index"
-                order={sectionOrder}
-                setIsEditing={setIsOrderEditing}
-                isEditing={isOrderEditing}
-                newOrder={newOrder}
-                setNewOrder={setNewOrder}
-                reorderLectureOrder={reorderSectionOrder}
-                totalCount={totalSections}
-              />
-            </Stack>
-          </Accordion.Control>
 
+              <Group gap="xs" onClick={(e) => e.stopPropagation()}>
+                {isEditing ? (
+                  <>
+                    <Tooltip label="Save section">
+                      <ActionIcon
+                        variant="filled"
+                        color="blue"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleSaveSectionTitle()
+                        }}
+                        size="lg"
+                      >
+                        <IconDeviceFloppy size={18} />
+                      </ActionIcon>
+                    </Tooltip>
+
+                    <Tooltip label="Cancel">
+                      <ActionIcon
+                        color="red"
+                        variant="light"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setIsEditing(false);
+                        }}
+                        size="lg"
+                      >
+                        <IconX size={18} />
+                      </ActionIcon>
+                    </Tooltip>
+                  </>
+                ) : (
+                  <>
+                    <Tooltip label="Edit Title">
+                      <ActionIcon
+                        variant="subtle"
+                        color="gray"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setIsEditing(true);
+                        }}
+                        size="lg"
+                      >
+                        <IconEdit size={18} />
+                      </ActionIcon>
+                    </Tooltip>
+
+                    <Tooltip label="Delete Section">
+                      <ActionIcon
+                        variant="subtle"
+                        color="red"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onDelete()
+                        }}
+                        size="lg"
+                      >
+                        <IconTrash size={18} />
+                      </ActionIcon>
+                    </Tooltip>
+                  </>
+                )}
+              </Group>
+            </Group>
+          </Accordion.Control>
+          {/* Order Editing hidden or moved if needed */}
+          <Box style={{ display: 'none' }}>
+            <EditOrderIndex
+              placeholder="Index"
+              order={sectionOrder}
+              setIsEditing={setIsOrderEditing}
+              isEditing={isOrderEditing}
+              newOrder={newOrder}
+              setNewOrder={setNewOrder}
+              reorderLectureOrder={reorderSectionOrder}
+              totalCount={totalSections}
+            />
+          </Box>
           <Accordion.Panel>
             {/* Lecture Items */}
             {lectures.map((lecture, index) => (
@@ -244,7 +246,7 @@ export const CurriculumSection: FC<CurriculumSectionProps> = ({
             </Button>
           </Accordion.Panel>
         </Accordion.Item>
-      </Accordion>
-    </Card>
+      </Accordion >
+    </Card >
   );
 };

@@ -1,7 +1,6 @@
 'use client';
 
 import {
-	LoadingOverlay,
 	Text,
 	TextInput,
 	Button,
@@ -12,8 +11,11 @@ import {
 	Box,
 	MultiSelect,
 	FileInput,
+	Loader,
+	Card,
+	Grid,
 	Alert,
-	Loader
+	LoadingOverlay,
 } from '@mantine/core';
 import { useCallback, useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
@@ -312,278 +314,305 @@ const Main = ({ courseWithSections, courseId }) => {
 			<CourseUploadAssetProgress />
 			<div style={{ position: 'relative' }} className="border-box">
 				<LoadingOverlay visible={visible} zIndex={1000} overlayProps={{ radius: 'sm', blur: 2 }} />
-				<form onSubmit={handleSubmit((payload) => handleLandingPageSubmit({
-					data: payload,
-					courseId,
-					router,
-					setImageUploading,
-					courseImagePreview: courseImage || undefined,
-					imageAttributes: course.imageAttributes
-				}, open, close))}>
-					<Stack m={'lg'}>
-						<Title order={5} className='required'>Course Overview</Title>
-						<Controller
-							name="overview"
-							control={control}
-							render={({ field }) => (
-								<RichTextEditor content={field.value} onChange={field.onChange} />
-							)}
-						/>
-						{errors.overview && (
-							<Text c="red">{errors.overview.message as string}</Text>
-						)}
 
-						<Title order={5}>Course Description (optional)</Title>
-						<Controller
-							name="topics"
-							control={control}
-							render={({ field }) => (
-								<RichTextEditor content={field.value} onChange={field.onChange} />
-							)}
-						/>
-
-						{errors.topics && (
-							<Text c="red">{errors.topics.message as string}</Text>
-						)}
-
-						<Controller
-							name="course_preview_video"
-							control={control}
-							render={({ field }) => (
-								<TextInput
-									label={<Title order={5}>Course video preview url</Title>}
-									placeholder="https://www.youtube.com"
-									value={coursePreviewVideo}
-									onChange={(e) => {
-										setCoursePreviewVideo(e.target.value);
-										setValue('course_preview_video', e.target.value);
-										field.onChange(e.target.value);
-									}}
+				<Card shadow="sm" radius="md" withBorder padding="lg">
+					<form onSubmit={handleSubmit((payload) => handleLandingPageSubmit({
+						data: payload,
+						courseId,
+						router,
+						setImageUploading,
+						courseImagePreview: courseImage || undefined,
+						imageAttributes: course.imageAttributes
+					}, open, close))}>
+						<Stack gap="xl">
+							<Box>
+								<Title order={4} mb="sm" className='required'>Course Overview</Title>
+								<Controller
+									name="overview"
+									control={control}
+									render={({ field }) => (
+										<RichTextEditor content={field.value} onChange={field.onChange} />
+									)}
 								/>
-							)}
-						/>
-
-						{errors.course_preview_video && (
-							<Text c="red">{errors.course_preview_video.message as string}</Text>
-						)}
-
-						{/* Basic Info Section */}
-						<Title order={5}>Basic info</Title>
-						<Group grow>
-							{languageOptions.length > 0 && (
-								<Box mb={`${errors?.languages ? '' : 'lg'}`}>
-									<Controller
-										name="languages"
-										control={control}
-										rules={validationOptions.languages}
-										render={({ field }) => (
-											<MultiSelect
-												label="Language"
-												placeholder="Select languages"
-												data={languageOptions}
-												{...field}
-												required
-											/>
-										)}
-									/>
-									{errors?.languages && <Text c="red" size="md">{errors?.languages.message as string}</Text>}
-								</Box>
-							)}
-
-							{categoryOptions.length > 0 && (
-								<Box mb={`${errors?.categoryName ? '' : 'lg'}`}>
-									<Controller
-										name="categoryName"
-										control={control}
-										rules={validationOptions.categoryName}
-										render={({ field }) => (
-											<Select
-												label="Category"
-												placeholder="Select Category"
-												data={categoryOptions}
-												{...field}
-												onChange={(value, option) => {
-													field.onChange(value);
-													handleCategoryChange({ option, setSubCategories, setValue });
-												}}
-												required
-											/>
-										)}
-									/>
-									{errors?.categoryName && <Text c="red" size="md">{errors?.categoryName.message as string}</Text>}
-								</Box>
-							)}
-
-							{categoryValue && subCategoryOptions.length > 0 && (
-								<Box mb={`${errors?.subCategoryName ? '' : 'lg'}`}>
-									<Controller
-										name="subCategoryName"
-										control={control}
-										rules={validationOptions.subCategoryName}
-										render={({ field }) => (
-											<Select
-												label="Subcategory"
-												placeholder="Select Subcategory"
-												data={subCategoryOptions}
-												{...field}
-												onChange={(value, option) => {
-													field.onChange(value);
-													handleSubCategoryChange({ option, setNestedSubCategories, setValue });
-												}}
-												required
-											/>
-										)}
-									/>
-									{errors?.subCategoryName && <Text c="red" size="md">{errors?.subCategoryName?.message as string}</Text>}
-								</Box>
-							)}
-
-							{nestedSubCategoryOptions.length > 0 && (
-								<Box mb={`${errors?.nestedSubCategoryName ? '' : 'lg'}`}>
-									<Controller
-										name="nestedSubCategoryName"
-										control={control}
-										render={({ field }) => (
-											<Select
-												label="NestedSubcategory (optional)"
-												placeholder="Select NestedSubcategory"
-												data={nestedSubCategoryOptions}
-												{...field}
-											/>
-										)}
-									/>
-									{errors?.nestedSubCategoryName && <Text c="red" size="md">{errors?.nestedSubCategoryName?.message as string}</Text>}
-								</Box>
-							)}
-						</Group>
-
-						{/* Course Image Upload */}
-						<Controller
-							name="courseImagePreview"
-							control={control}
-							rules={validationOptions.courseImage}
-							render={({ field }) => (
-								<div>
-									<FileInput
-										clearable
-										label={<Title order={5} className={!courseId ? 'required' : ''}>Course Image</Title>}
-										placeholder={
-											isScanning ? "🔍 Scanning image..." :
-												isModelLoading ? "🤖 Loading AI model..." :
-													"Select course image"
-										}
-										leftSection={
-											isScanning || isModelLoading ? (
-												<Loader size={16} />
-											) : (
-												<IconUpload size={16} />
-											)
-										}
-										value={courseImage}
-										onChange={(e) => {
-											handleImageChange(e);
-											field.onChange(e);
-										}}
-										accept=".png,.jpg,.jpeg"
-										disabled={isScanning || isModelLoading}
-									/>
-
-									{/* Status messages */}
-									{(validationError || scanError) && (
-										<Alert
-											icon={<IconAlertCircle size={16} />}
-											color="red"
-											mt="xs"
-											variant="light"
-										>
-											{validationError || scanError}
-										</Alert>
-									)}
-
-									{validationSuccess && !validationError && !scanError && (
-										<Alert
-											icon={<IconCheck size={16} />}
-											color="green"
-											mt="xs"
-											variant="light"
-										>
-											{validationSuccess}
-										</Alert>
-									)}
-
-									{/* Scanning status */}
-									{isScanning && (
-										<Group gap="xs" mt="xs">
-											<Loader size="xs" />
-											<Text size="xs" c="blue">
-												Running AI safety scan...
-											</Text>
-										</Group>
-									)}
-
-									{/* Model loading status */}
-									{isModelLoading && (
-										<Group gap="xs" mt="xs">
-											<Loader size="xs" />
-											<Text size="xs" c="gray">
-												Loading AI model in browser...
-											</Text>
-										</Group>
-									)}
-								</div>
-							)}
-						/>
-						{errors.courseImagePreview && <Text c="red" size="md" mb={0}>{errors.courseImagePreview?.message as string}</Text>}
-
-						{/* Course Image Technical Requirements */}
-						<Box mt="lg" style={{ textAlign: 'left' }}>
-							<Title order={5}>Course Image Requirements</Title>
-							<Text size="sm" mt="xs">
-								<strong>Image formats:</strong> The file format must be .jpg, .jpeg, or .png.
-							</Text>
-							<Text size="sm" mt="xs">
-								<strong>Image dimensions:</strong> Always design your course image at the following pixel dimensions. The image design needs to be within the content safe area for maximum visibility.
-							</Text>
-							<Text size="sm" mt="xs">
-								<strong>Minimum required dimensions:</strong> 750 × 422 pixels
-							</Text>
-							<Text size="sm" mt="xs">
-								<strong>Maximum required dimensions:</strong> 6000 × 6000 pixels
-							</Text>
-							<Text size="sm" mt="xs">
-								<strong>File size:</strong> Maximum 2MB
-							</Text>
-							<Text size="sm" mt="xs" c="blue">
-								<strong>AI Safety:</strong> All images are automatically scanned for inappropriate content before upload.
-							</Text>
-						</Box>
-
-						{/* Image Preview */}
-						{imagePreview && !validationError && !scanError && (
-							<Box mt="md">
-								<Title order={5}>Image Preview:</Title>
-								<img
-									src={imagePreview}
-									alt="Course Preview"
-									className='image-preview'
-									style={{
-										borderRadius: '8px',
-										border: '1px solid #e9ecef',
-										maxWidth: '300px',
-										maxHeight: '200px',
-										objectFit: 'cover'
-									}}
-								/>
+								{errors.overview && (
+									<Text c="red" size="sm" mt={4}>{errors.overview.message as string}</Text>
+								)}
 							</Box>
-						)}
 
-						<Group>
-							<Button type="submit" variant='outline' disabled={disabledButton} mt="md">
-								Save
-							</Button>
-						</Group>
-					</Stack>
-				</form>
+							<Box>
+								<Title order={4} mb="sm">Course Description (optional)</Title>
+								<Controller
+									name="topics"
+									control={control}
+									render={({ field }) => (
+										<RichTextEditor content={field.value} onChange={field.onChange} />
+									)}
+								/>
+
+								{errors.topics && (
+									<Text c="red" size="sm" mt={4}>{errors.topics.message as string}</Text>
+								)}
+							</Box>
+
+							<Box>
+								<Controller
+									name="course_preview_video"
+									control={control}
+									render={({ field }) => (
+										<TextInput
+											label={<Title order={5}>Course video preview url</Title>}
+											placeholder="https://www.youtube.com"
+											value={coursePreviewVideo}
+											onChange={(e) => {
+												setCoursePreviewVideo(e.target.value);
+												setValue('course_preview_video', e.target.value);
+												field.onChange(e.target.value);
+											}}
+											size="md"
+										/>
+									)}
+								/>
+
+								{errors.course_preview_video && (
+									<Text c="red" size="sm" mt={4}>{errors.course_preview_video.message as string}</Text>
+								)}
+							</Box>
+
+							{/* Basic Info Section */}
+							<Box>
+								<Title order={4} mb="md">Basic info</Title>
+								<Grid gutter="md">
+									{languageOptions.length > 0 && (
+										<Grid.Col span={{ base: 12, md: 6 }}>
+											<Box mb={`${errors?.languages ? '' : 'sm'}`}>
+												<Controller
+													name="languages"
+													control={control}
+													rules={validationOptions.languages}
+													render={({ field }) => (
+														<MultiSelect
+															label="Language"
+															placeholder="Select languages"
+															data={languageOptions}
+															{...field}
+															required
+															size="md"
+														/>
+													)}
+												/>
+												{errors?.languages && <Text c="red" size="xs" mt={4}>{errors?.languages.message as string}</Text>}
+											</Box>
+										</Grid.Col>
+									)}
+
+									{categoryOptions.length > 0 && (
+										<Grid.Col span={{ base: 12, md: 6 }}>
+											<Box mb={`${errors?.categoryName ? '' : 'sm'}`}>
+												<Controller
+													name="categoryName"
+													control={control}
+													rules={validationOptions.categoryName}
+													render={({ field }) => (
+														<Select
+															label="Category"
+															placeholder="Select Category"
+															data={categoryOptions}
+															{...field}
+															onChange={(value, option) => {
+																field.onChange(value);
+																handleCategoryChange({ option, setSubCategories, setValue });
+															}}
+															required
+															size="md"
+														/>
+													)}
+												/>
+												{errors?.categoryName && <Text c="red" size="xs" mt={4}>{errors?.categoryName.message as string}</Text>}
+											</Box>
+										</Grid.Col>
+									)}
+
+									{categoryValue && subCategoryOptions.length > 0 && (
+										<Grid.Col span={{ base: 12, md: 6 }}>
+											<Box mb={`${errors?.subCategoryName ? '' : 'sm'}`}>
+												<Controller
+													name="subCategoryName"
+													control={control}
+													rules={validationOptions.subCategoryName}
+													render={({ field }) => (
+														<Select
+															label="Subcategory"
+															placeholder="Select Subcategory"
+															data={subCategoryOptions}
+															{...field}
+															onChange={(value, option) => {
+																field.onChange(value);
+																handleSubCategoryChange({ option, setNestedSubCategories, setValue });
+															}}
+															required
+															size="md"
+														/>
+													)}
+												/>
+												{errors?.subCategoryName && <Text c="red" size="xs" mt={4}>{errors?.subCategoryName?.message as string}</Text>}
+											</Box>
+										</Grid.Col>
+									)}
+
+									{nestedSubCategoryOptions.length > 0 && (
+										<Grid.Col span={{ base: 12, md: 6 }}>
+											<Box mb={`${errors?.nestedSubCategoryName ? '' : 'sm'}`}>
+												<Controller
+													name="nestedSubCategoryName"
+													control={control}
+													render={({ field }) => (
+														<Select
+															label="NestedSubcategory (optional)"
+															placeholder="Select NestedSubcategory"
+															data={nestedSubCategoryOptions}
+															{...field}
+															size="md"
+														/>
+													)}
+												/>
+												{errors?.nestedSubCategoryName && <Text c="red" size="xs" mt={4}>{errors?.nestedSubCategoryName?.message as string}</Text>}
+											</Box>
+										</Grid.Col>
+									)}
+								</Grid>
+							</Box>
+
+							{/* Course Image Upload */}
+							<Box>
+								<Controller
+									name="courseImagePreview"
+									control={control}
+									rules={validationOptions.courseImage}
+									render={({ field }) => (
+										<div>
+											<FileInput
+												clearable
+												label={<Title order={5} className={!courseId ? 'required' : ''}>Course Image</Title>}
+												placeholder={
+													isScanning ? "🔍 Scanning image..." :
+														isModelLoading ? "🤖 Loading AI model..." :
+															"Select course image"
+												}
+												leftSection={
+													isScanning || isModelLoading ? (
+														<Loader size={16} />
+													) : (
+														<IconUpload size={16} />
+													)
+												}
+												value={courseImage}
+												onChange={(e) => {
+													handleImageChange(e);
+													field.onChange(e);
+												}}
+												accept=".png,.jpg,.jpeg"
+												disabled={isScanning || isModelLoading}
+												size="md"
+											/>
+
+											{/* Status messages */}
+											{(validationError || scanError) && (
+												<Alert
+													icon={<IconAlertCircle size={16} />}
+													color="red"
+													mt="xs"
+													variant="light"
+												>
+													{validationError || scanError}
+												</Alert>
+											)}
+
+											{validationSuccess && !validationError && !scanError && (
+												<Alert
+													icon={<IconCheck size={16} />}
+													color="green"
+													mt="xs"
+													variant="light"
+												>
+													{validationSuccess}
+												</Alert>
+											)}
+
+											{/* Scanning status */}
+											{isScanning && (
+												<Group gap="xs" mt="xs">
+													<Loader size="xs" />
+													<Text size="xs" c="blue">
+														Running AI safety scan...
+													</Text>
+												</Group>
+											)}
+
+											{/* Model loading status */}
+											{isModelLoading && (
+												<Group gap="xs" mt="xs">
+													<Loader size="xs" />
+													<Text size="xs" c="gray">
+														Loading AI model in browser...
+													</Text>
+												</Group>
+											)}
+										</div>
+									)}
+								/>
+								{errors.courseImagePreview && <Text c="red" size="sm" mt={4}>{errors.courseImagePreview?.message as string}</Text>}
+
+								{/* Course Image Technical Requirements */}
+								<Box mt="md" style={{ textAlign: 'left' }}>
+									<Title order={5} mb="xs">Course Image Requirements</Title>
+									<Text size="sm" c="dimmed">
+										<strong>Image formats:</strong> The file format must be .jpg, .jpeg, or .png.
+									</Text>
+									<Text size="sm" c="dimmed">
+										<strong>Image dimensions:</strong> Always design your course image at the following pixel dimensions. The image design needs to be within the content safe area for maximum visibility.
+									</Text>
+									<Text size="sm" c="dimmed">
+										<strong>Minimum required dimensions:</strong> 750 × 422 pixels
+									</Text>
+									<Text size="sm" c="dimmed">
+										<strong>Maximum required dimensions:</strong> 6000 × 6000 pixels
+									</Text>
+									<Text size="sm" c="dimmed">
+										<strong>File size:</strong> Maximum 2MB
+									</Text>
+									<Text size="sm" c="blue" mt="xs">
+										<strong>AI Safety:</strong> All images are automatically scanned for inappropriate content before upload.
+									</Text>
+								</Box>
+
+								{/* Image Preview */}
+								{imagePreview && !validationError && !scanError && (
+									<Box mt="md">
+										<Title order={5} mb="xs">Image Preview:</Title>
+										<img
+											src={imagePreview}
+											alt="Course Preview"
+											className='image-preview'
+											style={{
+												borderRadius: '8px',
+												border: '1px solid #e9ecef',
+												maxWidth: '100%',
+												maxHeight: '300px',
+												objectFit: 'cover'
+											}}
+										/>
+									</Box>
+								)}
+							</Box>
+
+							<Group justify="flex-end" mt="lg">
+								<Button type="submit" variant='filled' disabled={disabledButton} size="md">
+									Save
+								</Button>
+							</Group>
+						</Stack>
+					</form>
+				</Card>
 			</div>
 		</TiptapManageContextProvider>)
 }

@@ -2,7 +2,8 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Text, Title, Group, Card, Stack, Grid, Radio, NumberInput, Button } from '@mantine/core';
+import { Text, Title, Group, Card, Stack, Grid, Radio, NumberInput, Button, Box, Badge } from '@mantine/core';
+import { IconVideo, IconBroadcast, IconChevronRight } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
 import { Controller, useForm } from 'react-hook-form';
 import { CourseBuilderAPI } from '../../../../apis/v1/courses/course-builder/course-builder-api';
@@ -105,71 +106,101 @@ const PriceInformationForm = ({ courseId, courseWithSections }) => {
 	return (
 		<Card shadow="sm" padding="lg" radius="md" withBorder>
 			<form onSubmit={handleSubmit(handlePriceInfoSubmit)}>
-				<Stack>
-					<div>
-						<Title order={5}>Your selected course type</Title>
+				<Stack gap="xl">
+					<Box>
+						<Title order={4} mb="md">Your selected course type</Title>
 						<Controller
 							name="courseType"
 							control={control}
 							render={({ field }) => (
-								<Radio.Group
-									value={field.value}
-									onChange={(value) => {
-										setCourseType(value);
-										field.onChange(value);
-									}}
-								>
-									<Grid>
-										<Grid.Col span={3}>
-											<Radio
-												value="paid"
-												disabled={true}
-												label={<Title order={6}>Paid Course</Title>}
-											/>
-										</Grid.Col>
-										<Grid.Col span={3}>
-											<Radio
-												value="free"
-												disabled={true}
-												label={<Title order={6}>Free Course</Title>}
-											/>
-										</Grid.Col>
-									</Grid>
-								</Radio.Group>
+								<Grid gutter="md">
+									{['paid', 'free'].map((type) => {
+										const isSelected = field.value === type;
+										return (
+											<Grid.Col span={{ base: 12, sm: 6 }} key={type}>
+												<Card
+													shadow={isSelected ? "md" : "xs"}
+													radius="md"
+													withBorder
+													padding="md"
+													bg={!isSelected ? "gray.0" : undefined}
+													style={{
+														borderColor: isSelected ? 'var(--mantine-color-blue-6)' : undefined,
+														backgroundColor: isSelected ? 'var(--mantine-color-blue-0)' : 'var(--mantine-color-gray-0)',
+														opacity: isSelected ? 1 : 0.6,
+														cursor: 'default'
+													}}
+												>
+													<Group justify="space-between" align="start">
+														<Title order={5} style={{ textTransform: 'capitalize' }}>
+															{type} Course
+														</Title>
+														{isSelected && <Badge color="blue" variant="light">Selected</Badge>}
+													</Group>
+												</Card>
+											</Grid.Col>
+										);
+									})}
+								</Grid>
 							)}
 						/>
-					</div>
+					</Box>
 
 					{courseType === 'paid' && (
-						<>
-							<Title order={5}>Select paid type</Title>
+						<Box>
+							<Title order={4} mb="md">Select paid type</Title>
 							<Controller
 								name="paidType"
 								control={control}
 								rules={validationOptions.paidType}
 								render={({ field }) => (
-									<Radio.Group {...field}>
-										<Grid>
-											<Grid.Col span={3}>
-												<Radio
-													value="video"
-													label={<Title order={6}>Video</Title>}
-													checked={true}
-												/>
-											</Grid.Col>
-											<Grid.Col span={3}>
-												<Radio
-													value="live"
-													label={<Title order={6}>Live</Title>}
-												/>
-											</Grid.Col>
-										</Grid>
-									</Radio.Group>
+									<Grid gutter="md">
+										{['video', 'live'].map((type) => {
+											const isSelected = field.value === type;
+											return (
+												<Grid.Col span={{ base: 12, sm: 6 }} key={type}>
+													<Card
+														shadow={isSelected ? "md" : "xs"}
+														radius="md"
+														withBorder
+														padding="md"
+														style={{
+															cursor: 'pointer',
+															borderColor: isSelected ? 'var(--mantine-color-blue-6)' : undefined,
+															backgroundColor: isSelected ? 'var(--mantine-color-blue-0)' : undefined,
+															transition: 'all 0.2s ease'
+														}}
+														onClick={() => field.onChange(type)}
+													>
+														<Group justify="space-between" align="center">
+															<Group>
+																{type === 'video' ? <IconVideo size={24} /> : <IconBroadcast size={24} />}
+																<Box>
+																	<Text fw={600} style={{ textTransform: 'capitalize' }}>{type} Course</Text>
+																	<Text size="xs" c="dimmed">
+																		{type === 'video' ? 'Pre-recorded video lessons' : 'Live interactive sessions'}
+																	</Text>
+																</Box>
+															</Group>
+															<Radio
+																checked={isSelected}
+																onChange={() => { }}
+																value={type}
+																tabIndex={-1}
+																style={{ pointerEvents: 'none' }}
+															/>
+														</Group>
+													</Card>
+												</Grid.Col>
+											);
+										})}
+									</Grid>
 								)}
 							/>
+
 							{!!paidType && (
-								<Grid gutter="md">
-									<Grid.Col span={4}>
+								<Grid gutter="md" mt="md">
+									<Grid.Col span={{ base: 12, sm: 6 }}>
 										<Controller
 											name="price"
 											control={control}
@@ -177,20 +208,24 @@ const PriceInformationForm = ({ courseId, courseWithSections }) => {
 											render={({ field }) => (
 												<NumberInput
 													{...field}
-													label={<Title order={6}>Price</Title>}
-													placeholder="Enter course price"
+													label="Price"
+													placeholder="0.00"
 													min={0}
+													leftSection="$"
+													size="md"
+													radius="md"
 												/>
 											)}
 										/>
 										{errors?.price && (
-											<Text c="red" size="md">
-												price must be greater than 0
+											<Text c="red" size="sm" mt={4}>
+												Price must be greater than 0
 											</Text>
 										)}
 									</Grid.Col>
+
 									{paidType === 'live' && (
-										<Grid.Col span={4}>
+										<Grid.Col span={{ base: 12, sm: 6 }}>
 											<Controller
 												name="lessons"
 												control={control}
@@ -198,14 +233,16 @@ const PriceInformationForm = ({ courseId, courseWithSections }) => {
 												render={({ field }) => (
 													<NumberInput
 														{...field}
-														label={<Title order={6}>Number of live training classes</Title>}
-														placeholder="Number of live training classes"
+														label="Number of live classes"
+														placeholder="e.g. 10"
 														min={0}
+														size="md"
+														radius="md"
 													/>
 												)}
 											/>
 											{errors?.lessons && (
-												<Text c="red" size="md">
+												<Text c="red" size="sm" mt={4}>
 													Number of classes must be greater than 0
 												</Text>
 											)}
@@ -213,20 +250,27 @@ const PriceInformationForm = ({ courseId, courseWithSections }) => {
 									)}
 								</Grid>
 							)}
-						</>
+						</Box>
 					)}
 
-					{courseType === 'free' ? (
-						<Text c="orange" size="md" mb="sm">
-							Move to the next section
-						</Text>
-					) : (
-						<Group>
-							<Button type="submit" disabled={disabledButton} mt="md" loading={loading}>
-								Save
+					<Group justify="flex-end" mt="md">
+						{courseType === 'free' ? (
+							<Button
+								onClick={() => router.push(NEXT_PAGE_PATH)}
+								rightSection={<IconChevronRight size={18} />}
+							>
+								Continue to Next Section
 							</Button>
-						</Group>
-					)}
+						) : (
+							<Button
+								type="submit"
+								disabled={disabledButton}
+								loading={loading}
+							>
+								Save Changes
+							</Button>
+						)}
+					</Group>
 				</Stack>
 			</form>
 		</Card>

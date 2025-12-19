@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Button, Card, Grid, Group, Radio, Stack, Title } from "@mantine/core";
+import { Button, Card, Grid, Group, Radio, Stack, Title, Text as MantineText } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import { Controller, useForm } from "react-hook-form";
 import { CourseBuilderAPI } from "../../../../apis/v1/courses/course-builder/course-builder-api";
@@ -90,34 +90,58 @@ const CourseTypeForm = ({ courseId, cType }: Props) => {
 		<Card shadow="sm" padding="lg" radius="md" withBorder>
 			<form onSubmit={handleSubmit(handleCourseTypeSubmit)}>
 				<Stack>
-					<div>
-						<Title order={5}>Select your course type</Title>
-						<Controller
-							name="courseType"
-							control={control}
-							rules={{ required: 'courseType is required' }}
-							render={({ field }) => (
-								<Radio.Group
-									value={field.value}
-									onChange={(value) => {
-										setCourseType(value);
-										field.onChange(value);
-									}}
-								>
-									<Grid>
-										<Grid.Col span={3}>
-											<Radio value="paid" label="Paid Course" />
+					<Title order={4} mb="md">Select your course type</Title>
+					<Controller
+						name="courseType"
+						control={control}
+						rules={{ required: 'courseType is required' }}
+						render={({ field }) => (
+							<Grid gutter="md">
+								{['paid', 'free'].map((type) => {
+									const isSelected = field.value === type;
+									return (
+										<Grid.Col span={{ base: 12, sm: 6 }} key={type}>
+											<Card
+												shadow={isSelected ? "md" : "xs"}
+												radius="md"
+												withBorder
+												style={{
+													cursor: 'pointer',
+													borderColor: isSelected ? 'var(--mantine-color-blue-6)' : undefined,
+													backgroundColor: isSelected ? 'var(--mantine-color-blue-0)' : undefined,
+													transition: 'all 0.2s ease'
+												}}
+												onClick={() => {
+													setCourseType(type);
+													field.onChange(type);
+												}}
+											>
+												<Group justify="space-between" align="start" mb="xs">
+													<Title order={5} style={{ textTransform: 'capitalize' }}>
+														{type} Course
+													</Title>
+													<Radio
+														checked={isSelected}
+														onChange={() => { }}
+														value={type}
+														tabIndex={-1}
+														style={{ pointerEvents: 'none' }}
+													/>
+												</Group>
+												<MantineText size="sm" c="dimmed">
+													{type === 'paid'
+														? "Earn money by selling your expertise. Set a price and get paid for every student."
+														: "Attract a larger audience by offering free content. Great for building your reputation."}
+												</MantineText>
+											</Card>
 										</Grid.Col>
-										<Grid.Col span={3}>
-											<Radio value="free" label="Free Course" />
-										</Grid.Col>
-									</Grid>
-								</Radio.Group>
-							)}
-						/>
-					</div>
+									);
+								})}
+							</Grid>
+						)}
+					/>
 
-					<Group>
+					<Group justify="flex-end">
 						<Button type="submit" disabled={disabledButton} mt="md" loading={loading}>
 							Save
 						</Button>

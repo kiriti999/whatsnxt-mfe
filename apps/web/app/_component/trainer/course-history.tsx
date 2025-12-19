@@ -1,11 +1,12 @@
 "use client"
 import React, { useState } from 'react';
+// Refactored to remove Table dependency
 import coursesStyles from '../../../components/Courses/Course.module.css';
 import { useQuery } from '@tanstack/react-query';
 import { TrainerAPI } from '../../../apis/v1/courses/trainer/trainer';
 import { useDebouncedValue, useMediaQuery } from '@mantine/hooks';
 import Link from 'next/link';
-import { ActionIcon, Box, Button, Center, Collapse, Grid, Group, Loader, Pagination, Select, Table, TextInput, Tooltip, Menu, Container, GridCol, Title } from '@mantine/core';
+import { ActionIcon, Box, Button, Center, Collapse, Grid, Group, Loader, Pagination, Select, TextInput, Tooltip, Menu, Container, GridCol, Title, Text, Badge, Paper, Stack } from '@mantine/core';
 import { CourseAPI } from '../../../apis/v1/courses/course/course';
 import { notifications } from '@mantine/notifications';
 import { IconChevronDown, IconChevronUp, IconEye, IconEyeOff, IconPlus, IconDotsVertical } from '@tabler/icons-react';
@@ -169,7 +170,7 @@ const CourseHistory = () => {
     const payload = { isPublish: !isPublish };
     const response = await CourseAPI.publishVideo(sectionId, videoId, payload);
 
-    let message = isPublish ? 'Video unpublished successfully' : 'Video published successfully';
+    const message = isPublish ? 'Video unpublished successfully' : 'Video published successfully';
     if (response.status === 200) {
       notifications.show({
         position: 'bottom-right',
@@ -185,7 +186,7 @@ const CourseHistory = () => {
     const payload = { isPublish: !isPublish };
     const response = await CourseAPI.publishAllVideosInSection(sectionId, payload);
 
-    let message = isPublish ? 'All videos unpublished successfully' : 'All videos published successfully';
+    const message = isPublish ? 'All videos unpublished successfully' : 'All videos published successfully';
     if (response.status === 200) {
       notifications.show({
         position: 'bottom-right',
@@ -321,180 +322,196 @@ const CourseHistory = () => {
               </Grid.Col>
             </Grid>
 
-            <Table withTableBorder={false} className='my-course-table'>
-              <thead>
-                <tr>
-                  {tableColumns.map((column, index) => (
-                    <th key={`${column.header}-${index}`}>{column.header}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {isLoading ? (
-                  <tr>
-                    <td colSpan={tableColumns.length}>
-                      <Center style={{ flexDirection: "column", padding: '20px 0' }}>
-                        <Loader size="lg" />
-                      </Center>
-                    </td>
-                  </tr>
-                ) : (
-                  data?.courseList && data?.courseList.length > 0 ? data?.courseList.map((row: Course) => (
-                    <React.Fragment key={row._id}>
-                      <tr>
-                        {tableColumns.map((column, index) => (
-                          <td key={`${column.header}-${index}`}>
-                            {typeof column.accessor === 'function'
-                              ? column.accessor(row)
-                              : String(row[column.accessor as keyof Course] || '')}
-                          </td>
-                        ))}
-                      </tr>
-                      <tr>
-                        <td colSpan={tableColumns.length}>
-                          <Collapse in={expandedCourse[row._id]} style={{ marginLeft: 20 }}>
-                            {row?.sections?.length > 0 && (
-                              <Table withTableBorder={false} className='my-course-table' >
-                                <thead>
-                                  <tr>
-                                    <th>Section Title</th>
-                                    <th>Actions</th>
-                                    <th></th>
-                                  </tr>
-                                </thead>
-                                <tbody>
-                                  {row?.sections?.map((item: Section) => (
-                                    <React.Fragment key={item._id}>
-                                      <tr>
-                                        {item?.videos?.length > 0 && <td>{item.sectionTitle}</td>}
-                                        <td>
-                                          {item?.videos?.length > 0 && (
-                                            isMobile ? (
-                                              <Menu position="bottom-end" withArrow>
-                                                <Menu.Target>
-                                                  <ActionIcon variant="subtle" size="md">
-                                                    <IconDotsVertical size={16} />
-                                                  </ActionIcon>
-                                                </Menu.Target>
-                                                <Menu.Dropdown>
-                                                  <Menu.Item
-                                                    leftSection={
-                                                      item?.videos.filter((x: Video) => x.isPublish).length !== item?.videos.length ?
-                                                        <IconEye size={16} /> :
-                                                        <IconEyeOff size={16} />
-                                                    }
-                                                    onClick={() => {
-                                                      item?.videos.filter((x: Video) => x.isPublish).length !== item?.videos.length
-                                                        ? publishAllVideosInSection(item._id, false)
-                                                        : publishAllVideosInSection(item._id, true);
-                                                    }}
-                                                    color={
-                                                      item?.videos.filter((x: Video) => x.isPublish).length !== item?.videos.length
-                                                        ? "blue"
-                                                        : "red"
-                                                    }
-                                                  >
-                                                    <Group align="center">
-                                                      <span>
-                                                        {item?.videos.filter((x: Video) => x.isPublish).length !== item?.videos.length ?
-                                                          "Publish All" :
-                                                          "Unpublish All"}
-                                                      </span>
-                                                    </Group>
-                                                  </Menu.Item>
-                                                </Menu.Dropdown>
-                                              </Menu>
-                                            ) : (
-                                              <Tooltip fz={'xs'}
-                                                label={
-                                                  item?.videos.filter((x: Video) => x.isPublish).length !== item?.videos.length
-                                                    ? "Publish All"
-                                                    : "Unpublish All"
-                                                }
-                                                position="bottom"
-                                                withArrow
-                                              >
-                                                <ActionIcon
-                                                  onClick={() => {
-                                                    item?.videos.filter((x: Video) => x.isPublish).length !== item?.videos.length
-                                                      ? publishAllVideosInSection(item._id, false)
-                                                      : publishAllVideosInSection(item._id, true);
-                                                  }}
-                                                  radius="md"
-                                                  size="sm"
-                                                  variant="outline"
-                                                  color={
-                                                    item?.videos.filter((x: Video) => x.isPublish).length !== item?.videos.length
-                                                      ? "red"
-                                                      : "blue"
-                                                  }
-                                                >
-                                                  {item?.videos.filter((x: Video) => x.isPublish).length !== item?.videos.length ? (
-                                                    <IconEyeOff size={14} />
-                                                  ) : (
-                                                    <IconEye size={14} />
-                                                  )}
-                                                </ActionIcon>
-                                              </Tooltip>
-                                            )
-                                          )}
-                                        </td>
+            {/* Header Row */}
+            <Paper p="md" mb="sm" withBorder bg="gray.0">
+              <Grid align="center" gutter="xs">
+                <GridCol span={6}>
+                  <Text fw={700} fz="sm" tt="uppercase" c="dimmed">Title</Text>
+                </GridCol>
+                <GridCol span={2}>
+                  <Text fw={700} fz="sm" tt="uppercase" c="dimmed">Status</Text>
+                </GridCol>
+                <GridCol span={3}>
+                  <Text fw={700} fz="sm" tt="uppercase" c="dimmed">Actions</Text>
+                </GridCol>
+                <GridCol span={1} style={{ textAlign: 'center' }}>
+                  <Box w={20} />
+                </GridCol>
+              </Grid>
+            </Paper>
 
-                                        {item?.videos?.length > 0 && <td>
-                                          <ActionIcon onClick={() => { toggleSection(item._id) }} size="sm" variant="filled" color="red" radius="md">
-                                            {expandedSection[item._id] ?
-                                              <IconChevronUp size={14} />
-                                              :
-                                              <IconChevronDown size={14} />
-                                            }
-                                          </ActionIcon>
-                                        </td>}
-                                      </tr>
-                                      <tr>
-                                        <td colSpan={3}>
-                                          <Collapse in={expandedSection[item._id]} style={{ marginLeft: 20 }}>
-                                            {item?.videos?.length > 0 && (
-                                              <Table withTableBorder={false} className='my-course-table'>
-                                                <thead>
-                                                  <tr>
-                                                    <th>Lecture Title</th>
-                                                    <th>Actions</th>
-                                                  </tr>
-                                                </thead>
-                                                <tbody>
-                                                  {item?.videos?.map((video: Video, i: number) => (
-                                                    <tr key={video._id}>
-                                                      <td>{i + 1}. {video.name}</td>
-                                                      <td>
-                                                        {renderVideoActions(video, item._id)}
-                                                      </td>
-                                                    </tr>
-                                                  ))}
-                                                </tbody>
-                                              </Table>
-                                            )}
-                                          </Collapse>
-                                        </td>
-                                      </tr>
-                                    </React.Fragment>
-                                  ))}
-                                </tbody>
-                              </Table>
+            {/* Content List */}
+            <Stack gap="xs">
+              {isLoading ? (
+                <Center py="xl">
+                  <Loader size="lg" />
+                </Center>
+              ) : (
+                data?.courseList && data?.courseList.length > 0 ? (
+                  data?.courseList.map((row: Course) => (
+                    <Paper key={row._id} withBorder shadow="sm" radius="md" style={{ overflow: "hidden" }}>
+                      {/* Course Row */}
+                      <div style={{ backgroundColor: '#fff', padding: '12px 16px' }}>
+                        <Grid align="center" gutter="xs">
+                          <GridCol span={6}>
+                            <Link
+                              href={`/courses/${courseSlugs[row._id] ?? row.slug}`}
+                              style={{ fontWeight: 600, fontSize: '1.1rem', color: 'inherit', textDecoration: 'none' }}
+                            >
+                              {courseTitles[row._id] ?? row?.courseName ?? row?.title}
+                            </Link>
+                          </GridCol>
+                          <GridCol span={2}>
+                            <Badge
+                              variant="light"
+                              color={(courseStatuses[row._id] ?? row.status) === 'published' ? 'green' : 'yellow'}
+                            >
+                              {courseStatuses[row._id] ?? row.status}
+                            </Badge>
+                          </GridCol>
+                          <GridCol span={3}>
+                            <ActionButtons
+                              row={row}
+                              handleCourseDeleteClick={handleCourseDeleteClick}
+                              courseStatuses={courseStatuses}
+                              handleSetCourseTitle={handleSetCourseTitle}
+                              handleSetCourseSlug={handleSetCourseSlug}
+                              handleSetCourseStatus={handleSetCourseStatus}
+                            />
+                          </GridCol>
+                          <GridCol span={1} style={{ textAlign: 'center' }}>
+                            {row?.sections?.length > 0 && (
+                              <ActionIcon
+                                onClick={() => toggleCourse(row._id)}
+                                variant="subtle"
+                                color="gray"
+                              >
+                                {expandedCourse[row._id] ? <IconChevronUp size={18} /> : <IconChevronDown size={18} />}
+                              </ActionIcon>
                             )}
-                          </Collapse>
-                        </td>
-                      </tr>
-                    </React.Fragment>
-                  )) : (
-                    <tr>
-                      <td colSpan={tableColumns.length}>
-                        <Center>No data available</Center>
-                      </td>
-                    </tr>
-                  )
-                )}
-              </tbody>
-            </Table>
+                          </GridCol>
+                        </Grid>
+                      </div>
+
+                      {/* Sections List */}
+                      <Collapse in={expandedCourse[row._id]}>
+                        <Box bg="gray.0" py="xs">
+                          {row?.sections?.map((section) => (
+                            <React.Fragment key={section._id}>
+                              <div style={{ padding: '8px 16px', borderTop: '1px solid #eee' }}>
+                                <Grid align="center" gutter="xs">
+                                  <GridCol span={6}>
+                                    <Group gap="xs" pl="md">
+                                      <Text size="sm" fw={500} c="dimmed">Section:</Text>
+                                      <Text size="sm" fw={600}>{section.sectionTitle}</Text>
+                                    </Group>
+                                  </GridCol>
+                                  <GridCol span={2}>
+                                    {/* Placeholder for Section Status if needed */}
+                                  </GridCol>
+                                  <GridCol span={3}>
+                                    {section?.videos?.length > 0 && (
+                                      <Group gap="xs">
+                                        {section?.videos?.length > 0 && (
+                                          isMobile ? (
+                                            <Menu position="bottom-end" withArrow>
+                                              <Menu.Target>
+                                                <ActionIcon variant="subtle" size="sm">
+                                                  <IconDotsVertical size={16} />
+                                                </ActionIcon>
+                                              </Menu.Target>
+                                              <Menu.Dropdown>
+                                                <Menu.Item
+                                                  leftSection={
+                                                    section?.videos.filter((x: Video) => x.isPublish).length !== section?.videos.length ?
+                                                      <IconEye size={16} /> :
+                                                      <IconEyeOff size={16} />
+                                                  }
+                                                  onClick={() => {
+                                                    section?.videos.filter((x: Video) => x.isPublish).length !== section?.videos.length
+                                                      ? publishAllVideosInSection(section._id, false)
+                                                      : publishAllVideosInSection(section._id, true);
+                                                  }}
+                                                >
+                                                  {section?.videos.filter((x: Video) => x.isPublish).length !== section?.videos.length ? "Publish All" : "Unpublish All"}
+                                                </Menu.Item>
+                                              </Menu.Dropdown>
+                                            </Menu>
+                                          ) : (
+                                            <Tooltip label="Publish/Unpublish All">
+                                              <ActionIcon
+                                                onClick={() => {
+                                                  section?.videos.filter((x: Video) => x.isPublish).length !== section?.videos.length
+                                                    ? publishAllVideosInSection(section._id, false)
+                                                    : publishAllVideosInSection(section._id, true);
+                                                }}
+                                                variant="light"
+                                                color="blue"
+                                                size="sm"
+                                              >
+                                                {section?.videos.filter((x: Video) => x.isPublish).length !== section?.videos.length ? <IconEye size={16} /> : <IconEyeOff size={16} />}
+                                              </ActionIcon>
+                                            </Tooltip>
+                                          )
+                                        )}
+                                      </Group>
+                                    )}
+                                  </GridCol>
+                                  <GridCol span={1} style={{ textAlign: 'center' }}>
+                                    {section?.videos?.length > 0 && (
+                                      <ActionIcon
+                                        onClick={() => toggleSection(section._id)}
+                                        variant="subtle"
+                                        size="sm"
+                                        color="gray"
+                                      >
+                                        {expandedSection[section._id] ? <IconChevronUp size={16} /> : <IconChevronDown size={16} />}
+                                      </ActionIcon>
+                                    )}
+                                  </GridCol>
+                                </Grid>
+                              </div>
+
+                              {/* Lectures List */}
+                              <Collapse in={expandedSection[section._id]}>
+                                <Stack gap={0} bg="white">
+                                  {section?.videos?.map((video, idx) => (
+                                    <div key={video._id} style={{ padding: '8px 16px', paddingLeft: '48px', borderTop: '1px solid #f8f9fa' }}>
+                                      <Grid align="center" gutter="xs">
+                                        <GridCol span={6}>
+                                          <Group gap="xs">
+                                            <Text size="xs" c="dimmed">{idx + 1}.</Text>
+                                            <Text size="sm">{video.name}</Text>
+                                          </Group>
+                                        </GridCol>
+                                        <GridCol span={2}>
+                                          {video.isPublish ? (
+                                            <Badge size="xs" color="green" variant="dot">Published</Badge>
+                                          ) : (
+                                            <Badge size="xs" color="gray" variant="dot">Draft</Badge>
+                                          )}
+                                        </GridCol>
+                                        <GridCol span={3}>
+                                          {renderVideoActions(video, section._id)}
+                                        </GridCol>
+                                        <GridCol span={1}>
+                                        </GridCol>
+                                      </Grid>
+                                    </div>
+                                  ))}
+                                </Stack>
+                              </Collapse>
+                            </React.Fragment>
+                          ))}
+                        </Box>
+                      </Collapse>
+                    </Paper>
+                  ))
+                ) : (
+                  <Center p="xl"><Text c="dimmed">No data available</Text></Center>
+                )
+              )}
+            </Stack>
 
             <Box display={"flex"} style={{ justifyContent: "end" }}>
               <Pagination
