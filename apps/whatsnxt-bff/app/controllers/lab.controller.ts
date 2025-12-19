@@ -1,4 +1,4 @@
-import Lab from "../models/Lab";
+import { LabModel as Lab } from "../models/lab";
 import { getLogger } from "../../config/logger";
 const logger = getLogger("lab.controller");
 

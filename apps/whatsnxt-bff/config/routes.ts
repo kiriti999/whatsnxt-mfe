@@ -6,6 +6,9 @@ import { errorHandler } from "../app/errors/errorHandler";
 import diagramShapeRoutes from "../app/routes/diagramshape.routes";
 import labRoutes from "../app/routes/lab.routes";
 import labPageRoutes from "../app/routes/labpage.routes";
+import labPricingRoutes from "../app/routes/labPricing.routes";
+import labPurchaseRoutes from "../app/routes/labPurchase.routes";
+import paymentCallbackRoutes from "../app/routes/paymentCallback.routes";
 
 const logger = getLogger("routes");
 
@@ -38,7 +41,10 @@ export function setupRoutes(app: Application): void {
   // New TypeScript routes
   app.use("/api/v1/labs", labRoutes); // Lab management
   app.use("/api/v1/labs", labPageRoutes); // Lab page management (nested under labs)
+  app.use("/api/v1/labs", labPricingRoutes); // Lab pricing management
+  app.use("/api/v1/labs", labPurchaseRoutes); // Lab purchase management
   app.use("/api/v1/diagram-shapes", diagramShapeRoutes);
+  app.use("/api/v1/webhooks", paymentCallbackRoutes); // Payment webhooks
 
   // 404 handler - must come before error handler
   app.use((req: Request, res: Response, next: NextFunction) => {
