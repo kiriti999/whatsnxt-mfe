@@ -60,6 +60,7 @@ const LabDetailPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [activeTab, setActiveTab] = useState<string | null>('details');
   const [searchQuery, setSearchQuery] = useState('');
+  const [requiresAccess, setRequiresAccess] = useState(false);
 
   // Derived values (must come after state declarations)
   const isTrainer = isAuthenticated && user?.role === 'trainer';
@@ -102,6 +103,23 @@ const LabDetailPage = () => {
       const response = await labApi.getLabById(labId);
       const labData = response.data;
       setLab(labData);
+      
+      // Check if access is required (returned from backend)
+      const accessRequired = (response as any).requiresAccess || false;
+      setRequiresAccess(accessRequired);
+      
+      // Debug logging
+      console.log('[Lab Access Debug]', {
+        labId,
+        labStatus: labData.status,
+        requiresAccess: accessRequired,
+        userRole: user?.role,
+        isAuthenticated,
+        pricing: labData.pricing,
+        pagesCount: labData.pages?.length || 0,
+      });
+      
+      // Set pages - backend already filtered them if access is required
       setPages(labData.pages || []);
 
       // Populate form with lab data
@@ -262,7 +280,23 @@ const LabDetailPage = () => {
   // Derived values after lab is loaded
   const isPublished = lab.status === 'published';
   const canEdit = lab.status === 'draft';
-  const canViewAccess = isPublished && !isOwner; // Students can see access/purchase options
+  const isStudent = isAuthenticated && user?.role === 'student';
+  // Show purchase button when: published + student + requires access
+  const canViewAccess = isPublished && isStudent && requiresAccess;
+  // Can view tests when: owner OR (student AND has access = not requiring access)
+  const canViewTests = isOwner || (isStudent && !requiresAccess);
+
+  // Debug logging for access control
+  console.log('[Access Control Debug]', {
+    isPublished,
+    isStudent,
+    isOwner,
+    isTrainer,
+    requiresAccess,
+    canViewAccess,
+    canViewTests,
+    userRole: user?.role,
+  });
 
   // Search and filter pages based on questions
   const filteredPages = pages.filter(page => {
@@ -429,6 +463,24 @@ const LabDetailPage = () => {
         </Tabs.Panel>
 
         <Tabs.Panel value="tests" pt="md">
+          {!canViewTests && isPublished && isStudent && requiresAccess ? (
+            <Paper shadow="sm" p="xl" withBorder bg="yellow.0">
+              <Stack align="center" gap="md">
+                <Text size="xl" fw={600}>🔒 Access Required</Text>
+                <Text c="dimmed" ta="center" size="lg">
+                  You need to purchase this lab or enroll in a course to view tests and questions.
+                </Text>
+                <LabAccessButton
+                  labId={labId}
+                  labTitle={lab.name}
+                  pricing={lab.pricing}
+                  onAccessGranted={() => {
+                    fetchLabData();
+                  }}
+                />
+              </Stack>
+            </Paper>
+          ) : (
           <Stack>
             {canEdit && (
               <Group justify="space-between" mb="md">
@@ -615,6 +667,7 @@ const LabDetailPage = () => {
               </Paper>
             )}
           </Stack>
+          )}
         </Tabs.Panel>
       </Tabs>
     </Container>

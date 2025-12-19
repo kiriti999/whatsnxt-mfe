@@ -33,12 +33,19 @@ class AccessControlService {
       }
 
       // 2. Check if lab is free
-      if ((lab as any).pricing?.purchaseType === "free") {
+      if (lab.pricing?.purchaseType === "free") {
         this.setCache(cacheKey, true);
         return { hasAccess: true, reason: "free" };
       }
 
-      // 3. Check for direct purchase
+      // 3. If lab has no pricing configured, deny access (instructor must set pricing)
+      if (!lab.pricing || !lab.pricing.purchaseType) {
+        console.warn(`Lab ${labId} has no pricing configured, denying access`);
+        this.setCache(cacheKey, false);
+        return { hasAccess: false, reason: "no_pricing_configured" };
+      }
+
+      // 4. Check for direct purchase
       const purchase = await LabPurchase.findOne({
         studentId: new mongoose.Types.ObjectId(studentId),
         labId: labId, // UUID string
@@ -50,7 +57,7 @@ class AccessControlService {
         return { hasAccess: true, reason: "purchased" };
       }
 
-      // 4. Check for course enrollment
+      // 5. Check for course enrollment
       const hasEnrollmentAccess = await this.checkCourseEnrollment(
         studentId,
         labId
@@ -60,7 +67,7 @@ class AccessControlService {
         return { hasAccess: true, reason: "course_enrollment" };
       }
 
-      // 5. No access found
+      // 6. No access found
       this.setCache(cacheKey, false);
       return { hasAccess: false, reason: "no_access" };
     } catch (error: any) {

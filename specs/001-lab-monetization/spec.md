@@ -102,7 +102,7 @@ An instructor can update the price of an existing paid lab. Existing student pur
 - What happens if an instructor deletes or unpublishes a lab that students have purchased? (Students retain access to purchased content)
 - How does the system handle refund requests? (Requires transaction record lookup and manual refund processing workflow)
 - What if course enrollment is revoked - does lab access granted via course also revoke? (Lab access should follow course enrollment status)
-- What happens when the payment succeeds but the callback fails to update purchase records? (Needs idempotent callback handling and manual reconciliation process)
+- What happens when the payment succeeds but the callback fails to update purchase records? (System uses transaction ID as idempotency key to prevent duplicate processing; manual reconciliation process available for failed callbacks)
 - How are tax calculations handled for lab pricing? (Assumes prices are inclusive of taxes, or requires clarification on tax jurisdiction)
 
 ## Requirements *(mandatory)*
@@ -125,7 +125,7 @@ An instructor can update the price of an existing paid lab. Existing student pur
 - **FR-014**: System MUST preserve original purchase price in existing purchase records when lab price is updated
 - **FR-015**: System MUST prevent instructors from changing a paid lab to free if any students have purchased it
 - **FR-016**: System MUST allow instructors to change a free lab to paid, while grandfathering existing students who accessed it as free
-- **FR-017**: System MUST handle payment gateway callbacks to update purchase status and grant access
+- **FR-017**: System MUST handle payment gateway callbacks to update purchase status and grant access, using transaction ID as idempotency key to prevent duplicate processing
 - **FR-018**: System MUST display appropriate error messages when payment fails and allow students to retry purchase
 - **FR-019**: System MUST support currency display in Indian Rupees (₹) for pricing
 
@@ -152,6 +152,12 @@ An instructor can update the price of an existing paid lab. Existing student pur
 - **SC-007**: Students enrolled in courses can access included labs without encountering purchase prompts (100% seamless access)
 - **SC-008**: Price update operations complete within 2 seconds and are reflected in new purchase attempts immediately
 - **SC-009**: Instructors attempting invalid operations (e.g., paid-to-free conversion with existing purchases) receive clear validation feedback within 1 second
+
+## Clarifications
+
+### Session 2025-12-18
+
+- Q: How should the system handle duplicate payment callbacks from Razorpay (e.g., retries or network issues)? → A: Use transaction ID as idempotency key - ignore duplicate callbacks with same transaction ID
 
 ## Assumptions
 

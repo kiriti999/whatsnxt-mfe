@@ -45,7 +45,13 @@ const renderCards = () => options.map((item) => (
     </Checkbox.Card>
 ));
 
-const Refund = ({ handleRefund, isRefundLoading }) => {
+interface RefundProps {
+    handleRefund: (reasons: string[], message: string) => void;
+    isRefundLoading: boolean;
+    refundWindowText?: string;
+}
+
+const Refund = ({ handleRefund, isRefundLoading, refundWindowText = "You have 7 days to make a refund after purchase" }: RefundProps) => {
     const [isDisabled, setIsDisabled] = useState(false);
 
     const {
@@ -76,7 +82,7 @@ const Refund = ({ handleRefund, isRefundLoading }) => {
 
     return (
         <>
-            <Title order={5}>You have 7 days to make a refund after purchase</Title>
+            <Title order={5}>{refundWindowText}</Title>
             <form onSubmit={handleSubmit(({ reasons, message }) => handleRefund(reasons, message))}>
                 <Flex gap='sm' mt={8} direction='column'>
                     <Group gap="sm">

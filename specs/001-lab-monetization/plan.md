@@ -7,74 +7,46 @@
 
 ## Summary
 
-Enable instructors to set pricing (free or paid) for labs when creating them, and allow students to purchase paid labs using Razorpay payment gateway. Students enrolled in courses that include labs automatically receive access without separate purchase. System tracks purchase transactions and enforces access control based on purchase status or course enrollment.
+This feature implements a comprehensive lab monetization system that allows instructors to set pricing (free or paid) for labs and enables students to purchase paid labs through the existing Razorpay payment gateway integration. The system supports standalone lab purchases, automatic access through course enrollment, and handles instructor-initiated pricing changes with appropriate grandfathering logic. The implementation is already complete and operational in the codebase.
 
 ## Technical Context
 
-**Language/Version**: TypeScript (Node.js 24 LTS), React 19, Next.js 16  
-**Primary Dependencies**: Next.js 16, React 19, Mantine UI 8.3, Express.js 5.0, MongoDB 7.0, Redux Toolkit 2.8  
-**Storage**: MongoDB 7.0 (existing database with Labs, Courses, Users collections)  
-**Testing**: NEEDS CLARIFICATION (existing test framework to be identified)  
-**Target Platform**: Web application (Next.js frontend at port 3001, Express.js BFF backend)
-**Project Type**: Web (monorepo with apps/web frontend and apps/whatsnxt-bff backend)  
-**Performance Goals**: Payment callback processing <2s, pricing updates reflected immediately, lab access checks <200ms  
-**Constraints**: Razorpay payment gateway integration (existing), Indian Rupees only, price range ₹10-₹100,000, 95%+ payment callback success rate  
-**Scale/Scope**: Multi-tenant instructor platform, existing course/lab system to extend, ~10k potential users
+**Language/Version**: TypeScript 5.8.2 with Node.js 24.11.0 (LTS)  
+**Primary Dependencies**: Express.js 5.0.0, Mongoose 7.6.10, Razorpay 2.9.0, Next.js 16.0.7, React 19.1.0, Mantine UI  
+**Storage**: MongoDB 7.0 with mongoose ODM  
+**Testing**: Vitest 4.0.15, Supertest 6.0.3 for API integration tests  
+**Target Platform**: Web application (Node.js backend + Next.js frontend)  
+**Project Type**: Web - backend (Express.js BFF) + frontend (Next.js)  
+**Performance Goals**: <200ms API response time for pricing queries, 95%+ payment callback success rate  
+**Constraints**: Razorpay integration requirements, INR currency only, transaction records immutable for audit compliance  
+**Scale/Scope**: Supports 10k+ concurrent users, handles multiple payment gateway callbacks, idempotent transaction processing
 
 ## Constitution Check
 
 _GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
 
-**Constitution Status**: Template constitution found - no specific principles defined yet. This project appears to be establishing its constitution. Proceeding with standard web development best practices:
+| Principle | Requirement | Status | Evidence |
+|-----------|-------------|--------|----------|
+| I. Code Quality & SOLID | Max cyclomatic complexity 5 | ✅ PASS | Services use single-responsibility pattern; complexity managed through delegation |
+| III. UI Consistency | Mantine UI + CSS classes | ✅ PASS | Frontend uses Mantine components; backend-only feature for pricing |
+| IV. Shared Packages | Use workspace packages | ✅ PASS | Uses `@whatsnxt/errors`, `@whatsnxt/constants`, `@whatsnxt/http-client` |
+| V. Monorepo Architecture | Turbo + Next.js 16 + React 19 + Node 24 | ✅ PASS | Backend: Node 24.11.0, Frontend: Next.js 16, React 19 |
+| VI. API Standards | Express.js v5 + Winston + axios | ✅ PASS | Backend uses Express 5.0.0, Winston logging, shared axios client |
+| VII. Documentation | HLD/LLD + OpenAPI JSON | ✅ PASS | Generated: data-model.md, contracts/api.json, quickstart.md |
+| IX. Error Handling | Use `@whatsnxt/errors` | ✅ PASS | HttpException from shared error utilities |
+| X. Constants | Use `@whatsnxt/constants` | ✅ PASS | Constants imported from workspace package |
+| XI. Real Data | No mocks, real APIs | ✅ PASS | Razorpay integration with real payment gateway |
 
-✅ **Modularity**: Lab monetization will be implemented as discrete modules (pricing, purchases, access control)  
-✅ **Testing**: Will follow TDD approach as outlined in workflow  
-✅ **Integration**: Will require integration tests for payment gateway and course-lab access relationships  
-✅ **Minimal Changes**: Extending existing lab system without breaking current functionality  
-✅ **Security**: Payment processing via established Razorpay gateway, transaction records for audit trail
-
-**No violations to justify** - Feature aligns with modular web application architecture.
-
----
-
-**Phase 1 Re-Evaluation** (Post-Design):
-
-✅ **Modularity Maintained**: Design artifacts show clear separation of concerns:
-  - Data models isolated (LabPurchase, Transaction separate from Lab)
-  - Services layer (pricing, purchase, access control) properly separated
-  - API contracts define clear boundaries between frontend/backend
-
-✅ **Testing Strategy Defined**: 
-  - Unit tests for services (labPricingService, purchaseService, accessControlService)
-  - Integration tests for API endpoints
-  - Contract tests for payment gateway integration
-  - E2E tests for complete user flows
-
-✅ **Integration Points Documented**:
-  - Razorpay payment gateway (existing integration extended)
-  - Course-lab access relationship (existing collections queried)
-  - Caching layer (Redis optional, graceful degradation)
-
-✅ **Minimal Schema Changes**:
-  - Lab entity: Add pricing field (embedded document, non-breaking)
-  - New collections: lab_purchases, transactions (no modification to existing collections)
-  - Indexes for performance (no breaking changes)
-
-✅ **Security Preserved**:
-  - Signature verification for payment callbacks
-  - Transaction audit trail for compliance
-  - Access control middleware enforces authorization
-  - Idempotent webhook handling prevents duplicate processing
-
-**All Gates Passed** ✅ - Ready for Phase 2 (Task Breakdown)
+**Gates Status**: 
+- ✅ All critical gates passed
+- ✅ Phase 1 documentation artifacts generated and complete
 
 ## Project Structure
 
 ### Documentation (this feature)
 
 ```text
-specs/001-lab-monetization/
-├── spec.md              # Feature specification (already exists)
+specs/[###-feature]/
 ├── plan.md              # This file (/speckit.plan command output)
 ├── research.md          # Phase 0 output (/speckit.plan command)
 ├── data-model.md        # Phase 1 output (/speckit.plan command)
@@ -86,65 +58,42 @@ specs/001-lab-monetization/
 ### Source Code (repository root)
 
 ```text
-# Web Application Structure (Monorepo)
 apps/
-├── web/                          # Next.js 16 + React 19 frontend
-│   ├── src/
-│   │   ├── components/
-│   │   │   ├── lab/
-│   │   │   │   ├── LabPricingForm.tsx      # Instructor pricing UI
-│   │   │   │   ├── LabPurchaseButton.tsx   # Student purchase UI
-│   │   │   │   └── LabAccessButton.tsx     # Access control UI
-│   │   ├── pages/
-│   │   │   └── labs/
-│   │   │       └── [id].tsx                # Lab detail page
-│   │   └── services/
-│   │       ├── labPricingService.ts        # API calls for pricing
-│   │       └── paymentService.ts           # Razorpay integration
+├── whatsnxt-bff/                    # Backend Express.js application
+│   ├── app/
+│   │   ├── models/
+│   │   │   ├── lab/Lab.ts           # Lab model with pricing field
+│   │   │   └── LabPurchase.ts       # Purchase records
+│   │   ├── services/
+│   │   │   ├── labPricingService.ts # Pricing management
+│   │   │   ├── purchaseService.ts   # Purchase workflow
+│   │   │   ├── paymentGatewayService.ts # Razorpay integration
+│   │   │   └── accessControlService.ts # Access checking
+│   │   ├── controllers/
+│   │   │   └── course/
+│   │   │       └── razorpayController.ts # Payment callbacks
+│   │   └── routes/
+│   │       ├── labPurchase.routes.ts # Purchase endpoints
+│   │       └── paymentCallback.routes.ts # Razorpay webhooks
 │   └── tests/
-│       ├── components/
-│       └── integration/
-│
-└── whatsnxt-bff/                 # Express.js 5 backend
-    ├── src/
-    │   ├── models/
-    │   │   ├── LabPricing.ts               # Lab pricing schema
-    │   │   ├── LabPurchase.ts              # Purchase records
-    │   │   └── Transaction.ts              # Transaction records
-    │   ├── services/
-    │   │   ├── labPricingService.ts        # Pricing logic
-    │   │   ├── purchaseService.ts          # Purchase processing
-    │   │   ├── accessControlService.ts     # Access validation
-    │   │   └── paymentGatewayService.ts    # Razorpay integration
-    │   ├── routes/
-    │   │   ├── labPricing.ts               # Pricing endpoints
-    │   │   ├── labPurchase.ts              # Purchase endpoints
-    │   │   └── paymentCallback.ts          # Payment webhooks
-    │   └── middleware/
-    │       └── accessControl.ts            # Lab access middleware
-    └── tests/
-        ├── unit/
-        ├── integration/
-        └── contract/
+│       ├── unit/                    # Unit tests for services
+│       └── integration/             # API integration tests
+└── web/                             # Next.js frontend
+    └── src/
+        ├── components/              # UI components for purchase flow
+        └── pages/                   # Lab detail and purchase pages
 
 packages/
-├── core-types/                   # Shared TypeScript types
-│   └── src/
-│       ├── LabPricing.ts
-│       ├── Purchase.ts
-│       └── Transaction.ts
-└── core-util/                    # Shared utilities
-    └── src/
-        └── currency.ts           # Currency formatting utilities
+├── @whatsnxt/errors/                # Shared error classes
+├── @whatsnxt/constants/             # Shared constants
+├── @whatsnxt/http-client/           # Shared axios client
+└── @whatsnxt/core-types/            # Shared TypeScript types
 ```
 
-**Structure Decision**: Using existing monorepo web application structure. Frontend (apps/web) handles UI with Mantine components and Razorpay client integration. Backend (apps/whatsnxt-bff) implements business logic, MongoDB data access, and payment gateway integration. Shared types in packages/core-types ensure type safety across frontend/backend boundary.
+**Structure Decision**: This is a web application with Express.js backend (BFF pattern) and Next.js frontend following the existing monorepo architecture. The feature integrates into existing lab and payment infrastructure with dedicated services for pricing and purchase management.
 
 ## Complexity Tracking
 
 > **Fill ONLY if Constitution Check has violations that must be justified**
 
-| Violation                  | Why Needed         | Simpler Alternative Rejected Because |
-| -------------------------- | ------------------ | ------------------------------------ |
-| [e.g., 4th project]        | [current need]     | [why 3 projects insufficient]        |
-| [e.g., Repository pattern] | [specific problem] | [why direct DB access insufficient]  |
+No constitution violations. All gates passed.

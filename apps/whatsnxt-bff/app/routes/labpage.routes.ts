@@ -7,6 +7,9 @@ import {
 } from "@whatsnxt/errors";
 import { SUCCESS_MESSAGES, HTTP_STATUS } from "@whatsnxt/constants";
 import { getLogger } from "../../config/logger";
+import accessControlService from "../services/accessControlService";
+import Lab from "../models/lab/Lab";
+import auth from '../common/middlewares/auth-middleware';
 
 const router = Router();
 const logger = getLogger("LabPageRoutes");
@@ -81,12 +84,36 @@ router.get(
 /**
  * GET /api/v1/labs/:labId/pages/:pageId
  * Get a specific lab page with populated question and diagram test
+ * For students viewing published paid labs, access control is enforced
  */
 router.get(
-  "/:labId/pages/:pageId",
+  "/:labId/pages/:pageId", auth,
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { pageId } = req.params;
+      const { labId, pageId } = req.params;
+      // extractUser middleware sets req.userId and req.userRole (not req.user)
+      const userId = (req as any).userId;
+      const userRole = (req as any).userRole;
+
+      // Check lab status
+      const lab: any = await Lab.findOne({ id: labId }).select('status').lean();
+      if (!lab) {
+        throw new NotFoundError("Lab not found");
+      }
+
+      // If it's a published lab and user is a student, check access
+      if (lab.status === 'published' && userRole === 'student' && userId) {
+        const accessResult = await accessControlService.canAccessLab(userId.toString(), labId);
+
+        if (!accessResult.hasAccess) {
+          return res.status(HTTP_STATUS.FORBIDDEN).json({
+            success: false,
+            message: "You do not have access to this lab. Please purchase or enroll in a course to access.",
+            reason: accessResult.reason,
+            requiresAccess: true,
+          });
+        }
+      }
 
       const page = await LabPageService.getLabPageWithTests(pageId);
 

@@ -166,12 +166,23 @@ const LabPageEditorPage = () => {
       }
     } catch (error: any) {
       console.error('Failed to load page data:', error);
+      
+      // Check if it's an access control error
+      const isAccessError = error?.response?.status === 403 || error?.response?.data?.requiresAccess;
+      
       // Show error notification
       notifications.show({
-        title: 'Error Loading Page',
+        title: isAccessError ? 'Access Required' : 'Error Loading Page',
         message: error?.response?.data?.message || error?.message || 'Failed to load page data. Please ensure the lab and page exist.',
-        color: 'red',
+        color: isAccessError ? 'yellow' : 'red',
       });
+      
+      // If access error, redirect back to lab detail page
+      if (isAccessError && isStudent) {
+        setTimeout(() => {
+          router.push(`/labs/${labId}?tab=details`);
+        }, 2000);
+      }
     } finally {
       setLoading(false);
     }
