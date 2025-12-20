@@ -22,22 +22,22 @@ export const SearchForm = ({
 
       <TextInput
         ref={inputRef}
-        placeholder="Search"
+        placeholder="Search..."
         size="md"
         radius="xl"
         className="w-100"
         onChange={onChangeSearch}
+        rightSection={
+          <ActionIcon
+            type="submit"
+            variant="transparent"
+            c="red"
+            aria-label="Search"
+          >
+            <IconSearch size={18} />
+          </ActionIcon>
+        }
       />
-
-      <ActionIcon
-        type="submit"
-        variant="transparent"
-        color="#fe4a55"
-        aria-label="Search"
-        className={styles['search-icon']}
-      >
-        <IconSearch size={18} />
-      </ActionIcon>
 
       {SearchResultComponent && (
         <SearchResultComponent
