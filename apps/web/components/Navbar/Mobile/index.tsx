@@ -1,12 +1,42 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
-import { Anchor, Button, Divider, Drawer, Group, Menu, ScrollArea, rem, Text } from '@mantine/core';
-import type { Link as LinkType, User } from '../types';
-import { IconLogin, IconLogout, IconUserShare } from '@tabler/icons-react';
-import classes from '../Navbar.module.css';
+import {
+  Drawer,
+  ScrollArea,
+  rem,
+  Text,
+  NavLink,
+  Avatar,
+  Box,
+  Group,
+  UnstyledButton,
+  Divider,
+  Stack,
+  ThemeIcon,
+  Button
+} from '@mantine/core';
+import type { Link as LinkType } from '../types';
+import {
+  IconLogin,
+  IconLogout,
+  IconUserShare,
+  IconHome,
+  IconArticle,
+  IconBook,
+  IconSchool,
+  IconDashboard,
+  IconCpu,
+  IconSearch,
+  IconFlask,
+  IconBriefcase,
+  IconUserCircle,
+  IconChevronRight,
+  IconTrash
+} from '@tabler/icons-react';
 import useAuth from '../../../hooks/Authentication/useAuth';
 import { notifications } from '@mantine/notifications';
 import { CacheAPI } from '../../../apis/v1/redis';
+import classes from '../Navbar.module.css';
 
 interface INavbarMobile {
   links: LinkType[];
@@ -16,11 +46,38 @@ interface INavbarMobile {
   closeDrawer: any;
 }
 
+const getIconForLink = (title: string) => {
+  const normalizedTitle = title.toLowerCase();
+
+  if (normalizedTitle.includes('home')) return <IconHome size="1.1rem" stroke={1.5} />;
+  if (normalizedTitle.includes('blog')) return <IconArticle size="1.1rem" stroke={1.5} />;
+  if (normalizedTitle.includes('tutorial')) return <IconBook size="1.1rem" stroke={1.5} />;
+  if (normalizedTitle.includes('course')) return <IconSchool size="1.1rem" stroke={1.5} />;
+  if (normalizedTitle.includes('ai') || normalizedTitle.includes('learn')) return <IconCpu size="1.1rem" stroke={1.5} />;
+  if (normalizedTitle.includes('dashboard')) return <IconDashboard size="1.1rem" stroke={1.5} />;
+  if (normalizedTitle.includes('lab')) return <IconFlask size="1.1rem" stroke={1.5} />;
+  if (normalizedTitle.includes('consult')) return <IconBriefcase size="1.1rem" stroke={1.5} />;
+  if (normalizedTitle.includes('search')) return <IconSearch size="1.1rem" stroke={1.5} />;
+  if (normalizedTitle.includes('profile')) return <IconUserCircle size="1.1rem" stroke={1.5} />;
+
+  return <IconChevronRight size="1.1rem" stroke={1.5} />;
+};
+
 export const NavbarMobile = ({ links, loginMenuLinks, drawerOpened, closeDrawer }: INavbarMobile) => {
   const { logout: handleLogout, loading, user: authUser } = useAuth();
   const isAdmin = authUser && authUser.role === 'admin';
   const isTrainer = authUser && authUser.role === 'trainer';
   const isLoggedIn = !!authUser;
+
+  // Track expanded state for nested menus
+  const [activeSubmenus, setActiveSubmenus] = useState<Record<string, boolean>>({});
+
+  const toggleSubmenu = (title: string) => {
+    setActiveSubmenus(prev => ({
+      ...prev,
+      [title]: !prev[title]
+    }));
+  };
 
   async function clearCache() {
     try {
@@ -31,12 +88,12 @@ export const NavbarMobile = ({ links, loginMenuLinks, drawerOpened, closeDrawer 
         title: 'Cache invalidation success!',
         message: 'Complete cache has been cleared',
       });
-    } catch (error) {
+    } catch (error: any) {
       notifications.show({
         position: 'bottom-right',
         color: 'red',
         title: 'Cache invalidation failed!',
-        message: error,
+        message: typeof error === 'string' ? error : error.message || 'Unknown error',
       });
     }
   }
@@ -45,148 +102,233 @@ export const NavbarMobile = ({ links, loginMenuLinks, drawerOpened, closeDrawer 
     <Drawer
       opened={drawerOpened}
       onClose={closeDrawer}
-      size="80%"
-      padding="md"
-      title={authUser?.email}
+      size="85%"
+      padding={0}
+      withCloseButton={false}
       hiddenFrom="1367px"
       zIndex={1000000}
+      styles={{
+        content: { display: 'flex', flexDirection: 'column' }
+      }}
     >
-      <ScrollArea h={`calc(100vh - ${rem(80)})`} mx="-md">
-        <Divider my={'0.2rem'} />
-
-        {links.map((link) => (
-          <Anchor
-            mt={'0.01rem'}
-            href={link.url}
-            component={Link}
-            className={classes.link}
-            target={link.linkType}
-            key={link.url}
-            onClick={closeDrawer}
-          >
-            <Text size='sm'>{link.title}</Text>
-          </Anchor>
-        ))}
-
-        {(isAdmin || isTrainer) && (
-          <Anchor href="/trainer/courses" component={Link} className={classes.link} onClick={closeDrawer}>
-            <Text size='sm'>Dashboard</Text>
-          </Anchor>
-        )}
-
-        <Anchor href={isLoggedIn ? '/labs' : '/consulting'} mt={'0.01rem'} className={classes.link} component={Link} onClick={closeDrawer}>
-          <Text size='sm'>{isLoggedIn ? 'Labs' : 'Consulting'}</Text>
-        </Anchor>
-
-        <Anchor href='/search-trainers' mt={'0.01rem'} className={classes.link} component={Link} onClick={closeDrawer}>
-          <Text size='sm'>Search A Trainer</Text>
-        </Anchor>
-
-        {/* Add the "Become a trainer" link with the same condition as desktop */}
-        {(!isAdmin && !isTrainer) && (
-          <Anchor href='/become-a-trainer' mt={'0.01rem'} className={classes.link} component={Link} onClick={closeDrawer}>
-            <Text size='sm'>Become a trainer</Text>
-          </Anchor>
-        )}
-
-        {isAdmin && (
-          <Anchor mt={'0.01rem'} className={classes.link}>
-            <Button size='xs' onClick={clearCache}>Clear all cache</Button>
-          </Anchor>
-        )}
-
-        <Divider my={'0.8rem'} />
-
-        {isLoggedIn && loginMenuLinks.map((link) => {
-          if (link.children) {
-            return (
-              <Menu key={link.url} withinPortal position="bottom-start">
-                <Menu.Target>
-                  <Button variant="subtle" mt={'0.01rem'} className={classes.link}>
-                    <Text size='sm'>{link.title}</Text>
-                  </Button>
-                </Menu.Target>
-                <Menu.Dropdown className={classes.dropdownStyle}>
-                  <Menu.Item
-                    onClick={closeDrawer}
-                    fz={'1.01rem'}
-                    href={link.url}
-                    component={Link}
-                  >
-                    <Text size='sm'>{link.title}</Text>
-                  </Menu.Item>
-                  {link.children.map((child) => (
-                    <Menu.Item
-                      key={child.url}
-                      onClick={closeDrawer}
-                      fz={'1.01rem'}
-                      href={child.url}
-                      component={Link}
-                    >
-                      <Text size='sm'>{child.title}</Text>
-                    </Menu.Item>
-                  ))}
-                </Menu.Dropdown>
-              </Menu>
-            );
-          } else {
-            return (
-              <Anchor
-                mt={'0.01rem'}
-                href={link.url}
-                component={Link}
-                className={classes.link}
-                key={link.url}
-                onClick={closeDrawer}
+      <Box display="flex" style={{ flexDirection: 'column', height: '100%' }}>
+        {/* User Profile Header */}
+        <Box p="md" bg="blue.0" style={{ borderBottom: `1px solid var(--mantine-color-gray-3)` }}>
+          {isLoggedIn ? (
+            <Group>
+              <Avatar
+                src={(authUser as any)?.trainerProfilePhoto}
+                alt={authUser?.name}
+                radius="xl"
+                size="lg"
+                color="blue"
               >
-                <Text size='sm'>{link.title}</Text>
-              </Anchor>
-            );
-          }
-        })}
-
-        <Divider my="sm" />
-
-        <Group justify="center" grow pb="xl" px="md">
-          {!isLoggedIn ? (
-            <>
-              <Button
-                loading={loading}
-                size="sm"
-                component={Link}
-                href="/authentication"
-                c="white"
-                leftSection={<IconLogin style={{ width: rem(14), height: rem(14) }} />}
-                onClick={closeDrawer}
-              >
-                Login
-              </Button>
-              <Button
-                loading={loading}
-                size="sm"
-                component={Link}
-                href="/authentication"
-                c="white"
-                leftSection={<IconUserShare style={{ width: rem(14), height: rem(14) }} />}
-                onClick={closeDrawer}
-              >
-                Sign up
-              </Button>
-            </>
+                {authUser?.name?.charAt(0).toUpperCase()}
+              </Avatar>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <Text size="sm" fw={600} lineClamp={1}>
+                  {authUser?.name}
+                </Text>
+                <Text c="dimmed" size="xs" lineClamp={1} style={{ wordBreak: 'break-all' }}>
+                  {authUser?.email}
+                </Text>
+              </div>
+            </Group>
           ) : (
+            <Stack gap={5}>
+              <Text size="lg" fw={700}>Welcome to WhatsNxt</Text>
+              <Text size="sm" c="dimmed">Sign in to access your courses and labs</Text>
+              <Group mt="sm" grow>
+                <Button
+                  variant="filled"
+                  size="xs"
+                  component={Link}
+                  href="/authentication"
+                  onClick={closeDrawer}
+                  leftSection={<IconLogin size={14} />}
+                >
+                  Login
+                </Button>
+                <Button
+                  variant="outline"
+                  size="xs"
+                  component={Link}
+                  href="/authentication"
+                  onClick={closeDrawer}
+                  leftSection={<IconUserShare size={14} />}
+                >
+                  Sign Up
+                </Button>
+              </Group>
+            </Stack>
+          )}
+        </Box>
+
+        <ScrollArea style={{ flex: 1 }}>
+          <Stack gap={2} p="md">
+
+            {/* Main Navigation links */}
+            <Text c="dimmed" size="xs" fw={700} tt="uppercase" mb={4} mt="xs">Menu</Text>
+            {links.map((link) => (
+              <NavLink
+                key={link.url}
+                label={link.title}
+                leftSection={getIconForLink(link.title)}
+                component={Link}
+                href={link.url}
+                onClick={closeDrawer}
+                active={false /* Logic to set active could be added here based on router pathname */}
+                variant="subtle"
+                styles={{
+                  root: { borderRadius: 'var(--mantine-radius-md)' },
+                  label: { fontWeight: 500 }
+                }}
+              />
+            ))}
+
+            <Divider my="sm" />
+
+            {/* App specific links */}
+            <Text c="dimmed" size="xs" fw={700} tt="uppercase" mb={4}>Explore</Text>
+
+            <NavLink
+              label={isLoggedIn ? 'Labs' : 'Consulting'}
+              leftSection={isLoggedIn ? <IconFlask size="1.1rem" stroke={1.5} /> : <IconBriefcase size="1.1rem" stroke={1.5} />}
+              component={Link}
+              href={isLoggedIn ? '/labs' : '/consulting'}
+              onClick={closeDrawer}
+              styles={{
+                root: { borderRadius: 'var(--mantine-radius-md)' },
+                label: { fontWeight: 500 }
+              }}
+            />
+
+            <NavLink
+              label="Search A Trainer"
+              leftSection={<IconSearch size="1.1rem" stroke={1.5} />}
+              component={Link}
+              href="/search-trainers"
+              onClick={closeDrawer}
+              styles={{
+                root: { borderRadius: 'var(--mantine-radius-md)' },
+                label: { fontWeight: 500 }
+              }}
+            />
+
+            {/* Trainer/Admin Actions */}
+            {(isAdmin || isTrainer) && (
+              <>
+                <Divider my="sm" />
+                <Text c="dimmed" size="xs" fw={700} tt="uppercase" mb={4}>Trainer</Text>
+                <NavLink
+                  label="Dashboard"
+                  leftSection={<IconDashboard size="1.1rem" stroke={1.5} />}
+                  component={Link}
+                  href="/trainer/courses"
+                  onClick={closeDrawer}
+                  color="blue"
+                  variant="light"
+                  styles={{
+                    root: { borderRadius: 'var(--mantine-radius-md)' },
+                    label: { fontWeight: 500 }
+                  }}
+                />
+              </>
+            )}
+
+            {(!isAdmin && !isTrainer) && (
+              <NavLink
+                label="Become a Trainer"
+                leftSection={<IconSchool size="1.1rem" stroke={1.5} />}
+                component={Link}
+                href="/become-a-trainer"
+                onClick={closeDrawer}
+                styles={{
+                  root: { borderRadius: 'var(--mantine-radius-md)' },
+                  label: { fontWeight: 500 }
+                }}
+              />
+            )}
+
+            {/* Account Section for Logged In Users */}
+            {isLoggedIn && (
+              <>
+                <Divider my="sm" />
+                <Text c="dimmed" size="xs" fw={700} tt="uppercase" mb="xs">Account</Text>
+
+                {loginMenuLinks.map((link) => (
+                  <NavLink
+                    key={link.url}
+                    label={link.title}
+                    leftSection={link.icon ? <link.icon size="1.1rem" /> : getIconForLink(link.title)}
+                    childrenOffset={28}
+                    opened={activeSubmenus[link.title]}
+                    onChange={() => toggleSubmenu(link.title)}
+                    component={link.children ? 'button' : Link}
+                    href={link.children ? undefined : link.url}
+                    onClick={link.children ? undefined : closeDrawer}
+                    styles={{
+                      root: { borderRadius: 'var(--mantine-radius-md)' },
+                      label: { fontWeight: 500 }
+                    }}
+                  >
+                    {link.children && link.children.map((child: any) => (
+                      <NavLink
+                        key={child.url}
+                        label={child.title}
+                        component={Link}
+                        href={child.url}
+                        onClick={closeDrawer}
+                        leftSection={child.icon ? <child.icon size="0.8rem" /> : <IconChevronRight size="0.8rem" />}
+                        styles={{
+                          root: { borderRadius: 'var(--mantine-radius-md)' },
+                          label: { fontWeight: 500 }
+                        }}
+                      />
+                    ))}
+                  </NavLink>
+                ))}
+
+                {isAdmin && (
+                  <NavLink
+                    label="Clear Cache"
+                    leftSection={<IconTrash size="1.1rem" stroke={1.5} />}
+                    onClick={() => {
+                      clearCache();
+                      closeDrawer();
+                    }}
+                    color="red"
+                    variant="subtle"
+                    styles={{
+                      root: { borderRadius: 'var(--mantine-radius-md)' },
+                      label: { fontWeight: 500 }
+                    }}
+                  />
+                )}
+              </>
+            )}
+
+          </Stack>
+        </ScrollArea>
+
+        {/* Footer with Logout */}
+        {isLoggedIn && (
+          <Box p="md" style={{ borderTop: `1px solid var(--mantine-color-gray-3)` }}>
             <Button
+              fullWidth
+              color="red"
+              variant="light"
+              leftSection={<IconLogout size={18} />}
               onClick={() => {
                 handleLogout();
                 closeDrawer();
               }}
-              color="red"
-              leftSection={<IconLogout style={{ width: rem(14), height: rem(14) }} />}
             >
               Logout
             </Button>
-          )}
-        </Group>
-      </ScrollArea>
+          </Box>
+        )}
+      </Box>
     </Drawer>
   );
 };

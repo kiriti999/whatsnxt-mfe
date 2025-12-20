@@ -282,15 +282,11 @@ export const NavbarDesktop = ({ links, cartItems, loginMenuLinks, drawerOpened, 
             </Box>
           ) : (
             <Box h={"100%"} style={{ alignItems: "center" }} display={"flex"}>
-              <Box style={{ position: "absolute", left: "1rem" }}>
+              <Box style={{ position: "absolute", left: "1rem", display: "flex", alignItems: "center" }}>
                 <ActionIcon onClick={toggleDrawer} variant="transparent" size="md" c="var(--mantine-color-text)">
                   <IconMenu2 style={{ width: rem(20), height: rem(20) }} stroke={1.5} />
                 </ActionIcon>
-              </Box>
-              <Box style={{ width: "100%", display: "flex", justifyContent: "center" }}>
-                <MobileLogo />
-              </Box>
-              <Box style={{ position: "absolute", right: "1rem", display: "flex", alignItems: "center" }}>
+                <Space w="xs" />
                 <ActionIcon
                   onClick={() => setColorScheme(computedColorScheme === 'light' ? 'dark' : 'light')}
                   variant="transparent"
@@ -304,7 +300,11 @@ export const NavbarDesktop = ({ links, cartItems, loginMenuLinks, drawerOpened, 
                     <IconMoon style={{ width: rem(20), height: rem(20) }} />
                   )}
                 </ActionIcon>
-                <Space w="xs" />
+              </Box>
+              <Box style={{ width: "100%", display: "flex", justifyContent: "center" }}>
+                <MobileLogo />
+              </Box>
+              <Box style={{ position: "absolute", right: "1rem", display: "flex", alignItems: "center" }}>
                 <Cart cartItems={cartItems} iconSize={20} buttonSize="md" />
                 <Space w="xs" />
                 <ActionIcon
