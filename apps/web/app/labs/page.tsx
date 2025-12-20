@@ -3,9 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Title, Button, Group, Box, Paper, Text, Pagination, ActionIcon, Badge, Progress, Stack } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
-import { modals } from '@mantine/modals';
 import { useRouter } from 'next/navigation';
-import { IconEye, IconEdit, IconTrophy } from '@tabler/icons-react';
+import { IconEdit, IconTrophy } from '@tabler/icons-react';
 import { Lab } from '@whatsnxt/core-types';
 import labApi from '@/apis/lab.api';
 import useAuth from '@/hooks/Authentication/useAuth';

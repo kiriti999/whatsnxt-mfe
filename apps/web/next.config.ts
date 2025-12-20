@@ -486,6 +486,8 @@ const nextConfig: NextConfig = {
         NEXT_PUBLIC_ADMIN_EMAIL: process.env.ADMIN_EMAIL,
         NEXT_PUBLIC_ARTICLE_HOST_API: process.env.BFF_ARTICLE_HOST_API,
         NEXT_PUBLIC_BFF_HOST_GOOGLE_API: process.env.GOOGLE_LOGIN_URL,
+        NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
+        NEXT_PUBLIC_BFF_HOST_LAB_API: process.env.NEXT_PUBLIC_API_URL,
 
         // Only critical public env vars
         NEXT_PUBLIC_MFE_HOST: process.env.MFE_HOST,

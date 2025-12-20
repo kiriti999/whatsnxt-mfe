@@ -3,7 +3,7 @@
  * Handles all API calls for lab pricing and purchase operations
  */
 
-const LAB_API_BASE = process.env.NEXT_PUBLIC_BFF_HOST_LAB_API || "http://localhost:4444/api/v1/lab";
+const LAB_API_BASE = process.env.NEXT_PUBLIC_BFF_HOST_LAB_API;
 
 export interface PricingData {
   purchaseType: "free" | "paid";

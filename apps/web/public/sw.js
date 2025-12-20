@@ -178,7 +178,7 @@ async function networkFirst(request) {
       }
     }
 
-    return new Response('Network error', {
+    return new Response('SW.js:: Network error', {
       status: 503,
       statusText: 'Service Unavailable'
     });

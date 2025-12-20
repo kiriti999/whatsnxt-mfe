@@ -61,6 +61,6 @@ export class HttpClient {
 
 // Export a default instance
 // Users can create their own instances if they need different base URLs
-const http = new HttpClient(process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4444/api/v1');
+const http = new HttpClient(process.env.NEXT_PUBLIC_API_URL);
 
 export default http;

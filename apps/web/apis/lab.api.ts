@@ -7,7 +7,10 @@
  * NO MOCK DATA - All requests go to real backend
  */
 
-import http from '@whatsnxt/http-client';
+import { HttpClient } from '@whatsnxt/http-client';
+
+const http = new HttpClient(process.env.NEXT_PUBLIC_BFF_HOST_LAB_API);
+
 import type {
   Lab,
   LabPage,
@@ -26,6 +29,7 @@ export interface CreateLabRequest {
   labType: string;
   architectureType: string;
   instructorId: string;
+  pricing?: any;
 }
 
 export interface UpdateLabRequest {
@@ -33,6 +37,7 @@ export interface UpdateLabRequest {
   description?: string;
   labType?: string;
   architectureType?: string;
+  pricing?: any;
 }
 
 export interface CreateLabPageRequest {
