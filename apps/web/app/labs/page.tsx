@@ -125,7 +125,7 @@ const LabsPage = () => {
   return (
     <Container size="lg" py="xl">
       <Group justify="space-between" mb="xl">
-        <Title order={1}>Labs</Title>
+        <Title order={4}>Labs</Title>
         {isTrainer && (
           <Button onClick={() => router.push('/lab/create')}>Create New Lab</Button>
         )}
@@ -197,7 +197,7 @@ const LabsPage = () => {
       {/* Draft Labs Section - Only for trainers */}
       {isTrainer && (
         <Box>
-          <Title order={2} mb="md">My Draft Labs</Title>
+          <Title order={4} mb="md">My Draft Labs</Title>
           {draftLabs.length === 0 ? (
             <Text c="dimmed">No draft labs. Create one to get started!</Text>
           ) : (

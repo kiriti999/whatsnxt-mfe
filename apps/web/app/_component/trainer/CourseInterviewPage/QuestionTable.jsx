@@ -15,7 +15,7 @@ import remarkGfm from "remark-gfm"; // Enables GitHub-style markdown
 
 import { IconEdit, IconTrash } from "@tabler/icons-react";
 import { useMediaQuery } from "@mantine/hooks";
-import { showNotification } from "@mantine/notifications";
+import { notifications } from "@mantine/notifications";
 import { interviewAPI } from "../../../../apis/v1/courses/interview/interview";
 
 const QuestionTable = ({ questions, refreshQuestions, onEdit }) => {
@@ -29,14 +29,14 @@ const QuestionTable = ({ questions, refreshQuestions, onEdit }) => {
     try {
       await interviewAPI.deleteQuestion(questionId);
       refreshQuestions();
-      showNotification({
+      notifications.show({
         title: "Success",
         message: "Question deleted successfully.",
         color: "green",
       });
     } catch (error) {
       console.error("Error deleting question:", error);
-      showNotification({
+      notifications.show({
         title: "Error",
         message: "Failed to delete the question. Please try again.",
         color: "red",
@@ -49,7 +49,7 @@ const QuestionTable = ({ questions, refreshQuestions, onEdit }) => {
   return (
     <Box mt="md">
       {questions.length === 0 ? (
-        <Box align="center">No questions available.</Box>
+        <Text align="center" c="dimmed" my="xl">No questions available.</Text>
       ) : (
         <Stack gap="xs">
           {questions.map((item) => (
@@ -89,7 +89,7 @@ const QuestionTable = ({ questions, refreshQuestions, onEdit }) => {
 
               {/* Answer section */}
               <Box
-                sx={{
+                style={{
                   padding: "10px",
                   border: "1px solid #ddd",
                   borderRadius: "5px",

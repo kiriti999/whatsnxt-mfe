@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Button, Box, Pagination, TextInput, Flex, MediaQuery, Group } from "@mantine/core";
+import { Button, Box, Pagination, TextInput, Flex, MediaQuery, Group, Paper, Grid } from "@mantine/core";
 import { interviewAPI } from "../../../../apis/v1/courses/interview/interview";
 import QuestionTable from "./QuestionTable";
 import AddQuestion from "./AddQuestion";
@@ -79,7 +79,7 @@ const InterviewSection = ({ cType, courseId }) => {
   };
 
   return (
-    <Box sx={{ width: '100%', maxWidth: '100%' }}>
+    <Box w="100%">
       {editingQuestion ? (
         <EditQuestion
           questionData={editingQuestion}
@@ -89,68 +89,56 @@ const InterviewSection = ({ cType, courseId }) => {
       ) : isAddingQuestion ? (
         <AddQuestion onAddQuestion={handleAddQuestion} courseId={courseId} />
       ) : (
-        <>
-          <Box mb="md">
+        <Paper shadow="sm" radius="md" withBorder p="lg">
+          <Group justify="space-between" mb="md">
             <Button
-              variant="outline"
+              variant="filled"
               leftSection={<IconPlus size={16} />}
               onClick={() => setIsAddingQuestion(true)}
-              mb="sm"
             >
               Add Question
             </Button>
+          </Group>
 
-            <Group position="apart" align="flex-end" spacing="xs" sx={(theme) => ({
-              flexDirection: 'row',
-              [theme.fn.smallerThan('sm')]: {
-                flexDirection: 'column',
-                alignItems: 'stretch',
-              }
-            })}>
+          <Grid align="flex-end" mb="md">
+            <Grid.Col span={{ base: 12, sm: 10 }}>
               <TextInput
                 placeholder="Search questions..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                sx={(theme) => ({
-                  flexGrow: 1,
-                  marginBottom: theme.spacing.xs,
-                  [theme.fn.smallerThan('sm')]: {
-                    width: '100%',
-                  }
-                })}
-              />
-              <Button
                 leftSection={<IconSearch size={16} />}
+              />
+            </Grid.Col>
+            <Grid.Col span={{ base: 12, sm: 2 }}>
+              <Button
                 onClick={handleSearch}
-                sx={(theme) => ({
-                  [theme.fn.smallerThan('sm')]: {
-                    width: '100%',
-                  }
-                })}
+                fullWidth
               >
                 Search
               </Button>
-            </Group>
+            </Grid.Col>
+          </Grid>
 
-            <Box mt="md">
-              <QuestionTable
-                questions={questions}
-                refreshQuestions={refreshQuestions}
-                onEdit={handleEditQuestion}
-              />
-            </Box>
-
-            <Flex justify='center' mt="md">
-              <Pagination
-                page={currentPage}
-                onChange={setCurrentPage}
-                total={totalPages}
-                color="blue"
-                size="sm"
-              />
-            </Flex>
+          <Box mt="md">
+            <QuestionTable
+              questions={questions}
+              refreshQuestions={refreshQuestions}
+              onEdit={handleEditQuestion}
+            />
           </Box>
-        </>
+
+          <Flex justify='center' mt="xl">
+            <Pagination
+              value={currentPage}
+              onChange={setCurrentPage}
+              total={totalPages}
+              color="blue"
+              size="sm"
+              radius="md"
+              withEdges
+            />
+          </Flex>
+        </Paper>
       )}
     </Box>
   );

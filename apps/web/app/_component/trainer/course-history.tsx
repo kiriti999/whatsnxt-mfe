@@ -1,4 +1,5 @@
 "use client"
+// Force refresh
 import React, { useState } from 'react';
 // Refactored to remove Table dependency
 import coursesStyles from '../../../components/Courses/Course.module.css';
@@ -295,7 +296,7 @@ const CourseHistory = () => {
         <Grid>
           <GridCol span={12} >
             <Title order={4}>Create or Edit the course</Title>
-            <Grid mb={'xs'} justify="space-between" grow>
+            <Grid my={'xs'} justify="space-between" grow>
               <Grid.Col span={{ base: 12, md: 4 }}>
                 <TextInput
                   placeholder="Search"
@@ -356,14 +357,14 @@ const CourseHistory = () => {
                           <GridCol span={6}>
                             <Link
                               href={`/courses/${courseSlugs[row._id] ?? row.slug}`}
-                              style={{ fontWeight: 600, fontSize: '1.1rem', color: 'inherit', textDecoration: 'none' }}
+                              style={{ fontWeight: 500, fontSize: '1.03rem', color: 'inherit', textDecoration: 'none' }}
                             >
                               {courseTitles[row._id] ?? row?.courseName ?? row?.title}
                             </Link>
                           </GridCol>
                           <GridCol span={2}>
                             <Badge
-                              variant="light"
+                              variant="outline"
                               color={(courseStatuses[row._id] ?? row.status) === 'published' ? 'green' : 'yellow'}
                             >
                               {courseStatuses[row._id] ?? row.status}

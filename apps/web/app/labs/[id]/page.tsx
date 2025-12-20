@@ -436,7 +436,7 @@ const LabDetailPage = () => {
               <Stack>
                 <Box>
                   <Text size="sm" c="dimmed">Name</Text>
-                  <Title order={3}>{lab.name}</Title>
+                  <Title order={4}>{lab.name}</Title>
                 </Box>
                 <Box>
                   <Text size="sm" c="dimmed">Description</Text>
@@ -556,7 +556,7 @@ const LabDetailPage = () => {
                     <Group justify="space-between" align="flex-start" mb="md">
                       <Box>
                         <Group gap="sm" mb="xs">
-                          <Text fw={700} size="lg">Page {page.pageNumber}</Text>
+                          <Text fw={700} size="md">Page {page.pageNumber}</Text>
                           {page.hasQuestion && (
                             <Badge size="md" color="green" variant="light">
                               Question Test

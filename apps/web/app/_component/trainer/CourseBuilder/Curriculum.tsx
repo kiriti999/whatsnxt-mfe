@@ -110,10 +110,10 @@ const Curriculum = ({ courseId, courseWithSections }) => {
 			<Accordion defaultValue="lecture">
 				<Accordion.Item value="lecture">
 					<Accordion.Control>
-						<Title order={3}>Curriculum</Title>
+						<Title order={4}>Curriculum</Title>
 
 						{/* Editable Course Name */}
-						<Group align="center">
+						<Group align="center" my={15}>
 							{isEditingCourseName ? (
 								<>
 									<TextInput
@@ -156,7 +156,7 @@ const Curriculum = ({ courseId, courseWithSections }) => {
 								}} >
 									<Box>
 										<Title
-											order={4}
+											order={5}
 											style={{ display: "flex", alignItems: "center" }}
 										>
 											{newCourseName}

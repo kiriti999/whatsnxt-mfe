@@ -77,7 +77,7 @@ const DesktopFooter = () => (
           student engagements, and looking forward to the flexible
           education!
         </Text>
-        <Group gap={10} className={classes.social} justify="flex-start" wrap="nowrap">
+        <Group gap={10} className={classes.social} justify="flex-start" wrap="nowrap" mt={10}>
           {socialMediaPlatforms.map((smp, i) => (
             <Anchor
               href={smp.url}
@@ -100,7 +100,7 @@ const DesktopFooter = () => (
           <Text size="xl" fw={800}>{section.title}</Text>
           <List className={`${classes['footer-contact-info']}`}>
             {section.links?.map((link, i) => (
-              <List.Item key={i}>
+              <List.Item key={i} mt={20}>
                 <Flex gap="sm" align="center">
                   {link.icon}
                   <Anchor
