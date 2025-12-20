@@ -28,8 +28,7 @@
     "knip": "knip",
     "deploy": "vercel --prod -l",
     "analyze": "cd apps/web && ANALYZE=true next build",
-    "partytown": "npx partytown copylib apps/web/public/~partytown",
-    "postinstall": "lefthook install"
+    "partytown": "npx partytown copylib apps/web/public/~partytown"
   },
   "devDependencies": {
     "@types/node": "22.15.31",
