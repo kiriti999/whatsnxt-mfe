@@ -20,9 +20,11 @@ import {
   Pagination,
   Badge,
   Accordion,
+  Alert,
 } from '@mantine/core';
+import { useMediaQuery } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
-import { IconTrash, IconSearch, IconX } from '@tabler/icons-react';
+import { IconTrash, IconSearch, IconX, IconDeviceDesktop } from '@tabler/icons-react';
 import labApi from '@/apis/lab.api';
 import DiagramEditor from '@/components/architecture-lab/DiagramEditor';
 import { StudentTestRunner } from '@/components/Lab/StudentTestRunner';
@@ -61,6 +63,7 @@ const LabPageEditorPage = () => {
   // Determine user role
   const isStudent = isAuthenticated && user?.role === 'student';
   const isTrainer = isAuthenticated && user?.role === 'trainer';
+  const isMobile = useMediaQuery('(max-width: 768px)');
 
   const [questions, setQuestions] = useState<Question[]>([]);
   const [enablePracticeTest, setEnablePracticeTest] = useState(false);
@@ -166,17 +169,17 @@ const LabPageEditorPage = () => {
       }
     } catch (error: any) {
       console.error('Failed to load page data:', error);
-      
+
       // Check if it's an access control error
       const isAccessError = error?.response?.status === 403 || error?.response?.data?.requiresAccess;
-      
+
       // Show error notification
       notifications.show({
         title: isAccessError ? 'Access Required' : 'Error Loading Page',
         message: error?.response?.data?.message || error?.message || 'Failed to load page data. Please ensure the lab and page exist.',
         color: isAccessError ? 'yellow' : 'red',
       });
-      
+
       // If access error, redirect back to lab detail page
       if (isAccessError && isStudent) {
         setTimeout(() => {
@@ -1038,15 +1041,22 @@ const LabPageEditorPage = () => {
                         </Text>
                       </Paper>
                     ) : (
-                      <DiagramEditor
-                        initialGraph={expectedDiagramState}
-                        mode={isPublished ? "student" : "instructor"}
-                        architectureType={architectureType}
-                        onGraphChange={(graph) => {
-                          setExpectedDiagramState(graph);
-                        }}
-                        className="diagram-editor"
-                      />
+                      <>
+                        {isMobile && !isPublished && (
+                          <Alert icon={<IconDeviceDesktop size={16} />} title="Screen Too Small" color="blue" mb="md">
+                            Creating diagrams on mobile is difficult. We suggest updating the diagram from a larger screen.
+                          </Alert>
+                        )}
+                        <DiagramEditor
+                          initialGraph={expectedDiagramState}
+                          mode={isPublished ? "student" : "instructor"}
+                          architectureType={architectureType}
+                          onGraphChange={(graph) => {
+                            setExpectedDiagramState(graph);
+                          }}
+                          className="diagram-editor"
+                        />
+                      </>
                     )}
                   </Box>
                 </Group>
