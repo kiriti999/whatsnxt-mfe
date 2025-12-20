@@ -39,8 +39,7 @@
     "lefthook": "^2.0.12",
     "prettier": "3.5.3",
     "turbo": "2.5.4",
-    "typescript": "5.8.2",
-    "@whatsnxt/eslint-config": "workspace:*"
+    "typescript": "5.8.2"
   },
   "packageManager": "pnpm@9.0.0",
   "engines": {
