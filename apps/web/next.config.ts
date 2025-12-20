@@ -497,7 +497,7 @@ const nextConfig: NextConfig = {
         NEXT_PUBLIC_BFF_HOST_IMAGEKIT_API: process.env.BFF_HOST_IMAGEKIT_API,
         NEXT_PUBLIC_COOKIES_ACCESS_TOKEN: process.env.COOKIES_ACCESS_TOKEN,
         NEXT_PUBLIC_GA_ID: process.env.GA_ID,
-        
+
         // Razorpay Configuration
         NEXT_PUBLIC_RAZORPAY_KEY: process.env.RAZOR_PAY_KEY,
         NEXT_PUBLIC_RAZORPAY_LOGO: process.env.RAZORPAY_LOGO,
@@ -512,6 +512,10 @@ const nextConfig: NextConfig = {
             {
                 source: '/sw.js',
                 destination: '/_next/static/sw.js',
+            },
+            {
+                source: '/api/v1/:path*',
+                destination: 'http://localhost:4444/api/v1/:path*',
             },
         ];
     },

@@ -149,7 +149,7 @@ export const LabPricingForm: React.FC<LabPricingFormProps> = ({
       <Paper shadow="sm" p="md" withBorder>
         <Stack gap="md">
           <div>
-            <Text size="lg" fw={600} mb="xs">
+            <Text size="md" fw={600} mb="xs">
               Lab Pricing
             </Text>
             <Text size="sm" c="dimmed">

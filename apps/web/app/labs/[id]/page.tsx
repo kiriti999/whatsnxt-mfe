@@ -436,7 +436,7 @@ const LabDetailPage = () => {
               <Stack>
                 <Box>
                   <Text size="sm" c="dimmed">Name</Text>
-                  <Title order={4}>{lab.name}</Title>
+                  <Title order={5}>{lab.name}</Title>
                 </Box>
                 <Box>
                   <Text size="sm" c="dimmed">Description</Text>
@@ -454,7 +454,7 @@ const LabDetailPage = () => {
                 </Group>
                 {canEdit && (
                   <Group justify="flex-end" mt="md">
-                    <Button onClick={() => setIsEditing(true)}>Edit Details</Button>
+                    <Button size='xs' onClick={() => setIsEditing(true)}>Edit Details</Button>
                   </Group>
                 )}
               </Stack>
@@ -530,7 +530,7 @@ const LabDetailPage = () => {
                     Create your first page to start adding questions and diagram tests
                   </Text>
                   {canEdit && (
-                    <Button onClick={handleCreatePage} size="sm">
+                    <Button onClick={handleCreatePage} size="xs">
                       Create First Page
                     </Button>
                   )}
