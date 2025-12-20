@@ -515,7 +515,7 @@ const nextConfig: NextConfig = {
             },
             {
                 source: '/api/v1/:path*',
-                destination: 'http://localhost:4444/api/v1/:path*',
+                destination: `${process.env.BFF_HOST || 'http://localhost:4444'}/api/v1/:path*`,
             },
         ];
     },
