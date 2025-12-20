@@ -72,8 +72,7 @@ const TrendingArticles = ({ articles, total }: TrendingArticlesProps) => {
         {/* Header with improved contrast */}
         <Group justify="left" align="center">
           <Title
-            order={2}
-            size="h1"
+            order={3}
             fw={600}
             className={styles.trendingTitle}
           >

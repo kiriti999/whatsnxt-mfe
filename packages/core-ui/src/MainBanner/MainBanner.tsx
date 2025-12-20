@@ -1,5 +1,5 @@
 import React from 'react';
-import { Container, Grid, Text } from '@mantine/core';
+import { Container, Grid, Title } from '@mantine/core';
 import { HeroWithText } from '../HeroWithText';
 
 export const MainBanner = () => {
@@ -8,9 +8,9 @@ export const MainBanner = () => {
       <Grid justify="center" align="center">
         <Grid.Col span={12}>
           <div style={{ textAlign: 'center' }}>
-            <Text component="h3" fw={700}>
+            <Title order={3} fw={700}>
               Empower Your Learning Journey
-            </Text>
+            </Title>
 
             {/* <SmoothTextSwitcher /> */}
             <HeroWithText />

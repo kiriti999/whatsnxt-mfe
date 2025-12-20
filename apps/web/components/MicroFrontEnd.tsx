@@ -23,7 +23,7 @@ export default function MicroFrontend({
       <Container size="xl" mt="md" mb="xl">
         <Grid justify="center" align="center">
           <Grid.Col span={12} style={{ textAlign: 'center' }}>
-            <Button component="a" href="/courses" size="lg" c="white" fw={500} style={{ textDecoration: 'none' }}>
+            <Button component="a" href="/courses" size="md" c="white" fw={500} style={{ textDecoration: 'none' }}>
               Explore Our Courses
             </Button>
           </Grid.Col>

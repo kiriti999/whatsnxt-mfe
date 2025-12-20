@@ -39,8 +39,8 @@ const CourseOverview = ({ courseName, overview }) => {
       {/* Include the content styles */}
       <style>{codeBlockStyles}</style>
       <div className={`rte ${styles['courses-overview']} mb-2`}>
-        <Title order={2}>{courseName}</Title>
-        <Title order={3}>Overview</Title>
+        <Title order={3}>{courseName}</Title>
+        <Title order={4}>Overview</Title>
         {/* TODO: Add line clamp */}
         <HtmlParser content={overview} withOptions />
       </div >

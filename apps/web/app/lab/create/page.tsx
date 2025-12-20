@@ -103,7 +103,7 @@ function LabCreationPage() {
 
   return (
     <Container size="lg" py="xl">
-      <Title order={1} mb="xl">Create New Lab</Title>
+      <Title order={2} mb="xl">Create New Lab</Title>
       <Box maw={600} mx="auto">
         <form onSubmit={form.onSubmit(handleSubmit)}>
           <TextInput

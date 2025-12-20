@@ -493,7 +493,7 @@ const LabDetailPage = () => {
                     }
                   </Text>
                 </Box>
-                <Button onClick={handleCreatePage} leftSection="+" size="md">
+                <Button onClick={handleCreatePage} leftSection="+" size="sm">
                   Add New Page
                 </Button>
               </Group>
@@ -530,7 +530,7 @@ const LabDetailPage = () => {
                     Create your first page to start adding questions and diagram tests
                   </Text>
                   {canEdit && (
-                    <Button onClick={handleCreatePage} size="lg">
+                    <Button onClick={handleCreatePage} size="sm">
                       Create First Page
                     </Button>
                   )}
@@ -587,7 +587,7 @@ const LabDetailPage = () => {
                         {lab?.status !== 'published' && (
                           <Button
                             variant="filled"
-                            size="sm"
+                            size="xs"
                             onClick={() => router.push(`/labs/${labId}/pages/${page.id}?returnPage=${currentPage}`)}
                           >
                             {page.hasQuestion || page.hasDiagramTest ? 'Edit Tests' : 'Add Tests'}

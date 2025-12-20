@@ -174,7 +174,7 @@ const LabsPage = () => {
                   <Button
                     variant="filled"
                     color="orange"
-                    size="sm"
+                    size="xs"
                     onClick={() => router.push(`/labs/${lab.id}`)}
                   >
                     Access Now
