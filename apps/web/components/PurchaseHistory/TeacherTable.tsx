@@ -17,16 +17,16 @@ const TeacherTable = ({ payments, totalCount }) => {
     return (
         <>
             <Table highlightOnHover striped>
-                <thead>
-                    <tr>
-                        <th>Trainer contact viewed</th>
-                        <th>Date</th>
-                        <th>Total Price</th>
-                        <th>Payment Type</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
+                <Table.Thead>
+                    <Table.Tr>
+                        <Table.Th style={{ textAlign: 'left' }}>Trainer contact viewed</Table.Th>
+                        <Table.Th style={{ textAlign: 'left' }}>Date</Table.Th>
+                        <Table.Th style={{ textAlign: 'right' }}>Total Price</Table.Th>
+                        <Table.Th style={{ textAlign: 'left' }}>Payment Type</Table.Th>
+                        <Table.Th style={{ textAlign: 'right' }}>Actions</Table.Th>
+                    </Table.Tr>
+                </Table.Thead>
+                <Table.Tbody>
                     {paginatedData?.map((item) => {
                         const { cardNetwork, cardLast4, method, bank, wallet } = item;
                         const formatedDate = new Date(item.createdAt).toLocaleDateString('en-US', {
@@ -37,16 +37,16 @@ const TeacherTable = ({ payments, totalCount }) => {
                         const paymentType = getPaymentType({ cardNetwork, cardLast4, method, bank, wallet });
                         return (
                             <Table.Tr key={item._id}>
-                                <Table.Td>
+                                <Table.Td style={{ verticalAlign: 'middle' }}>
                                     <Anchor href={`${domain}/trainer-details/${item.trainerInfo?._id || ''}`} target="_blank">
                                         {item.trainerInfo?.name || 'N/A'}
                                     </Anchor>
                                 </Table.Td>
-                                <Table.Td>{formatedDate}</Table.Td>
-                                <Table.Td>₹{item.cost / 100}</Table.Td>
-                                <Table.Td>{paymentType}</Table.Td>
-                                <Table.Td>
-                                    <Group>
+                                <Table.Td style={{ verticalAlign: 'middle' }}>{formatedDate}</Table.Td>
+                                <Table.Td style={{ verticalAlign: 'middle', textAlign: 'right' }}>₹{item.cost / 100}</Table.Td>
+                                <Table.Td style={{ verticalAlign: 'middle' }}>{paymentType}</Table.Td>
+                                <Table.Td style={{ verticalAlign: 'middle', textAlign: 'right' }}>
+                                    <Group justify="flex-end">
                                         <Button
                                             size="xs"
                                             variant="outline"
@@ -61,7 +61,7 @@ const TeacherTable = ({ payments, totalCount }) => {
                             </Table.Tr>
                         )
                     })}
-                </tbody>
+                </Table.Tbody>
             </Table>
             <Pagination
                 total={Math.ceil(totalCount / PAGE_SIZE)}

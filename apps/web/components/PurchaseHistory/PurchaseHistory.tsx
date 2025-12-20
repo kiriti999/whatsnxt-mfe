@@ -75,7 +75,7 @@ const PurchaseHistory = () => {
 
 
     return (
-        <Container size={'xl'} pos='relative'>
+        <Container size={'xl'} pos='relative' py="xl">
             <ScrollArea>
                 <Title order={4} mb="lg">Purchase history</Title>
                 <Divider my="sm" />
