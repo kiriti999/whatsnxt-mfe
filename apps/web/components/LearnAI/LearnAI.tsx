@@ -145,7 +145,7 @@ function CourseCard({ course }: { course: CourseData }) {
 function LearnAI() {
     return (
         <Container size="xl" py="xl">
-            <Title order={1} ta="center" mb="xl">
+            <Title order={2} ta="center" mb="xl">
                 Learn AI
             </Title>
             <Title order={5} ta="center" mb="md" c="dimmed">
