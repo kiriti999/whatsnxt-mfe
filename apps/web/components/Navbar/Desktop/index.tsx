@@ -135,8 +135,11 @@ export const NavbarDesktop = ({ links, cartItems, loginMenuLinks, drawerOpened, 
                 <IconMoon />
               )}
             </ActionIcon>
-            <Anchor href={isAuthenticated ? '/labs' : '/consulting'} className={classes.link} component={Link}>
-              {isAuthenticated ? 'Labs' : 'Consulting'}
+            <Anchor href='/labs' className={classes.link} component={Link}>
+              Labs
+            </Anchor>
+            <Anchor href='/consulting' className={classes.link} component={Link}>
+              Consulting
             </Anchor>
             <Anchor href='/search-trainers' className={classes.link} component={Link}>
               Search Trainer

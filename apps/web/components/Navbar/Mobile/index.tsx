@@ -192,10 +192,22 @@ export const NavbarMobile = ({ links, loginMenuLinks, drawerOpened, closeDrawer 
             <Text c="dimmed" size="xs" fw={700} tt="uppercase" mb={4}>Explore</Text>
 
             <NavLink
-              label={isLoggedIn ? 'Labs' : 'Consulting'}
-              leftSection={isLoggedIn ? <IconFlask size="1.1rem" stroke={1.5} /> : <IconBriefcase size="1.1rem" stroke={1.5} />}
+              label="Labs"
+              leftSection={<IconFlask size="1.1rem" stroke={1.5} />}
               component={Link}
-              href={isLoggedIn ? '/labs' : '/consulting'}
+              href="/labs"
+              onClick={closeDrawer}
+              styles={{
+                root: { borderRadius: 'var(--mantine-radius-md)' },
+                label: { fontWeight: 500 }
+              }}
+            />
+
+            <NavLink
+              label="Consulting"
+              leftSection={<IconBriefcase size="1.1rem" stroke={1.5} />}
+              component={Link}
+              href="/consulting"
               onClick={closeDrawer}
               styles={{
                 root: { borderRadius: 'var(--mantine-radius-md)' },
