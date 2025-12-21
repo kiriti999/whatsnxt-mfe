@@ -1,10 +1,11 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Container, Title, Button, Group, Box, Paper, Text, Pagination, ActionIcon, Badge, Progress, Stack, ThemeIcon } from '@mantine/core';
+import { Container, Title, Button, Group, Box, Paper, Text, Pagination, ActionIcon, Badge, Progress, Stack, ThemeIcon, Collapse } from '@mantine/core';
+import { useMediaQuery } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { useRouter } from 'next/navigation';
-import { IconEdit, IconTrophy, IconListCheck, IconSchema, IconCloud, IconBrandDocker, IconSchool } from '@tabler/icons-react';
+import { IconEdit, IconTrophy, IconListCheck, IconSchema, IconCloud, IconBrandDocker, IconSchool, IconChevronDown, IconChevronUp } from '@tabler/icons-react';
 import { Lab } from '@whatsnxt/core-types';
 import labApi from '@/apis/lab.api';
 import useAuth from '@/hooks/Authentication/useAuth';
@@ -18,6 +19,46 @@ interface LabWithProgress extends Lab {
   questionCount?: number;
   diagramTestCount?: number;
 }
+
+const FeatureCard = ({ icon, color, title, description, badges }: { icon: React.ReactNode, color: string, title: string, description: string, badges: React.ReactNode }) => {
+  const isMobile = useMediaQuery('(max-width: 768px)');
+  const [opened, setOpened] = useState(false);
+
+  // Desktop view: Standard Card
+  if (!isMobile) {
+    return (
+      <Paper p="lg" radius="md" withBorder shadow="sm" className="card-hover">
+        <ThemeIcon size={48} radius="md" variant="light" color={color} mb="md">
+          {icon}
+        </ThemeIcon>
+        <Title order={4} mb="xs">{title}</Title>
+        <Text size="sm" c="dimmed" mb="md">{description}</Text>
+        <Group gap="xs">{badges}</Group>
+      </Paper>
+    );
+  }
+
+  // Mobile view: Collapsible
+  return (
+    <Paper p="md" radius="md" withBorder shadow="sm" className="card-hover">
+      <Group justify="space-between" onClick={() => setOpened(!opened)} style={{ cursor: 'pointer' }}>
+        <Group>
+          <ThemeIcon size={40} radius="md" variant="light" color={color}>
+            {icon}
+          </ThemeIcon>
+          <Title order={5}>{title}</Title>
+        </Group>
+        {opened ? <IconChevronUp size={20} /> : <IconChevronDown size={20} />}
+      </Group>
+      <Collapse in={opened}>
+        <Box mt="md">
+          <Text size="sm" c="dimmed" mb="md">{description}</Text>
+          <Group gap="xs">{badges}</Group>
+        </Box>
+      </Collapse>
+    </Paper>
+  );
+};
 
 const LabsPage = () => {
   const [publishedLabs, setPublishedLabs] = useState<LabWithProgress[]>([]);
@@ -127,26 +168,40 @@ const LabsPage = () => {
     <Container size="lg" py="xl">
       {/* Hero Overview Section */}
       <style jsx global>{`
-        @keyframes float {
-          0% { transform: translateY(0px); }
-          50% { transform: translateY(-10px); }
-          100% { transform: translateY(0px); }
+        @keyframes float-y {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-15px); }
         }
-        @keyframes drift {
-          0% { transform: translate(0, 0); }
-          50% { transform: translate(10px, 15px); }
-          100% { transform: translate(0, 0); }
+        @keyframes rotate-slow {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+        @keyframes pulse-soft {
+          0%, 100% { opacity: 0.3; transform: scale(1); }
+          50% { opacity: 0.6; transform: scale(1.1); }
+        }
+        @keyframes draw-line {
+          0% { stroke-dashoffset: 1000; }
+          100% { stroke-dashoffset: 0; }
         }
         .animate-float {
-          animation: float 6s ease-in-out infinite;
+          animation: float-y 6s ease-in-out infinite;
         }
         .animate-float-delayed {
-          animation: float 7s ease-in-out infinite;
-          animation-delay: 1s;
-        }
-        .animate-float-slow {
-          animation: float 8s ease-in-out infinite;
+          animation: float-y 8s ease-in-out infinite;
           animation-delay: 2s;
+        }
+        .animate-rotate {
+          transform-origin: center;
+          animation: rotate-slow 20s linear infinite;
+        }
+        .animate-pulse {
+          animation: pulse-soft 4s ease-in-out infinite;
+        }
+        .animate-draw {
+          stroke-dasharray: 1000;
+          stroke-dashoffset: 1000;
+          animation: draw-line 20s linear infinite;
         }
         .card-hover:hover {
           transform: translateY(-5px);
@@ -162,21 +217,47 @@ const LabsPage = () => {
         style={{ border: '1px solid var(--mantine-color-gray-2)', position: 'relative', overflow: 'hidden' }}
       >
         {/* Animated Background Elements */}
-        <Box style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 0, pointerEvents: 'none', opacity: 0.4 }}>
-          <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="5%" cy="10%" r="50" fill="var(--mantine-color-blue-1)" className="animate-float" style={{ opacity: 0.5 }} />
-            <circle cx="95%" cy="80%" r="70" fill="var(--mantine-color-cyan-1)" className="animate-float-delayed" style={{ opacity: 0.5 }} />
-            <rect x="80%" y="10%" width="60" height="60" rx="10" fill="var(--mantine-color-grape-1)" className="animate-float-slow" style={{ opacity: 0.3, transform: 'rotate(45deg)' }} />
-            <path d="M0,100 Q50,150 100,100 T200,100" fill="none" stroke="var(--mantine-color-indigo-1)" strokeWidth="2" style={{ transform: 'translate(10%, 60%) scale(2)', opacity: 0.2 }} />
+        <Box style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 0, pointerEvents: 'none' }}>
+          <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" style={{ opacity: 0.6 }}>
+            <defs>
+              <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style={{ stopColor: 'var(--mantine-color-blue-2)', stopOpacity: 0.4 }} />
+                <stop offset="100%" style={{ stopColor: 'var(--mantine-color-cyan-2)', stopOpacity: 0.1 }} />
+              </linearGradient>
+              <radialGradient id="grad2" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+                <stop offset="0%" style={{ stopColor: 'var(--mantine-color-blue-4)', stopOpacity: 0.1 }} />
+                <stop offset="100%" style={{ stopColor: 'var(--mantine-color-blue-4)', stopOpacity: 0 }} />
+              </radialGradient>
+            </defs>
+
+            {/* Abstract Grid/Circuit Lines */}
+            <path d="M50,50 Q200,100 300,50 T600,100" fill="none" stroke="var(--mantine-color-blue-2)" strokeWidth="1" className="animate-draw" style={{ opacity: 0.3 }} />
+            <path d="M-50,150 Q200,200 400,100 T900,200" fill="none" stroke="var(--mantine-color-cyan-2)" strokeWidth="1" className="animate-draw" style={{ animationDelay: '2s', opacity: 0.3 }} />
+
+            {/* Floating Shapes */}
+            <circle cx="10%" cy="20%" r="60" fill="url(#grad1)" className="animate-float" />
+            <circle cx="90%" cy="80%" r="80" fill="var(--mantine-color-grape-1)" className="animate-float-delayed" style={{ opacity: 0.3 }} />
+
+            {/* Rotating Elements */}
+            <g className="animate-rotate" style={{ transformBox: 'fill-box' }}>
+              <rect x="80%" y="15%" width="50" height="50" rx="10" stroke="var(--mantine-color-indigo-2)" strokeWidth="2" fill="none" style={{ opacity: 0.4 }} />
+            </g>
+
+            {/* Pulsing Dots */}
+            <circle cx="15%" cy="85%" r="8" fill="var(--mantine-color-orange-3)" className="animate-pulse" />
+            <circle cx="85%" cy="15%" r="12" fill="var(--mantine-color-teal-3)" className="animate-pulse" style={{ animationDelay: '1s' }} />
+
+            {/* Background glow (fixed gradient) */}
+            <circle cx="50%" cy="50%" r="150" fill="url(#grad2)" />
           </svg>
         </Box>
 
         <Stack align="center" ta="center" mb="xl" style={{ position: 'relative', zIndex: 1 }}>
           <Badge size="lg" variant="gradient" gradient={{ from: 'blue', to: 'cyan' }}>PRACTICAL LEARNING</Badge>
-          <Title order={1} style={{ fontSize: '2rem' }}>
+          <Title order={1} style={{ fontSize: '1.8rem' }}>
             Master Tech & Creative Diagrams
           </Title>
-          <Text size="lg" c="dimmed" maw={700}>
+          <Text size={'1.2em'} c="dimmed" maw={700}>
             Explore our comprehensive labs designed for both technical professionals and students.
             From certification prep to creative learning.
           </Text>
@@ -190,50 +271,47 @@ const LabsPage = () => {
           zIndex: 1
         }}>
           {/* Card 1: Cloud Architecture */}
-          <Paper p="lg" radius="md" withBorder shadow="sm" className="card-hover">
-            <ThemeIcon size={48} radius="md" variant="light" color="blue" mb="md">
-              <IconCloud size={28} />
-            </ThemeIcon>
-            <Title order={4} mb="xs">Cloud Architecture</Title>
-            <Text size="sm" c="dimmed" mb="md">
-              Prepare for technical exams and master architecture on major cloud platforms.
-            </Text>
-            <Group gap="xs">
-              <Badge variant="outline" color="orange">AWS</Badge>
-              <Badge variant="outline" color="blue">Azure</Badge>
-              <Badge variant="outline" color="red">GCP</Badge>
-            </Group>
-          </Paper>
+          <FeatureCard
+            icon={<IconCloud size={28} />}
+            color="blue"
+            title="Cloud Architecture"
+            description="Prepare for technical exams and master architecture on major cloud platforms."
+            badges={
+              <>
+                <Badge variant="outline" color="orange">AWS</Badge>
+                <Badge variant="outline" color="blue">Azure</Badge>
+                <Badge variant="outline" color="red">GCP</Badge>
+              </>
+            }
+          />
 
           {/* Card 2: DevOps & Containers */}
-          <Paper p="lg" radius="md" withBorder shadow="sm" className="card-hover">
-            <ThemeIcon size={48} radius="md" variant="light" color="cyan" mb="md">
-              <IconBrandDocker size={28} />
-            </ThemeIcon>
-            <Title order={4} mb="xs">DevOps & Containers</Title>
-            <Text size="sm" c="dimmed" mb="md">
-              Hands-on labs for container orchestration and modern DevOps practices.
-            </Text>
-            <Group gap="xs">
-              <Badge variant="outline" color="cyan">Docker</Badge>
-              <Badge variant="outline" color="indigo">Kubernetes</Badge>
-            </Group>
-          </Paper>
+          <FeatureCard
+            icon={<IconBrandDocker size={28} />}
+            color="cyan"
+            title="DevOps & Containers"
+            description="Hands-on labs for container orchestration and modern DevOps practices."
+            badges={
+              <>
+                <Badge variant="outline" color="cyan">Docker</Badge>
+                <Badge variant="outline" color="indigo">Kubernetes</Badge>
+              </>
+            }
+          />
 
           {/* Card 3: Education & Creativity */}
-          <Paper p="lg" radius="md" withBorder shadow="sm" className="card-hover">
-            <ThemeIcon size={48} radius="md" variant="light" color="green" mb="md">
-              <IconSchool size={28} />
-            </ThemeIcon>
-            <Title order={4} mb="xs">Interactive Education</Title>
-            <Text size="sm" c="dimmed" mb="md">
-              Engaging diagram tests and quizzes suitable for schooling kids and learners.
-            </Text>
-            <Group gap="xs">
-              <Badge variant="outline" color="green">Diagram Quiz</Badge>
-              <Badge variant="outline" color="teal">Visual Learning</Badge>
-            </Group>
-          </Paper>
+          <FeatureCard
+            icon={<IconSchool size={28} />}
+            color="green"
+            title="Interactive Education"
+            description="Engaging diagram tests and quizzes suitable for schooling kids and learners."
+            badges={
+              <>
+                <Badge variant="outline" color="green">Diagram Quiz</Badge>
+                <Badge variant="outline" color="teal">Visual Learning</Badge>
+              </>
+            }
+          />
         </div>
       </Paper>
 
