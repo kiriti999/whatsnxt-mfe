@@ -126,16 +126,54 @@ const LabsPage = () => {
   return (
     <Container size="lg" py="xl">
       {/* Hero Overview Section */}
+      <style jsx global>{`
+        @keyframes float {
+          0% { transform: translateY(0px); }
+          50% { transform: translateY(-10px); }
+          100% { transform: translateY(0px); }
+        }
+        @keyframes drift {
+          0% { transform: translate(0, 0); }
+          50% { transform: translate(10px, 15px); }
+          100% { transform: translate(0, 0); }
+        }
+        .animate-float {
+          animation: float 6s ease-in-out infinite;
+        }
+        .animate-float-delayed {
+          animation: float 7s ease-in-out infinite;
+          animation-delay: 1s;
+        }
+        .animate-float-slow {
+          animation: float 8s ease-in-out infinite;
+          animation-delay: 2s;
+        }
+        .card-hover:hover {
+          transform: translateY(-5px);
+          transition: transform 0.2s ease;
+          box-shadow: var(--mantine-shadow-md);
+        }
+      `}</style>
       <Paper
         p="xl"
         mb={50}
         radius="lg"
         bg="var(--mantine-color-gray-0)"
-        style={{ border: '1px solid var(--mantine-color-gray-2)' }}
+        style={{ border: '1px solid var(--mantine-color-gray-2)', position: 'relative', overflow: 'hidden' }}
       >
-        <Stack align="center" ta="center" mb="xl">
+        {/* Animated Background Elements */}
+        <Box style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 0, pointerEvents: 'none', opacity: 0.4 }}>
+          <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="5%" cy="10%" r="50" fill="var(--mantine-color-blue-1)" className="animate-float" style={{ opacity: 0.5 }} />
+            <circle cx="95%" cy="80%" r="70" fill="var(--mantine-color-cyan-1)" className="animate-float-delayed" style={{ opacity: 0.5 }} />
+            <rect x="80%" y="10%" width="60" height="60" rx="10" fill="var(--mantine-color-grape-1)" className="animate-float-slow" style={{ opacity: 0.3, transform: 'rotate(45deg)' }} />
+            <path d="M0,100 Q50,150 100,100 T200,100" fill="none" stroke="var(--mantine-color-indigo-1)" strokeWidth="2" style={{ transform: 'translate(10%, 60%) scale(2)', opacity: 0.2 }} />
+          </svg>
+        </Box>
+
+        <Stack align="center" ta="center" mb="xl" style={{ position: 'relative', zIndex: 1 }}>
           <Badge size="lg" variant="gradient" gradient={{ from: 'blue', to: 'cyan' }}>PRACTICAL LEARNING</Badge>
-          <Title order={1} style={{ fontSize: '2.5rem' }}>
+          <Title order={1} style={{ fontSize: '2rem' }}>
             Master Tech & Creative Diagrams
           </Title>
           <Text size="lg" c="dimmed" maw={700}>
@@ -147,10 +185,12 @@ const LabsPage = () => {
         <div style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-          gap: '24px'
+          gap: '24px',
+          position: 'relative',
+          zIndex: 1
         }}>
           {/* Card 1: Cloud Architecture */}
-          <Paper p="lg" radius="md" withBorder shadow="sm">
+          <Paper p="lg" radius="md" withBorder shadow="sm" className="card-hover">
             <ThemeIcon size={48} radius="md" variant="light" color="blue" mb="md">
               <IconCloud size={28} />
             </ThemeIcon>
@@ -166,7 +206,7 @@ const LabsPage = () => {
           </Paper>
 
           {/* Card 2: DevOps & Containers */}
-          <Paper p="lg" radius="md" withBorder shadow="sm">
+          <Paper p="lg" radius="md" withBorder shadow="sm" className="card-hover">
             <ThemeIcon size={48} radius="md" variant="light" color="cyan" mb="md">
               <IconBrandDocker size={28} />
             </ThemeIcon>
@@ -181,7 +221,7 @@ const LabsPage = () => {
           </Paper>
 
           {/* Card 3: Education & Creativity */}
-          <Paper p="lg" radius="md" withBorder shadow="sm">
+          <Paper p="lg" radius="md" withBorder shadow="sm" className="card-hover">
             <ThemeIcon size={48} radius="md" variant="light" color="green" mb="md">
               <IconSchool size={28} />
             </ThemeIcon>
