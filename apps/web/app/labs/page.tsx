@@ -1,10 +1,10 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Container, Title, Button, Group, Box, Paper, Text, Pagination, ActionIcon, Badge, Progress, Stack } from '@mantine/core';
+import { Container, Title, Button, Group, Box, Paper, Text, Pagination, ActionIcon, Badge, Progress, Stack, ThemeIcon } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { useRouter } from 'next/navigation';
-import { IconEdit, IconTrophy, IconListCheck, IconSchema } from '@tabler/icons-react';
+import { IconEdit, IconTrophy, IconListCheck, IconSchema, IconCloud, IconBrandDocker, IconSchool } from '@tabler/icons-react';
 import { Lab } from '@whatsnxt/core-types';
 import labApi from '@/apis/lab.api';
 import useAuth from '@/hooks/Authentication/useAuth';
@@ -125,10 +125,87 @@ const LabsPage = () => {
 
   return (
     <Container size="lg" py="xl">
+      {/* Hero Overview Section */}
+      <Paper
+        p="xl"
+        mb={50}
+        radius="lg"
+        bg="var(--mantine-color-gray-0)"
+        style={{ border: '1px solid var(--mantine-color-gray-2)' }}
+      >
+        <Stack align="center" ta="center" mb="xl">
+          <Badge size="lg" variant="gradient" gradient={{ from: 'blue', to: 'cyan' }}>PRACTICAL LEARNING</Badge>
+          <Title order={1} style={{ fontSize: '2.5rem' }}>
+            Master Tech & Creative Diagrams
+          </Title>
+          <Text size="lg" c="dimmed" maw={700}>
+            Explore our comprehensive labs designed for both technical professionals and students.
+            From certification prep to creative learning.
+          </Text>
+        </Stack>
+
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+          gap: '24px'
+        }}>
+          {/* Card 1: Cloud Architecture */}
+          <Paper p="lg" radius="md" withBorder shadow="sm">
+            <ThemeIcon size={48} radius="md" variant="light" color="blue" mb="md">
+              <IconCloud size={28} />
+            </ThemeIcon>
+            <Title order={4} mb="xs">Cloud Architecture</Title>
+            <Text size="sm" c="dimmed" mb="md">
+              Prepare for technical exams and master architecture on major cloud platforms.
+            </Text>
+            <Group gap="xs">
+              <Badge variant="outline" color="orange">AWS</Badge>
+              <Badge variant="outline" color="blue">Azure</Badge>
+              <Badge variant="outline" color="red">GCP</Badge>
+            </Group>
+          </Paper>
+
+          {/* Card 2: DevOps & Containers */}
+          <Paper p="lg" radius="md" withBorder shadow="sm">
+            <ThemeIcon size={48} radius="md" variant="light" color="cyan" mb="md">
+              <IconBrandDocker size={28} />
+            </ThemeIcon>
+            <Title order={4} mb="xs">DevOps & Containers</Title>
+            <Text size="sm" c="dimmed" mb="md">
+              Hands-on labs for container orchestration and modern DevOps practices.
+            </Text>
+            <Group gap="xs">
+              <Badge variant="outline" color="cyan">Docker</Badge>
+              <Badge variant="outline" color="indigo">Kubernetes</Badge>
+            </Group>
+          </Paper>
+
+          {/* Card 3: Education & Creativity */}
+          <Paper p="lg" radius="md" withBorder shadow="sm">
+            <ThemeIcon size={48} radius="md" variant="light" color="green" mb="md">
+              <IconSchool size={28} />
+            </ThemeIcon>
+            <Title order={4} mb="xs">Interactive Education</Title>
+            <Text size="sm" c="dimmed" mb="md">
+              Engaging diagram tests and quizzes suitable for schooling kids and learners.
+            </Text>
+            <Group gap="xs">
+              <Badge variant="outline" color="green">Diagram Quiz</Badge>
+              <Badge variant="outline" color="teal">Visual Learning</Badge>
+            </Group>
+          </Paper>
+        </div>
+      </Paper>
+
       <Group justify="space-between" mb="xl">
-        <Title order={4}>Labs</Title>
+        <Title order={3}>All Available Labs</Title>
         {isTrainer && (
-          <Button onClick={() => router.push('/lab/create')}>Create New Lab</Button>
+          <Button
+            onClick={() => router.push('/lab/create')}
+            leftSection={<IconEdit size={16} />}
+          >
+            Create New Lab
+          </Button>
         )}
       </Group>
 
