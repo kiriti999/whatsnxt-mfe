@@ -1,13 +1,13 @@
 import { courseApiClient } from '@whatsnxt/core-util';
 
 export const interviewAPI = {
-  saveApiKey: async function (apiKey) {
-    const response = await courseApiClient.post('/interview/saveKey', { apiKey });
+  saveApiKey: async function (params) {
+    const response = await courseApiClient.post('/interview/saveKey', params);
     return response;
   },
 
-  getSuggestionByChatGpt: async function (question) {
-    const response = await courseApiClient.post('/interview/suggestionByChatGpt', question);
+  getSuggestionByAI: async function (params) {
+    const response = await courseApiClient.post('/interview/suggestionByAI', params);
     return response;
   },
 

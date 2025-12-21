@@ -52,14 +52,17 @@ const commonErrorHandler = async (error: any) => {
         // Special handling for 401 - could redirect to login or handle differently
         if (statusCode === 401) {
             console.warn(`Unauthorized:: message: ${backendMessage || error.response.statusText} code: ${statusCode}`);
-            throw new Error(backendMessage || 'Unauthorized');
+            const customError = new Error(backendMessage || 'Unauthorized') as any;
+            customError.status = statusCode;
+            customError.response = error.response; // Preserve the full response object
+            throw customError;
         }
 
         // For any error response, extract the backend message if available
         if (error.response) {
             const customError = new Error(backendMessage || error.message || 'An error occurred') as any;
             customError.status = statusCode;
-            customError.response = error.response;
+            customError.response = error.response; // Preserve the full response object
             throw customError;
         }
 
@@ -140,9 +143,10 @@ const apiErrorHandler = async (error: any) => {
 
         // For BFF errors, we want to preserve the custom error message from backend
         if (statusCode >= 400) {
-            // Create a new error with the backend message
+            // Create a new error with the backend message and preserve response
             const customError = new Error(errorMessage) as any;
             customError.status = statusCode;
+            customError.response = error.response; // Preserve the full response object
             throw customError;
         }
 
