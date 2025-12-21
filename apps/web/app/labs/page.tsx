@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Container, Title, Button, Group, Box, Paper, Text, Pagination, ActionIcon, Badge, Progress, Stack } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { useRouter } from 'next/navigation';
-import { IconEdit, IconTrophy } from '@tabler/icons-react';
+import { IconEdit, IconTrophy, IconListCheck, IconSchema } from '@tabler/icons-react';
 import { Lab } from '@whatsnxt/core-types';
 import labApi from '@/apis/lab.api';
 import useAuth from '@/hooks/Authentication/useAuth';
@@ -15,6 +15,8 @@ interface LabWithProgress extends Lab {
     passedPages: number;
     percentage: number;
   };
+  questionCount?: number;
+  diagramTestCount?: number;
 }
 
 const LabsPage = () => {
@@ -150,6 +152,26 @@ const LabsPage = () => {
                     </Group>
                     <Text size="sm" c="dimmed" mb="sm">{lab.description || 'No description'}</Text>
 
+                    {/* Lab Statistics */}
+                    <Group gap="sm" mb="sm">
+                      <Badge
+                        variant="light"
+                        color="blue"
+                        size="sm"
+                        leftSection={<IconListCheck size={12} />}
+                      >
+                        {lab.questionCount || 0} Questions
+                      </Badge>
+                      <Badge
+                        variant="light"
+                        color="violet"
+                        size="sm"
+                        leftSection={<IconSchema size={12} />}
+                      >
+                        {lab.diagramTestCount || 0} Diagram Quizzes
+                      </Badge>
+                    </Group>
+
                     {/* Show progress for students */}
                     {isStudent && lab.progress && lab.progress.totalPages > 0 && (
                       <Stack gap="xs">
@@ -207,7 +229,27 @@ const LabsPage = () => {
                     <Box>
                       <Text fw={700}>{lab.name}</Text>
                       <Text size="sm" c="dimmed">{lab.description || 'No description'}</Text>
-                      <Text size="xs" c="orange">{lab.status.toUpperCase()}</Text>
+                      <Text size="xs" c="orange" mb="xs">{lab.status.toUpperCase()}</Text>
+
+                      {/* Lab Statistics */}
+                      <Group gap="sm">
+                        <Badge
+                          variant="light"
+                          color="blue"
+                          size="sm"
+                          leftSection={<IconListCheck size={12} />}
+                        >
+                          {(lab as any).questionCount || 0} Questions
+                        </Badge>
+                        <Badge
+                          variant="light"
+                          color="violet"
+                          size="sm"
+                          leftSection={<IconSchema size={12} />}
+                        >
+                          {(lab as any).diagramTestCount || 0} Diagram Quizzes
+                        </Badge>
+                      </Group>
                     </Box>
                     <ActionIcon
                       variant="subtle"
