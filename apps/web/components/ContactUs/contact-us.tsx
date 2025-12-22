@@ -1,7 +1,8 @@
 import React from 'react';
 import { useForm, Controller } from 'react-hook-form';
-import { Paper, SimpleGrid, TextInput, Textarea, Group, Button, Text } from '@mantine/core';
+import { Paper, SimpleGrid, TextInput, Textarea, Group, Button, Text, Box, Title, Flex, Stack, Container } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
+import { IconMail } from '@tabler/icons-react';
 import ContactIconsList from '../../app/_component/contact-us/ContactIcons';
 import classes from './ContactUs.module.css';
 import { mailAPI } from '../../apis/v1/mail';
@@ -59,19 +60,104 @@ export const ContactUsForm = () => {
     };
 
     return (
-        <div className="ptb-30 container d-flex flex-column align-items-center">
-            <Paper shadow="xl" radius="lg" w="100%" maw={1000}>
+        <Container my="5rem">
+            {/* Enhanced Header */}
+            <Flex align="center" gap="md" mb="xl" justify="center">
+                <Box
+                    style={{
+                        width: 40,
+                        height: 40,
+                        borderRadius: '50%',
+                        background: 'linear-gradient(135deg, var(--mantine-color-indigo-6), var(--mantine-color-cyan-5))',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        boxShadow: '0 4px 12px rgba(99, 102, 241, 0.25)'
+                    }}
+                >
+                    <IconMail size={20} color="white" />
+                </Box>
+                <div>
+                    <Title
+                        order={4}
+                        fw={800}
+                        style={{
+                            background: 'linear-gradient(135deg, var(--mantine-color-indigo-7) 0%, var(--mantine-color-cyan-6) 100%)',
+                            WebkitBackgroundClip: 'text',
+                            WebkitTextFillColor: 'transparent'
+                        }}
+                    >
+                        Get in Touch
+                    </Title>
+                    <Text c="dimmed" size="sm">
+                        We'd love to hear from you
+                    </Text>
+                </div>
+            </Flex>
+
+            <Paper
+                shadow="lg"
+                radius="lg"
+                w="100%"
+                maw={1000}
+                style={{
+                    overflow: 'hidden',
+                    border: '1px solid var(--mantine-color-gray-2)'
+                }}
+            >
                 <div className={classes.wrapper}>
-                    <div className={classes.contacts} style={{ background: '#228be6' }}>
-                        <Text fz={22} className={classes.title} c={'white'}>
-                            Information
-                        </Text>
+                    {/* Enhanced Information Sidebar */}
+                    <Box
+                        className={classes.contacts}
+                        style={{
+                            background: 'linear-gradient(135deg, var(--mantine-color-indigo-6) 0%, var(--mantine-color-cyan-5) 100%)',
+                            position: 'relative',
+                            overflow: 'hidden'
+                        }}
+                    >
+                        {/* Decorative circles */}
+                        <Box
+                            style={{
+                                position: 'absolute',
+                                top: -30,
+                                right: -30,
+                                width: 120,
+                                height: 120,
+                                borderRadius: '50%',
+                                background: 'rgba(255, 255, 255, 0.1)',
+                                pointerEvents: 'none'
+                            }}
+                        />
+                        <Box
+                            style={{
+                                position: 'absolute',
+                                bottom: -40,
+                                left: -40,
+                                width: 150,
+                                height: 150,
+                                borderRadius: '50%',
+                                background: 'rgba(255, 255, 255, 0.08)',
+                                pointerEvents: 'none'
+                            }}
+                        />
 
-                        <ContactIconsList />
-                    </div>
+                        <Stack gap="lg" style={{ position: 'relative', zIndex: 1 }}>
+                            <div>
+                                <Text fz={24} fw={700} c="white" mb="xs">
+                                    Information
+                                </Text>
+                                <Text fz={14} c="rgba(255, 255, 255, 0.8)">
+                                    Reach out to us through any of these channels
+                                </Text>
+                            </div>
 
+                            <ContactIconsList />
+                        </Stack>
+                    </Box>
+
+                    {/* Enhanced Form */}
                     <form className={classes.form} onSubmit={handleSubmit(onSubmit)}>
-                        <Text fz="lg" fw={700} className={classes.title}>
+                        <Text fz="xl" fw={700} className={classes.title} mb="md">
                             Contact us
                         </Text>
 
@@ -86,6 +172,14 @@ export const ContactUsForm = () => {
                                             placeholder="Your name"
                                             {...field}
                                             error={errors.name?.message}
+                                            radius="md"
+                                            styles={{
+                                                input: {
+                                                    '&:focus': {
+                                                        borderColor: 'var(--mantine-color-indigo-5)'
+                                                    }
+                                                }
+                                            }}
                                         />
                                     )}
                                     rules={{ required: 'Name is required' }}
@@ -99,6 +193,14 @@ export const ContactUsForm = () => {
                                             placeholder="hello@example.com"
                                             {...field}
                                             error={errors.email?.message}
+                                            radius="md"
+                                            styles={{
+                                                input: {
+                                                    '&:focus': {
+                                                        borderColor: 'var(--mantine-color-indigo-5)'
+                                                    }
+                                                }
+                                            }}
                                         />
                                     )}
                                     rules={{
@@ -121,6 +223,14 @@ export const ContactUsForm = () => {
                                         placeholder="+91 ..."
                                         {...field}
                                         error={errors.number?.message}
+                                        radius="md"
+                                        styles={{
+                                            input: {
+                                                '&:focus': {
+                                                    borderColor: 'var(--mantine-color-indigo-5)'
+                                                }
+                                            }
+                                        }}
                                     />
                                 )}
                                 rules={{ required: 'Phone number is required' }}
@@ -135,6 +245,14 @@ export const ContactUsForm = () => {
                                         placeholder="Subject"
                                         {...field}
                                         error={errors.subject?.message}
+                                        radius="md"
+                                        styles={{
+                                            input: {
+                                                '&:focus': {
+                                                    borderColor: 'var(--mantine-color-indigo-5)'
+                                                }
+                                            }
+                                        }}
                                     />
                                 )}
                                 rules={{ required: 'Subject is required' }}
@@ -148,24 +266,39 @@ export const ContactUsForm = () => {
                                         mt="md"
                                         label="Your message"
                                         placeholder="Please include all relevant information"
-                                        minRows={3}
+                                        minRows={4}
                                         {...field}
                                         error={errors.message?.message}
+                                        radius="md"
+                                        styles={{
+                                            input: {
+                                                '&:focus': {
+                                                    borderColor: 'var(--mantine-color-indigo-5)'
+                                                }
+                                            }
+                                        }}
                                     />
                                 )}
                                 rules={{ required: 'Message is required' }}
                             />
 
-                            <Group justify="flex-end" mt="md">
-                                <Button type="submit" className={classes.control}>
-                                    Send message
+                            <Group justify="flex-end" mt="xl">
+                                <Button
+                                    type="submit"
+                                    variant="gradient"
+                                    gradient={{ from: 'indigo', to: 'cyan', deg: 45 }}
+                                    size="sm"
+                                    radius="xl"
+                                    leftSection={<IconMail size={18} />}
+                                >
+                                    Send message →
                                 </Button>
                             </Group>
                         </div>
                     </form>
                 </div>
             </Paper>
-        </div>
+        </Container>
     );
 };
 

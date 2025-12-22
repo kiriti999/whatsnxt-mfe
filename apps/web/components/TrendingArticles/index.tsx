@@ -8,13 +8,14 @@ import {
   Image,
   Text,
   Badge,
-  Group,
   Stack,
   Button,
   Avatar,
   Center,
   rem,
   Paper,
+  Box,
+  Group,
 } from '@mantine/core';
 import { Carousel } from '@mantine/carousel';
 import { IconUser, IconEye, IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
@@ -69,22 +70,54 @@ const TrendingArticles = ({ articles, total }: TrendingArticlesProps) => {
   return (
     <Container size="xl" py="xl">
       <Stack gap="xl">
-        {/* Header with improved contrast */}
-        <Group justify="left" align="center">
-          <Title
-            order={3}
-            fw={600}
-            className={styles.trendingTitle}
+        {/* Enhanced Header with Gradient */}
+        <Group justify="center" align="center" mb="md">
+          <Box
+            style={{
+              width: 40,
+              height: 40,
+              borderRadius: '50%',
+              background: 'linear-gradient(135deg, var(--mantine-color-indigo-6), var(--mantine-color-cyan-5))',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: '0 4px 12px rgba(99, 102, 241, 0.25)'
+            }}
           >
-            Trending Articles
-          </Title>
-          <Badge
-            size="lg"
-            variant="outline"
-            className={styles.trendingTotalBadge}
-          >
-            {total} Articles
-          </Badge>
+            <IconEye size={20} color="white" />
+          </Box>
+          <div>
+            <Group gap="sm">
+              <Title
+                order={4}
+                fw={800}
+                style={{
+                  background: 'linear-gradient(135deg, var(--mantine-color-indigo-7) 0%, var(--mantine-color-cyan-6) 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent'
+                }}
+              >
+                Trending Articles
+              </Title>
+              <Badge
+                size="md"
+                variant="gradient"
+                gradient={{ from: 'indigo', to: 'cyan', deg: 45 }}
+                radius="xl"
+                styles={{
+                  root: {
+                    textTransform: 'none',
+                    fontWeight: 600
+                  }
+                }}
+              >
+                {total} Articles
+              </Badge>
+            </Group>
+            <Text c="dimmed" size="sm" mt={4}>
+              Discover the most popular content
+            </Text>
+          </div>
         </Group>
 
         {/* Articles Carousel */}
@@ -124,37 +157,63 @@ const TrendingArticles = ({ articles, total }: TrendingArticlesProps) => {
             {articles.map((article) => (
               <Carousel.Slide key={article._id}>
                 <Card
-                  shadow="md"
-                  padding="md"
-                  radius="md"
-                  py={0}
-                  withBorder
+                  shadow="lg"
+                  padding="0"
+                  radius="lg"
                   h="100%"
+                  withBorder
                   className={styles.trendingCard}
                   tabIndex={0}
                   role="article"
                   aria-label={`Article: ${article.title}`}
                   onKeyDown={(e) => handleKeyDown(e, article.slug)}
+                  styles={{
+                    root: {
+                      transition: 'all 0.3s ease',
+                      '&:hover': {
+                        transform: 'translateY(-4px)',
+                        boxShadow: '0 8px 24px rgba(99, 102, 241, 0.15)'
+                      }
+                    }
+                  }}
                 >
                   <Card.Section>
-                    <Image
-                      onClick={() => handleReadMore(article.slug)}
-                      src={article.imageUrl || '/placeholder-article.jpg'}
-                      height={180}
-                      alt={`Cover image for article: ${article.title}`}
-                      fit="cover"
-                      className={styles.trendingImage}
-                      fetchPriority='auto'
-                    />
+                    <Box style={{ position: 'relative', overflow: 'hidden' }}>
+                      <Image
+                        onClick={() => handleReadMore(article.slug)}
+                        src={article.imageUrl || '/placeholder-article.jpg'}
+                        height={180}
+                        alt={`Cover image for article: ${article.title}`}
+                        fit="cover"
+                        className={styles.trendingImage}
+                        fetchPriority='auto'
+                        styles={{
+                          root: {
+                            transition: 'transform 0.3s ease',
+                            '&:hover': {
+                              transform: 'scale(1.05)'
+                            }
+                          }
+                        }}
+                      />
+                    </Box>
                   </Card.Section>
 
-                  <Stack gap="xs" mt="sm" className={styles.trendingContentStack}>
-                    {/* Category Badge with high contrast */}
+                  <Stack gap="xs" mt="md" px="md" className={styles.trendingContentStack}>
+                    {/* Category Badge with gradient */}
                     <Badge
-                      variant="outline"
+                      variant="light"
                       size="sm"
                       w="fit-content"
-                      className={styles.trendingCategoryBadge}
+                      color="indigo"
+                      radius="md"
+                      styles={{
+                        root: {
+                          textTransform: 'uppercase',
+                          fontWeight: 600,
+                          fontSize: '0.7rem'
+                        }
+                      }}
                     >
                       {article.categoryName}
                     </Badge>
@@ -207,17 +266,24 @@ const TrendingArticles = ({ articles, total }: TrendingArticlesProps) => {
                       </Text>
                     </Group>
 
-                    {/* Read More Button with high contrast */}
+                    {/* Enhanced Read More Button */}
                     <Button
-                      variant="filled"
+                      variant="gradient"
+                      gradient={{ from: 'indigo', to: 'cyan', deg: 45 }}
                       size="xs"
                       fullWidth
-                      radius="md"
-                      mb={10}
+                      radius="xl"
+                      mb={12}
                       className={`${styles.trendingReadMore} ${styles.trendingButton}`}
                       onClick={() => handleReadMore(article.slug)}
+                      styles={{
+                        root: {
+                          fontWeight: 600,
+                          transition: 'all 0.2s ease'
+                        }
+                      }}
                     >
-                      Read More
+                      Read More →
                     </Button>
                   </Stack>
                 </Card>
