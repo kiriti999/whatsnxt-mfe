@@ -4,7 +4,6 @@ import { LabForm } from '../../../../components/Lab/LabForm';
 import { Container, Title, Text, Button, Center, Stack } from '@mantine/core';
 import Link from 'next/link';
 
-
 export default async function EditLabPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;
     const lab = await fetchLabById(id);
@@ -25,3 +24,6 @@ export default async function EditLabPage({ params }: { params: Promise<{ id: st
 
     return <LabForm initialData={lab} />;
 }
+
+// Mark as fully dynamic - opt out of any caching
+export const dynamic = 'force-dynamic';

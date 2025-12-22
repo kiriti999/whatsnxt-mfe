@@ -44,8 +44,9 @@ const nextConfig: NextConfig = {
             'lodash',
             'react-icons'
         ],
-        // New in Next.js 16 - Enables Partial Prerendering
-        cacheComponents: true,
+        // Temporarily disabled - incompatible with dynamic routes using cookies()
+        // Will re-enable once routes are refactored to use 'use cache' directive properly
+        // cacheComponents: true,
         authInterrupts: true, // Better auth handling
     },
 

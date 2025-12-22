@@ -5,7 +5,6 @@ import { Container, Title, Text, Button, Center, Stack } from '@mantine/core';
 import Link from 'next/link';
 import ArchitectureLabClient from '../../../components/architecture-lab/ArchitectureLabClient';
 
-
 export default async function LabPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const lab = await fetchLabById(id);
@@ -53,3 +52,6 @@ export default async function LabPage({ params }: { params: Promise<{ id: string
 
   return <LabRunner lab={transformedLab} />;
 }
+
+// Mark as fully dynamic - opt out of any caching
+export const dynamic = 'force-dynamic';
