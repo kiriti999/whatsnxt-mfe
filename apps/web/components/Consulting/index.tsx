@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import {
     Container,
     Title,
@@ -116,28 +116,11 @@ export default function ConsultingPage() {
                     }}
                 />
 
-                {/* Floating particles */}
-                {[...Array(15)].map((_, i) => (
-                    <Box
-                        key={i}
-                        style={{
-                            position: 'absolute',
-                            width: 4,
-                            height: 4,
-                            background: 'rgba(255, 255, 255, 0.3)',
-                            borderRadius: '50%',
-                            left: `${Math.random() * 100}%`,
-                            top: `${Math.random() * 100}%`,
-                            animation: `float ${3 + Math.random() * 4}s ease-in-out infinite`,
-                            animationDelay: `${Math.random() * 3}s`
-                        }}
-                    />
-                ))}
             </Box>
 
             {/* Hero Section */}
-            <Box style={{ position: 'relative', zIndex: 10, minHeight: '100vh', display: 'flex', alignItems: 'center' }}>
-                <Container size="xl" py={100}>
+            <Box style={{ position: 'relative', zIndex: 10, display: 'flex', alignItems: 'center' }} pt={80} pb={40}>
+                <Container size="xl">
                     <Grid align="center" gutter={60}>
                         <Grid.Col span={{ base: 12, lg: 8 }}>
                             <Stack gap="xl">
@@ -252,45 +235,6 @@ export default function ConsultingPage() {
                             </Stack>
                         </Grid.Col>
 
-                        <Grid.Col span={{ base: 12, lg: 4 }}>
-                            <Center>
-                                <Box style={{ position: 'relative' }}>
-                                    {/* Floating code elements */}
-                                    {[...Array(6)].map((_, i) => (
-                                        <Paper
-                                            key={i}
-                                            p="md"
-                                            style={{
-                                                position: 'absolute',
-                                                background: 'rgba(255, 255, 255, 0.1)',
-                                                backdropFilter: 'blur(10px)',
-                                                border: '1px solid rgba(255, 255, 255, 0.1)',
-                                                borderRadius: 8,
-                                                left: `${20 + (i % 3) * 80}px`,
-                                                top: `${10 + Math.floor(i / 3) * 120}px`,
-                                                animation: `float ${3 + (i % 3)}s ease-in-out infinite`,
-                                                animationDelay: `${i * 0.5}s`
-                                            }}
-                                        >
-                                            <IconCode size={20 + (i % 3) * 4} color="#60a5fa" />
-                                        </Paper>
-                                    ))}
-
-                                    {/* Central avatar */}
-                                    <Avatar
-                                        size={250}
-                                        style={{
-                                            background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.3) 0%, rgba(168, 85, 247, 0.3) 100%)',
-                                            backdropFilter: 'blur(20px)',
-                                            border: '3px solid rgba(255, 255, 255, 0.2)',
-                                            boxShadow: '0 20px 60px rgba(59, 130, 246, 0.3)'
-                                        }}
-                                    >
-                                        <IconCode size={120} color="white" />
-                                    </Avatar>
-                                </Box>
-                            </Center>
-                        </Grid.Col>
                     </Grid>
                 </Container>
             </Box>

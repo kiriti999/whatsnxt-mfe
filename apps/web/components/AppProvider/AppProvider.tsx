@@ -52,7 +52,21 @@ export default function AppProvider({ children, user }: { children: ReactNode, u
   const isStudent = user?.role === 'student';
 
   const theme = createTheme({
-    /** Put your mantine theme override here */
+    // Use system fonts - remove custom font family from theme
+    fontSizes: {
+      xs: '0.75rem',    // 12px
+      sm: '0.875rem',   // 14px
+      md: '1rem',       // 16px (base)
+      lg: '1.125rem',   // 18px
+      xl: '1.25rem',    // 20px
+    },
+    breakpoints: {
+      xs: '36em',    // 576px
+      sm: '48em',    // 768px
+      md: '62em',    // 992px
+      lg: '75em',    // 1200px
+      xl: '88em',    // 1408px
+    },
   });
 
   const headerProps = {
