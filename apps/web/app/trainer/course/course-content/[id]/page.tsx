@@ -8,7 +8,6 @@ export const metadata: Metadata = {
     description: 'Create and manage structured course content including sections, comparisons, and collapsibles',
 };
 
-export const dynamic = 'force-dynamic';
 
 async function Page(props: { params: Promise<{ id: string }> }) {
     const params = await props.params;

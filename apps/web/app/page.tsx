@@ -4,7 +4,6 @@ import Home from './_component/home/home';
 import { fetchTrendingArticles } from '../fetcher/blogServerQuery';
 import { Box } from '@mantine/core';
 
-export const dynamic = 'force-dynamic'
 async function Page() {
   // Fetch data for CourseMicroFrontEnd
   const [data, articles] = await Promise.all([

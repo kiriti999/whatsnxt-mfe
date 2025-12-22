@@ -7,7 +7,6 @@ import { generateMetadata as createMetadata } from '@whatsnxt/core-util';
 import { notFound } from 'next/navigation';
 import { Box } from '@mantine/core';
 
-export const dynamic = 'force-dynamic';
 
 const fetchCourseData = cache(async (slug: string) => {
     try {

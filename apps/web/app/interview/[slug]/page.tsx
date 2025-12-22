@@ -7,7 +7,6 @@ import { Metadata } from 'next';
 import { cache } from 'react';
 
 
-export const dynamic = 'force-dynamic'
 
 const fetchInterviewData = cache(async (slug: string) => {
     try {

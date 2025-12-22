@@ -2,7 +2,6 @@ import React from 'react'
 import { fetchCourseBuilderData } from '../../../../../fetcher/courseBuilderServerQuery';
 import CourseTypeInformation from '../../../../_component/trainer/CourseTypeInformation';
 
-export const dynamic = 'force-dynamic';
 
 async function Page(props: { params: Promise<{ id: string }> }) {
     const params = await props.params;

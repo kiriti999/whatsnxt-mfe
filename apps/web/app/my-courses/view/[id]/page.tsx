@@ -3,7 +3,6 @@ import { CoursesEnrolledAPI } from '../../../../apis/v1/courses/enrolled/enrolle
 import { cookies } from 'next/headers';
 import SingleCourses from '../../../_component/my-courses/my-course-view';
 
-export const dynamic = 'force-dynamic'
 
 const getCourseVideo = async (courseId: string) => {
     const cookieStore = await cookies();

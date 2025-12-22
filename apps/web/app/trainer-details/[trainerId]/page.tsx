@@ -2,7 +2,6 @@ import React from 'react';
 import { fetchTrainerDetails } from '../../../fetcher/trainerServerQuery';
 import TrainerDetails from '../../_component/trainer/TrainerDetails';
 
-export const dynamic = 'force-dynamic'
 
 const TrainerDetailsPage = async props => {
     const params = await props.params;

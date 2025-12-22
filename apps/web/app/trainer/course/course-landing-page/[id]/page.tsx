@@ -7,7 +7,6 @@ export const metadata: Metadata = {
     title: "Course landing page"
 }
 
-export const dynamic = 'force-dynamic';
 
 async function Page(props: { params: Promise<{ id: string }> }) {
     const params = await props.params;

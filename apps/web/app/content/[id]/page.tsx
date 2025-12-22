@@ -4,7 +4,6 @@ import { getPostBySlugServer } from '../../../fetcher/serverFetcher';
 import React from 'react';
 import ContentWrapper from './ContentWrapper';
 
-export const dynamic = 'force-dynamic'
 
 const ContentPage = async (props: any) => {
   const params = await props.params;

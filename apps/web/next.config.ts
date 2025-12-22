@@ -44,11 +44,9 @@ const nextConfig: NextConfig = {
             'lodash',
             'react-icons'
         ],
-        // New in Next.js 16
-        // ppr: true, // Partial Prerendering
-        // dynamicIO: true, // Dynamic IO for better streaming
+        // New in Next.js 16 - Enables Partial Prerendering
+        cacheComponents: true,
         authInterrupts: true, // Better auth handling
-        // instrumentationHook: true, // Performance monitoring
     },
 
     // NEXT.JS 16: Enhanced compiler options

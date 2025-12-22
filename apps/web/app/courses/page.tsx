@@ -3,7 +3,6 @@ import CoursePage from '../_component/courses/courses-page';
 import { fetchCourses, fetchPopularCourses, fetchCategoriesByCount } from '../../fetcher/courseServerQuery';
 import { Box } from '@mantine/core';
 
-export const dynamic = 'force-dynamic'
 async function Page() {
   // Declare variables outside the try block
   let courses = [];

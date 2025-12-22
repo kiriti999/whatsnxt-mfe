@@ -5,7 +5,6 @@ import { Container, Title, Text, Button, Center, Stack } from '@mantine/core';
 import Link from 'next/link';
 import ArchitectureLabClient from '../../../components/architecture-lab/ArchitectureLabClient';
 
-export const dynamic = 'force-dynamic';
 
 export default async function LabPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;

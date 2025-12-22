@@ -2,7 +2,6 @@ import React from 'react';
 import Invoice from '../../../../components/Invoice';
 import { serverFetcher } from '../../../../fetcher/serverFetcher';
 
-export const dynamic = 'force-dynamic'
 
 const InvoicePage = async props => {
     const params = await props.params;
