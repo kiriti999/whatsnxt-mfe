@@ -69,36 +69,54 @@ export const ShoppingCart: FC = () => {
 
   // Standard table view for cart items (desktop)
   const renderDesktopView = () => (
-    <ScrollArea>
-      <Table striped highlightOnHover>
-        <thead>
-          <tr>
-            <th>Product</th>
-            <th>Name</th>
-            <th>Price</th>
-            {/* <th>Type</th> */}
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          {cartItems.length > 0 ? (
-            cartItems.map((cart) => (
-              <CartItems
-                key={cart.id}
-                {...cart}
-                onRemove={() => handleRemove(cart.id)}
-              />
-            ))
-          ) : (
+    <Paper withBorder radius="lg" p="md" style={{ overflow: 'hidden' }}>
+      <ScrollArea>
+        <Table
+          striped
+          highlightOnHover
+          styles={{
+            thead: {
+              backgroundColor: 'var(--mantine-color-gray-0)',
+            },
+            th: {
+              fontWeight: 600,
+              fontSize: '0.9rem',
+              color: 'var(--mantine-color-dark-6)',
+              padding: '1rem'
+            },
+            td: {
+              padding: '1rem'
+            }
+          }}
+        >
+          <thead>
             <tr>
-              <td colSpan={5} style={{ textAlign: "center", padding: "20px" }}>
-                Empty
-              </td>
+              <th>Product</th>
+              <th>Name</th>
+              <th>Price</th>
+              <th>Action</th>
             </tr>
-          )}
-        </tbody>
-      </Table>
-    </ScrollArea>
+          </thead>
+          <tbody>
+            {cartItems.length > 0 ? (
+              cartItems.map((cart) => (
+                <CartItems
+                  key={cart.id}
+                  {...cart}
+                  onRemove={() => handleRemove(cart.id)}
+                />
+              ))
+            ) : (
+              <tr>
+                <td colSpan={5} style={{ textAlign: "center", padding: "20px" }}>
+                  Empty
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </Table>
+      </ScrollArea>
+    </Paper>
   );
 
   // Mobile view with vertical rows for each field
@@ -140,8 +158,45 @@ export const ShoppingCart: FC = () => {
           </Card>
         ))
       ) : (
-        <Paper p="md" withBorder ta="center">
-          <Text c="dimmed">Your cart is empty</Text>
+        <Paper
+          p="xl"
+          withBorder
+          ta="center"
+          radius="lg"
+          style={{
+            background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.02) 0%, rgba(6, 182, 212, 0.02) 100%)'
+          }}
+        >
+          <Stack align="center" gap="md">
+            <Box
+              style={{
+                width: 80,
+                height: 80,
+                borderRadius: '50%',
+                background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(6, 182, 212, 0.1))',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+            >
+              <IconShoppingCart size={40} color="var(--mantine-color-gray-5)" />
+            </Box>
+            <div>
+              <Text size="lg" fw={600} c="dark.4" mb="xs">Your cart is empty</Text>
+              <Text size="sm" c="dimmed">Add some courses to get started!</Text>
+            </div>
+            <Button
+              component={Link}
+              href="/courses"
+              variant="light"
+              color="indigo"
+              size="md"
+              radius="md"
+              mt="sm"
+            >
+              Browse Courses
+            </Button>
+          </Stack>
         </Paper>
       )}
     </>
@@ -203,39 +258,125 @@ export const ShoppingCart: FC = () => {
   }, []);
 
   return (
-    <Box pos='relative'>
+    <Box pos='relative' my={'5rem'}>
       <LoadingOverlay visible={isLoading} zIndex={1000} overlayProps={{ radius: "sm", blur: 2 }} />
       {!isLoading && (
         <Container size={isMobile ? "100%" : "xl"} px={isMobile ? "xs" : "md"} py="md">
           <Grid justify='center'>
             <Grid.Col span={{ base: 12, md: 8, lg: 7 }}>
               <form>
-                <Title order={3} mb={isMobile ? "sm" : "md"} size={isMobile ? "h3" : "h2"}>
-                  Shopping Cart
-                </Title>
+                {/* Enhanced Header with Icon */}
+                <Flex align="center" gap="md" mb="xl">
+                  <Box
+                    style={{
+                      width: 40,
+                      height: 40,
+                      borderRadius: '50%',
+                      background: 'linear-gradient(135deg, var(--mantine-color-indigo-6), var(--mantine-color-cyan-5))',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      boxShadow: '0 4px 12px rgba(99, 102, 241, 0.25)'
+                    }}
+                  >
+                    <IconShoppingCart size={20} color="white" />
+                  </Box>
+                  <div>
+                    <Title
+                      order={4}
+                      fw={800}
+                      style={{
+                        background: 'linear-gradient(135deg, var(--mantine-color-indigo-7) 0%, var(--mantine-color-cyan-6) 100%)',
+                        WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent',
+                      }}
+                    >
+                      Shopping Cart
+                    </Title>
+                    <Text c="dimmed" size="sm">
+                      {cartItems.length} {cartItems.length === 1 ? 'item' : 'items'} in your cart
+                    </Text>
+                  </div>
+                </Flex>
 
                 <Box mt={isMobile ? "xs" : "md"}>
                   {isMobile ? renderMobileView() : renderDesktopView()}
                 </Box>
 
                 {cartAmount > 0 && (
-                  <Card mt={isMobile ? "md" : "xl"} padding={isMobile ? "sm" : "lg"} shadow="sm" withBorder>
-                    <Stack align="center" gap={isMobile ? "xs" : "md"}>
-                      <Title order={3}>Cart Totals</Title>
-                      <Text fw={500} size={isMobile ? "md" : "xl"}>
-                        Total: <strong>₹{kConverter(cartAmount)}</strong>
-                      </Text>
+                  <Card
+                    mt={isMobile ? "md" : "xl"}
+                    padding={isMobile ? "md" : "xl"}
+                    shadow="lg"
+                    withBorder
+                    radius="lg"
+                    style={{
+                      background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.03) 0%, rgba(6, 182, 212, 0.03) 100%)',
+                      borderColor: 'var(--mantine-color-indigo-2)'
+                    }}
+                  >
+                    <Stack align="center" gap={isMobile ? "sm" : "lg"}>
+                      <Title
+                        order={3}
+                        fw={700}
+                        style={{
+                          color: 'var(--mantine-color-dark-7)'
+                        }}
+                      >
+                        Cart Summary
+                      </Title>
+
+                      <Box
+                        p="md"
+                        style={{
+                          background: 'white',
+                          borderRadius: 'var(--mantine-radius-md)',
+                          width: '100%',
+                          maxWidth: 400
+                        }}
+                      >
+                        <Flex justify="space-between" align="center" mb="xs">
+                          <Text size="md" c="dimmed">Subtotal:</Text>
+                          <Text size="md" fw={500}>₹{kConverter(cartAmount)}</Text>
+                        </Flex>
+                        <Flex justify="space-between" align="center" mb="md">
+                          <Text size="md" c="dimmed">Tax:</Text>
+                          <Text size="md" fw={500}>₹0</Text>
+                        </Flex>
+                        <Box
+                          pt="md"
+                          style={{
+                            borderTop: '2px solid var(--mantine-color-gray-2)'
+                          }}
+                        >
+                          <Flex justify="space-between" align="center">
+                            <Text size="xl" fw={700}>Total:</Text>
+                            <Text
+                              size="xl"
+                              fw={800}
+                              style={{
+                                background: 'linear-gradient(135deg, var(--mantine-color-indigo-6), var(--mantine-color-cyan-5))',
+                                WebkitBackgroundClip: 'text',
+                                WebkitTextFillColor: 'transparent'
+                              }}
+                            >
+                              ₹{kConverter(cartAmount)}
+                            </Text>
+                          </Flex>
+                        </Box>
+                      </Box>
+
                       <Button
                         component={Link}
-                        color="red"
-                        c="white"
-                        variant="filled"
-                        size={isMobile ? "sm" : "md"}
-                        fullWidth={isMobile}
-                        leftSection={<IconShoppingCart size={isMobile ? 16 : 21} />}
+                        variant="gradient"
+                        gradient={{ from: 'indigo', to: 'cyan', deg: 45 }}
+                        size={"sm"}
+                        fullWidth
+                        radius="xl"
+                        leftSection={<IconShoppingCart size={isMobile ? 18 : 22} />}
                         href="/checkout/user-checkout"
                       >
-                        Proceed to Checkout
+                        Proceed to Checkout →
                       </Button>
                     </Stack>
                   </Card>
