@@ -12,7 +12,14 @@ async function Page() {
     fetchTrendingArticles(1, 15, 'both')
   ]);
   return (
-    <Box my={{ base: '2rem', sm: '3rem', md: '4rem' }}>
+    <Box
+      style={{
+        backgroundImage: 'radial-gradient(circle, rgba(99, 102, 241, 0.13) 2px, transparent 2px)',
+        backgroundSize: '25px 25px',
+        minHeight: '100vh'
+      }}
+      py={{ base: '2rem', sm: '3rem', md: '4rem' }}
+    >
       <Home data={data} articles={articles} />
     </Box>
   );
