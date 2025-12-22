@@ -167,18 +167,108 @@ export const NavbarDesktop = ({ links, cartItems, loginMenuLinks, drawerOpened, 
             <Space w="xl" />
 
             {isAuthenticated ? (
-              <Menu shadow="md" width={250} position="bottom-end" trigger="click-hover" openDelay={100} closeDelay={400} withArrow arrowPosition="center">
+              <Menu
+                shadow="lg"
+                width={280}
+                position="bottom-end"
+                trigger="click-hover"
+                openDelay={100}
+                closeDelay={400}
+                withArrow
+                arrowPosition="center"
+                styles={{
+                  dropdown: {
+                    padding: '0.5rem',
+                    borderRadius: 'var(--mantine-radius-md)',
+                    border: '1px solid var(--mantine-color-gray-2)'
+                  },
+                  arrow: {
+                    borderColor: 'var(--mantine-color-gray-2)'
+                  }
+                }}
+              >
                 <Menu.Target>
-                  <Button c='white' loading={loading} variant='filled'>{usernameLabel}</Button>
+                  <Button
+                    loading={loading}
+                    variant='gradient'
+                    gradient={{ from: 'indigo', to: 'cyan', deg: 45 }}
+                    size="md"
+                    radius="xl"
+                    styles={{
+                      root: {
+                        fontWeight: 700,
+                        fontSize: '1rem',
+                        minWidth: 50,
+                        height: 42,
+                        boxShadow: '0 2px 8px rgba(99, 102, 241, 0.25)',
+                        transition: 'all 0.2s ease',
+                        '&:hover': {
+                          transform: 'translateY(-2px)',
+                          boxShadow: '0 4px 12px rgba(99, 102, 241, 0.35)'
+                        }
+                      }
+                    }}
+                  >
+                    {usernameLabel}
+                  </Button>
                 </Menu.Target>
                 <Menu.Dropdown>
+                  {/* User Info Header */}
+                  <Box
+                    p="sm"
+                    mb="xs"
+                    style={{
+                      background: 'linear-gradient(135deg, var(--mantine-color-indigo-0) 0%, var(--mantine-color-cyan-0) 100%)',
+                      borderRadius: 'var(--mantine-radius-sm)',
+                      borderBottom: '2px solid var(--mantine-color-indigo-2)'
+                    }}
+                  >
+                    <Box style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                      <Box
+                        style={{
+                          width: 40,
+                          height: 40,
+                          borderRadius: '50%',
+                          background: 'linear-gradient(135deg, var(--mantine-color-indigo-6), var(--mantine-color-cyan-5))',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          color: 'white',
+                          fontWeight: 700,
+                          fontSize: '1.1rem',
+                          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)'
+                        }}
+                      >
+                        {usernameLabel}
+                      </Box>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontWeight: 600, fontSize: '0.95rem', color: 'var(--mantine-color-dark-7)', lineHeight: 1.3 }}>
+                          {user?.name}
+                        </div>
+                        <div style={{ fontSize: '0.75rem', color: 'var(--mantine-color-dimmed)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {user?.email}
+                        </div>
+                      </div>
+                    </Box>
+                  </Box>
+
                   {loginMenuLinks.map((link, index) => {
                     // Handle Profile with Menu.Sub for proper submenu
                     if (link.title === 'Profile' && link.children) {
                       return (
-                        <Menu key={index}>
+                        <Menu key={index} trigger="hover" openDelay={100} closeDelay={200}>
                           <Menu.Target>
-                            <Menu.Item>
+                            <Menu.Item
+                              leftSection={link.icon ? <link.icon style={{ width: rem(16), height: rem(16) }} /> : null}
+                              rightSection={<span style={{ fontSize: '0.7rem' }}>›</span>}
+                              styles={{
+                                item: {
+                                  borderRadius: 'var(--mantine-radius-sm)',
+                                  fontSize: '0.9rem',
+                                  padding: '0.6rem 0.75rem'
+                                }
+                              }}
+                            >
                               {link.title}
                             </Menu.Item>
                           </Menu.Target>
@@ -191,6 +281,13 @@ export const NavbarDesktop = ({ links, cartItems, loginMenuLinks, drawerOpened, 
                                   component="a"
                                   href={child.url}
                                   leftSection={ChildIcon ? <ChildIcon style={{ width: rem(14), height: rem(14) }} /> : null}
+                                  styles={{
+                                    item: {
+                                      borderRadius: 'var(--mantine-radius-sm)',
+                                      fontSize: '0.85rem',
+                                      padding: '0.5rem 0.75rem'
+                                    }
+                                  }}
                                 >
                                   {child.title}
                                 </Menu.Item>
@@ -201,12 +298,22 @@ export const NavbarDesktop = ({ links, cartItems, loginMenuLinks, drawerOpened, 
                       );
                     }
 
-                    // Handle Blog with Menu.Sub for proper submenu
+                    // Handle Article with Menu.Sub for proper submenu
                     if (link.title === 'Article' && link.children) {
                       return (
-                        <Menu key={index}>
+                        <Menu key={index} trigger="hover" openDelay={100} closeDelay={200}>
                           <Menu.Target>
-                            <Menu.Item>
+                            <Menu.Item
+                              leftSection={link.icon ? <link.icon style={{ width: rem(16), height: rem(16) }} /> : null}
+                              rightSection={<span style={{ fontSize: '0.7rem' }}>›</span>}
+                              styles={{
+                                item: {
+                                  borderRadius: 'var(--mantine-radius-sm)',
+                                  fontSize: '0.9rem',
+                                  padding: '0.6rem 0.75rem'
+                                }
+                              }}
+                            >
                               {link.title}
                             </Menu.Item>
                           </Menu.Target>
@@ -219,6 +326,13 @@ export const NavbarDesktop = ({ links, cartItems, loginMenuLinks, drawerOpened, 
                                   component="a"
                                   href={child.url}
                                   leftSection={ChildIcon ? <ChildIcon style={{ width: rem(14), height: rem(14) }} /> : null}
+                                  styles={{
+                                    item: {
+                                      borderRadius: 'var(--mantine-radius-sm)',
+                                      fontSize: '0.85rem',
+                                      padding: '0.5rem 0.75rem'
+                                    }
+                                  }}
                                 >
                                   {child.title}
                                 </Menu.Item>
@@ -236,7 +350,19 @@ export const NavbarDesktop = ({ links, cartItems, loginMenuLinks, drawerOpened, 
                         key={index}
                         component="a"
                         href={link.url}
-                        leftSection={LinkIcon ? <LinkIcon style={{ width: rem(14), height: rem(14) }} /> : null}
+                        leftSection={LinkIcon ? <LinkIcon style={{ width: rem(16), height: rem(16) }} /> : null}
+                        styles={{
+                          item: {
+                            borderRadius: 'var(--mantine-radius-sm)',
+                            fontSize: '0.9rem',
+                            padding: '0.6rem 0.75rem',
+                            transition: 'all 0.15s ease',
+                            '&:hover': {
+                              backgroundColor: 'var(--mantine-color-indigo-0)',
+                              transform: 'translateX(4px)'
+                            }
+                          }
+                        }}
                       >
                         {link.title}
                       </Menu.Item>
@@ -244,17 +370,44 @@ export const NavbarDesktop = ({ links, cartItems, loginMenuLinks, drawerOpened, 
                   })}
 
                   {isAdmin && (
-                    <Menu.Item>
-                      <Button size='xs' onClick={clearCache}>Clear all cache</Button>
+                    <Menu.Item
+                      styles={{
+                        item: {
+                          padding: '0.5rem 0.75rem'
+                        }
+                      }}
+                    >
+                      <Button
+                        size='xs'
+                        onClick={clearCache}
+                        variant="light"
+                        color="red"
+                        fullWidth
+                        radius="sm"
+                      >
+                        Clear all cache
+                      </Button>
                     </Menu.Item>
                   )}
 
-                  <Menu.Divider />
+                  <Menu.Divider my="xs" />
 
                   <Menu.Item
                     onClick={appLogout}
                     color="red"
-                    leftSection={<IconLogout style={{ width: rem(14), height: rem(14) }} />}
+                    leftSection={<IconLogout style={{ width: rem(16), height: rem(16) }} />}
+                    styles={{
+                      item: {
+                        borderRadius: 'var(--mantine-radius-sm)',
+                        fontSize: '0.9rem',
+                        padding: '0.6rem 0.75rem',
+                        fontWeight: 600,
+                        background: 'linear-gradient(135deg, rgba(250, 82, 82, 0.08) 0%, rgba(236, 72, 153, 0.08) 100%)',
+                        '&:hover': {
+                          background: 'linear-gradient(135deg, rgba(250, 82, 82, 0.15) 0%, rgba(236, 72, 153, 0.15) 100%)'
+                        }
+                      }
+                    }}
                   >
                     Logout
                   </Menu.Item>
@@ -263,17 +416,30 @@ export const NavbarDesktop = ({ links, cartItems, loginMenuLinks, drawerOpened, 
             ) : (
               <Button
                 loading={loading}
-                variant='filled'
-                size={'sm'}
+                variant='gradient'
+                gradient={{ from: 'indigo', to: 'cyan', deg: 45 }}
+                size='md'
                 component={Link}
                 href="/authentication"
-                c='white'
-                leftSection={<IconLogin style={{ width: rem(14), height: rem(14) }} />}
+                radius="xl"
+                leftSection={<IconLogin style={{ width: rem(16), height: rem(16) }} />}
+                styles={{
+                  root: {
+                    fontWeight: 600,
+                    boxShadow: '0 2px 8px rgba(99, 102, 241, 0.25)',
+                    transition: 'all 0.2s ease',
+                    '&:hover': {
+                      transform: 'translateY(-2px)',
+                      boxShadow: '0 4px 12px rgba(99, 102, 241, 0.35)'
+                    }
+                  }
+                }}
               >
                 Login
               </Button>
             )}
           </Box>
+
         </Box>
       ) : (
         // Mobile view (including iPad Pro resolutions)

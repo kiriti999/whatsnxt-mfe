@@ -3,7 +3,7 @@
 import React, { useState } from 'react'; // Import useState
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { Avatar, Button, Text, Grid, Flex, HoverCard, Modal, LoadingOverlay, Input, Box } from '@mantine/core';
+import { Avatar, Button, Text, Grid, Flex, HoverCard, Modal, LoadingOverlay, Box, Stack, Badge } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks'; // Import the hook
 import { useQuery } from '@tanstack/react-query';
 import { IconClockHour2 } from '@tabler/icons-react';
@@ -134,101 +134,109 @@ const TrainerInfoCard: React.FC<TrainerInfoCardProps> = ({
 
       <Grid align="stretch" justify="space-between" style={{ minWidth: '320px' }}>
         {/* Column 1 - Avatar, Name, and Buttons */}
-        <Grid.Col span={{ base: 12, sm: 12, md: 4 }} style={{ display: 'flex', flexDirection: 'column' }}>
-          <Flex justify="start" gap="lg" wrap="nowrap">
-            <Avatar src={trainer.image} alt="no image here" size="xl" />
-            <div style={{ marginLeft: '20px' }}>
-              <Text size="lg" fw={700}>
-                {trainer.name}
-              </Text>
+        <Grid.Col span={{ base: 12, sm: 12, md: 4 }}>
+          <Flex direction="column" gap="md">
+            <Flex justify="start" gap="md" align="center" wrap="nowrap">
+              <Avatar src={trainer.image} alt={trainer.name} size={80} radius="xl" />
               <div>
-                {Array(5)
-                  .fill(null)
-                  .map((_, i) => (
-                    <span
-                      key={i}
-                      style={{
-                        color: Math.ceil(trainer.rating) >= i + 1 ? 'rgb(255, 215, 0)' : 'var(--mantine-color-dimmed)',
-                      }}
-                    >
-                      &#9733;
-                    </span>
-                  ))}
+                <Text size="xl" fw={700} lh={1.2}>
+                  {trainer.name}
+                </Text>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '4px' }}>
+                  {Array(5)
+                    .fill(null)
+                    .map((_, i) => (
+                      <span
+                        key={i}
+                        style={{
+                          color: Math.ceil(trainer.rating) >= i + 1 ? '#FFD700' : 'var(--mantine-color-gray-3)',
+                          fontSize: '14px'
+                        }}
+                      >
+                        &#9733;
+                      </span>
+                    ))}
+                  <Text size="xs" c="dimmed">({trainer.rating || 0})</Text>
+                </div>
               </div>
-            </div>
-          </Flex>
-
-          <div style={{ marginTop: '10px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            <Button color="red" variant="outline" onClick={handleShowCourses} fullWidth={isMobile}>
-              View Courses {showCourses ? '-' : '+'}
-            </Button>
-            <Flex justify="space-between" gap="md" wrap={isMobile ? 'wrap' : 'nowrap'}>
-              {/* Open modal when the Contact trainer button is clicked */}
-              {trainer.revealTrainerInfo === 'yes' && !hasPurchased && (
-                <Button
-                  variant="outline"
-                  color="blue"
-                  fullWidth={true}
-                  onClick={() => {
-                    setPayNowModalOpened(true);
-                  }}
-                >
-                  Contact trainer
-                </Button>
-              )}
-              {hasPurchased && (
-                <Button
-                  variant="outline"
-                  color="blue"
-                  fullWidth={true}
-                  onClick={() => {
-                    setContactDetailsOpened(true);
-                  }}
-                >
-                  View contact
-                </Button>
-              )}
-              <Button variant="outline" color="red" fullWidth={true}>
-                &#8377; {trainer?.rate}/hr
-              </Button>
             </Flex>
 
-          </div>
+            <Stack gap="sm">
+              <Button
+                variant="light"
+                color="indigo"
+                onClick={handleShowCourses}
+                fullWidth={isMobile}
+                leftSection={showCourses ? null : <IconClockHour2 size={16} />} // Reuse icon or new one
+              >
+                {showCourses ? 'Hide Courses' : 'View Courses'}
+              </Button>
+
+              <Flex gap="sm" direction={isMobile ? 'column' : 'row'}>
+                {/* Open modal when the Contact trainer button is clicked */}
+                {trainer.revealTrainerInfo === 'yes' && !hasPurchased && (
+                  <Button
+                    variant="gradient"
+                    gradient={{ from: 'blue', to: 'cyan' }}
+                    fullWidth
+                    onClick={() => {
+                      setPayNowModalOpened(true);
+                    }}
+                  >
+                    Contact
+                  </Button>
+                )}
+                {hasPurchased && (
+                  <Button
+                    variant="gradient"
+                    gradient={{ from: 'teal', to: 'green' }}
+                    fullWidth
+                    onClick={() => {
+                      setContactDetailsOpened(true);
+                    }}
+                  >
+                    View Contact
+                  </Button>
+                )}
+                <Button variant="outline" color="gray" fullWidth style={{ borderColor: 'var(--mantine-color-gray-3)', color: 'var(--mantine-color-text)' }}>
+                  &#8377; {trainer?.rate}/hr
+                </Button>
+              </Flex>
+            </Stack>
+          </Flex>
         </Grid.Col>
 
         {/* Column 2 - Experience & Skills */}
-        <Grid.Col span={{ base: 12, sm: 12, md: 8 }} pl={'5em'}>
-          <Flex justify="space-between" wrap="wrap">
-            <div>
-              <Text fw={700} size="lg" mb={12}>
-                Skills & Experience
+        <Grid.Col span={{ base: 12, sm: 12, md: 8 }}>
+          <Box pl={{ md: 'xl' }} mt={{ base: 'md', md: 0 }}>
+            <Flex justify="space-between" align="center" mb="sm">
+              <Text fw={700} size="lg">
+                Skills & Expertise
               </Text>
-              {trainer?.skills.length > 0 && (
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
-                  {trainer?.skills.map((skill: string, i: number) => (
-                    <Button key={i} variant="outline" size="xs" color="red">
-                      {skill}
-                    </Button>
-                  ))}
-                </div>
-              )}
-            </div>
-          </Flex>
-          {trainer.about && (
-            <Text c="var(--mantine-color-text)" fz={15} lineClamp={4} mt={18}>
-              {trainer.about}
-            </Text>
-          )}
+              <Link href={`/trainer-details/${trainer._id}`} style={{ textDecoration: 'none' }}>
+                <Button variant="subtle" size="xs">View Profile &rarr;</Button>
+              </Link>
+            </Flex>
+
+            {trainer?.skills.length > 0 && (
+              <Flex gap="xs" wrap="wrap" mb="md">
+                {trainer?.skills.map((skill: string, i: number) => (
+                  <Badge key={i} variant="light" size="lg" radius="sm" color="indigo">
+                    {skill}
+                  </Badge>
+                ))}
+              </Flex>
+            )}
+
+            {trainer.about && (
+              <Text c="dimmed" size="sm" lineClamp={3}>
+                {trainer.about}
+              </Text>
+            )}
+          </Box>
         </Grid.Col>
       </Grid>
 
-      <Grid gutter={0} justify='end'>
-        <Link href={`/trainer-details/${trainer._id}`}>
-          <Text size="sm" fw={600}>
-            View full profile
-          </Text>
-        </Link>
-      </Grid>
     </Box>
   );
 };

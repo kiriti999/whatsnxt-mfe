@@ -1,8 +1,91 @@
-.answer-wrapper {
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    background-color: #f9f9f9;
+/* Question Card Styling */
+.questionCard {
+    position: relative;
+    overflow: hidden;
+}
+
+.questionCard::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--mantine-color-blue-4), var(--mantine-color-cyan-4), var(--mantine-color-blue-6));
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.questionCard:hover::before {
+    opacity: 1;
+}
+
+.questionCard:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+}
+
+/* Answer Wrapper Styling */
+.answerWrapper {
     overflow-x: auto;
-    margin-top: 10px;
+}
+
+.answerWrapper pre {
+    background: var(--mantine-color-dark-8);
+    color: var(--mantine-color-gray-3);
+    padding: 1rem;
+    border-radius: 8px;
+    overflow-x: auto;
+    font-size: 0.875rem;
+    line-height: 1.6;
+}
+
+.answerWrapper code {
+    background: var(--mantine-color-gray-1);
+    color: var(--mantine-color-pink-6);
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+    font-size: 0.9em;
+}
+
+.answerWrapper pre code {
+    background: transparent;
+    color: inherit;
+    padding: 0;
+}
+
+.answerWrapper ul,
+.answerWrapper ol {
+    margin: 0.75rem 0;
+    padding-left: 1.5rem;
+}
+
+.answerWrapper li {
+    margin: 0.25rem 0;
+}
+
+.answerWrapper p {
+    margin: 0.5rem 0;
+}
+
+.answerWrapper blockquote {
+    border-left: 4px solid var(--mantine-color-blue-4);
+    margin: 1rem 0;
+    padding: 0.5rem 1rem;
+    background: var(--mantine-color-blue-0);
+    border-radius: 0 8px 8px 0;
+}
+
+/* Dark Mode Overrides */
+[data-mantine-color-scheme='dark'] .questionCard:hover {
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+}
+
+[data-mantine-color-scheme='dark'] .answerWrapper code {
+    background: var(--mantine-color-dark-5);
+    color: var(--mantine-color-pink-4);
+}
+
+[data-mantine-color-scheme='dark'] .answerWrapper blockquote {
+    background: var(--mantine-color-dark-6);
 }
