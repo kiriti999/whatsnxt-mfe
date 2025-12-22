@@ -142,7 +142,7 @@ export const NavbarDesktop = ({ links, cartItems, loginMenuLinks, drawerOpened, 
               Consulting
             </Anchor>
             <Anchor href='/search-trainers' className={classes.link} component={Link}>
-              Search Trainer
+              Search trainer
             </Anchor>
             {(!isAdmin && !isTrainer) && (
               <Anchor href='/become-a-trainer' component={Link} className={classes.link}>
