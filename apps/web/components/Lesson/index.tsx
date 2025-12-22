@@ -7,7 +7,7 @@ import Syllabus from './syllabus';
 const Lesson = ({ sections, courseOverview, courseSlug, lesson, lessonId, course }) => {
     return (
         <main className={styles.container}>
-            <Title order={3}>{course.courseName}</Title>
+            <Title order={3} mb="md">{course.courseName}</Title>
             <Grid>
                 <Grid.Col span={{ base: 12, md: 8, lg: 8 }}>
                     <Main lessonId={lessonId} course={course} sections={sections} courseOverview={courseOverview} videoUrl={lesson?.videoUrl} courseSlug={courseSlug} />

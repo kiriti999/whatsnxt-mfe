@@ -1,0 +1,200 @@
+.contentContainer {
+    padding: var(--mantine-spacing-md) 0;
+}
+
+.section {
+    padding-bottom: var(--mantine-spacing-xl);
+}
+
+.sectionTitle {
+    color: var(--mantine-color-white);
+    font-weight: 700;
+    letter-spacing: -0.5px;
+}
+
+.subSectionTitle {
+    color: var(--mantine-color-white);
+    font-weight: 600;
+}
+
+.overview {
+    color: var(--mantine-color-gray-3);
+    line-height: 1.7;
+}
+
+/* Comparison Tabs Styling */
+.comparisonSection {
+    margin-top: var(--mantine-spacing-lg);
+}
+
+.tabsCard {
+    background: var(--mantine-color-dark-7);
+    border-color: var(--mantine-color-dark-4);
+    overflow: hidden;
+}
+
+.tabsList {
+    background: var(--mantine-color-dark-6);
+    border-bottom: 1px solid var(--mantine-color-dark-4);
+    padding: 0;
+}
+
+.tab {
+    font-weight: 600;
+    font-size: var(--mantine-font-size-xs);
+    letter-spacing: 0.5px;
+    padding: var(--mantine-spacing-md) var(--mantine-spacing-lg);
+    border: none;
+    border-bottom: 3px solid transparent;
+    color: var(--mantine-color-gray-4);
+    transition: all 0.2s ease;
+}
+
+.tab:hover {
+    background: var(--mantine-color-dark-5);
+    color: var(--mantine-color-white);
+}
+
+.tab[data-active] {
+    color: var(--mantine-color-blue-4);
+    border-bottom-color: var(--mantine-color-blue-4);
+    background: transparent;
+}
+
+/* Collapsible Section Styling */
+.collapsibleSection {
+    margin-top: var(--mantine-spacing-lg);
+}
+
+.collapsibleItem {
+    background: var(--mantine-color-dark-7);
+    border-color: var(--mantine-color-dark-4);
+    padding: var(--mantine-spacing-lg);
+    transition: all 0.2s ease;
+}
+
+.collapsibleItemOpen {
+    background: var(--mantine-color-dark-6);
+}
+
+.collapsibleHeader {
+    user-select: none;
+}
+
+.collapsibleHeader:hover {
+    opacity: 0.8;
+}
+
+.collapsibleIcon {
+    color: var(--mantine-color-gray-5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.collapsibleContent {
+    color: var(--mantine-color-gray-3);
+    line-height: 1.7;
+    padding-left: var(--mantine-spacing-sm);
+    border-left: 2px solid var(--mantine-color-dark-4);
+}
+
+/* Resources Section Styling */
+.resourcesSection {
+    margin-top: var(--mantine-spacing-lg);
+}
+
+.resourceCard {
+    background: var(--mantine-color-dark-7);
+    border-color: var(--mantine-color-dark-4);
+    transition: all 0.2s ease;
+}
+
+.resourceCard:hover {
+    background: var(--mantine-color-dark-6);
+    border-color: var(--mantine-color-blue-6);
+}
+
+.resourceIcon {
+    color: var(--mantine-color-blue-4);
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.resourceLink {
+    color: var(--mantine-color-blue-4);
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.resourceLink:hover {
+    text-decoration: underline;
+}
+
+/* Light mode overrides */
+[data-mantine-color-scheme='light'] .sectionTitle {
+    color: var(--mantine-color-dark-9);
+}
+
+[data-mantine-color-scheme='light'] .subSectionTitle {
+    color: var(--mantine-color-dark-8);
+}
+
+[data-mantine-color-scheme='light'] .overview {
+    color: var(--mantine-color-dark-6);
+}
+
+[data-mantine-color-scheme='light'] .tabsCard {
+    background: var(--mantine-color-white);
+    border-color: var(--mantine-color-gray-3);
+}
+
+[data-mantine-color-scheme='light'] .tabsList {
+    background: var(--mantine-color-gray-0);
+    border-color: var(--mantine-color-gray-3);
+}
+
+[data-mantine-color-scheme='light'] .tab {
+    color: var(--mantine-color-dark-4);
+}
+
+[data-mantine-color-scheme='light'] .tab:hover {
+    background: var(--mantine-color-gray-1);
+    color: var(--mantine-color-dark-9);
+}
+
+[data-mantine-color-scheme='light'] .tab[data-active] {
+    color: var(--mantine-color-blue-7);
+    border-bottom-color: var(--mantine-color-blue-7);
+}
+
+[data-mantine-color-scheme='light'] .collapsibleItem {
+    background: var(--mantine-color-white);
+    border-color: var(--mantine-color-gray-3);
+}
+
+[data-mantine-color-scheme='light'] .collapsibleItemOpen {
+    background: var(--mantine-color-gray-0);
+}
+
+[data-mantine-color-scheme='light'] .collapsibleContent {
+    color: var(--mantine-color-dark-6);
+    border-left-color: var(--mantine-color-gray-3);
+}
+
+[data-mantine-color-scheme='light'] .resourceCard {
+    background: var(--mantine-color-white);
+    border-color: var(--mantine-color-gray-3);
+}
+
+[data-mantine-color-scheme='light'] .resourceCard:hover {
+    background: var(--mantine-color-gray-0);
+}
+
+[data-mantine-color-scheme='light'] .resourceIcon {
+    color: var(--mantine-color-blue-6);
+}
+
+[data-mantine-color-scheme='light'] .resourceLink {
+    color: var(--mantine-color-blue-7);
+}

@@ -13,6 +13,7 @@ import { CoursesEnrolledAPI } from '../../apis/v1/courses/enrolled/enrolled';
 import UserFeedBack from './userFeedBack';
 import InterviewClient from './InterviewClient';
 import { CourseFeedbackAPI } from '../../apis/v1/courses/feedback/feedback';
+import CourseContentDisplay from './CourseContentDisplay';
 
 
 
@@ -68,7 +69,7 @@ const LessonPlayer = ({ lessonId, course, courseOverview, videoUrl = '', section
                         url={videoUrls[currentVideoIndex]} // Dynamically update the video URL
                         light={videoUrls[currentVideoIndex] + "&poster=true"}
                         playing={play}
-                        onClickPreview={()=>{setPlay(true)}}
+                        onClickPreview={() => { setPlay(true) }}
                         width="100%"
                         height="500px"
                         controls={true}
@@ -80,33 +81,22 @@ const LessonPlayer = ({ lessonId, course, courseOverview, videoUrl = '', section
             )}
             <Tabs value={activeTab} defaultValue={activeTab} keepMounted={false} onChange={setActiveTab} className={styles['tabs']}>
                 <Tabs.List>
-                    <Tabs.Tab value="about">About</Tabs.Tab>
-                    {!isDesktop && <Tabs.Tab value="syllabus">Syllabus</Tabs.Tab>}
-                    {lessonId !== 'review' && <Tabs.Tab value="discussions">Discussions</Tabs.Tab>}
-                    <Tabs.Tab value="interview">Interview</Tabs.Tab>
+                    <Tabs.Tab value="about" fw={600}>About</Tabs.Tab>
+                    {!isDesktop && <Tabs.Tab value="syllabus" fw={600}>Syllabus</Tabs.Tab>}
+                    {lessonId !== 'review' && <Tabs.Tab value="discussions" fw={600}>Discussions</Tabs.Tab>}
+                    <Tabs.Tab value="interview" fw={600}>Interview</Tabs.Tab>
                     {lectureLinks?.[currentVideoIndex]?.length > 0 &&
-                        <Tabs.Tab value="links">Links</Tabs.Tab>
+                        <Tabs.Tab value="links" fw={600}>Links</Tabs.Tab>
                     }
                 </Tabs.List>
                 <Tabs.Panel value="about" className={styles['tabs-panel']}>
-                    <Title order={3}>About Author</Title>
-                    <div className={styles['author-block']}>
-                        {authorAvatar ? (
-                            <Avatar src={authorAvatar} radius="md" alt="author name"></Avatar>
-                        ) : (
-                            <Avatar radius="md" alt="author name">NA</Avatar>
-                        )}
-                        <Text>{authorName}</Text>
-                    </div>
-                    <Group>
-                        <Text size='sm' lineClamp={1} truncate="end">{authorDesignation}</Text>
-                    </Group>
-                    <Group>
-                        <Text size='sm' lineClamp={1} truncate="end">{about}</Text>
-                    </Group>
-                    <Title order={3}>About Course</Title>
+  
+                    <Title order={4}>About Course</Title>
                     {/* TODO: Add line clamp */}
                     <HtmlParser content={courseOverview} withOptions />
+
+                    {/* Structured Course Content - Sections, Comparisons, Collapsibles, Resources */}
+                    <CourseContentDisplay courseId={course._id} />
                 </Tabs.Panel>
                 {!isDesktop && (
                     <Tabs.Panel value="syllabus" className={styles['tabs-panel']}>

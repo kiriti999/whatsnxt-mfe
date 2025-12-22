@@ -7,11 +7,11 @@ const Page = () => {
     return (
         <>
             <Container>
-                <Grid my={5} justify='center' ta={'center'}>
+                <Grid my={"15rem"} justify='center' ta={'center'}>
                     <Box>
                         <Title order={1}>Thank You!</Title>
                         <Text>Your payment is successful</Text>
-                        <Title order={5} className='mt-3'>
+                        <Title order={5} mt={"1rem"}>
                             <Link href='/my-courses'>Go to my courses</Link>
                         </Title>
                     </Box>

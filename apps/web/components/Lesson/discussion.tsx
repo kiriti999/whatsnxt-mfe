@@ -32,7 +32,7 @@ const Discussion = ({ lessonId }: DiscussionProps) => {
 
 	return (
 		<>
-			<Title order={3}>Lesson discussion</Title>
+			<Title order={4} mb="md">Lesson discussion</Title>
 			<CommentReplyContextProvider handleComments={handleComments} comments={comments}>
 				<CommentContextProvider>
 					<Comment

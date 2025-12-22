@@ -1,0 +1,47 @@
+.sectionCard {
+  border-left: 3px solid var(--mantine-color-blue-6);
+  transition: all 0.2s ease;
+}
+
+.sectionCard:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.tabContent {
+  min-height: 200px;
+}
+
+.comparisonTab {
+  background-color: var(--mantine-color-gray-0);
+  border-radius: var(--mantine-radius-sm);
+  padding: var(--mantine-spacing-md);
+  margin-bottom: var(--mantine-spacing-sm);
+}
+
+.collapsibleItem {
+  border-left: 4px solid var(--mantine-color-blue-5);
+  padding-left: var(--mantine-spacing-md);
+}
+
+.resourceCard {
+  background: linear-gradient(135deg, var(--mantine-color-gray-0) 0%, var(--mantine-color-white) 100%);
+}
+
+.editorWrapper {
+  min-height: 150px;
+  border: 1px solid var(--mantine-color-gray-3);
+  border-radius: var(--mantine-radius-sm);
+}
+
+/* Dark mode support */
+[data-mantine-color-scheme='dark'] .sectionCard {
+  border-left-color: var(--mantine-color-blue-4);
+}
+
+[data-mantine-color-scheme='dark'] .comparisonTab {
+  background-color: var(--mantine-color-dark-6);
+}
+
+[data-mantine-color-scheme='dark'] .resourceCard {
+  background: linear-gradient(135deg, var(--mantine-color-dark-6) 0%, var(--mantine-color-dark-7) 100%);
+}

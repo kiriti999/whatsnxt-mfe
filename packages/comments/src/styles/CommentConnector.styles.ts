@@ -11,8 +11,8 @@ export const CommentContainer = styled.div<CommentContainerProps>`
   .connector-with-input-${props => props.commentId}::after {
     content: "";
     position: absolute;
-    inset-inline-start: 23px;
-    top: 48px;
+    inset-inline-start: 14px;
+    top: 32px;
     bottom: ${({ $commentHeight }) => `-${66}px`};
     width: 2px;
     background: #bbaaaa96;
@@ -21,16 +21,16 @@ export const CommentContainer = styled.div<CommentContainerProps>`
   .connector-without-input-${props => props.commentId}::after {
     content: "";
     position: absolute;
-    inset-inline-start: 23px;
-    top: 31px;
-    left: 15px;
-    bottom: ${({ $commentHeight }) => `-${48}px`};
+    inset-inline-start: 14px;
+    top: 27px;
+    left: 14px;
+    bottom: ${({ $commentHeight }) => `-${55}px`};
     width: 1.5px;
     background: #bbaaaa96;
   }
 
-  .review-rating.comment-name {
-    margin-left:3rem;
+  .comment-content-wrapper {
+    margin-left: 36px;
   }
 
   .child-comment-connector {
@@ -41,10 +41,10 @@ export const CommentContainer = styled.div<CommentContainerProps>`
   .child-comment-connector::before {
     content: "";
     position: absolute;
-    top: -1px;
-    left: ${({ isMobile }) => (isMobile ? "-20px" : "-17px")};
-    height: 18px;
-    width: 19px;
+    top: 2px;
+    left: ${({ isMobile }) => (isMobile ? "-21px" : "-14px")};
+    height: 14px;
+    width: ${({ isMobile }) => (isMobile ? "21px" : "15px")};
     -webkit-border-start: 1.5px solid #bbaaaa96;
     border-inline-start: 1.5px solid #bbaaaa96;
     border-bottom: 1.5px solid #bbaaaa96;
@@ -63,16 +63,16 @@ export const CommentContainer = styled.div<CommentContainerProps>`
     font-weight: 600;
     color: #606060;
     cursor: pointer;
-    margin-left: 1rem;
-    margin-top: 1rem;
-    margin-bottom: 1rem;
+    margin-left: 36px;
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
     width:fit-content
   }
 
   .view-all-comment.load-more {
-    margin-left: 4rem;
-    margin-top: 2rem;
-    font-size: 15px;
+    margin-left: 36px;
+    margin-top: 1rem;
+    font-size: 14px;
   }
 
   .view-all-comment:hover {
@@ -80,9 +80,9 @@ export const CommentContainer = styled.div<CommentContainerProps>`
   }
 
   .comment-thread {
-    padding-left: 32px;
-    margin-top: 0.5rem;
-    margin-bottom: 0.5rem;
+    padding-left: 28px;
+    margin-top: 0.25rem;
+    margin-bottom: 0.25rem;
   }
 
   .comment-input-btn {

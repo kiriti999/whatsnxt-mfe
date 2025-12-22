@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, RefObject } from 'react';
 import { ActionIcon, Button, Menu, Title, Text, Group, Flex } from '@mantine/core';
 import {
     IconThumbUp,
@@ -13,6 +13,35 @@ import {
 import { notifications } from '@mantine/notifications';
 import DeleteConfirmationModal from './modals/DeleteConfirmation';
 import DiscardModal from './modals/Discard';
+
+interface CommentData {
+    name: string;
+    email: string;
+    hasLiked: boolean;
+    hasDisliked: boolean;
+    hasFlagged: boolean;
+    likes: number;
+    dislikes: number;
+    totalReply: number;
+}
+
+interface CommentActionsProps {
+    email: string;
+    comment: CommentData;
+    commentId: number;
+    editMode: boolean;
+    handleSubmit: (fn: (data: unknown) => void) => (e: React.FormEvent) => void;
+    handleReplyBtn: () => void;
+    onEditComment: (e?: React.MouseEvent | React.FormEvent) => void;
+    onDeleteComment: () => void;
+    onAddComment: (data: unknown) => void;
+    likeComment: () => void;
+    dislikeComment: () => void;
+    reportComment: () => void;
+    rootDepth: number;
+    setCommentExpand: (id: number, value: boolean, type?: 'E' | 'I' | 'O') => void;
+    inputRef: RefObject<HTMLDivElement | null>;
+}
 
 const CommentActions = ({
     email,
@@ -30,7 +59,7 @@ const CommentActions = ({
     rootDepth,
     setCommentExpand,
     inputRef,
-}) => {
+}: CommentActionsProps) => {
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [isDiscardModalOpen, setIsDiscardModalOpen] = useState(false);
 
@@ -54,7 +83,7 @@ const CommentActions = ({
                 setIsOpen={setIsDiscardModalOpen}
                 onCommentDiscard={onCommentDiscard}
             />
-            <Flex align={'center'} mt={2} gap={'sm'}>
+            <Flex align={'center'} mt={4} gap={8}>
                 {editMode ? (
                     <>
                         <form onSubmit={handleSubmit(onAddComment)}>
@@ -76,39 +105,39 @@ const CommentActions = ({
                     </>
                 ) : (
                     <>
+                        {/* Like/Dislike group */}
+                        <Group gap={2}>
+                            <ActionIcon onClick={likeComment} variant='transparent' size="sm">
+                                {comment.hasLiked ? (
+                                    <IconThumbUpFilled size={16} />
+                                ) : (
+                                    <IconThumbUp size={16} />
+                                )}
+                            </ActionIcon>
+                            {comment.likes > 0 && <Text size='xs' c="dimmed">{comment.likes}</Text>}
+                            <ActionIcon onClick={dislikeComment} variant='transparent' size="sm">
+                                {comment.hasDisliked ? (
+                                    <IconThumbDownFilled size={16} />
+                                ) : (
+                                    <IconThumbDown size={16} />
+                                )}
+                            </ActionIcon>
+                            {comment.dislikes > 0 && <Text size='xs' c="dimmed">{comment.dislikes}</Text>}
+                        </Group>
+
+                        {/* Reply button */}
                         {rootDepth < 5 && comment.totalReply <= 0 && (
-                            <Button variant="transparent" onClick={handleReplyBtn} px={0}>
-                                <Title c={'blue'} order={6} fz='xs'>Reply</Title>
+                            <Button variant="transparent" onClick={handleReplyBtn} px={4} py={0} size="xs">
+                                <Text c={'blue'} fz='xs' fw={600}>Reply</Text>
                             </Button>
                         )}
 
-                        <Group gap={'0.2rem'}>
-                            <ActionIcon onClick={likeComment} variant='transparent'>
-                                {comment.hasLiked ? (
-                                    <IconThumbUpFilled size={18} />
-                                ) : (
-                                    <IconThumbUp size={18} />
-                                )}
-                            </ActionIcon>
-                            <Text size='xs'>{comment.likes || ''}</Text>
-                        </Group>
-
-                        <Group gap={'0.2rem'}>
-                            <ActionIcon onClick={dislikeComment} variant='transparent'>
-                                {comment.hasDisliked ? (
-                                    <IconThumbDownFilled size={18} />
-                                ) : (
-                                    <IconThumbDown size={18} />
-                                )}
-                            </ActionIcon>
-                            <Text size='xs'>{comment.dislikes || ''}</Text>
-                        </Group>
-
+                        {/* More actions menu */}
                         <Menu trigger="hover" openDelay={100} closeDelay={400} position="top" styles={{ dropdown: { zIndex: 199 } }}>
                             <Menu.Target>
-                                <Button variant="transparent" p={0}>
-                                    <IconDotsVertical size={18} />
-                                </Button>
+                                <ActionIcon variant="transparent" size="sm">
+                                    <IconDotsVertical size={16} />
+                                </ActionIcon>
                             </Menu.Target>
                             <Menu.Dropdown>
                                 {!comment.hasFlagged && (
@@ -138,7 +167,7 @@ const CommentActions = ({
                         </Menu>
                     </>
                 )}
-            </Flex >
+            </Flex>
         </>
     );
 };

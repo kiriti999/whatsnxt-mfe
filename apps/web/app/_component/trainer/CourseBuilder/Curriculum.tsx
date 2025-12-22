@@ -85,10 +85,11 @@ const Curriculum = ({ courseId, courseWithSections }) => {
 		if (sections[0]?.videos.length > 0) {
 			setEnabledSections(prev => {
 				const temp = new Set(prev);
-				if (!temp.has(3)) {
+				if (!temp.has(4)) {
 					temp.add(1);
 					temp.add(2);
-					temp.add(3);
+					temp.add(3); // Course Content
+					temp.add(4); // Landing Page
 
 				}
 				return temp;
@@ -97,8 +98,8 @@ const Curriculum = ({ courseId, courseWithSections }) => {
 			setEnabledSections(prev => {
 				const temp = new Set(prev);
 				temp.add(1)
-				if (temp.has(3)) {
-					temp.delete(3)
+				if (temp.has(4)) {
+					temp.delete(4)
 				}
 				return temp;
 			})

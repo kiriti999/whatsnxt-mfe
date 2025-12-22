@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Avatar, Button, Flex, Stack, Text, Textarea, Title, Tooltip } from '@mantine/core';
+import { Avatar, Box, Button, Flex, Text, Textarea, Tooltip } from '@mantine/core';
 import { useForm } from 'react-hook-form';
 import { useCommentExpandTracker } from './contexts/comment-context';
 import CommentCollapse from './Collapse';
@@ -116,7 +116,7 @@ const Comment = ({
     };
 
     return (
-        <div>
+        <Box my="lg">
             {comment && (
                 <CommentConnector commentId={commentId} commentItems={comment.items} connectorElementRef={connectorElementRef} name={comment?.name}>
                     {comment?.id == 1 ? (
@@ -142,28 +142,26 @@ const Comment = ({
                                 : ''
                                 } ${comment.parents?.length > 1 ? 'child-comment-connector ' : ''}`}
                         >
-                            <div className="review-heading comment-heading mb-1 mt-2">
-                                <div className="review-profile">
-                                    <div className="d-flex gap-2">
-                                        <Tooltip label={userName}>
-                                            <Avatar radius="lg" alt="user" color="cyan" size={32}>
-                                                {(userName)?.slice(0, 1)?.toUpperCase() || '?'}
-                                            </Avatar>
-                                        </Tooltip>
-                                        <Stack gap={0} mb={'xs'}>
-                                            <Title size='xs' m={0} order={6} fz={12.5}>{userName}</Title>
-                                            <Text size='xs' style={{ opacity: '0.6' }} m={0}>
-                                                {formatRelativeTime(comment?.updatedAt)}
-                                            </Text>
-                                        </Stack>
-                                    </div>
-                                </div>
-                            </div>
+                            {/* Reddit-style comment header: Avatar + Username + Time inline */}
+                            <Flex gap="xs" align="center" mb={4}>
+                                <Tooltip label={userName}>
+                                    <Avatar radius="xl" alt="user" color="cyan" size={28}>
+                                        {(userName)?.slice(0, 1)?.toUpperCase() || '?'}
+                                    </Avatar>
+                                </Tooltip>
+                                <Text fw={600} size="sm" style={{ lineHeight: 1 }}>{userName}</Text>
+                                <Text size="xs" c="dimmed" style={{ lineHeight: 1 }}>
+                                    • {formatRelativeTime(comment?.updatedAt)}
+                                </Text>
+                            </Flex>
 
-                            <div className="review-rating comment-name">
+                            {/* Comment content - aligned with text, not avatar */}
+                            <div className="comment-content-wrapper" style={{ marginLeft: 36 }}>
                                 <div contentEditable={editMode} ref={inputRef} suppressContentEditableWarning={editMode} key={comment?.id} style={{ wordWrap: 'break-word' }}>
-                                    <Text size='sm'>{FormatCommentText(comment?.name)}</Text>
+                                    <Text size="sm" style={{ lineHeight: 1.5 }}>{FormatCommentText(comment?.name)}</Text>
                                 </div>
+
+                                {/* Action buttons inline */}
                                 {Object.keys(comment).length > 0 && (
                                     <CommentActions
                                         email={email}
@@ -182,8 +180,7 @@ const Comment = ({
                                         setCommentExpand={setCommentExpand}
                                         inputRef={inputRef}
                                     />
-                                )
-                                }
+                                )}
                             </div>
                         </div>
                     )}
@@ -193,7 +190,7 @@ const Comment = ({
                             <div className="mtb-20">
                                 <div style={{ position: 'relative' }}>
                                     <form onSubmit={handleSubmit(onAddComment)}>
-                                        <div className={`comment-input-container ${!!errors?.comment?.message ? 'comment-input-validation' : ''} `}>
+                                        <div className={`comment-input-container ${errors?.comment?.message ? 'comment-input-validation' : ''} `}>
                                             <Textarea
                                                 variant="unstyled"
                                                 autoFocus
@@ -280,7 +277,7 @@ const Comment = ({
                     </div>
                 </CommentConnector>
             )}
-        </div>
+        </Box>
     );
 };
 

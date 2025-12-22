@@ -19,6 +19,12 @@ export default async function LessonPage({ params }: LessonPageProps) {
         const resolvedParams = await params;
         const { id: courseSlug, sectionId, lessonId } = resolvedParams;
 
+        // Validate parameters - check for 'undefined' string (from invalid URLs)
+        if (!sectionId || sectionId === 'undefined' || !lessonId || lessonId === 'undefined') {
+            console.error('Invalid section or lesson ID');
+            return notFound();
+        }
+
         // Fetch course by slug
         const course = await fetchCourseBySlug(courseSlug);
         if (!course) {
@@ -28,14 +34,14 @@ export default async function LessonPage({ params }: LessonPageProps) {
 
         // Fetch videos by section
         const videos = await fetchVideosBySection(sectionId);
-        if (!videos || videos.length === 0) {
+        if (!videos || !Array.isArray(videos) || videos.length === 0) {
             console.error('No videos found for the section');
             return notFound();
         }
 
         // Find the current lesson
         const currentLesson = videos.find((item) => item._id === lessonId);
-        if (!lessonId) {
+        if (!currentLesson) {
             console.error('Lesson not found');
             return notFound();
         }

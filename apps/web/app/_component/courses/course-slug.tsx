@@ -8,8 +8,9 @@ import { CoursesDetailsSidebar } from '../../../components/CoursesDetailsSidebar
 import CourseSlugDetails from './courseSlugDetails';
 import useAuth from '../../../hooks/Authentication/useAuth';
 import CourseApproval from './admin/course-approval-section'
-import { Container, Grid, GridCol, Box } from '@mantine/core';
+import { Container, Grid, GridCol, Box, Title, Card } from '@mantine/core';
 import SimilarCourses from './similar-courses';
+import CourseContentDisplay from '../../../components/Lesson/CourseContentDisplay';
 
 export default function CourseSlug({ course, reviews, reviewCommentCount, similarCourses = [] }: CourseProps) {
   const [courseReviews, setCourseReviews] = useState(reviews);
@@ -52,11 +53,23 @@ export default function CourseSlug({ course, reviews, reviewCommentCount, simila
             </GridCol>
           </Grid>
 
+          {/* Show Course Content section in review mode */}
+          {isCourseReviewMode && (
+            <Box my="xl">
+              <Card shadow="sm" padding="lg" radius="md" withBorder>
+                <Title order={3} mb="md">Course Content (For Review)</Title>
+                <CourseContentDisplay courseId={course._id} />
+              </Card>
+            </Box>
+          )}
+
+          {/* Show Approve/Reject buttons at bottom for Admin */}
           {loggedInUser?.role == "admin" && (
             <CourseApproval course={course} />
           )}
 
-          <SimilarCourses courses={similarCourses} />
+          {/* Hide Similar Courses in review mode */}
+          {!isCourseReviewMode && <SimilarCourses courses={similarCourses} />}
         </Container>
       </div>
 
@@ -70,3 +83,4 @@ type CourseProps = {
   reviewCommentCount: number;
   similarCourses?: any[];
 }
+

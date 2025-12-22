@@ -15,12 +15,14 @@ import { mailAPI } from '../../apis/v1/mail';
 const COURSE_TYPE_PATH = `/trainer/course/course-type-information`;
 const PRICING_INFO_PATH = `/trainer/course/pricing-information`;
 const CURRICULUM_PATH = `/trainer/course/course-builder`;
+const COURSE_CONTENT_PATH = `/trainer/course/course-content`;
 const LANDING_PAGE_PATH = `/trainer/course/course-landing-page`;
 const COURSE_INTERVIEW_PATH = `/trainer/course/course-interview-page`;
 
 const COURSE_TYPE_TITLE = 'Your course type';
 const PRICING_INFO_TITLE = 'Pricing information';
 const CURRICULUM_TITLE = 'Curriculum';
+const COURSE_CONTENT_TITLE = 'Course Content';
 const LANDING_PAGE_TITLE = 'Course landing page';
 const COURSE_INTERVIEW_TITLE = 'Course Interview page';
 
@@ -36,6 +38,10 @@ const COURSE_SECTIONS = [
   {
     path: CURRICULUM_PATH,
     title: CURRICULUM_TITLE,
+  },
+  {
+    path: COURSE_CONTENT_PATH,
+    title: COURSE_CONTENT_TITLE,
   },
   {
     path: LANDING_PAGE_PATH,
@@ -71,7 +77,15 @@ function Dashboard({ id, open, close, courseName = '', teacherName = '' }: Props
           message: 'Course sent for review',
           color: 'green',
         });
-        await mailAPI.sendCourseReviewMail({ courseName, teacherName });
+        // Send email with timeout - don't block navigation for more than 5 seconds
+        try {
+          await Promise.race([
+            mailAPI.sendCourseReviewMail({ courseName, teacherName }),
+            new Promise((_, reject) => setTimeout(() => reject(new Error('Email timeout')), 5000))
+          ]);
+        } catch (emailError) {
+          console.warn('Email send issue (non-blocking):', emailError);
+        }
         router.push("/trainer/courses")
       }
     } catch (error) {
@@ -93,10 +107,12 @@ function Dashboard({ id, open, close, courseName = '', teacherName = '' }: Props
         return 1;
       case pathname.includes(CURRICULUM_PATH):
         return 2;
-      case pathname.includes(LANDING_PAGE_PATH):
+      case pathname.includes(COURSE_CONTENT_PATH):
         return 3;
-      case pathname.includes(COURSE_INTERVIEW_PATH):
+      case pathname.includes(LANDING_PAGE_PATH):
         return 4;
+      case pathname.includes(COURSE_INTERVIEW_PATH):
+        return 5;
       default:
         return -1;
     }

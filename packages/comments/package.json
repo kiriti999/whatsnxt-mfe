@@ -8,6 +8,8 @@
     "lint": "eslint \"**/*.ts*\""
   },
   "dependencies": {
+    "@mantine/core": "8.3.10",
+    "@mantine/hooks": "8.3.10",
     "styled-components": "^6.1.13"
   },
   "devDependencies": {

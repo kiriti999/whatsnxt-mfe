@@ -24,7 +24,9 @@ export const fetchCategoriesByCount = async () => {
 };
 
 export const fetchCourseBySlug = async (slug: string): Promise<CourseType> => {
-  const response = await serverFetcher(BASEURL, `/courses/course/slug/${slug}`) as any;
+  const response = await serverFetcher(BASEURL, `/courses/course/slug/${slug}`, {
+    cache: 'no-store' // Prevent caching for admin review
+  }) as any;
   return response.course as CourseType;
 };
 
