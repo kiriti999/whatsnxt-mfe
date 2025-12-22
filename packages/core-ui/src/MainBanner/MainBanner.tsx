@@ -14,7 +14,7 @@ export const MainBanner = () => {
         borderRadius: 'var(--mantine-radius-lg)',
         position: 'relative',
         padding: '2rem 0',
-        marginBottom: '2rem'
+        marginBottom: '0.8rem'
       }}
     >
       <Container fluid style={{ position: 'relative', zIndex: 1 }}>

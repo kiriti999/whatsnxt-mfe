@@ -20,7 +20,7 @@ export default function MicroFrontend({
   return (
     <>
       <TopCourses courses={courses || []} total={total || 0} />
-      <Container size="xl" mt="md" mb="xl">
+      <Container size="xl" mt="md" mb="3.5rem">
         <Grid justify="center" align="center">
           <Grid.Col span={12} style={{ textAlign: 'center' }}>
             <Button component="a" href="/courses" size="md" c="white" fw={500} style={{ textDecoration: 'none' }}>
