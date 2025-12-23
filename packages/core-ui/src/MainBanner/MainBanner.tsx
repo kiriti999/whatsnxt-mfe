@@ -4,7 +4,7 @@ import { HeroWithText } from '../HeroWithText';
 
 export const MainBanner = () => {
   return (
-    <Box
+    <Box pt={'2.3rem'}
       style={{
         backgroundImage: `
           linear-gradient(to right, rgba(99, 102, 241, 0.06) 1px, transparent 1px),
