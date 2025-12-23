@@ -6,7 +6,7 @@ html,
 body {
   padding: 0;
   margin: 0;
-  font-size: 13px; /* Smaller base font size for mobile */
+  font-size: 16px; /* Increased base font size for better mobile readability */
   font-family: "Nunito", sans-serif;
   background-color: var(--mantine-color-body);
   color: var(--mantine-color-text);
@@ -16,7 +16,7 @@ body {
 @media (min-width: 48em) {
   html,
   body {
-    font-size: 14px;
+    font-size: 16px;
   }
 }
 
@@ -24,7 +24,7 @@ body {
 @media (min-width: 62em) {
   html,
   body {
-    font-size: 16px; /* Back to original for desktop */
+    font-size: 16px;
   }
 }
 

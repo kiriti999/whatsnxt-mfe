@@ -54,11 +54,11 @@ export default function AppProvider({ children, user }: { children: ReactNode, u
   const theme = createTheme({
     // Use system fonts - remove custom font family from theme
     fontSizes: {
-      xs: '0.75rem',    // 12px
-      sm: '0.875rem',   // 14px
-      md: '1rem',       // 16px (base)
-      lg: '1.125rem',   // 18px
-      xl: '1.25rem',    // 20px
+      xs: '0.875rem',   // 14px (increased from 12px)
+      sm: '1rem',       // 16px (increased from 14px)
+      md: '1.125rem',   // 18px (increased from 16px) - new base
+      lg: '1.25rem',    // 20px (increased from 18px)
+      xl: '1.5rem',     // 24px (increased from 20px)
     },
     breakpoints: {
       xs: '36em',    // 576px
