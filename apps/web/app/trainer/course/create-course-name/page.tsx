@@ -166,10 +166,15 @@ const CreateCourseName = () => {
                       rules={validationOptions.categoryName}
                       render={({ field }) => (
                         <Select
-                          label="Category"
                           placeholder="Select category"
                           data={categoryOptions}
                           size="md"
+                          styles={{
+                            label: {
+                              fontSize: 'clamp(0.875rem, 2.5vw, 1rem)',
+                              fontWeight: 500
+                            }
+                          }}
                           {...field}
                           onChange={(value, option) => {
                             field.onChange(value);
@@ -193,6 +198,12 @@ const CreateCourseName = () => {
                           placeholder="Select sub-category"
                           data={subCategoryOptions}
                           size="md"
+                          styles={{
+                            label: {
+                              fontSize: 'clamp(0.875rem, 2.5vw, 1rem)',
+                              fontWeight: 500
+                            }
+                          }}
                           {...field}
                           onChange={(value, option) => {
                             field.onChange(value);
@@ -215,6 +226,12 @@ const CreateCourseName = () => {
                           placeholder="Select topic"
                           data={nestedSubCategoryOptions}
                           size="md"
+                          styles={{
+                            label: {
+                              fontSize: 'clamp(0.875rem, 2.5vw, 1rem)',
+                              fontWeight: 500
+                            }
+                          }}
                           {...field}
                         />
                       )}

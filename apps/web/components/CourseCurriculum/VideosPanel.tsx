@@ -1,6 +1,6 @@
 'use client';
 import { Accordion, ActionIcon, Anchor, Group, Text, Tooltip } from "@mantine/core";
-import { IconFile, IconLink, IconVideo } from "@tabler/icons-react";
+import { IconFile, IconLink, IconPlayerPlay } from "@tabler/icons-react";
 import useAuth from "../../hooks/Authentication/useAuth";
 import Link from 'next/link';
 import { useIsEnrolled } from "../../hooks/useIsEnrolled";
@@ -16,59 +16,98 @@ const VideosPanel = ({ courseId, userId, section, openVideoModal, isCourseReview
             {section.videos && section.videos.length > 0 ? (
                 section.videos.filter(video => video.isPublish || isCourseReviewMode).length > 0 ? (
                     section.videos.filter(video => video.isPublish || isCourseReviewMode).map((item, index) => (
-                        <Group key={index} style={{ marginBottom: '1rem', justifyContent: 'space-between' }}>
-                            <Group>
-                                <IconVideo size={18} />
+                        <Group
+                            key={index}
+                            py="xs"
+                            px="0"
+                            style={{
+                                justifyContent: 'space-between',
+                                borderBottom: index < section.videos.filter(video => video.isPublish || isCourseReviewMode).length - 1
+                                    ? '1px solid var(--mantine-color-gray-2)'
+                                    : 'none'
+                            }}
+                        >
+                            <Group gap="sm" style={{ flex: 1 }}>
+                                <IconPlayerPlay size={18} color="var(--mantine-color-indigo-6)" />
                                 {item.videoUrl && (isEnrolled || isAuthor || isAdmin) ? (
-                                    <Anchor size='md'
+                                    <Anchor
+                                        size='sm'
                                         component="button"
                                         onClick={() => openVideoModal(item.videoUrl, index)}
                                         c="indigo"
+                                        fw={500}
+                                        style={{
+                                            textDecoration: 'none',
+                                            '&:hover': {
+                                                textDecoration: 'underline'
+                                            }
+                                        }}
                                     >
                                         {item.name}
                                     </Anchor>
                                 ) : (
-                                    <Text>{item.name}</Text>
+                                    <Text size="sm" fw={500} c="dark">{item.name}</Text>
                                 )}
                             </Group>
-                            <Group>
-                                {item.lectureLinks.map((link, index) => {
-                                    return (
-                                        <Tooltip label='Article link' key={index}>
-                                            <ActionIcon size='xs' variant='subtle' component={Link} href={link.link}>
-                                                <IconLink stroke={2} />
-                                            </ActionIcon>
-                                        </Tooltip>
-                                    )
-                                })}
-                                {item?.docUrl && <Group>
-                                    <Tooltip label='Course file'>
-                                        <ActionIcon size='xs' variant='subtle' component={Link} href={item.docUrl}>
-                                            <IconFile stroke={2} />
+
+                            <Group gap="xs" wrap="nowrap">
+                                {item.lectureLinks.map((link, linkIndex) => (
+                                    <Tooltip label='Article link' key={linkIndex}>
+                                        <ActionIcon
+                                            size='sm'
+                                            variant='subtle'
+                                            color="gray"
+                                            component={Link}
+                                            href={link.link}
+                                        >
+                                            <IconLink size={16} stroke={1.5} />
                                         </ActionIcon>
                                     </Tooltip>
-                                </Group>}
-                                <Group>
-                                    {item.isPreview && (
-                                        <Anchor size='md'
-                                            component="button"
-                                            c="indigo"
-                                            onClick={() => openVideoModal(item.videoUrl, index)}
+                                ))}
+
+                                {item?.docUrl && (
+                                    <Tooltip label='Course file'>
+                                        <ActionIcon
+                                            size='sm'
+                                            variant='subtle'
+                                            color="gray"
+                                            component={Link}
+                                            href={item.docUrl}
                                         >
-                                            Preview
-                                        </Anchor>
-                                    )}
-                                    {/* Display the video duration */}
-                                    <Text size='md'>{Math.floor(item.videoDuration / 60) || '< 1'} Min(s)</Text>
-                                </Group>
+                                            <IconFile size={16} stroke={1.5} />
+                                        </ActionIcon>
+                                    </Tooltip>
+                                )}
+
+                                {item.isPreview && (
+                                    <Anchor
+                                        size='xs'
+                                        component="button"
+                                        c="indigo"
+                                        fw={600}
+                                        onClick={() => openVideoModal(item.videoUrl, index)}
+                                        style={{
+                                            textDecoration: 'none',
+                                            '&:hover': {
+                                                textDecoration: 'underline'
+                                            }
+                                        }}
+                                    >
+                                        Preview
+                                    </Anchor>
+                                )}
+
+                                <Text size='sm' c="dimmed" fw={500} style={{ minWidth: '70px', textAlign: 'right' }}>
+                                    &lt; {Math.floor(item.videoDuration / 60) || '1'} Min(s)
+                                </Text>
                             </Group>
                         </Group>
                     ))
                 ) : (
-                    <Text>No videos available</Text>
+                    <Text size="sm" c="dimmed">No videos available</Text>
                 )
             ) : (
-                <Text>No videos available</Text>
+                <Text size="sm" c="dimmed">No videos available</Text>
             )}
         </Accordion.Panel>
     )

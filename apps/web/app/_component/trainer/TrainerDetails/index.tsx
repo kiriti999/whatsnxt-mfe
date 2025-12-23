@@ -80,24 +80,32 @@ const TrainerDetails = ({ trainer, courses }) => {
                 trainerPhone={trainer?.phone}
             />
 
-            <Grid>
+            <Grid my={'6rem'}>
                 <Grid.Col span={12}>
-                    <Paper p="md" radius="md" withBorder>
-                        <Flex direction={{ base: 'column', sm: 'row' }} gap="md" align={{ base: 'center', sm: 'flex-start' }}>
+                    <Paper p="xl" radius="md" withBorder shadow="sm">
+                        <Flex direction={{ base: 'column', sm: 'row' }} gap="xl" align={{ base: 'center', sm: 'flex-start' }}>
                             {/* Trainer Avatar/Image */}
                             <Box>
                                 {trainer?.trainerProfilePhoto ? (
                                     <Image
-                                        w={{ base: '5rem', sm: '7.5rem' }}
-                                        h={{ base: '5rem', sm: '7.5rem' }}
+                                        w={{ base: '6rem', sm: '8rem' }}
+                                        h={{ base: '6rem', sm: '8rem' }}
                                         radius="md"
                                         src={trainer?.trainerProfilePhoto}
                                         alt={(trainerName)?.slice(0, 1)?.toUpperCase()}
+                                        style={{
+                                            border: '2px solid var(--mantine-color-gray-3)'
+                                        }}
                                     />
                                 ) : (
                                     <Avatar
+                                        size="8rem"
                                         radius="md"
                                         color="cyan"
+                                        style={{
+                                            fontSize: '2.5rem',
+                                            border: '2px solid var(--mantine-color-gray-3)'
+                                        }}
                                     >
                                         {(trainerName)?.slice(0, 1)?.toUpperCase()}
                                     </Avatar>
@@ -105,42 +113,104 @@ const TrainerDetails = ({ trainer, courses }) => {
                             </Box>
 
                             {/* Trainer Info */}
-                            <Box style={{ flex: 1 }}>
-                                <Title mb="xs" order={3}>{trainerName}</Title>
+                            <Box style={{ flex: 1, width: '100%' }}>
+                                <Title mb="md" order={2} size="h3" fw={700}>
+                                    {trainerName}
+                                </Title>
 
-                                <Grid>
+                                <Grid gutter="md">
                                     <Grid.Col span={{ base: 12, md: 6 }}>
-                                        <Stack gap="xs">
-                                            <Flex align="center" gap="xs">
-                                                <IconScreenShare size={18} color="#228be6" />
-                                                <Text size="sm">Online classes</Text>
+                                        <Stack gap="sm">
+                                            <Flex align="center" gap="sm">
+                                                <Box
+                                                    style={{
+                                                        width: '32px',
+                                                        height: '32px',
+                                                        borderRadius: '8px',
+                                                        backgroundColor: 'var(--mantine-color-blue-0)',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'center'
+                                                    }}
+                                                >
+                                                    <IconScreenShare size={18} color="var(--mantine-color-blue-6)" />
+                                                </Box>
+                                                <Text size="sm" fw={500}>Online classes</Text>
                                             </Flex>
 
                                             {trainer?.highestQualification && (
-                                                <Flex align="center" gap="xs">
-                                                    <IconBrandDatabricks size={18} color="#228be6" />
-                                                    <Text size="sm">{trainer.highestQualification}</Text>
+                                                <Flex align="center" gap="sm">
+                                                    <Box
+                                                        style={{
+                                                            width: '32px',
+                                                            height: '32px',
+                                                            borderRadius: '8px',
+                                                            backgroundColor: 'var(--mantine-color-blue-0)',
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'center'
+                                                        }}
+                                                    >
+                                                        <IconBrandDatabricks size={18} color="var(--mantine-color-blue-6)" />
+                                                    </Box>
+                                                    <Text size="sm" fw={500}>{trainer.highestQualification}</Text>
                                                 </Flex>
                                             )}
 
-                                            <Flex align="center" gap="xs">
-                                                <IconBrandRedhat size={18} color="#228be6" />
-                                                <Text size="sm">{experience} years of experience</Text>
+                                            <Flex align="center" gap="sm">
+                                                <Box
+                                                    style={{
+                                                        width: '32px',
+                                                        height: '32px',
+                                                        borderRadius: '8px',
+                                                        backgroundColor: 'var(--mantine-color-blue-0)',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'center'
+                                                    }}
+                                                >
+                                                    <IconBrandRedhat size={18} color="var(--mantine-color-blue-6)" />
+                                                </Box>
+                                                <Text size="sm" fw={500}>{experience} years of experience</Text>
                                             </Flex>
                                         </Stack>
                                     </Grid.Col>
 
                                     <Grid.Col span={{ base: 12, md: 6 }}>
-                                        <Stack gap="xs">
-                                            <Flex align="center" gap="xs">
-                                                <IconSchool size={18} color="#228be6" />
-                                                <Text size="sm">{contactsCount} students contacted so far</Text>
+                                        <Stack gap="sm">
+                                            <Flex align="center" gap="sm">
+                                                <Box
+                                                    style={{
+                                                        width: '32px',
+                                                        height: '32px',
+                                                        borderRadius: '8px',
+                                                        backgroundColor: 'var(--mantine-color-blue-0)',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'center'
+                                                    }}
+                                                >
+                                                    <IconSchool size={18} color="var(--mantine-color-blue-6)" />
+                                                </Box>
+                                                <Text size="sm" fw={500}>{contactsCount} students contacted so far</Text>
                                             </Flex>
 
                                             {rate > 0 && (
-                                                <Flex align="center" gap="xs">
-                                                    <IconCurrencyRupee size={18} color="#228be6" />
-                                                    <Text size="sm" fw={500}>{rate} per hour</Text>
+                                                <Flex align="center" gap="sm">
+                                                    <Box
+                                                        style={{
+                                                            width: '32px',
+                                                            height: '32px',
+                                                            borderRadius: '8px',
+                                                            backgroundColor: 'var(--mantine-color-blue-0)',
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'center'
+                                                        }}
+                                                    >
+                                                        <IconCurrencyRupee size={18} color="var(--mantine-color-blue-6)" />
+                                                    </Box>
+                                                    <Text size="sm" fw={600} c="blue">{rate} per hour</Text>
                                                 </Flex>
                                             )}
                                         </Stack>
@@ -149,28 +219,28 @@ const TrainerDetails = ({ trainer, courses }) => {
 
                                 {/* Contact Section */}
                                 <Flex
-                                    mt="md"
+                                    mt="xl"
                                     gap="md"
                                     align="center"
                                     direction={{ base: 'column', sm: 'row' }}
-                                    justify={{ base: 'flex-start', sm: 'space-between' }}
+                                    justify={{ base: 'flex-start', sm: 'flex-start' }}
                                 >
-                                    <Group>
+                                    <Group gap="md">
                                         {revealTrainerInfo === 'yes' && !hasPurchased ? (
                                             <>
                                                 <Button
-                                                    size='xs'
+                                                    size='md'
                                                     variant="filled"
                                                     color="blue"
                                                     onClick={() => setPayNowModalOpened(true)}
                                                 >
                                                     Contact trainer
                                                 </Button>
-                                                <Text size='0.93rem'>Contact to Book a Free Demo Class</Text>
+                                                <Text size='sm' c="dimmed" fw={500}>Contact to Book a Free Demo Class</Text>
                                             </>
                                         ) : hasPurchased ? (
                                             <Button
-                                                size='xs'
+                                                size='md'
                                                 variant="filled"
                                                 color="green"
                                                 onClick={() => setContactDetailsOpened(true)}

@@ -3,7 +3,7 @@ import styles from './CoursesDetailsSidebar.module.css';
 import { notifications } from '@mantine/notifications';
 import { useSelector } from 'react-redux';
 import { useAppDispatch } from '../../store/hooks'; // Create this hook
-import { Anchor, LoadingOverlay, Text, Group } from '@mantine/core';
+import { Anchor, LoadingOverlay, Text, Group, Paper, Stack, ActionIcon } from '@mantine/core';
 import Link from 'next/link';
 import ReactPlayer from 'react-player';
 import ActionButtons from './ActionButtons';
@@ -154,12 +154,12 @@ export const CoursesDetailsSidebar: FC<CoursesDetailsSidebarProps> = ({
         <ul className={`${styles['info']}`}>
           <li>
             <Group style={{ justifyContent: 'space-between', alignItems: 'center' }}>
-              <Text fw={700} style={{ display: 'flex', alignItems: 'center', gap: 8 }} m={0}>
+              <Text fw={700} fz={{ base: 'sm', sm: 'md' }} style={{ display: 'flex', alignItems: 'center', gap: 8 }} m={0}>
                 <IconUser size={20} style={{ marginRight: 0 }} />
                 Instructor
               </Text>
 
-              <Text style={{ display: 'flex', alignItems: 'center' }}>{courseData?.author}</Text>
+              <Text fz={{ base: 'sm', sm: 'md' }} style={{ display: 'flex', alignItems: 'center' }}>{courseData?.author}</Text>
             </Group>
           </li>
 
@@ -167,23 +167,23 @@ export const CoursesDetailsSidebar: FC<CoursesDetailsSidebarProps> = ({
             <li>
               {courseData?.paidType === 'live' && (
                 <Group style={{ justifyContent: 'space-between', alignItems: 'center' }}>
-                  <Text fw={700} style={{ display: 'flex', alignItems: 'center', gap: 8 }} m={0}>
+                  <Text fw={700} fz={{ base: 'sm', sm: 'md' }} style={{ display: 'flex', alignItems: 'center', gap: 8 }} m={0}>
                     <IconTimeDuration90 size={20} style={{ marginRight: 0 }} />
                     Live Training
                   </Text>
 
-                  <Text style={{ display: 'flex', alignItems: 'center' }}>{lessons} lessons</Text>
+                  <Text fz={{ base: 'sm', sm: 'md' }} style={{ display: 'flex', alignItems: 'center' }}>{lessons} lessons</Text>
                 </Group>
               )}
 
               {courseData?.paidType === 'video' && (
                 <Group style={{ justifyContent: 'space-between', alignItems: 'center' }}>
-                  <Text fw={700} style={{ display: 'flex', alignItems: 'center', gap: 8 }} m={0}>
+                  <Text fw={700} fz={{ base: 'sm', sm: 'md' }} style={{ display: 'flex', alignItems: 'center', gap: 8 }} m={0}>
                     <IconClock size={20} style={{ marginRight: 0 }} />
                     Video Courses
                   </Text>
 
-                  <Text style={{ display: 'flex', alignItems: 'center' }}>{duration}</Text>
+                  <Text fz={{ base: 'sm', sm: 'md' }} style={{ display: 'flex', alignItems: 'center' }}>{duration}</Text>
                 </Group>
               )}
             </li>
@@ -192,20 +192,20 @@ export const CoursesDetailsSidebar: FC<CoursesDetailsSidebarProps> = ({
           <li className={styles['price']}>
             {!isEnrolled ? (
               <Group style={{ justifyContent: 'space-between', alignItems: 'center' }}>
-                <Text fw={700} style={{ display: 'flex', alignItems: 'center', gap: 8 }} m={0}>
+                <Text fw={700} fz={{ base: 'sm', sm: 'md' }} style={{ display: 'flex', alignItems: 'center', gap: 8 }} m={0}>
                   <IconTags size={18} style={{ display: 'inline-flex' }} />
                   {isFreeCourse ? 'Course Type' : 'Price'}
                 </Text>
 
                 {isFreeCourse ? (
-                  <Text c="red" fw={600} style={{ display: 'flex', alignItems: 'center' }} m={0}>
+                  <Text c="red" fw={600} fz={{ base: 'sm', sm: 'md' }} style={{ display: 'flex', alignItems: 'center' }} m={0}>
                     {courseData.courseType}
                   </Text>
                 ) : (
-                  <Text style={{ display: 'flex', alignItems: 'center' }} m={0}>&#8377;{price}</Text>
+                  <Text fz={{ base: 'lg', sm: 'xl' }} style={{ display: 'flex', alignItems: 'center' }} m={0}>&#8377;{price}</Text>
                 )}
               </Group>
-            ) : <p>Already purchased this course</p>}
+            ) : <Text fz={{ base: 'sm', sm: 'md' }}>Already purchased this course</Text>}
           </li>
         </ul>
 
@@ -224,33 +224,57 @@ export const CoursesDetailsSidebar: FC<CoursesDetailsSidebarProps> = ({
               open={open}
             />
 
-            <div className={styles['courses-share']}>
-              <div className={styles['share-info']}>
-                <span>
-                  Share This Course <IconShare size={20} />
-                </span>
-                <ul className={styles['social-link']}>
-                  <li>
-                    <Anchor
-                      href="#"
-                      className="d-block"
-                      target="_blank"
-                      onClick={(event) => {
-                        event.preventDefault();
-                        navigator.clipboard.writeText(url);
-                      }}
-                    >
-                      <IconCopy />
-                    </Anchor>
-                  </li>
-                  <li>
-                    <Anchor component={Link} href={`https://wa.me/?text=${encodeURIComponent(url)}`} className="d-block" target="_blank">
-                      <IconBrandWhatsapp />
-                    </Anchor>
-                  </li>
-                </ul>
-              </div>
-            </div>
+            <Paper
+              p="xs"
+              radius="md"
+              withBorder
+              mt="md"
+              style={{
+                borderColor: 'var(--mantine-color-gray-3)'
+              }}
+            >
+              <Group gap="md" justify="center" align="center">
+                <Group gap="xs">
+                  <IconShare size={20} />
+                  <Text fw={600} size="sm">Share this course</Text>
+                </Group>
+
+                <Group gap="xs">
+                  <ActionIcon
+                    variant="subtle"
+                    color="gray"
+                    size="lg"
+                    radius="md"
+                    onClick={(event) => {
+                      event.preventDefault();
+                      navigator.clipboard.writeText(url);
+                      notifications.show({
+                        position: 'bottom-right',
+                        title: 'Link Copied',
+                        message: 'Course link copied to clipboard!',
+                        color: 'green'
+                      });
+                    }}
+                    title="Copy link"
+                  >
+                    <IconCopy size={20} stroke={1.5} />
+                  </ActionIcon>
+
+                  <ActionIcon
+                    component={Link}
+                    href={`https://wa.me/?text=${encodeURIComponent(url)}`}
+                    target="_blank"
+                    variant="subtle"
+                    color="teal"
+                    size="xl"
+                    radius="md"
+                    title="Share on WhatsApp"
+                  >
+                    <IconBrandWhatsapp size={20} stroke={1.5} />
+                  </ActionIcon>
+                </Group>
+              </Group>
+            </Paper>
           </>
         )}
       </div>

@@ -357,9 +357,28 @@ const CourseHistory = () => {
                           <GridCol span={6}>
                             <Link
                               href={`/courses/${courseSlugs[row._id] ?? row.slug}`}
-                              style={{ fontWeight: 500, fontSize: '1.03rem', color: 'inherit', textDecoration: 'none' }}
+                              style={{
+                                fontWeight: 500,
+                                fontSize: '1.03rem',
+                                color: 'inherit',
+                                textDecoration: 'none',
+                                display: 'block',
+                                wordBreak: 'break-word',
+                                overflowWrap: 'break-word',
+                                lineHeight: 1.4
+                              }}
                             >
-                              {courseTitles[row._id] ?? row?.courseName ?? row?.title}
+                              <Text
+                                fw={500}
+                                lineClamp={2}
+                                style={{
+                                  wordBreak: 'break-word',
+                                  overflowWrap: 'break-word',
+                                  fontSize: 'clamp(0.875rem, 2vw, 1rem)'
+                                }}
+                              >
+                                {courseTitles[row._id] ?? row?.courseName ?? row?.title}
+                              </Text>
                             </Link>
                           </GridCol>
                           <GridCol span={2}>

@@ -1,6 +1,5 @@
-import { Title } from '@mantine/core';
+import { Title, Box, Paper, Text } from '@mantine/core';
 import HtmlParser from '../../../../components/Common/HtmlParse';
-import styles from '../../../../components/Courses/Course.module.css';
 
 // Add styles for both Markdown and HTML content
 const codeBlockStyles = `
@@ -38,12 +37,44 @@ const CourseOverview = ({ courseName, overview }) => {
     <>
       {/* Include the content styles */}
       <style>{codeBlockStyles}</style>
-      <div className={`rte ${styles['courses-overview']} mb-2`}>
-        <Title order={3}>{courseName}</Title>
-        <Title order={4}>Overview</Title>
-        {/* TODO: Add line clamp */}
-        <HtmlParser content={overview} withOptions />
-      </div >
+
+      <Box mb="xl">
+        {/* Course Title */}
+        <Title
+          order={1}
+          size="h2"
+          fw={700}
+          mb="lg"
+          style={{
+            lineHeight: 1.3
+          }}
+        >
+          {courseName}
+        </Title>
+
+        {/* Overview Section */}
+        <Paper
+          p="md"
+          radius="md"
+          withBorder
+          style={{
+            borderColor: 'var(--mantine-color-gray-3)'
+          }}
+        >
+          <Title
+            order={4}
+            size="h5"
+            fw={600}
+            mb="sm"
+            c="dimmed"
+          >
+            Overview
+          </Title>
+          <Box className="rte">
+            <HtmlParser content={overview} withOptions />
+          </Box>
+        </Paper>
+      </Box>
     </>
   );
 };

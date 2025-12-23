@@ -47,46 +47,105 @@ const CourseCurriculum: FC<CourseCurriculumProps> = ({ courseId, userId, videos,
 
   return (
     <>
-      <div className={styles['courses-curriculum']}>
+      <div>
         {sections && sections.length > 0 ? (
           <>
-            <Paper mb={5}>
-              <Title order={4} className='py-4'>Syllabus</Title>
-            </Paper>
+            <Title
+              order={4}
+              size="h5"
+              fw={600}
+              mb="md"
+            >
+              Syllabus
+            </Title>
 
-            <Paper p="md" shadow="md" withBorder>
-              <Text size="md" fw={550} mb={'0.4rem'}>
+            <Paper
+              p="md"
+              radius="md"
+              withBorder
+              mb="xl"
+              style={{
+                borderColor: 'var(--mantine-color-gray-3)'
+              }}
+            >
+              <Text size="sm" fw={600} mb="md" c="dimmed">
                 {isEmptyCourse ? (
-                  <Text size="md" fw={550} color="dimmed">
+                  <Text size="sm" fw={500} c="dimmed">
                     Coming soon
                   </Text>
                 ) : (
                   `Contains ${sections.length} sections, ${totalVideos} lectures with total duration of ${duration}`
                 )}
               </Text>
-              {sections.map((section, i) => (
-                <Accordion key={i} multiple defaultValue={section.sectionTitle}>
-                  <Accordion.Item value={section.sectionTitle}>
+
+              <Accordion
+                multiple
+                defaultValue={[sections[0]?.sectionTitle]}
+                styles={{
+                  item: {
+                    borderBottom: '1px solid var(--mantine-color-gray-3)',
+                    '&:last-of-type': {
+                      borderBottom: 'none'
+                    }
+                  },
+                  control: {
+                    padding: '0.75rem 0',
+                    '&:hover': {
+                      backgroundColor: 'transparent'
+                    }
+                  },
+                  label: {
+                    fontWeight: 500,
+                    fontSize: '0.95rem'
+                  },
+                  content: {
+                    padding: '0.5rem 0'
+                  }
+                }}
+              >
+                {sections.map((section, i) => (
+                  <Accordion.Item key={i} value={section.sectionTitle}>
                     <Accordion.Control>
-                      <Group style={{ marginBottom: '0.2rem', justifyContent: 'space-between' }}>
-                        <Group>
-                          {section.sectionTitle}
-                        </Group>
-                      </Group>
+                      {section.sectionTitle}
                     </Accordion.Control>
-                    <VideosPanel courseId={courseId} userId={userId} section={section} openVideoModal={openVideoModal} isCourseReviewMode={isCourseReviewMode} />
+                    <Accordion.Panel>
+                      <VideosPanel
+                        courseId={courseId}
+                        userId={userId}
+                        section={section}
+                        openVideoModal={openVideoModal}
+                        isCourseReviewMode={isCourseReviewMode}
+                      />
+                    </Accordion.Panel>
                   </Accordion.Item>
-                </Accordion>
-              ))}
+                ))}
+              </Accordion>
             </Paper>
           </>
         ) : (
-          <Paper py="md">
-            <Title order={4} className='py-4'>Syllabus</Title>
-            <Text size="md" fw={550} color="dimmed">
-              Coming soon
-            </Text>
-          </Paper>
+          <>
+            <Title
+              order={4}
+              size="h5"
+              fw={600}
+              mb="md"
+            >
+              Syllabus
+            </Title>
+            <Paper
+              p="md"
+              radius="md"
+              withBorder
+              mb="xl"
+              style={{
+                borderColor: 'var(--mantine-color-gray-3)'
+              }}
+            >
+              <Text size="sm" fw={500} c="dimmed">
+                Coming soon
+              </Text>
+            </Paper>
+          </>
         )}
 
         {/* Button to Book a Trainer */}

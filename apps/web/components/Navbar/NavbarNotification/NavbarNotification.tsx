@@ -43,13 +43,24 @@ export const NavbarNotification: FC<NavbarNotificationProps> = ({ user, iconSize
       <Indicator
         inline
         label={data?.totalUnseen || 0}
-        size={16}
-        offset={-4}
+        size={18}
+        offset={-2}
         color="red"
         radius="xl"
         disabled={!data?.totalUnseen}
         withBorder
-        styles={{ indicator: { padding: '0 6px' } }}
+        styles={{
+          indicator: {
+            padding: '2px 6px',
+            minWidth: '18px',
+            height: '18px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: '11px',
+            fontWeight: 600
+          }
+        }}
       >
         <IconBell stroke={1.5} style={{ width: rem(iconSize), height: rem(iconSize) }} />
       </Indicator>

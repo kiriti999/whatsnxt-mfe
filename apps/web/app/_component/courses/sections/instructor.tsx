@@ -1,23 +1,37 @@
-import { Text, Title, Box, Group, Stack } from '@mantine/core';
-import styles from '../../../../components/Courses/Course.module.css';
+import { Text, Title, Box, Group, Stack, Paper } from '@mantine/core';
 
 const Instructor = ({ name, designation, about }) => {
     return (
-        <div className={styles['instructor-box']}>
-            <Title order={4} mb="md">Instructor</Title>
+        <Paper
+            p="md"
+            radius="md"
+            withBorder
+            mb="xl"
+            style={{
+                borderColor: 'var(--mantine-color-gray-3)'
+            }}
+        >
+            <Title
+                order={4}
+                size="h5"
+                fw={600}
+                mb="md"
+                c="dimmed"
+            >
+                Instructor
+            </Title>
             <Group align="flex-start">
-                {/* <Avatar size="xl" radius="xl" /> */}
-                <Stack gap={0}>
-                    <Title order={5}>{name}</Title>
-                    <Text size="sm" lineClamp={1} m={0}>
+                <Stack gap="xs" style={{ flex: 1 }}>
+                    <Title order={5} fw={600}>{name}</Title>
+                    <Text size="sm" c="dimmed" fw={500}>
                         {designation}
                     </Text>
-                    <Text size="sm" c="dimmed" m={0} lineClamp={5}>
+                    <Text size="sm" c="dimmed" lineClamp={5}>
                         {about}
                     </Text>
                 </Stack>
             </Group>
-        </div>
+        </Paper>
     );
 };
 
