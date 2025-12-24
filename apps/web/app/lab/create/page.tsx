@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Container, Title, Button, Group, Box, TextInput, Textarea, Select } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
@@ -63,7 +63,7 @@ function LabCreationPage() {
       const response = await labApi.createLab({
         ...values,
         instructorId,
-        pricing
+        pricing,
       });
       const newLab = response.data;
       notifications.show({
@@ -135,6 +135,7 @@ function LabCreationPage() {
             required
             mb="md"
           />
+
           <Box mt="xl">
             <LabPricingForm
               initialPricing={pricing}

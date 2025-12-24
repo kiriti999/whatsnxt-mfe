@@ -324,7 +324,7 @@ const CourseHistory = () => {
             </Grid>
 
             {/* Header Row */}
-            <Paper p="md" mb="sm" withBorder bg="gray.0">
+            <Paper p="md" mb="sm" withBorder>
               <Grid align="center" gutter="xs">
                 <GridCol span={6}>
                   <Text fw={700} fz="sm" tt="uppercase" c="dimmed">Title</Text>
@@ -352,7 +352,7 @@ const CourseHistory = () => {
                   data?.courseList.map((row: Course) => (
                     <Paper key={row._id} withBorder shadow="sm" radius="md" style={{ overflow: "hidden" }}>
                       {/* Course Row */}
-                      <div style={{ backgroundColor: '#fff', padding: '12px 16px' }}>
+                      <Box p="md">
                         <Grid align="center" gutter="xs">
                           <GridCol span={6}>
                             <Link
@@ -411,14 +411,14 @@ const CourseHistory = () => {
                             )}
                           </GridCol>
                         </Grid>
-                      </div>
+                      </Box>
 
                       {/* Sections List */}
                       <Collapse in={expandedCourse[row._id]}>
-                        <Box bg="gray.0" py="xs">
+                        <Box py="xs" className="bg-default-hover">
                           {row?.sections?.map((section) => (
                             <React.Fragment key={section._id}>
-                              <div style={{ padding: '8px 16px', borderTop: '1px solid #eee' }}>
+                              <Box p="sm" className="border-top-default">
                                 <Grid align="center" gutter="xs">
                                   <GridCol span={6}>
                                     <Group gap="xs" pl="md">
@@ -490,13 +490,13 @@ const CourseHistory = () => {
                                     )}
                                   </GridCol>
                                 </Grid>
-                              </div>
+                              </Box>
 
                               {/* Lectures List */}
                               <Collapse in={expandedSection[section._id]}>
-                                <Stack gap={0} bg="white">
+                                <Stack gap={0}>
                                   {section?.videos?.map((video, idx) => (
-                                    <div key={video._id} style={{ padding: '8px 16px', paddingLeft: '48px', borderTop: '1px solid #f8f9fa' }}>
+                                    <Box key={video._id} p="sm" pl="48px" className="border-top-default">
                                       <Grid align="center" gutter="xs">
                                         <GridCol span={6}>
                                           <Group gap="xs">
@@ -517,7 +517,7 @@ const CourseHistory = () => {
                                         <GridCol span={1}>
                                         </GridCol>
                                       </Grid>
-                                    </div>
+                                    </Box>
                                   ))}
                                 </Stack>
                               </Collapse>

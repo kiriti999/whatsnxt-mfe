@@ -103,11 +103,11 @@ const LabDetailPage = () => {
       const response = await labApi.getLabById(labId);
       const labData = response.data;
       setLab(labData);
-      
+
       // Check if access is required (returned from backend)
       const accessRequired = (response as any).requiresAccess || false;
       setRequiresAccess(accessRequired);
-      
+
       // Debug logging
       console.log('[Lab Access Debug]', {
         labId,
@@ -118,11 +118,11 @@ const LabDetailPage = () => {
         pricing: labData.pricing,
         pagesCount: labData.pages?.length || 0,
       });
-      
+
       // Set pages - backend already filtered them if access is required
       setPages(labData.pages || []);
 
-      // Populate form with lab data
+      // Populate form with lab data including associated courses
       form.setValues({
         name: labData.name,
         description: labData.description || '',
@@ -299,7 +299,7 @@ const LabDetailPage = () => {
   });
 
   // Search and filter pages based on questions
-  const filteredPages = pages.filter(page => {
+  const filteredPages = pages.filter((page: any) => {
     if (!searchQuery.trim()) return true;
     const query = searchQuery.toLowerCase();
 
@@ -360,7 +360,7 @@ const LabDetailPage = () => {
 
       {/* Access/Purchase Section for Students */}
       {canViewAccess && (
-        <Paper shadow="sm" p="xl" withBorder mb="xl" bg="blue.0">
+        <Paper shadow="sm" p="xl" withBorder mb="xl" className="bg-blue-light">
           <Stack align="center" gap="md">
             <Title order={3}>Access This Lab</Title>
             <LabAccessButton
@@ -370,17 +370,11 @@ const LabDetailPage = () => {
               onAccessGranted={() => {
                 // Refresh lab data first to get updated access status
                 fetchLabData();
-                
+
                 // Navigate to first page if lab has pages
                 if (pages.length > 0) {
                   const firstPage = pages[0];
                   router.push(`/labs/${labId}/pages/${firstPage.id}`);
-                } else {
-                  notifications.show({
-                    title: 'Lab Has No Content',
-                    message: 'This lab does not have any pages yet. Please contact the instructor.',
-                    color: 'yellow',
-                  });
                 }
               }}
             />
@@ -424,6 +418,7 @@ const LabDetailPage = () => {
                     {...form.getInputProps('architectureType')}
                     required
                   />
+
                   <Group justify="flex-end" mt="md">
                     <Button variant="subtle" onClick={() => setIsEditing(false)}>
                       Cancel
@@ -452,6 +447,33 @@ const LabDetailPage = () => {
                     <Badge size="lg" color="blue">{lab.architectureType}</Badge>
                   </Box>
                 </Group>
+
+                {/* Associated Courses */}
+                {lab.associatedCourses && lab.associatedCourses.length > 0 && (
+                  <Box>
+                    <Text size="sm" c="dimmed" mb="xs">Associated Courses</Text>
+                    <Stack gap="xs">
+                      {lab.associatedCourses.map((course: any) => (
+                        <Paper key={course._id} p="sm" withBorder radius="sm" className="bg-blue-light">
+                          <Group justify="space-between">
+                            <Box>
+                              <Text size="sm" fw={600} c="blue">{course.courseName}</Text>
+                              <Text size="xs" c="dimmed">Students enrolled in this course can access this lab</Text>
+                            </Box>
+                            <Button
+                              size="xs"
+                              variant="subtle"
+                              onClick={() => router.push(`/courses/${course.slug}`)}
+                            >
+                              View Course
+                            </Button>
+                          </Group>
+                        </Paper>
+                      ))}
+                    </Stack>
+                  </Box>
+                )}
+
                 {canEdit && (
                   <Group justify="flex-end" mt="md">
                     <Button size='xs' onClick={() => setIsEditing(true)}>Edit Details</Button>
@@ -464,7 +486,7 @@ const LabDetailPage = () => {
 
         <Tabs.Panel value="tests" pt="md">
           {!canViewTests && isPublished && isStudent && requiresAccess ? (
-            <Paper shadow="sm" p="xl" withBorder bg="yellow.0">
+            <Paper shadow="sm" p="xl" withBorder className="bg-yellow-light">
               <Stack align="center" gap="md">
                 <Text size="xl" fw={600}>🔒 Access Required</Text>
                 <Text c="dimmed" ta="center" size="lg">
@@ -481,192 +503,192 @@ const LabDetailPage = () => {
               </Stack>
             </Paper>
           ) : (
-          <Stack>
-            {canEdit && (
-              <Group justify="space-between" mb="md">
-                <Box>
-                  <Title order={4}>Tests & Questions</Title>
-                  <Text size="sm" c="dimmed">
-                    {searchQuery
-                      ? `Showing ${filteredPages.length} of ${pages.length} pages`
-                      : 'Each page can have a question test (MCQ, True/False, Fill in blank) and/or a diagram test'
-                    }
-                  </Text>
-                </Box>
-                <Button onClick={handleCreatePage} leftSection="+" size="sm">
-                  Add New Page
-                </Button>
-              </Group>
-            )}
-
-            {/* Search Bar */}
-            {pages.length > 0 && (
-              <TextInput
-                placeholder="Search questions and tests across all pages..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                leftSection={<IconSearch size={16} />}
-                rightSection={
-                  searchQuery && (
-                    <ActionIcon
-                      variant="subtle"
-                      onClick={() => setSearchQuery('')}
-                      size="sm"
-                    >
-                      <IconX size={16} />
-                    </ActionIcon>
-                  )
-                }
-                size="md"
-                mb="md"
-              />
-            )}
-
-            {pages.length === 0 ? (
-              <Paper shadow="sm" p="xl" withBorder>
-                <Stack align="center" gap="md">
-                  <Text size="xl" c="dimmed">No pages yet</Text>
-                  <Text c="dimmed" ta="center">
-                    Create your first page to start adding questions and diagram tests
-                  </Text>
-                  {canEdit && (
-                    <Button onClick={handleCreatePage} size="xs">
-                      Create First Page
-                    </Button>
-                  )}
-                </Stack>
-              </Paper>
-            ) : filteredPages.length === 0 ? (
-              <Paper shadow="sm" p="xl" withBorder bg="gray.0">
-                <Stack align="center" gap="md">
-                  <IconSearch size={48} color="gray" />
-                  <Text size="xl" c="dimmed">No results found</Text>
-                  <Text c="dimmed" ta="center">
-                    No pages match your search "{searchQuery}"
-                  </Text>
-                  <Button variant="subtle" onClick={() => setSearchQuery('')}>
-                    Clear Search
-                  </Button>
-                </Stack>
-              </Paper>
-            ) : (
-              <Stack gap="md">
-                {paginatedPages.map((page, index) => (
-                  <Paper key={page.id} shadow="sm" p="lg" withBorder>
-                    <Group justify="space-between" align="flex-start" mb="md">
-                      <Box>
-                        <Group gap="sm" mb="xs">
-                          <Text fw={700} size="md">Page {page.pageNumber}</Text>
-                          {page.hasQuestion && (
-                            <Badge size="md" color="green" variant="light">
-                              Question Test
-                            </Badge>
-                          )}
-                          {page.hasDiagramTest && (
-                            <Badge size="md" color="blue" variant="light">
-                              Diagram Test
-                            </Badge>
-                          )}
-                          {!page.hasQuestion && !page.hasDiagramTest && (
-                            <Badge size="md" color="gray" variant="light">
-                              No Tests
-                            </Badge>
-                          )}
-                        </Group>
-                      </Box>
-                      <Group gap="sm">
-                        {lab?.status === 'published' && (page.hasQuestion || page.hasDiagramTest) && (
-                          <Button
-                            variant="filled"
-                            size="sm"
-                            onClick={() => router.push(`/labs/${labId}/pages/${page.id}?returnPage=${currentPage}`)}
-                          >
-                            View Tests
-                          </Button>
-                        )}
-                        {lab?.status !== 'published' && (
-                          <Button
-                            variant="filled"
-                            size="xs"
-                            onClick={() => router.push(`/labs/${labId}/pages/${page.id}?returnPage=${currentPage}`)}
-                          >
-                            {page.hasQuestion || page.hasDiagramTest ? 'Edit Tests' : 'Add Tests'}
-                          </Button>
-                        )}
-                      </Group>
-                    </Group>
-
-                    <Stack gap="sm">
-                      {page.hasQuestion ? (
-                        <Paper bg="green.0" p="md" radius="sm">
-                          <Stack gap="sm">
-                            <Text size="sm" fw={600} c="green.9" mb={0}>✓ Question Test</Text>
-                            {page.question?.questionText && (
-                              <Text size="sm" c="green.8" lineClamp={2} pl="md">
-                                {page.question.questionText}
-                              </Text>
-                            )}
-                          </Stack>
-                        </Paper>
-                      ) : (
-                        <Paper bg="gray.0" p="md" radius="sm" style={{ border: '1px dashed #dee2e6' }}>
-                          <Stack gap="sm">
-                            <Text size="sm" c="dimmed" mb={0}>○ Question Test</Text>
-                            <Text size="sm" c="dimmed" pl="md">not configured</Text>
-                          </Stack>
-                        </Paper>
-                      )}
-
-                      {page.hasDiagramTest ? (
-                        <Paper bg="blue.0" p="md" radius="sm">
-                          <Stack gap="sm">
-                            <Text size="sm" fw={600} c="blue.9" mb={0}>✓ Diagram Test</Text>
-                            {page.diagramTest?.architectureType && (
-                              <Text size="sm" c="blue.8" pl="md">
-                                Architecture: {page.diagramTest.architectureType}
-                              </Text>
-                            )}
-                          </Stack>
-                        </Paper>
-                      ) : (
-                        <Paper bg="gray.0" p="md" radius="sm" style={{ border: '1px dashed #dee2e6' }}>
-                          <Stack gap="sm">
-                            <Text size="sm" c="dimmed" mb={0}>○ Diagram Test</Text>
-                            <Text size="sm" c="dimmed" pl="md">not configured</Text>
-                          </Stack>
-                        </Paper>
-                      )}
-                    </Stack>
-                  </Paper>
-                ))}
-
-                {totalPages > 1 && (
-                  <Group justify="center" mt="lg">
-                    <Pagination
-                      total={totalPages}
-                      value={currentPage}
-                      onChange={setCurrentPage}
-                      size="md"
-                    />
-                  </Group>
-                )}
-              </Stack>
-            )}
-
-            {canEdit && pages.length > 0 && (
-              <Paper shadow="sm" p="lg" withBorder bg="blue.0" mt="md">
-                <Group gap="sm">
-                  <Text size="lg">💡</Text>
-                  <Box style={{ flex: 1 }}>
-                    <Text fw={600} mb={4}>Publishing Requirement</Text>
+            <Stack>
+              {canEdit && (
+                <Group justify="space-between" mb="md">
+                  <Box>
+                    <Title order={4}>Tests & Questions</Title>
                     <Text size="sm" c="dimmed">
-                      At least one page must have a question test or diagram test before you can publish this lab.
+                      {searchQuery
+                        ? `Showing ${filteredPages.length} of ${pages.length} pages`
+                        : 'Each page can have a question test (MCQ, True/False, Fill in blank) and/or a diagram test'
+                      }
                     </Text>
                   </Box>
+                  <Button onClick={handleCreatePage} leftSection="+" size="sm">
+                    Add New Page
+                  </Button>
                 </Group>
-              </Paper>
-            )}
-          </Stack>
+              )}
+
+              {/* Search Bar */}
+              {pages.length > 0 && (
+                <TextInput
+                  placeholder="Search questions and tests across all pages..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  leftSection={<IconSearch size={16} />}
+                  rightSection={
+                    searchQuery && (
+                      <ActionIcon
+                        variant="subtle"
+                        onClick={() => setSearchQuery('')}
+                        size="sm"
+                      >
+                        <IconX size={16} />
+                      </ActionIcon>
+                    )
+                  }
+                  size="md"
+                  mb="md"
+                />
+              )}
+
+              {pages.length === 0 ? (
+                <Paper shadow="sm" p="xl" withBorder>
+                  <Stack align="center" gap="md">
+                    <Text size="xl" c="dimmed">No pages yet</Text>
+                    <Text c="dimmed" ta="center">
+                      Create your first page to start adding questions and diagram tests
+                    </Text>
+                    {canEdit && (
+                      <Button onClick={handleCreatePage} size="xs">
+                        Create First Page
+                      </Button>
+                    )}
+                  </Stack>
+                </Paper>
+              ) : filteredPages.length === 0 ? (
+                <Paper shadow="sm" p="xl" withBorder>
+                  <Stack align="center" gap="md">
+                    <IconSearch size={48} color="gray" />
+                    <Text size="xl" c="dimmed">No results found</Text>
+                    <Text c="dimmed" ta="center">
+                      No pages match your search "{searchQuery}"
+                    </Text>
+                    <Button variant="subtle" onClick={() => setSearchQuery('')}>
+                      Clear Search
+                    </Button>
+                  </Stack>
+                </Paper>
+              ) : (
+                <Stack gap="md">
+                  {paginatedPages.map((page, index) => (
+                    <Paper key={page.id} shadow="sm" p="lg" withBorder>
+                      <Group justify="space-between" align="flex-start" mb="md">
+                        <Box>
+                          <Group gap="sm" mb="xs">
+                            <Text fw={700} size="md">Page {page.pageNumber}</Text>
+                            {page.hasQuestion && (
+                              <Badge size="md" color="green" variant="light">
+                                Question Test
+                              </Badge>
+                            )}
+                            {page.hasDiagramTest && (
+                              <Badge size="md" color="blue" variant="light">
+                                Diagram Test
+                              </Badge>
+                            )}
+                            {!page.hasQuestion && !page.hasDiagramTest && (
+                              <Badge size="md" color="gray" variant="light">
+                                No Tests
+                              </Badge>
+                            )}
+                          </Group>
+                        </Box>
+                        <Group gap="sm">
+                          {lab?.status === 'published' && (page.hasQuestion || page.hasDiagramTest) && (
+                            <Button
+                              variant="filled"
+                              size="sm"
+                              onClick={() => router.push(`/labs/${labId}/pages/${page.id}?returnPage=${currentPage}`)}
+                            >
+                              View Tests
+                            </Button>
+                          )}
+                          {lab?.status !== 'published' && (
+                            <Button
+                              variant="filled"
+                              size="xs"
+                              onClick={() => router.push(`/labs/${labId}/pages/${page.id}?returnPage=${currentPage}`)}
+                            >
+                              {page.hasQuestion || page.hasDiagramTest ? 'Edit Tests' : 'Add Tests'}
+                            </Button>
+                          )}
+                        </Group>
+                      </Group>
+
+                      <Stack gap="sm">
+                        {page.hasQuestion ? (
+                          <Paper p="md" radius="sm" className="bg-green-light">
+                            <Stack gap="sm">
+                              <Text size="sm" fw={600} c="green.9" mb={0}>✓ Question Test</Text>
+                              {page.question?.questionText && (
+                                <Text size="sm" c="green.8" lineClamp={2} pl="md">
+                                  {page.question.questionText}
+                                </Text>
+                              )}
+                            </Stack>
+                          </Paper>
+                        ) : (
+                          <Paper p="md" radius="sm" className="border-dashed">
+                            <Stack gap="sm">
+                              <Text size="sm" c="dimmed" mb={0}>○ Question Test</Text>
+                              <Text size="sm" c="dimmed" pl="md">not configured</Text>
+                            </Stack>
+                          </Paper>
+                        )}
+
+                        {page.hasDiagramTest ? (
+                          <Paper p="md" radius="sm" className="bg-blue-light">
+                            <Stack gap="sm">
+                              <Text size="sm" fw={600} c="blue.9" mb={0}>✓ Diagram Test</Text>
+                              {page.diagramTest?.architectureType && (
+                                <Text size="sm" c="blue.8" pl="md">
+                                  Architecture: {page.diagramTest.architectureType}
+                                </Text>
+                              )}
+                            </Stack>
+                          </Paper>
+                        ) : (
+                          <Paper p="md" radius="sm" className="border-dashed">
+                            <Stack gap="sm">
+                              <Text size="sm" c="dimmed" mb={0}>○ Diagram Test</Text>
+                              <Text size="sm" c="dimmed" pl="md">not configured</Text>
+                            </Stack>
+                          </Paper>
+                        )}
+                      </Stack>
+                    </Paper>
+                  ))}
+
+                  {totalPages > 1 && (
+                    <Group justify="center" mt="lg">
+                      <Pagination
+                        total={totalPages}
+                        value={currentPage}
+                        onChange={setCurrentPage}
+                        size="md"
+                      />
+                    </Group>
+                  )}
+                </Stack>
+              )}
+
+              {canEdit && pages.length > 0 && (
+                <Paper shadow="sm" p="lg" withBorder mt="md" className="bg-blue-light">
+                  <Group gap="sm">
+                    <Text size="lg">💡</Text>
+                    <Box style={{ flex: 1 }}>
+                      <Text fw={600} mb={4}>Publishing Requirement</Text>
+                      <Text size="sm" c="dimmed">
+                        At least one page must have a question test or diagram test before you can publish this lab.
+                      </Text>
+                    </Box>
+                  </Group>
+                </Paper>
+              )}
+            </Stack>
           )}
         </Tabs.Panel>
       </Tabs>

@@ -3,7 +3,6 @@ import ReactPlayer from 'react-player';
 import { useDisclosure } from '@mantine/hooks';
 import { Modal, Group, Paper, Text, Button, Accordion, Title } from '@mantine/core';
 import { HireTrainerModal } from '../HireTrainerModal';
-import styles from '../Courses/Course.module.css';
 import VideosPanel from './VideosPanel';
 
 type CourseCurriculumProps = {
@@ -16,10 +15,23 @@ type CourseCurriculumProps = {
   author: any;
   slug: string;
   isPurchased: boolean;
-  isCourseReviewMode: boolean
+  isCourseReviewMode: boolean;
+  associatedLabs?: Array<any>;
 };
 
-const CourseCurriculum: FC<CourseCurriculumProps> = ({ courseId, userId, videos, sections, duration, totalVideos, author, slug, isPurchased, isCourseReviewMode }) => {
+const CourseCurriculum: FC<CourseCurriculumProps> = ({
+  courseId,
+  userId,
+  videos,
+  sections,
+  duration,
+  totalVideos,
+  author,
+  slug,
+  isPurchased,
+  isCourseReviewMode,
+  associatedLabs = []
+}) => {
 
   const [opened, { open, close }] = useDisclosure(false);
   const [showModal, setShowModal] = useState(false);
@@ -44,6 +56,9 @@ const CourseCurriculum: FC<CourseCurriculumProps> = ({ courseId, userId, videos,
     (!duration || duration === '0 sec' || duration === '0');
 
   console.log(' isEmptyCourse:', isEmptyCourse)
+  console.log('🔍 Frontend associatedLabs:', associatedLabs)
+
+  const labCount = associatedLabs?.length || 0;
 
   return (
     <>
@@ -74,7 +89,10 @@ const CourseCurriculum: FC<CourseCurriculumProps> = ({ courseId, userId, videos,
                     Coming soon
                   </Text>
                 ) : (
-                  `Contains ${sections.length} sections, ${totalVideos} lectures with total duration of ${duration}`
+                  <>
+                    {`Contains ${sections.length} sections, ${totalVideos} lectures with total duration of ${duration}`}
+                    {labCount > 0 && `, ${labCount} Architectural Lab${labCount > 1 ? 's' : ''}`}
+                  </>
                 )}
               </Text>
 
@@ -144,6 +162,71 @@ const CourseCurriculum: FC<CourseCurriculumProps> = ({ courseId, userId, videos,
               <Text size="sm" fw={500} c="dimmed">
                 Coming soon
               </Text>
+            </Paper>
+          </>
+        )}
+
+        {/* Associated Labs Section - Show regardless of sections */}
+        {associatedLabs && associatedLabs.length > 0 && (
+          <>
+            <Title order={4} size="h5" fw={600} mb="md">
+              Included Architectural Labs
+            </Title>
+            <Paper
+              p="md"
+              radius="md"
+              withBorder
+              mb="xl"
+              style={{
+                borderColor: 'var(--mantine-color-gray-3)'
+              }}
+            >
+              {associatedLabs.map((lab: any, index: number) => (
+                <Paper
+                  key={lab.id || index}
+                  p="md"
+                  mb="sm"
+                  withBorder
+                  radius="sm"
+                  style={{
+                    borderColor: 'var(--mantine-color-blue-6)',
+                  }}
+                >
+                  <Group justify="space-between" align="flex-start">
+                    <div style={{ flex: 1 }}>
+                      <Text fw={600} size="sm" mb="xs">
+                        🧪 {lab.name}
+                      </Text>
+                      {lab.description && (
+                        <Text size="xs" c="dimmed" lineClamp={2}>
+                          {lab.description}
+                        </Text>
+                      )}
+                      <Group gap="xs" mt="xs">
+                        {lab.labType && (
+                          <Text size="xs" c="blue" fw={500}>
+                            {lab.labType}
+                          </Text>
+                        )}
+                        {lab.architectureType && (
+                          <Text size="xs" c="dimmed">
+                            • {lab.architectureType}
+                          </Text>
+                        )}
+                      </Group>
+                    </div>
+                    <Button
+                      size="xs"
+                      variant="light"
+                      component="a"
+                      href={`/labs/${lab.id}`}
+                      target="_blank"
+                    >
+                      View Lab
+                    </Button>
+                  </Group>
+                </Paper>
+              ))}
             </Paper>
           </>
         )}

@@ -213,8 +213,8 @@ const LabsPage = () => {
         p="xl"
         mb={50}
         radius="lg"
-        bg="var(--mantine-color-gray-0)"
-        style={{ border: '1px solid var(--mantine-color-gray-2)', position: 'relative', overflow: 'hidden' }}
+        className="bg-default-hover"
+        style={{ border: '1px solid var(--mantine-color-default-border)', position: 'relative', overflow: 'hidden' }}
       >
         {/* Animated Background Elements */}
         <Box style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 0, pointerEvents: 'none' }}>

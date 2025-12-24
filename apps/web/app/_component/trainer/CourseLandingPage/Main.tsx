@@ -34,6 +34,8 @@ import { IconUpload, IconAlertCircle, IconCheck } from '@tabler/icons-react';
 import { unifiedDeleteWebWorker } from '../../../../utils/worker/assetManager';
 import { useImageSafety } from '../../../../hooks/useImageSafety';
 import { validateFile, formatFileSize, DEFAULT_VALIDATION_OPTIONS } from '../../../../utils/imageValidation';
+import labApi from '../../../../apis/lab.api';
+import { ImageRequirements } from '@/components/Blog/Form/ImageRequirements';
 
 const INIT_COURSE = {
 	overview: '',
@@ -57,6 +59,8 @@ const Main = ({ courseWithSections, courseId }) => {
 	const [imagePreview, setImagePreview] = useState<string | null>(null);
 	const [validationError, setValidationError] = useState<string | null>(null);
 	const [validationSuccess, setValidationSuccess] = useState<string | null>(null);
+	const [labs, setLabs] = useState<Array<{ value: string; label: string }>>([]);
+	const [loadingLabs, setLoadingLabs] = useState(false);
 
 	// Image safety hook
 	const {
@@ -155,7 +159,8 @@ const Main = ({ courseWithSections, courseId }) => {
 			categoryName: courseWithSections?.categoryName || '',
 			subCategoryName: courseWithSections?.subCategoryName || '',
 			nestedSubCategoryName: courseWithSections?.nestedSubCategoryName || '',
-			courseImagePreview: ''
+			courseImagePreview: '',
+			associatedLabs: courseWithSections?.associatedLabs || [],
 		},
 		resetOptions: {
 			keepDirtyValues: true,
@@ -273,6 +278,49 @@ const Main = ({ courseWithSections, courseId }) => {
 			(scanError !== null)
 		);
 	}, [overviewValue, categoryValue, imageUploading, isAssetsUploading, isValid, isDirty, isScanning, isModelLoading, validationError, scanError]);
+
+	// Fetch instructor's labs for association
+	useEffect(() => {
+		const fetchLabs = async () => {
+			if (!courseId || !courseWithSections?.userId) return;
+
+			setLoadingLabs(true);
+			try {
+				const response = await labApi.getLabsByInstructor(courseWithSections.userId);
+				const labsData = response.data || [];
+
+				// Get course pricing type - use courseType ('free' or 'paid'), not paidType
+				const coursePricingType = courseWithSections?.courseType; // 'free' or 'paid'
+
+				// If courseType is not set yet, don't filter - instructor needs to set it first
+				if (!coursePricingType) {
+					setLabs([]);
+					return;
+				}
+
+				// Filter labs based on course pricing type
+				// Only show labs that match the course's pricing type
+				const filteredLabs = labsData.filter((lab: any) => {
+					const labPurchaseType = lab.pricing?.purchaseType;
+					return labPurchaseType === coursePricingType;
+				});
+
+				// Transform filtered labs to MultiSelect format
+				const labOptions = filteredLabs.map((lab: any) => ({
+					value: lab.id,
+					label: `${lab.name} (${lab.status})`,
+				}));
+
+				setLabs(labOptions);
+			} catch (error) {
+				console.error('Failed to load labs:', error);
+			} finally {
+				setLoadingLabs(false);
+			}
+		};
+
+		fetchLabs();
+	}, [courseId, courseWithSections?.userId, courseWithSections?.courseType]);
 
 	// Add this useEffect to set the image preview for existing courses
 	useEffect(() => {
@@ -483,6 +531,40 @@ const Main = ({ courseWithSections, courseId }) => {
 								</Grid>
 							</Box>
 
+
+							{/* Lab Association Section */}
+							{/* Associated Labs Section - Only show if matching labs are available */}
+							{courseWithSections?.courseType && labs.length > 0 && (
+								<Box>
+									<Title order={4} mb="md">Associated Labs (Optional)</Title>
+									<Text size="sm" c="dimmed" mb="md">
+										Select labs to include in this course. Students enrolled in this course will automatically have access to these labs.
+									</Text>
+									<Controller
+										name="associatedLabs"
+										control={control}
+										render={({ field }) => (
+											<MultiSelect
+												label="Select Labs"
+												placeholder={loadingLabs ? "Loading your labs..." : "Choose labs to include in this course"}
+												description={`Only your ${courseWithSections.courseType} labs are shown`}
+												data={labs}
+												{...field}
+												searchable
+												clearable
+												disabled={loadingLabs}
+												nothingFoundMessage="No labs found"
+												size="md"
+											/>
+										)}
+									/>
+									{watch('associatedLabs')?.length > 0 && (
+										<Text size="sm" c="dimmed" mt="xs">
+											{watch('associatedLabs').length} lab(s) will be included in this course
+										</Text>
+									)}
+								</Box>
+							)}
 							{/* Course Image Upload */}
 							<Box>
 								<Controller
@@ -564,27 +646,7 @@ const Main = ({ courseWithSections, courseId }) => {
 								{errors.courseImagePreview && <Text c="red" size="sm" mt={4}>{errors.courseImagePreview?.message as string}</Text>}
 
 								{/* Course Image Technical Requirements */}
-								<Box mt="md" style={{ textAlign: 'left' }}>
-									<Title order={5} mb="xs">Course Image Requirements</Title>
-									<Text size="sm" c="dimmed">
-										<strong>Image formats:</strong> The file format must be .jpg, .jpeg, or .png.
-									</Text>
-									<Text size="sm" c="dimmed">
-										<strong>Image dimensions:</strong> Always design your course image at the following pixel dimensions. The image design needs to be within the content safe area for maximum visibility.
-									</Text>
-									<Text size="sm" c="dimmed">
-										<strong>Minimum required dimensions:</strong> 750 × 422 pixels
-									</Text>
-									<Text size="sm" c="dimmed">
-										<strong>Maximum required dimensions:</strong> 6000 × 6000 pixels
-									</Text>
-									<Text size="sm" c="dimmed">
-										<strong>File size:</strong> Maximum 2MB
-									</Text>
-									<Text size="sm" c="blue" mt="xs">
-										<strong>AI Safety:</strong> All images are automatically scanned for inappropriate content before upload.
-									</Text>
-								</Box>
+								<ImageRequirements />
 
 								{/* Image Preview */}
 								{imagePreview && !validationError && !scanError && (

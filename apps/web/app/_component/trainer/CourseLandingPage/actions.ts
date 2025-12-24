@@ -17,6 +17,7 @@ type Payload = {
     categoryName: string;
     subCategoryName?: string;
     nestedSubCategoryName?: string;
+    associatedLabs?: string[];
 };
 
 const extractCloudAssetsToSave = ({ overview, topics }) => {

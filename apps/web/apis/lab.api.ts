@@ -30,6 +30,7 @@ export interface CreateLabRequest {
   architectureType: string;
   instructorId: string;
   pricing?: any;
+  associatedCourses?: string[];
 }
 
 export interface UpdateLabRequest {
@@ -38,6 +39,7 @@ export interface UpdateLabRequest {
   labType?: string;
   architectureType?: string;
   pricing?: any;
+  associatedCourses?: string[];
 }
 
 export interface CreateLabPageRequest {
@@ -105,6 +107,16 @@ const labApi = {
   getPublishedLabs: (page?: number, perPage?: number) =>
     http.get<PaginatedResponse<Lab>>('/labs', {
       params: { page, perPage, status: 'published' },
+    }),
+
+  /**
+   * Get all labs for an instructor (for course association)
+   * @param instructorId - Instructor UUID
+   * @returns All labs owned by the instructor
+   */
+  getLabsByInstructor: (instructorId: string) =>
+    http.get<{ data: Lab[] }>('/labs', {
+      params: { instructorId, perPage: 1000 }, // Get all labs
     }),
 
   /**

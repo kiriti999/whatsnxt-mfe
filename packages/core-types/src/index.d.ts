@@ -14,6 +14,8 @@ export interface Lab extends BaseEntity {
   labType: string; // Category/type of the lab (e.g., 'Cloud Computing', 'Networking', 'Security')
   architectureType: string; // Architecture platform (e.g., 'AWS', 'Azure', 'GCP', 'Common', 'Hybrid')
   instructorId: string; // Assuming Instructor entity has a UUID
+  associatedCourses?: string[]; // Course IDs that include this lab
+  pricing?: any;
 }
 
 export interface LabPage extends BaseEntity {
@@ -21,7 +23,7 @@ export interface LabPage extends BaseEntity {
   pageNumber: number;
   hasQuestion: boolean;
   hasDiagramTest: boolean;
-  questions?: Question; // Optional: can be embedded or linked
+  question?: Question; // Optional: can be embedded or linked
   diagramTest?: DiagramTest; // Optional: can be embedded or linked
 }
 
@@ -68,6 +70,7 @@ export interface CreateLabRequest {
   labType: string;
   architectureType: string;
   instructorId: string;
+  associatedCourses?: string[];
 }
 
 export interface UpdateLabRequest {
@@ -75,6 +78,7 @@ export interface UpdateLabRequest {
   description?: string;
   labType?: string;
   architectureType?: string;
+  associatedCourses?: string[];
 }
 
 // Validation Error

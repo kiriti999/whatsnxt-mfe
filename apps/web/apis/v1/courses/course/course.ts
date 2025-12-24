@@ -25,4 +25,8 @@ export const CourseAPI = {
         const response = await courseApiClient.get(`/courses/course/status?limit=${limit}&offset=${offset}&status=${status}`);
         return response;
     },
+    getInstructorCourses: async function (instructorId: string) {
+        const response = await courseApiClient.get(`/courses/course/instructor/${instructorId}`);
+        return response;
+    },
 };

@@ -2,7 +2,7 @@ import React, { FC } from 'react';
 import styles from './CartItems.module.css';
 import Link from 'next/link';
 import { kConverter } from '@whatsnxt/core-util';
-import { Anchor, Avatar, Box, Text } from '@mantine/core';
+import { Anchor, Avatar, Box, Text, Table } from '@mantine/core';
 import { IconTrash } from '@tabler/icons-react';
 
 type CartItemsProps = {
@@ -26,32 +26,32 @@ export const CartItems: FC<CartItemsProps> = ({
 }) => {
 
   return (
-    <tr>
-      <td className={styles['product-thumbnail']}>
+    <Table.Tr>
+      <Table.Td className={styles['product-thumbnail']}>
         <Anchor component={Link} href="#">
           <Avatar src={image} radius="sm" alt="cart item" />
         </Anchor>
-      </td>
+      </Table.Td>
 
-      <td className={styles['product-name']}>
+      <Table.Td className={styles['product-name']}>
         <Box w={200}>
           <Anchor component={Link} href={slug ? `/courses/${slug}` : '/courses'}>
             <Text truncate="end">{courseName}</Text>
           </Anchor>
         </Box>
-      </td>
+      </Table.Td>
 
-      <td className={styles['product-price']}>
+      <Table.Td className={styles['product-price']}>
         <Text>&#8377;{kConverter(total_cost)}</Text>
-      </td>
+      </Table.Td>
 
-      <td className={styles['product-name']}>
+      <Table.Td className={styles['product-name']}>
         <Text>{purchaseType}</Text>
-      </td>
+      </Table.Td>
 
-      <td className={`${styles['product-subtotal']} text`} id={id}>
+      <Table.Td className={`${styles['product-subtotal']} text`} id={id}>
         <IconTrash className={styles.cursor} size={20} onClick={() => onRemove(id)} />
-      </td>
-    </tr>
+      </Table.Td>
+    </Table.Tr>
   );
 };

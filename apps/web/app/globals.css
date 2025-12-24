@@ -6,7 +6,8 @@ html,
 body {
   padding: 0;
   margin: 0;
-  font-size: 16px; /* Increased base font size for better mobile readability */
+  font-size: 16px;
+  /* Increased base font size for better mobile readability */
   font-family: "Nunito", sans-serif;
   background-color: var(--mantine-color-body);
   color: var(--mantine-color-text);
@@ -14,6 +15,7 @@ body {
 
 /* Tablet - 768px and up */
 @media (min-width: 48em) {
+
   html,
   body {
     font-size: 16px;
@@ -22,6 +24,7 @@ body {
 
 /* Desktop - 992px and up */
 @media (min-width: 62em) {
+
   html,
   body {
     font-size: 16px;
@@ -60,7 +63,8 @@ p {
   color: light-dark(#606060, var(--mantine-color-dimmed));
   margin-bottom: 15px;
   line-height: 1.6;
-  font-size: 1rem; /* Use relative to base font */
+  font-size: 1rem;
+  /* Use relative to base font */
 }
 
 /* No media query needed - will scale with html base font size */
@@ -86,31 +90,135 @@ h6 {
 }
 
 /* Mobile headings - more aggressive reduction */
-h1, .h1 { font-size: 1.75rem; line-height: 1.3; font-weight: 900; }    /* ~23px on mobile */
-h2, .h2 { font-size: 1.5rem; line-height: 1.35; font-weight: 800; }    /* ~19.5px on mobile */
-h3, .h3 { font-size: 1.25rem; line-height: 1.4; font-weight: 700; }    /* ~16px on mobile */
-h4, .h4 { font-size: 1.125rem; line-height: 1.45; font-weight: 700; }  /* ~14.5px on mobile */
-h5, .h5 { font-size: 1rem; line-height: 1.5; font-weight: 600; }       /* 13px on mobile */
-h6, .h6 { font-size: 0.875rem; line-height: 1.5; font-weight: 600; }   /* ~11px on mobile */
+h1,
+.h1 {
+  font-size: 1.75rem;
+  line-height: 1.3;
+  font-weight: 900;
+}
+
+/* ~23px on mobile */
+h2,
+.h2 {
+  font-size: 1.5rem;
+  line-height: 1.35;
+  font-weight: 800;
+}
+
+/* ~19.5px on mobile */
+h3,
+.h3 {
+  font-size: 1.25rem;
+  line-height: 1.4;
+  font-weight: 700;
+}
+
+/* ~16px on mobile */
+h4,
+.h4 {
+  font-size: 1.125rem;
+  line-height: 1.45;
+  font-weight: 700;
+}
+
+/* ~14.5px on mobile */
+h5,
+.h5 {
+  font-size: 1rem;
+  line-height: 1.5;
+  font-weight: 600;
+}
+
+/* 13px on mobile */
+h6,
+.h6 {
+  font-size: 0.875rem;
+  line-height: 1.5;
+  font-weight: 600;
+}
+
+/* ~11px on mobile */
 
 /* Tablet - 768px and up */
 @media (min-width: 48em) {
-  h1, .h1 { font-size: 1.875rem; }   /* ~26px on tablet */
-  h2, .h2 { font-size: 1.625rem; }   /* ~23px on tablet */
-  h3, .h3 { font-size: 1.375rem; }   /* ~19px on tablet */
-  h4, .h4 { font-size: 1.125rem; }   /* ~16px on tablet */
-  h5, .h5 { font-size: 1rem; }       /* 14px on tablet */
-  h6, .h6 { font-size: 0.875rem; }   /* ~12px on tablet */
+
+  h1,
+  .h1 {
+    font-size: 1.875rem;
+  }
+
+  /* ~26px on tablet */
+  h2,
+  .h2 {
+    font-size: 1.625rem;
+  }
+
+  /* ~23px on tablet */
+  h3,
+  .h3 {
+    font-size: 1.375rem;
+  }
+
+  /* ~19px on tablet */
+  h4,
+  .h4 {
+    font-size: 1.125rem;
+  }
+
+  /* ~16px on tablet */
+  h5,
+  .h5 {
+    font-size: 1rem;
+  }
+
+  /* 14px on tablet */
+  h6,
+  .h6 {
+    font-size: 0.875rem;
+  }
+
+  /* ~12px on tablet */
 }
 
 /* Desktop - 992px and up - Keep original sizes */
 @media (min-width: 62em) {
-  h1, .h1 { font-size: 2rem; }      /* 32px on desktop */
-  h2, .h2 { font-size: 1.75rem; }   /* 28px on desktop */
-  h3, .h3 { font-size: 1.5rem; }    /* 24px on desktop */
-  h4, .h4 { font-size: 1.25rem; }   /* 20px on desktop */
-  h5, .h5 { font-size: 1.125rem; }  /* 18px on desktop */
-  h6, .h6 { font-size: 1rem; }      /* 16px on desktop */
+
+  h1,
+  .h1 {
+    font-size: 2rem;
+  }
+
+  /* 32px on desktop */
+  h2,
+  .h2 {
+    font-size: 1.75rem;
+  }
+
+  /* 28px on desktop */
+  h3,
+  .h3 {
+    font-size: 1.5rem;
+  }
+
+  /* 24px on desktop */
+  h4,
+  .h4 {
+    font-size: 1.25rem;
+  }
+
+  /* 20px on desktop */
+  h5,
+  .h5 {
+    font-size: 1.125rem;
+  }
+
+  /* 18px on desktop */
+  h6,
+  .h6 {
+    font-size: 1rem;
+  }
+
+  /* 16px on desktop */
 }
 
 .form-group {
@@ -211,7 +319,8 @@ h6, .h6 { font-size: 0.875rem; line-height: 1.5; font-weight: 600; }   /* ~11px 
   transition: 0.5s;
   border-radius: 5px;
   font-weight: 700;
-  font-size: 1rem; /* Use relative sizing */
+  font-size: 1rem;
+  /* Use relative sizing */
   padding-left: 20px;
   padding-right: 20px;
   padding-top: 10px;
@@ -271,7 +380,8 @@ h6, .h6 { font-size: 0.875rem; line-height: 1.5; font-weight: 600; }   /* ~11px 
 
 /* form-control */
 .form-control {
-  height: 45px; /* Slightly smaller on mobile */
+  height: 45px;
+  /* Slightly smaller on mobile */
   color: #221638;
   box-shadow: unset !important;
   border: 1px solid #f5f5f5;
@@ -279,7 +389,8 @@ h6, .h6 { font-size: 0.875rem; line-height: 1.5; font-weight: 600; }   /* ~11px 
   transition: 0.5s;
   border-radius: 3px;
   padding: 1px 0 0 12px;
-  font-size: 1rem; /* Use relative sizing */
+  font-size: 1rem;
+  /* Use relative sizing */
   font-weight: 400;
 }
 
@@ -594,6 +705,7 @@ p>code {
 
 /* Mantine Component Overrides for Mobile */
 @media (max-width: 61.99em) {
+
   /* Override Mantine Text component on mobile/tablet */
   [class*="mantine-Text-root"]:not([class*="icon"]),
   [class*="Text-root"]:not([class*="icon"]) {
@@ -606,7 +718,7 @@ p>code {
     font-size: 0.9em !important;
     padding: 8px 16px !important;
   }
-  
+
   /* Preserve icon sizes in buttons */
   [class*="mantine-Button-root"] svg,
   [class*="Button-root"] svg,
@@ -650,7 +762,7 @@ p>code {
   [class*="NavLink-label"] {
     font-size: 0.95em !important;
   }
-  
+
   /* Keep NavLink icons normal size */
   [class*="mantine-NavLink"] svg,
   [class*="NavLink"] svg {
@@ -666,7 +778,7 @@ p>code {
   [class*="Menu-item"] {
     font-size: 0.9em !important;
   }
-  
+
   /* Keep Menu item icons normal size */
   [class*="mantine-Menu-item"] svg,
   [class*="Menu-item"] svg {
@@ -717,7 +829,8 @@ header svg {
   min-width: 1.25rem !important;
   min-height: 1.25rem !important;
   flex-shrink: 0 !important;
-  font-size: 16px !important; /* Reset to base size for rem calculation */
+  font-size: 16px !important;
+  /* Reset to base size for rem calculation */
 }
 
 /* Larger icons for specific cases */
@@ -731,4 +844,68 @@ header svg {
 .small-icon svg {
   width: 1rem !important;
   height: 1rem !important;
+}
+
+/* ================================================
+   Theme-Aware Background Classes
+   These classes automatically adapt to light/dark mode
+   ================================================ */
+
+/* Default backgrounds */
+.bg-default {
+  background-color: var(--mantine-color-default);
+}
+
+.bg-default-hover {
+  background-color: var(--mantine-color-default-hover);
+}
+
+/* Light color backgrounds - for info/primary sections */
+.bg-blue-light {
+  background-color: var(--mantine-color-blue-light);
+}
+
+/* Light green background - for success states */
+.bg-green-light {
+  background-color: var(--mantine-color-green-light);
+}
+
+/* Light yellow background - for warning states */
+.bg-yellow-light {
+  background-color: var(--mantine-color-yellow-light);
+}
+
+/* Light red background - for error states */
+.bg-red-light {
+  background-color: var(--mantine-color-red-light);
+}
+
+/* Light gray background - for subtle sections */
+.bg-gray-light {
+  background-color: var(--mantine-color-gray-light);
+}
+
+/* Border utilities - theme-aware */
+.border-default {
+  border: 1px solid var(--mantine-color-default-border);
+}
+
+.border-dashed {
+  border: 1px dashed var(--mantine-color-default-border);
+}
+
+.border-top-default {
+  border-top: 1px solid var(--mantine-color-default-border);
+}
+
+.border-bottom-default {
+  border-bottom: 1px solid var(--mantine-color-default-border);
+}
+
+.border-2-default {
+  border: 2px solid var(--mantine-color-default-border);
+}
+
+.border-top-2-default {
+  border-top: 2px solid var(--mantine-color-default-border);
 }

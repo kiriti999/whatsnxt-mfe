@@ -61,6 +61,7 @@ const CourseSlugDetails = ({ course, courseReviews, setCourseReviews, reviewComm
                     rate: course?.userId?.rate || 200,
                 }}
                 isCourseReviewMode={isCourseReviewMode}
+                associatedLabs={course?.associatedLabs || []}
             />
 
             {course?.topics && <CourseDescription courseTopics={course.topics} />}

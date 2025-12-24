@@ -76,12 +76,11 @@ export const ShoppingCart: FC = () => {
           highlightOnHover
           styles={{
             thead: {
-              backgroundColor: 'var(--mantine-color-gray-0)',
+              backgroundColor: 'var(--mantine-color-default-hover)',
             },
             th: {
               fontWeight: 600,
               fontSize: '0.9rem',
-              color: 'var(--mantine-color-dark-6)',
               padding: '1rem'
             },
             td: {
@@ -89,15 +88,16 @@ export const ShoppingCart: FC = () => {
             }
           }}
         >
-          <thead>
-            <tr>
-              <th>Product</th>
-              <th>Name</th>
-              <th>Price</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
+          <Table.Thead>
+            <Table.Tr>
+              <Table.Th>Product</Table.Th>
+              <Table.Th>Name</Table.Th>
+              <Table.Th>Price</Table.Th>
+              <Table.Th>Type</Table.Th>
+              <Table.Th>Action</Table.Th>
+            </Table.Tr>
+          </Table.Thead>
+          <Table.Tbody>
             {cartItems.length > 0 ? (
               cartItems.map((cart) => (
                 <CartItems
@@ -107,13 +107,13 @@ export const ShoppingCart: FC = () => {
                 />
               ))
             ) : (
-              <tr>
-                <td colSpan={5} style={{ textAlign: "center", padding: "20px" }}>
+              <Table.Tr>
+                <Table.Td colSpan={5} style={{ textAlign: "center", padding: "20px" }}>
                   Empty
-                </td>
-              </tr>
+                </Table.Td>
+              </Table.Tr>
             )}
-          </tbody>
+          </Table.Tbody>
         </Table>
       </ScrollArea>
     </Paper>
@@ -182,7 +182,7 @@ export const ShoppingCart: FC = () => {
               <IconShoppingCart size={40} color="var(--mantine-color-gray-5)" />
             </Box>
             <div>
-              <Text size="lg" fw={600} c="dark.4" mb="xs">Your cart is empty</Text>
+              <Text size="lg" fw={600} mb="xs">Your cart is empty</Text>
               <Text size="sm" c="dimmed">Add some courses to get started!</Text>
             </div>
             <Button
@@ -319,17 +319,14 @@ export const ShoppingCart: FC = () => {
                       <Title
                         order={3}
                         fw={700}
-                        style={{
-                          color: 'var(--mantine-color-dark-7)'
-                        }}
                       >
                         Cart Summary
                       </Title>
 
                       <Box
                         p="md"
+                        className="bg-default border-default"
                         style={{
-                          background: 'white',
                           borderRadius: 'var(--mantine-radius-md)',
                           width: '100%',
                           maxWidth: 400
@@ -343,12 +340,7 @@ export const ShoppingCart: FC = () => {
                           <Text size="md" c="dimmed">Tax:</Text>
                           <Text size="md" fw={500}>₹0</Text>
                         </Flex>
-                        <Box
-                          pt="md"
-                          style={{
-                            borderTop: '2px solid var(--mantine-color-gray-2)'
-                          }}
-                        >
+                        <Box pt="md" className="border-top-2-default">
                           <Flex justify="space-between" align="center">
                             <Text size="xl" fw={700}>Total:</Text>
                             <Text
@@ -385,7 +377,8 @@ export const ShoppingCart: FC = () => {
             </Grid.Col>
           </Grid>
         </Container>
-      )}
-    </Box>
+      )
+      }
+    </Box >
   );
 };
