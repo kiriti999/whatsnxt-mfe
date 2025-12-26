@@ -180,45 +180,45 @@ h6,
   /* ~12px on tablet */
 }
 
-/* Desktop - 992px and up - Keep original sizes */
+/* Desktop - 992px and up - Reduced by ~5% */
 @media (min-width: 62em) {
 
   h1,
   .h1 {
-    font-size: 2rem;
+    font-size: 1.9rem;
   }
 
-  /* 32px on desktop */
+  /* 30.4px on desktop (reduced from 32px) */
   h2,
   .h2 {
-    font-size: 1.75rem;
+    font-size: 1.65rem;
   }
 
-  /* 28px on desktop */
+  /* 26.4px on desktop (reduced from 28px) */
   h3,
   .h3 {
-    font-size: 1.5rem;
+    font-size: 1.425rem;
   }
 
-  /* 24px on desktop */
+  /* 22.8px on desktop (reduced from 24px) */
   h4,
   .h4 {
-    font-size: 1.25rem;
+    font-size: 1.1875rem;
   }
 
-  /* 20px on desktop */
+  /* 19px on desktop (reduced from 20px) */
   h5,
   .h5 {
-    font-size: 1.125rem;
+    font-size: 1.0625rem;
   }
 
-  /* 18px on desktop */
+  /* 17px on desktop (reduced from 18px) */
   h6,
   .h6 {
-    font-size: 1rem;
+    font-size: 0.95rem;
   }
 
-  /* 16px on desktop */
+  /* 15.2px on desktop (reduced from 16px) */
 }
 
 .form-group {
@@ -327,9 +327,10 @@ h6,
   padding-bottom: 10px;
 }
 
-/* Desktop - 992px and up - Keep original */
+/* Desktop - 992px and up - Reduced font size by 5% */
 @media (min-width: 62em) {
   .default-btn {
+    font-size: 0.95rem;
     padding-left: 30px;
     padding-right: 30px;
     padding-top: 11px;
@@ -394,11 +395,12 @@ h6,
   font-weight: 400;
 }
 
-/* Desktop - 992px and up - Keep original */
+/* Desktop - 992px and up - Reduced font size by 5% */
 @media (min-width: 62em) {
   .form-control {
     height: 50px;
     padding: 1px 0 0 15px;
+    font-size: 0.95rem;
   }
 }
 
@@ -701,6 +703,96 @@ code {
 
 p>code {
   font-size: 0.98em !important;
+}
+
+/* Mantine Component Overrides for Desktop - Reduce by 5% */
+@media (min-width: 62em) {
+
+  /* Reduce Mantine Text component on desktop */
+  [class*="mantine-Text-root"]:not([class*="icon"]),
+  [class*="Text-root"]:not([class*="icon"]) {
+    font-size: 0.95em !important;
+  }
+
+  /* Reduce Mantine Button on desktop */
+  [class*="mantine-Button-root"],
+  [class*="Button-root"] {
+    font-size: 0.95em !important;
+  }
+
+  /* Reduce Mantine Title on desktop */
+  [class*="mantine-Title-root"],
+  [class*="Title-root"] {
+    font-size: 1.2em !important;
+  }
+
+  /* Reduce Mantine Input on desktop */
+  [class*="mantine-Input-input"],
+  [class*="Input-input"],
+  [class*="mantine-TextInput-input"],
+  [class*="TextInput-input"],
+  [class*="mantine-Select-input"],
+  [class*="Select-input"],
+  [class*="mantine-Textarea-input"],
+  [class*="Textarea-input"] {
+    font-size: 0.95em !important;
+  }
+
+  /* Reduce Mantine Card on desktop */
+  [class*="mantine-Card-root"],
+  [class*="Card-root"] {
+    font-size: 0.95em !important;
+  }
+
+  /* Reduce Mantine NavLink on desktop */
+  [class*="mantine-NavLink-root"],
+  [class*="NavLink-root"],
+  [class*="mantine-NavLink-label"],
+  [class*="NavLink-label"] {
+    font-size: 0.95em !important;
+  }
+
+  /* Reduce Mantine Menu on desktop */
+  [class*="mantine-Menu-item"],
+  [class*="Menu-item"] {
+    font-size: 0.95em !important;
+  }
+
+  /* Reduce Mantine Table on desktop */
+  [class*="mantine-Table"],
+  [class*="Table-"] {
+    font-size: 0.95em !important;
+  }
+
+  /* Reduce Mantine Modal on desktop */
+  [class*="mantine-Modal-title"],
+  [class*="Modal-title"] {
+    font-size: 0.95em !important;
+  }
+
+  [class*="mantine-Modal-body"],
+  [class*="Modal-body"] {
+    font-size: 0.95em !important;
+  }
+
+  /* Reduce paragraph text on desktop */
+  p {
+    font-size: 0.95em !important;
+  }
+
+  /* Reduce span, links, and other inline elements */
+  span:not([class*="icon"]) {
+    font-size: 0.95em;
+  }
+
+  a:not([class*="mantine-Button"]):not([class*="Button"]) {
+    font-size: 0.95em;
+  }
+
+  /* Reduce labels */
+  label {
+    font-size: 0.95em !important;
+  }
 }
 
 /* Mantine Component Overrides for Mobile */

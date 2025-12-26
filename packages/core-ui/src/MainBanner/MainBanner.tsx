@@ -1,6 +1,7 @@
 import React from 'react';
 import { Container, Grid, Title, Box } from '@mantine/core';
 import { HeroWithText } from '../HeroWithText';
+import styles from './MainBanner.module.css';
 
 export const MainBanner = () => {
   return (
@@ -21,7 +22,11 @@ export const MainBanner = () => {
         <Grid justify="center" align="center">
           <Grid.Col span={12}>
             <div style={{ textAlign: 'center' }}>
-              <Title order={3} fw={700}>
+              <Title
+                order={3}
+                fw={700}
+                className={styles.mainBannerTitle}
+              >
                 Empower Your Learning Journey
               </Title>
 

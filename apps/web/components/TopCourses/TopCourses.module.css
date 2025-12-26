@@ -11,10 +11,31 @@
     text-align: center;
 }
 
-/* High contrast title */
+/* High contrast title - consistent sizing - needs to override global mobile Title styles */
 .topCoursesTitle {
     color: light-dark(#1a1a1a, var(--mantine-color-white)) !important;
-    font-weight: 600;
+    font-weight: 600 !important;
+    font-size: 1rem !important;
+    /* h5 size - 16px on mobile */
+}
+
+/* More specific selector to override global mobile Mantine Title */
+h5.topCoursesTitle {
+    font-size: 1.15rem !important;
+}
+
+@media (min-width: 48em) {
+    .topCoursesTitle {
+        font-size: 1rem !important;
+        /* Tablet h5 size - 16px */
+    }
+}
+
+@media (min-width: 62em) {
+    .topCoursesTitle {
+        font-size: 1.0625rem !important;
+        /* Desktop h5 size (with 5% reduction) - 17px */
+    }
 }
 
 /* Paper card styles with high contrast */

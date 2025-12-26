@@ -4,6 +4,22 @@
     font-weight: 800;
 }
 
+.mainBannerTitle {
+    font-size: 1.3rem !important; /* Mobile: 24px */
+}
+
+@media (min-width: 48em) {
+    .mainBannerTitle {
+        font-size: 1.625rem !important; /* Tablet: 26px */
+    }
+}
+
+@media (min-width: 62em) {
+    .mainBannerTitle {
+        font-size: 1.5rem !important; /* Desktop: 26.4px (5% reduction) */
+    }
+}
+
 .main-banner-content-style-two p {
     max-width: 580px;
     line-height: 1.8;

@@ -1,3 +1,10 @@
 .amount {
-    color: rgba(0, 0, 0, 0.5)
+    color: rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Reduce amount size on desktop by 5% */
+@media (min-width: 62em) {
+    .amount {
+        font-size: 1.05rem !important;
+    }
 }

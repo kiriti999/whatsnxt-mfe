@@ -307,7 +307,7 @@ export const NavbarMobile = ({ links, loginMenuLinks, drawerOpened, closeDrawer 
                 />
 
                 <NavLink
-                  label="Search A Trainer"
+                  label="Search trainer"
                   leftSection={<IconSearch size="1.1rem" stroke={1.5} />}
                   component={Link}
                   href="/search-trainers"

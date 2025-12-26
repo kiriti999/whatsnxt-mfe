@@ -31,7 +31,7 @@ const TopCourses = ({ courses, total, title }: { courses: any[], total: number, 
     <Box className={styles.topCoursesContainer}>
       <Container size="xl">
         <Box className={styles.topCoursesInner}>
-          <Title order={4} className={styles.topCoursesTitle}>
+          <Title order={5} className={styles.topCoursesTitle}>
             {title || "Top Selling Courses"}
           </Title>
         </Box>
