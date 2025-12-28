@@ -50,7 +50,7 @@ const ReceiptPage = () => {
                 </thead>
                 <tbody>
                     <tr>
-                        <td>Tailwind CSS From Scratch | Learn By Building Projects</td>
+                        <td>React Development From Scratch | Learn By Building Projects</td>
                         <td>Feb. 6, 2024</td>
                         <td>ST11MT20624</td>
                         <td>1</td>
