@@ -1,4 +1,22 @@
-# EA Help Documentation - Complete Text Content
+# WhatsNxt MFE Documentation - Code Standards
+
+## Code Formatting and Linting
+
+This project uses **Biome** for linting and formatting. Biome is a fast, all-in-one toolchain that replaces ESLint and Prettier.
+
+### Commands
+
+- `pnpm lint` - Check for linting and formatting issues
+- `pnpm lint:fix` - Automatically fix linting and formatting issues
+- `pnpm format` - Format all files
+
+### Configuration
+
+Biome configuration is in `biome.json` at the project root. The configuration includes:
+- Automatic import organization
+- Consistent code formatting (2-space indentation, single quotes, semicolons)
+- TypeScript and JavaScript linting rules
+- Integration with Git VCS
 
 ## Source Files (CSS Style Guide)
 

@@ -1,14 +1,4 @@
-# Turborepo starter
-
-This Turborepo starter is maintained by the Turborepo core team.
-
-## Using this example
-
-Run the following command:
-
-```sh
-npx create-turbo@latest
-```
+# WhatsNxt MFE - Turborepo Monorepo
 
 ## What's inside?
 
@@ -16,20 +6,32 @@ This Turborepo includes the following packages/apps:
 
 ### Apps and Packages
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+- `web`: Main [Next.js](https://nextjs.org/) application
+- `@repo/typescript-config`: Shared TypeScript configurations
+- UI packages: `@whatsnxt/core-ui`, `@whatsnxt/comments`, `@whatsnxt/blogcomments`
+- Utility packages: `@whatsnxt/core-util`, `@whatsnxt/http-client`, `@whatsnxt/constants`
 
 Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
 
 ### Utilities
 
-This Turborepo has some additional tools already setup for you:
+This Turborepo has the following tools configured:
 
 - [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
+- [Biome](https://biomejs.dev/) for fast linting and code formatting
+- [Mantine UI](https://mantine.dev/) for component library
+- [Turbo](https://turborepo.com/) for monorepo management
+
+### Commands
+
+```sh
+pnpm dev           # Run development server
+pnpm build         # Build all apps and packages
+pnpm lint          # Check linting and formatting
+pnpm lint:fix      # Fix linting and formatting issues
+pnpm format        # Format all code
+pnpm check-types   # Run TypeScript type checking
+```
 
 ### Build
 

@@ -4,7 +4,8 @@
   "main": "./index.ts",
   "types": "./index.ts",
   "scripts": {
-    "lint": "eslint . --max-warnings 0",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
     "generate:component": "turbo gen react-component",
     "check-types": "tsc --noEmit"
   },
@@ -14,11 +15,9 @@
     "swr": "2.3.3"
   },
   "devDependencies": {
-    "@repo/eslint-config": "workspace:*",
     "@repo/typescript-config": "workspace:*",
     "@types/node": "^22.15.3",
     "@types/react": "19.1.0",
-    "eslint": "^9.28.0",
     "typescript": "5.8.2"
   },
   "peerDependencies": {
