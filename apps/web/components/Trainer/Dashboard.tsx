@@ -151,13 +151,15 @@ function Dashboard({ id, open, close, courseName = '', teacherName = '' }: Props
                     styles={{
                       root: {
                         backgroundColor: isCurrentTab ? '#ff4d4f' : undefined,
-                        color: isCurrentTab ? 'white' : undefined,
                         textDecoration: 'none',
-                        '&:hover': { textDecoration: 'none' },
+                        '&:hover': {
+                          textDecoration: 'none',
+                          backgroundColor: isCurrentTab ? '#ff4d4f' : undefined,
+                        },
                       },
                     }}
                   >
-                    <Text fw={500}>{item.title}</Text>
+                    <Text fw={500} c={isCurrentTab ? 'white' : undefined}>{item.title}</Text>
                   </Button>
                 </Link>
 
