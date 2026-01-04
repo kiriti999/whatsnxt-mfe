@@ -16,6 +16,7 @@ import {
   Paper,
   Box,
   Group,
+  useMantineColorScheme,
 } from '@mantine/core';
 import { Carousel } from '@mantine/carousel';
 import { IconUser, IconEye, IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
@@ -42,6 +43,9 @@ interface TrendingArticlesProps {
 }
 
 const TrendingArticles = ({ articles, total }: TrendingArticlesProps) => {
+  const { colorScheme } = useMantineColorScheme();
+  const isDark = colorScheme === 'dark';
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
@@ -81,7 +85,9 @@ const TrendingArticles = ({ articles, total }: TrendingArticlesProps) => {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              boxShadow: '0 4px 12px rgba(99, 102, 241, 0.25)'
+              boxShadow: isDark
+                ? '0 4px 12px rgba(99, 102, 241, 0.5)'
+                : '0 4px 12px rgba(99, 102, 241, 0.25)'
             }}
           >
             <IconEye size={20} color="white" />
@@ -132,23 +138,6 @@ const TrendingArticles = ({ articles, total }: TrendingArticlesProps) => {
             nextControlIcon={<IconChevronRight size={20} />}
             previousControlIcon={<IconChevronLeft size={20} />}
             draggable
-            styles={{
-              indicator: {
-                width: rem(12),
-                height: rem(4),
-                transition: 'width 250ms ease',
-                backgroundColor: '#cccccc', // Higher contrast than gray-4
-              },
-              control: {
-                backgroundColor: '#ffffff',
-                border: '1px solid #0066cc',
-                color: '#0066cc',
-                '&:hover': {
-                  backgroundColor: '#0066cc',
-                  color: '#ffffff',
-                },
-              },
-            }}
             classNames={{
               control: styles.carouselControl,
               indicator: styles.carouselIndicator,
@@ -172,7 +161,9 @@ const TrendingArticles = ({ articles, total }: TrendingArticlesProps) => {
                       transition: 'all 0.3s ease',
                       '&:hover': {
                         transform: 'translateY(-4px)',
-                        boxShadow: '0 8px 24px rgba(99, 102, 241, 0.15)'
+                        boxShadow: isDark
+                          ? '0 8px 24px rgba(99, 102, 241, 0.35)'
+                          : '0 8px 24px rgba(99, 102, 241, 0.15)'
                       }
                     }
                   }}

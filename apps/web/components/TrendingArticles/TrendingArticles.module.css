@@ -1,13 +1,32 @@
 /* TrendingArticles.module.css */
 
 /* High contrast carousel controls */
+.carouselControl {
+    background-color: light-dark(#ffffff, var(--mantine-color-dark-6)) !important;
+    border: 1px solid light-dark(#0066cc, var(--mantine-color-indigo-5)) !important;
+    color: light-dark(#0066cc, var(--mantine-color-indigo-4)) !important;
+}
+
+.carouselControl:hover {
+    background-color: light-dark(#0066cc, var(--mantine-color-indigo-6)) !important;
+    color: #ffffff !important;
+}
+
 .carouselControl[data-inactive] {
     opacity: 0;
     cursor: default;
 }
 
+.carouselIndicator {
+    width: 12px;
+    height: 4px;
+    transition: width 250ms ease;
+    background-color: light-dark(#cccccc, var(--mantine-color-dark-4)) !important;
+}
+
 .carouselIndicator[data-active] {
     width: 40px;
+    background-color: light-dark(#0066cc, var(--mantine-color-indigo-5)) !important;
 }
 
 /* High contrast text improvements */
@@ -73,7 +92,10 @@
 }
 
 .trendingCard:hover {
-    box-shadow: 0 10px 25px -5px rgba(0, 102, 204, 0.25), 0 10px 10px -5px rgba(0, 102, 204, 0.1);
+    box-shadow: light-dark(0 10px 25px -5px rgba(0, 102, 204, 0.25),
+            0 10px 25px -5px rgba(99, 102, 241, 0.4)),
+        light-dark(0 10px 10px -5px rgba(0, 102, 204, 0.1),
+            0 10px 10px -5px rgba(99, 102, 241, 0.2));
 }
 
 /* Avatar styles */

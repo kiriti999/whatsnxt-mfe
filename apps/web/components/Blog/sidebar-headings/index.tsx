@@ -54,7 +54,7 @@ function SidebarHeadings({
                     size="sm"
                     fw={heading.id === activeId ? 600 : 400}
                     lineClamp={2}
-                    c={heading.id === activeId ? 'blue.6' : 'dark.7'}
+                    c={heading.id === activeId ? 'blue.6' : 'dimmed'}
                   >
                     {heading.text}
                   </Text>
