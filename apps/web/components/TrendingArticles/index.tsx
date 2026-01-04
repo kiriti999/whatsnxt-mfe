@@ -237,7 +237,7 @@ const TrendingArticles = ({ articles, total }: TrendingArticlesProps) => {
                     {article.description && (
                       <Text
                         size="sm"
-                        lineClamp={2}
+                        lineClamp={1}
                         m={0}
                         className={styles.trendingDescription}
                       >
