@@ -124,7 +124,7 @@ const TrendingArticles = ({ articles, total }: TrendingArticlesProps) => {
         {articles.length > 0 ? (
           <Carousel
             withControls
-            height={460}
+            height={480}
             slideSize={{ base: '100%', sm: '50%', md: '33.333333%' }}
             slideGap={{ base: 0, sm: 'md' }}
             controlsOffset="xs"
@@ -199,7 +199,7 @@ const TrendingArticles = ({ articles, total }: TrendingArticlesProps) => {
                     </Box>
                   </Card.Section>
 
-                  <Stack gap="xs" mt="md" px="md" className={styles.trendingContentStack}>
+                  <Stack gap="xs" mt="md" px="md" pb="md" className={styles.trendingContentStack}>
                     {/* Category Badge with gradient */}
                     <Badge
                       variant="light"
