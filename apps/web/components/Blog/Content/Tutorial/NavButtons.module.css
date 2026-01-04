@@ -5,7 +5,7 @@
     /* Maps to p */
     width: 5rem;
     /* Matches inline style */
-    border: 1px solid light-dark(var(--mantine-color-gray-4), var(--mantine-color-dark-4));
+    border: 1px solid light-dark(var(--mantine-color-gray-4), var(--mantine-color-gray-6));
     /* Default outline style for variant="outline" */
     background-color: transparent;
     /* Transparent background for outline variant */
