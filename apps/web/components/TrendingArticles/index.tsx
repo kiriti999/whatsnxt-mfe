@@ -178,17 +178,26 @@ const TrendingArticles = ({ articles, total }: TrendingArticlesProps) => {
                   }}
                 >
                   <Card.Section>
-                    <Box style={{ position: 'relative', overflow: 'hidden' }}>
+                    <Box style={{
+                      position: 'relative',
+                      overflow: 'hidden',
+                      aspectRatio: '16/9',
+                      width: '100%'
+                    }}>
                       <Image
                         onClick={() => handleReadMore(article.slug)}
                         src={article.imageUrl || '/placeholder-article.jpg'}
-                        height={180}
+                        height="100%"
+                        width="100%"
                         alt={`Cover image for article: ${article.title}`}
                         fit="cover"
                         className={styles.trendingImage}
                         fetchPriority='auto'
                         styles={{
                           root: {
+                            objectFit: 'cover',
+                            width: '100%',
+                            height: '100%',
                             transition: 'transform 0.3s ease',
                             '&:hover': {
                               transform: 'scale(1.05)'
