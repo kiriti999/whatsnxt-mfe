@@ -83,7 +83,7 @@ const PurchaseHistory = () => {
                 <LabTable
                     purchases={labPurchases}
                     totalCount={labPurchasesTotal}
-                    onRefundSuccess={() => refetchLabPurchases()}
+                    onRefundSuccess={refetchLabPurchases}
                 />
                 <TeacherTable payments={payments} totalCount={paymentsTotal} />
             </ScrollArea>
