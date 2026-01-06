@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
     Container,
     Title,
@@ -18,6 +18,8 @@ import {
     Avatar,
     SimpleGrid,
     Progress,
+    useMantineColorScheme,
+    useComputedColorScheme,
 } from '@mantine/core';
 import {
     IconCode,
@@ -38,6 +40,8 @@ import {
 } from '@tabler/icons-react';
 
 export default function ConsultingPage() {
+    const computedColorScheme = useComputedColorScheme('light', { getInitialValueInEffect: true });
+    const isDark = useMemo(() => computedColorScheme === 'dark', [computedColorScheme]);
 
     const services = [
         {
@@ -94,12 +98,38 @@ export default function ConsultingPage() {
         { number: "10+", label: "Years Experience", icon: IconTarget }
     ];
 
+    // Memoize theme colors
+    const themeColors = useMemo(() => ({
+        background: isDark 
+            ? 'linear-gradient(135deg, #1a1b23 0%, #2d1b69 50%, #11998e 100%)'
+            : 'linear-gradient(135deg, #f0f4ff 0%, #e8d5ff 50%, #c7f9ee 100%)',
+        titleGradient: isDark 
+            ? 'linear-gradient(135deg, #ffffff 0%, #60a5fa 50%, #a855f7 100%)'
+            : 'linear-gradient(135deg, #1e293b 0%, #3b82f6 50%, #9333ea 100%)',
+        sectionTitleGradient: isDark 
+            ? 'linear-gradient(135deg, #ffffff 0%, #e2e8f0 100%)'
+            : 'linear-gradient(135deg, #1e293b 0%, #475569 100%)',
+        textColor: isDark ? 'rgba(255, 255, 255, 0.8)' : 'rgba(0, 0, 0, 0.7)',
+        headingColor: isDark ? 'white' : 'dark',
+        cardBg: isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(255, 255, 255, 0.7)',
+        cardBgHover: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(255, 255, 255, 0.9)',
+        cardBorder: isDark ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(0, 0, 0, 0.1)',
+        progressBg: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
+        sectionBg: isDark ? 'rgba(255, 255, 255, 0.02)' : 'rgba(0, 0, 0, 0.02)',
+        contactSectionBg: isDark ? 'rgba(0, 0, 0, 0.3)' : 'rgba(255, 255, 255, 0.3)',
+        dividerColor: isDark ? 'dark.4' : 'gray.3',
+        outlineBorder: isDark ? '2px solid rgba(255, 255, 255, 0.2)' : '2px solid rgba(0, 0, 0, 0.2)',
+    }), [isDark]);
+
     return (
-        <Box style={{
+        <Box 
+            key={`consulting-${computedColorScheme}`}
+            style={{
             minHeight: '100vh',
-            background: 'linear-gradient(135deg, #1a1b23 0%, #2d1b69 50%, #11998e 100%)',
+            background: themeColors.background,
             position: 'relative',
-            overflow: 'hidden'
+            overflow: 'hidden',
+            transition: 'background 0.3s ease'
         }}>
             {/* Animated Background Effects */}
             <Box>
@@ -144,10 +174,11 @@ export default function ConsultingPage() {
                                     size="4rem"
                                     fw={900}
                                     style={{
-                                        background: 'linear-gradient(135deg, #ffffff 0%, #60a5fa 50%, #a855f7 100%)',
+                                        background: themeColors.titleGradient,
                                         WebkitBackgroundClip: 'text',
                                         WebkitTextFillColor: 'transparent',
-                                        lineHeight: 1.1
+                                        lineHeight: 1.1,
+                                        transition: 'all 0.3s ease'
                                     }}
                                 >
                                     Elevate Your Technical Excellence
@@ -156,9 +187,10 @@ export default function ConsultingPage() {
                                 <Text
                                     size="xl"
                                     style={{
-                                        color: 'rgba(255, 255, 255, 0.8)',
+                                        color: themeColors.textColor,
                                         maxWidth: 600,
-                                        lineHeight: 1.6
+                                        lineHeight: 1.6,
+                                        transition: 'color 0.3s ease'
                                     }}
                                 >
                                     Transform your development capabilities with expert consulting in
@@ -208,9 +240,13 @@ export default function ConsultingPage() {
                                             key={index}
                                             p="md"
                                             style={{
-                                                background: 'rgba(255, 255, 255, 0.05)',
+                                                background: isDark 
+                                                    ? 'rgba(255, 255, 255, 0.05)'
+                                                    : 'rgba(255, 255, 255, 0.7)',
                                                 backdropFilter: 'blur(10px)',
-                                                border: '1px solid rgba(255, 255, 255, 0.1)',
+                                                border: isDark 
+                                                    ? '1px solid rgba(255, 255, 255, 0.1)'
+                                                    : '1px solid rgba(0, 0, 0, 0.1)',
                                                 borderRadius: 12,
                                                 textAlign: 'center',
                                                 transition: 'all 0.3s ease'
@@ -218,7 +254,9 @@ export default function ConsultingPage() {
                                             styles={{
                                                 root: {
                                                     '&:hover': {
-                                                        background: 'rgba(255, 255, 255, 0.1)',
+                                                        background: isDark 
+                                                            ? 'rgba(255, 255, 255, 0.1)'
+                                                            : 'rgba(255, 255, 255, 0.9)',
                                                         transform: 'translateY(-4px)'
                                                     }
                                                 }
@@ -227,7 +265,7 @@ export default function ConsultingPage() {
                                             <ThemeIcon size="lg" variant="light" color="blue" mb="xs" mx="auto">
                                                 <stat.icon size={20} />
                                             </ThemeIcon>
-                                            <Text size="xl" fw={700} c="white">{stat.number}</Text>
+                                            <Text size="xl" fw={700} c={isDark ? 'white' : 'dark'}>{stat.number}</Text>
                                             <Text size="sm" c="dimmed">{stat.label}</Text>
                                         </Paper>
                                     ))}
@@ -261,7 +299,9 @@ export default function ConsultingPage() {
                             ta="center"
                             fw={700}
                             style={{
-                                background: 'linear-gradient(135deg, #ffffff 0%, #e2e8f0 100%)',
+                                background: isDark 
+                                    ? 'linear-gradient(135deg, #ffffff 0%, #e2e8f0 100%)'
+                                    : 'linear-gradient(135deg, #1e293b 0%, #475569 100%)',
                                 WebkitBackgroundClip: 'text',
                                 WebkitTextFillColor: 'transparent'
                             }}
@@ -282,16 +322,22 @@ export default function ConsultingPage() {
                                 padding="xl"
                                 radius="lg"
                                 style={{
-                                    background: 'rgba(255, 255, 255, 0.05)',
+                                    background: isDark 
+                                        ? 'rgba(255, 255, 255, 0.05)'
+                                        : 'rgba(255, 255, 255, 0.7)',
                                     backdropFilter: 'blur(20px)',
-                                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                                    border: isDark 
+                                        ? '1px solid rgba(255, 255, 255, 0.1)'
+                                        : '1px solid rgba(0, 0, 0, 0.1)',
                                     height: '100%',
                                     transition: 'all 0.3s ease'
                                 }}
                                 styles={{
                                     root: {
                                         '&:hover': {
-                                            background: 'rgba(255, 255, 255, 0.1)',
+                                            background: isDark 
+                                                ? 'rgba(255, 255, 255, 0.1)'
+                                                : 'rgba(255, 255, 255, 0.9)',
                                             transform: 'translateY(-8px)',
                                             boxShadow: '0 25px 50px rgba(0, 0, 0, 0.3)'
                                         }
@@ -310,13 +356,13 @@ export default function ConsultingPage() {
                                     >
                                         <service.icon size={30} />
                                     </ThemeIcon>
-                                    <Title order={3} size="1.5rem" fw={600} c="white">
+                                    <Title order={3} size="1.5rem" fw={600} c={isDark ? 'white' : 'dark'}>
                                         {service.title}
                                     </Title>
                                     <Text c="dimmed" style={{ flex: 1 }}>
                                         {service.description}
                                     </Text>
-                                    <Divider color="dark.4" />
+                                    <Divider color={isDark ? 'dark.4' : 'gray.3'} />
                                     <List
                                         spacing="xs"
                                         size="sm"
@@ -327,7 +373,7 @@ export default function ConsultingPage() {
                                         }
                                     >
                                         {service.features.map((feature, idx) => (
-                                            <List.Item key={idx} style={{ color: 'rgba(255, 255, 255, 0.8)' }}>
+                                            <List.Item key={idx} style={{ color: isDark ? 'rgba(255, 255, 255, 0.8)' : 'rgba(0, 0, 0, 0.7)' }}>
                                                 {feature}
                                             </List.Item>
                                         ))}
@@ -340,7 +386,7 @@ export default function ConsultingPage() {
             </Box>
 
             {/* Expertise Section */}
-            <Box style={{ background: 'rgba(255, 255, 255, 0.02)', position: 'relative', zIndex: 10 }} py={80}>
+            <Box style={{ background: isDark ? 'rgba(255, 255, 255, 0.02)' : 'rgba(0, 0, 0, 0.02)', position: 'relative', zIndex: 10 }} py={80}>
                 <Container size="xl">
                     <Grid>
                         <Grid.Col span={{ base: 12, md: 6 }}>
@@ -352,7 +398,9 @@ export default function ConsultingPage() {
                                     style={{
                                         background: 'rgba(168, 85, 247, 0.2)',
                                         backdropFilter: 'blur(10px)',
-                                        border: '1px solid rgba(255, 255, 255, 0.1)'
+                                        border: isDark 
+                                            ? '1px solid rgba(255, 255, 255, 0.1)'
+                                            : '1px solid rgba(0, 0, 0, 0.1)'
                                     }}
                                 >
                                     Technical Expertise
@@ -362,7 +410,9 @@ export default function ConsultingPage() {
                                     size="2.5rem"
                                     fw={600}
                                     style={{
-                                        background: 'linear-gradient(135deg, #ffffff 0%, #e2e8f0 100%)',
+                                        background: isDark 
+                                            ? 'linear-gradient(135deg, #ffffff 0%, #e2e8f0 100%)'
+                                            : 'linear-gradient(135deg, #1e293b 0%, #475569 100%)',
                                         WebkitBackgroundClip: 'text',
                                         WebkitTextFillColor: 'transparent'
                                     }}
@@ -381,13 +431,17 @@ export default function ConsultingPage() {
                                             p="md"
                                             radius="md"
                                             style={{
-                                                background: 'rgba(255, 255, 255, 0.05)',
+                                                background: isDark 
+                                                    ? 'rgba(255, 255, 255, 0.05)'
+                                                    : 'rgba(255, 255, 255, 0.7)',
                                                 backdropFilter: 'blur(10px)',
-                                                border: '1px solid rgba(255, 255, 255, 0.1)'
+                                                border: isDark 
+                                                    ? '1px solid rgba(255, 255, 255, 0.1)'
+                                                    : '1px solid rgba(0, 0, 0, 0.1)'
                                             }}
                                         >
                                             <Group justify="apart" mb="xs">
-                                                <Text size="sm" fw={500} c="white">{skill.name}</Text>
+                                                <Text size="sm" fw={500} c={isDark ? 'white' : 'dark'}>{skill.name}</Text>
                                                 <Text size="sm" fw={700} c="blue.4">{skill.level}%</Text>
                                             </Group>
                                             <Progress
@@ -395,7 +449,9 @@ export default function ConsultingPage() {
                                                 size="sm"
                                                 radius="xl"
                                                 style={{
-                                                    background: 'rgba(255, 255, 255, 0.1)'
+                                                    background: isDark 
+                                                        ? 'rgba(255, 255, 255, 0.1)'
+                                                        : 'rgba(0, 0, 0, 0.1)'
                                                 }}
                                             />
                                         </Paper>
@@ -410,9 +466,13 @@ export default function ConsultingPage() {
                                 radius="lg"
                                 p="xl"
                                 style={{
-                                    background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(168, 85, 247, 0.2) 100%)',
+                                    background: isDark 
+                                        ? 'linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(168, 85, 247, 0.2) 100%)'
+                                        : 'linear-gradient(135deg, rgba(147, 197, 253, 0.5) 0%, rgba(216, 180, 254, 0.5) 100%)',
                                     backdropFilter: 'blur(20px)',
-                                    border: '1px solid rgba(255, 255, 255, 0.1)'
+                                    border: isDark 
+                                        ? '1px solid rgba(255, 255, 255, 0.1)'
+                                        : '1px solid rgba(0, 0, 0, 0.1)'
                                 }}
                             >
                                 <Stack gap="xl">
@@ -426,7 +486,7 @@ export default function ConsultingPage() {
                                             <IconRocket size={25} />
                                         </ThemeIcon>
                                         <div>
-                                            <Title order={3} c="white">
+                                            <Title order={3} c={isDark ? 'white' : 'dark'}>
                                                 Ready to Transform?
                                             </Title>
                                             <Text c="dimmed">
@@ -471,7 +531,9 @@ export default function ConsultingPage() {
                                     style={{
                                         background: 'rgba(251, 146, 60, 0.2)',
                                         backdropFilter: 'blur(10px)',
-                                        border: '1px solid rgba(255, 255, 255, 0.1)'
+                                        border: isDark 
+                                            ? '1px solid rgba(255, 255, 255, 0.1)'
+                                            : '1px solid rgba(0, 0, 0, 0.1)'
                                     }}
                                 >
                                     Corporate Training
@@ -481,7 +543,9 @@ export default function ConsultingPage() {
                                     size="2.5rem"
                                     fw={600}
                                     style={{
-                                        background: 'linear-gradient(135deg, #ffffff 0%, #e2e8f0 100%)',
+                                        background: isDark 
+                                            ? 'linear-gradient(135deg, #ffffff 0%, #e2e8f0 100%)'
+                                            : 'linear-gradient(135deg, #1e293b 0%, #475569 100%)',
                                         WebkitBackgroundClip: 'text',
                                         WebkitTextFillColor: 'transparent'
                                     }}
@@ -504,7 +568,7 @@ export default function ConsultingPage() {
                                             <ThemeIcon size="sm" color="green" variant="light">
                                                 <IconCheck size={12} />
                                             </ThemeIcon>
-                                            <Text c="white">{benefit}</Text>
+                                            <Text c={isDark ? 'white' : 'dark'}>{benefit}</Text>
                                         </Group>
                                     ))}
                                 </Stack>
@@ -517,13 +581,17 @@ export default function ConsultingPage() {
                                 radius="lg"
                                 p="xl"
                                 style={{
-                                    background: 'rgba(255, 255, 255, 0.05)',
+                                    background: isDark 
+                                        ? 'rgba(255, 255, 255, 0.05)'
+                                        : 'rgba(255, 255, 255, 0.7)',
                                     backdropFilter: 'blur(20px)',
-                                    border: '1px solid rgba(255, 255, 255, 0.1)'
+                                    border: isDark 
+                                        ? '1px solid rgba(255, 255, 255, 0.1)'
+                                        : '1px solid rgba(0, 0, 0, 0.1)'
                                 }}
                             >
                                 <Stack gap="lg">
-                                    <Title order={3} ta="center" mb="md" c="white">
+                                    <Title order={3} ta="center" mb="md" c={isDark ? 'white' : 'dark'}>
                                         Popular Training Topics
                                     </Title>
                                     <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
@@ -533,14 +601,20 @@ export default function ConsultingPage() {
                                                 p="lg"
                                                 radius="md"
                                                 style={{
-                                                    background: 'rgba(255, 255, 255, 0.05)',
-                                                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                                                    background: isDark 
+                                                        ? 'rgba(255, 255, 255, 0.05)'
+                                                        : 'rgba(255, 255, 255, 0.6)',
+                                                    border: isDark 
+                                                        ? '1px solid rgba(255, 255, 255, 0.1)'
+                                                        : '1px solid rgba(0, 0, 0, 0.1)',
                                                     transition: 'all 0.3s ease'
                                                 }}
                                                 styles={{
                                                     root: {
                                                         '&:hover': {
-                                                            background: 'rgba(255, 255, 255, 0.1)',
+                                                            background: isDark 
+                                                                ? 'rgba(255, 255, 255, 0.1)'
+                                                                : 'rgba(255, 255, 255, 0.9)',
                                                             transform: 'translateY(-4px)'
                                                         }
                                                     }
@@ -550,7 +624,7 @@ export default function ConsultingPage() {
                                                     <ThemeIcon size="lg" radius="md" color="blue" variant="light">
                                                         <topic.icon size={20} />
                                                     </ThemeIcon>
-                                                    <Text fw={500} c="white" size="sm">{topic.name}</Text>
+                                                    <Text fw={500} c={isDark ? 'white' : 'dark'} size="sm">{topic.name}</Text>
                                                 </Group>
                                                 <Group gap="xs">
                                                     <Progress
@@ -572,7 +646,7 @@ export default function ConsultingPage() {
             </Box>
 
             {/* Contact Section */}
-            <Box style={{ background: 'rgba(0, 0, 0, 0.3)', position: 'relative', zIndex: 10 }} py={80}>
+            <Box style={{ background: isDark ? 'rgba(0, 0, 0, 0.3)' : 'rgba(255, 255, 255, 0.3)', position: 'relative', zIndex: 10 }} py={80}>
                 <Container size="xl">
                     <Grid>
                         <Grid.Col span={{ base: 12, md: 6 }}>
@@ -586,7 +660,9 @@ export default function ConsultingPage() {
                                         style={{
                                             background: 'rgba(59, 130, 246, 0.2)',
                                             backdropFilter: 'blur(10px)',
-                                            border: '1px solid rgba(255, 255, 255, 0.1)'
+                                            border: isDark 
+                                                ? '1px solid rgba(255, 255, 255, 0.1)'
+                                                : '1px solid rgba(0, 0, 0, 0.1)'
                                         }}
                                     >
                                         Get In Touch
@@ -595,7 +671,7 @@ export default function ConsultingPage() {
                                         order={2}
                                         size="2.5rem"
                                         fw={600}
-                                        c="white"
+                                        c={isDark ? 'white' : 'dark'}
                                         mb="md"
                                     >
                                         Ready to Get Started?
@@ -617,7 +693,7 @@ export default function ConsultingPage() {
                                                 <contact.icon size={20} />
                                             </ThemeIcon>
                                             <div>
-                                                <Text fw={500} c="white">{contact.label}</Text>
+                                                <Text fw={500} c={isDark ? 'white' : 'dark'}>{contact.label}</Text>
                                                 <Text c="dimmed">{contact.value}</Text>
                                             </div>
                                         </Group>
@@ -632,13 +708,17 @@ export default function ConsultingPage() {
                                 radius="lg"
                                 p="xl"
                                 style={{
-                                    background: 'rgba(255, 255, 255, 0.05)',
+                                    background: isDark 
+                                        ? 'rgba(255, 255, 255, 0.05)'
+                                        : 'rgba(255, 255, 255, 0.7)',
                                     backdropFilter: 'blur(20px)',
-                                    border: '1px solid rgba(255, 255, 255, 0.1)'
+                                    border: isDark 
+                                        ? '1px solid rgba(255, 255, 255, 0.1)'
+                                        : '1px solid rgba(0, 0, 0, 0.1)'
                                 }}
                             >
                                 <Stack gap="md">
-                                    <Title order={3} ta="center" mb="md" c="white">
+                                    <Title order={3} ta="center" mb="md" c={isDark ? 'white' : 'dark'}>
                                         Start Your Project
                                     </Title>
                                     <Text ta="center" c="dimmed" mb="lg">
@@ -662,9 +742,11 @@ export default function ConsultingPage() {
                                         size="lg"
                                         variant="outline"
                                         fullWidth
-                                        color="white"
+                                        color={isDark ? 'white' : 'dark'}
                                         style={{
-                                            border: '2px solid rgba(255, 255, 255, 0.2)',
+                                            border: isDark 
+                                                ? '2px solid rgba(255, 255, 255, 0.2)'
+                                                : '2px solid rgba(0, 0, 0, 0.2)',
                                             backdropFilter: 'blur(10px)'
                                         }}
                                         component='a'
@@ -676,9 +758,9 @@ export default function ConsultingPage() {
                                         label="or"
                                         labelPosition="center"
                                         my="md"
-                                        color="dark.4"
+                                        color={isDark ? 'dark.4' : 'gray.4'}
                                         styles={{
-                                            label: { color: 'rgba(255, 255, 255, 0.6)' }
+                                            label: { color: isDark ? 'rgba(255, 255, 255, 0.6)' : 'rgba(0, 0, 0, 0.6)' }
                                         }}
                                     />
                                     <Text ta="center" size="sm" c="dimmed">
@@ -690,7 +772,9 @@ export default function ConsultingPage() {
                                         fullWidth
                                         color="gray"
                                         style={{
-                                            border: '1px solid rgba(255, 255, 255, 0.1)',
+                                            border: isDark 
+                                                ? '1px solid rgba(255, 255, 255, 0.1)'
+                                                : '1px solid rgba(0, 0, 0, 0.1)',
                                             backdropFilter: 'blur(10px)'
                                         }}
                                     >
