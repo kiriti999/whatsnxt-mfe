@@ -45,25 +45,36 @@ export default function ConsultingPage() {
 
     const services = [
         {
-            icon: IconCode,
-            title: "Technical Architecture",
-            description: "Design scalable, maintainable software architectures tailored to your business needs. From microservices to monoliths, we help you choose the right approach.",
-            features: ["System Design", "Technology Stack Selection", "Performance Optimization", "Security Architecture"],
-            color: "blue"
-        },
-        {
-            icon: IconBrain,
-            title: "Skill Development Strategy",
-            description: "Strategic guidance on building technical capabilities within your organization. Identify skill gaps and create development roadmaps.",
-            features: ["Skill Gap Analysis", "Learning Path Design", "Technology Adoption Planning", "Team Capability Assessment"],
-            color: "grape"
-        },
-        {
             icon: IconSchool,
-            title: "Corporate Training",
-            description: "Comprehensive training programs to upskill your development teams with the latest technologies and best practices.",
-            features: ["Custom Curriculum Design", "Hands-on Workshops", "Mentorship Programs", "Progress Tracking"],
-            color: "teal"
+            title: "Student Support & Training",
+            description: "Comprehensive support and training programs designed specifically for students to build real-world development skills and accelerate their learning journey.",
+            features: ["One-on-One Mentorship", "Project Guidance & Code Reviews", "Career Path Planning", "Technical Interview Preparation"],
+            color: "blue",
+            badge: "For Students"
+        },
+        {
+            icon: IconBuilding,
+            title: "Customised Corporate Training",
+            description: "Tailored training programs for organizations to upskill development teams with cutting-edge technologies and industry best practices.",
+            features: ["Custom Curriculum Design", "Hands-on Workshops", "Technology-Specific Training", "Team Progress Tracking"],
+            color: "grape",
+            badge: "For Teams"
+        },
+        {
+            icon: IconRocket,
+            title: "Technical Evaluations & Rapid MVP",
+            description: "Expert technical evaluation of your architecture and ideas, plus rapid MVP development in just 14 days to validate your concept quickly.",
+            features: ["Architecture Review & Analysis", "Tech Stack Evaluation", "MVP Development in 14 Days", "Performance Optimization"],
+            color: "teal",
+            badge: "Fast Delivery"
+        },
+        {
+            icon: IconTarget,
+            title: "Startup Idea Validation",
+            description: "Evaluate your startup idea before investing in MVP development. Our vibe coding approach helps validate concepts and save significant costs.",
+            features: ["Idea Feasibility Analysis", "Technical Vibe Coding", "Market-Tech Fit Assessment", "Cost-Saving Recommendations"],
+            color: "orange",
+            badge: "Save Costs"
         }
     ];
 
@@ -100,13 +111,13 @@ export default function ConsultingPage() {
 
     // Memoize theme colors
     const themeColors = useMemo(() => ({
-        background: isDark 
+        background: isDark
             ? 'linear-gradient(135deg, #1a1b23 0%, #2d1b69 50%, #11998e 100%)'
             : 'linear-gradient(135deg, #f0f4ff 0%, #e8d5ff 50%, #c7f9ee 100%)',
-        titleGradient: isDark 
+        titleGradient: isDark
             ? 'linear-gradient(135deg, #ffffff 0%, #60a5fa 50%, #a855f7 100%)'
             : 'linear-gradient(135deg, #1e293b 0%, #3b82f6 50%, #9333ea 100%)',
-        sectionTitleGradient: isDark 
+        sectionTitleGradient: isDark
             ? 'linear-gradient(135deg, #ffffff 0%, #e2e8f0 100%)'
             : 'linear-gradient(135deg, #1e293b 0%, #475569 100%)',
         textColor: isDark ? 'rgba(255, 255, 255, 0.8)' : 'rgba(0, 0, 0, 0.7)',
@@ -122,15 +133,15 @@ export default function ConsultingPage() {
     }), [isDark]);
 
     return (
-        <Box 
+        <Box
             key={`consulting-${computedColorScheme}`}
             style={{
-            minHeight: '100vh',
-            background: themeColors.background,
-            position: 'relative',
-            overflow: 'hidden',
-            transition: 'background 0.3s ease'
-        }}>
+                minHeight: '100vh',
+                background: themeColors.background,
+                position: 'relative',
+                overflow: 'hidden',
+                transition: 'background 0.3s ease'
+            }}>
             {/* Animated Background Effects */}
             <Box>
                 {/* Moving gradient orb following mouse */}
@@ -152,7 +163,7 @@ export default function ConsultingPage() {
             <Box style={{ position: 'relative', zIndex: 10, display: 'flex', alignItems: 'center' }} pt={80} pb={40}>
                 <Container size="xl">
                     <Grid align="center" gutter={60}>
-                        <Grid.Col span={{ base: 12, lg: 8 }}>
+                        <Grid.Col span={{ base: 12, lg: 12 }}>
                             <Stack gap="xl">
                                 <Box style={{ position: 'relative' }}>
                                     <Badge
@@ -194,9 +205,10 @@ export default function ConsultingPage() {
                                     }}
                                 >
                                     Transform your development capabilities with expert consulting in
-                                    <Text component="span" fw={600} c="blue.4"> software architecture</Text>,
-                                    <Text component="span" fw={600} c="grape.4"> skill development</Text>, and
-                                    <Text component="span" fw={600} c="teal.4"> corporate training</Text>.
+                                    <Text component="span" fw={600} c="blue.4"> student training</Text>,
+                                    <Text component="span" fw={600} c="grape.4"> customised corporate programs</Text>,
+                                    <Text component="span" fw={600} c="teal.4"> rapid MVP development</Text>, and
+                                    <Text component="span" fw={600} c="orange.4"> startup validation</Text>.
                                 </Text>
 
                                 <Group gap="lg">
@@ -293,7 +305,7 @@ export default function ConsultingPage() {
                             ta="center"
                             fw={700}
                             style={{
-                                background: isDark 
+                                background: isDark
                                     ? 'linear-gradient(135deg, #ffffff 0%, #e2e8f0 100%)'
                                     : 'linear-gradient(135deg, #1e293b 0%, #475569 100%)',
                                 WebkitBackgroundClip: 'text',
@@ -302,13 +314,13 @@ export default function ConsultingPage() {
                         >
                             Comprehensive Technical Solutions
                         </Title>
-                        <Text size="xl" ta="center" c="dimmed" maw={600}>
-                            We provide end-to-end consulting services to help organizations build robust software solutions
-                            and develop high-performing technical teams.
+                        <Text size="xl" ta="center" c="dimmed" maw={700}>
+                            We provide end-to-end consulting services for students, teams, and startups—from
+                            personalized training and skill development to rapid MVP delivery and technical validation.
                         </Text>
                     </Stack>
 
-                    <SimpleGrid cols={{ base: 1, md: 3 }} spacing="xl">
+                    <SimpleGrid cols={{ base: 1, md: 2 }} spacing="xl">
                         {services.map((service, index) => (
                             <Card
                                 key={index}
@@ -316,11 +328,11 @@ export default function ConsultingPage() {
                                 padding="xl"
                                 radius="lg"
                                 style={{
-                                    background: isDark 
+                                    background: isDark
                                         ? 'rgba(255, 255, 255, 0.05)'
                                         : 'rgba(255, 255, 255, 0.7)',
                                     backdropFilter: 'blur(20px)',
-                                    border: isDark 
+                                    border: isDark
                                         ? '1px solid rgba(255, 255, 255, 0.1)'
                                         : '1px solid rgba(0, 0, 0, 0.1)',
                                     height: '100%',
@@ -329,7 +341,7 @@ export default function ConsultingPage() {
                                 styles={{
                                     root: {
                                         '&:hover': {
-                                            background: isDark 
+                                            background: isDark
                                                 ? 'rgba(255, 255, 255, 0.1)'
                                                 : 'rgba(255, 255, 255, 0.9)',
                                             transform: 'translateY(-8px)',
@@ -339,17 +351,32 @@ export default function ConsultingPage() {
                                 }}
                             >
                                 <Stack gap="md">
-                                    <ThemeIcon
-                                        size={60}
-                                        radius="lg"
-                                        variant="gradient"
-                                        gradient={{ from: service.color, to: service.color === 'blue' ? 'cyan' : service.color === 'grape' ? 'pink' : 'teal' }}
-                                        style={{
-                                            boxShadow: `0 10px 30px rgba(59, 130, 246, 0.3)`
-                                        }}
-                                    >
-                                        <service.icon size={30} />
-                                    </ThemeIcon>
+                                    <Group justify="apart" align="flex-start">
+                                        <ThemeIcon
+                                            size={60}
+                                            radius="lg"
+                                            variant="gradient"
+                                            gradient={{ from: service.color, to: service.color === 'blue' ? 'cyan' : service.color === 'grape' ? 'pink' : service.color === 'teal' ? 'green' : 'red' }}
+                                            style={{
+                                                boxShadow: `0 10px 30px rgba(59, 130, 246, 0.3)`
+                                            }}
+                                        >
+                                            <service.icon size={30} />
+                                        </ThemeIcon>
+                                        <Badge
+                                            size="sm"
+                                            variant="dot"
+                                            color={service.color}
+                                            style={{
+                                                background: isDark
+                                                    ? 'rgba(255, 255, 255, 0.1)'
+                                                    : 'rgba(0, 0, 0, 0.05)',
+                                                backdropFilter: 'blur(10px)'
+                                            }}
+                                        >
+                                            {service.badge}
+                                        </Badge>
+                                    </Group>
                                     <Title order={3} size="1.5rem" fw={600} c={isDark ? 'white' : 'dark'}>
                                         {service.title}
                                     </Title>
@@ -392,7 +419,7 @@ export default function ConsultingPage() {
                                     style={{
                                         background: 'rgba(168, 85, 247, 0.2)',
                                         backdropFilter: 'blur(10px)',
-                                        border: isDark 
+                                        border: isDark
                                             ? '1px solid rgba(255, 255, 255, 0.1)'
                                             : '1px solid rgba(0, 0, 0, 0.1)'
                                     }}
@@ -404,7 +431,7 @@ export default function ConsultingPage() {
                                     size="2.5rem"
                                     fw={600}
                                     style={{
-                                        background: isDark 
+                                        background: isDark
                                             ? 'linear-gradient(135deg, #ffffff 0%, #e2e8f0 100%)'
                                             : 'linear-gradient(135deg, #1e293b 0%, #475569 100%)',
                                         WebkitBackgroundClip: 'text',
@@ -425,11 +452,11 @@ export default function ConsultingPage() {
                                             p="md"
                                             radius="md"
                                             style={{
-                                                background: isDark 
+                                                background: isDark
                                                     ? 'rgba(255, 255, 255, 0.05)'
                                                     : 'rgba(255, 255, 255, 0.7)',
                                                 backdropFilter: 'blur(10px)',
-                                                border: isDark 
+                                                border: isDark
                                                     ? '1px solid rgba(255, 255, 255, 0.1)'
                                                     : '1px solid rgba(0, 0, 0, 0.1)'
                                             }}
@@ -443,7 +470,7 @@ export default function ConsultingPage() {
                                                 size="sm"
                                                 radius="xl"
                                                 style={{
-                                                    background: isDark 
+                                                    background: isDark
                                                         ? 'rgba(255, 255, 255, 0.1)'
                                                         : 'rgba(0, 0, 0, 0.1)'
                                                 }}
@@ -460,11 +487,11 @@ export default function ConsultingPage() {
                                 radius="lg"
                                 p="xl"
                                 style={{
-                                    background: isDark 
+                                    background: isDark
                                         ? 'linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(168, 85, 247, 0.2) 100%)'
                                         : 'linear-gradient(135deg, rgba(147, 197, 253, 0.5) 0%, rgba(216, 180, 254, 0.5) 100%)',
                                     backdropFilter: 'blur(20px)',
-                                    border: isDark 
+                                    border: isDark
                                         ? '1px solid rgba(255, 255, 255, 0.1)'
                                         : '1px solid rgba(0, 0, 0, 0.1)'
                                 }}
@@ -525,7 +552,7 @@ export default function ConsultingPage() {
                                     style={{
                                         background: 'rgba(251, 146, 60, 0.2)',
                                         backdropFilter: 'blur(10px)',
-                                        border: isDark 
+                                        border: isDark
                                             ? '1px solid rgba(255, 255, 255, 0.1)'
                                             : '1px solid rgba(0, 0, 0, 0.1)'
                                     }}
@@ -537,7 +564,7 @@ export default function ConsultingPage() {
                                     size="2.5rem"
                                     fw={600}
                                     style={{
-                                        background: isDark 
+                                        background: isDark
                                             ? 'linear-gradient(135deg, #ffffff 0%, #e2e8f0 100%)'
                                             : 'linear-gradient(135deg, #1e293b 0%, #475569 100%)',
                                         WebkitBackgroundClip: 'text',
@@ -575,11 +602,11 @@ export default function ConsultingPage() {
                                 radius="lg"
                                 p="xl"
                                 style={{
-                                    background: isDark 
+                                    background: isDark
                                         ? 'rgba(255, 255, 255, 0.05)'
                                         : 'rgba(255, 255, 255, 0.7)',
                                     backdropFilter: 'blur(20px)',
-                                    border: isDark 
+                                    border: isDark
                                         ? '1px solid rgba(255, 255, 255, 0.1)'
                                         : '1px solid rgba(0, 0, 0, 0.1)'
                                 }}
@@ -595,10 +622,10 @@ export default function ConsultingPage() {
                                                 p="lg"
                                                 radius="md"
                                                 style={{
-                                                    background: isDark 
+                                                    background: isDark
                                                         ? 'rgba(255, 255, 255, 0.05)'
                                                         : 'rgba(255, 255, 255, 0.6)',
-                                                    border: isDark 
+                                                    border: isDark
                                                         ? '1px solid rgba(255, 255, 255, 0.1)'
                                                         : '1px solid rgba(0, 0, 0, 0.1)',
                                                     transition: 'all 0.3s ease'
@@ -606,7 +633,7 @@ export default function ConsultingPage() {
                                                 styles={{
                                                     root: {
                                                         '&:hover': {
-                                                            background: isDark 
+                                                            background: isDark
                                                                 ? 'rgba(255, 255, 255, 0.1)'
                                                                 : 'rgba(255, 255, 255, 0.9)',
                                                             transform: 'translateY(-4px)'
@@ -654,7 +681,7 @@ export default function ConsultingPage() {
                                         style={{
                                             background: 'rgba(59, 130, 246, 0.2)',
                                             backdropFilter: 'blur(10px)',
-                                            border: isDark 
+                                            border: isDark
                                                 ? '1px solid rgba(255, 255, 255, 0.1)'
                                                 : '1px solid rgba(0, 0, 0, 0.1)'
                                         }}
@@ -702,11 +729,11 @@ export default function ConsultingPage() {
                                 radius="lg"
                                 p="xl"
                                 style={{
-                                    background: isDark 
+                                    background: isDark
                                         ? 'rgba(255, 255, 255, 0.05)'
                                         : 'rgba(255, 255, 255, 0.7)',
                                     backdropFilter: 'blur(20px)',
-                                    border: isDark 
+                                    border: isDark
                                         ? '1px solid rgba(255, 255, 255, 0.1)'
                                         : '1px solid rgba(0, 0, 0, 0.1)'
                                 }}
@@ -738,7 +765,7 @@ export default function ConsultingPage() {
                                         fullWidth
                                         color={isDark ? 'white' : 'dark'}
                                         style={{
-                                            border: isDark 
+                                            border: isDark
                                                 ? '2px solid rgba(255, 255, 255, 0.2)'
                                                 : '2px solid rgba(0, 0, 0, 0.2)',
                                             backdropFilter: 'blur(10px)'
@@ -766,7 +793,7 @@ export default function ConsultingPage() {
                                         fullWidth
                                         color="gray"
                                         style={{
-                                            border: isDark 
+                                            border: isDark
                                                 ? '1px solid rgba(255, 255, 255, 0.1)'
                                                 : '1px solid rgba(0, 0, 0, 0.1)',
                                             backdropFilter: 'blur(10px)'
