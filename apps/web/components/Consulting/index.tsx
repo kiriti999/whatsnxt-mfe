@@ -240,13 +240,9 @@ export default function ConsultingPage() {
                                             key={index}
                                             p="md"
                                             style={{
-                                                background: isDark 
-                                                    ? 'rgba(255, 255, 255, 0.05)'
-                                                    : 'rgba(255, 255, 255, 0.7)',
+                                                background: themeColors.cardBg,
                                                 backdropFilter: 'blur(10px)',
-                                                border: isDark 
-                                                    ? '1px solid rgba(255, 255, 255, 0.1)'
-                                                    : '1px solid rgba(0, 0, 0, 0.1)',
+                                                border: themeColors.cardBorder,
                                                 borderRadius: 12,
                                                 textAlign: 'center',
                                                 transition: 'all 0.3s ease'
@@ -254,9 +250,7 @@ export default function ConsultingPage() {
                                             styles={{
                                                 root: {
                                                     '&:hover': {
-                                                        background: isDark 
-                                                            ? 'rgba(255, 255, 255, 0.1)'
-                                                            : 'rgba(255, 255, 255, 0.9)',
+                                                        background: themeColors.cardBgHover,
                                                         transform: 'translateY(-4px)'
                                                     }
                                                 }
@@ -265,7 +259,7 @@ export default function ConsultingPage() {
                                             <ThemeIcon size="lg" variant="light" color="blue" mb="xs" mx="auto">
                                                 <stat.icon size={20} />
                                             </ThemeIcon>
-                                            <Text size="xl" fw={700} c={isDark ? 'white' : 'dark'}>{stat.number}</Text>
+                                            <Text size="xl" fw={700} c={themeColors.headingColor} style={{ transition: 'color 0.3s ease' }}>{stat.number}</Text>
                                             <Text size="sm" c="dimmed">{stat.label}</Text>
                                         </Paper>
                                     ))}
