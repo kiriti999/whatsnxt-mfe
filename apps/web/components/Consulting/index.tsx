@@ -932,32 +932,6 @@ export default function ConsultingPage() {
                                     >
                                         Schedule Call
                                     </Button>
-                                    <Divider
-                                        label="or"
-                                        labelPosition="center"
-                                        my="md"
-                                        color={isDark ? 'dark.4' : 'gray.4'}
-                                        styles={{
-                                            label: { color: isDark ? 'rgba(255, 255, 255, 0.6)' : 'rgba(0, 0, 0, 0.6)' }
-                                        }}
-                                    />
-                                    <Text ta="center" size="sm" c="dimmed">
-                                        Download our service brochure to learn more about our offerings
-                                    </Text>
-                                    <Button
-                                        variant="subtle"
-                                        size="sm"
-                                        fullWidth
-                                        color="gray"
-                                        style={{
-                                            border: isDark
-                                                ? '1px solid rgba(255, 255, 255, 0.1)'
-                                                : '1px solid rgba(0, 0, 0, 0.1)',
-                                            backdropFilter: 'blur(10px)'
-                                        }}
-                                    >
-                                        Download Brochure
-                                    </Button>
                                 </Stack>
                             </Card>
                         </Grid.Col>
