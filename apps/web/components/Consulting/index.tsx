@@ -406,6 +406,163 @@ export default function ConsultingPage() {
                 </Container>
             </Box>
 
+            {/* Key Highlights Section */}
+            <Box style={{ position: 'relative', zIndex: 10 }} py={60}>
+                <Container size="xl">
+                    <SimpleGrid cols={{ base: 1, md: 3 }} spacing="xl">
+                        <Card
+                            shadow="xl"
+                            padding="xl"
+                            radius="lg"
+                            style={{
+                                background: isDark
+                                    ? 'linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(99, 102, 241, 0.2) 100%)'
+                                    : 'linear-gradient(135deg, rgba(147, 197, 253, 0.5) 0%, rgba(165, 180, 252, 0.5) 100%)',
+                                backdropFilter: 'blur(20px)',
+                                border: isDark
+                                    ? '1px solid rgba(255, 255, 255, 0.1)'
+                                    : '1px solid rgba(0, 0, 0, 0.1)',
+                                textAlign: 'center',
+                                transition: 'all 0.3s ease'
+                            }}
+                            styles={{
+                                root: {
+                                    '&:hover': {
+                                        transform: 'translateY(-8px)',
+                                        boxShadow: '0 25px 50px rgba(59, 130, 246, 0.4)'
+                                    }
+                                }
+                            }}
+                        >
+                            <Stack gap="md" align="center">
+                                <ThemeIcon
+                                    size={70}
+                                    radius="xl"
+                                    variant="gradient"
+                                    gradient={{ from: 'blue', to: 'cyan' }}
+                                    style={{
+                                        boxShadow: '0 10px 30px rgba(59, 130, 246, 0.4)'
+                                    }}
+                                >
+                                    <IconRocket size={40} />
+                                </ThemeIcon>
+                                <div>
+                                    <Title order={2} size="3rem" fw={900} c={isDark ? 'white' : 'dark'}>
+                                        14 Days
+                                    </Title>
+                                    <Text size="lg" fw={600} c="blue.4" mt="xs">
+                                        Rapid MVP Delivery
+                                    </Text>
+                                </div>
+                                <Text c="dimmed" size="sm">
+                                    Get your minimum viable product built and deployed in just two weeks
+                                </Text>
+                            </Stack>
+                        </Card>
+
+                        <Card
+                            shadow="xl"
+                            padding="xl"
+                            radius="lg"
+                            style={{
+                                background: isDark
+                                    ? 'linear-gradient(135deg, rgba(251, 146, 60, 0.2) 0%, rgba(251, 113, 133, 0.2) 100%)'
+                                    : 'linear-gradient(135deg, rgba(254, 215, 170, 0.5) 0%, rgba(252, 165, 165, 0.5) 100%)',
+                                backdropFilter: 'blur(20px)',
+                                border: isDark
+                                    ? '1px solid rgba(255, 255, 255, 0.1)'
+                                    : '1px solid rgba(0, 0, 0, 0.1)',
+                                textAlign: 'center',
+                                transition: 'all 0.3s ease'
+                            }}
+                            styles={{
+                                root: {
+                                    '&:hover': {
+                                        transform: 'translateY(-8px)',
+                                        boxShadow: '0 25px 50px rgba(251, 146, 60, 0.4)'
+                                    }
+                                }
+                            }}
+                        >
+                            <Stack gap="md" align="center">
+                                <ThemeIcon
+                                    size={70}
+                                    radius="xl"
+                                    variant="gradient"
+                                    gradient={{ from: 'orange', to: 'red' }}
+                                    style={{
+                                        boxShadow: '0 10px 30px rgba(251, 146, 60, 0.4)'
+                                    }}
+                                >
+                                    <IconTarget size={40} />
+                                </ThemeIcon>
+                                <div>
+                                    <Title order={2} size="3rem" fw={900} c={isDark ? 'white' : 'dark'}>
+                                        Save Costs
+                                    </Title>
+                                    <Text size="lg" fw={600} c="orange.4" mt="xs">
+                                        Vibe Coding Validation
+                                    </Text>
+                                </div>
+                                <Text c="dimmed" size="sm">
+                                    Validate your startup idea before full development to avoid expensive mistakes
+                                </Text>
+                            </Stack>
+                        </Card>
+
+                        <Card
+                            shadow="xl"
+                            padding="xl"
+                            radius="lg"
+                            style={{
+                                background: isDark
+                                    ? 'linear-gradient(135deg, rgba(168, 85, 247, 0.2) 0%, rgba(236, 72, 153, 0.2) 100%)'
+                                    : 'linear-gradient(135deg, rgba(216, 180, 254, 0.5) 0%, rgba(251, 207, 232, 0.5) 100%)',
+                                backdropFilter: 'blur(20px)',
+                                border: isDark
+                                    ? '1px solid rgba(255, 255, 255, 0.1)'
+                                    : '1px solid rgba(0, 0, 0, 0.1)',
+                                textAlign: 'center',
+                                transition: 'all 0.3s ease'
+                            }}
+                            styles={{
+                                root: {
+                                    '&:hover': {
+                                        transform: 'translateY(-8px)',
+                                        boxShadow: '0 25px 50px rgba(168, 85, 247, 0.4)'
+                                    }
+                                }
+                            }}
+                        >
+                            <Stack gap="md" align="center">
+                                <ThemeIcon
+                                    size={70}
+                                    radius="xl"
+                                    variant="gradient"
+                                    gradient={{ from: 'grape', to: 'pink' }}
+                                    style={{
+                                        boxShadow: '0 10px 30px rgba(168, 85, 247, 0.4)'
+                                    }}
+                                >
+                                    <IconSchool size={40} />
+                                </ThemeIcon>
+                                <div>
+                                    <Title order={2} size="3rem" fw={900} c={isDark ? 'white' : 'dark'}>
+                                        1-on-1
+                                    </Title>
+                                    <Text size="lg" fw={600} c="grape.4" mt="xs">
+                                        Personalized Support
+                                    </Text>
+                                </div>
+                                <Text c="dimmed" size="sm">
+                                    Dedicated mentorship and guidance tailored to your unique learning journey
+                                </Text>
+                            </Stack>
+                        </Card>
+                    </SimpleGrid>
+                </Container>
+            </Box>
+
             {/* Expertise Section */}
             <Box style={{ background: isDark ? 'rgba(255, 255, 255, 0.02)' : 'rgba(0, 0, 0, 0.02)', position: 'relative', zIndex: 10 }} py={80}>
                 <Container size="xl">
