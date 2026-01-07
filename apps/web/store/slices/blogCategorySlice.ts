@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk, PayloadAction, Reducer } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk, PayloadAction, Reducer, createSelector } from '@reduxjs/toolkit';
 import { CategoryAPI } from '../../apis/v1/blog/categoryApi';
 
 export interface BlogCategory {
@@ -131,12 +131,15 @@ export const selectBlogCategoryLoading = (state: { blogCategory: CategoryStoreSt
 export const selectBlogCategoryError = (state: { blogCategory: CategoryStoreState }) =>
   state.blogCategory.error;
 
-// Selector that returns data in IMemoStore format (for PopularTag component)
-export const selectIMemoStore = (state: { blogCategory: CategoryStoreState }): IMemoStore => ({
-  categoryCount: state.blogCategory.categoryCount,
-  loading: state.blogCategory.loading,
-  error: state.blogCategory.error,
-});
+// Properly memoized selector for IMemoStore format (prevents unnecessary re-renders)
+export const selectIMemoStore = createSelector(
+  [selectCategoryCount, selectBlogCategoryLoading, selectBlogCategoryError],
+  (categoryCount, loading, error): IMemoStore => ({
+    categoryCount,
+    loading,
+    error,
+  })
+);
 
 // Helper selectors
 export const selectActiveCategoryCount = (state: { blogCategory: CategoryStoreState }) =>
