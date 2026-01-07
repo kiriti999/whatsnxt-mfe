@@ -28,7 +28,7 @@ export const serverFetcher = async (BASEURL: string, URL: string, options: Fetch
         const fetchOptions: RequestInit = {
             method: options.method || 'GET',
             headers,
-            cache: options.cache || 'no-store', // Don't cache during SSR by default
+            cache: options.cache,
             next: options.next,
         };
 
@@ -59,7 +59,7 @@ export const getPostBySlugServer = async (slug: string): Promise<any> => {
     try {
         const BASEURL = process.env.BFF_ARTICLE_HOST_API as string;
         return await serverFetcher(BASEURL, `/post/slug/${slug}`, {
-            cache: 'force-cache', // Cache published posts
+            cache: 'no-store', // Cache published posts
         });
     } catch (error) {
         console.error(`Failed to fetch post with slug: ${slug}`, error);

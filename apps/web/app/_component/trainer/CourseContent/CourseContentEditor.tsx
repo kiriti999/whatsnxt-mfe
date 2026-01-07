@@ -24,7 +24,6 @@ import {
     IconDeviceFloppy,
     IconX,
     IconLink,
-    IconFileText,
     IconChevronDown,
     IconChevronUp,
 } from '@tabler/icons-react';

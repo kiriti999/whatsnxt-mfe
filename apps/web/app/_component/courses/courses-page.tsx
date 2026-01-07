@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
 import htmlReactParser from 'html-react-parser';
-import { Skeleton, Avatar, Text, Tooltip, Container, Grid, GridCol, Flex, Box, Paper, Group, Badge, Rating } from '@mantine/core';
+import { Skeleton, Avatar, Text, Container, Grid, GridCol, Flex, Box, Paper, Group, Badge, Rating } from '@mantine/core';
 import { Amount, CardComponent, SortByComponent } from '@whatsnxt/core-ui';
 import type { CourseType, Category } from '@whatsnxt/core-util';
 import sortStyles from './index.module.css';
