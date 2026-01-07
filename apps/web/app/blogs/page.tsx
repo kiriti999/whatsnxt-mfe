@@ -12,7 +12,7 @@ export const metadata = {
 const BlogPage = () => {
     return (
         <Suspense fallback={<MantineLoader />}>
-            <Container fluid>
+            <Container fluid mb={'5rem'}>
                 <Content type="blog" />
             </Container>
         </Suspense>

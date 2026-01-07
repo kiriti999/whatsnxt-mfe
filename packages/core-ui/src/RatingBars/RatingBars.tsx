@@ -48,14 +48,14 @@ export const RatingBars: FC<RatingBarsProps> = ({ course, courseReviews }) => {
     );
   };
 
-  const averageRating = parseInt(course.rating).toFixed(1);
+  const averageRating = parseInt(course.rating, 10).toFixed(1);
 
   return (
     <>
-      <Text size='md' my={'xs'}>
-        {averageRating} average based on {courseReviews.length} reviews.
+      <Text size='md' my={'sm'}>
+        {isNaN(Number(averageRating)) ? 'N/A' : averageRating} average based on {courseReviews.length} reviews.
       </Text>
-      <Stack gap={0}>
+      <Stack gap={'xs'}>
         {[5, 4, 3, 2, 1].map((star, index) => renderStarBar(star, index))}
       </Stack>
     </>

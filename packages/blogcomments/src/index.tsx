@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useForm } from 'react-hook-form';
-import { Button, Stack, Text, Textarea, Title } from '@mantine/core';
+import { Box, Button, Stack, Text, Textarea, Title } from '@mantine/core';
 import { useCommentExpandTracker } from './contexts/comment-context';
 import CommentCollapse from './Collapse';
 import CommentConnector from './Connector';
@@ -120,7 +120,7 @@ const BlogComment = ({
     };
 
     return (
-        <div>
+        <Box>
             {comment && <CommentConnector commentId={commentId} commentItems={comment.items} connectorElementRef={connectorElementRef} name={comment.name}>
                 <>
                     <div>
@@ -139,15 +139,15 @@ const BlogComment = ({
                                             {errors.comment.message}
                                         </Text>
                                     )}
-                                    <div className="d-flex justify-content-end">
+                                    <Box className="d-flex justify-content-end" mt={'xs'}>
                                         <Button disabled={!!errors.comment?.message} type="submit" mt="5" size='xs'>
                                             Submit
                                         </Button>
-                                    </div>
+                                    </Box>
                                 </form>
                             </div>
                         ) : (
-                            <div
+                            <Box mt={'2rem'}
                                 className={`${comment.items?.length > 0
                                     ? `connector-${getCommentExpand(commentId, 'O') ? 'without' : ''}-input-${commentId}`
                                     : ''
@@ -161,8 +161,8 @@ const BlogComment = ({
                                     </div>
 
                                     <Stack gap={0} mb={'xs'}>
-                                        <Title size='xs' m={0} order={6} fz={12.5}>{(comment.email || email)?.split('@')[0]}</Title>
-                                        <Text size='xs' style={{ opacity: '0.6' }} m={0}>
+                                        <Title size='sm' m={0} order={5}>{(comment.email || email)?.split('@')[0]}</Title>
+                                        <Text style={{ opacity: '0.6' }} m={0}>
                                             {formatRelativeTime(comment?.updatedAt)}
                                         </Text>
                                     </Stack>
@@ -189,7 +189,7 @@ const BlogComment = ({
                                         inputRef={inputRef}
                                     />
                                 </div>
-                            </div>
+                            </Box>
                         )}
                     </div>
 
@@ -198,7 +198,7 @@ const BlogComment = ({
                             <div className="mtb-20">
                                 <div style={{ position: 'relative' }}>
                                     <form onSubmit={handleSubmit(onAddComment)}>
-                                        <div className={`comment-input-container ${!!errors.comment?.message ? 'comment-input-validation' : ''} `}>
+                                        <div className={`comment-input-container ${errors.comment?.message ? 'comment-input-validation' : ''} `}>
                                             <Textarea
                                                 variant="unstyled"
                                                 autoFocus
@@ -292,7 +292,7 @@ const BlogComment = ({
                 </>
             </CommentConnector>
             }
-        </div>
+        </Box>
     );
 };
 

@@ -720,11 +720,7 @@ p>code {
     font-size: 0.95em !important;
   }
 
-  /* Reduce Mantine Title on desktop */
-  [class*="mantine-Title-root"],
-  [class*="Title-root"] {
-    font-size: 1.2em !important;
-  }
+  /* Note: Removed Title override to allow order attribute to work properly */
 
   /* Reduce Mantine Input on desktop */
   [class*="mantine-Input-input"],
@@ -823,11 +819,7 @@ p>code {
     font-size: 16px !important;
   }
 
-  /* Override Mantine Title on mobile/tablet */
-  [class*="mantine-Title-root"],
-  [class*="Title-root"] {
-    font-size: 0.9em !important;
-  }
+  /* Note: Removed Title override to allow order attribute to work properly */
 
   /* Override Mantine Input on mobile/tablet */
   [class*="mantine-Input-input"],

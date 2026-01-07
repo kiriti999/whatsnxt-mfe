@@ -94,16 +94,16 @@ const CourseReviews = ({
                 </Box>
             )}
 
-            <Box my="xl">
+            <Box my="lg">
                 {courseReviews?.length > 0 && (
                     <>
-                        <Title order={5}>{courseReviews.length} Reviews</Title>
+                        <Title order={5} mb="md">{courseReviews.length} Reviews</Title>
 
                         {courseReviews.slice(0, DISPLAY_LENGTH).map(({ _id, email, rating, updatedAt, content, likedBy, disLikedBy }) => (
-                            <Box key={_id} mb="xl">
-                                <Stack>
+                            <Box key={_id} mb="lg">
+                                <Stack gap="xs">
                                     {/* Reviewer Information */}
-                                    <Grid align="center">
+                                    <Grid align="center" gutter="xs">
                                         {/* Avatar */}
                                         <Grid.Col span={{ base: 2, sm: 1, md: 1 }}>
                                             <Avatar size="2.7rem" color="#fe4a55">
@@ -113,11 +113,11 @@ const CourseReviews = ({
 
                                         {/* Reviewer Details */}
                                         <Grid.Col span={{ base: 8, sm: 10, md: 10 }}>
-                                            <Flex direction="column">
-                                                <Text m={0}>{email?.split('@')[0] || 'Author'}</Text>
-                                                <Flex gap="xs" mt={2} wrap="wrap" align="center">
+                                            <Flex direction="column" gap={2}>
+                                                <Text m={0} fw={500}>{email?.split('@')[0] || 'Author'}</Text>
+                                                <Flex gap="xs" wrap="wrap" align="center">
                                                     <Rating defaultValue={rating} fractions={2} size={14} readOnly />
-                                                    <Text size="xs">{formatRelativeTime(updatedAt)}</Text>
+                                                    <Text size="xs" c="dimmed">{formatRelativeTime(updatedAt)}</Text>
                                                 </Flex>
                                             </Flex>
                                         </Grid.Col>
@@ -139,14 +139,14 @@ const CourseReviews = ({
                                 </Stack>
 
                                 {/* Review Content */}
-                                < Stack my="md" >
-                                    <Text>{FormatText(content)}</Text>
+                                <Stack my="xs">
+                                    <Text size="sm">{FormatText(content)}</Text>
                                 </Stack>
 
                                 {/* Review Actions */}
-                                <Stack mb="xl">
-                                    <Flex gap="sm" align="baseline">
-                                        <Text size="xs">Helpful?</Text>
+                                <Stack mb="md">
+                                    <Flex gap="sm" align="center">
+                                        <Text size="xs" c="dimmed">Helpful?</Text>
                                         <ReviewAction reviewId={_id} likes={likedBy} dislikes={disLikedBy} />
                                     </Flex>
                                 </Stack>

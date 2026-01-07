@@ -6,7 +6,7 @@ import { Suspense } from 'react';
 const Tutorial = () => {
   return (
     <Suspense fallback={<MantineLoader />}>
-      <Container fluid>
+      <Container fluid mb={'5rem'}>
         <Content type="tutorial"></Content>
       </Container>
     </Suspense>

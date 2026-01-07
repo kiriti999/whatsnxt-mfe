@@ -51,6 +51,7 @@ export interface PostSlugResponse {
   nestedSubCategory: string | null;
   published: boolean;
   listed: boolean;
+  tutorial?: any
 }
 
 interface BlogContentDetailsProps {
@@ -171,7 +172,8 @@ function BlogContentDetails({ details }: BlogContentDetailsProps) {
                 </GridCol>
               </Grid>
 
-              <Stack m={0}>
+              <Container fluid>
+                <Stack my={'xl'}>
                 <CommentReplyContextProvider
                   email={email}
                   contentId={contentId}
@@ -196,6 +198,7 @@ function BlogContentDetails({ details }: BlogContentDetailsProps) {
                   </CommentContextProvider>
                 </CommentReplyContextProvider>
               </Stack>
+              </Container>
 
             </Box>
           </>

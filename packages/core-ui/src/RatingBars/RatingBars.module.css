@@ -27,30 +27,25 @@
 .rating-bar {
     display: flex;
     align-items: center;
-    gap: 5px;
+    gap: 8px;
+    margin-bottom: 4px;
 }
 
 .star {
     text-wrap: nowrap;
+    min-width: 50px;
+    font-size: 14px;
 }
 
 .middle {
-    width: 100%;
-    max-width: 300px;
+    flex: 1;
+    max-width: 400px;
 }
 
 .side {
-    float: left;
-    width: 10%;
-    font-size: 16px;
-    font-weight: 700;
-    margin-top: 1px;
-}
-
-.middle {
-    margin-top: 1px;
-    float: left;
-    width: 80%;
+    min-width: 30px;
+    font-size: 14px;
+    font-weight: 600;
 }
 
 .right {

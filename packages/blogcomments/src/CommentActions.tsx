@@ -29,7 +29,7 @@ const CommentActions = ({
     rootDepth,
     setCommentExpand,
     inputRef,
-}) => {
+}: any) => {
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [isDiscardModalOpen, setIsDiscardModalOpen] = useState(false);
 
@@ -85,9 +85,9 @@ const CommentActions = ({
                         <Group gap={'0.2rem'}>
                             <ActionIcon onClick={likeComment} variant='transparent'>
                                 {comment.hasLiked ? (
-                                    <IconThumbUpFilled size={18} />
+                                    <IconThumbUpFilled size={15} />
                                 ) : (
-                                    <IconThumbUp size={18} />
+                                    <IconThumbUp size={15} />
                                 )}
                             </ActionIcon>
                             <Text size='xs'>{comment.likes || ''}</Text>
@@ -96,9 +96,9 @@ const CommentActions = ({
                         <Group gap={'0.2rem'}>
                             <ActionIcon onClick={dislikeComment} variant='transparent'>
                                 {comment.hasDisliked ? (
-                                    <IconThumbDownFilled size={18} />
+                                    <IconThumbDownFilled size={15} />
                                 ) : (
-                                    <IconThumbDown size={18} />
+                                    <IconThumbDown size={15} />
                                 )}
                             </ActionIcon>
                             <Text size='xs'>{comment.dislikes || ''}</Text>
@@ -108,7 +108,7 @@ const CommentActions = ({
                         <Menu trigger="hover" openDelay={100} closeDelay={400} position="top" styles={{ dropdown: { zIndex: 199 } }}>
                             <Menu.Target>
                                 <Button variant="transparent" p={0}>
-                                    <IconDotsVertical size={18} />
+                                    <IconDotsVertical size={15} />
                                 </Button>
                             </Menu.Target>
                             <Menu.Dropdown>
@@ -117,7 +117,7 @@ const CommentActions = ({
                                         reportComment();
                                     }}>
                                         <Flex gap={4}>
-                                            <IconFlag size={16} />
+                                            <IconFlag size={15} />
                                             Report
                                         </Flex>
                                     </Menu.Item>
@@ -126,13 +126,13 @@ const CommentActions = ({
                                     <>
                                         <Menu.Item onClick={onEditComment}>
                                             <Flex gap={4}>
-                                                <IconEdit size={16} />
+                                                <IconEdit size={15} />
                                                 Edit
                                             </Flex>
                                         </Menu.Item>
                                         <Menu.Item onClick={() => setIsDeleteModalOpen(true)}>
                                             <Flex gap={4}>
-                                                <IconTrash size={16} />
+                                                <IconTrash size={15} />
                                                 Delete
                                             </Flex>
                                         </Menu.Item>
