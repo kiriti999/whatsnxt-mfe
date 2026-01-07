@@ -1,5 +1,5 @@
 "use client"
-import { Button, Title } from '@mantine/core';
+import { Button, Title, Box } from '@mantine/core';
 import { IMemoStore } from './interfaces';
 import './tags.module.css'
 
@@ -13,8 +13,8 @@ export default function PopularTag(props: Props) {
     const { categoryStore, onClick } = props;
 
     return (
-        <div className='widget widget_tag_cloud'>
-            {categoryStore?.categoryCount?.length > 0 && <Title order={4}>Popular Tags</Title>}
+        <Box className='widget widget_tag_cloud' my={'lg'}>
+            {categoryStore?.categoryCount?.length > 0 && <Title order={4} mb={'0.5rem'}>Popular Tags</Title>}
             {categoryStore.categoryCount && categoryStore.categoryCount.length > 0 && (
                 <div>
                     {categoryStore.categoryCount.map((item, index) => {
@@ -22,7 +22,8 @@ export default function PopularTag(props: Props) {
                             return (
                                 <Button size='xs' key={index} mr={5} mb={5}
                                     onClick={() => onClick(item.categoryName)}>
-                                    {item.categoryName} <span className="tag-link-count">({item.count})</span>
+                                    <Title order={6} c="white" className="tag-link"> {item.categoryName} </Title>
+                                    <Title order={6} c="white" className="tag-link-count">({item.count})</Title>
                                 </Button>
                             );
                         }
@@ -30,6 +31,6 @@ export default function PopularTag(props: Props) {
                     })}
                 </div>
             )}
-        </div>
+        </Box>
     )
 }
