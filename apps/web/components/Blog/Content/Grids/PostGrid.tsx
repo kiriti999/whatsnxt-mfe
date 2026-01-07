@@ -1,5 +1,5 @@
 import React from 'react';
-import { Flex, FlexProps } from '@mantine/core';
+import { Container, Flex, FlexProps } from '@mantine/core';
 import { InfiniteScrollComponent } from '@whatsnxt/core-util';
 import { SkeletonCardContent } from '@whatsnxt/core-ui';
 import TutorialCard from '../../Cards/Tutorial';
@@ -69,12 +69,14 @@ export const PostGrid: React.FC<PostGridProps> = ({
     }
 
     return (
-        <InfiniteScrollComponent
-            isLoading={isFetching}
-            isScrollCompleted={!hasNextPage && !currentSelectedTag}
-            onViewPortCallback={onInfiniteScroll}
-        >
-            {content}
-        </InfiniteScrollComponent>
+        <Container fluid my={'5rem'}>
+            <InfiniteScrollComponent
+                isLoading={isFetching}
+                isScrollCompleted={!hasNextPage && !currentSelectedTag}
+                onViewPortCallback={onInfiniteScroll}
+            >
+                {content}
+            </InfiniteScrollComponent>
+        </Container>
     );
 };

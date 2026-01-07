@@ -12,6 +12,7 @@ import {
   Tooltip,
   Modal,
   TextInput,
+  useMantineColorScheme,
 } from '@mantine/core';
 import {
   IconDownload,
@@ -29,6 +30,7 @@ import { deleteIndex, indexRecord } from '@whatsnxt/core-util';
 import { unifiedDeleteWebWorker } from '../../../utils/worker/assetManager';
 
 const HistoryMUI = ({ open, close }: any) => {
+  const { colorScheme } = useMantineColorScheme();
   const tutorialIndex = 'tutorial';
   const blogIndex = 'blog';
   const [modalOpen, setModalOpen] = useState(false);
@@ -221,7 +223,13 @@ const HistoryMUI = ({ open, close }: any) => {
       accessorKey: 'title',
       header: 'Title',
       Cell: ({ row }: any) => (
-        <a href={`/content/${decodeURIComponent(row.original.slug)}`}>
+        <a
+          href={`/content/${decodeURIComponent(row.original.slug)}`}
+          style={{
+            color: colorScheme === 'dark' ? '#4c6ef5' : '#228be6',
+            textDecoration: 'none'
+          }}
+        >
           {row.original.title}
         </a>
       ),
@@ -238,10 +246,17 @@ const HistoryMUI = ({ open, close }: any) => {
       Cell: ({ row }: any) => (
         <div onClick={() => handlePublishButtonClick(row.original)}>
           {row.original.published === true ? (
-            <IconEye size={'20'} color="#1976d2" style={{ cursor: 'pointer' }} />
+            <IconEye
+              size={'20'}
+              color={colorScheme === 'dark' ? '#4c6ef5' : '#1976d2'}
+              style={{ cursor: 'pointer' }}
+            />
           ) : (
             <IconEyeOff
-              size={'20'} color="#d32f2f" style={{ cursor: 'pointer' }} />
+              size={'20'}
+              color={colorScheme === 'dark' ? '#fa5252' : '#d32f2f'}
+              style={{ cursor: 'pointer' }}
+            />
           )}
         </div>
       ),
@@ -342,6 +357,67 @@ const HistoryMUI = ({ open, close }: any) => {
     enablePinning: false,
     muiTableProps: {
       border: 0,
+      sx: {
+        tableLayout: 'auto',
+      },
+    },
+    muiSelectCheckboxProps: {
+      sx: {
+        color: colorScheme === 'dark' ? '#909296' : '#495057',
+        '&.Mui-checked': {
+          color: colorScheme === 'dark' ? '#4c6ef5' : '#228be6',
+        },
+      },
+    },
+    muiSelectAllCheckboxProps: {
+      sx: {
+        color: colorScheme === 'dark' ? '#909296' : '#495057',
+        '&.Mui-checked': {
+          color: colorScheme === 'dark' ? '#4c6ef5' : '#228be6',
+        },
+      },
+    },
+    muiTableContainerProps: {
+      sx: {
+        backgroundColor: colorScheme === 'dark' ? '#1a1b1e' : '#fff',
+      },
+    },
+    muiTableHeadCellProps: {
+      sx: {
+        backgroundColor: colorScheme === 'dark' ? '#25262b' : '#f8f9fa',
+        color: colorScheme === 'dark' ? '#c1c2c5' : '#212529',
+        borderBottom: colorScheme === 'dark' ? '1px solid #373a40' : '1px solid #dee2e6',
+        fontWeight: 600,
+      },
+    },
+    muiTableBodyCellProps: {
+      sx: {
+        backgroundColor: colorScheme === 'dark' ? '#1a1b1e' : '#fff',
+        color: colorScheme === 'dark' ? '#c1c2c5' : '#212529',
+        borderBottom: colorScheme === 'dark' ? '1px solid #373a40' : '1px solid #dee2e6',
+      },
+    },
+    muiTableBodyRowProps: ({ row }) => ({
+      sx: {
+        backgroundColor: colorScheme === 'dark' ? '#1a1b1e' : '#fff',
+        '&:hover': {
+          backgroundColor: colorScheme === 'dark' ? '#25262b' : '#f8f9fa',
+        },
+      },
+    }),
+    muiTopToolbarProps: {
+      sx: {
+        backgroundColor: colorScheme === 'dark' ? '#1a1b1e' : '#fff',
+        color: colorScheme === 'dark' ? '#c1c2c5' : '#212529',
+        borderBottom: colorScheme === 'dark' ? '1px solid #373a40' : '1px solid #dee2e6',
+      },
+    },
+    muiBottomToolbarProps: {
+      sx: {
+        backgroundColor: colorScheme === 'dark' ? '#1a1b1e' : '#fff',
+        color: colorScheme === 'dark' ? '#c1c2c5' : '#212529',
+        borderTop: colorScheme === 'dark' ? '1px solid #373a40' : '1px solid #dee2e6',
+      },
     },
     onPaginationChange: setPagination,
     state: { pagination, rowSelection, isLoading, globalFilter: searchQuery },
@@ -367,14 +443,52 @@ const HistoryMUI = ({ open, close }: any) => {
     muiPaginationProps: {
       rowsPerPageOptions: [5, 10, 15],
       variant: 'outlined',
+      sx: {
+        '& .MuiTablePagination-select': {
+          color: colorScheme === 'dark' ? '#c1c2c5' : '#212529',
+        },
+        '& .MuiTablePagination-selectLabel': {
+          color: colorScheme === 'dark' ? '#c1c2c5' : '#212529',
+        },
+        '& .MuiTablePagination-displayedRows': {
+          color: colorScheme === 'dark' ? '#c1c2c5' : '#212529',
+        },
+        '& .MuiIconButton-root': {
+          color: colorScheme === 'dark' ? '#c1c2c5' : '#212529',
+        },
+      },
     },
     paginationDisplayMode: 'pages',
     muiTablePaperProps: {
       elevation: 0,
+      sx: {
+        backgroundColor: colorScheme === 'dark' ? '#1a1b1e' : '#fff',
+        border: colorScheme === 'dark' ? '1px solid #373a40' : '1px solid #dee2e6',
+      },
     },
     positionGlobalFilter: 'left',
     muiSearchTextFieldProps: {
-      sx: { minWidth: '300px' },
+      sx: {
+        minWidth: '300px',
+        '& .MuiOutlinedInput-root': {
+          color: colorScheme === 'dark' ? '#c1c2c5' : '#212529',
+          '& fieldset': {
+            borderColor: colorScheme === 'dark' ? '#373a40' : '#ced4da',
+          },
+          '&:hover fieldset': {
+            borderColor: colorScheme === 'dark' ? '#4c6ef5' : '#228be6',
+          },
+          '&.Mui-focused fieldset': {
+            borderColor: colorScheme === 'dark' ? '#4c6ef5' : '#228be6',
+          },
+        },
+        '& .MuiInputLabel-root': {
+          color: colorScheme === 'dark' ? '#909296' : '#868e96',
+        },
+        '& .MuiInputBase-input::placeholder': {
+          color: colorScheme === 'dark' ? '#909296' : '#868e96',
+        },
+      },
       variant: 'outlined',
     },
     renderToolbarInternalActions: ({ table }) => (

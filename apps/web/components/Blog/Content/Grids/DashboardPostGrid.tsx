@@ -29,7 +29,7 @@ export const DashboardPostGrid: React.FC<{
         SkeletonComponent={SkeletonCardContent}
         containerProps={{
             justify: 'flex-start',
-            gap: 'md',
+            gap: 'xl',
             wrap: 'wrap',
             px: 'md'
         }}
