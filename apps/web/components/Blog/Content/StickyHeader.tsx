@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styles from './stickyHeader.module.css';
-import { Title, Box } from '@mantine/core';
+import { Title, Box, useMantineColorScheme } from '@mantine/core';
 import { IconChevronDown, IconChevronUp } from '@tabler/icons-react';
 
 interface Title {
@@ -14,6 +14,7 @@ interface StickyHeaderProps {
 }
 
 const StickyHeader: React.FC<StickyHeaderProps> = ({ titles }) => {
+  const { colorScheme } = useMantineColorScheme();
   const [menuOpen, setMenuOpen] = useState(false);
   const [activeId, setActiveId] = useState<string | null>(
     titles.length > 0 ? titles[0].id : null
@@ -79,10 +80,12 @@ const StickyHeader: React.FC<StickyHeaderProps> = ({ titles }) => {
       top={0}
       style={{
         zIndex: 1000,
-        backgroundColor: 'white'
       }}
     >
-      <Title order={4}>
+      <Title
+        order={4}
+        c={colorScheme === 'dark' ? 'gray.1' : 'dark.9'}
+      >
         {titles.find((title) => title.id === activeId)?.text || titles[0]?.text}
       </Title>
       {menuOpen ? (
@@ -99,7 +102,9 @@ const StickyHeader: React.FC<StickyHeaderProps> = ({ titles }) => {
               onClick={(e) => handleTitleClick(e, title.id)}
               href={`#${title.id}`}
               style={{
-                color: title.id === activeId ? 'red' : 'black',
+                color: title.id === activeId
+                  ? (colorScheme === 'dark' ? '#4dabf7' : '#1971c2')
+                  : (colorScheme === 'dark' ? '#ced4da' : '#212529'),
               }}
             >
               {title.text}
