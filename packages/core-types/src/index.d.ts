@@ -16,6 +16,7 @@ export interface Lab extends BaseEntity {
   instructorId: string; // Assuming Instructor entity has a UUID
   associatedCourses?: string[]; // Course IDs that include this lab
   pricing?: any;
+  defaultPageId?: string; // Optional: ID of auto-created default page (present only in creation response)
 }
 
 export interface LabPage extends BaseEntity {

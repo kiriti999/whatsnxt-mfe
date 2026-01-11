@@ -1,0 +1,454 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Lab Creation API",
+    "description": "API endpoints for streamlined lab creation with automatic default page generation",
+    "version": "1.0.0",
+    "contact": {
+      "name": "WhatsNxt API Team"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:4444/api/v1",
+      "description": "Local development server"
+    },
+    {
+      "url": "https://api.whatsnxt.in/api/v1",
+      "description": "Production server"
+    }
+  ],
+  "paths": {
+    "/labs": {
+      "post": {
+        "summary": "Create Lab with Default Page",
+        "description": "Creates a new lab and automatically creates a default page (pageNumber: 1) in an atomic transaction. Returns both the lab and the default page ID for immediate redirect to page editor.",
+        "operationId": "createLab",
+        "tags": ["Labs"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateLabRequest"
+              },
+              "examples": {
+                "diagramTestLab": {
+                  "summary": "Diagram Test Lab",
+                  "value": {
+                    "name": "AWS Architecture Fundamentals",
+                    "description": "Learn to design scalable AWS architectures",
+                    "labType": "diagram-test",
+                    "architectureType": "AWS",
+                    "instructorId": "550e8400-e29b-41d4-a716-446655440000",
+                    "pricing": {
+                      "purchaseType": "free"
+                    },
+                    "associatedCourses": ["course-uuid-1"]
+                  }
+                },
+                "paidLab": {
+                  "summary": "Paid Lab",
+                  "value": {
+                    "name": "Advanced Kubernetes Patterns",
+                    "description": "Master advanced Kubernetes deployment patterns",
+                    "labType": "diagram-test",
+                    "architectureType": "Hybrid",
+                    "instructorId": "550e8400-e29b-41d4-a716-446655440000",
+                    "pricing": {
+                      "purchaseType": "paid",
+                      "price": 499
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Lab and default page created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateLabResponse"
+                },
+                "examples": {
+                  "success": {
+                    "summary": "Successful creation",
+                    "value": {
+                      "message": "Lab created successfully",
+                      "data": {
+                        "id": "lab-uuid-12345",
+                        "name": "AWS Architecture Fundamentals",
+                        "description": "Learn to design scalable AWS architectures",
+                        "labType": "diagram-test",
+                        "architectureType": "AWS",
+                        "instructorId": "550e8400-e29b-41d4-a716-446655440000",
+                        "status": "draft",
+                        "pricing": {
+                          "purchaseType": "free",
+                          "currency": "INR",
+                          "setAt": "2026-01-11T10:00:00Z",
+                          "changedBy": "550e8400-e29b-41d4-a716-446655440000"
+                        },
+                        "associatedCourses": ["course-uuid-1"],
+                        "createdAt": "2026-01-11T10:00:00Z",
+                        "updatedAt": "2026-01-11T10:00:00Z",
+                        "defaultPageId": "page-uuid-67890"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "missingName": {
+                    "summary": "Missing lab name",
+                    "value": {
+                      "error": "Validation Error",
+                      "message": "Lab name is required",
+                      "code": "VALIDATION_ERROR",
+                      "details": {
+                        "field": "name",
+                        "constraint": "required"
+                      }
+                    }
+                  },
+                  "invalidPrice": {
+                    "summary": "Invalid pricing",
+                    "value": {
+                      "error": "Validation Error",
+                      "message": "Price must be between ₹10 and ₹100,000 for paid labs",
+                      "code": "VALIDATION_ERROR",
+                      "details": {
+                        "field": "pricing.price",
+                        "constraint": "range",
+                        "min": 10,
+                        "max": 100000
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Missing or invalid authentication token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "unauthorized": {
+                    "summary": "Not authenticated",
+                    "value": {
+                      "error": "Unauthorized",
+                      "message": "Authentication token is missing or invalid",
+                      "code": "UNAUTHORIZED"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - User is not an instructor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "notInstructor": {
+                    "summary": "Not an instructor",
+                    "value": {
+                      "error": "Forbidden",
+                      "message": "Only instructors can create labs",
+                      "code": "FORBIDDEN"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error - Transaction failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "transactionFailed": {
+                    "summary": "Transaction rollback",
+                    "value": {
+                      "error": "Transaction Failed",
+                      "message": "Failed to create lab and default page. Please try again.",
+                      "code": "TRANSACTION_FAILED",
+                      "details": {
+                        "operation": "create_lab_with_page",
+                        "reason": "Database transaction rolled back"
+                      }
+                    }
+                  },
+                  "databaseError": {
+                    "summary": "Database connection error",
+                    "value": {
+                      "error": "Internal Server Error",
+                      "message": "Database connection failed. Please try again later.",
+                      "code": "DATABASE_ERROR"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "CreateLabRequest": {
+        "type": "object",
+        "required": ["name", "labType", "architectureType", "instructorId"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 200,
+            "description": "Lab title",
+            "example": "AWS Architecture Fundamentals"
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 2000,
+            "description": "Lab description (optional)",
+            "example": "Learn to design scalable AWS architectures"
+          },
+          "labType": {
+            "type": "string",
+            "description": "Type of lab",
+            "example": "diagram-test",
+            "enum": ["diagram-test", "programming", "practice-test"]
+          },
+          "architectureType": {
+            "type": "string",
+            "description": "Architecture context for the lab",
+            "example": "AWS",
+            "enum": ["AWS", "Azure", "GCP", "Hybrid", "Common", "Kubernetes"]
+          },
+          "instructorId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the instructor creating the lab",
+            "example": "550e8400-e29b-41d4-a716-446655440000"
+          },
+          "pricing": {
+            "type": "object",
+            "description": "Pricing configuration (optional)",
+            "properties": {
+              "purchaseType": {
+                "type": "string",
+                "enum": ["free", "paid"],
+                "description": "Lab pricing model",
+                "default": "free"
+              },
+              "price": {
+                "type": "number",
+                "minimum": 10,
+                "maximum": 100000,
+                "description": "Price in INR (required if purchaseType is 'paid')",
+                "example": 499
+              }
+            },
+            "required": ["purchaseType"]
+          },
+          "associatedCourses": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Array of course UUIDs this lab is associated with",
+            "example": ["course-uuid-1", "course-uuid-2"]
+          }
+        }
+      },
+      "CreateLabResponse": {
+        "type": "object",
+        "required": ["message", "data"],
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "Success message",
+            "example": "Lab created successfully"
+          },
+          "data": {
+            "type": "object",
+            "required": ["id", "name", "labType", "architectureType", "instructorId", "status", "createdAt", "updatedAt", "defaultPageId"],
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid",
+                "description": "Unique lab identifier",
+                "example": "lab-uuid-12345"
+              },
+              "name": {
+                "type": "string",
+                "description": "Lab title",
+                "example": "AWS Architecture Fundamentals"
+              },
+              "description": {
+                "type": "string",
+                "description": "Lab description",
+                "example": "Learn to design scalable AWS architectures"
+              },
+              "labType": {
+                "type": "string",
+                "description": "Type of lab",
+                "example": "diagram-test"
+              },
+              "architectureType": {
+                "type": "string",
+                "description": "Architecture context",
+                "example": "AWS"
+              },
+              "instructorId": {
+                "type": "string",
+                "format": "uuid",
+                "description": "Instructor who created the lab",
+                "example": "550e8400-e29b-41d4-a716-446655440000"
+              },
+              "status": {
+                "type": "string",
+                "enum": ["draft", "published"],
+                "description": "Publication status",
+                "example": "draft"
+              },
+              "pricing": {
+                "type": "object",
+                "description": "Pricing information",
+                "properties": {
+                  "purchaseType": {
+                    "type": "string",
+                    "enum": ["free", "paid"],
+                    "example": "free"
+                  },
+                  "price": {
+                    "type": "number",
+                    "example": 499
+                  },
+                  "currency": {
+                    "type": "string",
+                    "example": "INR"
+                  },
+                  "setAt": {
+                    "type": "string",
+                    "format": "date-time",
+                    "example": "2026-01-11T10:00:00Z"
+                  },
+                  "changedBy": {
+                    "type": "string",
+                    "format": "uuid",
+                    "example": "550e8400-e29b-41d4-a716-446655440000"
+                  }
+                }
+              },
+              "associatedCourses": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "description": "Associated course UUIDs",
+                "example": ["course-uuid-1"]
+              },
+              "createdAt": {
+                "type": "string",
+                "format": "date-time",
+                "description": "Creation timestamp",
+                "example": "2026-01-11T10:00:00Z"
+              },
+              "updatedAt": {
+                "type": "string",
+                "format": "date-time",
+                "description": "Last update timestamp",
+                "example": "2026-01-11T10:00:00Z"
+              },
+              "defaultPageId": {
+                "type": "string",
+                "format": "uuid",
+                "description": "UUID of the automatically created default page (pageNumber: 1)",
+                "example": "page-uuid-67890"
+              }
+            }
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "required": ["error", "message", "code"],
+        "properties": {
+          "error": {
+            "type": "string",
+            "description": "Error category",
+            "example": "Validation Error"
+          },
+          "message": {
+            "type": "string",
+            "description": "Human-readable error message",
+            "example": "Lab name is required"
+          },
+          "code": {
+            "type": "string",
+            "description": "Machine-readable error code",
+            "example": "VALIDATION_ERROR",
+            "enum": [
+              "VALIDATION_ERROR",
+              "UNAUTHORIZED",
+              "FORBIDDEN",
+              "TRANSACTION_FAILED",
+              "DATABASE_ERROR",
+              "INTERNAL_ERROR"
+            ]
+          },
+          "details": {
+            "type": "object",
+            "description": "Additional error details",
+            "additionalProperties": true
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "JWT authentication token required for all lab creation operations"
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Labs",
+      "description": "Lab creation and management operations"
+    }
+  ]
+}

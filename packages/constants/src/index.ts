@@ -23,6 +23,22 @@ export const API_ENDPOINTS = {
   DIAGRAM_SHAPES: '/api/v1/diagram-shapes',
 } as const;
 
+// Frontend Route Paths
+export const ROUTE_PATHS = {
+  // Lab Routes
+  LABS_LIST: '/labs',
+  LAB_CREATE: '/lab/create',
+  LAB_DETAIL: (labId: string) => `/labs/${labId}`,
+  LAB_EDIT: (labId: string) => `/lab/edit/${labId}`,
+  
+  // Lab Page Editor Routes
+  LAB_PAGE_EDITOR: (labId: string, pageId: string) => `/labs/${labId}/pages/${pageId}`,
+  
+  // Authentication Routes
+  LOGIN: '/login',
+  REGISTER: '/register',
+} as const;
+
 // Lab Status
 export const LAB_STATUS = {
   DRAFT: 'draft',
@@ -120,6 +136,9 @@ export const ERROR_MESSAGES = {
   ARCHITECTURE_TYPE_REQUIRED: 'Architecture type is required',
   CANNOT_DELETE_PUBLISHED_LAB: 'Cannot delete a published lab',
   CANNOT_UPDATE_PUBLISHED_LAB: 'Cannot update a published lab',
+  LAB_CREATION_FAILED: 'Failed to create lab and default page. Please try again.',
+  TRANSACTION_FAILED: 'Transaction failed - no changes were made.',
+  TRANSACTION_ROLLBACK: 'Operation rolled back due to error',
 
   // Lab Page Errors
   PAGE_NOT_FOUND: 'Lab page not found',
@@ -127,6 +146,7 @@ export const ERROR_MESSAGES = {
   AT_LEAST_ONE_TEST_REQUIRED: 'At least one test (question or diagram) is required',
   EMPTY_QUESTION_NOT_ALLOWED: 'Empty question is not allowed',
   EMPTY_DIAGRAM_NOT_ALLOWED: 'Empty diagram test is not allowed',
+  DEFAULT_PAGE_CREATION_FAILED: 'Failed to create default page',
 
   // Question Errors
   QUESTION_TEXT_REQUIRED: 'Question text is required',
@@ -156,9 +176,11 @@ export const ERROR_MESSAGES = {
 // Success Messages
 export const SUCCESS_MESSAGES = {
   LAB_CREATED: 'Lab created successfully',
+  LAB_CREATED_REDIRECTING: 'Lab created successfully! Redirecting to page editor...',
   LAB_UPDATED: 'Lab updated successfully',
   LAB_DELETED: 'Lab deleted successfully',
   LAB_PUBLISHED: 'Lab published successfully',
+  PAGE_CREATED: 'Page created successfully',
   PAGE_SAVED: 'Page saved successfully',
   DRAFT_SAVED: 'Draft saved successfully',
 } as const;
