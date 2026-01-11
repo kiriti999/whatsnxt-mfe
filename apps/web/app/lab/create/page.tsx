@@ -9,6 +9,7 @@ import labApi from '@/apis/lab.api';
 import useAuth from '@/hooks/Authentication/useAuth';
 import { getAvailableArchitectures } from '@/utils/shape-libraries';
 import { LabPricingForm } from '@/components/Lab/LabPricingForm';
+import { SUCCESS_MESSAGES, ERROR_MESSAGES, ROUTE_PATHS } from '@whatsnxt/constants';
 
 const LAB_TYPES = [
   'Cloud Computing',
@@ -33,6 +34,7 @@ function LabCreationPage() {
   const [pricing, setPricing] = useState<{ purchaseType: 'free' | 'paid'; price?: number }>({
     purchaseType: 'free'
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm({
     initialValues: {
@@ -59,6 +61,7 @@ function LabCreationPage() {
       return;
     }
 
+    setIsSubmitting(true);
     try {
       const response = await labApi.createLab({
         ...values,
@@ -66,20 +69,37 @@ function LabCreationPage() {
         pricing,
       });
       const newLab = response.data;
-      notifications.show({
-        title: 'Success',
-        message: `Lab "${newLab.name}" created successfully!`,
-        color: 'green',
-      });
-      router.push(`/labs/${newLab.id}`);
+      
+      // Check if backend returned defaultPageId (for new streamlined flow)
+      if (newLab.defaultPageId) {
+        notifications.show({
+          title: 'Success',
+          message: SUCCESS_MESSAGES.LAB_CREATED_REDIRECTING,
+          color: 'green',
+          autoClose: 2000,
+        });
+        // Redirect to page editor for the default page
+        router.push(ROUTE_PATHS.LAB_PAGE_EDITOR(newLab.id, newLab.defaultPageId));
+      } else {
+        // Fallback: If backend doesn't return defaultPageId (old behavior)
+        notifications.show({
+          title: 'Success',
+          message: SUCCESS_MESSAGES.LAB_CREATED,
+          color: 'green',
+        });
+        router.push(ROUTE_PATHS.LAB_DETAIL(newLab.id));
+      }
     } catch (error: any) {
-      const errorMessage = error?.response?.data?.message || error?.message || 'Failed to create lab.';
+      const errorMessage = error?.response?.data?.message || error?.message || ERROR_MESSAGES.LAB_CREATION_FAILED;
       notifications.show({
         title: 'Error',
-        message: errorMessage,
+        message: ERROR_MESSAGES.LAB_CREATION_FAILED,
         color: 'red',
+        autoClose: false,
       });
       console.error('Failed to create lab:', error);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -143,8 +163,12 @@ function LabCreationPage() {
             />
           </Box>
           <Group justify="flex-end" mt="xl">
-            <Button variant="default" onClick={() => router.push('/labs')}>Cancel</Button>
-            <Button type="submit">Create Lab</Button>
+            <Button variant="default" onClick={() => router.push(ROUTE_PATHS.LABS_LIST)} disabled={isSubmitting}>
+              Cancel
+            </Button>
+            <Button type="submit" loading={isSubmitting}>
+              Create Lab
+            </Button>
           </Group>
         </form>
       </Box>
