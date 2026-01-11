@@ -74,6 +74,7 @@ const LabPageEditorPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [labStatus, setLabStatus] = useState<'draft' | 'published'>('draft');
   const [diagramTestData, setDiagramTestData] = useState<any>(null);
+  const [isFormCancelled, setIsFormCancelled] = useState(false);
 
   const QUESTIONS_PER_PAGE = 3;
 
@@ -86,6 +87,7 @@ const LabPageEditorPage = () => {
 
 
   useEffect(() => {
+    setIsFormCancelled(false); // T008: Reset cancel flag on page navigation (allows auto-show on new page)
     fetchPageData();
   }, [pageId]);
 
@@ -97,7 +99,7 @@ const LabPageEditorPage = () => {
       setLabStatus(labResponse.data.status || 'draft');
 
       const response = await labApi.getLabPageById(labId, pageId);
-      const pageData = response.data;
+      const pageData = response.data as any;
 
       // If page has questions, populate the form
       if (pageData.questions && pageData.questions.length > 0) {
@@ -633,6 +635,34 @@ const LabPageEditorPage = () => {
   const endIndex = startIndex + QUESTIONS_PER_PAGE;
   const paginatedQuestions = filteredQuestions.slice(startIndex, endIndex);
 
+  // ===============================================
+  // Auto-Show Question Form Feature (002-auto-show-question-form)
+  // ===============================================
+  // Automatically displays the question form when instructor lands on an empty page editor,
+  // reducing clicks and saving 3-5 seconds per lab creation.
+  //
+  // T007: Derived state - determines if form should auto-display
+  // Conditions: Page loaded (!loading) AND no questions (length === 0) AND user hasn't cancelled (!isFormCancelled)
+  const shouldAutoShowForm = !loading && questions.length === 0 && !isFormCancelled;
+
+  // T009: Auto-create empty question when shouldAutoShowForm becomes true
+  // This triggers the form to display with an editable empty question
+  useEffect(() => {
+    if (shouldAutoShowForm && questions.length === 0) {
+      const newQuestion: Question = {
+        id: Date.now().toString(),
+        questionText: '',
+        type: 'MCQ',
+        options: '',
+        correctAnswer: '',
+        isEditing: true,  // Form is in edit mode
+        isSaved: false,   // Question not yet saved to backend
+      };
+      setQuestions([newQuestion]);
+    }
+  }, [shouldAutoShowForm]);
+  // ===============================================
+
   // Reset to page 1 when search query changes
   useEffect(() => {
     setCurrentPage(1);
@@ -750,7 +780,7 @@ const LabPageEditorPage = () => {
 
               {/* Questions List */}
               {questions.length === 0 ? (
-                <Paper shadow="sm" p="xl" withBorder bg="gray.0">
+                <Paper shadow="sm" p="xl" withBorder bg="gray.0" data-testid="empty-state">
                   <Stack align="center" gap="md">
                     <Text size="xl" c="dimmed">No questions yet</Text>
                     <Text c="dimmed" ta="center">
@@ -780,7 +810,7 @@ const LabPageEditorPage = () => {
                       const questionNumber = originalIndex + 1;
                       const isEditable = !isPublished && (question.isEditing || !question.isSaved);
                       return (
-                        <Paper key={question.id} p="lg" withBorder >
+                        <Paper key={question.id} p="lg" withBorder data-testid={!question.isSaved ? "auto-question-form" : undefined} data-auto-displayed={!question.isSaved ? "true" : undefined}>
                           <Group justify="space-between" mb="md">
                             <Group gap="xs">
                               <Text fw={600}>
@@ -826,6 +856,10 @@ const LabPageEditorPage = () => {
                               required
                               disabled={!isEditable}
                               minRows={2}
+                              autoFocus={!question.isSaved}
+                              data-testid="question-text-input"
+                              aria-label="Question text"
+                              aria-required="true"
                               description="Must be unique within this lab - less than 85% similar to other questions (10-1000 characters)"
                             />
 
@@ -878,6 +912,19 @@ const LabPageEditorPage = () => {
                                     variant="subtle"
                                     size="sm"
                                     onClick={() => toggleEditQuestion(question.id)}
+                                  >
+                                    Cancel
+                                  </Button>
+                                )}
+                                {!question.isSaved && (
+                                  <Button
+                                    variant="subtle"
+                                    size="sm"
+                                    onClick={() => {
+                                      // T011: Cancel handler - set isFormCancelled flag and clear unsaved question
+                                      setIsFormCancelled(true);
+                                      setQuestions(questions.filter((q) => q.id !== question.id));
+                                    }}
                                   >
                                     Cancel
                                   </Button>

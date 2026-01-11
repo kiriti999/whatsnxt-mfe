@@ -22,7 +22,7 @@ import {
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
-import { IconSearch, IconX } from '@tabler/icons-react';
+import { IconSearch, IconX, IconTrash } from '@tabler/icons-react';
 import { Lab, LabPage } from '@whatsnxt/core-types';
 import labApi from '@/apis/lab.api';
 import { getAvailableArchitectures } from '@/utils/shape-libraries';
@@ -573,7 +573,7 @@ const LabDetailPage = () => {
                 </Paper>
               ) : (
                 <Stack gap="md">
-                  {paginatedPages.map((page, index) => (
+                  {paginatedPages.map((page) => (
                     <Paper key={page.id} shadow="sm" p="lg" withBorder>
                       <Group justify="space-between" align="flex-start" mb="md">
                         <Box>
@@ -614,6 +614,17 @@ const LabDetailPage = () => {
                             >
                               {page.hasQuestion || page.hasDiagramTest ? 'Edit Tests' : 'Add Tests'}
                             </Button>
+                          )}
+                          {canEdit && !page.hasQuestion && !page.hasDiagramTest && (
+                            <ActionIcon
+                              color="red"
+                              variant="subtle"
+                              size="lg"
+                              onClick={() => handleDeletePage(page.id, page.pageNumber)}
+                              title={`Delete Page ${page.pageNumber}`}
+                            >
+                              <IconTrash size={18} />
+                            </ActionIcon>
                           )}
                         </Group>
                       </Group>
