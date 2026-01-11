@@ -573,7 +573,7 @@ const LabDetailPage = () => {
                 </Paper>
               ) : (
                 <Stack gap="md">
-                  {paginatedPages.map((page, index) => (
+                  {paginatedPages.map((page) => (
                     <Paper key={page.id} shadow="sm" p="lg" withBorder>
                       <Group justify="space-between" align="flex-start" mb="md">
                         <Box>
