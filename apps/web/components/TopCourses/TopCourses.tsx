@@ -52,14 +52,14 @@ const TopCourses = ({ courses, total, title }: { courses: any[], total: number, 
                     link={`/courses/${course.slug}`}
                     image={
                       <Box className={styles.topCoursesImageContainer}>
-                        <Image
+                        {course.imageUrl !== "" && course.imageUrl !== null && course.imageUrl !== undefined && <Image
                           fill
                           className={styles.topCoursesImage}
                           alt={course.courseName}
                           src={course.imageUrl}
                           priority={true}
                           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                        />
+                        />}
                       </Box>
                     }
                   >

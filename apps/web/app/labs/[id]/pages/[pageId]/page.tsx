@@ -21,14 +21,17 @@ import {
   Badge,
   Accordion,
   Alert,
+  LoadingOverlay,
 } from '@mantine/core';
-import { useMediaQuery } from '@mantine/hooks';
+import { useMediaQuery, useDebouncedCallback } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { IconTrash, IconSearch, IconX, IconDeviceDesktop } from '@tabler/icons-react';
 import labApi from '@/apis/lab.api';
 import DiagramEditor from '@/components/architecture-lab/DiagramEditor';
 import { StudentTestRunner } from '@/components/Lab/StudentTestRunner';
 import useAuth from '@/hooks/Authentication/useAuth';
+import { useAutoPageCreation } from '@/hooks/useAutoPageCreation';
+import { usePageMapping } from '@/hooks/usePageMapping';
 import { getAvailableArchitectures } from '@/utils/shape-libraries';
 
 // Get architecture types dynamically from centralized registry
@@ -75,15 +78,30 @@ const LabPageEditorPage = () => {
   const [labStatus, setLabStatus] = useState<'draft' | 'published'>('draft');
   const [diagramTestData, setDiagramTestData] = useState<any>(null);
   const [isFormCancelled, setIsFormCancelled] = useState(false);
+  const [currentPageNumber, setCurrentPageNumber] = useState(1);
+  const [totalLabPages, setTotalLabPages] = useState(1);
+  const [isNavigating, setIsNavigating] = useState(false);
 
   const QUESTIONS_PER_PAGE = 3;
+
+  // Derive isPublished from labStatus
+  const isPublished = labStatus === 'published';
+
+  // Initialize page mapping hook for pagination navigation (feature 004)
+  const { getPageId, isLoading: isMappingLoading, error: mappingError, refreshMapping } = usePageMapping(labId);
+
+  // Initialize auto-page-creation hook (feature 003)
+  const { isCreatingPage, onQuestionSaved } = useAutoPageCreation({
+    labId,
+    currentPageId: pageId,
+    currentPageNumber,
+    enabled: !isPublished, // Only enable for draft labs
+  });
 
   // Diagram test state
   const [architectureType, setArchitectureType] = useState('');
   const [prompt, setPrompt] = useState('');
   const [expectedDiagramState, setExpectedDiagramState] = useState<any>(null);
-
-  const isPublished = labStatus === 'published';
 
 
   useEffect(() => {
@@ -94,12 +112,22 @@ const LabPageEditorPage = () => {
   const fetchPageData = async () => {
     setLoading(true);
     try {
-      // Fetch lab status
+      // Fetch lab status and total pages count
       const labResponse = await labApi.getLabById(labId);
       setLabStatus(labResponse.data.status || 'draft');
+      
+      // Extract total pages from lab response (feature 004)
+      if (labResponse.data.pages) {
+        setTotalLabPages(labResponse.data.pages.length);
+      }
 
       const response = await labApi.getLabPageById(labId, pageId);
       const pageData = response.data as any;
+
+      // Set current page number for auto-page-creation (feature 003) and pagination (feature 004)
+      if (pageData.pageNumber) {
+        setCurrentPageNumber(pageData.pageNumber);
+      }
 
       // If page has questions, populate the form
       if (pageData.questions && pageData.questions.length > 0) {
@@ -192,6 +220,55 @@ const LabPageEditorPage = () => {
       setLoading(false);
     }
   };
+
+  /**
+   * Handle page navigation with debouncing (Feature 004)
+   * Navigates to a different page in the lab by looking up the page ID
+   */
+  const handlePageChange = async (pageNumber: number) => {
+    try {
+      setIsNavigating(true);
+      
+      // Get page ID for target page number
+      const targetPageId = getPageId(pageNumber);
+      
+      if (!targetPageId) {
+        notifications.show({
+          title: 'Navigation Error',
+          message: `Unable to navigate to page ${pageNumber}`,
+          color: 'red',
+        });
+        return;
+      }
+      
+      // Navigate to target page
+      router.push(`/labs/${labId}/pages/${targetPageId}`);
+    } catch (error) {
+      console.error('Navigation error:', error);
+      notifications.show({
+        title: 'Navigation Error',
+        message: 'Unable to load page. Please try again.',
+        color: 'red',
+      });
+    } finally {
+      setIsNavigating(false);
+    }
+  };
+
+  /**
+   * Debounced page change to prevent rapid navigation clicks (Feature 004)
+   */
+  const debouncedPageChange = useDebouncedCallback(handlePageChange, 300);
+
+  /**
+   * Monitor auto-page-creation and refresh pagination when new page is created (Feature 004 - US3)
+   */
+  useEffect(() => {
+    if (!isCreatingPage && labId) {
+      // Page creation completed, refresh page mapping to update total pages
+      refreshMapping();
+    }
+  }, [isCreatingPage, labId, refreshMapping]);
 
   const addQuestion = () => {
     // Check if we've reached the limit
@@ -341,6 +418,9 @@ const LabPageEditorPage = () => {
         questionId: question.isSaved ? question.id : undefined, // Include questionId if updating
       });
 
+      // Determine if this was an edit or new question
+      const isEdit = question.isSaved;
+
       // Update question state with the returned ID and mark as saved
       setQuestions(
         questions.map((q) =>
@@ -355,6 +435,9 @@ const LabPageEditorPage = () => {
         message: 'Question saved successfully!',
         color: 'green',
       });
+
+      // Trigger auto-page-creation check (feature 003)
+      await onQuestionSaved(response.data, isEdit);
     } catch (error: any) {
       const errorMessage = error?.response?.data?.message || error?.message || 'Failed to save question.';
       notifications.show({
@@ -707,12 +790,37 @@ const LabPageEditorPage = () => {
 
   return (
     <Container size="xl" py="xl">
+      <LoadingOverlay visible={isCreatingPage} overlayProps={{ blur: 2 }} />
       <Group justify="space-between" mb="xl">
         <Button variant="subtle" onClick={handleBackToTestsAndQuestions}>
           ← Back to Lab
         </Button>
 
       </Group>
+
+      {/* Pagination Controls - Show only if multiple pages exist (Feature 004) */}
+      {totalLabPages > 1 && (
+        <Paper shadow="xs" p="md" mb="lg" withBorder>
+          <Group justify="space-between" align="center">
+            {/* Page Position Indicator (US1) */}
+            <Text size="sm" fw={500}>
+              Page {currentPageNumber} of {totalLabPages}
+            </Text>
+            
+            {/* Pagination Component (US2, US4, US5, US6) */}
+            <Pagination
+              total={totalLabPages}
+              value={currentPageNumber}
+              onChange={debouncedPageChange}
+              disabled={isNavigating || isMappingLoading}
+              siblings={isMobile ? 0 : 1}
+              boundaries={isMobile ? 1 : 2}
+              size={isMobile ? 'sm' : 'md'}
+              aria-label="Page navigation"
+            />
+          </Group>
+        </Paper>
+      )}
 
       <Paper shadow="sm" p="xl" withBorder>
         <Tabs defaultValue="question-test">

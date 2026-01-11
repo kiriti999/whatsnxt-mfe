@@ -184,3 +184,6 @@ export const SUCCESS_MESSAGES = {
   PAGE_SAVED: 'Page saved successfully',
   DRAFT_SAVED: 'Draft saved successfully',
 } as const;
+
+// Lab-specific constants (feature 003-auto-page-creation)
+export * from './lab.constants';
