@@ -53,7 +53,7 @@ All features MUST meet defined performance goals. Monorepo structure MUST use pn
 - All contributors MUST follow workspace conventions and dependency management best practices.
 - pnpm 10+ (or the latest version compatible with Node.js 24 LTS) MUST be used as the package manager.
 - Frontend applications MUST be bundled using Webpack.
-- Testing should be done using vitest
+- Testing should be done using vitest. Refer: https://vitest.dev/
 
 **Rationale**: Node.js 24 LTS provides the latest stable features with extended support. Next.js 16 and React 19 deliver the latest performance optimizations, React Server Components improvements, and modern development patterns. pnpm 10+ ensures compatibility and optimal workspace management.
 
