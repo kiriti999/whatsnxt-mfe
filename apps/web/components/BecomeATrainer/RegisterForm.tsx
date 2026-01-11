@@ -315,7 +315,8 @@ const RegisterForm = ({ user }: { user: any }) => {
                   label="Your Email"
                   placeholder="Your email address"
                   readOnly={!!user?.email}
-                  disabled
+                  disabled={!!user?.email}
+                  required
                   {...register("email", rules.email)}
                   error={errors.email?.message}
                 />

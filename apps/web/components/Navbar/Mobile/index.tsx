@@ -306,7 +306,7 @@ export const NavbarMobile = ({ links, loginMenuLinks, drawerOpened, closeDrawer 
                   }}
                 />
 
-                <NavLink
+                {/* <NavLink
                   label="Search trainer"
                   leftSection={<IconSearch size="1.1rem" stroke={1.5} />}
                   component={Link}
@@ -323,7 +323,30 @@ export const NavbarMobile = ({ links, loginMenuLinks, drawerOpened, closeDrawer 
                     },
                     label: { fontWeight: 500, fontSize: '0.9rem' }
                   }}
-                />
+                /> */}
+
+                {!isLoggedIn && (
+                  <NavLink
+                    label="Become a Trainer"
+                    leftSection={<IconSchool size="1.1rem" stroke={1.5} />}
+                    component={Link}
+                    href="/become-a-trainer"
+                    onClick={closeDrawer}
+                    variant="light"
+                    color="teal"
+                    styles={{
+                      root: {
+                        borderRadius: 'var(--mantine-radius-md)',
+                        transition: 'all 0.2s ease',
+                        '&:hover': {
+                          backgroundColor: 'var(--mantine-color-cyan-0)',
+                          transform: 'translateX(4px)'
+                        }
+                      },
+                      label: { fontWeight: 500, fontSize: '0.9rem' }
+                    }}
+                  />
+                )}
               </Stack>
             </Box>
 
@@ -356,25 +379,6 @@ export const NavbarMobile = ({ links, loginMenuLinks, drawerOpened, closeDrawer 
                   />
                 </Box>
               </>
-            )}
-
-            {(!isAdmin && !isTrainer) && (
-              <NavLink
-                label="Become a Trainer"
-                leftSection={<IconSchool size="1.1rem" stroke={1.5} />}
-                component={Link}
-                href="/become-a-trainer"
-                onClick={closeDrawer}
-                variant="light"
-                color="teal"
-                styles={{
-                  root: {
-                    borderRadius: 'var(--mantine-radius-md)',
-                    fontWeight: 600
-                  },
-                  label: { fontWeight: 600, fontSize: '0.9rem' }
-                }}
-              />
             )}
 
             {/* Account Section for Logged In Users */}

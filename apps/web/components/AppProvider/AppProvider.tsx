@@ -82,6 +82,8 @@ export default function AppProvider({ children, user }: { children: ReactNode, u
       { title: 'Write', url: `${domain}/form`, icon: IconPencil },
       // Hide Create Lab for students
       ...(!isStudent ? [{ title: 'Create Lab', url: `${domain}/lab/create`, icon: IconFlask }] : []),
+      // Show Become a Trainer for non-admin and non-trainer users
+      ...((user?.role !== 'admin' && user?.role !== 'trainer') ? [{ title: 'Become a Trainer', url: `${domain}/become-a-trainer`, icon: IconUserEdit }] : []),
       {
         title: 'Profile',
         url: ``,
