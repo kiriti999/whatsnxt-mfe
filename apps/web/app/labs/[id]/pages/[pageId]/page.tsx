@@ -22,8 +22,9 @@ import {
   Accordion,
   Alert,
   LoadingOverlay,
+  Modal,
 } from '@mantine/core';
-import { useMediaQuery, useDebouncedCallback } from '@mantine/hooks';
+import { useMediaQuery, useDebouncedCallback, useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { IconTrash, IconSearch, IconX, IconDeviceDesktop } from '@tabler/icons-react';
 import labApi from '@/apis/lab.api';
@@ -76,16 +77,25 @@ const LabPageEditorPage = () => {
   const [savingQuestionId, setSavingQuestionId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [labStatus, setLabStatus] = useState<'draft' | 'published'>('draft');
+  const [labInstructorId, setLabInstructorId] = useState<string | null>(null);
   const [diagramTestData, setDiagramTestData] = useState<any>(null);
   const [isFormCancelled, setIsFormCancelled] = useState(false);
   const [currentPageNumber, setCurrentPageNumber] = useState(1);
   const [totalLabPages, setTotalLabPages] = useState(1);
   const [isNavigating, setIsNavigating] = useState(false);
+  const [deleteQuestionModalOpened, { open: openDeleteQuestionModal, close: closeDeleteQuestionModal }] = useDisclosure(false);
+  const [deleteDiagramModalOpened, { open: openDeleteDiagramModal, close: closeDeleteDiagramModal }] = useDisclosure(false);
+  const [questionToDelete, setQuestionToDelete] = useState<{ id: string; isSaved: boolean } | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const QUESTIONS_PER_PAGE = 3;
 
   // Derive isPublished from labStatus
   const isPublished = labStatus === 'published';
+  // Check if current user is the lab owner
+  const isOwner = isTrainer && labInstructorId === user?._id;
+  // Can edit if draft OR if owner of published lab
+  const canEditContent = !isPublished || isOwner;
 
   // Initialize page mapping hook for pagination navigation (feature 004)
   const { getPageId, isLoading: isMappingLoading, error: mappingError, refreshMapping } = usePageMapping(labId);
@@ -95,7 +105,7 @@ const LabPageEditorPage = () => {
     labId,
     currentPageId: pageId,
     currentPageNumber,
-    enabled: !isPublished, // Only enable for draft labs
+    enabled: canEditContent, // Enable for draft labs or owner of published labs
   });
 
   // Diagram test state
@@ -115,6 +125,7 @@ const LabPageEditorPage = () => {
       // Fetch lab status and total pages count
       const labResponse = await labApi.getLabById(labId);
       setLabStatus(labResponse.data.status || 'draft');
+      setLabInstructorId(labResponse.data.instructorId || null);
       
       // Extract total pages from lab response (feature 004)
       if (labResponse.data.pages) {
@@ -296,32 +307,44 @@ const LabPageEditorPage = () => {
     setCurrentPage(newTotalPages);
   };
 
-  const removeQuestion = async (id: string, isSaved: boolean) => {
-    if (confirm('Are you sure you want to delete this question?')) {
-      if (isSaved) {
-        // If question is saved on backend, delete it from backend
-        try {
-          await labApi.deleteQuestion(labId, pageId, id);
-          notifications.show({
-            title: 'Success',
-            message: 'Question deleted successfully!',
-            color: 'green',
-          });
-        } catch (error: any) {
-          const errorMessage = error?.response?.data?.message || error?.message || 'Failed to delete question.';
-          notifications.show({
-            title: 'Error',
-            message: errorMessage,
-            color: 'red',
-          });
-          console.error('Failed to delete question:', error);
-          return;
-        }
-      }
+  const confirmDeleteQuestion = (id: string, isSaved: boolean) => {
+    setQuestionToDelete({ id, isSaved });
+    openDeleteQuestionModal();
+  };
 
-      // Remove from local state
-      setQuestions(questions.filter((q) => q.id !== id));
+  const removeQuestion = async () => {
+    if (!questionToDelete) return;
+    
+    const { id, isSaved } = questionToDelete;
+    setIsDeleting(true);
+    
+    if (isSaved) {
+      // If question is saved on backend, delete it from backend
+      try {
+        await labApi.deleteQuestion(labId, pageId, id);
+        notifications.show({
+          title: 'Success',
+          message: 'Question deleted successfully!',
+          color: 'green',
+        });
+      } catch (error: any) {
+        const errorMessage = error?.response?.data?.message || error?.message || 'Failed to delete question.';
+        notifications.show({
+          title: 'Error',
+          message: errorMessage,
+          color: 'red',
+        });
+        console.error('Failed to delete question:', error);
+        setIsDeleting(false);
+        return;
+      }
     }
+
+    // Remove from local state
+    setQuestions(questions.filter((q) => q.id !== id));
+    closeDeleteQuestionModal();
+    setQuestionToDelete(null);
+    setIsDeleting(false);
   };
 
   const updateQuestion = (id: string, field: keyof Question, value: string | boolean) => {
@@ -638,11 +661,7 @@ const LabPageEditorPage = () => {
 
 
   const handleDeleteDiagramTest = async () => {
-    if (!confirm('Are you sure you want to delete this diagram test? This action cannot be undone.')) {
-      return;
-    }
-
-    setSaving(true);
+    setIsDeleting(true);
     try {
       await labApi.deleteDiagramTest(labId, pageId);
 
@@ -652,6 +671,7 @@ const LabPageEditorPage = () => {
         color: 'green',
       });
 
+      closeDeleteDiagramModal();
       // Navigate back to lab detail page
       router.push(`/labs/${labId}?tab=tests&page=${returnPage}`);
     } catch (error: any) {
@@ -663,7 +683,7 @@ const LabPageEditorPage = () => {
         color: 'red',
       });
     } finally {
-      setSaving(false);
+      setIsDeleting(false);
     }
   };
 
@@ -843,7 +863,7 @@ const LabPageEditorPage = () => {
               </Group>
 
               {/* Questions Section Header with Add Button */}
-              {!isPublished && (
+              {canEditContent && (
                 <Group justify="space-between" align="center">
                   <Box>
                     <Text size="lg" fw={600}>
@@ -916,7 +936,7 @@ const LabPageEditorPage = () => {
                       // Calculate the actual question number from the original list
                       const originalIndex = questions.findIndex(q => q.id === question.id);
                       const questionNumber = originalIndex + 1;
-                      const isEditable = !isPublished && (question.isEditing || !question.isSaved);
+                      const isEditable = canEditContent && (question.isEditing || !question.isSaved);
                       return (
                         <Paper key={question.id} p="lg" withBorder data-testid={!question.isSaved ? "auto-question-form" : undefined} data-auto-displayed={!question.isSaved ? "true" : undefined}>
                           <Group justify="space-between" mb="md">
@@ -931,7 +951,7 @@ const LabPageEditorPage = () => {
                               )}
                             </Group>
                             <Group gap="xs">
-                              {!isPublished && question.isSaved && !question.isEditing && (
+                              {canEditContent && question.isSaved && !question.isEditing && (
                                 <Button
                                   size="xs"
                                   variant="subtle"
@@ -940,11 +960,11 @@ const LabPageEditorPage = () => {
                                   Edit
                                 </Button>
                               )}
-                              {!isPublished && (
+                              {canEditContent && (
                                 <ActionIcon
                                   color="red"
                                   variant="subtle"
-                                  onClick={() => removeQuestion(question.id, question.isSaved || false)}
+                                  onClick={() => confirmDeleteQuestion(question.id, question.isSaved || false)}
                                   title="Delete Question"
                                 >
                                   <IconTrash size={18} />
@@ -1068,7 +1088,7 @@ const LabPageEditorPage = () => {
               {/* Practice Test Configuration */}
               <Divider label="Practice Test Configuration" labelPosition="center" />
 
-              {!isPublished && (
+              {canEditContent && (
                 <Group>
                   <Switch
                     checked={enablePracticeTest}
@@ -1100,7 +1120,7 @@ const LabPageEditorPage = () => {
                 value={architectureType}
                 onChange={(value) => setArchitectureType(value || '')}
                 required
-                disabled={isPublished}
+                disabled={!canEditContent}
               />
 
               <Textarea
@@ -1113,7 +1133,7 @@ const LabPageEditorPage = () => {
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
                 required
-                disabled={isPublished}
+                disabled={!canEditContent}
               />
 
               {/* Instructor Information Accordion */}
@@ -1161,9 +1181,9 @@ const LabPageEditorPage = () => {
                         <strong>Grading:</strong> Students are graded on both <strong>nesting</strong> (50% - shapes in correct containers) and <strong>connections</strong> (50% - correct arrows). They must achieve 100% to pass.
                       </Text>
                       <Group gap="xs" mt="xs">
-                        <Badge size="xs" color="blue" variant="light">Tip: Use 5-10 shapes for best results</Badge>
-                        <Badge size="xs" color="blue" variant="light">Make containers large enough (400×300+)</Badge>
-                        <Badge size="xs" color="blue" variant="light">Use clear labels</Badge>
+                        <Badge size="sm" color="blue" variant="light">Tip: Use 5-10 shapes for best results</Badge>
+                        <Badge size="sm" color="blue" variant="light">Make containers large enough (400×300+)</Badge>
+                        <Badge size="sm" color="blue" variant="light">Use clear labels</Badge>
                       </Group>
                     </Stack>
                   </Accordion.Panel>
@@ -1197,14 +1217,14 @@ const LabPageEditorPage = () => {
                       </Paper>
                     ) : (
                       <>
-                        {isMobile && !isPublished && (
+                        {isMobile && canEditContent && (
                           <Alert icon={<IconDeviceDesktop size={16} />} title="Screen Too Small" color="blue" mb="md">
                             Creating diagrams on mobile is difficult. We suggest updating the diagram from a larger screen.
                           </Alert>
                         )}
                         <DiagramEditor
                           initialGraph={expectedDiagramState}
-                          mode={isPublished ? "student" : "instructor"}
+                          mode={canEditContent ? "instructor" : "student"}
                           architectureType={architectureType}
                           onGraphChange={(graph) => {
                             setExpectedDiagramState(graph);
@@ -1218,13 +1238,13 @@ const LabPageEditorPage = () => {
               </Box>
 
               <Group justify="space-between">
-                {!isPublished && (
+                {canEditContent && (
                   <Group>
                     <Button
                       variant="subtle"
                       color="red"
                       leftSection={<IconTrash size={16} />}
-                      onClick={handleDeleteDiagramTest}
+                      onClick={openDeleteDiagramModal}
                       loading={saving}
                     >
                       Delete Test
@@ -1232,7 +1252,7 @@ const LabPageEditorPage = () => {
                   </Group>
                 )}
 
-                {!isPublished && (
+                {canEditContent && (
                   <Group>
                     <Button variant="outline" onClick={() => router.push(`/labs/${labId}`)}>
                       Cancel
@@ -1243,7 +1263,7 @@ const LabPageEditorPage = () => {
                   </Group>
                 )}
 
-                {isPublished && (
+                {!canEditContent && (
                   <Button variant="outline" onClick={() => router.push(`/labs/${labId}`)}>
                     Back to Lab
                   </Button>
@@ -1253,6 +1273,38 @@ const LabPageEditorPage = () => {
           </Tabs.Panel>
         </Tabs>
       </Paper>
+
+      {/* Delete Question Confirmation Modal */}
+      <Modal opened={deleteQuestionModalOpened} onClose={closeDeleteQuestionModal} title="Delete Question" centered>
+        <Stack>
+          <Text>Are you sure you want to delete this question?</Text>
+          <Text size="sm" c="dimmed">This action cannot be undone.</Text>
+          <Group justify="flex-end" mt="md">
+            <Button variant="default" onClick={closeDeleteQuestionModal}>
+              Cancel
+            </Button>
+            <Button color="red" onClick={removeQuestion} loading={isDeleting}>
+              Delete Question
+            </Button>
+          </Group>
+        </Stack>
+      </Modal>
+
+      {/* Delete Diagram Test Confirmation Modal */}
+      <Modal opened={deleteDiagramModalOpened} onClose={closeDeleteDiagramModal} title="Delete Diagram Test" centered>
+        <Stack>
+          <Text>Are you sure you want to delete this diagram test?</Text>
+          <Text size="sm" c="dimmed">This action cannot be undone. The expected diagram state will be permanently deleted.</Text>
+          <Group justify="flex-end" mt="md">
+            <Button variant="default" onClick={closeDeleteDiagramModal}>
+              Cancel
+            </Button>
+            <Button color="red" onClick={handleDeleteDiagramTest} loading={isDeleting}>
+              Delete Diagram Test
+            </Button>
+          </Group>
+        </Stack>
+      </Modal>
     </Container>
   );
 };

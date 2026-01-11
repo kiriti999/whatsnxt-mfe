@@ -17,8 +17,9 @@ import {
     renderWaypointHandles,
     calculateConnectionPoints,
 } from '../../utils/d3-link-renderers';
-import { Button, Group, Paper as MantinePaper, Text, Divider, useComputedColorScheme, ActionIcon, Tooltip, Stack, ScrollArea, Box } from '@mantine/core';
+import { Button, Group, Paper as MantinePaper, Text, Divider, useComputedColorScheme, ActionIcon, Tooltip, Stack, ScrollArea, Box, Modal } from '@mantine/core';
 import { IconZoomReset } from '@tabler/icons-react';
+import { useDisclosure } from '@mantine/hooks';
 import ShapePreview from './ShapePreview';
 import { genericD3Shapes } from '../../utils/shape-libraries/generic-d3-shapes';
 import { getArchitectureShapes, getArchitectureMetadata } from '../../utils/shape-libraries';
@@ -86,6 +87,9 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
     const [canvasSize, setCanvasSize] = useState({ width: 1050, height: 800 });
     const canvasSizeRef = useRef({ width: 1050, height: 800 });
     const CANVAS_PADDING = 200; // Extra space to add when extending
+
+    // Clear canvas modal
+    const [clearModalOpened, { open: openClearModal, close: closeClearModal }] = useDisclosure(false);
 
     // Save history
     const saveToHistory = useCallback((newNodes: NodeType[], newLinks: LinkType[]) => {
@@ -749,11 +753,10 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
     };
 
     const clearGraph = () => {
-        if (confirm('Clear canvas?')) {
-            setNodes([]);
-            setLinks([]);
-            saveToHistory([], []);
-        }
+        setNodes([]);
+        setLinks([]);
+        saveToHistory([], []);
+        closeClearModal();
     };
 
     const undo = () => {
@@ -835,7 +838,7 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
                                 <Text size="xs" c="dimmed">(Drag to canvas)</Text>
                             </Group>
                             <Group gap="xs">
-                                <Button size="xs" color="red" variant="subtle" onClick={clearGraph}>Clear</Button>
+                                <Button size="xs" color="red" variant="subtle" onClick={openClearModal}>Clear</Button>
                                 <Divider orientation="vertical" />
                                 <Button size="xs" variant="outline" onClick={undo} disabled={historyIndex <= 0}>Undo</Button>
                                 <Button size="xs" variant="outline" onClick={redo} disabled={historyIndex >= history.length - 1}>Redo</Button>
@@ -1107,6 +1110,22 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
                     Click a node to select (blue outline), then click another node to link them. Drag to move.
                 </Text>
             )}
+
+            {/* Clear Canvas Confirmation Modal */}
+            <Modal opened={clearModalOpened} onClose={closeClearModal} title="Clear Canvas" centered>
+                <Stack>
+                    <Text>Are you sure you want to clear the canvas?</Text>
+                    <Text size="sm" c="dimmed">This will remove all shapes and connections. This action cannot be undone.</Text>
+                    <Group justify="flex-end" mt="md">
+                        <Button variant="default" onClick={closeClearModal}>
+                            Cancel
+                        </Button>
+                        <Button color="red" onClick={clearGraph}>
+                            Clear Canvas
+                        </Button>
+                    </Group>
+                </Stack>
+            </Modal>
         </div>
     );
 };

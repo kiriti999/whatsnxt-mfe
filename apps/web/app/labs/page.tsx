@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Container, Title, Button, Group, Box, Paper, Text, Pagination, ActionIcon, Badge, Progress, Stack, ThemeIcon, Collapse } from '@mantine/core';
+import { Container, Title, Button, Group, Box, Paper, Text, Pagination, ActionIcon, Badge, Stack, ThemeIcon, Collapse } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { useRouter } from 'next/navigation';
@@ -208,6 +208,16 @@ const LabsPage = () => {
           transition: transform 0.2s ease;
           box-shadow: var(--mantine-shadow-md);
         }
+        .labs-grid {
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 16px;
+        }
+        @media (max-width: 768px) {
+          .labs-grid {
+            grid-template-columns: 1fr;
+          }
+        }
       `}</style>
       <Paper
         p="xl"
@@ -327,84 +337,75 @@ const LabsPage = () => {
         )}
       </Group>
 
-      {/* Published Labs Section */}
+      {/* Published Labs Section - Two Column Grid */}
       <Box mb="xl">
         {publishedLabs.length === 0 ? (
           <Text c="dimmed">No published labs available.</Text>
         ) : (
           <>
-            {publishedLabs.map((lab) => (
-              <Paper key={lab.id} shadow="xs" p="md" withBorder mb="sm">
-                <Group justify="space-between" align="flex-start">
-                  <Box style={{ flex: 1 }}>
-                    <Group mb="xs">
-                      <Text fw={700}>{lab.name}</Text>
-                      {lab.progress && lab.progress.percentage === 100 && (
-                        <Badge color="teal" size="sm" leftSection={<IconTrophy size={12} />}>
-                          Completed
-                        </Badge>
-                      )}
-                    </Group>
-                    <Text size="sm" c="dimmed" mb="sm">{lab.description || 'No description'}</Text>
-
-                    {/* Lab Statistics */}
-                    <Group gap="sm" mb="sm">
-                      <Badge
-                        variant="light"
-                        color="blue"
-                        size="sm"
-                        leftSection={<IconListCheck size={12} />}
-                      >
-                        {lab.questionCount || 0} Questions
-                      </Badge>
-                      <Badge
-                        variant="light"
-                        color="violet"
-                        size="sm"
-                        leftSection={<IconSchema size={12} />}
-                      >
-                        {lab.diagramTestCount || 0} Diagram Quizzes
-                      </Badge>
-                    </Group>
-
-                    {/* Show progress for students */}
-                    {isStudent && lab.progress && lab.progress.totalPages > 0 && (
-                      <Stack gap="xs">
-                        <Group gap="xs">
-                          <Text size="sm" fw={500}>
-                            Progress: {lab.progress.passedPages}/{lab.progress.totalPages} pages
-                          </Text>
-                          <Text size="sm" fw={700} c={lab.progress.percentage === 100 ? 'teal' : 'blue'}>
-                            {lab.progress.percentage}%
-                          </Text>
+            <div className="labs-grid">
+              {publishedLabs.map((lab) => {
+                const isOwner = isTrainer && lab.instructorId === user?._id;
+                return (
+                  <Paper key={lab.id} shadow="xs" p="md" withBorder className="card-hover">
+                    <Group justify="space-between" align="center" wrap="nowrap">
+                      <Box style={{ flex: 1, minWidth: 0 }}>
+                        <Group gap="xs" mb="xs">
+                          <Text fw={600} lineClamp={1}>{lab.name}</Text>
+                          {lab.progress && lab.progress.percentage === 100 && (
+                            <Badge color="teal" size="sm" leftSection={<IconTrophy size={12} />}>
+                              Done
+                            </Badge>
+                          )}
                         </Group>
-                        <Progress
-                          value={lab.progress.percentage}
-                          color={lab.progress.percentage === 100 ? 'teal' : 'blue'}
+                        <Group gap="xs">
+                          <Badge variant="light" color="blue" size="sm" leftSection={<IconListCheck size={12} />}>
+                            {lab.questionCount || 0} Questions
+                          </Badge>
+                          <Badge variant="light" color="violet" size="sm" leftSection={<IconSchema size={12} />}>
+                            {lab.diagramTestCount || 0} Diagrams
+                          </Badge>
+                          {isStudent && lab.progress && lab.progress.totalPages > 0 && (
+                            <Badge color={lab.progress.percentage === 100 ? 'teal' : 'blue'} size="sm">
+                              {lab.progress.percentage}%
+                            </Badge>
+                          )}
+                        </Group>
+                      </Box>
+                      <Group gap="xs">
+                        {isOwner && (
+                          <ActionIcon
+                            variant="subtle"
+                            color="blue"
+                            size="lg"
+                            onClick={() => router.push(`/labs/${lab.id}`)}
+                            title="Edit Lab"
+                          >
+                            <IconEdit size={20} />
+                          </ActionIcon>
+                        )}
+                        <Button
+                          variant="filled"
+                          color="orange"
                           size="sm"
-                          radius="xl"
-                        />
-                      </Stack>
-                    )}
-                  </Box>
-                  <Button
-                    variant="filled"
-                    color="orange"
-                    size="xs"
-                    onClick={() => router.push(`/labs/${lab.id}`)}
-                  >
-                    Access Now
-                  </Button>
-                </Group>
-              </Paper>
-            ))}
+                          onClick={() => router.push(`/labs/${lab.id}`)}
+                        >
+                          {isOwner ? 'View' : 'Access'}
+                        </Button>
+                      </Group>
+                    </Group>
+                  </Paper>
+                );
+              })}
+            </div>
             {Math.ceil(publishedTotal / pageSize) > 1 && (
-              <Pagination
-                total={Math.ceil(publishedTotal / pageSize)}
-                value={publishedPage}
-                onChange={setPublishedPage}
-                mt="md"
-              />
+              <Group justify="center" mt="xl">
+                <Pagination
+                  total={Math.ceil(publishedTotal / pageSize)}
+                  value={publishedPage}
+                  onChange={setPublishedPage}
+                />
+              </Group>
             )}
           </>
         )}
@@ -418,52 +419,45 @@ const LabsPage = () => {
             <Text c="dimmed">No draft labs. Create one to get started!</Text>
           ) : (
             <>
-              {draftLabs.map((lab) => (
-                <Paper key={lab.id} shadow="xs" p="md" withBorder mb="sm">
-                  <Group justify="space-between">
-                    <Box>
-                      <Text fw={700}>{lab.name}</Text>
-                      <Text size="sm" c="dimmed">{lab.description || 'No description'}</Text>
-                      <Text size="xs" c="orange" mb="xs">{lab.status.toUpperCase()}</Text>
-
-                      {/* Lab Statistics */}
-                      <Group gap="sm">
-                        <Badge
-                          variant="light"
-                          color="blue"
-                          size="sm"
-                          leftSection={<IconListCheck size={12} />}
-                        >
-                          {(lab as any).questionCount || 0} Questions
-                        </Badge>
-                        <Badge
-                          variant="light"
-                          color="violet"
-                          size="sm"
-                          leftSection={<IconSchema size={12} />}
-                        >
-                          {(lab as any).diagramTestCount || 0} Diagram Quizzes
-                        </Badge>
-                      </Group>
-                    </Box>
-                    <ActionIcon
-                      variant="subtle"
-                      color="blue"
-                      onClick={() => router.push(`/labs/${lab.id}`)}
-                      title="Edit Lab"
-                    >
-                      <IconEdit size={18} />
-                    </ActionIcon>
-                  </Group>
-                </Paper>
-              ))}
+              <div className="labs-grid">
+                {draftLabs.map((lab) => (
+                  <Paper key={lab.id} shadow="xs" p="md" withBorder className="card-hover">
+                    <Group justify="space-between" align="center" wrap="nowrap">
+                      <Box style={{ flex: 1, minWidth: 0 }}>
+                        <Group gap="xs" mb="xs">
+                          <Text fw={600} lineClamp={1}>{lab.name}</Text>
+                          <Badge color="orange" size="sm">{lab.status.toUpperCase()}</Badge>
+                        </Group>
+                        <Group gap="xs">
+                          <Badge variant="light" color="blue" size="sm" leftSection={<IconListCheck size={12} />}>
+                            {(lab as any).questionCount || 0} Questions
+                          </Badge>
+                          <Badge variant="light" color="violet" size="sm" leftSection={<IconSchema size={12} />}>
+                            {(lab as any).diagramTestCount || 0} Diagrams
+                          </Badge>
+                        </Group>
+                      </Box>
+                      <ActionIcon
+                        variant="subtle"
+                        color="blue"
+                        size="lg"
+                        onClick={() => router.push(`/labs/${lab.id}`)}
+                        title="Edit Lab"
+                      >
+                        <IconEdit size={20} />
+                      </ActionIcon>
+                    </Group>
+                  </Paper>
+                ))}
+              </div>
               {Math.ceil(draftTotal / pageSize) > 1 && (
-                <Pagination
-                  total={Math.ceil(draftTotal / pageSize)}
-                  value={draftPage}
-                  onChange={setDraftPage}
-                  mt="md"
-                />
+                <Group justify="center" mt="xl">
+                  <Pagination
+                    total={Math.ceil(draftTotal / pageSize)}
+                    value={draftPage}
+                    onChange={setDraftPage}
+                  />
+                </Group>
               )}
             </>
           )}

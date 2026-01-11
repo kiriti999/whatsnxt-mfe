@@ -18,8 +18,10 @@ import {
   Divider,
   Container,
   Text,
+  Modal,
 } from '@mantine/core';
 import { IconTrash, IconPlus } from '@tabler/icons-react';
+import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { Lab } from '../../types/lab';
 import { useRouter } from 'next/navigation';
@@ -31,6 +33,7 @@ export const LabForm = ({ initialData }: { initialData?: Lab }) => {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [architectureDropdownOpened, setArchitectureDropdownOpened] = useState(false);
+  const [deleteModalOpened, { open: openDeleteModal, close: closeDeleteModal }] = useDisclosure(false);
   const [pricing, setPricing] = useState<{ purchaseType: 'free' | 'paid'; price?: number }>({
     purchaseType: initialData?.pricing?.purchaseType || 'free',
     price: initialData?.pricing?.price
@@ -185,11 +188,12 @@ export const LabForm = ({ initialData }: { initialData?: Lab }) => {
   const publishLab = handleSubmit((data) => onSubmit(data, 'PUBLISHED'));
 
   const handleDelete = async () => {
-    if (!initialData?.id || !confirm('Are you sure you want to delete this lab?')) return;
+    if (!initialData?.id) return;
     setIsSubmitting(true);
     try {
       await fetch(`/api/lab/${initialData.id}`, { method: 'DELETE' });
       notifications.show({ title: 'Success', message: 'Lab deleted', color: 'green' });
+      closeDeleteModal();
       router.push('/labs');
     } catch (error) {
       notifications.show({ title: 'Error', message: 'Failed to delete lab', color: 'red' });
@@ -615,7 +619,7 @@ export const LabForm = ({ initialData }: { initialData?: Lab }) => {
 
             <Group justify="space-between" mt="xl">
               {initialData?.id && (
-                <Button color="red" variant="subtle" onClick={handleDelete} loading={isSubmitting}>
+                <Button color="red" variant="subtle" onClick={openDeleteModal} loading={isSubmitting}>
                   Delete Lab
                 </Button>
               )}
@@ -664,6 +668,22 @@ export const LabForm = ({ initialData }: { initialData?: Lab }) => {
           </Stack>
         </form>
       </Paper>
+
+      {/* Delete Lab Confirmation Modal */}
+      <Modal opened={deleteModalOpened} onClose={closeDeleteModal} title="Delete Lab" centered>
+        <Stack>
+          <Text>Are you sure you want to delete this lab?</Text>
+          <Text size="sm" c="dimmed">This action cannot be undone.</Text>
+          <Group justify="flex-end" mt="md">
+            <Button variant="default" onClick={closeDeleteModal}>
+              Cancel
+            </Button>
+            <Button color="red" onClick={handleDelete} loading={isSubmitting}>
+              Delete Lab
+            </Button>
+          </Group>
+        </Stack>
+      </Modal>
     </Container>
   );
 };

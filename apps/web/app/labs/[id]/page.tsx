@@ -19,8 +19,10 @@ import {
   Select,
   Pagination,
   ActionIcon,
+  Modal,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
+import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { IconSearch, IconX, IconTrash } from '@tabler/icons-react';
 import { Lab, LabPage } from '@whatsnxt/core-types';
@@ -61,6 +63,10 @@ const LabDetailPage = () => {
   const [activeTab, setActiveTab] = useState<string | null>('details');
   const [searchQuery, setSearchQuery] = useState('');
   const [requiresAccess, setRequiresAccess] = useState(false);
+  const [deleteModalOpened, { open: openDeleteModal, close: closeDeleteModal }] = useDisclosure(false);
+  const [deletePageModalOpened, { open: openDeletePageModal, close: closeDeletePageModal }] = useDisclosure(false);
+  const [pageToDelete, setPageToDelete] = useState<{ id: string; pageNumber: number } | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Derived values (must come after state declarations)
   const isTrainer = isAuthenticated && user?.role === 'trainer';
@@ -217,10 +223,7 @@ const LabDetailPage = () => {
   };
 
   const handleDeleteLab = async () => {
-    if (!confirm('Are you sure you want to delete this lab? This action cannot be undone.')) {
-      return;
-    }
-
+    setIsDeleting(true);
     try {
       await labApi.deleteLab(labId);
       notifications.show({
@@ -228,6 +231,7 @@ const LabDetailPage = () => {
         message: 'Lab deleted successfully!',
         color: 'green',
       });
+      closeDeleteModal();
       router.push('/labs');
     } catch (error: any) {
       const errorMessage = error?.response?.data?.message || error?.message || 'Failed to delete lab.';
@@ -237,22 +241,30 @@ const LabDetailPage = () => {
         color: 'red',
       });
       console.error('Failed to delete lab:', error);
+    } finally {
+      setIsDeleting(false);
     }
   };
 
-  const handleDeletePage = async (pageId: string, pageNumber: number) => {
-    if (!confirm(`Are you sure you want to delete Page ${pageNumber}? This action cannot be undone.`)) {
-      return;
-    }
+  const confirmDeletePage = (pageId: string, pageNumber: number) => {
+    setPageToDelete({ id: pageId, pageNumber });
+    openDeletePageModal();
+  };
 
+  const handleDeletePage = async () => {
+    if (!pageToDelete) return;
+    
+    setIsDeleting(true);
     try {
-      await labApi.deleteLabPage(labId, pageId);
-      setPages(pages.filter(p => p.id !== pageId));
+      await labApi.deleteLabPage(labId, pageToDelete.id);
+      setPages(pages.filter(p => p.id !== pageToDelete.id));
       notifications.show({
         title: 'Success',
         message: 'Page deleted successfully!',
         color: 'green',
       });
+      closeDeletePageModal();
+      setPageToDelete(null);
     } catch (error: any) {
       const errorMessage = error?.response?.data?.message || error?.message || 'Failed to delete page.';
       notifications.show({
@@ -261,6 +273,8 @@ const LabDetailPage = () => {
         color: 'red',
       });
       console.error('Failed to delete page:', error);
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -282,7 +296,7 @@ const LabDetailPage = () => {
 
   // Derived values after lab is loaded
   const isPublished = lab.status === 'published';
-  const canEdit = lab.status === 'draft';
+  const canEdit = isOwner; // Owners can edit their labs regardless of status
   const isStudent = isAuthenticated && user?.role === 'student';
   // Show purchase button when: published + student + requires access
   const canViewAccess = isPublished && isStudent && requiresAccess;
@@ -350,16 +364,50 @@ const LabDetailPage = () => {
         <Group>
           {canEdit && (
             <>
-              <Button variant="outline" color="red" onClick={handleDeleteLab}>
+              <Button variant="outline" color="red" onClick={openDeleteModal}>
                 Delete Lab
               </Button>
-              <Button color="blue" onClick={handlePublishLab}>
-                Publish Lab
-              </Button>
+              {!isPublished && (
+                <Button color="blue" onClick={handlePublishLab}>
+                  Publish Lab
+                </Button>
+              )}
             </>
           )}
         </Group>
       </Group>
+
+      {/* Delete Confirmation Modal */}
+      <Modal opened={deleteModalOpened} onClose={closeDeleteModal} title="Delete Lab" centered>
+        <Stack>
+          <Text>Are you sure you want to delete this lab?</Text>
+          <Text size="sm" c="dimmed">This action cannot be undone. All pages, questions, and diagram tests will be permanently deleted.</Text>
+          <Group justify="flex-end" mt="md">
+            <Button variant="default" onClick={closeDeleteModal}>
+              Cancel
+            </Button>
+            <Button color="red" onClick={handleDeleteLab} loading={isDeleting}>
+              Delete Lab
+            </Button>
+          </Group>
+        </Stack>
+      </Modal>
+
+      {/* Delete Page Confirmation Modal */}
+      <Modal opened={deletePageModalOpened} onClose={closeDeletePageModal} title="Delete Page" centered>
+        <Stack>
+          <Text>Are you sure you want to delete Page {pageToDelete?.pageNumber}?</Text>
+          <Text size="sm" c="dimmed">This action cannot be undone. All questions and diagram tests on this page will be permanently deleted.</Text>
+          <Group justify="flex-end" mt="md">
+            <Button variant="default" onClick={closeDeletePageModal}>
+              Cancel
+            </Button>
+            <Button color="red" onClick={handleDeletePage} loading={isDeleting}>
+              Delete Page
+            </Button>
+          </Group>
+        </Stack>
+      </Modal>
 
       {/* Access/Purchase Section for Students */}
       {canViewAccess && (
@@ -600,7 +648,7 @@ const LabDetailPage = () => {
                           </Group>
                         </Box>
                         <Group gap="sm">
-                          {lab?.status === 'published' && (page.hasQuestion || page.hasDiagramTest) && (
+                          {lab?.status === 'published' && (page.hasQuestion || page.hasDiagramTest) && !isOwner && (
                             <Button
                               variant="filled"
                               size="sm"
@@ -609,7 +657,7 @@ const LabDetailPage = () => {
                               View Tests
                             </Button>
                           )}
-                          {lab?.status !== 'published' && (
+                          {(lab?.status !== 'published' || isOwner) && (
                             <Button
                               variant="filled"
                               size="xs"
@@ -623,7 +671,7 @@ const LabDetailPage = () => {
                               color="red"
                               variant="subtle"
                               size="lg"
-                              onClick={() => handleDeletePage(page.id, page.pageNumber)}
+                              onClick={() => confirmDeletePage(page.id, page.pageNumber)}
                               title={`Delete Page ${page.pageNumber}`}
                             >
                               <IconTrash size={18} />

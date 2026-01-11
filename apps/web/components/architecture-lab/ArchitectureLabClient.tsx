@@ -2,8 +2,9 @@
 
 import React, { useState } from 'react';
 import DiagramEditor from './DiagramEditor';
-import { Button, Container, Title, Group, Badge, Text, Card, TextInput, ActionIcon, Stack, Divider, Select, Paper, Switch, NumberInput } from '@mantine/core';
+import { Button, Container, Title, Group, Badge, Text, Card, TextInput, ActionIcon, Stack, Divider, Select, Paper, Switch, NumberInput, Modal } from '@mantine/core';
 import { IconTrash, IconPlus } from '@tabler/icons-react';
+import { useDisclosure } from '@mantine/hooks';
 import { jumbleGraph, validateGraph } from '../../utils/lab-utils';
 import useAuth from '../../hooks/Authentication/useAuth';
 
@@ -59,6 +60,8 @@ const ArchitectureLabClient: React.FC<ArchitectureLabClientProps> = ({ labId, in
     const [status, setStatus] = useState<LabStatus>(initialData?.status || 'DRAFT');
     const [questions, setQuestions] = useState<LabQuestion[]>(initialData?.questions || []);
     const [validationResult, setValidationResult] = useState<any>(null);
+    const [deleteModalOpened, { open: openDeleteModal, close: closeDeleteModal }] = useDisclosure(false);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     // ... (rest of question management)
 
@@ -131,13 +134,17 @@ const ArchitectureLabClient: React.FC<ArchitectureLabClientProps> = ({ labId, in
     };
 
     const handleDelete = async () => {
-        if (!labId || !confirm('Are you sure you want to delete this lab?')) return;
+        if (!labId) return;
+        setIsDeleting(true);
         try {
             const endpoint = `/api/lab/${labId}`;
             await fetch(endpoint, { method: 'DELETE' });
+            closeDeleteModal();
             alert('Lab deleted');
         } catch (error) {
             console.error('Delete error:', error);
+        } finally {
+            setIsDeleting(false);
         }
     };
 
@@ -289,7 +296,7 @@ const ArchitectureLabClient: React.FC<ArchitectureLabClientProps> = ({ labId, in
                     </Card>
 
                     <Group mt="md" justify="space-between">
-                        {labId && <Button color="red" variant="subtle" onClick={handleDelete}>Delete Lab</Button>}
+                        {labId && <Button color="red" variant="subtle" onClick={openDeleteModal}>Delete Lab</Button>}
                         <Group>
                             <Button onClick={handleStartLab}>Test as Student</Button>
                         </Group>
@@ -316,6 +323,22 @@ const ArchitectureLabClient: React.FC<ArchitectureLabClientProps> = ({ labId, in
                     )}
                 </>
             )}
+
+            {/* Delete Lab Confirmation Modal */}
+            <Modal opened={deleteModalOpened} onClose={closeDeleteModal} title="Delete Lab" centered>
+                <Stack>
+                    <Text>Are you sure you want to delete this lab?</Text>
+                    <Text size="sm" c="dimmed">This action cannot be undone.</Text>
+                    <Group justify="flex-end" mt="md">
+                        <Button variant="default" onClick={closeDeleteModal}>
+                            Cancel
+                        </Button>
+                        <Button color="red" onClick={handleDelete} loading={isDeleting}>
+                            Delete Lab
+                        </Button>
+                    </Group>
+                </Stack>
+            </Modal>
         </Container>
     );
 };
