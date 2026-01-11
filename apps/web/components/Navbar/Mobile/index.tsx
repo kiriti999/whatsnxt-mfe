@@ -3,13 +3,11 @@ import Link from 'next/link';
 import {
   Drawer,
   ScrollArea,
-  rem,
   Text,
   NavLink,
   Avatar,
   Box,
   Group,
-  UnstyledButton,
   Divider,
   Stack,
   ThemeIcon,
