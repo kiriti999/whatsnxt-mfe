@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import {
   Container,
@@ -97,7 +97,8 @@ const LabDetailPage = () => {
     },
   });
 
-  const fetchLabData = async () => {
+  const fetchLabData = useCallback(async () => {
+    console.log('[fetchLabData] Starting fetch for labId:', labId);
     setLoading(true);
     try {
       const response = await labApi.getLabById(labId);
@@ -129,6 +130,7 @@ const LabDetailPage = () => {
         labType: labData.labType,
         architectureType: labData.architectureType,
       });
+      console.log('[fetchLabData] Fetch completed successfully');
     } catch (error: any) {
       const errorMessage = error?.response?.data?.message || error?.message || 'Failed to load lab.';
       notifications.show({
@@ -140,13 +142,14 @@ const LabDetailPage = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [labId]); // Only depend on labId, not form or other values
 
   useEffect(() => {
+    console.log('[useEffect] labId changed:', labId);
     if (labId) {
       fetchLabData();
     }
-  }, [labId]);
+  }, [labId, fetchLabData]);
 
   const handleUpdateLab = async (values: any) => {
     try {

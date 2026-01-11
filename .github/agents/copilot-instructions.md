@@ -11,6 +11,10 @@ Auto-generated from all feature plans. Last updated: 2025-12-15
 - MongoDB (backend API at localhost:4444), existing Lab and LabPage collections (001-streamline-lab-creation)
 - TypeScript 5.8.2, React 19.1.0, Next.js 16.0.7 (App Router) + Mantine UI v8.3.10 (components, notifications, modals), styled-components v6.1.19, custom HttpClient for API calls (002-auto-show-question-form)
 - REST API backend (`labApi.getLabPageById`, `labApi.saveQuestion`) - no direct client-side storage (002-auto-show-question-form)
+- TypeScript 5.8.2, Node.js 24 LTS + Next.js 16.0.7, React 19.1.0, Mantine UI 8.3.10, @whatsnxt/http-client (workspace), @whatsnxt/core-types (workspace) (003-auto-page-creation)
+- Backend PostgreSQL (via Express.js v5 BFF at apps/whatsnxt-bff) (003-auto-page-creation)
+- TypeScript 5.8.2, Node.js 22.12.0 (runtime), React 19.1.0 (004-page-editor-pagination)
+- Existing PostgreSQL database via Express.js v5 backend APIs (no schema changes required) (004-page-editor-pagination)
 
 - TypeScript, Node.js 24.12.0 LTS + Next.js 16, React 19, Mantine UI, Express.js 5, D3.js, MongoDB (001-lab-diagram-test)
 - MongoDB (Lab, LabPage, Question, DiagramTest, DiagramShape models) (001-lab-diagram-test)
@@ -37,9 +41,9 @@ npm test && npm run lint
 TypeScript 5.x + Node.js 24.12.0 LTS: Follow standard conventions
 
 ## Recent Changes
+- 004-page-editor-pagination: Added TypeScript 5.8.2, Node.js 22.12.0 (runtime), React 19.1.0
+- 003-auto-page-creation: Added TypeScript 5.8.2, Node.js 24 LTS + Next.js 16.0.7, React 19.1.0, Mantine UI 8.3.10, @whatsnxt/http-client (workspace), @whatsnxt/core-types (workspace)
 - 002-auto-show-question-form: Added TypeScript 5.8.2, React 19.1.0, Next.js 16.0.7 (App Router) + Mantine UI v8.3.10 (components, notifications, modals), styled-components v6.1.19, custom HttpClient for API calls
-- 001-streamline-lab-creation: Added TypeScript 5.8.2, Node.js 24 LTS + Next.js 16.0.7, React 19.1.0, Mantine UI 8.3.10, Express.js v5 (backend), @whatsnxt/http-client (HTTP communication)
-- 001-lab-monetization: Added TypeScript 5.8.2 with Node.js 24.11.0 (LTS) + Express.js 5.0.0, Mongoose 7.6.10, Razorpay 2.9.0, Next.js 16.0.7, React 19.1.0, Mantine UI
 
 
 <!-- MANUAL ADDITIONS START -->
