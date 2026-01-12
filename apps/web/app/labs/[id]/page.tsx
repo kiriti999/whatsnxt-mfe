@@ -30,6 +30,7 @@ import labApi from '@/apis/lab.api';
 import { getAvailableArchitectures } from '@/utils/shape-libraries';
 import { LabAccessButton } from '@/components/Lab/LabAccessButton';
 import CloneLabButton from '@/components/Lab/CloneLabButton';
+import RepublishModal from '@/components/Lab/RepublishModal';
 import useAuth from '@/hooks/Authentication/useAuth';
 
 const LAB_TYPES = [
@@ -66,6 +67,7 @@ const LabDetailPage = () => {
   const [requiresAccess, setRequiresAccess] = useState(false);
   const [deleteModalOpened, { open: openDeleteModal, close: closeDeleteModal }] = useDisclosure(false);
   const [deletePageModalOpened, { open: openDeletePageModal, close: closeDeletePageModal }] = useDisclosure(false);
+  const [republishModalOpened, { open: openRepublishModal, close: closeRepublishModal }] = useDisclosure(false);
   const [pageToDelete, setPageToDelete] = useState<{ id: string; pageNumber: number } | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -204,6 +206,13 @@ const LabDetailPage = () => {
   };
 
   const handlePublishLab = async () => {
+    // T069-T070: Check if this is a draft clone and show republish modal instead
+    if (lab?.clonedFromLabId) {
+      openRepublishModal();
+      return;
+    }
+
+    // Normal publish flow for non-clone drafts
     try {
       const response = await labApi.publishLab(labId);
       setLab(response.data);
@@ -418,6 +427,16 @@ const LabDetailPage = () => {
           </Group>
         </Stack>
       </Modal>
+
+      {/* Republish Confirmation Modal (T069-T070) */}
+      <RepublishModal 
+        labId={labId}
+        opened={republishModalOpened}
+        onClose={closeRepublishModal}
+        onSuccess={(updatedLabId) => {
+          console.log('[LabDetailPage] Republish successful, redirecting to:', updatedLabId);
+        }}
+      />
 
       {/* Access/Purchase Section for Students */}
       {canViewAccess && (
