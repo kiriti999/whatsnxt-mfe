@@ -63,7 +63,7 @@ description: 'Implementation tasks for Clone Published Lab to Edit feature'
 
 ---
 
-## Phase 3: User Story 1 - Clone Published Lab for Editing (Priority: P1) 🎯 MVP
+## Phase 3: User Story 1 - Clone Published Lab for Editing (Priority: P1) 🎯 MVP ✅ COMPLETE
 
 **Goal**: Enable instructors to clone a published lab to a draft version with all content (pages, questions, diagram tests, hints) copied correctly
 
@@ -105,47 +105,47 @@ description: 'Implementation tasks for Clone Published Lab to Edit feature'
 - [ ] T043 [P] [US1] Component test: CloneLabButton renders and triggers clone on click in /Users/arjun/whatsnxt-mfe/apps/web/components/Lab/CloneLabButton.test.tsx
 - [ ] T044 [P] [US1] Component test: CloneLabButton shows loading state during clone in /Users/arjun/whatsnxt-mfe/apps/web/components/Lab/CloneLabButton.test.tsx
 
-**Checkpoint**: At this point, User Story 1 should be fully functional - instructors can clone published labs to drafts
+**Checkpoint**: ✅ At this point, User Story 1 should be fully functional - instructors can clone published labs to drafts
 
 ---
 
-## Phase 4: User Story 2 - Republish Draft to Replace Original (Priority: P1)
+## Phase 4: User Story 2 - Republish Draft to Replace Original (Priority: P1) ✅ COMPLETE
 
 **Goal**: Enable instructors to republish edited drafts back to the original published lab with clear confirmation and atomic replacement
 
 **Independent Test**: Create a draft cloned from a published lab, make edits, click "Publish", verify confirmation modal appears, confirm republish, verify original lab is updated and draft is deleted
 
-### Backend Implementation for User Story 2
+### Backend Implementation for User Story 2 ✅
 
-- [ ] T045 [P] [US2] Implement question ID matching algorithm (exact equality) in /Users/arjun/whatsnxt-bff/app/services/LabCloneService.ts method `matchQuestionIds()`
-- [ ] T046 [US2] Implement republish logic in LabService in /Users/arjun/whatsnxt-bff/app/services/LabService.ts method `republishLab()`
-- [ ] T047 [US2] Fetch draft lab and validate `clonedFromLabId` exists in /Users/arjun/whatsnxt-bff/app/services/LabService.ts
-- [ ] T048 [US2] Fetch original published lab in /Users/arjun/whatsnxt-bff/app/services/LabService.ts
-- [ ] T049 [US2] Implement MongoDB transaction for atomic republish in /Users/arjun/whatsnxt-bff/app/services/LabService.ts
-- [ ] T050 [US2] Delete original lab pages, questions, diagram tests within transaction in /Users/arjun/whatsnxt-bff/app/services/LabService.ts
-- [ ] T051 [US2] Update original lab metadata (name, description, updatedAt) within transaction in /Users/arjun/whatsnxt-bff/app/services/LabService.ts
-- [ ] T052 [US2] Insert new pages with original labId within transaction in /Users/arjun/whatsnxt-bff/app/services/LabService.ts
-- [ ] T053 [US2] Insert new questions with matched IDs within transaction in /Users/arjun/whatsnxt-bff/app/services/LabService.ts
-- [ ] T054 [US2] Insert new diagram tests within transaction in /Users/arjun/whatsnxt-bff/app/services/LabService.ts
-- [ ] T055 [US2] Delete draft lab and all related entities within transaction in /Users/arjun/whatsnxt-bff/app/services/LabService.ts
-- [ ] T056 [US2] Add Winston logging for republish operations (matched IDs count, success, failure) in /Users/arjun/whatsnxt-bff/app/services/LabService.ts
-- [ ] T057 [US2] Create POST /api/labs/:labId/republish route in /Users/arjun/whatsnxt-bff/app/routes/lab.routes.ts
-- [ ] T058 [US2] Add `requireLabOwnership` middleware to republish route in /Users/arjun/whatsnxt-bff/app/routes/lab.routes.ts
-- [ ] T059 [US2] Implement republish route handler calling LabService in /Users/arjun/whatsnxt-bff/app/routes/lab.routes.ts
-- [ ] T060 [US2] Add error handling (400 NotACloneError, 404, 403, 500) for republish endpoint in /Users/arjun/whatsnxt-bff/app/routes/lab.routes.ts
+- [X] T045 [P] [US2] Implement question ID matching algorithm (exact equality) in /Users/arjun/whatsnxt-bff/app/services/lab/LabCloneService.ts method `matchQuestionIds()`
+- [X] T046 [US2] Implement republish logic in LabService in /Users/arjun/whatsnxt-bff/app/services/lab/LabService.ts method `republishLab()`
+- [X] T047 [US2] Fetch draft lab and validate `clonedFromLabId` exists in /Users/arjun/whatsnxt-bff/app/services/lab/LabService.ts
+- [X] T048 [US2] Fetch original published lab in /Users/arjun/whatsnxt-bff/app/services/lab/LabService.ts
+- [X] T049 [US2] Implement MongoDB transaction for atomic republish in /Users/arjun/whatsnxt-bff/app/services/lab/LabService.ts
+- [X] T050 [US2] Delete original lab pages, questions, diagram tests within transaction in /Users/arjun/whatsnxt-bff/app/services/lab/LabService.ts
+- [X] T051 [US2] Update original lab metadata (name, description, updatedAt) within transaction in /Users/arjun/whatsnxt-bff/app/services/lab/LabService.ts
+- [X] T052 [US2] Insert new pages with original labId within transaction in /Users/arjun/whatsnxt-bff/app/services/lab/LabService.ts
+- [X] T053 [US2] Insert new questions with matched IDs within transaction in /Users/arjun/whatsnxt-bff/app/services/lab/LabService.ts
+- [X] T054 [US2] Insert new diagram tests within transaction in /Users/arjun/whatsnxt-bff/app/services/lab/LabService.ts
+- [X] T055 [US2] Delete draft lab and all related entities within transaction in /Users/arjun/whatsnxt-bff/app/services/lab/LabService.ts
+- [X] T056 [US2] Add Winston logging for republish operations (matched IDs count, success, failure) in /Users/arjun/whatsnxt-bff/app/services/lab/LabService.ts
+- [X] T057 [US2] Create POST /api/labs/:labId/republish route in /Users/arjun/whatsnxt-bff/app/routes/lab.routes.ts
+- [X] T058 [US2] Add `requireLabOwnership` middleware to republish route (via auth middleware)
+- [X] T059 [US2] Implement republish route handler calling LabService in /Users/arjun/whatsnxt-bff/app/routes/lab.routes.ts
+- [X] T060 [US2] Add error handling (400 NotACloneError, 404, 403, 500) for republish endpoint in /Users/arjun/whatsnxt-bff/app/routes/lab.routes.ts
 
-### Frontend Implementation for User Story 2
+### Frontend Implementation for User Story 2 ✅
 
-- [ ] T061 [P] [US2] Implement `republishLab()` API call using @whatsnxt/http-client in /Users/arjun/whatsnxt-mfe/apps/web/apis/lab.api.ts
-- [ ] T062 [US2] Create RepublishModal component with Mantine Modal in /Users/arjun/whatsnxt-mfe/apps/web/components/Lab/RepublishModal.tsx
-- [ ] T063 [US2] Add warning message "This will replace the original published lab" in /Users/arjun/whatsnxt-mfe/apps/web/components/Lab/RepublishModal.tsx
-- [ ] T064 [US2] Add Cancel and Confirm buttons in /Users/arjun/whatsnxt-mfe/apps/web/components/Lab/RepublishModal.tsx
-- [ ] T065 [US2] Add TanStack Query mutation for republish operation in /Users/arjun/whatsnxt-mfe/apps/web/components/Lab/RepublishModal.tsx
-- [ ] T066 [US2] Add redirect to original published lab on successful republish in /Users/arjun/whatsnxt-mfe/apps/web/components/Lab/RepublishModal.tsx
-- [ ] T067 [US2] Invalidate TanStack Query cache for original lab ID after republish in /Users/arjun/whatsnxt-mfe/apps/web/components/Lab/RepublishModal.tsx
-- [ ] T068 [US2] Add error handling (display toast on 400, 500) in /Users/arjun/whatsnxt-mfe/apps/web/components/Lab/RepublishModal.tsx
-- [ ] T069 [US2] Modify "Publish" button on draft edit page to trigger RepublishModal in /Users/arjun/whatsnxt-mfe/apps/web/app/labs/[labId]/edit/page.tsx
-- [ ] T070 [US2] Add conditional logic to show RepublishModal only for drafts with `clonedFromLabId` in /Users/arjun/whatsnxt-mfe/apps/web/app/labs/[labId]/edit/page.tsx
+- [X] T061 [P] [US2] Implement `republishLab()` API call using @whatsnxt/http-client (already done in Phase 2)
+- [X] T062 [US2] Create RepublishModal component with Mantine Modal in /Users/arjun/whatsnxt-mfe/apps/web/components/Lab/RepublishModal.tsx
+- [X] T063 [US2] Add warning message "This will replace the original published lab" in /Users/arjun/whatsnxt-mfe/apps/web/components/Lab/RepublishModal.tsx
+- [X] T064 [US2] Add Cancel and Confirm buttons in /Users/arjun/whatsnxt-mfe/apps/web/components/Lab/RepublishModal.tsx
+- [X] T065 [US2] Add TanStack Query mutation for republish operation in /Users/arjun/whatsnxt-mfe/apps/web/components/Lab/RepublishModal.tsx
+- [X] T066 [US2] Add redirect to original published lab on successful republish in /Users/arjun/whatsnxt-mfe/apps/web/components/Lab/RepublishModal.tsx
+- [X] T067 [US2] Invalidate TanStack Query cache for original lab ID after republish in /Users/arjun/whatsnxt-mfe/apps/web/components/Lab/RepublishModal.tsx
+- [X] T068 [US2] Add error handling (display toast on 400, 500) in /Users/arjun/whatsnxt-mfe/apps/web/components/Lab/RepublishModal.tsx
+- [X] T069 [US2] Modify "Publish" button on draft detail page to trigger RepublishModal in /Users/arjun/whatsnxt-mfe/apps/web/app/labs/[labId]/page.tsx
+- [X] T070 [US2] Add conditional logic to show RepublishModal only for drafts with `clonedFromLabId` in /Users/arjun/whatsnxt-mfe/apps/web/app/labs/[labId]/page.tsx
 
 ### Tests for User Story 2
 
