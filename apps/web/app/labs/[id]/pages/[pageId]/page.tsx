@@ -78,7 +78,6 @@ const LabPageEditorPage = () => {
   const [savingQuestionId, setSavingQuestionId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [labStatus, setLabStatus] = useState<'draft' | 'published'>('draft');
-  const [labInstructorId, setLabInstructorId] = useState<string | null>(null);
   const [diagramTestData, setDiagramTestData] = useState<any>(null);
   const [isFormCancelled, setIsFormCancelled] = useState(false);
   const [currentPageNumber, setCurrentPageNumber] = useState(1);
@@ -93,10 +92,8 @@ const LabPageEditorPage = () => {
 
   // Derive isPublished from labStatus
   const isPublished = labStatus === 'published';
-  // Check if current user is the lab owner
-  const isOwner = isTrainer && labInstructorId === user?._id;
-  // Can edit if draft OR if owner of published lab
-  const canEditContent = !isPublished || isOwner;
+  // Can edit only if draft
+  const canEditContent = !isPublished;
 
   // Initialize page mapping hook for pagination navigation (feature 004)
   const { getPageId, isLoading: isMappingLoading, error: mappingError, refreshMapping } = usePageMapping(labId);
@@ -127,7 +124,6 @@ const LabPageEditorPage = () => {
       // Fetch lab status and total pages count
       const labResponse = await labApi.getLabById(labId);
       setLabStatus(labResponse.data.status || 'draft');
-      setLabInstructorId(labResponse.data.instructorId || null);
       
       // Extract total pages from lab response (feature 004)
       if (labResponse.data.pages) {
@@ -791,11 +787,8 @@ const LabPageEditorPage = () => {
     );
   }
 
-  // Student mode OR non-owner trainer viewing published lab - show test runner
-  // Show student view if: (is a student AND lab is published) OR (lab is published AND user cannot edit)
-  const shouldShowStudentView = isPublished && (isStudent || !canEditContent);
-  
-  if (shouldShowStudentView) {
+  // Student mode - show test runner for students viewing published labs
+  if (isStudent && isPublished) {
     // Transform questions for StudentTestRunner
     const transformedQuestions = questions.map(q => ({
       id: q.id,

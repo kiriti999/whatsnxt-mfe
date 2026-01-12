@@ -1,0 +1,338 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Republish Lab API",
+    "description": "API endpoint for republishing a draft clone to replace the original published lab",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://api.whatsnxt.com",
+      "description": "Production server"
+    },
+    {
+      "url": "http://localhost:3001",
+      "description": "Local development server"
+    }
+  ],
+  "paths": {
+    "/api/labs/{labId}/republish": {
+      "post": {
+        "summary": "Republish draft clone to replace original",
+        "description": "Updates the original published lab with content from the draft clone, preserves student progress where possible, and deletes the draft. This operation is atomic - either all changes succeed or all fail.",
+        "operationId": "republishLab",
+        "tags": ["Labs"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "labId",
+            "in": "path",
+            "required": true,
+            "description": "UUID of the draft lab to republish",
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "example": "lab-xyz-789"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lab republished successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["success", "data"],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "required": ["lab"],
+                      "properties": {
+                        "lab": {
+                          "$ref": "#/components/schemas/Lab"
+                        },
+                        "metadata": {
+                          "type": "object",
+                          "properties": {
+                            "republishedAt": {
+                              "type": "string",
+                              "format": "date-time",
+                              "example": "2025-01-17T11:00:00Z"
+                            },
+                            "questionsPreserved": {
+                              "type": "integer",
+                              "description": "Number of questions with preserved IDs (student progress maintained)",
+                              "example": 85
+                            },
+                            "questionsNew": {
+                              "type": "integer",
+                              "description": "Number of new questions (student progress lost)",
+                              "example": 15
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "examples": {
+                  "successful-republish": {
+                    "summary": "Successful republish operation",
+                    "value": {
+                      "success": true,
+                      "data": {
+                        "lab": {
+                          "id": "lab-abc-123",
+                          "status": "published",
+                          "name": "AWS Basics - Updated",
+                          "description": "Introduction to AWS services with new content",
+                          "labType": "Cloud Computing",
+                          "architectureType": "AWS",
+                          "instructorId": "instructor-001",
+                          "clonedFromLabId": null,
+                          "createdAt": "2025-01-01T00:00:00Z",
+                          "updatedAt": "2025-01-17T11:00:00Z"
+                        },
+                        "metadata": {
+                          "republishedAt": "2025-01-17T11:00:00Z",
+                          "questionsPreserved": 85,
+                          "questionsNew": 15
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request (e.g., trying to republish a non-clone or published lab)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "not-a-clone": {
+                    "summary": "Lab is not a clone",
+                    "value": {
+                      "success": false,
+                      "error": {
+                        "code": "NOT_A_CLONE",
+                        "message": "Cannot republish: This lab is not a clone. Only draft clones can be republished.",
+                        "details": {
+                          "labId": "lab-xyz-789",
+                          "clonedFromLabId": null
+                        }
+                      }
+                    }
+                  },
+                  "already-published": {
+                    "summary": "Lab is already published",
+                    "value": {
+                      "success": false,
+                      "error": {
+                        "code": "INVALID_LAB_STATUS",
+                        "message": "Cannot republish: Lab is already published. Only draft labs can be republished.",
+                        "details": {
+                          "labId": "lab-xyz-789",
+                          "currentStatus": "published",
+                          "requiredStatus": "draft"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - missing or invalid authentication token"
+          },
+          "403": {
+            "description": "Forbidden - user is not the lab owner"
+          },
+          "404": {
+            "description": "Lab not found or original lab no longer exists",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "original-deleted": {
+                    "summary": "Original lab was deleted",
+                    "value": {
+                      "success": false,
+                      "error": {
+                        "code": "ORIGINAL_LAB_NOT_FOUND",
+                        "message": "Cannot republish: The original published lab no longer exists.",
+                        "details": {
+                          "draftLabId": "lab-xyz-789",
+                          "originalLabId": "lab-abc-123"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error - republish operation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "transaction-failed": {
+                    "summary": "Database transaction failure",
+                    "value": {
+                      "success": false,
+                      "error": {
+                        "code": "REPUBLISH_FAILED",
+                        "message": "Failed to republish lab. The operation has been rolled back and the original lab is unchanged. Please try again.",
+                        "details": {
+                          "cause": "Database transaction timeout",
+                          "retryable": true
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "JWT token obtained from authentication endpoint"
+      }
+    },
+    "schemas": {
+      "Lab": {
+        "type": "object",
+        "required": [
+          "id",
+          "status",
+          "name",
+          "labType",
+          "architectureType",
+          "instructorId",
+          "createdAt",
+          "updatedAt"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Unique identifier for the lab (original lab ID after republish)",
+            "example": "lab-abc-123"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["draft", "published"],
+            "description": "Current status of the lab (always 'published' after republish)",
+            "example": "published"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 100,
+            "description": "Lab name",
+            "example": "AWS Basics - Updated"
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 500,
+            "description": "Lab description",
+            "example": "Introduction to AWS services with new content"
+          },
+          "labType": {
+            "type": "string",
+            "description": "Category of the lab",
+            "example": "Cloud Computing"
+          },
+          "architectureType": {
+            "type": "string",
+            "description": "Platform for the lab",
+            "example": "AWS"
+          },
+          "instructorId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the instructor who owns this lab",
+            "example": "instructor-001"
+          },
+          "clonedFromLabId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true,
+            "description": "Always null after republish (not a clone anymore)",
+            "example": null
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Original creation timestamp (preserved from original lab)",
+            "example": "2025-01-01T00:00:00Z"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when the lab was republished",
+            "example": "2025-01-17T11:00:00Z"
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "required": ["success", "error"],
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": false
+          },
+          "error": {
+            "type": "object",
+            "required": ["code", "message"],
+            "properties": {
+              "code": {
+                "type": "string",
+                "description": "Machine-readable error code",
+                "example": "NOT_A_CLONE"
+              },
+              "message": {
+                "type": "string",
+                "description": "Human-readable error message",
+                "example": "Cannot republish: This lab is not a clone."
+              },
+              "details": {
+                "type": "object",
+                "description": "Additional context about the error",
+                "additionalProperties": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

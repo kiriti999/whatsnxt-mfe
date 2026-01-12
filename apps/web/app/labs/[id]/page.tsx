@@ -29,6 +29,8 @@ import { Lab, LabPage } from '@whatsnxt/core-types';
 import labApi from '@/apis/lab.api';
 import { getAvailableArchitectures } from '@/utils/shape-libraries';
 import { LabAccessButton } from '@/components/Lab/LabAccessButton';
+import CloneLabButton from '@/components/Lab/CloneLabButton';
+import RepublishModal from '@/components/Lab/RepublishModal';
 import useAuth from '@/hooks/Authentication/useAuth';
 
 const LAB_TYPES = [
@@ -65,6 +67,7 @@ const LabDetailPage = () => {
   const [requiresAccess, setRequiresAccess] = useState(false);
   const [deleteModalOpened, { open: openDeleteModal, close: closeDeleteModal }] = useDisclosure(false);
   const [deletePageModalOpened, { open: openDeletePageModal, close: closeDeletePageModal }] = useDisclosure(false);
+  const [republishModalOpened, { open: openRepublishModal, close: closeRepublishModal }] = useDisclosure(false);
   const [pageToDelete, setPageToDelete] = useState<{ id: string; pageNumber: number } | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -203,6 +206,13 @@ const LabDetailPage = () => {
   };
 
   const handlePublishLab = async () => {
+    // T069-T070: Check if this is a draft clone and show republish modal instead
+    if (lab?.clonedFromLabId) {
+      openRepublishModal();
+      return;
+    }
+
+    // Normal publish flow for non-clone drafts
     try {
       const response = await labApi.publishLab(labId);
       setLab(response.data);
@@ -296,11 +306,11 @@ const LabDetailPage = () => {
 
   // Derived values after lab is loaded
   const isPublished = lab.status === 'published';
-  const canEdit = isOwner; // Owners can edit their labs regardless of status
+  const canEdit = lab.status === 'draft'; // Only draft labs can be edited
   const isStudent = isAuthenticated && user?.role === 'student';
   // Show purchase button when: published + student + requires access
   const canViewAccess = isPublished && isStudent && requiresAccess;
-  // Can view tests when: owner OR (student AND has access = not requiring access)
+  // Can view tests when: trainer owner OR (student AND has access = not requiring access)
   const canViewTests = isOwner || (isStudent && !requiresAccess);
 
   // Debug logging for access control
@@ -374,6 +384,15 @@ const LabDetailPage = () => {
               )}
             </>
           )}
+          {/* T035-T036: Clone button for published labs owned by instructor */}
+          {isPublished && isOwner && (
+            <CloneLabButton 
+              labId={labId}
+              onSuccess={(clonedLabId) => {
+                console.log('[LabDetailPage] Clone successful, redirecting to:', clonedLabId);
+              }}
+            />
+          )}
         </Group>
       </Group>
 
@@ -408,6 +427,16 @@ const LabDetailPage = () => {
           </Group>
         </Stack>
       </Modal>
+
+      {/* Republish Confirmation Modal (T069-T070) */}
+      <RepublishModal 
+        labId={labId}
+        opened={republishModalOpened}
+        onClose={closeRepublishModal}
+        onSuccess={(updatedLabId) => {
+          console.log('[LabDetailPage] Republish successful, redirecting to:', updatedLabId);
+        }}
+      />
 
       {/* Access/Purchase Section for Students */}
       {canViewAccess && (

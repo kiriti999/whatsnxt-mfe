@@ -15,6 +15,8 @@ Auto-generated from all feature plans. Last updated: 2025-12-15
 - Backend PostgreSQL (via Express.js v5 BFF at apps/whatsnxt-bff) (003-auto-page-creation)
 - TypeScript 5.8.2, Node.js 22.12.0 (runtime), React 19.1.0 (004-page-editor-pagination)
 - Existing PostgreSQL database via Express.js v5 backend APIs (no schema changes required) (004-page-editor-pagination)
+- TypeScript 5.x (Frontend: Next.js 16 / React 19, Backend: Express.js 5 + Node.js 20+) (001-clone-lab-to-edit)
+- MongoDB 7.x with Mongoose ODM (separate collections: lab_diagram_tests, lab_pages, questions, diagram_tests) (001-clone-lab-to-edit)
 
 - TypeScript, Node.js 24.12.0 LTS + Next.js 16, React 19, Mantine UI, Express.js 5, D3.js, MongoDB (001-lab-diagram-test)
 - MongoDB (Lab, LabPage, Question, DiagramTest, DiagramShape models) (001-lab-diagram-test)
@@ -41,9 +43,9 @@ npm test && npm run lint
 TypeScript 5.x + Node.js 24.12.0 LTS: Follow standard conventions
 
 ## Recent Changes
+- 001-clone-lab-to-edit: Added TypeScript 5.x (Frontend: Next.js 16 / React 19, Backend: Express.js 5 + Node.js 20+)
 - 001-diagram-quiz-hints: Added [if applicable, e.g., PostgreSQL, CoreData, files or N/A]
 - 004-page-editor-pagination: Added TypeScript 5.8.2, Node.js 22.12.0 (runtime), React 19.1.0
-- 003-auto-page-creation: Added TypeScript 5.8.2, Node.js 24 LTS + Next.js 16.0.7, React 19.1.0, Mantine UI 8.3.10, @whatsnxt/http-client (workspace), @whatsnxt/core-types (workspace)
 
 
 <!-- MANUAL ADDITIONS START -->

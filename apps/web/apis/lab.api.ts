@@ -308,6 +308,30 @@ const labApi = {
     http.get<{ data: { totalPages: number; passedPages: number; percentage: number } }>(
       `/labs/${labId}/progress?studentId=${studentId}`
     ),
+
+  /**
+   * Clone a published lab to an editable draft version
+   * Deep copies all pages, questions, and diagram tests
+   * @param labId - Lab UUID (must be published)
+   * @returns Cloned draft lab
+   * @throws 403 if not lab owner
+   * @throws 404 if lab not found
+   * @throws 409 if draft clone already exists
+   */
+  cloneLab: (labId: string) =>
+    http.post<{ success: boolean; data: { lab: Lab } }>(`/labs/${labId}/clone`, {}),
+
+  /**
+   * Republish a draft clone back to the original published lab
+   * Replaces original lab content atomically with draft content
+   * @param labId - Lab UUID (must be a draft clone)
+   * @returns Updated original published lab
+   * @throws 400 if lab is not a clone (clonedFromLabId missing)
+   * @throws 403 if not lab owner
+   * @throws 404 if lab or original not found
+   */
+  republishLab: (labId: string) =>
+    http.post<{ success: boolean; data: { lab: Lab } }>(`/labs/${labId}/republish`, {}),
 };
 
 export default labApi;
