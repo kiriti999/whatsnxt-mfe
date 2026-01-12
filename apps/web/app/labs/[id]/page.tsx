@@ -73,6 +73,7 @@ const LabDetailPage = () => {
 
   // Derived values (must come after state declarations)
   const isTrainer = isAuthenticated && user?.role === 'trainer';
+  const isAdmin = isAuthenticated && user?.role === 'admin';
   const isOwner = isTrainer && lab?.instructorId === user?._id;
 
   const PAGES_PER_PAGE = 3;
@@ -307,6 +308,7 @@ const LabDetailPage = () => {
   // Derived values after lab is loaded
   const isPublished = lab.status === 'published';
   const canEdit = lab.status === 'draft'; // Only draft labs can be edited
+  const canDelete = isAdmin || (isOwner && lab.status === 'draft'); // Admin can delete any, owner can delete drafts
   const isStudent = isAuthenticated && user?.role === 'student';
   // Show purchase button when: published + student + requires access
   const canViewAccess = isPublished && isStudent && requiresAccess;
@@ -372,17 +374,15 @@ const LabDetailPage = () => {
           </Badge>
         </Group>
         <Group>
-          {canEdit && (
-            <>
-              <Button variant="outline" color="red" onClick={openDeleteModal}>
-                Delete Lab
-              </Button>
-              {!isPublished && (
-                <Button color="blue" onClick={handlePublishLab}>
-                  Publish Lab
-                </Button>
-              )}
-            </>
+          {canDelete && (
+            <Button variant="outline" color="red" onClick={openDeleteModal}>
+              Delete Lab
+            </Button>
+          )}
+          {canEdit && !isPublished && (
+            <Button color="blue" onClick={handlePublishLab}>
+              Publish Lab
+            </Button>
           )}
           {/* T035-T036: Clone button for published labs owned by instructor */}
           {isPublished && isOwner && (
