@@ -80,6 +80,7 @@ export interface CreateDiagramTestRequest {
     metadata?: Record<string, any>;
   };
   architectureType: string;
+  hints?: string[]; // Optional array of hint texts (max 5, each max 500 chars)
 }
 
 /**

@@ -43,6 +43,7 @@ export interface DiagramTest extends BaseEntity {
   prompt: string;
   expectedDiagramState: Record<string, any>; // JSON representation
   architectureType: string; // e.g., 'AWS', 'Azure', 'GCP', 'Common'
+  hints?: string[]; // Optional array of hint texts (max 5, each max 500 chars)
 }
 
 export interface DiagramShape extends BaseEntity {

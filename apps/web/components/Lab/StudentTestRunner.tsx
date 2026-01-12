@@ -22,6 +22,7 @@ import { notifications } from '@mantine/notifications';
 import { useRouter } from 'next/navigation';
 import DiagramEditor from '../architecture-lab/DiagramEditor';
 import { jumbleGraph, validateGraph } from '@/utils/lab-utils';
+import HintsDisclosure from './HintsDisclosure';
 
 interface Question {
   id: string;
@@ -36,6 +37,7 @@ interface DiagramTest {
   prompt: string;
   architectureType: string;
   expectedDiagramState: any;
+  hints?: string[]; // Optional array of hints for progressive disclosure
 }
 
 interface StudentTestRunnerProps {
@@ -68,6 +70,7 @@ export const StudentTestRunner: React.FC<StudentTestRunnerProps> = ({
   // Diagram test state
   const [jumbledDiagram, setJumbledDiagram] = useState<any>(null);
   const [studentDiagram, setStudentDiagram] = useState<any>(null);
+  const [revealedHintsCount, setRevealedHintsCount] = useState(0);
   
   // Overall state
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -343,6 +346,17 @@ export const StudentTestRunner: React.FC<StudentTestRunnerProps> = ({
                   Drag the shapes to their correct positions and create connections between them. 
                   All connections from the original diagram have been removed.
                 </Text>
+
+                {/* Hints Section - Only show if hints exist */}
+                {diagramTest?.hints && diagramTest.hints.length > 0 && (
+                  <HintsDisclosure
+                    hints={diagramTest.hints}
+                    onHintRevealed={(count) => {
+                      setRevealedHintsCount(count);
+                      console.log(`Student revealed ${count} hints`);
+                    }}
+                  />
+                )}
 
                 <Box style={{ height: '600px', border: '1px solid #e0e0e0', borderRadius: '8px' }}>
                   {jumbledDiagram && (

@@ -1,0 +1,182 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Lab Diagram Test Hints API",
+    "version": "1.0.0",
+    "description": "API endpoints for managing hints in diagram quiz tests. Extends existing Lab API with hint support.",
+    "contact": {
+      "name": "WhatsNxt API Team"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:4444/api/v1",
+      "description": "Local development server"
+    },
+    {
+      "url": "https://api.whatsnxt.com/api/v1",
+      "description": "Production server"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Diagram Tests",
+      "description": "Diagram test CRUD operations with hint support"
+    }
+  ],
+  "paths": {
+    "/lab/{labId}/pages/{pageId}/diagram-test": {
+      "post": {
+        "summary": "Create or update diagram test with hints",
+        "description": "Creates a new diagram test or updates existing one. Includes optional hints array (max 5 hints).",
+        "tags": ["Diagram Tests"],
+        "operationId": "saveDiagramTest",
+        "parameters": [
+          {
+            "name": "labId",
+            "in": "path",
+            "required": true,
+            "description": "Lab UUID",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "pageId",
+            "in": "path",
+            "required": true,
+            "description": "Lab page UUID",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateDiagramTestRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Diagram test created/updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/DiagramTest"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "CreateDiagramTestRequest": {
+        "type": "object",
+        "required": ["prompt", "expectedDiagramState", "architectureType"],
+        "properties": {
+          "prompt": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          },
+          "expectedDiagramState": {
+            "type": "object"
+          },
+          "architectureType": {
+            "type": "string",
+            "enum": ["AWS", "Azure", "GCP", "Common", "Hybrid"]
+          },
+          "hints": {
+            "type": "array",
+            "maxItems": 5,
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            }
+          }
+        }
+      },
+      "DiagramTest": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "labPageId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "prompt": {
+            "type": "string"
+          },
+          "expectedDiagramState": {
+            "type": "object"
+          },
+          "architectureType": {
+            "type": "string"
+          },
+          "hints": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      }
+    },
+    "responses": {
+      "ValidationError": {
+        "description": "Validation error",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string"
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
