@@ -41,9 +41,9 @@ npm test && npm run lint
 TypeScript 5.x + Node.js 24.12.0 LTS: Follow standard conventions
 
 ## Recent Changes
+- 001-diagram-quiz-hints: Added [if applicable, e.g., PostgreSQL, CoreData, files or N/A]
 - 004-page-editor-pagination: Added TypeScript 5.8.2, Node.js 22.12.0 (runtime), React 19.1.0
 - 003-auto-page-creation: Added TypeScript 5.8.2, Node.js 24 LTS + Next.js 16.0.7, React 19.1.0, Mantine UI 8.3.10, @whatsnxt/http-client (workspace), @whatsnxt/core-types (workspace)
-- 002-auto-show-question-form: Added TypeScript 5.8.2, React 19.1.0, Next.js 16.0.7 (App Router) + Mantine UI v8.3.10 (components, notifications, modals), styled-components v6.1.19, custom HttpClient for API calls
 
 
 <!-- MANUAL ADDITIONS START -->

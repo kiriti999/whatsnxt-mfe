@@ -30,6 +30,7 @@ import { IconTrash, IconSearch, IconX, IconDeviceDesktop } from '@tabler/icons-r
 import labApi from '@/apis/lab.api';
 import DiagramEditor from '@/components/architecture-lab/DiagramEditor';
 import { StudentTestRunner } from '@/components/Lab/StudentTestRunner';
+import HintsEditor from '@/components/Lab/HintsEditor';
 import useAuth from '@/hooks/Authentication/useAuth';
 import { useAutoPageCreation } from '@/hooks/useAutoPageCreation';
 import { usePageMapping } from '@/hooks/usePageMapping';
@@ -112,6 +113,7 @@ const LabPageEditorPage = () => {
   const [architectureType, setArchitectureType] = useState('');
   const [prompt, setPrompt] = useState('');
   const [expectedDiagramState, setExpectedDiagramState] = useState<any>(null);
+  const [hints, setHints] = useState<string[]>([]);
 
 
   useEffect(() => {
@@ -163,6 +165,7 @@ const LabPageEditorPage = () => {
         const dt = pageData.diagramTest;
         setPrompt(dt.prompt || '');
         setArchitectureType(dt.architectureType || '');
+        setHints(dt.hints || []); // Load hints from backend
 
         // Store diagram test data for student mode
         setDiagramTestData(dt);
@@ -628,10 +631,19 @@ const LabPageEditorPage = () => {
 
       console.log('Transformed diagram state for backend:', transformedDiagramState);
 
+      // Sanitize hints: trim whitespace, filter empty hints
+      const sanitizedHints = hints
+        .map(h => h.trim())
+        .filter(h => h.length > 0);
+      
+      // Only include hints if there are valid ones
+      const hintsToSave = sanitizedHints.length > 0 ? sanitizedHints : undefined;
+
       await labApi.saveDiagramTest(labId, pageId, {
         prompt: prompt.trim(),
         expectedDiagramState: transformedDiagramState,
         architectureType: architectureType,
+        hints: hintsToSave, // Include sanitized hints
       });
 
       notifications.show({
@@ -779,8 +791,11 @@ const LabPageEditorPage = () => {
     );
   }
 
-  // Student mode - show test runner
-  if (isStudent && isPublished) {
+  // Student mode OR non-owner trainer viewing published lab - show test runner
+  // Show student view if: (is a student AND lab is published) OR (lab is published AND user cannot edit)
+  const shouldShowStudentView = isPublished && (isStudent || !canEditContent);
+  
+  if (shouldShowStudentView) {
     // Transform questions for StudentTestRunner
     const transformedQuestions = questions.map(q => ({
       id: q.id,
@@ -795,6 +810,7 @@ const LabPageEditorPage = () => {
       prompt: diagramTestData.prompt || '',
       architectureType: diagramTestData.architectureType || 'Generic',
       expectedDiagramState: expectedDiagramState,
+      hints: diagramTestData.hints, // Pass hints to student
     } : undefined;
 
     return (
@@ -1133,6 +1149,16 @@ const LabPageEditorPage = () => {
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
                 required
+                disabled={!canEditContent}
+              />
+
+              {/* Hints Editor - Optional hints for students */}
+              <HintsEditor
+                hints={hints}
+                onUpdate={(updatedHints) => {
+                  setHints(updatedHints);
+                  console.log('Hints updated:', updatedHints);
+                }}
                 disabled={!canEditContent}
               />
 
