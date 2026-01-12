@@ -34,19 +34,19 @@ export const CloneLabButton: React.FC<CloneLabButtonProps> = ({
     mutationFn: () => labApi.cloneLab(labId),
     onSuccess: (response) => {
       const clonedLabId = response.data.lab.id;
-      
+
       // Invalidate queries to refresh lab lists
       queryClient.invalidateQueries({ queryKey: ['labs'] });
-      
+
       // Show success notification
       notifications.show({
         title: 'Lab Cloned Successfully',
-        message: 'Redirecting to edit page...',
+        message: 'Cloned',
         color: 'green',
       });
 
-      // T033: Redirect to draft edit page
-      router.push(`/labs/${clonedLabId}/pages/edit`);
+      // T033: Redirect to draft lab detail page (Tests & Questions tab)
+      router.push(`/labs/${clonedLabId}?tab=tests`);
 
       // Call custom success callback
       if (onSuccess) {
@@ -65,15 +65,15 @@ export const CloneLabButton: React.FC<CloneLabButtonProps> = ({
         const existingDraftId = error?.response?.data?.context?.existingDraftId;
         notifications.show({
           title: 'Draft Already Exists',
-          message: existingDraftId 
+          message: existingDraftId
             ? 'You already have a draft clone of this lab. Redirecting...'
             : 'A draft clone already exists for this lab.',
           color: 'orange',
         });
-        
+
         // Redirect to existing draft
         if (existingDraftId) {
-          setTimeout(() => router.push(`/labs/${existingDraftId}/pages/edit`), 1500);
+          setTimeout(() => router.push(`/labs/${existingDraftId}?tab=tests`), 1500);
         }
         return;
       }
