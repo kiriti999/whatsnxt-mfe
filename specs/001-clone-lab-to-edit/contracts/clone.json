@@ -1,0 +1,103 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Clone Lab API",
+    "description": "API endpoint for cloning a published lab to an editable draft",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://api.whatsnxt.com",
+      "description": "Production server"
+    },
+    {
+      "url": "http://localhost:3001",
+      "description": "Local development server"
+    }
+  ],
+  "paths": {
+    "/api/labs/{labId}/clone": {
+      "post": {
+        "summary": "Clone published lab to draft",
+        "description": "Creates a complete copy of a published lab as a new draft, including all pages, questions, diagram tests, and hints. Only the lab owner can perform this operation.",
+        "operationId": "cloneLab",
+        "tags": ["Labs"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "labId",
+            "in": "path",
+            "required": true,
+            "description": "UUID of the published lab to clone",
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "example": "lab-abc-123"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Lab cloned successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["success", "data"],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "required": ["lab"],
+                      "properties": {
+                        "lab": {
+                          "$ref": "#/components/schemas/Lab"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict - draft clone already exists"
+          },
+          "403": {
+            "description": "Forbidden - user is not the lab owner"
+          },
+          "404": {
+            "description": "Lab not found"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "Lab": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "status": { "type": "string", "enum": ["draft", "published"] },
+          "name": { "type": "string" },
+          "clonedFromLabId": { "type": "string", "nullable": true }
+        }
+      }
+    }
+  }
+}

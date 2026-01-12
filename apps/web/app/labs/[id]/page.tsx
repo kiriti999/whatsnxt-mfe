@@ -296,11 +296,11 @@ const LabDetailPage = () => {
 
   // Derived values after lab is loaded
   const isPublished = lab.status === 'published';
-  const canEdit = isOwner; // Owners can edit their labs regardless of status
+  const canEdit = lab.status === 'draft'; // Only draft labs can be edited
   const isStudent = isAuthenticated && user?.role === 'student';
   // Show purchase button when: published + student + requires access
   const canViewAccess = isPublished && isStudent && requiresAccess;
-  // Can view tests when: owner OR (student AND has access = not requiring access)
+  // Can view tests when: trainer owner OR (student AND has access = not requiring access)
   const canViewTests = isOwner || (isStudent && !requiresAccess);
 
   // Debug logging for access control

@@ -344,9 +344,7 @@ const LabsPage = () => {
         ) : (
           <>
             <div className="labs-grid">
-              {publishedLabs.map((lab) => {
-                const isOwner = isTrainer && lab.instructorId === user?._id;
-                return (
+              {publishedLabs.map((lab) => (
                   <Paper key={lab.id} shadow="xs" p="md" withBorder className="card-hover">
                     <Group justify="space-between" align="center" wrap="nowrap">
                       <Box style={{ flex: 1, minWidth: 0 }}>
@@ -372,31 +370,17 @@ const LabsPage = () => {
                           )}
                         </Group>
                       </Box>
-                      <Group gap="xs">
-                        {isOwner && (
-                          <ActionIcon
-                            variant="subtle"
-                            color="blue"
-                            size="lg"
-                            onClick={() => router.push(`/labs/${lab.id}`)}
-                            title="Edit Lab"
-                          >
-                            <IconEdit size={20} />
-                          </ActionIcon>
-                        )}
-                        <Button
-                          variant="filled"
-                          color="orange"
-                          size="sm"
-                          onClick={() => router.push(`/labs/${lab.id}`)}
-                        >
-                          {isOwner ? 'View' : 'Access'}
-                        </Button>
-                      </Group>
+                      <Button
+                        variant="filled"
+                        color="orange"
+                        size="sm"
+                        onClick={() => router.push(`/labs/${lab.id}`)}
+                      >
+                        Access
+                      </Button>
                     </Group>
                   </Paper>
-                );
-              })}
+              ))}
             </div>
             {Math.ceil(publishedTotal / pageSize) > 1 && (
               <Group justify="center" mt="xl">
