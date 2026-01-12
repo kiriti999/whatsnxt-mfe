@@ -1,8 +1,9 @@
 'use client';
 
 import { Button } from '@mantine/core';
-import { useMutation } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useRouter } from 'next/navigation';
+import { notifications } from '@mantine/notifications';
 import labApi from '@/apis/lab.api';
 
 /**
@@ -11,8 +12,7 @@ import labApi from '@/apis/lab.api';
  * Allows instructors to clone a published lab to an editable draft version.
  * Displays loading state during clone operation and redirects to draft edit page on success.
  *
- * Phase 2: Skeleton component
- * Phase 3: Full implementation with mutation, error handling, and redirect
+ * T031-T034: Full implementation with mutation, error handling, and redirect
  */
 
 interface CloneLabButtonProps {
@@ -26,22 +26,89 @@ export const CloneLabButton: React.FC<CloneLabButtonProps> = ({
   onSuccess,
   onError,
 }) => {
-  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
+  const queryClient = useQueryClient();
 
-  const handleClone = () => {
-    setIsLoading(true);
-    // TODO: Implement clone mutation in Phase 3 (User Story 1)
-    console.log('[CloneLabButton] Clone button clicked for lab:', labId);
-    setTimeout(() => setIsLoading(false), 1000); // Temporary mock
-  };
+  // T032: TanStack Query mutation for clone operation
+  const cloneMutation = useMutation({
+    mutationFn: () => labApi.cloneLab(labId),
+    onSuccess: (response) => {
+      const clonedLabId = response.data.lab.id;
+      
+      // Invalidate queries to refresh lab lists
+      queryClient.invalidateQueries({ queryKey: ['labs'] });
+      
+      // Show success notification
+      notifications.show({
+        title: 'Lab Cloned Successfully',
+        message: 'Redirecting to edit page...',
+        color: 'green',
+      });
+
+      // T033: Redirect to draft edit page
+      router.push(`/labs/${clonedLabId}/pages/edit`);
+
+      // Call custom success callback
+      if (onSuccess) {
+        onSuccess(clonedLabId);
+      }
+    },
+    onError: (error: any) => {
+      console.error('[CloneLabButton] Clone failed:', error);
+
+      // T034: Error handling with toast notifications
+      const errorCode = error?.response?.data?.code;
+      const errorMessage = error?.response?.data?.message || 'Failed to clone lab. Please try again.';
+
+      // Handle duplicate draft clone (409 Conflict)
+      if (errorCode === 'DUPLICATE_DRAFT_CLONE') {
+        const existingDraftId = error?.response?.data?.context?.existingDraftId;
+        notifications.show({
+          title: 'Draft Already Exists',
+          message: existingDraftId 
+            ? 'You already have a draft clone of this lab. Redirecting...'
+            : 'A draft clone already exists for this lab.',
+          color: 'orange',
+        });
+        
+        // Redirect to existing draft
+        if (existingDraftId) {
+          setTimeout(() => router.push(`/labs/${existingDraftId}/pages/edit`), 1500);
+        }
+        return;
+      }
+
+      // Handle forbidden (403)
+      if (errorCode === 'CLONE_FORBIDDEN') {
+        notifications.show({
+          title: 'Clone Forbidden',
+          message: errorMessage,
+          color: 'red',
+        });
+        return;
+      }
+
+      // Generic error notification
+      notifications.show({
+        title: 'Clone Failed',
+        message: errorMessage,
+        color: 'red',
+      });
+
+      // Call custom error callback
+      if (onError) {
+        onError(error);
+      }
+    },
+  });
 
   return (
     <Button
-      onClick={handleClone}
-      loading={isLoading}
+      onClick={() => cloneMutation.mutate()}
+      loading={cloneMutation.isPending}
       variant="filled"
       color="blue"
-      disabled={isLoading}
+      disabled={cloneMutation.isPending}
     >
       Clone to Edit
     </Button>

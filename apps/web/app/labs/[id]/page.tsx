@@ -29,6 +29,7 @@ import { Lab, LabPage } from '@whatsnxt/core-types';
 import labApi from '@/apis/lab.api';
 import { getAvailableArchitectures } from '@/utils/shape-libraries';
 import { LabAccessButton } from '@/components/Lab/LabAccessButton';
+import CloneLabButton from '@/components/Lab/CloneLabButton';
 import useAuth from '@/hooks/Authentication/useAuth';
 
 const LAB_TYPES = [
@@ -373,6 +374,15 @@ const LabDetailPage = () => {
                 </Button>
               )}
             </>
+          )}
+          {/* T035-T036: Clone button for published labs owned by instructor */}
+          {isPublished && isOwner && (
+            <CloneLabButton 
+              labId={labId}
+              onSuccess={(clonedLabId) => {
+                console.log('[LabDetailPage] Clone successful, redirecting to:', clonedLabId);
+              }}
+            />
           )}
         </Group>
       </Group>
