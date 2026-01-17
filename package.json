@@ -85,7 +85,6 @@
     "@whatsnxt/core-ui": "workspace:*",
     "@whatsnxt/core-util": "workspace:*",
     "algoliasearch": "4.23.3",
-
     "clsx": "2.1.1",
     "cookies-next": "6.0.0",
     "file-saver": "2.0.5",
@@ -95,7 +94,7 @@
     "knip": "5.61.0",
     "lowlight": "3.3.0",
     "material-react-table": "3.2.1",
-    "next": "16.0.7",
+    "next": "16.0.10",
     "next-redux-wrapper": "8.1.0",
     "nextjs-toploader": "3.8.16",
     "nsfwjs": "^4.2.1",
