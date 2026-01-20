@@ -75,9 +75,8 @@ export default function CurateKidsPricingPage() {
     const [customerDetails, setCustomerDetails] = useState({ name: "", email: "" });
     const [showModal, setShowModal] = useState<string | null>(null); // tier name
 
-    // Use the common API host usually pointing to /api/v1
-    // If undefined, fallback to relative path (assuming proxy) or direct URL
-    const API_HOST = process.env.NEXT_PUBLIC_BFF_HOST || "http://localhost:4444/api/v1";
+    // Use relative path to leverage Next.js proxy (rewrites in next.config.ts)
+    const API_HOST = process.env.NEXT_PUBLIC_BFF_HOST || "/api/v1";
 
     const handleBuyClick = (tier: string) => {
         setShowModal(tier);
