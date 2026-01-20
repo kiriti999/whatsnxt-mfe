@@ -75,8 +75,9 @@ export default function CurateKidsPricingPage() {
     const [customerDetails, setCustomerDetails] = useState({ name: "", email: "" });
     const [showModal, setShowModal] = useState<string | null>(null); // tier name
 
-    // Use relative path to leverage Next.js proxy (rewrites in next.config.ts)
-    const API_HOST = process.env.NEXT_PUBLIC_BFF_HOST || "/api/v1";
+    // Always use relative path to leverage Next.js proxy (rewrites in next.config.ts)
+    // This avoids CSP issues and ensures requests go through the correct backend
+    const API_HOST = "/api/v1";
 
     const handleBuyClick = (tier: string) => {
         setShowModal(tier);
