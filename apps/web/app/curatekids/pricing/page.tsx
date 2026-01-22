@@ -75,10 +75,6 @@ export default function CurateKidsPricingPage() {
     const [customerDetails, setCustomerDetails] = useState({ name: "", email: "" });
     const [showModal, setShowModal] = useState<string | null>(null); // tier name
 
-    // Always use relative path to leverage Next.js proxy (rewrites in next.config.ts)
-    // This avoids CSP issues and ensures requests go through the correct backend
-    const API_HOST = "/api/v1";
-
     const handleBuyClick = (tier: string) => {
         setShowModal(tier);
     };
@@ -98,7 +94,7 @@ export default function CurateKidsPricingPage() {
 
         try {
             // 1. Initiate Order on Backend
-            const response = await fetch(`${API_HOST}/curatekids/orders`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/curatekids/orders`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
