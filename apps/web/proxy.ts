@@ -33,7 +33,7 @@ const publicRoutes = [
   '/consulting',
   '/learn-ai',
   '/labs',
-  '/curatekids/pricing',
+  '/curatereels/pricing',
   '/login',
   '/business'
 ];
