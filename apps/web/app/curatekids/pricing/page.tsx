@@ -70,7 +70,7 @@ const plans = [
     }
 ];
 
-export default function CurateKidsPricingPage() {
+export default function CuratedReelsPricingPage() {
     const [loading, setLoading] = useState<string | null>(null);
     const [customerDetails, setCustomerDetails] = useState({ name: "", email: "" });
     const [showModal, setShowModal] = useState<string | null>(null); // tier name
@@ -94,7 +94,7 @@ export default function CurateKidsPricingPage() {
 
         try {
             // 1. Initiate Order on Backend
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/curatekids/orders`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/curatedreels/orders`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -124,7 +124,7 @@ export default function CurateKidsPricingPage() {
                 key: data.key,
                 amount: data.order.amount,
                 currency: data.order.currency,
-                name: "CurateKids License",
+                name: "CuratedReels License",
                 description: `${plan?.title} License`,
                 order_id: data.order.id,
                 prefill: {
@@ -164,9 +164,9 @@ export default function CurateKidsPricingPage() {
     return (
         <Container size="lg" py="xl">
             <Stack align="center" mb={50}>
-                <Title order={1}>CurateKids Licenses</Title>
+                <Title order={1}>CuratedReels Licenses</Title>
                 <Text c="dimmed" size="lg" ta="center" maw={600}>
-                    Deploy your own white-labeled CurateKids platform. One-time payment, lifetime license.
+                    Deploy your own white-labeled CuratedReels platform. One-time payment, lifetime license.
                 </Text>
             </Stack>
 
