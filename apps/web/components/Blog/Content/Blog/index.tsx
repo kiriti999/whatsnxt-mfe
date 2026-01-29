@@ -61,24 +61,11 @@ const BlogContent = ({
 
   // For HTML content, use existing hooks
   const { containerRef } = useAddIdsToHeadings(
-    contentFormat === 'HTML' ? description : ''
+    contentFormat === 'HTML' ? description : '',
+    onHeadingsExtracted
   );
 
-  const onHeadingsExtractedCallback = useCallback(
-    (headings) => {
-      // Don't filter out first heading
-      onHeadingsExtracted(headings);
-    },
-    [onHeadingsExtracted]
-  );
-
-  const contentRef = useContentRefAndHeadings(
-    loading,
-    description,
-    onHeadingsExtractedCallback
-  );
-
-  useHandleScroll(contentRef, setActiveHeading);
+  useHandleScroll(containerRef, setActiveHeading);
 
   // For Markdown content, extract headings after render
   useEffect(() => {
@@ -105,10 +92,10 @@ const BlogContent = ({
           };
         });
 
-        onHeadingsExtractedCallback(headings);
+        onHeadingsExtracted(headings);
       }, 100);
     }
-  }, [contentFormat, loading, description, onHeadingsExtractedCallback]);
+  }, [contentFormat, loading, description, onHeadingsExtracted]);
 
   // Handle scroll events for Markdown content
   useEffect(() => {
@@ -150,7 +137,7 @@ const BlogContent = ({
       {loading ? (
         <Skeleton count={30} height={50} />
       ) : (
-        <Box ref={contentRef} id="blog-content" mt="lg">
+        <Box id="blog-content" mt="lg">
           <Title order={4} id="blog-title">
             {title}
           </Title>

@@ -45,11 +45,10 @@ export const NestedSidebar: React.FC<NestedSidebarProps> = ({
     }
   }, [dispatch, contentType]);
 
-  // Refresh sections
-  const handleRefresh = () => {
-    dispatch(fetchSectionTree(contentType));
-  };
 
+
+
+  const [searchQuery, setSearchQuery] = React.useState('');
 
   return (
     <Box className={styles.sidebarContainer}>
@@ -84,6 +83,8 @@ export const NestedSidebar: React.FC<NestedSidebarProps> = ({
                 leftSection={<IconSearch size={14} />}
                 size="xs"
                 radius="md"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.currentTarget.value)}
                 styles={{ input: { backgroundColor: 'var(--mantine-color-default)' } }}
               />
             </Box>
@@ -94,9 +95,9 @@ export const NestedSidebar: React.FC<NestedSidebarProps> = ({
 
       <Box className={styles.sidebarContent}>
         {variant === 'accordion' ? (
-          <AccordionVariant contentType={contentType} />
+          <AccordionVariant contentType={contentType} searchQuery={searchQuery} />
         ) : (
-          <NavLinkVariant contentType={contentType} />
+          <NavLinkVariant contentType={contentType} searchQuery={searchQuery} />
         )}
       </Box>
     </Box>

@@ -31,14 +31,13 @@ function SidebarHeadings({
 
   return (
     <>
-      {headings.length > 1 && (
+      {headings.length > 0 && (
         <Box className="widget" mt={'lg'}>
-          <Title order={4} mt={'0.33rem'} mb={'xl'}
-            style={{ cursor: 'pointer' }}>
-            Table of contents
+          <Title order={5} mt={'0.33rem'} mb={'xs'}>
+            On this page
           </Title>
 
-          <Stack gap={'3px'}>
+          <Stack gap={0}>
             {headings.map((heading) => (
               <Paper
                 key={heading.id}
@@ -51,9 +50,10 @@ function SidebarHeadings({
               >
                 <Stack gap={0}>
                   <Text
-                    size="sm"
+                    size="xs"
                     fw={heading.id === activeId ? 600 : 400}
                     lineClamp={2}
+                    truncate
                     c={heading.id === activeId ? 'blue.6' : 'dimmed'}
                   >
                     {heading.text}

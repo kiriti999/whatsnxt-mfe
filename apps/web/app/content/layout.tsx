@@ -1,10 +1,9 @@
 'use client';
 
-import React, { ReactNode, useEffect, useState } from 'react';
-import { AppShell, Burger, Box, ActionIcon, Affix, Drawer } from '@mantine/core';
-import { IconLayoutSidebarRightCollapse, IconList } from '@tabler/icons-react';
+import React, { ReactNode, useState } from 'react';
+import { AppShell, Box, ActionIcon, Affix, Drawer } from '@mantine/core';
+import { IconLayoutSidebarRightCollapse, IconLayoutSidebarLeftCollapse } from '@tabler/icons-react';
 import { useDisclosure, useMediaQuery } from '@mantine/hooks';
-import { usePathname } from 'next/navigation';
 import NestedSidebar from '../../components/Blog/NestedSidebar';
 
 interface ContentLayoutProps {
@@ -15,7 +14,6 @@ export default function ContentLayout({ children }: ContentLayoutProps) {
   const [opened, { toggle, close }] = useDisclosure(false);
   const [desktopOpened, setDesktopOpened] = useState(true);
   const isMobile = useMediaQuery('(max-width: 768px)');
-  const pathname = usePathname();
 
   // Determine content type - default to blog since /content/ primarily serves blog posts
   // If the post is a tutorial, it will be indicated in the data
@@ -65,7 +63,7 @@ export default function ContentLayout({ children }: ContentLayoutProps) {
 
       {/* Mobile Sidebar Toggle - Floating Button */}
       {isMobile && !opened && (
-        <Affix position={{ top: 80, left: 16 }} zIndex={98}>
+        <Affix position={{ top: 100, left: 16 }} zIndex={2000}>
           <ActionIcon
             onClick={toggle}
             size="lg"
@@ -77,7 +75,7 @@ export default function ContentLayout({ children }: ContentLayoutProps) {
               border: '1px solid var(--mantine-color-gray-3)'
             }}
           >
-            <IconList size={20} />
+            <IconLayoutSidebarLeftCollapse size={20} />
           </ActionIcon>
         </Affix>
       )}

@@ -23,7 +23,7 @@ const SidebarPost = memo(() => {
 
   return (
     <div>
-      {hasListedItem && <Title order={4} mb={'sm'}>Popular posts</Title>}
+      {hasListedItem && <Title order={5} mb={'sm'}>Popular posts</Title>}
       {memoizedStore.articles.map((item, index) => (
         item.listed && (
           <PopularPost

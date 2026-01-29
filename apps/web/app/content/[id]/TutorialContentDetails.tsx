@@ -78,7 +78,7 @@ function TutorialContentDetails({ details }: any) {
     setComments
   });
 
-  const [url, setUrl] = useState<String>('');
+  const [url, setUrl] = useState<string>('');
 
   useEffect(() => {
     setUrl(window.location.href);
@@ -131,24 +131,7 @@ function TutorialContentDetails({ details }: any) {
         ) : (
           <Box>
             <Grid mb={'5rem'}>
-              {!isMobile && (
-                <GridCol span={{ base: 12, md: 2.2 }}>
-                  <div className='position-sticky top-0'>
-                    <Title order={4} mt={'0.33rem'} mb={'xl'}>{item.title}</Title>
-                    <TutorialsToc tutorials={tutorials} active={active} navigateTutorial={navigateTutorial} />
-                  </div>
-                </GridCol>
-              )}
-
-              {/* show this col on mobile size */}
-              <div className='d-block d-lg-none p-2'>
-                <SidebarHeadings
-                  headings={itemHeadings}
-                  activeHeadingRef={activeHeadingRef}
-                />
-              </div>
-
-              <GridCol span={{ base: 12, md: 7.5 }} mx="auto">
+              <GridCol span={{ base: 12, md: 9 }} mx="auto">
                 <TutorialContent
                   active={active}
                   setActive={setActive}
@@ -193,7 +176,7 @@ function TutorialContentDetails({ details }: any) {
               </GridCol>
 
               {/* show this col on tablet and desktop */}
-              <GridCol span={{ base: 12, md: 2.3 }} mb={'xl'}>
+              <GridCol span={{ base: 12, md: 3 }} mb={'xl'}>
                 <div className='d-none d-lg-block position-sticky top-0'>
                   <SidebarHeadings
                     headings={itemHeadings}
@@ -201,6 +184,10 @@ function TutorialContentDetails({ details }: any) {
                   />
                   <Box>
                     <SidebarPost />
+                  </Box>
+                  <Box mt="xl">
+                    <Title order={5} mt={'0.33rem'} mb={'lg'}>On this page</Title>
+                    <TutorialsToc tutorials={tutorials} active={active} navigateTutorial={navigateTutorial} />
                   </Box>
                 </div>
               </GridCol>
@@ -213,7 +200,7 @@ function TutorialContentDetails({ details }: any) {
 }
 
 interface ShareOptionsProps {
-  url: String;
+  url: string;
   views: number;
 }
 
@@ -229,7 +216,7 @@ const ShareOptions: React.FC<ShareOptionsProps> = ({ url, views }) => {
           <FacebookShare url={url} />
           <ClipboardCopy url={url} />
         </Group>
-        <GooglePageViews views={views} />
+        {/* <GooglePageViews views={views} /> */}
       </Group>
     </Box>
   );

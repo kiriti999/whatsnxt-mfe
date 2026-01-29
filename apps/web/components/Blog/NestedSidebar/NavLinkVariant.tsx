@@ -5,11 +5,38 @@ import { Box, Stack, Text, Loader, Center, NavLink } from '@mantine/core';
 import { useSelector, useDispatch } from 'react-redux';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
-import * as TablerIcons from '@tabler/icons-react';
+// Import specific icons instead of * to avoid HMR/Turbopack issues
+// Ideally, we should dynamically import these or have a dedicated icon map file.
+// For now, importing a common set to resolve the build error.
+import {
+  IconHome, IconBrandReact, IconBrandVue, IconBrandAngular, IconBrandNodejs,
+  IconBrandPython, IconDatabase, IconServer, IconCloud, IconDeviceMobile,
+  IconCode, IconBook, IconArticle, IconTerminal, IconSettings, IconCircle
+} from '@tabler/icons-react';
 import { RootState, AppDispatch } from '../../../store/store';
 import { loadExpandedSectionsFromStorage } from '../../../store/slices/nestedSidebarSlice';
 import { Section } from '../../../apis/v1/sidebar/sectionsApi';
 import styles from './styles.module.css';
+
+// Map of available icons
+const ICON_MAP: Record<string, any> = {
+  Home: IconHome,
+  BrandReact: IconBrandReact,
+  BrandVue: IconBrandVue,
+  BrandAngular: IconBrandAngular,
+  BrandNodejs: IconBrandNodejs,
+  BrandPython: IconBrandPython,
+  Database: IconDatabase,
+  Server: IconServer,
+  Cloud: IconCloud,
+  DeviceMobile: IconDeviceMobile,
+  Code: IconCode,
+  Book: IconBook,
+  Article: IconArticle,
+  Terminal: IconTerminal,
+  Settings: IconSettings,
+  Circle: IconCircle
+};
 
 interface NavLinkVariantProps {
   contentType: 'blog' | 'tutorial';
@@ -32,8 +59,13 @@ export const NavLinkVariant: React.FC<NavLinkVariantProps> = ({ contentType }) =
   const getIconComponent = (iconName?: string) => {
     if (!iconName) return null;
 
-    const iconComponentName = `Icon${iconName.charAt(0).toUpperCase()}${iconName.slice(1)}`;
-    const IconComponent = (TablerIcons as any)[iconComponentName];
+    // Normalize name (e.g. "home" -> "Home")
+    // If input is "IconHome", strip "Icon" prefix
+    const cleanName = iconName.replace(/^Icon/, '');
+    // Ensure first char is uppercase
+    const key = cleanName.charAt(0).toUpperCase() + cleanName.slice(1);
+
+    const IconComponent = ICON_MAP[key] || ICON_MAP['Circle']; // Fallback to Circle
 
     return IconComponent ? <IconComponent size={18} stroke={1.5} /> : null;
   };

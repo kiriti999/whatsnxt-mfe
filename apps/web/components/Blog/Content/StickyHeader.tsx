@@ -85,6 +85,8 @@ const StickyHeader: React.FC<StickyHeaderProps> = ({ titles }) => {
       <Title
         order={4}
         c={colorScheme === 'dark' ? 'gray.1' : 'dark.9'}
+        style={{ flex: 1, textAlign: 'center' }}
+        lineClamp={1}
       >
         {titles.find((title) => title.id === activeId)?.text || titles[0]?.text}
       </Title>

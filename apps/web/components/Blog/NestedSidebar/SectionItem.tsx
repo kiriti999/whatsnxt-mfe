@@ -16,6 +16,7 @@ interface SectionItemProps {
   variant?: 'accordion' | 'navlink';
   expandedSections?: string[];
   pathname?: string;
+  forceExpand?: boolean;
 }
 
 export const SectionItem: React.FC<SectionItemProps> = memo(({
@@ -28,6 +29,7 @@ export const SectionItem: React.FC<SectionItemProps> = memo(({
   variant = 'accordion',
   expandedSections = [],
   pathname = '',
+  forceExpand = false,
 }) => {
   const hasChildSections = section.children && section.children.length > 0;
   const hasPosts = section.posts && section.posts.length > 0;
@@ -35,32 +37,21 @@ export const SectionItem: React.FC<SectionItemProps> = memo(({
 
   const indentLevel = depth * 16; // 16px per level
 
-  // Get icon component from Tabler icons
-  const getIconComponent = (iconName?: string) => {
-    if (!iconName) return null;
+  // ... (rest of getting icon)
 
-    // Convert icon name to PascalCase for Tabler icons (e.g., "folder" -> "IconFolder")
-    const iconComponentName = `Icon${iconName.charAt(0).toUpperCase()}${iconName.slice(1)}`;
-    const IconComponent = (TablerIcons as any)[iconComponentName];
-
-    return IconComponent ? <IconComponent size={18} stroke={1.5} /> : null;
-  };
-
-  const icon = getIconComponent(section.iconName);
-
-  // URL for the section - typically navigates to first post or section page if not expanding
+  // URL for the section 
   const sectionUrl = hasContent ? '#' : `/${contentType}s/section/${section.slug}`;
 
   const handleClick = (e: React.MouseEvent) => {
-    if (hasContent && variant === 'accordion') {
+    if (hasContent && variant === 'accordion' && !forceExpand) {
       // For accordion variant, clicking the whole row toggles expansion if it has content
+      // Disable toggle if forceExpand is active (search mode)
       e.preventDefault();
       onToggle(section._id);
     }
-    // For navlink variant or sections without children, let the Link handle navigation
   };
 
-  const chevronIcon = isExpanded ? (
+  const chevronIcon = isExpanded || forceExpand ? (
     <IconChevronDown size={16} stroke={1.5} />
   ) : (
     <IconChevronRight size={16} stroke={1.5} />
@@ -69,11 +60,14 @@ export const SectionItem: React.FC<SectionItemProps> = memo(({
   return (
     <Box className={styles.sectionItemWrapper}>
       <NavLink
-        component={hasContent && variant === 'accordion' ? 'button' : Link}
-        href={hasContent && variant === 'accordion' ? undefined : sectionUrl}
+        component={hasContent && variant === 'accordion' && !forceExpand ? 'button' : Link}
+        href={hasContent && variant === 'accordion' && !forceExpand ? undefined : sectionUrl}
+        // ... (label)
         label={
           <Group gap="xs" wrap="nowrap">
-            {icon}
+            {/* icon rendering */}
+            {section.iconName && (TablerIcons as any)[`Icon${section.iconName.charAt(0).toUpperCase()}${section.iconName.slice(1)}`] ?
+              React.createElement((TablerIcons as any)[`Icon${section.iconName.charAt(0).toUpperCase()}${section.iconName.slice(1)}`], { size: 18, stroke: 1.5 }) : null}
             <Text size="sm" truncate>
               {section.title}
             </Text>
@@ -94,8 +88,8 @@ export const SectionItem: React.FC<SectionItemProps> = memo(({
       />
 
       {/* Render children and posts recursively if expanded */}
-      {hasContent && variant === 'accordion' && (
-        <Collapse in={isExpanded}>
+      {hasContent && variant === 'accordion' && (isExpanded || forceExpand) && (
+        <Collapse in={isExpanded || forceExpand}>
           <Box className={styles.childrenContainer}>
             {/* Render nested sections first */}
             {section.children?.map((childSection) => {
@@ -106,7 +100,7 @@ export const SectionItem: React.FC<SectionItemProps> = memo(({
                 <SectionItem
                   key={childSection._id}
                   section={childSection}
-                  isExpanded={childIsExpanded}
+                  isExpanded={childIsExpanded || forceExpand}
                   isActive={childIsActive}
                   onToggle={onToggle}
                   contentType={contentType}
@@ -114,22 +108,22 @@ export const SectionItem: React.FC<SectionItemProps> = memo(({
                   variant={variant}
                   expandedSections={expandedSections}
                   pathname={pathname}
+                  forceExpand={forceExpand}
                 />
               );
             })}
 
-            {/* Render posts */}
+            {/* Render posts ... */}
             {section.posts?.map((post) => {
-              // Check if this post is currently active
-              // Note: Adjust logic based on exact URL structure for posts
+              // ...
               const isPostActive = pathname.includes(`/content/${post.slug}`) || pathname.includes(`/${post.slug}`);
               const postIndentLevel = (depth + 1) * 16;
-
               return (
                 <NavLink
                   key={post._id}
                   component={Link}
                   href={`/content/${post.slug}`}
+                  // ...
                   label={
                     <Text size="sm" truncate>
                       {post.title}
