@@ -17,6 +17,7 @@ Auto-generated from all feature plans. Last updated: 2025-12-15
 - Existing PostgreSQL database via Express.js v5 backend APIs (no schema changes required) (004-page-editor-pagination)
 - TypeScript 5.x (Frontend: Next.js 16 / React 19, Backend: Express.js 5 + Node.js 20+) (001-clone-lab-to-edit)
 - MongoDB 7.x with Mongoose ODM (separate collections: lab_diagram_tests, lab_pages, questions, diagram_tests) (001-clone-lab-to-edit)
+- MongoDB 7.0+ with Mongoose schemas (existing patterns in tutorialSchema.ts, blogCommentSchema.ts) (001-nested-sidebar)
 
 - TypeScript, Node.js 24.12.0 LTS + Next.js 16, React 19, Mantine UI, Express.js 5, D3.js, MongoDB (001-lab-diagram-test)
 - MongoDB (Lab, LabPage, Question, DiagramTest, DiagramShape models) (001-lab-diagram-test)
@@ -43,9 +44,9 @@ npm test && npm run lint
 TypeScript 5.x + Node.js 24.12.0 LTS: Follow standard conventions
 
 ## Recent Changes
+- 001-nested-sidebar: Added MongoDB 7.0+ with Mongoose schemas (existing patterns in tutorialSchema.ts, blogCommentSchema.ts)
 - 001-clone-lab-to-edit: Added TypeScript 5.x (Frontend: Next.js 16 / React 19, Backend: Express.js 5 + Node.js 20+)
 - 001-diagram-quiz-hints: Added [if applicable, e.g., PostgreSQL, CoreData, files or N/A]
-- 004-page-editor-pagination: Added TypeScript 5.8.2, Node.js 22.12.0 (runtime), React 19.1.0
 
 
 <!-- MANUAL ADDITIONS START -->

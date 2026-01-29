@@ -1,0 +1,14 @@
+# Agent OS Standards Index
+
+standards:
+  - name: Tech Stack
+    file: tech-stack.md
+    description: Technology choices and versions used in the project.
+  
+  - name: Coding Conventions
+    file: coding-conventions.md
+    description: Guidelines for coding style, naming, and best practices.
+  
+  - name: Project Structure
+    file: project-structure.md
+    description: Overview of the monorepo structure and key directories.

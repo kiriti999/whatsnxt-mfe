@@ -13,7 +13,8 @@ const Layout = ({ children, loginMenuLinks, links, copyRight }) => {
     <>
       <Navbar links={links} loginMenuLinks={loginMenuLinks} copyRight={copyRight} />
 
-      <Box>
+      {/* Spacer for fixed Navbar */}
+      <Box style={{ paddingTop: '75px' }}>
         {children}
       </Box>
 

@@ -1,0 +1,732 @@
+openapi: 3.0.3
+info:
+  title: Nested Sidebar - Sections API
+  description: API endpoints for managing hierarchical content sections in the nested sidebar feature
+  version: 1.0.0
+  contact:
+    name: WhatsNxt Development Team
+
+servers:
+  - url: http://localhost:4444/api/v1
+    description: Local development
+  - url: https://api.whatsnxt.com/api/v1
+    description: Production
+
+tags:
+  - name: Sections
+    description: Section CRUD operations and hierarchy management
+
+paths:
+  /sidebar/sections:
+    get:
+      tags:
+        - Sections
+      summary: List all sections
+      description: Retrieve all sections with optional filtering by content type, visibility, and parent
+      operationId: listSections
+      parameters:
+        - name: contentType
+          in: query
+          description: Filter by content type (blog or tutorial)
+          required: false
+          schema:
+            type: string
+            enum: [blog, tutorial]
+        - name: parentId
+          in: query
+          description: Filter by parent section ID (use "null" for top-level sections)
+          required: false
+          schema:
+            type: string
+            nullable: true
+        - name: isVisible
+          in: query
+          description: Filter by visibility status
+          required: false
+          schema:
+            type: boolean
+        - name: includeHidden
+          in: query
+          description: Include hidden sections in response (admin only)
+          required: false
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Section'
+                  total:
+                    type: integer
+                    example: 42
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    post:
+      tags:
+        - Sections
+      summary: Create new section
+      description: Create a new section with automatic slug generation and depth calculation
+      operationId: createSection
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SectionCreate'
+      responses:
+        '201':
+          description: Section created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/Section'
+                  message:
+                    type: string
+                    example: Section created successfully
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          description: Conflict - slug already exists or max depth exceeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /sidebar/sections/{id}:
+    get:
+      tags:
+        - Sections
+      summary: Get section by ID
+      description: Retrieve a single section with optional population of children and posts
+      operationId: getSection
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Section ID
+          schema:
+            type: string
+        - name: includeChildren
+          in: query
+          description: Populate child sections
+          schema:
+            type: boolean
+            default: false
+        - name: includePosts
+          in: query
+          description: Populate assigned posts
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/SectionWithRelations'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    put:
+      tags:
+        - Sections
+      summary: Update section
+      description: Update section details. Changing parentId recalculates depth and validates nesting limit.
+      operationId: updateSection
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Section ID
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SectionUpdate'
+      responses:
+        '200':
+          description: Section updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/Section'
+                  message:
+                    type: string
+                    example: Section updated successfully
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Conflict - would create circular reference or exceed max depth
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    delete:
+      tags:
+        - Sections
+      summary: Delete section
+      description: Delete section. Fails if section has children or assigned posts.
+      operationId: deleteSection
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Section ID
+          schema:
+            type: string
+        - name: force
+          in: query
+          description: Force delete by reassigning children/posts (use with caution)
+          required: false
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: Section deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Section deleted successfully
+        '400':
+          description: Cannot delete section with children or posts
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /sidebar/sections/tree:
+    get:
+      tags:
+        - Sections
+      summary: Get hierarchical section tree
+      description: Retrieve pre-built tree structure for efficient sidebar rendering
+      operationId: getSectionTree
+      parameters:
+        - name: contentType
+          in: query
+          description: Filter by content type
+          required: true
+          schema:
+            type: string
+            enum: [blog, tutorial]
+        - name: includeHidden
+          in: query
+          description: Include hidden sections (admin only)
+          required: false
+          schema:
+            type: boolean
+            default: false
+        - name: includePosts
+          in: query
+          description: Include posts in each section
+          required: false
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: Hierarchical tree structure
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/SectionTreeNode'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /sidebar/sections/reorder:
+    patch:
+      tags:
+        - Sections
+      summary: Batch reorder sections
+      description: Update order field for multiple sections in a single operation
+      operationId: reorderSections
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - updates
+              properties:
+                updates:
+                  type: array
+                  description: Array of section ID and new order pairs
+                  items:
+                    type: object
+                    required:
+                      - _id
+                      - order
+                    properties:
+                      _id:
+                        type: string
+                        description: Section ID
+                      order:
+                        type: integer
+                        description: New order value
+                        minimum: 0
+                  minItems: 1
+      responses:
+        '200':
+          description: Sections reordered successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Reordered 5 sections successfully
+                  updated:
+                    type: integer
+                    example: 5
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /sidebar/sections/{id}/breadcrumb:
+    get:
+      tags:
+        - Sections
+      summary: Get breadcrumb trail
+      description: Retrieve ancestor path from root to specified section
+      operationId: getSectionBreadcrumb
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Section ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Breadcrumb trail
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        _id:
+                          type: string
+                        title:
+                          type: string
+                        slug:
+                          type: string
+                    example:
+                      - _id: "507f1f77bcf86cd799439011"
+                        title: "Web Development"
+                        slug: "web-development"
+                      - _id: "507f1f77bcf86cd799439012"
+                        title: "JavaScript"
+                        slug: "javascript"
+                      - _id: "507f1f77bcf86cd799439013"
+                        title: "React"
+                        slug: "react"
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+components:
+  schemas:
+    Section:
+      type: object
+      required:
+        - _id
+        - title
+        - slug
+        - iconName
+        - order
+        - contentType
+        - depth
+      properties:
+        _id:
+          type: string
+          description: MongoDB ObjectId
+          example: "507f1f77bcf86cd799439011"
+        title:
+          type: string
+          maxLength: 100
+          description: Section display title
+          example: "JavaScript Fundamentals"
+        slug:
+          type: string
+          maxLength: 150
+          pattern: '^[a-z0-9-]+$'
+          description: URL-friendly identifier (auto-generated)
+          example: "javascript-fundamentals"
+        description:
+          type: string
+          maxLength: 500
+          description: Optional section description
+          example: "Core JavaScript concepts and syntax"
+        iconName:
+          type: string
+          description: Tabler Icons component name
+          example: "IconCode"
+        parentId:
+          type: string
+          nullable: true
+          description: Parent section ID (null for top-level)
+          example: "507f1f77bcf86cd799439010"
+        order:
+          type: integer
+          minimum: 0
+          description: Display order within parent
+          example: 1
+        contentType:
+          type: string
+          enum: [blog, tutorial]
+          description: Content type this section organizes
+          example: "tutorial"
+        depth:
+          type: integer
+          minimum: 0
+          maximum: 3
+          description: Nesting level (0-3, auto-calculated)
+          example: 1
+        childCount:
+          type: integer
+          minimum: 0
+          description: Number of direct child sections
+          example: 3
+        postCount:
+          type: integer
+          minimum: 0
+          description: Number of posts assigned to this section
+          example: 12
+        isVisible:
+          type: boolean
+          description: Visibility flag for public sidebar
+          example: true
+        createdBy:
+          type: string
+          nullable: true
+          description: User ID who created the section
+          example: "507f1f77bcf86cd799439020"
+        updatedBy:
+          type: string
+          nullable: true
+          description: User ID who last updated the section
+          example: "507f1f77bcf86cd799439021"
+        createdAt:
+          type: string
+          format: date-time
+          description: Creation timestamp
+          example: "2025-01-27T10:30:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          description: Last update timestamp
+          example: "2025-01-27T15:45:00Z"
+
+    SectionCreate:
+      type: object
+      required:
+        - title
+        - iconName
+        - contentType
+      properties:
+        title:
+          type: string
+          maxLength: 100
+          minLength: 1
+          description: Section title (slug auto-generated)
+          example: "JavaScript Fundamentals"
+        description:
+          type: string
+          maxLength: 500
+          description: Optional description
+          example: "Core JavaScript concepts"
+        iconName:
+          type: string
+          description: Tabler Icons component name
+          example: "IconCode"
+        parentId:
+          type: string
+          nullable: true
+          description: Parent section ID (omit for top-level)
+          example: null
+        order:
+          type: integer
+          minimum: 0
+          description: Display order (default 0)
+          default: 0
+          example: 1
+        contentType:
+          type: string
+          enum: [blog, tutorial]
+          description: Content type
+          example: "tutorial"
+        isVisible:
+          type: boolean
+          description: Visibility (default true)
+          default: true
+          example: true
+
+    SectionUpdate:
+      type: object
+      properties:
+        title:
+          type: string
+          maxLength: 100
+          minLength: 1
+          example: "Updated Title"
+        description:
+          type: string
+          maxLength: 500
+          example: "Updated description"
+        iconName:
+          type: string
+          example: "IconBook"
+        parentId:
+          type: string
+          nullable: true
+          description: Change parent (recalculates depth)
+          example: "507f1f77bcf86cd799439010"
+        order:
+          type: integer
+          minimum: 0
+          example: 2
+        isVisible:
+          type: boolean
+          example: false
+
+    SectionWithRelations:
+      allOf:
+        - $ref: '#/components/schemas/Section'
+        - type: object
+          properties:
+            children:
+              type: array
+              items:
+                $ref: '#/components/schemas/Section'
+            posts:
+              type: array
+              items:
+                type: object
+                properties:
+                  _id:
+                    type: string
+                  title:
+                    type: string
+                  slug:
+                    type: string
+                  sectionOrder:
+                    type: integer
+
+    SectionTreeNode:
+      allOf:
+        - $ref: '#/components/schemas/Section'
+        - type: object
+          properties:
+            children:
+              type: array
+              items:
+                $ref: '#/components/schemas/SectionTreeNode'
+            posts:
+              type: array
+              items:
+                type: object
+                properties:
+                  _id:
+                    type: string
+                  title:
+                    type: string
+                  slug:
+                    type: string
+                  sectionOrder:
+                    type: integer
+                  published:
+                    type: boolean
+
+    Error:
+      type: object
+      required:
+        - success
+        - error
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: string
+          description: Error message
+          example: "Section not found"
+        code:
+          type: string
+          description: Error code for client handling
+          example: "SECTION_NOT_FOUND"
+        details:
+          type: object
+          description: Additional error context
+          additionalProperties: true
+
+  responses:
+    BadRequest:
+      description: Invalid request parameters or validation failure
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            success: false
+            error: "Validation failed"
+            code: "VALIDATION_ERROR"
+            details:
+              title: "Title is required"
+              iconName: "Invalid icon name"
+
+    Unauthorized:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            success: false
+            error: "Authentication required"
+            code: "UNAUTHORIZED"
+
+    Forbidden:
+      description: Insufficient permissions
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            success: false
+            error: "Admin access required"
+            code: "FORBIDDEN"
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            success: false
+            error: "Section not found"
+            code: "NOT_FOUND"
+
+    InternalError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            success: false
+            error: "An unexpected error occurred"
+            code: "INTERNAL_ERROR"
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token obtained from authentication endpoint

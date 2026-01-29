@@ -14,6 +14,7 @@ const makeStore = () => {
     const blogCategorySlice = require('./slices/blogCategorySlice');
     const blogSidebarSlice = require('./slices/blogSidebarSlice');
     const imageSlice = require('./slices/imageSlice');
+    const nestedSidebarSlice = require('./slices/nestedSidebarSlice');
     const { diagramReducer } = require('diagram-core');
 
     // Extract reducers - try both default and named exports
@@ -26,6 +27,7 @@ const makeStore = () => {
     const blogCategoryReducer = blogCategorySlice.default || blogCategorySlice.blogCategoryReducer;
     const blogSidebarReducer = blogSidebarSlice.default || blogSidebarSlice.blogSidebarReducer;
     const imageReducer = imageSlice.default || imageSlice.imageReducer;
+    const nestedSidebarReducer = nestedSidebarSlice.default || nestedSidebarSlice.nestedSidebarReducer;
 
     return configureStore({
         reducer: {
@@ -38,6 +40,7 @@ const makeStore = () => {
             blogSidebar: blogSidebarReducer,
             blogCategory: blogCategoryReducer,
             image: imageReducer,
+            nestedSidebar: nestedSidebarReducer,
             diagram: diagramReducer as Reducer<DiagramState>,
         },
         devTools: process.env.NODE_ENV !== 'production',

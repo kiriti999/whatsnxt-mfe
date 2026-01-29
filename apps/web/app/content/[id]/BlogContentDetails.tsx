@@ -164,7 +164,7 @@ function BlogContentDetails({ details }: BlogContentDetailsProps) {
                 </GridCol>
 
                 <GridCol span={itemHeadings.length > 0 ? { base: 12, md: 2.5 } : { base: 12, md: 3 }}>
-                  <Box pos="sticky" top={0}>
+                  <Box pos="sticky" top={100}>
                     <Box mt={itemHeadings.length > 1 ? 'lg' : 0}>
                       <SidebarPost />
                     </Box>

@@ -1,0 +1,155 @@
+/* NestedSidebar Styles - Algomaster Inspired */
+
+.sidebarContainer {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  /* Always Dark for Algomaster look, or adapt */
+  background-color: light-dark(#ffffff, #0F1113);
+  /* Very dark background in dark mode */
+  border-right: 1px solid light-dark(var(--mantine-color-gray-3), #2C2E33);
+  padding-top: 75px;
+  /* Clear Global Header */
+}
+
+@media (max-width: 48em) {
+  .sidebarContainer {
+    padding-top: 60px;
+  }
+}
+
+.sidebarHeader {
+  padding: 1.25rem 1rem;
+  /* border-bottom: 1px solid light-dark(var(--mantine-color-gray-2), #2C2E33); */
+}
+
+.sidebarContent {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-bottom: 2rem;
+}
+
+.sidebarFooter {
+  padding: 0.75rem;
+  border-top: 1px solid light-dark(var(--mantine-color-gray-2), #2C2E33);
+}
+
+/* Section Items */
+
+.sectionItemWrapper {
+  position: relative;
+  margin-bottom: 2px;
+}
+
+.sectionItem {
+  border-radius: 0 4px 4px 0;
+  /* Algomaster usually has square or slight radius */
+  margin: 0;
+  /* Full width essentially, but we have padding in wrapper usually? No */
+  margin-right: 8px;
+  /* Slight gap on right */
+  padding: 0.6rem 0.75rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: light-dark(var(--mantine-color-gray-7), var(--mantine-color-gray-4));
+  transition: all 0.2s ease;
+  border-left: 3px solid transparent;
+  /* Selection indicator */
+}
+
+.sectionItem:hover {
+  background-color: light-dark(var(--mantine-color-gray-0), #1A1D1F);
+  color: light-dark(var(--mantine-color-black), var(--mantine-color-white));
+}
+
+.sectionItem[data-active="true"] {
+  background-color: light-dark(var(--mantine-color-green-0), rgba(46, 160, 67, 0.15));
+  /* Green tint */
+  color: light-dark(var(--mantine-color-green-8), #3fb950);
+  /* Green text */
+  border-left-color: light-dark(var(--mantine-color-green-6), #3fb950);
+  font-weight: 600;
+}
+
+/* Depth Styles */
+.sectionItem[data-depth="1"] {
+  font-size: 0.9rem;
+  color: light-dark(var(--mantine-color-gray-6), var(--mantine-color-gray-5));
+}
+
+.sectionItem[data-depth="1"][data-active="true"] {
+  color: light-dark(var(--mantine-color-green-8), #3fb950);
+}
+
+.sectionItem[data-depth="2"] {
+  font-size: 0.85rem;
+}
+
+.childrenContainer {
+  position: relative;
+}
+
+/* Connecting lines for children could be added here if desired */
+
+.postCount {
+  margin-left: auto;
+  font-size: 0.75rem;
+  opacity: 0.6;
+}
+
+/* Scrollbar */
+.sidebarContent::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sidebarContent::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sidebarContent::-webkit-scrollbar-thumb {
+  background-color: light-dark(var(--mantine-color-gray-3), #2C2E33);
+  border-radius: 3px;
+}
+
+/* Loading & Empty */
+.loadingSkeleton {
+  padding: 1rem;
+}
+
+.emptyState {
+  padding: 2rem 1rem;
+  text-align: center;
+  color: var(--mantine-color-dimmed);
+}
+
+/* Icons */
+.icon {
+  color: currentColor;
+  opacity: 0.8;
+}
+
+/* Animations */
+.expandAnimation {
+  animation: expandSection 200ms ease;
+}
+
+@keyframes expandSection {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .sidebarContainer {
+    width: 100%;
+    border-right: none;
+  }
+}

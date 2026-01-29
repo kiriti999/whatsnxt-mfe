@@ -1,0 +1,470 @@
+openapi: 3.0.3
+info:
+  title: Nested Sidebar - Post Assignment API
+  description: API endpoints for assigning blog posts and tutorials to sidebar sections
+  version: 1.0.0
+  contact:
+    name: WhatsNxt Development Team
+
+servers:
+  - url: http://localhost:4444/api/v1
+    description: Local development
+  - url: https://api.whatsnxt.com/api/v1
+    description: Production
+
+tags:
+  - name: Post Assignment
+    description: Assign and manage post-section relationships
+
+paths:
+  /blogs/{id}/section:
+    patch:
+      tags:
+        - Post Assignment
+      summary: Assign blog to section
+      description: Assign or reassign a blog post to a specific section with optional ordering
+      operationId: assignBlogToSection
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Blog post ID
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - sectionId
+              properties:
+                sectionId:
+                  type: string
+                  nullable: true
+                  description: Section ID to assign to (null to unassign)
+                  example: "507f1f77bcf86cd799439011"
+                sectionOrder:
+                  type: integer
+                  minimum: 0
+                  description: Display order within section (default 0)
+                  default: 0
+                  example: 3
+      responses:
+        '200':
+          description: Blog assigned successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      _id:
+                        type: string
+                      title:
+                        type: string
+                      sectionId:
+                        type: string
+                        nullable: true
+                      sectionOrder:
+                        type: integer
+                  message:
+                    type: string
+                    example: Blog assigned to section successfully
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          description: Blog or section not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /tutorials/{id}/section:
+    patch:
+      tags:
+        - Post Assignment
+      summary: Assign tutorial to section
+      description: Assign or reassign a tutorial to a specific section with optional ordering
+      operationId: assignTutorialToSection
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Tutorial ID
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - sectionId
+              properties:
+                sectionId:
+                  type: string
+                  nullable: true
+                  description: Section ID to assign to (null to unassign)
+                  example: "507f1f77bcf86cd799439011"
+                sectionOrder:
+                  type: integer
+                  minimum: 0
+                  description: Display order within section (default 0)
+                  default: 0
+                  example: 3
+      responses:
+        '200':
+          description: Tutorial assigned successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      _id:
+                        type: string
+                      title:
+                        type: string
+                      sectionId:
+                        type: string
+                        nullable: true
+                      sectionOrder:
+                        type: integer
+                  message:
+                    type: string
+                    example: Tutorial assigned to section successfully
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          description: Tutorial or section not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /sidebar/sections/{sectionId}/posts:
+    get:
+      tags:
+        - Post Assignment
+      summary: Get posts in section
+      description: Retrieve all blog posts or tutorials assigned to a specific section
+      operationId: getPostsInSection
+      parameters:
+        - name: sectionId
+          in: path
+          required: true
+          description: Section ID
+          schema:
+            type: string
+        - name: contentType
+          in: query
+          description: Filter by content type
+          required: false
+          schema:
+            type: string
+            enum: [blog, tutorial]
+        - name: publishedOnly
+          in: query
+          description: Only return published posts
+          required: false
+          schema:
+            type: boolean
+            default: true
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        _id:
+                          type: string
+                        title:
+                          type: string
+                        slug:
+                          type: string
+                        sectionOrder:
+                          type: integer
+                        published:
+                          type: boolean
+                        contentType:
+                          type: string
+                          enum: [blog, tutorial]
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /sidebar/sections/{sectionId}/posts/reorder:
+    patch:
+      tags:
+        - Post Assignment
+      summary: Reorder posts in section
+      description: Batch update sectionOrder for multiple posts within a section
+      operationId: reorderPostsInSection
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: sectionId
+          in: path
+          required: true
+          description: Section ID
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - contentType
+                - updates
+              properties:
+                contentType:
+                  type: string
+                  enum: [blog, tutorial]
+                  description: Content type being reordered
+                updates:
+                  type: array
+                  description: Array of post ID and new order pairs
+                  items:
+                    type: object
+                    required:
+                      - _id
+                      - sectionOrder
+                    properties:
+                      _id:
+                        type: string
+                        description: Post ID
+                      sectionOrder:
+                        type: integer
+                        description: New order value
+                        minimum: 0
+                  minItems: 1
+      responses:
+        '200':
+          description: Posts reordered successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Reordered 5 posts successfully
+                  updated:
+                    type: integer
+                    example: 5
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /sidebar/posts/unassigned:
+    get:
+      tags:
+        - Post Assignment
+      summary: Get unassigned posts
+      description: Retrieve all blog posts or tutorials not assigned to any section
+      operationId: getUnassignedPosts
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: contentType
+          in: query
+          description: Filter by content type
+          required: true
+          schema:
+            type: string
+            enum: [blog, tutorial]
+        - name: limit
+          in: query
+          description: Maximum number of posts to return
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 50
+        - name: skip
+          in: query
+          description: Number of posts to skip for pagination
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        _id:
+                          type: string
+                        title:
+                          type: string
+                        slug:
+                          type: string
+                        published:
+                          type: boolean
+                        createdAt:
+                          type: string
+                          format: date-time
+                  total:
+                    type: integer
+                    description: Total number of unassigned posts
+                    example: 23
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+components:
+  schemas:
+    Error:
+      type: object
+      required:
+        - success
+        - error
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: string
+          description: Error message
+          example: "Post not found"
+        code:
+          type: string
+          description: Error code for client handling
+          example: "POST_NOT_FOUND"
+        details:
+          type: object
+          description: Additional error context
+          additionalProperties: true
+
+  responses:
+    BadRequest:
+      description: Invalid request parameters or validation failure
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            success: false
+            error: "Validation failed"
+            code: "VALIDATION_ERROR"
+            details:
+              sectionId: "Invalid section ID format"
+
+    Unauthorized:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            success: false
+            error: "Authentication required"
+            code: "UNAUTHORIZED"
+
+    Forbidden:
+      description: Insufficient permissions
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            success: false
+            error: "Admin access required"
+            code: "FORBIDDEN"
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            success: false
+            error: "Post or section not found"
+            code: "NOT_FOUND"
+
+    InternalError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            success: false
+            error: "An unexpected error occurred"
+            code: "INTERNAL_ERROR"
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token obtained from authentication endpoint

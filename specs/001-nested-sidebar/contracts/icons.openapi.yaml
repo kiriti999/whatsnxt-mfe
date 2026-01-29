@@ -1,0 +1,521 @@
+openapi: 3.0.3
+info:
+  title: Nested Sidebar - Icons API
+  description: API endpoints for managing and retrieving curated icon library for sections
+  version: 1.0.0
+  contact:
+    name: WhatsNxt Development Team
+
+servers:
+  - url: http://localhost:4444/api/v1
+    description: Local development
+  - url: https://api.whatsnxt.com/api/v1
+    description: Production
+
+tags:
+  - name: Icons
+    description: Icon library management
+
+paths:
+  /sidebar/icons:
+    get:
+      tags:
+        - Icons
+      summary: List available icons
+      description: Retrieve curated list of icons for section selection with optional filtering and search
+      operationId: listIcons
+      parameters:
+        - name: category
+          in: query
+          description: Filter by icon category
+          required: false
+          schema:
+            type: string
+            enum:
+              - general
+              - technology
+              - education
+              - business
+              - design
+              - communication
+              - media
+              - development
+              - science
+              - other
+        - name: search
+          in: query
+          description: Full-text search on displayName and tags
+          required: false
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: Maximum number of icons to return
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 50
+        - name: sortBy
+          in: query
+          description: Sort order for results
+          required: false
+          schema:
+            type: string
+            enum: [popularity, alphabetical]
+            default: alphabetical
+        - name: includeInactive
+          in: query
+          description: Include inactive icons (admin only)
+          required: false
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Icon'
+                  total:
+                    type: integer
+                    example: 47
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    post:
+      tags:
+        - Icons
+      summary: Add new icon
+      description: Add a new icon to the curated library (admin only)
+      operationId: createIcon
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IconCreate'
+      responses:
+        '201':
+          description: Icon created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/Icon'
+                  message:
+                    type: string
+                    example: Icon added successfully
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          description: Icon name already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /sidebar/icons/{id}:
+    get:
+      tags:
+        - Icons
+      summary: Get icon by ID
+      description: Retrieve a single icon by its ID
+      operationId: getIcon
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Icon ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/Icon'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    put:
+      tags:
+        - Icons
+      summary: Update icon
+      description: Update icon details (admin only)
+      operationId: updateIcon
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Icon ID
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IconUpdate'
+      responses:
+        '200':
+          description: Icon updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/Icon'
+                  message:
+                    type: string
+                    example: Icon updated successfully
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    delete:
+      tags:
+        - Icons
+      summary: Delete icon
+      description: Remove icon from library (admin only). Fails if icon is in use by any section.
+      operationId: deleteIcon
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Icon ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Icon deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Icon deleted successfully
+        '400':
+          description: Icon is in use by sections
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /sidebar/icons/categories:
+    get:
+      tags:
+        - Icons
+      summary: Get icon categories
+      description: Retrieve list of all icon categories with counts
+      operationId: getIconCategories
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        category:
+                          type: string
+                          example: "technology"
+                        count:
+                          type: integer
+                          example: 12
+                        displayName:
+                          type: string
+                          example: "Technology"
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+components:
+  schemas:
+    Icon:
+      type: object
+      required:
+        - _id
+        - name
+        - displayName
+        - category
+      properties:
+        _id:
+          type: string
+          description: MongoDB ObjectId
+          example: "507f1f77bcf86cd799439011"
+        name:
+          type: string
+          description: Icon component name from Tabler Icons (e.g., "IconBook")
+          example: "IconBook"
+        displayName:
+          type: string
+          description: Human-readable name for display
+          example: "Book"
+        category:
+          type: string
+          enum:
+            - general
+            - technology
+            - education
+            - business
+            - design
+            - communication
+            - media
+            - development
+            - science
+            - other
+          description: Icon category for organization
+          example: "education"
+        tags:
+          type: array
+          items:
+            type: string
+          description: Search tags for full-text search
+          example: ["read", "learn", "library"]
+        isActive:
+          type: boolean
+          description: Whether icon is available for selection
+          example: true
+        usageCount:
+          type: integer
+          minimum: 0
+          description: Number of sections using this icon
+          example: 5
+        createdAt:
+          type: string
+          format: date-time
+          description: Creation timestamp
+          example: "2025-01-27T10:30:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          description: Last update timestamp
+          example: "2025-01-27T15:45:00Z"
+
+    IconCreate:
+      type: object
+      required:
+        - name
+        - displayName
+        - category
+      properties:
+        name:
+          type: string
+          description: Icon component name from Tabler Icons (must be valid component)
+          example: "IconRocket"
+        displayName:
+          type: string
+          description: Human-readable name
+          example: "Rocket"
+        category:
+          type: string
+          enum:
+            - general
+            - technology
+            - education
+            - business
+            - design
+            - communication
+            - media
+            - development
+            - science
+            - other
+          description: Icon category
+          example: "general"
+        tags:
+          type: array
+          items:
+            type: string
+          description: Optional search tags
+          example: ["launch", "start", "speed"]
+        isActive:
+          type: boolean
+          description: Active status (default true)
+          default: true
+          example: true
+
+    IconUpdate:
+      type: object
+      properties:
+        displayName:
+          type: string
+          example: "Updated Display Name"
+        category:
+          type: string
+          enum:
+            - general
+            - technology
+            - education
+            - business
+            - design
+            - communication
+            - media
+            - development
+            - science
+            - other
+          example: "technology"
+        tags:
+          type: array
+          items:
+            type: string
+          example: ["updated", "tags"]
+        isActive:
+          type: boolean
+          example: false
+
+    Error:
+      type: object
+      required:
+        - success
+        - error
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: string
+          description: Error message
+          example: "Icon not found"
+        code:
+          type: string
+          description: Error code for client handling
+          example: "ICON_NOT_FOUND"
+        details:
+          type: object
+          description: Additional error context
+          additionalProperties: true
+
+  responses:
+    BadRequest:
+      description: Invalid request parameters or validation failure
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            success: false
+            error: "Validation failed"
+            code: "VALIDATION_ERROR"
+            details:
+              name: "Icon name must be a valid Tabler Icon component"
+
+    Unauthorized:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            success: false
+            error: "Authentication required"
+            code: "UNAUTHORIZED"
+
+    Forbidden:
+      description: Insufficient permissions
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            success: false
+            error: "Admin access required"
+            code: "FORBIDDEN"
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            success: false
+            error: "Icon not found"
+            code: "NOT_FOUND"
+
+    InternalError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            success: false
+            error: "An unexpected error occurred"
+            code: "INTERNAL_ERROR"
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token obtained from authentication endpoint
