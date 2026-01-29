@@ -1,10 +1,34 @@
 import React, { memo } from 'react';
 import { NavLink, Collapse, Box, Group, Text } from '@mantine/core';
-import { IconChevronRight, IconChevronDown, IconFileText } from '@tabler/icons-react';
-import * as TablerIcons from '@tabler/icons-react';
+import {
+  IconChevronRight, IconChevronDown, IconFileText,
+  IconHome, IconBrandReact, IconBrandVue, IconBrandAngular, IconBrandNodejs,
+  IconBrandPython, IconDatabase, IconServer, IconCloud, IconDeviceMobile,
+  IconCode, IconBook, IconArticle, IconTerminal, IconSettings, IconCircle
+} from '@tabler/icons-react';
 import Link from 'next/link';
 import { Section } from '../../../apis/v1/sidebar/sectionsApi';
 import styles from './styles.module.css';
+
+// Map of available icons
+const ICON_MAP: Record<string, any> = {
+  Home: IconHome,
+  BrandReact: IconBrandReact,
+  BrandVue: IconBrandVue,
+  BrandAngular: IconBrandAngular,
+  BrandNodejs: IconBrandNodejs,
+  BrandPython: IconBrandPython,
+  Database: IconDatabase,
+  Server: IconServer,
+  Cloud: IconCloud,
+  DeviceMobile: IconDeviceMobile,
+  Code: IconCode,
+  Book: IconBook,
+  Article: IconArticle,
+  Terminal: IconTerminal,
+  Settings: IconSettings,
+  Circle: IconCircle
+};
 
 interface SectionItemProps {
   section: Section;
@@ -37,9 +61,24 @@ export const SectionItem: React.FC<SectionItemProps> = memo(({
 
   const indentLevel = depth * 16; // 16px per level
 
-  // ... (rest of getting icon)
+  // Get icon component from Tabler icons
+  const getIconComponent = (iconName?: string) => {
+    if (!iconName) return null;
 
-  // URL for the section 
+    // Normalize name (e.g. "home" -> "Home")
+    // If input is "IconHome", strip "Icon" prefix
+    const cleanName = iconName.replace(/^Icon/, '');
+    // Ensure first char is uppercase
+    const key = cleanName.charAt(0).toUpperCase() + cleanName.slice(1);
+
+    const IconComponent = ICON_MAP[key] || ICON_MAP['Circle']; // Fallback to Circle
+
+    return IconComponent ? <IconComponent size={18} stroke={1.5} /> : null;
+  };
+
+  const icon = getIconComponent(section.iconName);
+
+  // URL for the section
   const sectionUrl = hasContent ? '#' : `/${contentType}s/section/${section.slug}`;
 
   const handleClick = (e: React.MouseEvent) => {
@@ -66,8 +105,7 @@ export const SectionItem: React.FC<SectionItemProps> = memo(({
         label={
           <Group gap="xs" wrap="nowrap">
             {/* icon rendering */}
-            {section.iconName && (TablerIcons as any)[`Icon${section.iconName.charAt(0).toUpperCase()}${section.iconName.slice(1)}`] ?
-              React.createElement((TablerIcons as any)[`Icon${section.iconName.charAt(0).toUpperCase()}${section.iconName.slice(1)}`], { size: 18, stroke: 1.5 }) : null}
+            {icon}
             <Text size="sm" truncate>
               {section.title}
             </Text>
