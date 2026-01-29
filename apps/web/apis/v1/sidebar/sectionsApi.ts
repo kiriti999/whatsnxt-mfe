@@ -5,6 +5,14 @@ const sidebarApiClient = xior.create({
   withCredentials: true,
 });
 
+export interface SectionPost {
+  _id: string;
+  title: string;
+  slug: string;
+  sectionId: string;
+  sectionOrder: number;
+}
+
 export interface Section {
   _id: string;
   title: string;
@@ -18,6 +26,7 @@ export interface Section {
   isVisible: boolean;
   postCount: number;
   children?: Section[];
+  posts?: SectionPost[];
   createdAt: string;
   updatedAt: string;
 }
@@ -82,7 +91,7 @@ export const SectionsAPI = {
 
     const query = queryParams.toString();
     const url = `/api/v1/sidebar/sections${query ? `?${query}` : ''}`;
-    
+
     const response = await sidebarApiClient.get(url);
     return response?.data?.data || [];
   },
@@ -90,9 +99,9 @@ export const SectionsAPI = {
   /**
    * Get hierarchical tree structure of sections
    */
-  getTree: async function (contentType: 'blog' | 'tutorial'): Promise<Section[]> {
+  getTree: async function (contentType: 'blog' | 'tutorial', includePosts: boolean = false): Promise<Section[]> {
     const response = await sidebarApiClient.get<SectionTreeResponse>(
-      `/api/v1/sidebar/sections/tree?contentType=${contentType}`
+      `/api/v1/sidebar/sections/tree?contentType=${contentType}&includePosts=${includePosts}`
     );
     return response?.data?.data || [];
   },

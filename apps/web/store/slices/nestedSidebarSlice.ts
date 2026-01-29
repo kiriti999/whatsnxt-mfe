@@ -64,7 +64,7 @@ export const fetchSections = createAsyncThunk(
 export const fetchSectionTree = createAsyncThunk(
   'nestedSidebar/fetchSectionTree',
   async (contentType: 'blog' | 'tutorial') => {
-    const tree = await SectionsAPI.getTree(contentType);
+    const tree = await SectionsAPI.getTree(contentType, true);
     return tree;
   }
 );
@@ -150,13 +150,13 @@ const nestedSidebarSlice = createSlice({
     toggleSection: (state, action: PayloadAction<string>) => {
       const sectionId = action.payload;
       const index = state.expandedSections.indexOf(sectionId);
-      
+
       if (index === -1) {
         state.expandedSections.push(sectionId);
       } else {
         state.expandedSections.splice(index, 1);
       }
-      
+
       saveExpandedSections(state.expandedSections);
     },
 
@@ -202,7 +202,7 @@ const nestedSidebarSlice = createSlice({
     autoExpandToSection: (state, action: PayloadAction<string>) => {
       const sectionId = action.payload;
       const ancestors = findSectionAncestors(state.tree, sectionId);
-      
+
       if (ancestors) {
         // Add all ancestors to expanded sections
         ancestors.forEach(ancestorId => {
@@ -210,12 +210,12 @@ const nestedSidebarSlice = createSlice({
             state.expandedSections.push(ancestorId);
           }
         });
-        
+
         // Also expand the target section itself
         if (!state.expandedSections.includes(sectionId)) {
           state.expandedSections.push(sectionId);
         }
-        
+
         saveExpandedSections(state.expandedSections);
       }
     },
@@ -353,7 +353,7 @@ const nestedSidebarSlice = createSlice({
             section.order = update.order;
           }
         });
-        
+
         // Re-sort sections by order
         state.sections.sort((a, b) => a.order - b.order);
       });

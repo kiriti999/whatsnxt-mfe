@@ -29,6 +29,19 @@ export const AccordionVariant: React.FC<AccordionVariantProps> = ({ contentType 
     (state: RootState) => state.nestedSidebar
   );
 
+  useEffect(() => {
+    console.log('AccordionVariant debug:', {
+      treeLength: tree.length,
+      tree: JSON.stringify(tree.map(s => ({
+        title: s.title,
+        id: s._id,
+        postsCount: s.posts?.length,
+        childrenCount: s.children?.length
+      }))),
+      expandedSections
+    });
+  }, [tree, expandedSections]);
+
   // Load expanded sections from localStorage on mount
   useEffect(() => {
     dispatch(loadExpandedSectionsFromStorage());

@@ -14,7 +14,8 @@
 
 @media (max-width: 48em) {
   .sidebarContainer {
-    padding-top: 60px;
+    padding-top: 0;
+    /* Cover full screen on mobile */
   }
 }
 

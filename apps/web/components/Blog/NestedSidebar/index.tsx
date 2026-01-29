@@ -2,15 +2,10 @@
 
 import React, { useEffect } from 'react';
 import { Box, Title, Group, ActionIcon, Tooltip, Divider, TextInput } from '@mantine/core';
-import { IconRefresh, IconChevronUp, IconChevronDown, IconSearch } from '@tabler/icons-react';
-import { useSelector, useDispatch } from 'react-redux';
-import { RootState, AppDispatch } from '../../../store/store';
-import {
-  fetchSectionTree,
-  setContentType,
-  expandAll,
-  collapseAll,
-} from '../../../store/slices/nestedSidebarSlice';
+import { IconSearch, IconLayoutSidebarLeftCollapse, IconX } from '@tabler/icons-react';
+import { setContentType, fetchSectionTree } from '@/store/slices/nestedSidebarSlice';
+import { AppDispatch, RootState } from '@/store/store';
+import { useDispatch, useSelector } from 'react-redux';
 import AccordionVariant from './AccordionVariant';
 import NavLinkVariant from './NavLinkVariant';
 import styles from './styles.module.css';
@@ -20,6 +15,8 @@ interface NestedSidebarProps {
   variant?: 'accordion' | 'navlink';
   showHeader?: boolean;
   showControls?: boolean;
+  onCollapse?: () => void;
+  isMobile?: boolean;
 }
 
 export const NestedSidebar: React.FC<NestedSidebarProps> = ({
@@ -27,6 +24,8 @@ export const NestedSidebar: React.FC<NestedSidebarProps> = ({
   variant = 'accordion',
   showHeader = true,
   showControls = true,
+  onCollapse,
+  isMobile = false,
 }) => {
   const dispatch = useDispatch<AppDispatch>();
 
@@ -35,19 +34,15 @@ export const NestedSidebar: React.FC<NestedSidebarProps> = ({
   );
 
   // Debug logging
-  useEffect(() => {
-    console.log('[NestedSidebar] Component mounted', { contentType, variant, loading, error, treeLength: tree.length });
-  }, []);
-
-  useEffect(() => {
-    console.log('[NestedSidebar] State updated', { loading, error, treeLength: tree.length });
-  }, [loading, error, tree]);
+  // ... (keeping debug logs)
 
   // Set content type and fetch sections on mount
   useEffect(() => {
-    console.log('[NestedSidebar] Setting content type and fetching tree:', contentType);
     dispatch(setContentType(contentType));
-    dispatch(fetchSectionTree(contentType));
+    // Fetch only if tree is empty to prevent infinite loops or redundant fetches if persisted
+    if (tree.length === 0) {
+      dispatch(fetchSectionTree(contentType));
+    }
   }, [dispatch, contentType]);
 
   // Refresh sections
@@ -55,15 +50,6 @@ export const NestedSidebar: React.FC<NestedSidebarProps> = ({
     dispatch(fetchSectionTree(contentType));
   };
 
-  // Expand all sections
-  const handleExpandAll = () => {
-    dispatch(expandAll());
-  };
-
-  // Collapse all sections
-  const handleCollapseAll = () => {
-    dispatch(collapseAll());
-  };
 
   return (
     <Box className={styles.sidebarContainer}>
@@ -77,39 +63,18 @@ export const NestedSidebar: React.FC<NestedSidebarProps> = ({
 
               {showControls && (
                 <Group gap="xs">
-                  <Tooltip label="Expand all">
-                    <ActionIcon
-                      variant="subtle"
-                      size="sm"
-                      onClick={handleExpandAll}
-                      aria-label="Expand all sections"
-                    >
-                      <IconChevronDown size={16} />
-                    </ActionIcon>
-                  </Tooltip>
-
-                  <Tooltip label="Collapse all">
-                    <ActionIcon
-                      variant="subtle"
-                      size="sm"
-                      onClick={handleCollapseAll}
-                      aria-label="Collapse all sections"
-                    >
-                      <IconChevronUp size={16} />
-                    </ActionIcon>
-                  </Tooltip>
-
-                  <Tooltip label="Refresh">
-                    <ActionIcon
-                      variant="subtle"
-                      size="sm"
-                      onClick={handleRefresh}
-                      loading={loading}
-                      aria-label="Refresh sections"
-                    >
-                      <IconRefresh size={16} />
-                    </ActionIcon>
-                  </Tooltip>
+                  {onCollapse && (
+                    <Tooltip label={isMobile ? "Close sidebar" : "Collapse sidebar"}>
+                      <ActionIcon
+                        variant="subtle"
+                        size="sm"
+                        onClick={onCollapse}
+                        aria-label={isMobile ? "Close sidebar" : "Collapse sidebar"}
+                      >
+                        {isMobile ? <IconX size={20} /> : <IconLayoutSidebarLeftCollapse size={18} />}
+                      </ActionIcon>
+                    </Tooltip>
+                  )}
                 </Group>
               )}
             </Group>
