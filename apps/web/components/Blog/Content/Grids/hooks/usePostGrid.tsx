@@ -11,7 +11,7 @@ export const usePostGrid = (queryResult: any, options: {
 
     const flatData = React.useMemo((): ContentItem[] => (
         currentSelectedTag ? (currentArticles || []) :
-            data ? data?.pages?.flatMap((item: any) => item) : []
+            data ? data?.pages?.flatMap((page: any) => page.data || []) : []
     ), [currentArticles, currentSelectedTag, data]);
 
     const onInfiniteScroll = () => {

@@ -88,3 +88,9 @@ export interface ValidationError {
   field: string;
   message: string;
 }
+
+// Section Types (Feature 002-reusable-sections)
+export * from './Section';
+export * from './SectionLink';
+export * from './SectionOwnershipTransfer';
+export * from './OrphanedPost';

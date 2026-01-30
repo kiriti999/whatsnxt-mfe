@@ -9,7 +9,7 @@ import {
 } from '@mantine/core';
 import { useState } from 'react';
 
-function TutorialCard({ tutorial }: ITutorialCard) {
+function TutorialCard(tutorial) {
   const [loading, setLoading] = useState(false);
 
   const handleNavigation = () => {
@@ -64,13 +64,11 @@ function TutorialCard({ tutorial }: ITutorialCard) {
 
 // Added proper TypeScript interface
 interface ITutorialCard {
-  tutorial: {
-    title: string;
-    slug: string;
-    categoryName: string;
-    imageUrl: string;
-    listed: boolean;
-  };
+  title: string;
+  slug: string;
+  categoryName: string;
+  imageUrl: string;
+  listed: boolean;
 }
 
 export default TutorialCard;

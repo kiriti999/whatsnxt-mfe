@@ -20,6 +20,7 @@ export interface Section {
   description?: string;
   iconName?: string;
   contentType: 'blog' | 'tutorial';
+  trainerId: string;           // Owner of the section
   parentId?: string;
   depth: number;
   order: number;
@@ -37,6 +38,7 @@ export interface SectionCreateInput {
   description?: string;
   iconName?: string;
   contentType: 'blog' | 'tutorial';
+  trainerId: string;           // Required: owner of the section
   parentId?: string;
   order?: number;
   isVisible?: boolean;
@@ -79,12 +81,14 @@ export const SectionsAPI = {
    */
   listSections: async function (params?: {
     contentType?: 'blog' | 'tutorial';
+    trainerId?: string;
     parentId?: string | null;
     isVisible?: boolean;
     includeHidden?: boolean;
   }): Promise<Section[]> {
     const queryParams = new URLSearchParams();
     if (params?.contentType) queryParams.append('contentType', params.contentType);
+    if (params?.trainerId) queryParams.append('trainerId', params.trainerId);
     if (params?.parentId !== undefined) queryParams.append('parentId', params.parentId || 'null');
     if (params?.isVisible !== undefined) queryParams.append('isVisible', String(params.isVisible));
     if (params?.includeHidden) queryParams.append('includeHidden', 'true');
@@ -94,6 +98,39 @@ export const SectionsAPI = {
 
     const response = await sidebarApiClient.get(url);
     return response?.data?.data || [];
+  },
+
+  /**
+   * Get sections owned by a specific trainer
+   * Useful for section picker - trainers can only link their own sections
+   */
+  getByTrainer: async function (trainerId: string, contentType?: 'blog' | 'tutorial'): Promise<Section[]> {
+    try {
+      return await this.listSections({
+        trainerId,
+        contentType,
+        isVisible: true,
+      });
+    } catch (error) {
+      console.error('SectionsAPI::getByTrainer error:', error);
+      return [];
+    }
+  },
+
+  /**
+   * Get all sections (for admins)
+   * T103: Admins can see all sections regardless of trainer
+   */
+  getAllSections: async function (contentType?: 'blog' | 'tutorial'): Promise<Section[]> {
+    try {
+      return await this.listSections({
+        contentType,
+        isVisible: true,
+      });
+    } catch (error) {
+      console.error('SectionsAPI::getAllSections error:', error);
+      return [];
+    }
   },
 
   /**
@@ -174,5 +211,43 @@ export const SectionsAPI = {
   reorderSections: async function (updates: Array<{ _id: string; order: number }>): Promise<boolean> {
     const response = await sidebarApiClient.patch('/api/v1/sidebar/sections/reorder', { updates });
     return response?.data?.success || false;
+  },
+
+  /**
+   * Get usage statistics for a section (T069 [US7])
+   * Shows where the section is being used (which tutorials/blogs)
+   */
+  getUsageStats: async function (sectionId: string): Promise<{
+    usageCount: number;
+    usedIn: Array<{
+      contentId: string;
+      contentType: 'blog' | 'tutorial';
+      contentTitle: string;
+      contentSlug?: string;
+    }>;
+  }> {
+    const response = await sidebarApiClient.get(`/api/v1/sidebar/sections/${sectionId}/usage`);
+    return response?.data?.data || { usageCount: 0, usedIn: [] };
+  },
+
+  /**
+   * Get detailed usage information for a section (T069, T070)
+   * Returns usage count and list of content where section is used
+   */
+  getUsageDetails: async function (sectionId: string): Promise<{
+    totalLinks: number;
+    usedIn: Array<{
+      contentId: string;
+      contentType: 'blog' | 'tutorial';
+      contentTitle: string;
+      contentSlug?: string;
+    }>;
+  }> {
+    const response = await sidebarApiClient.get(`/api/v1/sidebar/sections/${sectionId}/usage`);
+    const data = response?.data?.data || { usageCount: 0, usedIn: [] };
+    return {
+      totalLinks: data.usageCount,
+      usedIn: data.usedIn,
+    };
   },
 };

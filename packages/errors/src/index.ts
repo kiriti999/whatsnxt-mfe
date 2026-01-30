@@ -252,3 +252,7 @@ export { Exception as BaseError };
 export function isOperationalError(error: Error): boolean {
   return error instanceof Exception && 'status' in error;
 }
+
+// Export section ownership errors
+export { SectionOwnershipError, SECTION_OWNERSHIP_ERRORS } from './SectionOwnershipError';
+export type { SectionOwnershipContext } from './SectionOwnershipError';

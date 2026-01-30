@@ -1,0 +1,173 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Section Links API",
+    "description": "API for managing many-to-many relationships between sections and content (tutorials/blogs). Enables trainers to link reusable sections to their content, reorder sections, and track section usage.",
+    "version": "1.0.0",
+    "contact": {
+      "name": "WhatsNxt API Team"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:4444/api/v1",
+      "description": "Local development server"
+    },
+    {
+      "url": "https://api.whatsnxt.com/api/v1",
+      "description": "Production server"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Section Links",
+      "description": "Operations for linking sections to content"
+    }
+  ],
+  "paths": {
+    "/sidebar/section-links": {
+      "post": {
+        "tags": ["Section Links"],
+        "summary": "Link an existing section to content",
+        "description": "Creates a new many-to-many link between a section and a tutorial/blog. The section will appear in the content's sidebar at the specified order position. The same section can be linked multiple times to the same content at different positions (useful for repeating patterns like 'Exercise' sections).",
+        "operationId": "createSectionLink",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSectionLinkRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Section successfully linked to content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SectionLinkResponse"
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" }
+        }
+      },
+      "get": {
+        "tags": ["Section Links"],
+        "summary": "List section links with filtering",
+        "description": "Retrieve section links filtered by content or section.",
+        "operationId": "listSectionLinks",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "contentId",
+            "in": "query",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "sectionId",
+            "in": "query",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of section links",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SectionLinkListResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/sidebar/section-links/{linkId}": {
+      "delete": {
+        "tags": ["Section Links"],
+        "summary": "Unlink a section from content",
+        "operationId": "deleteSectionLink",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "linkId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Section successfully unlinked"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "SectionLink": {
+        "type": "object",
+        "properties": {
+          "_id": { "type": "string" },
+          "sectionId": { "type": "string" },
+          "contentId": { "type": "string" },
+          "contentType": { "type": "string", "enum": ["blog", "tutorial"] },
+          "order": { "type": "integer" }
+        }
+      },
+      "CreateSectionLinkRequest": {
+        "type": "object",
+        "required": ["sectionId", "contentId", "contentType"],
+        "properties": {
+          "sectionId": { "type": "string" },
+          "contentId": { "type": "string" },
+          "contentType": { "type": "string", "enum": ["blog", "tutorial"] },
+          "order": { "type": "integer" }
+        }
+      },
+      "SectionLinkResponse": {
+        "type": "object",
+        "properties": {
+          "success": { "type": "boolean" },
+          "data": { "$ref": "#/components/schemas/SectionLink" }
+        }
+      },
+      "SectionLinkListResponse": {
+        "type": "object",
+        "properties": {
+          "success": { "type": "boolean" },
+          "data": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/SectionLink" }
+          }
+        }
+      }
+    },
+    "responses": {
+      "BadRequest": {
+        "description": "Bad Request"
+      },
+      "Unauthorized": {
+        "description": "Unauthorized"
+      },
+      "Forbidden": {
+        "description": "Forbidden"
+      }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    }
+  }
+}

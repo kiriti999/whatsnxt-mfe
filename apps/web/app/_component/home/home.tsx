@@ -3,7 +3,6 @@
 import { MainBanner } from '@whatsnxt/core-ui'
 import React from 'react'
 import dynamic from 'next/dynamic'
-import PartyTownScripts from '../../../components/PartyTownScripts'
 
 const DynamicComponent = dynamic(() =>
   import('../../../components/MicroFrontEnd').then((mfe) => mfe)

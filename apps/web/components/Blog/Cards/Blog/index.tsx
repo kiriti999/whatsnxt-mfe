@@ -9,7 +9,8 @@ import {
   Group,
 } from '@mantine/core';
 
-function BlogCard({ blog }: IBlogCard) {
+function BlogCard({blog}: any) {
+  console.log('🚀 :: BlogCard :: blog:', blog)
   const [loading, setLoading] = useState(false);
 
   const handleNavigation = () => {
@@ -70,13 +71,11 @@ function BlogCard({ blog }: IBlogCard) {
 }
 
 interface IBlogCard {
-  blog: {
-    title: string;
-    slug: string;
-    categoryName: string;
-    imageUrl: string;
-    listed: boolean;
-  };
+  title: string;
+  slug: string;
+  categoryName: string;
+  imageUrl: string;
+  listed: boolean;
 }
 
 export default BlogCard;

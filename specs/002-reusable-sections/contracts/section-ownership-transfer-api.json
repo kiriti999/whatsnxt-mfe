@@ -1,0 +1,451 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Section Ownership Transfer API",
+    "description": "API for managing section ownership transfers between trainers. Enables trainers to transfer ownership of sections they created to other trainers with explicit acceptance required.",
+    "version": "1.0.0",
+    "contact": {
+      "name": "WhatsNxt API Team"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:4444/api/v1",
+      "description": "Local development server"
+    },
+    {
+      "url": "https://api.whatsnxt.com/api/v1",
+      "description": "Production server"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Section Ownership",
+      "description": "Operations for transferring section ownership"
+    }
+  ],
+  "paths": {
+    "/sections/{sectionId}/transfer": {
+      "post": {
+        "tags": ["Section Ownership"],
+        "summary": "Initiate section ownership transfer",
+        "description": "Creates a pending ownership transfer request from the current owner to a target trainer. Requires explicit acceptance from target trainer before ownership changes.",
+        "operationId": "initiateOwnershipTransfer",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "sectionId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "ID of the section to transfer"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InitiateTransferRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Transfer request created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransferResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid target trainer or section not owned by requester",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { 
+            "description": "Forbidden - Requester does not own this section",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict - Pending transfer already exists for this section",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/section-transfers": {
+      "get": {
+        "tags": ["Section Ownership"],
+        "summary": "List ownership transfer requests",
+        "description": "Retrieve transfer requests filtered by status, direction (sent/received), or trainer.",
+        "operationId": "listTransferRequests",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "schema": { 
+              "type": "string",
+              "enum": ["pending", "accepted", "declined", "cancelled"]
+            },
+            "description": "Filter by transfer status"
+          },
+          {
+            "name": "direction",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": ["sent", "received"]
+            },
+            "description": "Filter by direction - 'sent' shows requests initiated by current user, 'received' shows requests targeting current user"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": { "type": "integer", "default": 1, "minimum": 1 }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": { "type": "integer", "default": 20, "minimum": 1, "maximum": 100 }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of transfer requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransferListResponse"
+                }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" }
+        }
+      }
+    },
+    "/section-transfers/{transferId}/accept": {
+      "post": {
+        "tags": ["Section Ownership"],
+        "summary": "Accept ownership transfer request",
+        "description": "Target trainer accepts a pending transfer request. Immediately updates section ownership and marks transfer as accepted.",
+        "operationId": "acceptTransfer",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "transferId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Transfer accepted and ownership updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransferResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Transfer not in pending state",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": {
+            "description": "Forbidden - Current user is not the target trainer",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Transfer request not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/section-transfers/{transferId}/decline": {
+      "post": {
+        "tags": ["Section Ownership"],
+        "summary": "Decline ownership transfer request",
+        "description": "Target trainer declines a pending transfer request. Section ownership remains with original owner.",
+        "operationId": "declineTransfer",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "transferId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "reason": {
+                    "type": "string",
+                    "maxLength": 500,
+                    "description": "Optional reason for declining"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Transfer declined successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransferResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Transfer not in pending state"
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": {
+            "description": "Forbidden - Current user is not the target trainer"
+          },
+          "404": {
+            "description": "Transfer request not found"
+          }
+        }
+      }
+    },
+    "/section-transfers/{transferId}/cancel": {
+      "post": {
+        "tags": ["Section Ownership"],
+        "summary": "Cancel ownership transfer request",
+        "description": "Source trainer cancels a pending transfer request before it is accepted or declined.",
+        "operationId": "cancelTransfer",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "transferId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Transfer cancelled successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransferResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Transfer not in pending state"
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": {
+            "description": "Forbidden - Current user is not the source trainer"
+          },
+          "404": {
+            "description": "Transfer request not found"
+          }
+        }
+      }
+    },
+    "/sections/{sectionId}/transfer-history": {
+      "get": {
+        "tags": ["Section Ownership"],
+        "summary": "Get transfer history for a section",
+        "description": "Returns all ownership transfer requests (past and present) for a specific section.",
+        "operationId": "getTransferHistory",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "sectionId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Transfer history retrieved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/SectionOwnershipTransfer"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": {
+            "description": "Section not found"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "SectionOwnershipTransfer": {
+        "type": "object",
+        "properties": {
+          "_id": { "type": "string", "description": "Transfer request ID" },
+          "sectionId": { "type": "string", "description": "Section being transferred" },
+          "fromTrainerId": { "type": "string", "description": "Current owner (source)" },
+          "fromTrainerName": { "type": "string", "description": "Name of source trainer" },
+          "toTrainerId": { "type": "string", "description": "Target trainer (recipient)" },
+          "toTrainerName": { "type": "string", "description": "Name of target trainer" },
+          "status": { 
+            "type": "string", 
+            "enum": ["pending", "accepted", "declined", "cancelled"],
+            "description": "Current status of transfer request"
+          },
+          "message": { "type": "string", "description": "Optional message from requesting trainer" },
+          "requestedAt": { "type": "string", "format": "date-time" },
+          "respondedAt": { "type": "string", "format": "date-time", "nullable": true },
+          "completedAt": { "type": "string", "format": "date-time", "nullable": true },
+          "sectionDetails": {
+            "type": "object",
+            "properties": {
+              "title": { "type": "string" },
+              "slug": { "type": "string" },
+              "contentType": { "type": "string", "enum": ["blog", "tutorial"] },
+              "usageCount": { "type": "integer", "description": "Number of tutorials/blogs using this section" }
+            }
+          }
+        }
+      },
+      "InitiateTransferRequest": {
+        "type": "object",
+        "required": ["toTrainerId"],
+        "properties": {
+          "toTrainerId": { 
+            "type": "string",
+            "description": "ID of trainer to transfer ownership to"
+          },
+          "message": { 
+            "type": "string",
+            "maxLength": 500,
+            "description": "Optional message explaining the transfer request"
+          }
+        }
+      },
+      "TransferResponse": {
+        "type": "object",
+        "properties": {
+          "success": { "type": "boolean" },
+          "data": { "$ref": "#/components/schemas/SectionOwnershipTransfer" },
+          "message": { "type": "string" }
+        }
+      },
+      "TransferListResponse": {
+        "type": "object",
+        "properties": {
+          "success": { "type": "boolean" },
+          "data": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/SectionOwnershipTransfer" }
+          },
+          "pagination": {
+            "type": "object",
+            "properties": {
+              "page": { "type": "integer" },
+              "limit": { "type": "integer" },
+              "total": { "type": "integer" },
+              "totalPages": { "type": "integer" }
+            }
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "success": { "type": "boolean", "example": false },
+          "message": { "type": "string" },
+          "error": { "type": "string" }
+        }
+      }
+    },
+    "responses": {
+      "Unauthorized": {
+        "description": "Unauthorized - Invalid or missing authentication token",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  }
+}

@@ -53,7 +53,7 @@ export const PostGrid: React.FC<PostGridProps> = ({
                 data && data.length > 0 &&
                 data.map((item: ContentItem, i: number) => (
                     <div key={item._id || item.id || i}>
-                        {item?.tutorial ? (
+                        {item.tutorial === true ? (
                             <TutorialCardComponent tutorial={item} />
                         ) : (
                             <BlogCardComponent blog={item} />
@@ -69,7 +69,7 @@ export const PostGrid: React.FC<PostGridProps> = ({
     }
 
     return (
-        <Container fluid my={'5rem'}>
+        <Container fluid>
             <InfiniteScrollComponent
                 isLoading={isFetching}
                 isScrollCompleted={!hasNextPage && !currentSelectedTag}

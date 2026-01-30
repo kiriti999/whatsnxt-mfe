@@ -187,3 +187,7 @@ export const SUCCESS_MESSAGES = {
 
 // Lab-specific constants (feature 003-auto-page-creation)
 export * from './lab.constants';
+
+// Section-specific constants (feature 002-reusable-sections)
+export * from './sectionPermissions';
+export * from './sectionApiEndpoints';

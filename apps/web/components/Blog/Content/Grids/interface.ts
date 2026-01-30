@@ -10,13 +10,12 @@ export interface IBlogCard {
 export interface ContentItem {
     _id?: string;
     id?: string;
-    title: string;
-    slug: string;
-    categoryName: string;
-    imageUrl: string;
-    listed: boolean;
-    tutorial?: boolean; // This determines if it's a tutorial or blog
-    // Add other common fields
+    title?: string;
+    slug?: string;
+    categoryName?: string;
+    imageUrl?: string;
+    listed?: boolean;
+    tutorial?: boolean; // Boolean flag to indicate if it's a tutorial or blog
     description?: string;
     updatedAt?: string;
     published?: boolean;

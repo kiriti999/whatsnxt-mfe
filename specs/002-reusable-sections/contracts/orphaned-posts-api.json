@@ -1,0 +1,116 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Orphaned Posts Management API",
+    "description": "API for managing posts that have been orphaned (unassigned from sections) when sections are unlinked from tutorials/blogs.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:4444/api/v1",
+      "description": "Local development"
+    }
+  ],
+  "paths": {
+    "/content/{contentId}/orphaned-posts": {
+      "get": {
+        "summary": "List orphaned posts for content",
+        "description": "Returns all posts that have no section assignment (sectionId = null) for a specific tutorial/blog",
+        "parameters": [
+          {
+            "name": "contentId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of orphaned posts",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "_id": { "type": "string" },
+                          "title": { "type": "string" },
+                          "slug": { "type": "string" },
+                          "contentId": { "type": "string" },
+                          "sectionId": { "type": "null" },
+                          "createdAt": { "type": "string" }
+                        }
+                      }
+                    },
+                    "total": { "type": "integer" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/posts/{postId}/reassign": {
+      "post": {
+        "summary": "Reassign orphaned post to a section",
+        "description": "Assigns an orphaned post to a section. Section must be linked to the post's content.",
+        "parameters": [
+          {
+            "name": "postId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["sectionId"],
+                "properties": {
+                  "sectionId": { "type": "string" },
+                  "sectionOrder": { "type": "integer", "description": "Optional position, defaults to end" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Post reassigned successfully"
+          },
+          "400": {
+            "description": "Section not linked to post's content"
+          }
+        }
+      }
+    },
+    "/posts/{postId}": {
+      "delete": {
+        "summary": "Delete orphaned post",
+        "description": "Permanently deletes an orphaned post",
+        "parameters": [
+          {
+            "name": "postId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Post deleted successfully"
+          }
+        }
+      }
+    }
+  }
+}

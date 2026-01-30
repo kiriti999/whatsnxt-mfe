@@ -4,16 +4,30 @@ import { ContentType } from '../../types/form';
 
 // Define proper types
 export interface ContentItem {
-  _id: string;
-  title: string;
-  slug: string;
-  description: string;
-  categoryName: string;
-  imageUrl: string;
-  author: string;
-  updatedAt: string;
-  tutorial: boolean;
-  listed: boolean;
+  _id?: string;
+  id?: string;
+  title?: string;
+  slug?: string;
+  description?: string;
+  categoryName?: string;
+  imageUrl?: string;
+  author?: string;
+  updatedAt?: string;
+  listed?: boolean;
+  tutorial?: boolean; // Boolean flag to indicate if it's a tutorial or blog
+  published?: boolean;
+  userId?: string;
+  categoryId?: string;
+  subCategory?: string;
+  nestedSubCategory?: string;
+  tutorials?: Array<{
+    title: string;
+    description: string;
+  }>;
+  contentFormat?: string;
+  timeToRead?: string;
+  cloudinaryAssets?: any[];
+  [key: string]: any;
 }
 
 // Clean, consistent API response interface
