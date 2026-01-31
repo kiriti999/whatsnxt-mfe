@@ -14,7 +14,7 @@ export default function PopularTag(props: Props) {
 
     return (
         <Box className='widget widget_tag_cloud' my={'lg'}>
-            {categoryStore?.categoryCount?.length > 0 && <Title order={4} mb={'0.5rem'}>Popular Tags</Title>}
+            {categoryStore?.categoryCount?.length > 0 && <Title order={5} mb={'0.5rem'}>Popular Tags</Title>}
             {categoryStore.categoryCount && categoryStore.categoryCount.length > 0 && (
                 <div>
                     {categoryStore.categoryCount.map((item, index) => {

@@ -11,7 +11,7 @@ import TutorialContent from '../../../components/Blog/Content/Tutorial/TutorialC
 import { TutorialArticle } from '../../../types/contentDetails';
 import FacebookShare from '@whatsnxt/core-ui/src/ShareOptions/FacebookShare';
 import { SkeletonBlogContent } from '@whatsnxt/core-ui';
-import { Text, Box, Container, Group, Stack, Grid, GridCol, Title } from '@mantine/core';
+import { Text, Box, Container, Group, Stack, Grid, GridCol, Title, Divider } from '@mantine/core';
 import TutorialsToc from '../TutorialToc';
 import useAuth from '../../../hooks/Authentication/useAuth';
 import { useMediaQuery } from '@mantine/hooks';
@@ -78,7 +78,7 @@ function TutorialContentDetails({ details }: any) {
     setComments
   });
 
-  const [url, setUrl] = useState<String>('');
+  const [url, setUrl] = useState<string>('');
 
   useEffect(() => {
     setUrl(window.location.href);
@@ -110,7 +110,7 @@ function TutorialContentDetails({ details }: any) {
   //         totalViews += metric;
   //       }
   //     }
-
+  //
   //     setViews(totalViews);
   //   })();
   // }, [pathName]);
@@ -163,7 +163,9 @@ function TutorialContentDetails({ details }: any) {
                   <ShareOptions url={url} views={views} />
                 </Stack>
 
-                <Stack m={0}>
+                <Stack m={0} gap="md">
+                  <Divider />
+                  <Title order={4}>Comments</Title>
                   <CommentReplyContextProvider
                     email={email}
                     contentId={contentId}
@@ -213,7 +215,7 @@ function TutorialContentDetails({ details }: any) {
 }
 
 interface ShareOptionsProps {
-  url: String;
+  url: string;
   views: number;
 }
 

@@ -1,11 +1,10 @@
-/* eslint-disable react/prop-types */
-
 import React from 'react';
 import Navbar from './Navbar';
 import { Footer } from '@whatsnxt/core-ui/src/Footer';
 import { GoTop } from '@whatsnxt/core-util';
 import CookieConsent from 'react-cookie-consent';
 import { Box } from '@mantine/core';
+import TutorialAppShell from './TutorialAppShell/TutorialAppShell';
 
 const Layout = ({ children, loginMenuLinks, links, copyRight }) => {
 
@@ -13,13 +12,15 @@ const Layout = ({ children, loginMenuLinks, links, copyRight }) => {
     <>
       <Navbar links={links} loginMenuLinks={loginMenuLinks} copyRight={copyRight} />
 
-      <Box>
-        {children}
-      </Box>
+      <TutorialAppShell>
+        <Box>
+          {children}
+        </Box>
+      </TutorialAppShell>
 
       <GoTop />
 
-      <Footer />
+      {/* <Footer /> */}
 
       {/* <CookieConsent>
         This website uses cookies to enhance the user experience.

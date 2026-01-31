@@ -10,7 +10,7 @@ import SidebarHeadings from '../../../components/Blog/sidebar-headings';
 import StickyHeader from '../../../components/Blog/Content/StickyHeader';
 import { SkeletonBlogContent } from '@whatsnxt/core-ui';
 import useAuth from '../../../hooks/Authentication/useAuth';
-import { Box, Container, Grid, GridCol, Stack } from '@mantine/core';
+import { Box, Container, Grid, GridCol, Stack, Divider, Title } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { calculateTotalViews } from '../../../utils/pageViews';
 import useCommentHandlers from '@whatsnxt/blogcomments/src/hooks/useCommentHandlers';
@@ -161,6 +161,35 @@ function BlogContentDetails({ details }: BlogContentDetailsProps) {
                     onHeadingsExtracted={onHeadingsExtracted}
                     setActiveHeading={setActiveHeading}
                   />
+
+                  {/* Comments */}
+                  <Stack my={'xl'} gap="md">
+                    <Divider />
+                    <Title order={4}>Comments</Title>
+                    <CommentReplyContextProvider
+                      email={email}
+                      contentId={contentId}
+                      handleComments={handleComments}
+                      comments={comments}
+                    >
+                      <CommentContextProvider>
+                        <BlogComment
+                          userId={userId}
+                          email={email}
+                          comment={comments}
+                          item={item}
+                          root={true}
+                          rootDepth={1}
+                          contentId={contentId}
+                          handleInsertNode={handleInsertNode}
+                          handleEditNode={handleEditNode}
+                          handleDeleteNode={handleDeleteNode}
+                          handleComments={handleComments}
+                          handleSubComment={handleSubComment}
+                        />
+                      </CommentContextProvider>
+                    </CommentReplyContextProvider>
+                  </Stack>
                 </GridCol>
 
                 <GridCol span={itemHeadings.length > 0 ? { base: 12, md: 2.5 } : { base: 12, md: 3 }}>
@@ -172,33 +201,6 @@ function BlogContentDetails({ details }: BlogContentDetailsProps) {
                 </GridCol>
               </Grid>
 
-              <Container fluid>
-                <Stack my={'xl'}>
-                <CommentReplyContextProvider
-                  email={email}
-                  contentId={contentId}
-                  handleComments={handleComments}
-                  comments={comments}
-                >
-                  <CommentContextProvider>
-                    <BlogComment
-                      userId={userId}
-                      email={email}
-                      comment={comments}
-                      item={item}
-                      root={true}
-                      rootDepth={1}
-                      contentId={contentId}
-                      handleInsertNode={handleInsertNode}
-                      handleEditNode={handleEditNode}
-                      handleDeleteNode={handleDeleteNode}
-                      handleComments={handleComments}
-                      handleSubComment={handleSubComment}
-                    />
-                  </CommentContextProvider>
-                </CommentReplyContextProvider>
-              </Stack>
-              </Container>
 
             </Box>
           </>

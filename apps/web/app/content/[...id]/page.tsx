@@ -8,8 +8,25 @@ import ContentWrapper from './ContentWrapper';
 const ContentPage = async (props: any) => {
   const params = await props.params;
 
+  // Handle various URL structures:
+  // 1. /content/slug -> lookup 'slug'
+  // 2. /content/tutorial/post -> lookup 'tutorial-post'
+  let lookupSlug = "";
+  if (Array.isArray(params.id)) {
+    // If length >= 2, we have tutorial/post structure. Pass as 'tutorial/post'
+    // serverFetcher can parse this pattern to call the scoped API.
+    if (params.id.length >= 2) {
+      lookupSlug = `${params.id[0]}/${params.id[1]}`;
+    } else {
+      lookupSlug = params.id[0];
+    }
+  } else {
+    lookupSlug = params.id;
+  }
+
   // Use REST API instead of GraphQL for SSR
-  const slugData = await getPostBySlugServer(params.id);
+  const slugData = await getPostBySlugServer(lookupSlug);
+  console.log('🚀 :: ContentPage :: slugData:', slugData)
 
   if (!slugData) {
     return (

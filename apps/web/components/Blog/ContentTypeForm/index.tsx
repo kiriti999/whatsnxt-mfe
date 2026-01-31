@@ -1,7 +1,7 @@
 'use client'
 import { Container, Text, SimpleGrid, Paper, Stack, ThemeIcon, Box, Title, Group } from '@mantine/core'
 import { MantineLoader } from '@whatsnxt/core-ui'
-import { IconArticle, IconBook, IconSparkles } from '@tabler/icons-react'
+import { IconArticle, IconBook, IconSparkles, IconLayoutList } from '@tabler/icons-react'
 import Link from 'next/link'
 import React, { Suspense } from 'react'
 
@@ -21,6 +21,14 @@ const contentTypes = [
         description: 'Create step-by-step guides to help others learn',
         gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
         color: '#f093fb'
+    },
+    {
+        href: '/form/structured-tutorial',
+        icon: IconLayoutList,
+        title: 'Structured Tutorial',
+        description: 'Build comprehensive multi-section tutorials with organized content',
+        gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+        color: '#4facfe'
     }
 ]
 
@@ -56,7 +64,7 @@ export function ContentTypeForm() {
 
                     {/* Content Type Cards */}
                     <SimpleGrid
-                        cols={{ base: 1, sm: 2 }}
+                        cols={{ base: 1, sm: 2, md: 3 }}
                         spacing="lg"
                         w="100%"
                         mt="md"

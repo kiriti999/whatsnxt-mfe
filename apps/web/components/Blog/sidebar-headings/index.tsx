@@ -38,7 +38,7 @@ function SidebarHeadings({
             Table of contents
           </Title>
 
-          <Stack gap={'3px'}>
+          <Stack gap={0}>
             {headings.map((heading) => (
               <Paper
                 key={heading.id}
@@ -51,9 +51,10 @@ function SidebarHeadings({
               >
                 <Stack gap={0}>
                   <Text
-                    size="sm"
+                    size="xs"
                     fw={heading.id === activeId ? 600 : 400}
                     lineClamp={2}
+                    truncate
                     c={heading.id === activeId ? 'blue.6' : 'dimmed'}
                   >
                     {heading.text}

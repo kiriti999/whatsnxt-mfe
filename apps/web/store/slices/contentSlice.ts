@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk, PayloadAction, Reducer } from '@reduxjs/toolkit';
 import { ContentAPI } from '../../apis/v1/blog';
+import { StructuredTutorialAPI, StructuredTutorial } from '../../apis/v1/blog/structuredTutorialApi';
 import { ContentType } from '../../types/form';
 
 // Define proper types
@@ -14,6 +15,7 @@ export interface ContentItem {
   updatedAt: string;
   tutorial: boolean;
   listed: boolean;
+  isStructured?: boolean; // Added flag
 }
 
 // Clean, consistent API response interface
@@ -35,6 +37,7 @@ export interface LegacyApiResponse<T> {
 export interface ContentState {
   articles: ContentItem[];
   tutorials: ContentItem[];
+  structuredTutorials: StructuredTutorial[]; // New state
   currentTag: string | null;
   totalCount: number;
   loading: boolean;
@@ -45,6 +48,7 @@ export interface ContentState {
 const initialState: ContentState = {
   articles: [],
   tutorials: [],
+  structuredTutorials: [],
   currentTag: null,
   totalCount: 0,
   loading: false,
@@ -62,6 +66,12 @@ interface TutorialsParams {
   start?: number;
   limit?: number;
   type?: string | ContentType;
+}
+
+interface StructuredTutorialsParams {
+  page?: number;
+  limit?: number;
+  published?: boolean;
 }
 
 // Async thunks with proper typing
@@ -142,6 +152,31 @@ export const getTutorials = createAsyncThunk<
   },
 );
 
+// New Thunk for Structured Tutorials
+export const getStructuredTutorials = createAsyncThunk<
+  ApiResponse<StructuredTutorial>,
+  StructuredTutorialsParams
+>(
+  'content/getStructuredTutorials',
+  async ({ page = 1, limit = 10, published = true }, { rejectWithValue }) => {
+    try {
+      const response = await StructuredTutorialAPI.getAll(page, limit, published);
+
+      if (response.success && response.data) {
+        return {
+          data: response.data.tutorials,
+          totalCount: response.data.totalRecords,
+          currentPage: response.data.currentPage,
+          limit: limit
+        };
+      }
+      throw new Error(response.message || 'Failed to fetch structured tutorials');
+    } catch (error: any) {
+      return rejectWithValue(error?.message || 'Failed to fetch structured tutorials');
+    }
+  }
+);
+
 const contentSlice = createSlice({
   name: 'content',
   initialState,
@@ -155,6 +190,7 @@ const contentSlice = createSlice({
     resetContent: (state) => {
       state.articles = [];
       state.tutorials = [];
+      state.structuredTutorials = [];
       state.currentTag = null;
       state.totalCount = 0;
       state.loading = false;
@@ -229,6 +265,27 @@ const contentSlice = createSlice({
         state.articles = [];
         state.totalCount = 0;
         state.error = (action.payload as string) || action.error.message || 'Failed to fetch tutorials';
+      })
+
+      // Handle getStructuredTutorials
+      .addCase(getStructuredTutorials.pending, (state) => {
+        // We don't necessarily want to trigger global loading if we are fetching in parallel? 
+        // Or we do. Let's keep it consistent.
+        state.loading = true;
+        state.error = '';
+      })
+      .addCase(getStructuredTutorials.fulfilled, (state, action) => {
+        const payload = action.payload;
+        state.structuredTutorials = payload.data || [];
+        // Note: Total count here overrides existing count which might be issue if mixed.
+        // But for now Component usually displays one or the other.
+        state.loading = false;
+        state.error = '';
+      })
+      .addCase(getStructuredTutorials.rejected, (state, action) => {
+        state.loading = false;
+        state.structuredTutorials = [];
+        state.error = (action.payload as string) || action.error.message || 'Failed to fetch structured tutorials';
       });
   },
 });
@@ -251,6 +308,9 @@ export const selectArticles = (state: { content: ContentState }) =>
 
 export const selectTutorials = (state: { content: ContentState }) =>
   state.content.tutorials;
+
+export const selectStructuredTutorials = (state: { content: ContentState }) =>
+  state.content.structuredTutorials;
 
 export const selectCurrentTag = (state: { content: ContentState }) =>
   state.content.currentTag;
@@ -280,7 +340,8 @@ export const selectContentById = (state: { content: ContentState }, id: string) 
 
 export const selectContentBySlug = (state: { content: ContentState }, slug: string) =>
   state.content.articles.find(article => article.slug === slug) ||
-  state.content.tutorials.find(tutorial => tutorial.slug === slug);
+  state.content.tutorials.find(tutorial => tutorial.slug === slug) ||
+  state.content.structuredTutorials.find(t => t.slug === slug); // Added lookup
 
 // Helper functions for components
 export const isContentLoading = (state: any): boolean => {
