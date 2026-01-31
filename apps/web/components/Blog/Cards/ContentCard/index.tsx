@@ -16,6 +16,7 @@ interface ContentCardProps {
         categoryName?: string;
         tutorial?: boolean;
         isStructured?: boolean;
+        firstPostSlug?: string; // Added from backend
         [key: string]: any;
     };
 }
@@ -27,8 +28,12 @@ function ContentCard({ content }: ContentCardProps) {
         setLoading(true);
     };
 
-    // All content now uses the unified /content route
-    const href = `/content/${content.slug}`;
+    // Construct href based on content type
+    // If structured tutorial and has firstPostSlug, link to first post
+    let href = `/content/${content.slug}`;
+    if (content.isStructured && content.firstPostSlug) {
+        href = `/content/${content.slug}/${content.firstPostSlug}`;
+    }
 
     // Determine badge color based on content type
     const categoryBadgeColor = content.isStructured ? 'blue' : 'pink';

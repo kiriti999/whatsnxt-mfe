@@ -1,9 +1,11 @@
 'use client';
 
-import { AppShell } from '@mantine/core';
+import { AppShell, ActionIcon } from '@mantine/core';
+import { useDisclosure, useMediaQuery } from '@mantine/hooks';
 import { usePathname } from 'next/navigation';
 import { ReactNode, useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
+import { IconLayoutSidebarRightCollapse } from '@tabler/icons-react';
 import { RootState } from '../../store/store';
 import { TutorialSidebar } from '../StructuredTutorial/Sidebar';
 import { StructuredTutorialAPI, SidebarTree } from '../../apis/v1/blog/structuredTutorialApi';
@@ -16,6 +18,8 @@ interface TutorialAppShellProps {
 export default function TutorialAppShell({ children }: TutorialAppShellProps) {
     const pathname = usePathname();
     const dispatch = useDispatch();
+    const [opened, { toggle }] = useDisclosure(true); // Start open
+    const isMobile = useMediaQuery('(max-width: 992px)'); // Match 'md' breakpoint
 
     // Check if we're on a tutorial/post page
     const isTutorialPage = pathname?.startsWith('/content/');
@@ -86,29 +90,84 @@ export default function TutorialAppShell({ children }: TutorialAppShellProps) {
     }, [tutorialSlug, isTutorialPage, sidebarCache, dispatch]);
 
     // Get current post slug for highlighting
-    const currentPostSlug = pathSegments[2]
-        ? `${tutorialSlug}-${pathSegments[2]}`
-        : tutorialSlug;
+    // URL: /content/tutorial-slug/post-slug
+    // Sidebar stores: just 'post-slug' (without tutorial prefix)
+    const currentPostSlug = pathSegments[2] || tutorialSlug;
+
+    // Show sidebar only if we have data and it's a tutorial page
+    const showSidebar = isTutorialPage && sidebarData;
 
     return (
         <AppShell
-            header={{ height: 60 }}
             navbar={{
-                width: { base: 0, sm: isTutorialPage && sidebarData ? 280 : 0 },
-                breakpoint: 'sm',
+                width: {
+                    base: 250,  // Mobile: ~70% of typical mobile screen
+                    sm: 280,    // Small screens
+                    md: 280,    // Tablet and up
+                },
+                breakpoint: 'md',  // Switch at 992px
+                collapsed: { mobile: !opened || !showSidebar, desktop: !opened || !showSidebar },
+            }}
+            styles={{
+                navbar: {
+                    maxWidth: '70vw',  // Limit to 70% on very small screens
+                },
+                main: {
+                    paddingTop: '80px', // Push content down to clear global navbar
+                }
             }}
             padding="md"
         >
-            {isTutorialPage && sidebarData && (
-                <AppShell.Navbar p="md">
+            {/* Mobile: Sidebar toggle - fixed position to ensure visibility below global navbar */}
+            {isMobile && isTutorialPage && !opened && (
+                <ActionIcon
+                    onClick={toggle}
+                    size="md" // Reduced from lg to match sidebar style better
+                    variant="default" // Changed to default for better visibility but less aggressive than filled
+                    style={{
+                        position: 'fixed',
+                        top: '90px',
+                        left: '16px', // Aligned with content padding
+                        zIndex: 1100,
+                        boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+                    }}
+                    aria-label="Toggle sidebar"
+                >
+                    <IconLayoutSidebarRightCollapse size={20} />
+                </ActionIcon>
+            )}
+
+            {/* Always render Navbar, AppShell handles collapsing */}
+            <AppShell.Navbar p={0}>
+                {showSidebar && (
                     <TutorialSidebar
                         sidebarData={sidebarData}
                         currentPostSlug={currentPostSlug}
+                        onCollapse={toggle}
+                        isMobile={isMobile}
                     />
-                </AppShell.Navbar>
-            )}
+                )}
+            </AppShell.Navbar>
 
             <AppShell.Main>
+                {/* Desktop: Floating button when collapsed */}
+                {!isMobile && showSidebar && !opened && (
+                    <ActionIcon
+                        onClick={toggle}
+                        size="md"
+                        variant="default"
+                        aria-label="Open sidebar"
+                        style={{
+                            position: 'fixed',
+                            top: '90px', // Match mobile position
+                            left: '16px', // Match mobile position
+                            zIndex: 99,
+                            boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+                        }}
+                    >
+                        <IconLayoutSidebarRightCollapse size={20} />
+                    </ActionIcon>
+                )}
                 {children}
             </AppShell.Main>
         </AppShell>

@@ -27,8 +27,8 @@ const contentTypes = [
         icon: IconLayoutList,
         title: 'Structured Tutorial',
         description: 'Build comprehensive multi-section tutorials with organized content',
-        gradient: 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)',
-        color: '#11998e'
+        gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+        color: '#4facfe'
     }
 ]
 
@@ -64,7 +64,7 @@ export function ContentTypeForm() {
 
                     {/* Content Type Cards */}
                     <SimpleGrid
-                        cols={{ base: 1, sm: 2 }}
+                        cols={{ base: 1, sm: 2, md: 3 }}
                         spacing="lg"
                         w="100%"
                         mt="md"

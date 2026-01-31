@@ -37,5 +37,6 @@ export interface ContentItem {
     timeToRead?: string;
     cloudinaryAssets?: any[];
     sectionIds?: any[]; // For structured tutorials
+    firstPostSlug?: string; // For structured tutorials direct linking
     [key: string]: any; // For any additional fields
 }

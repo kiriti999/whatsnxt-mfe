@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { Box, Container, Grid, GridCol, Stack } from '@mantine/core';
+import { Box, Container, Grid, GridCol, Stack, Divider, Title } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { SkeletonBlogContent } from '@whatsnxt/core-ui';
 
@@ -102,8 +102,6 @@ export default function StructuredTutorialContentDetails({
         }
     }, [details._id]);
 
-    const currentPostSlug = details.slug;
-
     return (
         <Container fluid>
             <Box>
@@ -127,6 +125,35 @@ export default function StructuredTutorialContentDetails({
                                     onHeadingsExtracted={onHeadingsExtracted}
                                     setActiveHeading={setActiveHeading}
                                 />
+
+                                {/* Comments */}
+                                <Stack my="xl" gap="md">
+                                    <Divider />
+                                    <Title order={4}>Comments</Title>
+                                    <CommentReplyContextProvider
+                                        email={email}
+                                        contentId={contentId}
+                                        handleComments={handleComments}
+                                        comments={comments}
+                                    >
+                                        <CommentContextProvider>
+                                            <BlogComment
+                                                userId={userId}
+                                                email={email}
+                                                comment={comments}
+                                                item={item}
+                                                root={true}
+                                                rootDepth={1}
+                                                contentId={contentId}
+                                                handleInsertNode={handleInsertNode}
+                                                handleEditNode={handleEditNode}
+                                                handleDeleteNode={handleDeleteNode}
+                                                handleComments={handleComments}
+                                                handleSubComment={handleSubComment}
+                                            />
+                                        </CommentContextProvider>
+                                    </CommentReplyContextProvider>
+                                </Stack>
                             </GridCol>
 
                             {/* Right Sidebar - Headings & Popular Posts */}
@@ -145,34 +172,7 @@ export default function StructuredTutorialContentDetails({
                             </GridCol>
                         </Grid>
 
-                        {/* Comments */}
-                        <Container fluid>
-                            <Stack my="xl">
-                                <CommentReplyContextProvider
-                                    email={email}
-                                    contentId={contentId}
-                                    handleComments={handleComments}
-                                    comments={comments}
-                                >
-                                    <CommentContextProvider>
-                                        <BlogComment
-                                            userId={userId}
-                                            email={email}
-                                            comment={comments}
-                                            item={item}
-                                            root={true}
-                                            rootDepth={1}
-                                            contentId={contentId}
-                                            handleInsertNode={handleInsertNode}
-                                            handleEditNode={handleEditNode}
-                                            handleDeleteNode={handleDeleteNode}
-                                            handleComments={handleComments}
-                                            handleSubComment={handleSubComment}
-                                        />
-                                    </CommentContextProvider>
-                                </CommentReplyContextProvider>
-                            </Stack>
-                        </Container>
+
                     </Box>
                 )}
             </Box>

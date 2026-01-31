@@ -3,6 +3,7 @@ import TopCourses from './TopCourses/TopCourses';
 import type { CourseType } from '@whatsnxt/core-util';
 import TrendingArticles from './TrendingArticles';
 import { Button, Container, Grid } from "@mantine/core";
+import { Footer } from '@whatsnxt/core-ui';
 
 interface MicroFrontendProps {
   courses: CourseType[];
@@ -34,6 +35,7 @@ export default function MicroFrontend({
         articles={articles || []}
         total={totalArticles || 0}
       />
+      <Footer />
     </>
   );
 }

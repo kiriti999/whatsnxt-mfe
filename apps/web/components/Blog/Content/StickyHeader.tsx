@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styles from './stickyHeader.module.css';
-import { Title, Box, useMantineColorScheme } from '@mantine/core';
+import { Title, Box, useMantineColorScheme, Transition, Text } from '@mantine/core';
 import { IconChevronDown, IconChevronUp } from '@tabler/icons-react';
 
 interface Title {
@@ -16,6 +16,7 @@ interface StickyHeaderProps {
 const StickyHeader: React.FC<StickyHeaderProps> = ({ titles }) => {
   const { colorScheme } = useMantineColorScheme();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
   const [activeId, setActiveId] = useState<string | null>(
     titles.length > 0 ? titles[0].id : null
   );
@@ -36,6 +37,19 @@ const StickyHeader: React.FC<StickyHeaderProps> = ({ titles }) => {
     }
     setMenuOpen(false);
   };
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 300) {
+        setIsVisible(true);
+      } else {
+        setIsVisible(false);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -74,45 +88,89 @@ const StickyHeader: React.FC<StickyHeaderProps> = ({ titles }) => {
   }, [activeId, titles]);
 
   return (
-    <Box
-      className={styles.stickyHeader}
-      pos="sticky"
-      top={0}
-      style={{
-        zIndex: 1000,
-      }}
-    >
-      <Title
-        order={4}
-        c={colorScheme === 'dark' ? 'gray.1' : 'dark.9'}
-      >
-        {titles.find((title) => title.id === activeId)?.text || titles[0]?.text}
-      </Title>
-      {menuOpen ? (
-        <IconChevronUp size={20} onClick={handleMenuToggle} />
-      ) : (
-        <IconChevronDown size={20} onClick={handleMenuToggle} />
-      )}
-      {menuOpen && (
-        <Box className={styles.menu}>
-          {titles.map((title) => (
-            <a
-              key={title.id}
-              className={styles.menuItem}
-              onClick={(e) => handleTitleClick(e, title.id)}
-              href={`#${title.id}`}
+    <Transition mounted={isVisible} transition="slide-down" duration={400} timingFunction="ease">
+      {(transitionStyles) => (
+        <Box
+          className={styles.stickyHeader}
+          style={{
+            ...transitionStyles,
+            position: 'sticky',
+            top: 70,
+            zIndex: 999,
+            backgroundColor: colorScheme === 'dark' ? 'rgba(26, 27, 30, 0.85)' : 'rgba(255, 255, 255, 0.85)',
+            backdropFilter: 'blur(10px)',
+            WebkitBackdropFilter: 'blur(10px)',
+            border: `1px solid ${colorScheme === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)'}`,
+            display: 'flex',
+            alignItems: 'center',
+            padding: '8px 24px',
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.12)',
+            width: 'fit-content',
+            maxWidth: '90%',
+            minWidth: '300px',
+            margin: '0 auto',
+            borderRadius: '2rem'
+          }}
+        >
+          <Title
+            order={4}
+            m={0}
+            fw={500}
+            c={colorScheme === 'dark' ? 'gray.1' : 'dark.9'}
+            style={{ flex: 1, textAlign: 'center' }}
+            lineClamp={1}
+          >
+            {activeId ? titles.find((title) => title.id === activeId)?.text || titles[0]?.text : titles[0]?.text}
+          </Title>
+          {menuOpen ? (
+            <IconChevronUp size={20} onClick={handleMenuToggle} style={{ cursor: 'pointer', marginLeft: '8px' }} />
+          ) : (
+            <IconChevronDown size={20} onClick={handleMenuToggle} style={{ cursor: 'pointer', marginLeft: '8px' }} />
+          )}
+          {menuOpen && (
+            <Box
+              className={styles.menu}
               style={{
-                color: title.id === activeId
-                  ? (colorScheme === 'dark' ? '#4dabf7' : '#1971c2')
-                  : (colorScheme === 'dark' ? '#ced4da' : '#212529'),
+                position: 'absolute',
+                top: 'calc(100% + 8px)',
+                left: 0,
+                right: 0,
+                backgroundColor: colorScheme === 'dark' ? 'rgba(26, 27, 30, 0.95)' : 'rgba(255, 255, 255, 0.95)',
+                backdropFilter: 'blur(10px)',
+                WebkitBackdropFilter: 'blur(10px)',
+                border: `1px solid ${colorScheme === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)'}`,
+                borderRadius: '1rem',
+                overflow: 'hidden',
+                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.12)',
               }}
             >
-              {title.text}
-            </a>
-          ))}
+              {titles.map((title) => (
+                <Text
+                  truncate
+                  lineClamp={1}
+                  component="a"
+                  key={title.id}
+                  className={styles.menuItem}
+                  onClick={(e: React.MouseEvent) => handleTitleClick(e, title.id)}
+                  href={`#${title.id}`}
+                  display="block"
+                  style={{
+                    padding: '12px 16px',
+                    textDecoration: 'none',
+                    color: title.id === activeId
+                      ? (colorScheme === 'dark' ? '#4dabf7' : '#1971c2')
+                      : (colorScheme === 'dark' ? '#ced4da' : '#212529'),
+                    borderTop: `1px solid ${colorScheme === 'dark' ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)'}`,
+                  }}
+                >
+                  {title.text}
+                </Text>
+              ))}
+            </Box>
+          )}
         </Box>
       )}
-    </Box>
+    </Transition>
   );
 };
 
