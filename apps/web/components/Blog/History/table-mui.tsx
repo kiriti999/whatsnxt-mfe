@@ -137,10 +137,6 @@ const HistoryMUI = ({ open, close }: any) => {
     return await ContentAPI.createTutorialFromBlogs(list, tutorialTitle)
   }
 
-  const handleOpenModal = () => {
-    setModalOpen(true);
-  };
-
   const handleCreateTutorial = async () => {
     try {
       const selectedIds = Object.keys(rowSelection).map((id) => id)
@@ -462,16 +458,32 @@ const HistoryMUI = ({ open, close }: any) => {
       rowsPerPageOptions: [5, 10, 15],
       variant: 'outlined',
       sx: {
-        '& .MuiTablePagination-select': {
-          color: colorScheme === 'dark' ? '#c1c2c5' : '#212529',
-        },
+
         '& .MuiTablePagination-selectLabel': {
-          color: colorScheme === 'dark' ? '#c1c2c5' : '#212529',
+          color: colorScheme === 'dark' ? '#ffffff !important' : '#212529',
         },
         '& .MuiTablePagination-displayedRows': {
-          color: colorScheme === 'dark' ? '#c1c2c5' : '#212529',
+          color: colorScheme === 'dark' ? '#ffffff !important' : '#212529',
+        },
+        '& .MuiTablePagination-select': {
+          color: colorScheme === 'dark' ? '#ffffff !important' : '#212529',
         },
         '& .MuiIconButton-root': {
+          color: colorScheme === 'dark' ? '#ffffff !important' : '#212529',
+        },
+        '& .MuiPaginationItem-root': {
+          color: colorScheme === 'dark' ? '#c1c2c5 !important' : '#212529',
+          borderColor: colorScheme === 'dark' ? '#373a40' : '#dee2e6',
+        },
+        '& .MuiPaginationItem-root.Mui-selected': {
+          backgroundColor: colorScheme === 'dark' ? 'rgba(76, 110, 245, 0.15)' : 'rgba(25, 113, 194, 0.1)',
+          borderColor: colorScheme === 'dark' ? '#4c6ef5' : '#1971c2',
+          color: colorScheme === 'dark' ? '#4c6ef5 !important' : '#1971c2',
+        },
+        '& .MuiTablePagination-selectIcon': {
+          color: colorScheme === 'dark' ? '#ffffff !important' : '#212529',
+        },
+        '& .MuiTablePagination-menuItem': {
           color: colorScheme === 'dark' ? '#c1c2c5' : '#212529',
         },
       },
@@ -489,7 +501,7 @@ const HistoryMUI = ({ open, close }: any) => {
       sx: {
         minWidth: '300px',
         '& .MuiOutlinedInput-root': {
-          color: colorScheme === 'dark' ? '#c1c2c5' : '#212529',
+          color: colorScheme === 'dark' ? '#ffffff !important' : '#212529',
           '& fieldset': {
             borderColor: colorScheme === 'dark' ? '#373a40' : '#ced4da',
           },
@@ -501,20 +513,23 @@ const HistoryMUI = ({ open, close }: any) => {
           },
         },
         '& .MuiInputLabel-root': {
-          color: colorScheme === 'dark' ? '#909296' : '#868e96',
+          color: colorScheme === 'dark' ? '#ffffff !important' : '#868e96',
         },
         '& .MuiInputBase-input::placeholder': {
-          color: colorScheme === 'dark' ? '#909296' : '#868e96',
+          color: colorScheme === 'dark' ? '#ffffff !important' : '#868e96',
+          opacity: '1 !important',
+        },
+        '& .MuiSvgIcon-root': {
+          color: colorScheme === 'dark' ? '#ffffff !important' : '#868e96',
         },
       },
       variant: 'outlined',
     },
     renderToolbarInternalActions: ({ table }) => (
       <Group>
-        <Tooltip label='Create tutorial' fz={'xs'}>
+        <Tooltip label='Create content' fz={'xs'}>
           <Button
-            disabled={Object.keys(rowSelection).length === 0}
-            onClick={handleOpenModal}
+            onClick={() => router.push('/form')}
             size='xs'
           >
             <IconPlus size={16} />

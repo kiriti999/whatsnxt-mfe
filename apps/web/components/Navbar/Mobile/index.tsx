@@ -34,7 +34,6 @@ import {
 import useAuth from '../../../hooks/Authentication/useAuth';
 import { notifications } from '@mantine/notifications';
 import { CacheAPI } from '../../../apis/v1/redis';
-import classes from '../Navbar.module.css';
 
 interface INavbarMobile {
   links: LinkType[];

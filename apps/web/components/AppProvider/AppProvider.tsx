@@ -4,7 +4,7 @@ import { JSX, ReactNode, useState, useEffect } from 'react';
 import { Provider, useDispatch } from 'react-redux';
 import NextTopLoader from 'nextjs-toploader';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { MantineProvider, createTheme } from '@mantine/core';
+import { MantineProvider, createTheme, Modal } from '@mantine/core';
 import { Notifications } from '@mantine/notifications';
 import Layout from '../Layout';
 import FilterStore from '../../context/filterStore';
@@ -67,6 +67,13 @@ export default function AppProvider({ children, user }: { children: ReactNode, u
       lg: '75em',    // 1200px
       xl: '88em',    // 1408px
     },
+    components: {
+      Modal: Modal.extend({
+        defaultProps: {
+          zIndex: 1100,
+        },
+      }),
+    },
   });
 
   const headerProps = {
@@ -92,13 +99,13 @@ export default function AppProvider({ children, user }: { children: ReactNode, u
         ]
       },
       {
-        title: 'Article',
+        title: 'Blogs',
         url: '',
         children: [
-          { title: 'History', url: `${domain}/history/table`, icon: IconAddressBook },
-          { title: 'My articles', url: `${domain}/content/my-dashboard?status=all`, icon: IconAddressBook },
-          { title: 'Draft articles', url: `${domain}/content/my-dashboard?status=draft`, icon: IconUserEdit },
-          { title: 'Published articles', url: `${domain}/content/my-dashboard?status=published`, icon: IconPasswordUser },
+          { title: 'History', url: `${domain}/history/table`, icon: IconHistoryToggle },
+          { title: 'My articles', url: `${domain}/content/my-dashboard?status=all`, icon: IconBook2 },
+          { title: 'Draft articles', url: `${domain}/content/my-dashboard?status=draft`, icon: IconPencil },
+          { title: 'Published articles', url: `${domain}/content/my-dashboard?status=published`, icon: IconCertificate },
         ]
       },
       { title: 'My Bookings', url: `${domain}/my-bookings`, icon: IconBook2 },

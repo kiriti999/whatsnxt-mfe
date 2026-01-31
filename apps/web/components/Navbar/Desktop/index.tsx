@@ -298,8 +298,8 @@ export const NavbarDesktop = ({ links, cartItems, loginMenuLinks, drawerOpened, 
                       );
                     }
 
-                    // Handle Article with Menu.Sub for proper submenu
-                    if (link.title === 'Article' && link.children) {
+                    // Handle Blogs with Menu.Sub for proper submenu
+                    if (link.title === 'Blogs' && link.children) {
                       return (
                         <Menu key={index} trigger="hover" openDelay={100} closeDelay={200}>
                           <Menu.Target>
