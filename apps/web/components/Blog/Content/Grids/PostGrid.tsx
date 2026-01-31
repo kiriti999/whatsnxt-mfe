@@ -2,9 +2,8 @@ import React from 'react';
 import { Container, Flex, FlexProps } from '@mantine/core';
 import { InfiniteScrollComponent } from '@whatsnxt/core-util';
 import { SkeletonCardContent } from '@whatsnxt/core-ui';
-import TutorialCard from '../../Cards/Tutorial';
-import BlogCard from '../../Cards/Blog';
-import { ContentItem, IBlogCard, ITutorialCard } from './interface';
+import ContentCard from '../../Cards/ContentCard';
+import { ContentItem } from './interface';
 
 
 interface PostGridProps {
@@ -20,13 +19,11 @@ interface PostGridProps {
     containerProps?: FlexProps;
     showInfiniteScroll?: boolean;
 
-    // Component overrides - now properly typed
-    BlogCardComponent?: React.ComponentType<IBlogCard>;
-    TutorialCardComponent?: React.ComponentType<ITutorialCard>;
+    // Component override for skeleton
     SkeletonComponent?: React.ComponentType;
 }
 
-// ✅ Base reusable component with better name
+// ✅ Simplified component using unified ContentCard
 export const PostGrid: React.FC<PostGridProps> = ({
     data,
     isLoading,
@@ -41,8 +38,6 @@ export const PostGrid: React.FC<PostGridProps> = ({
         px: 'sm'
     },
     showInfiniteScroll = true,
-    BlogCardComponent = BlogCard,
-    TutorialCardComponent = TutorialCard,
     SkeletonComponent = SkeletonCardContent,
 }) => {
     const content = (
@@ -52,13 +47,7 @@ export const PostGrid: React.FC<PostGridProps> = ({
             ) : (
                 data && data.length > 0 &&
                 data.map((item: ContentItem, i: number) => (
-                    <div key={item._id || item.id || i}>
-                        {item?.tutorial ? (
-                            <TutorialCardComponent tutorial={item} />
-                        ) : (
-                            <BlogCardComponent blog={item} />
-                        )}
-                    </div>
+                    <ContentCard key={item._id || item.id || i} content={item} />
                 ))
             )}
         </Flex>

@@ -1,7 +1,6 @@
 'use client';
 import { Component, useEffect, useState } from 'react';
-import BlogCard from '../../../components/Blog/Cards/Blog';
-import TutorialCard from '../../../components/Blog/Cards/Tutorial';
+import ContentCard from '../../../components/Blog/Cards/ContentCard';
 import styles from './Search.module.css';
 import CardSkeleton from '../../../components/Blog/Content/CardSkeleton';
 import { Grid, Title } from '@mantine/core';
@@ -48,11 +47,7 @@ function Search({ query }: any) {
           <Grid>
             {data?.map((item: any, i: any) => (
               <Component key={i}>
-                {item?.tutorial ? (
-                  <TutorialCard tutorial={item} />
-                ) : (
-                  <BlogCard blog={item} />
-                )}
+                <ContentCard content={item} />
               </Component>
             ))}
           </Grid>
@@ -64,7 +59,7 @@ function Search({ query }: any) {
         </div>
       )}
       {loading && <CardSkeleton count={8} />}
-      
+
       {!loading && Array.isArray(data) && data.length > 0 && (
         <Pagination
           nPages={nPages}

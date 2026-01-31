@@ -22,7 +22,7 @@ import {
   IconEyeOff,
   IconPlus,
 } from '@tabler/icons-react';
-import { ContentAPI, HistoryAPI } from '../../../apis/v1/index';
+import { ContentAPI, HistoryAPI, StructuredTutorialAPI } from '../../../apis/v1/index';
 import { useRouter } from 'next/navigation';
 import { useDebouncedValue } from '@mantine/hooks';
 import { downloadBase64File } from '../../../utils/downloadFile';
@@ -52,7 +52,11 @@ const HistoryMUI = ({ open, close }: any) => {
   const router = useRouter();
 
   const handleEditButtonClick = (rowData: any) => {
-    router.push(`/form${rowData?.tutorial ? '/tutorial' : '/blog'}?id=${rowData._id}`);
+    if (rowData?.source === 'structured') {
+      router.push(`/form/structured-tutorial?id=${rowData._id}`);
+    } else {
+      router.push(`/form${rowData?.tutorial ? '/tutorial' : '/blog'}?id=${rowData._id}`);
+    }
   };
 
   const handleDownloadEbook = async (rowData: any) => {
@@ -86,7 +90,13 @@ const HistoryMUI = ({ open, close }: any) => {
     const rowData = data && data.length > 0 && data.find((f: { _id: number; }) => f._id === id);
 
     console.log(' deleteContent :: rowData:', rowData)
-    const deleteResult = await ContentAPI[rowData?.tutorial ? 'deleteTutorial' : 'deleteBlog'](rowData._id);
+
+    let deleteResult;
+    if (rowData?.source === 'structured') {
+      deleteResult = await StructuredTutorialAPI.delete(rowData._id);
+    } else {
+      deleteResult = await ContentAPI[rowData?.tutorial ? 'deleteTutorial' : 'deleteBlog'](rowData._id);
+    }
     const assetsList = rowData?.cloudinaryAssets || [];
 
     if (deleteResult) {
@@ -159,7 +169,15 @@ const HistoryMUI = ({ open, close }: any) => {
     try {
       open();
       const publish = !rowData.published;
-      const publishRes = await HistoryAPI.publishDraft(rowData._id, publish)
+      let publishRes;
+
+      if (rowData?.source === 'structured') {
+        const response = await StructuredTutorialAPI.publish(rowData._id, publish);
+        publishRes = response.success ? response.data : null;
+      } else {
+        publishRes = await HistoryAPI.publishDraft(rowData._id, publish);
+      }
+
       await load();
       if (publish && publishRes) {
         await indexRecord(publishRes, rowData.tutorial === 'tutorial' ? tutorialIndex : blogIndex);

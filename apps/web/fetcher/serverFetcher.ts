@@ -58,10 +58,37 @@ export const serverFetcher = async (BASEURL: string, URL: string, options: Fetch
 export const getPostBySlugServer = async (slug: string): Promise<any> => {
     try {
         const BASEURL = process.env.BFF_ARTICLE_HOST_API as string;
-        return await serverFetcher(BASEURL, `/post/slug/${slug}`, {
-            cache: 'no-store', // Cache published posts
-        });
+
+        // Check if this is a scoped tutorial post (contains '/')
+        if (slug.includes('/')) {
+            // Use nested path pattern: /content/tutorial-slug/post-slug
+            const response = await serverFetcher(
+                BASEURL,
+                `/content/${slug}`,
+                { cache: 'no-store' }
+            );
+
+            if (response?.success && response.data) {
+                return response.data;
+            }
+
+            return null;
+        }
+
+        // Single unified endpoint call for blog posts or tutorial roots
+        const response = await serverFetcher(
+            BASEURL,
+            `/content/${slug}`,
+            { cache: 'no-store' }
+        );
+
+        if (response?.success && response.data) {
+            return response.data;
+        }
+
+        return null;
     } catch (error) {
-        console.error(`Failed to fetch post with slug: ${slug}`, error);
+        console.error(`Failed to fetch content with slug: ${slug}`, error);
+        return null;
     }
 };

@@ -7,6 +7,10 @@ export interface IBlogCard {
     blog: ContentItem; // Now ContentItem has all required fields
 }
 
+export interface IStructuredTutorialCard {
+    tutorial: ContentItem; // Structured tutorials use ContentItem too
+}
+
 export interface ContentItem {
     _id?: string;
     id?: string;
@@ -16,6 +20,7 @@ export interface ContentItem {
     imageUrl: string;
     listed: boolean;
     tutorial?: boolean; // This determines if it's a tutorial or blog
+    isStructured?: boolean; // This determines if it's a structured tutorial
     // Add other common fields
     description?: string;
     updatedAt?: string;
@@ -31,5 +36,6 @@ export interface ContentItem {
     contentFormat?: string;
     timeToRead?: string;
     cloudinaryAssets?: any[];
+    sectionIds?: any[]; // For structured tutorials
     [key: string]: any; // For any additional fields
 }

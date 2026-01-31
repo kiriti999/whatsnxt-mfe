@@ -1,7 +1,7 @@
 'use client'
 import { Container, Text, SimpleGrid, Paper, Stack, ThemeIcon, Box, Title, Group } from '@mantine/core'
 import { MantineLoader } from '@whatsnxt/core-ui'
-import { IconArticle, IconBook, IconSparkles } from '@tabler/icons-react'
+import { IconArticle, IconBook, IconSparkles, IconLayoutList } from '@tabler/icons-react'
 import Link from 'next/link'
 import React, { Suspense } from 'react'
 
@@ -21,6 +21,14 @@ const contentTypes = [
         description: 'Create step-by-step guides to help others learn',
         gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
         color: '#f093fb'
+    },
+    {
+        href: '/form/structured-tutorial',
+        icon: IconLayoutList,
+        title: 'Structured Tutorial',
+        description: 'Build comprehensive multi-section tutorials with organized content',
+        gradient: 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)',
+        color: '#11998e'
     }
 ]
 

@@ -78,7 +78,7 @@ function TutorialContentDetails({ details }: any) {
     setComments
   });
 
-  const [url, setUrl] = useState<String>('');
+  const [url, setUrl] = useState<string>('');
 
   useEffect(() => {
     setUrl(window.location.href);
@@ -213,7 +213,7 @@ function TutorialContentDetails({ details }: any) {
 }
 
 interface ShareOptionsProps {
-  url: String;
+  url: string;
   views: number;
 }
 

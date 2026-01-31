@@ -4,11 +4,15 @@ import React, { Suspense } from 'react';
 import Sidebar from '../sidebar';
 import { MantineLoader } from '@whatsnxt/core-ui';
 import { Box, Grid, GridCol } from '@mantine/core';
-import type { ContentProps } from './ContentComponent';
 
-// Lazy import the heavy components
+// Lazy import the heavy component
 const HomeContent = React.lazy(() => import('./HomeContent'));
-const ContentComponent = React.lazy(() => import('./ContentComponent'));
+
+export type ContentType = "blog" | "tutorial" | "both";
+
+export interface ContentProps {
+  type: ContentType;
+}
 
 function Content(props: ContentProps) {
   const { type = 'both' } = props;
@@ -18,11 +22,7 @@ function Content(props: ContentProps) {
       <Grid>
         <GridCol span={{ base: 12, md: 9 }}>
           <Suspense fallback={<MantineLoader />}>
-            {type === 'both' ? (
-              <HomeContent type={type} />
-            ) : (
-              <ContentComponent type={type} />
-            )}
+            <HomeContent type={type} />
           </Suspense>
         </GridCol>
 

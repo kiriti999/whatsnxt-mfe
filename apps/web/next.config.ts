@@ -90,6 +90,12 @@ const nextConfig: NextConfig = {
                 hostname: 'whatsnxt.in',
                 pathname: '/**',
             },
+            // Unsplash for fallback images
+            {
+                protocol: 'https',
+                hostname: 'images.unsplash.com',
+                pathname: '/**',
+            },
         ],
         // Next.js 15 image optimization
         formats: ['image/webp', 'image/avif'],
