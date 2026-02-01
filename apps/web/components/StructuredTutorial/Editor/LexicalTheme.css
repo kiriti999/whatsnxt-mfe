@@ -420,7 +420,7 @@
 
     .lexical-quote {
         border-left-color: #4b5563;
-        color: #9ca3af;
+        color: #ced4da;
     }
 
     .lexical-table-cell,
@@ -440,6 +440,62 @@
     .lexical-table-selection {
         background-color: #1e3a5f;
     }
+}
+
+[data-mantine-color-scheme='dark'] .lexical-heading-h1,
+[data-mantine-color-scheme='dark'] .lexical-heading-h2,
+[data-mantine-color-scheme='dark'] .lexical-heading-h3,
+[data-mantine-color-scheme='dark'] .lexical-heading-h4,
+[data-mantine-color-scheme='dark'] .lexical-heading-h5,
+[data-mantine-color-scheme='dark'] .lexical-heading-h6 {
+    color: #f9fafb;
+}
+
+[data-mantine-color-scheme='dark'] .lexical-quote {
+    border-left-color: #4b5563;
+    color: #ced4da;
+}
+
+[data-mantine-color-scheme='dark'] .lexical-table-cell,
+[data-mantine-color-scheme='dark'] .lexical-table-cell-header {
+    border-color: #374151;
+}
+
+[data-mantine-color-scheme='dark'] .lexical-table-cell-header {
+    background-color: #374151;
+}
+
+[data-mantine-color-scheme='dark'] .lexical-table-cell-editing {
+    background-color: #1e3a5f;
+    outline-color: #3b82f6;
+}
+
+[data-mantine-color-scheme='dark'] .lexical-table-selection {
+    background-color: #1e3a5f;
+}
+
+[data-mantine-color-scheme='dark'] .lexical-collapsible-container {
+    border-color: #495057;
+}
+
+[data-mantine-color-scheme='dark'] .lexical-collapsible-title {
+    background-color: #2c2e33;
+    color: #e9ecef;
+}
+
+[data-mantine-color-scheme='dark'] .lexical-collapsible-content {
+    border-top-color: #495057;
+    color: #ced4da;
+}
+
+[data-mantine-color-scheme='dark'] .lexical-layout-item {
+    border-color: #495057;
+    color: #ced4da;
+}
+
+[data-mantine-color-scheme='dark'] .lexical-date {
+    background-color: #1a1b1e;
+    color: #4dadf7;
 }
 
 /* ========== Page Break ========== */

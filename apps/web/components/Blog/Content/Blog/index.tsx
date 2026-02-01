@@ -45,7 +45,40 @@ const codeBlockStyles = `
     margin: 1.5rem 0 !important;
     font-style: italic !important;
     color: #495057 !important;
+    border-left-color: #b9bac5 !important;
     background-color: transparent !important;
+  }
+
+  [data-mantine-color-scheme='dark'] .rte blockquote, 
+  [data-mantine-color-scheme='dark'] #blog-content blockquote,
+  [data-mantine-color-scheme='dark'] .lexical-quote {
+    border-left-color: #ccc843 !important;
+    color: #ced4da !important;
+  }
+
+  /* Collapsible & Layout dark mode overrides */
+  [data-mantine-color-scheme='dark'] .lexical-collapsible-container {
+    border-color: #495057 !important;
+  }
+  
+  [data-mantine-color-scheme='dark'] .lexical-collapsible-title {
+    background-color: #2c2e33 !important;
+    color: #e9ecef !important;
+  }
+  
+  [data-mantine-color-scheme='dark'] .lexical-collapsible-content {
+    border-top-color: #495057 !important;
+    color: #ced4da !important;
+  }
+  
+  [data-mantine-color-scheme='dark'] .lexical-layout-item {
+    border-color: #495057 !important;
+    color: #ced4da !important;
+  }
+
+  [data-mantine-color-scheme='dark'] .lexical-date {
+    background-color: #1a1b1e !important;
+    color: #4dadf7 !important;
   }
 
   ${syntaxHighlightingTheme}
