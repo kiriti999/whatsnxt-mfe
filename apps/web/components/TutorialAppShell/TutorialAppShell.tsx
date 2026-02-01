@@ -18,7 +18,7 @@ interface TutorialAppShellProps {
 export default function TutorialAppShell({ children }: TutorialAppShellProps) {
     const pathname = usePathname();
     const dispatch = useDispatch();
-    const [opened, { toggle }] = useDisclosure(true); // Start open
+    const [opened, { toggle, close }] = useDisclosure(true); // Start open
     const isMobile = useMediaQuery('(max-width: 992px)'); // Match 'md' breakpoint
 
     // Check if we're on a tutorial/post page
@@ -101,9 +101,9 @@ export default function TutorialAppShell({ children }: TutorialAppShellProps) {
         <AppShell
             navbar={{
                 width: {
-                    base: 250,  // Mobile: ~70% of typical mobile screen
-                    sm: 280,    // Small screens
-                    md: 280,    // Tablet and up
+                    base: 280,  // Mobile: slightly larger
+                    sm: 300,    // Small screens
+                    md: 320,    // Tablet and up - increased for better readability
                 },
                 breakpoint: 'md',  // Switch at 992px
                 collapsed: { mobile: !opened || !showSidebar, desktop: !opened || !showSidebar },
@@ -143,7 +143,7 @@ export default function TutorialAppShell({ children }: TutorialAppShellProps) {
                     <TutorialSidebar
                         sidebarData={sidebarData}
                         currentPostSlug={currentPostSlug}
-                        onCollapse={toggle}
+                        onCollapse={close}
                         isMobile={isMobile}
                     />
                 )}

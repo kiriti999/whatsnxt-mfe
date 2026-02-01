@@ -80,18 +80,6 @@ function ContentCard({ content }: ContentCardProps) {
                                             objectFit: 'cover'
                                         }}
                                     />
-                                    {content.isStructured && (
-                                        <Badge
-                                            color="teal"
-                                            variant="filled"
-                                            pos="absolute"
-                                            top={10}
-                                            right={10}
-                                            leftSection={<IconLayoutList size={12} />}
-                                        >
-                                            Structured
-                                        </Badge>
-                                    )}
                                 </Box>
                             </Card.Section>
 

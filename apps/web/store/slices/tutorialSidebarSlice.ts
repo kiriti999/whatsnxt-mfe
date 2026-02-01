@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { SidebarTree } from '../../apis/v1/blog/structuredTutorialApi';
 
-interface TutorialSidebarState {
+export interface TutorialSidebarState {
     cache: Record<string, SidebarTree>;
 }
 

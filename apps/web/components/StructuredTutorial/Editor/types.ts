@@ -1,4 +1,4 @@
-export type NodeType = 'tutorial' | 'section' | 'post';
+export type NodeType = 'tutorial' | 'section' | 'post' | 'mcq';
 
 export interface TreeNode {
     id: string;
@@ -40,6 +40,18 @@ export interface LocalPost {
     title: string;
     description: string;
     contentFormat?: 'HTML' | 'MARKDOWN';
+    postType?: 'CONTENT' | 'MCQ';
+    mcqData?: {
+        question: string;
+        options: Array<{
+            id: string;
+            label: string;
+            text: string;
+            isCorrect: boolean;
+        }>;
+        explanation: string;
+        difficulty: 'EASY' | 'MEDIUM' | 'HARD';
+    };
     order?: number;
     isReused?: boolean;
     sourceId?: string;

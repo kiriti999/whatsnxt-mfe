@@ -24,6 +24,7 @@ import { SectionForm } from './SectionForm';
 import { PostForm } from './PostForm';
 import { ReuseSectionDialog } from './ReuseSectionDialog';
 import { ReusePostDialog } from './ReusePostDialog';
+import { QuizEditor } from '../../Quiz/QuizEditor';
 import { TreeNode, SelectedNode, LocalSection, LocalPost } from './types';
 import { StructuredTutorialAPI, TutorialSection } from '../../../apis/v1/blog/structuredTutorialApi';
 import { CategoryAPI } from '../../../apis/v1/blog';
@@ -112,6 +113,8 @@ export const StructuredTutorialEditor: React.FC = () => {
                                         title: p.title,
                                         description: p.content?.lexicalState || p.description || '',
                                         contentFormat: p.contentFormat || 'HTML',
+                                        postType: p.postType || 'CONTENT',
+                                        mcqData: p.mcqData,
                                         order: p.order,
                                         isReused: p.isReused,
                                         sourceId: p.sourceId,
@@ -405,6 +408,36 @@ export const StructuredTutorialEditor: React.FC = () => {
         setExpandedNodes(prev => new Set([...prev, sectionId]));
     };
 
+    const handleAddMCQ = (sectionId: string) => {
+        const newMCQ: LocalPost = {
+            id: `temp-mcq-${Date.now()}`,
+            title: 'New MCQ Quiz',
+            description: '',
+            contentFormat: 'HTML',
+            postType: 'MCQ',
+            mcqData: {
+                question: '',
+                options: [
+                    { id: 'a', label: 'A', text: '', isCorrect: false },
+                    { id: 'b', label: 'B', text: '', isCorrect: false },
+                    { id: 'c', label: 'C', text: '', isCorrect: false },
+                    { id: 'd', label: 'D', text: '', isCorrect: false },
+                ],
+                explanation: '',
+                difficulty: 'MEDIUM',
+            },
+        };
+
+        setSections(prev =>
+            prev.map(s =>
+                s.id === sectionId ? { ...s, posts: [...s.posts, newMCQ] } : s
+            )
+        );
+
+        setSelectedNode({ type: 'mcq', id: newMCQ.id, sectionId });
+        setExpandedNodes(prev => new Set([...prev, sectionId]));
+    };
+
     const handleSavePost = async (data: any) => {
         if (!selectedNode.sectionId) return;
 
@@ -539,6 +572,8 @@ export const StructuredTutorialEditor: React.FC = () => {
                             title: p.title,
                             description: p.content?.lexicalState || p.description || '',
                             contentFormat: p.contentFormat || 'HTML',
+                            postType: p.postType || 'CONTENT',
+                            mcqData: p.mcqData,
                             order: p.order,
                             isReused: p.isReused,
                         })),
@@ -555,7 +590,7 @@ export const StructuredTutorialEditor: React.FC = () => {
         if (!currentSectionIdForPost) return;
 
         try {
-            const response: any= await StructuredTutorialAPI.reusePost(
+            const response: any = await StructuredTutorialAPI.reusePost(
                 currentSectionIdForPost,
                 sourcePostId
             );
@@ -642,7 +677,7 @@ export const StructuredTutorialEditor: React.FC = () => {
                                 Back to History
                             </Button>
                             <Divider orientation="vertical" />
-                            <Title order={3}>
+                            <Title order={4}>
                                 {editTutorialId ? 'Edit' : 'Create'} Structured Tutorial
                             </Title>
                         </Group>
@@ -670,7 +705,7 @@ export const StructuredTutorialEditor: React.FC = () => {
                 <Grid gutter={0} h="calc(100% - 73px)">
                     {/* Left: Tree Navigator - Only show if tutorial is saved */}
                     {tutorialData?._id && (
-                        <Grid.Col span={4} style={{ borderRight: '1px solid var(--mantine-color-gray-3)' }}>
+                        <Grid.Col span={{ base: 12, md: 3 }} style={{ borderRight: '1px solid var(--mantine-color-gray-3)' }}>
                             <TreeNavigator
                                 tutorialTitle={tutorialData?.title || 'New Tutorial'}
                                 sections={buildTreeNodes()}
@@ -680,6 +715,7 @@ export const StructuredTutorialEditor: React.FC = () => {
                                 onToggleExpand={handleToggleExpand}
                                 onAddSection={handleAddSection}
                                 onAddPost={handleAddPost}
+                                onAddMCQ={handleAddMCQ}
                                 onDeleteSection={handleDeleteSection}
                                 onDeletePost={handleDeletePost}
                                 onReuseSection={() => setReuseSectionDialogOpen(true)}
@@ -692,9 +728,8 @@ export const StructuredTutorialEditor: React.FC = () => {
                         </Grid.Col>
                     )}
 
-                    {/* Right: Content Editor */}
-                    <Grid.Col span={tutorialData?._id ? 8 : 12}>
-                        <Box p="xl" style={{ overflowY: 'auto', height: '100%' }}>
+                    <Grid.Col span={{ base: 12, md: tutorialData?._id ? 9 : 12 }}>
+                        <Box p={{ base: 'md', md: 'xl' }} style={{ overflowY: 'auto', height: '100%' }}>
                             {selectedNode.type === 'tutorial' && (
                                 <>
                                     <Title order={4} mb="md">
@@ -733,6 +768,56 @@ export const StructuredTutorialEditor: React.FC = () => {
                                     isSaving={isSaving}
                                     isNew={selectedNode.id?.startsWith('temp-')}
                                 />
+                            )}
+
+                            {selectedNode.type === 'mcq' && selectedNode.sectionId && (
+                                <>
+                                    <Title order={4} mb="md">
+                                        Create MCQ Quiz
+                                    </Title>
+                                    <QuizEditor
+                                        sectionId={selectedNode.sectionId}
+                                        onSave={(postId) => {
+                                            // Update the local state with the saved post ID
+                                            setSections(prev =>
+                                                prev.map(s =>
+                                                    s.id === selectedNode.sectionId
+                                                        ? {
+                                                            ...s,
+                                                            posts: s.posts.map(p =>
+                                                                p.id === selectedNode.id
+                                                                    ? { ...p, id: postId }
+                                                                    : p
+                                                            ),
+                                                        }
+                                                        : s
+                                                )
+                                            );
+                                            setSelectedNode({ type: 'mcq', id: postId, sectionId: selectedNode.sectionId });
+                                            notifications.show({
+                                                title: 'Success',
+                                                message: 'MCQ quiz created successfully!',
+                                                color: 'green',
+                                            });
+                                        }}
+                                        onCancel={() => {
+                                            // Remove the temp MCQ and go back to section
+                                            if (selectedNode.id?.startsWith('temp-mcq-')) {
+                                                setSections(prev =>
+                                                    prev.map(s =>
+                                                        s.id === selectedNode.sectionId
+                                                            ? {
+                                                                ...s,
+                                                                posts: s.posts.filter(p => p.id !== selectedNode.id),
+                                                            }
+                                                            : s
+                                                    )
+                                                );
+                                            }
+                                            setSelectedNode({ type: 'section', id: selectedNode.sectionId });
+                                        }}
+                                    />
+                                </>
                             )}
 
                             {!selectedNode.type && tutorialData?._id && (

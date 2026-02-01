@@ -22,6 +22,7 @@ import {
     IconChevronDown,
     IconChevronRight,
     IconLink,
+    IconCircleDot,
 } from '@tabler/icons-react';
 import { TreeNode, SelectedNode } from './types';
 
@@ -34,6 +35,7 @@ interface TreeNavigatorProps {
     onToggleExpand: (nodeId: string) => void;
     onAddSection: () => void;
     onAddPost: (sectionId: string) => void;
+    onAddMCQ: (sectionId: string) => void;
     onDeleteSection: (sectionId: string) => void;
     onDeletePost: (sectionId: string, postId: string) => void;
     onReuseSection: () => void;
@@ -50,6 +52,7 @@ export const TreeNavigator: React.FC<TreeNavigatorProps> = ({
     onToggleExpand,
     onAddSection,
     onAddPost,
+    onAddMCQ,
     onDeleteSection,
     onDeletePost,
     onReuseSection,
@@ -137,7 +140,7 @@ export const TreeNavigator: React.FC<TreeNavigatorProps> = ({
                                         </UnstyledButton>
                                     </Group>
                                     <Group gap={4} wrap="nowrap">
-                                        <Tooltip label="Add Post">
+                                        <Tooltip label="Add Content Post">
                                             <ActionIcon
                                                 size="sm"
                                                 color="teal"
@@ -148,6 +151,19 @@ export const TreeNavigator: React.FC<TreeNavigatorProps> = ({
                                                 }}
                                             >
                                                 <IconPlus size={16} />
+                                            </ActionIcon>
+                                        </Tooltip>
+                                        <Tooltip label="Add MCQ Quiz">
+                                            <ActionIcon
+                                                size="sm"
+                                                color="violet"
+                                                variant="subtle"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    onAddMCQ(section.id);
+                                                }}
+                                            >
+                                                <IconCircleDot size={16} />
                                             </ActionIcon>
                                         </Tooltip>
                                         <Tooltip label="Reuse Post">

@@ -59,6 +59,18 @@ export interface TutorialPost {
     sourceId?: string;
     isReused: boolean;
     cloudinaryAssets?: CloudinaryAsset[];
+    postType?: 'CONTENT' | 'MCQ';
+    mcqData?: {
+        question: string;
+        options: Array<{
+            id: string;
+            label: string;
+            text: string;
+            isCorrect: boolean;
+        }>;
+        explanation: string;
+        difficulty: 'EASY' | 'MEDIUM' | 'HARD';
+    };
     createdAt: string;
     updatedAt: string;
 }

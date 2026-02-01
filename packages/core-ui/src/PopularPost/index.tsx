@@ -30,7 +30,7 @@ export default function PopularPost(props: Props) {
     const router = useRouter();
 
     return (
-        <Card withBorder mb={'xs'} radius="md" p={0} className={classes.card} onClick={() => { router.push(`${slug}`) }}>
+        <Card withBorder mb={'xs'} radius="xs" p={0} className={classes.card} onClick={() => { router.push(`${slug}`) }}>
             <Group wrap="nowrap" gap={5}>
                 {title ?
                     <Image radius={'sm'} m={0} alt={title} src={imageUrl ?? ''} style={{ width: '40%' }} /> :

@@ -6,28 +6,23 @@ import {
     Paper,
     Stack,
     Text,
-    NavLink,
-    ThemeIcon,
     Collapse,
     Group,
-    Badge,
     ScrollArea,
     ActionIcon,
     TextInput,
     Divider,
 } from '@mantine/core';
-import { useRouter, usePathname } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import {
     IconChevronDown,
     IconChevronRight,
-    IconFolder,
-    IconFile,
-    IconBook,
     IconLayoutSidebarLeftCollapse,
     IconSearch,
     IconChevronsDown,
     IconChevronsUp,
 } from '@tabler/icons-react';
+import { useClickOutside } from '@mantine/hooks';
 import { SidebarTree, SidebarSection, SidebarPost } from '../../../apis/v1/blog/structuredTutorialApi';
 
 interface TutorialSidebarProps {
@@ -41,6 +36,12 @@ export function TutorialSidebar({ sidebarData, currentPostSlug, onCollapse, isMo
     const router = useRouter();
     const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
     const [searchQuery, setSearchQuery] = useState('');
+
+    const ref = useClickOutside(() => {
+        if (isMobile && onCollapse) {
+            onCollapse();
+        }
+    });
 
     // Filter sections based on search query
     const filteredSections = useMemo(() => {
@@ -146,65 +147,71 @@ export function TutorialSidebar({ sidebarData, currentPostSlug, onCollapse, isMo
 
     return (
         <Paper
+            ref={ref}
             withBorder={false}
-            p="md"
+            p={0}
             style={{
                 position: 'sticky',
                 top: '80px',
                 maxHeight: 'calc(100vh - 100px)',
+                backgroundColor: 'transparent',
             }}
         >
-            <Stack gap="sm">
+            <Stack gap={0}>
                 {/* Tutorial Header */}
-                <Group gap="xs" mb="xs" justify="space-between">
-                    <Group gap="xs" style={{ flex: 1 }}>
-                        <ThemeIcon variant="light" size="lg" color="green">
-                            <IconBook size={18} />
-                        </ThemeIcon>
+                <Box px="md" py="md">
+                    <Group gap="xs" mb="xs" justify="space-between">
                         <Box style={{ flex: 1 }}>
-                            <Text size="sm" fw={700} lineClamp={2}>
+                            <Text size="sm" fw={700} lineClamp={2} c="bright">
                                 {sidebarData.tutorialTitle}
                             </Text>
                         </Box>
-                    </Group>
-                    <Group gap={4}>
-                        <ActionIcon
-                            variant="subtle"
-                            size="sm"
-                            onClick={toggleAllSections}
-                            aria-label={allSectionsExpanded ? "Collapse all sections" : "Expand all sections"}
-                            title={allSectionsExpanded ? "Collapse all" : "Expand all"}
-                        >
-                            {allSectionsExpanded ? <IconChevronsUp size={18} /> : <IconChevronsDown size={18} />}
-                        </ActionIcon>
-                        {onCollapse && (
+                        <Group gap={4}>
                             <ActionIcon
                                 variant="subtle"
                                 size="sm"
-                                onClick={onCollapse}
-                                aria-label="Collapse sidebar"
+                                onClick={toggleAllSections}
+                                aria-label={allSectionsExpanded ? "Collapse all sections" : "Expand all sections"}
+                                title={allSectionsExpanded ? "Collapse all" : "Expand all"}
                             >
-                                <IconLayoutSidebarLeftCollapse size={20} />
+                                {allSectionsExpanded ? <IconChevronsUp size={18} /> : <IconChevronsDown size={18} />}
                             </ActionIcon>
-                        )}
+                            {onCollapse && (
+                                <ActionIcon
+                                    variant="subtle"
+                                    size="sm"
+                                    onClick={onCollapse}
+                                    aria-label="Collapse sidebar"
+                                >
+                                    <IconLayoutSidebarLeftCollapse size={20} />
+                                </ActionIcon>
+                            )}
+                        </Group>
                     </Group>
-                </Group>
+                </Box>
 
                 {/* Search Input */}
-                <TextInput
-                    placeholder="Search topics..."
-                    leftSection={<IconSearch size={14} />}
-                    size="xs"
-                    radius="md"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.currentTarget.value)}
-                    styles={{ input: { backgroundColor: 'var(--mantine-color-default)' } }}
-                />
+                <Box px="md" pb="md">
+                    <TextInput
+                        placeholder="Search topics..."
+                        leftSection={<IconSearch size={16} />}
+                        size="md"
+                        radius="xs"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.currentTarget.value)}
+                        styles={{
+                            input: {
+                                backgroundColor: 'var(--mantine-color-default)',
+                                border: '1px solid var(--mantine-color-default-border)',
+                            }
+                        }}
+                    />
+                </Box>
 
                 <Divider />
 
-                <ScrollArea.Autosize mah="calc(100vh - 200px)">
-                    <Stack gap={4}>
+                <ScrollArea.Autosize mah="calc(100vh - 280px)">
+                    <Stack gap={0} py="xs">
                         {filteredSections.map((section, sectionIndex) => {
                             const isExpanded = searchQuery ? true : expandedSections.has(section.id);
                             const hasCurrentPost = section.posts.some((post) => post.slug === currentPostSlug);
@@ -212,63 +219,59 @@ export function TutorialSidebar({ sidebarData, currentPostSlug, onCollapse, isMo
                             return (
                                 <Box key={section.id}>
                                     {/* Section Header */}
-                                    <NavLink
-                                        label={
-                                            <Group gap="xs" wrap="nowrap">
-                                                <Text size="sm" fw={600} lineClamp={1}>
-                                                    {section.title}
-                                                </Text>
-                                                <Badge size="xs" variant="light" color="gray">
-                                                    {section.posts.length}
-                                                </Badge>
-                                            </Group>
-                                        }
-                                        leftSection={
-                                            <ThemeIcon variant="light" size="sm" color={hasCurrentPost ? 'green' : 'gray'}>
-                                                <IconFolder size={14} />
-                                            </ThemeIcon>
-                                        }
-                                        rightSection={
-                                            isExpanded ? <IconChevronDown size={14} /> : <IconChevronRight size={14} />
-                                        }
+                                    <Box
+                                        px="md"
+                                        py="xs"
                                         onClick={() => toggleSection(section.id)}
-                                        active={hasCurrentPost}
-                                        styles={{
-                                            root: {
-                                                borderRadius: 'var(--mantine-radius-sm)',
-                                            },
+                                        style={{
+                                            cursor: 'pointer',
+                                            transition: 'background-color 0.15s ease',
                                         }}
-                                    />
+                                        className="section-header-hover"
+                                    >
+                                        <Group gap="sm" wrap="nowrap" justify="space-between">
+                                            <Text size="xs" fw={600} lineClamp={2} style={{ flex: 1 }}>
+                                                {section.title}
+                                            </Text>
+                                            <Group gap="xs" wrap="nowrap">
+                                                <Text size="xs" c="dimmed">
+                                                    0/{section.posts.length}
+                                                </Text>
+                                                {isExpanded ? <IconChevronDown size={16} /> : <IconChevronRight size={16} />}
+                                            </Group>
+                                        </Group>
+                                    </Box>
 
                                     {/* Posts */}
                                     <Collapse in={isExpanded}>
-                                        <Stack gap={2} pl="md" mt={4}>
+                                        <Stack gap={0}>
                                             {section.posts.map((post, postIndex) => {
                                                 const isActive = post.slug === currentPostSlug;
 
                                                 return (
-                                                    <NavLink
+                                                    <Box
                                                         key={post.id}
-                                                        label={
-                                                            <Text size="xs" lineClamp={1}>
-                                                                {post.title}
-                                                            </Text>
-                                                        }
-                                                        leftSection={
-                                                            <ThemeIcon variant="subtle" size="xs" color={isActive ? 'green' : 'gray'}>
-                                                                <IconFile size={12} />
-                                                            </ThemeIcon>
-                                                        }
+                                                        px="md"
+                                                        py="xs"
+                                                        pl="lg"
                                                         onClick={() => navigateToPost(post, section)}
-                                                        active={isActive}
-                                                        styles={{
-                                                            root: {
-                                                                borderRadius: 'var(--mantine-radius-xs)',
-                                                                paddingTop: 6,
-                                                                paddingBottom: 6,
-                                                            },
+                                                        style={{
+                                                            cursor: 'pointer',
+                                                            backgroundColor: isActive ? 'var(--mantine-primary-color-light)' : 'transparent',
+                                                            borderLeft: isActive ? '3px solid var(--mantine-primary-color-filled)' : '3px solid transparent',
+                                                            transition: 'all 0.15s ease',
                                                         }}
-                                                    />
+                                                        className="post-item-hover"
+                                                    >
+                                                        <Text
+                                                            size="xs"
+                                                            fw={isActive ? 600 : 400}
+                                                            lineClamp={2}
+                                                            c={isActive ? 'cyan.6' : 'dimmed'}
+                                                        >
+                                                            {post.title}
+                                                        </Text>
+                                                    </Box>
                                                 );
                                             })}
                                         </Stack>
@@ -279,6 +282,15 @@ export function TutorialSidebar({ sidebarData, currentPostSlug, onCollapse, isMo
                     </Stack>
                 </ScrollArea.Autosize>
             </Stack>
+
+            <style>{`
+                .section-header-hover:hover {
+                    background-color: var(--mantine-color-default-hover);
+                }
+                .post-item-hover:hover {
+                    background-color: var(--mantine-color-default-hover);
+                }
+            `}</style>
         </Paper>
     );
 }
