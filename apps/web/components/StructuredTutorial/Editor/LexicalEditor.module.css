@@ -41,7 +41,7 @@
 
 .contentEditable {
   outline: none;
-  padding: 1rem;
+  padding: 1rem 1rem 1rem 50px;
   resize: vertical;
   min-height: 280px;
 }
@@ -53,7 +53,7 @@
 .placeholder {
   position: absolute;
   top: 1rem;
-  left: 1rem;
+  left: 50px;
   font-size: 14px;
   color: var(--mantine-color-gray-5);
   pointer-events: none;
