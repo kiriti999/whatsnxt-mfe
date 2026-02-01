@@ -53,12 +53,28 @@ export default function AppProvider({ children, user }: { children: ReactNode, u
 
   const theme = createTheme({
     // Use system fonts - remove custom font family from theme
+    primaryColor: 'cyan',
+    colors: {
+      // Custom cyan/teal palette for brand identity - modern, energetic, professional
+      cyan: [
+        '#ecfeff',  // 0 - lightest
+        '#cffafe',  // 1
+        '#a5f3fc',  // 2
+        '#67e8f9',  // 3
+        '#22d3ee',  // 4
+        '#06b6d4',  // 5 - base
+        '#0891b2',  // 6
+        '#0e7490',  // 7
+        '#155e75',  // 8
+        '#164e63',  // 9 - darkest
+      ],
+    },
     fontSizes: {
-      xs: '0.875rem',   // 14px
-      sm: '1rem',       // 16px
-      md: '1.125rem',   // 18px
-      lg: '1.25rem',    // 20px
-      xl: '1.5rem',     // 24px
+      xs: '0.75rem',    // 12px (was 14px)
+      sm: '0.875rem',   // 14px (was 16px)
+      md: '1rem',       // 16px (was 18px)
+      lg: '1.125rem',   // 18px (was 20px)
+      xl: '1.25rem',    // 20px (was 24px)
     },
     breakpoints: {
       xs: '36em',    // 576px

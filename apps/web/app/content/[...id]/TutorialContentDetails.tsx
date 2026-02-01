@@ -11,7 +11,7 @@ import TutorialContent from '../../../components/Blog/Content/Tutorial/TutorialC
 import { TutorialArticle } from '../../../types/contentDetails';
 import FacebookShare from '@whatsnxt/core-ui/src/ShareOptions/FacebookShare';
 import { SkeletonBlogContent } from '@whatsnxt/core-ui';
-import { Text, Box, Container, Group, Stack, Grid, GridCol, Title, Divider } from '@mantine/core';
+import { Text, Box, Container, Group, Stack, Grid, GridCol, Title, Divider, Paper } from '@mantine/core';
 import TutorialsToc from '../TutorialToc';
 import useAuth from '../../../hooks/Authentication/useAuth';
 import { useMediaQuery } from '@mantine/hooks';
@@ -19,6 +19,7 @@ import useCommentHandlers from '@whatsnxt/blogcomments/src/hooks/useCommentHandl
 import BlogComment from '@whatsnxt/blogcomments/src';
 import { CommentReplyContextProvider } from '@whatsnxt/blogcomments/src/contexts/comment-reply-context';
 import { CommentContextProvider } from '@whatsnxt/blogcomments/src/contexts/comment-context';
+import { StickyTutorialFooter } from '../../../components/Blog/Content/Tutorial/StickyTutorialFooter';
 
 const initialProps = {
   title: '',
@@ -121,6 +122,16 @@ function TutorialContentDetails({ details }: any) {
     };
   };
 
+  const prevPost = active > 0 ? {
+    label: tutorials[active - 1]?.title,
+    onClick: () => setActive(active - 1)
+  } : null;
+
+  const nextPost = active < tutorials.length - 1 ? {
+    label: tutorials[active + 1]?.title,
+    onClick: () => setActive(active + 1)
+  } : null;
+
   return (
     <Container fluid>
       <Box>
@@ -149,49 +160,57 @@ function TutorialContentDetails({ details }: any) {
               </div>
 
               <GridCol span={{ base: 12, md: 7.5 }} mx="auto">
-                <TutorialContent
-                  active={active}
-                  setActive={setActive}
-                  isTutorial={true}
-                  loading={loading}
-                  tutorials={tutorials}
-                  onHeadingsExtracted={onHeadingsExtracted}
-                  setActiveHeading={setActiveHeading}
-                />
+                <Stack gap="md">
+                  {/* Content Paper */}
+                  <Paper withBorder p="xl" radius="xs">
+                    <TutorialContent
+                      active={active}
+                      setActive={setActive}
+                      isTutorial={true}
+                      loading={loading}
+                      tutorials={tutorials}
+                      onHeadingsExtracted={onHeadingsExtracted}
+                      setActiveHeading={setActiveHeading}
+                    />
 
-                <Stack m={0}>
-                  <ShareOptions url={url} views={views} />
-                </Stack>
+                    <Stack m={0}>
+                      <ShareOptions url={url} views={views} />
+                    </Stack>
+                  </Paper>
 
-                <Stack m={0} gap="md">
-                  <Divider />
-                  <Title order={4}>Comments</Title>
-                  <CommentReplyContextProvider
-                    email={email}
-                    contentId={contentId}
-                    handleComments={handleComments}
-                    comments={comments}
-                  >
-                    <CommentContextProvider>
-                      <BlogComment
-                        userId={userId}
+                  <StickyTutorialFooter prev={prevPost} next={nextPost} />
+
+                  {/* Comments Paper */}
+                  <Paper withBorder p="xl" radius="xs">
+                    <Stack gap="md">
+                      <Title order={4}>Comments</Title>
+                      <CommentReplyContextProvider
                         email={email}
-                        comment={comments}
-                        item={item}
-                        root={true}
-                        rootDepth={1}
                         contentId={contentId}
-                        setComments={setComments}
-                        handleInsertNode={handleInsertNode}
-                        handleEditNode={handleEditNode}
-                        handleDeleteNode={handleDeleteNode}
                         handleComments={handleComments}
-                        handleSubComment={handleSubComment}
-                      />
-                    </CommentContextProvider>
-                  </CommentReplyContextProvider>
+                        comments={comments}
+                      >
+                        <CommentContextProvider>
+                          <BlogComment
+                            userId={userId}
+                            email={email}
+                            comment={comments}
+                            item={item}
+                            root={true}
+                            rootDepth={1}
+                            contentId={contentId}
+                            setComments={setComments}
+                            handleInsertNode={handleInsertNode}
+                            handleEditNode={handleEditNode}
+                            handleDeleteNode={handleDeleteNode}
+                            handleComments={handleComments}
+                            handleSubComment={handleSubComment}
+                          />
+                        </CommentContextProvider>
+                      </CommentReplyContextProvider>
+                    </Stack>
+                  </Paper>
                 </Stack>
-
               </GridCol>
 
               {/* show this col on tablet and desktop */}

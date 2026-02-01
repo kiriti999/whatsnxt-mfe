@@ -555,7 +555,7 @@ export const StructuredTutorialEditor: React.FC = () => {
         if (!currentSectionIdForPost) return;
 
         try {
-            const response: any= await StructuredTutorialAPI.reusePost(
+            const response: any = await StructuredTutorialAPI.reusePost(
                 currentSectionIdForPost,
                 sourcePostId
             );
@@ -670,7 +670,7 @@ export const StructuredTutorialEditor: React.FC = () => {
                 <Grid gutter={0} h="calc(100% - 73px)">
                     {/* Left: Tree Navigator - Only show if tutorial is saved */}
                     {tutorialData?._id && (
-                        <Grid.Col span={4} style={{ borderRight: '1px solid var(--mantine-color-gray-3)' }}>
+                        <Grid.Col span={{ base: 12, md: 4 }} style={{ borderRight: '1px solid var(--mantine-color-gray-3)' }}>
                             <TreeNavigator
                                 tutorialTitle={tutorialData?.title || 'New Tutorial'}
                                 sections={buildTreeNodes()}
@@ -692,9 +692,8 @@ export const StructuredTutorialEditor: React.FC = () => {
                         </Grid.Col>
                     )}
 
-                    {/* Right: Content Editor */}
-                    <Grid.Col span={tutorialData?._id ? 8 : 12}>
-                        <Box p="xl" style={{ overflowY: 'auto', height: '100%' }}>
+                    <Grid.Col span={{ base: 12, md: tutorialData?._id ? 8 : 12 }}>
+                        <Box p={{ base: 'md', md: 'xl' }} style={{ overflowY: 'auto', height: '100%' }}>
                             {selectedNode.type === 'tutorial' && (
                                 <>
                                     <Title order={4} mb="md">

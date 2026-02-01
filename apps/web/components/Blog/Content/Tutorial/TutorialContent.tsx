@@ -1,7 +1,6 @@
 import type { Dispatch, SetStateAction } from 'react';
 import { Box, Title } from '@mantine/core';
 import { useAddIdsToHeadings, useContentRefAndHeadings, useHandleScroll } from '../../../../hooks/useToc';
-import TutorialNavButtons from './NavButtons';
 import { syntaxHighlightingTheme } from '../../../RichTextEditor/extensions/CodeHighlight/syntaxHighlightingTheme';
 
 type PROPS = {
@@ -60,13 +59,6 @@ const TutorialContent = (props: PROPS) => {
           <div className="rte text-wrap" ref={containerRef} />
         )}
 
-        {isTutorial && (
-          <TutorialNavButtons
-            setActive={setActive}
-            active={active}
-            tutorials={tutorials}
-          />
-        )}
       </Box>
     </>
   );

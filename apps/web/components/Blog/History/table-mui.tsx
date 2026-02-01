@@ -526,7 +526,7 @@ const HistoryMUI = ({ open, close }: any) => {
       variant: 'outlined',
     },
     renderToolbarInternalActions: ({ table }) => (
-      <Group>
+      <Group gap="xs" wrap="nowrap">
         <Tooltip label='Create content' fz={'xs'}>
           <Button
             onClick={() => router.push('/form')}
