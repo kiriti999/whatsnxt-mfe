@@ -5,12 +5,14 @@ import sanitizeHtml from 'sanitize-html';
 const sanitizeOptions = {
   allowedTags: [
     ...sanitizeHtml.defaults.allowedTags,
-    'img' // Add img to allowed tags
+    'img', 'iframe' // Add img and iframe to allowed tags
   ],
   // Preserve class and data-language on <pre> and <code> so highlighting classes survive
   allowedAttributes: {
     ...sanitizeHtml.defaults.allowedAttributes,
+    div: ['class', 'style'], // Allow styling on divs for wrappers
     img: ['src', 'alt', 'title', 'width', 'height', 'loading', 'class', 'style'],
+    iframe: ['src', 'title', 'allow', 'allowfullscreen', 'width', 'height', 'style', 'class', 'frameborder', 'loading'],
     pre: ['class', 'data-language'],
     code: ['class', 'data-language']
   },
@@ -87,62 +89,62 @@ export const useAddIdsToHeadings = (desc: string) => {
 
     // Set the modified HTML string to the container
     containerRef.current.innerHTML = modifiedDescription;
-      // Client-side: run highlight.js on any <pre><code> blocks so they get span classes
-      if (typeof window !== 'undefined') {
-        try {
-          // Dynamic import so this only runs in the browser and doesn't bloat server bundles
-          import('highlight.js/lib/common')
-            .then((mod) => {
-              const hljs: any = (mod && (mod.default || mod));
-              const contentEl = containerRef.current;
-              if (!contentEl || !hljs || typeof hljs.highlightElement !== 'function') return;
+    // Client-side: run highlight.js on any <pre><code> blocks so they get span classes
+    if (typeof window !== 'undefined') {
+      try {
+        // Dynamic import so this only runs in the browser and doesn't bloat server bundles
+        import('highlight.js/lib/common')
+          .then((mod) => {
+            const hljs: any = (mod && (mod.default || mod));
+            const contentEl = containerRef.current;
+            if (!contentEl || !hljs || typeof hljs.highlightElement !== 'function') return;
 
-              const codeBlocks = Array.from(contentEl.querySelectorAll('pre code')) as HTMLElement[];
-              codeBlocks.forEach((codeEl) => {
-                try {
-                  // If the block is marked as plaintext, allow auto-detection
-                  const classAttr = codeEl.getAttribute('class') || '';
-                  const text = codeEl.textContent || '';
+            const codeBlocks = Array.from(contentEl.querySelectorAll('pre code')) as HTMLElement[];
+            codeBlocks.forEach((codeEl) => {
+              try {
+                // If the block is marked as plaintext, allow auto-detection
+                const classAttr = codeEl.getAttribute('class') || '';
+                const text = codeEl.textContent || '';
 
-                  if (/language-(?:plain|plaintext)/.test(classAttr) || classAttr.trim() === '') {
-                    // Use auto-detection
-                    const result = hljs.highlightAuto ? hljs.highlightAuto(text) : null;
-                    if (result && result.value) {
-                      codeEl.innerHTML = result.value;
-                      // Update classes to include detected language if available
-                      codeEl.classList.add('hljs');
-                      if (result.language) {
-                        codeEl.classList.add(`language-${result.language}`);
-                      }
+                if (/language-(?:plain|plaintext)/.test(classAttr) || classAttr.trim() === '') {
+                  // Use auto-detection
+                  const result = hljs.highlightAuto ? hljs.highlightAuto(text) : null;
+                  if (result && result.value) {
+                    codeEl.innerHTML = result.value;
+                    // Update classes to include detected language if available
+                    codeEl.classList.add('hljs');
+                    if (result.language) {
+                      codeEl.classList.add(`language-${result.language}`);
                     }
-                  } else {
-                    hljs.highlightElement(codeEl as any);
                   }
-                } catch (e) {
-                  // fall back to highlightAuto if highlightElement fails
-                  try {
-                    const text = codeEl.textContent || '';
-                    const result = hljs.highlightAuto ? hljs.highlightAuto(text) : null;
-                    if (result && result.value) {
-                      codeEl.innerHTML = result.value;
-                      codeEl.classList.add('hljs');
-                      if (result.language) {
-                        codeEl.classList.add(`language-${result.language}`);
-                      }
-                    }
-                  } catch (er) {
-                    // ignore
-                  }
+                } else {
+                  hljs.highlightElement(codeEl as any);
                 }
-              });
-            })
-            .catch((err) => {
-              console.warn('highlight.js import failed:', err);
+              } catch (e) {
+                // fall back to highlightAuto if highlightElement fails
+                try {
+                  const text = codeEl.textContent || '';
+                  const result = hljs.highlightAuto ? hljs.highlightAuto(text) : null;
+                  if (result && result.value) {
+                    codeEl.innerHTML = result.value;
+                    codeEl.classList.add('hljs');
+                    if (result.language) {
+                      codeEl.classList.add(`language-${result.language}`);
+                    }
+                  }
+                } catch (er) {
+                  // ignore
+                }
+              }
             });
-        } catch (e) {
-          // ignore
-        }
+          })
+          .catch((err) => {
+            console.warn('highlight.js import failed:', err);
+          });
+      } catch (e) {
+        // ignore
       }
+    }
   }, [desc, containerRef]);
 
   return { containerRef };

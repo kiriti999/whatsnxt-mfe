@@ -170,7 +170,7 @@ const BlogContent = ({
           </Title>
           <Flex align="center" gap="xs" mb="xl">
             <Text size="0.9rem" c="#6B6B6B" p="0.2rem" style={{ border: '1px dotted gray' }}>
-              {timeToRead}
+              {timeToRead || '1 min read'}
             </Text>
             <Text size="0.4rem" c="#6B6B6B" p="0.4rem" style={{ border: '1px dotted gray' }}>
               Last updated: {formatDate(updatedAt)}

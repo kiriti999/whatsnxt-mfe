@@ -14,7 +14,9 @@ import { LexicalErrorBoundary } from '@lexical/react/LexicalErrorBoundary';
 import { ClearEditorPlugin } from '@lexical/react/LexicalClearEditorPlugin';
 import { CodeHighlightPlugin } from './plugins/CodeHighlightPlugin';
 import { ImagesPlugin } from './plugins/ImagesPlugin';
+import { YouTubePlugin } from './plugins/YouTubePlugin';
 import { ImageNode } from './nodes/ImageNode';
+import { YouTubeNode } from './nodes/YouTubeNode';
 
 import {
   EditorState,
@@ -453,6 +455,7 @@ export const LexicalEditor: React.FC<LexicalEditorProps> = ({
       LinkNode,
       AutoLinkNode,
       ImageNode,
+      YouTubeNode,
       TableNode,
       TableCellNode,
       TableRowNode,
@@ -483,6 +486,7 @@ export const LexicalEditor: React.FC<LexicalEditorProps> = ({
           <LinkPlugin />
           <CodeHighlightPlugin />
           <ImagesPlugin />
+          <YouTubePlugin />
           {/* <CodeActionMenuPlugin /> */}
           <InitialStatePlugin value={value} />
           <OnChangePluginWrapper onChange={onChange} />
