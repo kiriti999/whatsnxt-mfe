@@ -15,6 +15,7 @@ import { ClearEditorPlugin } from '@lexical/react/LexicalClearEditorPlugin';
 import { CodeHighlightPlugin } from './plugins/CodeHighlightPlugin';
 import { ImagesPlugin, INSERT_IMAGE_COMMAND } from './plugins/ImagesPlugin';
 import { YouTubePlugin, INSERT_YOUTUBE_COMMAND } from './plugins/YouTubePlugin';
+import DraggableBlockPlugin from './plugins/DraggableBlockPlugin';
 import { ImageNode } from './nodes/ImageNode';
 import { YouTubeNode } from './nodes/YouTubeNode';
 import { HorizontalRuleNode } from '@lexical/react/LexicalHorizontalRuleNode';
@@ -474,7 +475,7 @@ const ToolbarPlugin: React.FC = () => {
           </Menu.Dropdown>
         </Menu>
 
-        <Divider orientation="vertical" h={24} mx={8} my={8}/>
+        <Divider orientation="vertical" h={24} mx={8} my={8} />
 
         {/* Font Size Stepper */}
         <Group gap={2} align="center" wrap="nowrap">
@@ -585,7 +586,7 @@ const ToolbarPlugin: React.FC = () => {
       <Divider orientation="vertical" h={24} mx={8} my={8} />
 
       {/* 3. Text Formatting Group */}
-      <Group gap={2} wrap="nowrap">
+      <Group gap={10} wrap="nowrap">
         <Tooltip label="Bold">
           <ActionIcon
             variant={isBold ? 'light' : 'subtle'}
@@ -858,6 +859,7 @@ export const LexicalEditor: React.FC<LexicalEditorProps> = ({
           <YouTubePlugin />
           <HorizontalRulePlugin />
           {/* <CodeActionMenuPlugin /> */}
+          <DraggableBlockPlugin />
           <InitialStatePlugin value={value} />
           <OnChangePluginWrapper onChange={onChange} />
           <ClearEditorPlugin />
