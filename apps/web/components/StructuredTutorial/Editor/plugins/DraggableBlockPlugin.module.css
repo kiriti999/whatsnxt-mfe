@@ -1,0 +1,67 @@
+.draggableBlockMenu {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    background: transparent;
+    padding: 0;
+    z-index: 100;
+    pointer-events: auto;
+    opacity: 0;
+    transition: opacity 0.15s ease-in-out;
+    height: 24px;
+}
+
+.draggableBlockMenu:hover,
+.parentHover .draggableBlockMenu {
+    opacity: 1;
+}
+
+/* We'll handle opacity via JS for better control */
+
+.iconButton {
+    cursor: pointer;
+    color: #adb5bd;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 24px;
+    border-radius: 4px;
+}
+
+.iconButton:hover {
+    color: #212529;
+    background-color: #f1f3f5;
+}
+
+.dragHandle {
+    cursor: grab;
+    color: #adb5bd;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 24px;
+    border-radius: 4px;
+}
+
+.dragHandle:hover {
+    background-color: #f1f3f5;
+    color: #212529;
+}
+
+.dragHandle:active {
+    cursor: grabbing;
+}
+
+[data-mantine-color-scheme='dark'] .iconButton,
+[data-mantine-color-scheme='dark'] .dragHandle {
+    color: #868e96;
+}
+
+[data-mantine-color-scheme='dark'] .iconButton:hover,
+[data-mantine-color-scheme='dark'] .dragHandle:hover {
+    background-color: #373a40;
+    color: #f8f9fa;
+}
