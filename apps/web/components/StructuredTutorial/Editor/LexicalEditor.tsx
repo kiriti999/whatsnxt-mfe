@@ -13,6 +13,8 @@ import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext
 import { LexicalErrorBoundary } from '@lexical/react/LexicalErrorBoundary';
 import { ClearEditorPlugin } from '@lexical/react/LexicalClearEditorPlugin';
 import { CodeHighlightPlugin } from './plugins/CodeHighlightPlugin';
+import { ImagesPlugin } from './plugins/ImagesPlugin';
+import { ImageNode } from './nodes/ImageNode';
 
 import {
   EditorState,
@@ -450,7 +452,7 @@ export const LexicalEditor: React.FC<LexicalEditorProps> = ({
       CodeHighlightNode,
       LinkNode,
       AutoLinkNode,
-      // ImageNode, // TODO: Implement ImageNode if image support is needed
+      ImageNode,
       TableNode,
       TableCellNode,
       TableRowNode,
@@ -480,6 +482,7 @@ export const LexicalEditor: React.FC<LexicalEditorProps> = ({
           <ListPlugin />
           <LinkPlugin />
           <CodeHighlightPlugin />
+          <ImagesPlugin />
           {/* <CodeActionMenuPlugin /> */}
           <InitialStatePlugin value={value} />
           <OnChangePluginWrapper onChange={onChange} />
