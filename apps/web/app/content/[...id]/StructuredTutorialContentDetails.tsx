@@ -1,9 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
 import { Box, Container, Grid, GridCol, Stack, Divider, Title } from '@mantine/core';
-import { useMediaQuery } from '@mantine/hooks';
 import { SkeletonBlogContent } from '@whatsnxt/core-ui';
 
 import BlogComment from '@whatsnxt/blogcomments/src';

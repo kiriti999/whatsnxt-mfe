@@ -35,7 +35,7 @@ function SidebarHeadings({
         <Box className="widget" mt={'lg'}>
           <Title order={4} mt={'0.33rem'} mb={'xl'}
             style={{ cursor: 'pointer' }}>
-            Table of contents
+            On this page:
           </Title>
 
           <Stack gap={0}>

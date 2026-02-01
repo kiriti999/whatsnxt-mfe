@@ -1,0 +1,106 @@
+.toolbar {
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-bottom: 2px solid #f3f4f6;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  gap: 4px;
+}
+
+.toolbarButton {
+  font-weight: 500;
+  color: #374151;
+  height: 32px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.toolbarButton:hover {
+  background-color: #f3f4f6;
+  color: #111827;
+}
+
+.editorContainer {
+  background-color: white;
+  border: 1px solid #eee;
+  border-top: none;
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+  min-height: 400px;
+  max-height: 800px;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.contentEditable {
+  outline: none;
+  padding: 1rem;
+  resize: vertical;
+  min-height: 280px;
+}
+
+.contentEditable:focus {
+  outline: none;
+}
+
+.placeholder {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  font-size: 14px;
+  color: var(--mantine-color-gray-5);
+  pointer-events: none;
+}
+
+/* ========== Responsive Design ========== */
+@media (max-width: 768px) {
+  .editorContainer {
+    min-height: 250px;
+    max-height: 400px;
+  }
+
+  .contentEditable {
+    min-height: 230px;
+  }
+
+  .toolbar {
+    flex-wrap: wrap;
+  }
+}
+
+/* ========== Dark Mode Support ========== */
+@media (prefers-color-scheme: dark) {
+  .toolbar {
+    background-color: #1f2937;
+    border-color: #374151;
+  }
+
+  .toolbarButton {
+    color: #d1d5db;
+  }
+
+  .toolbarButton:hover {
+    background-color: #374151;
+    color: #f9fafb;
+  }
+
+  .editorContainer {
+    background-color: #1f2937;
+    border-color: #374151;
+  }
+
+  .contentEditable {
+    color: #f3f4f6;
+  }
+
+  .placeholder {
+    color: #6b7280;
+  }
+}

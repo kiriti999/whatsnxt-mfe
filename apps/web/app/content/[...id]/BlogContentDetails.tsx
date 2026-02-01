@@ -139,7 +139,7 @@ function BlogContentDetails({ details }: BlogContentDetailsProps) {
               <Grid gutter={'xl'}>
                 {!isMobile && itemHeadings.length > 0 && (
                   <GridCol span={{ base: 12, md: 2.2 }} mb={'xl'}>
-                    <Box pos="sticky" top={0}>
+                    <Box pos="sticky" top={100}>
                       <SidebarHeadings
                         headings={itemHeadings}
                         activeHeadingRef={activeHeadingRef}
@@ -193,7 +193,7 @@ function BlogContentDetails({ details }: BlogContentDetailsProps) {
                 </GridCol>
 
                 <GridCol span={itemHeadings.length > 0 ? { base: 12, md: 2.5 } : { base: 12, md: 3 }}>
-                  <Box pos="sticky" top={0}>
+                  <Box pos="sticky" top={100}>
                     <Box mt={itemHeadings.length > 1 ? 'lg' : 0}>
                       <SidebarPost />
                     </Box>

@@ -5,15 +5,13 @@ import { useForm } from 'react-hook-form';
 import {
     Stack,
     TextInput,
-    Textarea,
     Text,
-    Select,
 } from '@mantine/core';
+import { LexicalEditor } from './LexicalEditor';
 
 interface PostFormData {
     title: string;
-    description: string;
-    contentFormat: 'HTML' | 'MARKDOWN';
+    description: string; // Now uses Lexical editor
 }
 
 interface PostFormProps {
@@ -37,13 +35,12 @@ export const PostForm: React.FC<PostFormProps> = ({
         defaultValues: {
             title: '',
             description: '',
-            contentFormat: 'HTML',
             ...initialData,
         },
     });
 
     const formValues = watch();
-    const contentFormat = watch('contentFormat');
+    const description = watch('description');
 
     // Track last saved values to prevent duplicate saves
     const lastSavedRef = useRef<string>('');
@@ -64,13 +61,11 @@ export const PostForm: React.FC<PostFormProps> = ({
             reset({
                 title: initialData.title || '',
                 description: initialData.description || '',
-                contentFormat: initialData.contentFormat || 'HTML',
             });
             // Update last saved ref when initialData changes
             lastSavedRef.current = JSON.stringify({
                 title: initialData.title || '',
                 description: initialData.description || '',
-                contentFormat: initialData.contentFormat || 'HTML',
             });
         }
     }, [initialData, reset]);
@@ -126,25 +121,19 @@ export const PostForm: React.FC<PostFormProps> = ({
                     {...register('title', { required: 'Post title is required' })}
                 />
 
-                <Textarea
-                    label="Post Description"
-                    placeholder="Brief description of this post"
-                    rows={3}
-                    {...register('description')}
-                />
-
-                <Select
-                    label="Content Format"
-                    data={[
-                        { value: 'HTML', label: 'HTML' },
-                        { value: 'MARKDOWN', label: 'Markdown' },
-                    ]}
-                    value={contentFormat}
-                    onChange={(value) => setValue('contentFormat', value as 'HTML' | 'MARKDOWN')}
-                />
+                <div>
+                    <Text size="sm" fw={500} mb="xs">
+                        Post Content <Text component="span" c="red">*</Text>
+                    </Text>
+                    <LexicalEditor
+                        value={description}
+                        onChange={(state) => setValue('description', state, { shouldDirty: true })}
+                        placeholder="Enter post description with rich text formatting..."
+                    />
+                </div>
 
                 <Text size="sm" c="dimmed">
-                    Note: The actual post content will be edited in a dedicated editor after creation.
+                    Note: Rich text content is automatically saved as you type.
                 </Text>
 
                 {isSaving && (
