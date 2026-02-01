@@ -441,3 +441,88 @@
         background-color: #1e3a5f;
     }
 }
+
+/* ========== Page Break ========== */
+.lexical-page-break {
+    border-top: 2px dashed #ced4da;
+    margin: 2rem 0;
+    padding: 1rem 0;
+    position: relative;
+    display: flex;
+    justify-content: center;
+}
+
+/* ========== Date ========== */
+.lexical-date {
+    background-color: #e7f5ff;
+    padding: 2px 4px;
+    border-radius: 4px;
+    color: #1971c2;
+    font-weight: 500;
+}
+
+/* ========== Sticky Note ========== */
+.lexical-sticky-note {
+    padding: 1rem;
+    margin: 1rem 0;
+    border-radius: 0 4px 4px 0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.lexical-sticky-note-yellow {
+    background-color: #fff9db;
+    border-left: 5px solid #fab005;
+}
+
+.lexical-sticky-note-pink {
+    background-color: #fff0f6;
+    border-left: 5px solid #f06595;
+}
+
+.lexical-sticky-note-blue {
+    background-color: #e7f5ff;
+    border-left: 5px solid #228be6;
+}
+
+.lexical-sticky-note-green {
+    background-color: #ebfbee;
+    border-left: 5px solid #40c057;
+}
+
+/* ========== Collapsible ========== */
+.lexical-collapsible-container {
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    margin: 1rem 0;
+}
+
+.lexical-collapsible-title {
+    padding: 0.75rem 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    background-color: #f8f9fa;
+    list-style: none;
+}
+
+.lexical-collapsible-title::-webkit-details-marker {
+    display: none;
+}
+
+.lexical-collapsible-content {
+    padding: 1rem;
+    border-top: 1px solid #dee2e6;
+}
+
+/* ========== Layout Column ========== */
+.lexical-layout-container {
+    display: grid;
+    gap: 1rem;
+    margin: 1rem 0;
+}
+
+.lexical-layout-item {
+    border: 1px dashed #ced4da;
+    padding: 0.5rem;
+    border-radius: 4px;
+    min-height: 50px;
+}

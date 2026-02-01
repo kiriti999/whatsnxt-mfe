@@ -103,9 +103,9 @@ export default function AppProvider({ children, user }: { children: ReactNode, u
         url: '',
         children: [
           { title: 'History', url: `${domain}/history/table`, icon: IconHistoryToggle },
-          { title: 'My articles', url: `${domain}/content/my-dashboard?status=all`, icon: IconBook2 },
-          { title: 'Draft articles', url: `${domain}/content/my-dashboard?status=draft`, icon: IconPencil },
-          { title: 'Published articles', url: `${domain}/content/my-dashboard?status=published`, icon: IconCertificate },
+          { title: 'My blogs', url: `${domain}/content/my-dashboard?status=all`, icon: IconBook2 },
+          { title: 'Draft blogs', url: `${domain}/content/my-dashboard?status=draft`, icon: IconPencil },
+          { title: 'Published blogs', url: `${domain}/content/my-dashboard?status=published`, icon: IconCertificate },
         ]
       },
       { title: 'My Bookings', url: `${domain}/my-bookings`, icon: IconBook2 },

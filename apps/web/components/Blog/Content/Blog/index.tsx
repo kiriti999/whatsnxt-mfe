@@ -37,6 +37,17 @@ const codeBlockStyles = `
     margin-bottom: 0px;
   }
 
+  .rte blockquote, 
+  #blog-content blockquote,
+  .lexical-quote {
+    border-left: 4px solid #ced4da !important;
+    padding-left: 1.25rem !important;
+    margin: 1.5rem 0 !important;
+    font-style: italic !important;
+    color: #495057 !important;
+    background-color: transparent !important;
+  }
+
   ${syntaxHighlightingTheme}
 `;
 

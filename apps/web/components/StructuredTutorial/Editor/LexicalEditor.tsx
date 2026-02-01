@@ -13,10 +13,18 @@ import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext
 import { LexicalErrorBoundary } from '@lexical/react/LexicalErrorBoundary';
 import { ClearEditorPlugin } from '@lexical/react/LexicalClearEditorPlugin';
 import { CodeHighlightPlugin } from './plugins/CodeHighlightPlugin';
-import { ImagesPlugin } from './plugins/ImagesPlugin';
-import { YouTubePlugin } from './plugins/YouTubePlugin';
+import { ImagesPlugin, INSERT_IMAGE_COMMAND } from './plugins/ImagesPlugin';
+import { YouTubePlugin, INSERT_YOUTUBE_COMMAND } from './plugins/YouTubePlugin';
 import { ImageNode } from './nodes/ImageNode';
 import { YouTubeNode } from './nodes/YouTubeNode';
+import { HorizontalRuleNode } from '@lexical/react/LexicalHorizontalRuleNode';
+import { HorizontalRulePlugin } from '@lexical/react/LexicalHorizontalRulePlugin';
+import { INSERT_HORIZONTAL_RULE_COMMAND } from '@lexical/react/LexicalHorizontalRuleNode';
+import { PageBreakNode, $createPageBreakNode } from './nodes/PageBreakNode';
+import { DateNode, $createDateNode } from './nodes/DateNode';
+import { StickyNode, $createStickyNode } from './nodes/StickyNode';
+import { CollapsibleContainerNode, $createCollapsibleContainerNode, CollapsibleTitleNode, $createCollapsibleTitleNode, CollapsibleContentNode, $createCollapsibleContentNode } from './nodes/CollapsibleNodes';
+import { LayoutContainerNode, $createLayoutContainerNode, LayoutItemNode, $createLayoutItemNode } from './nodes/LayoutNodes';
 
 import {
   EditorState,
@@ -36,8 +44,8 @@ import {
 import { CodeHighlightNode, CodeNode, $createCodeNode, $isCodeNode } from '@lexical/code';
 import { AutoLinkNode, LinkNode, TOGGLE_LINK_COMMAND } from '@lexical/link';
 import { ListItemNode, ListNode, INSERT_UNORDERED_LIST_COMMAND, INSERT_ORDERED_LIST_COMMAND } from '@lexical/list';
-import { HeadingNode, QuoteNode, $createQuoteNode, $createHeadingNode } from '@lexical/rich-text';
-import { $setBlocksType } from '@lexical/selection';
+import { HeadingNode, QuoteNode, $createQuoteNode, $createHeadingNode, $isHeadingNode } from '@lexical/rich-text';
+import { $setBlocksType, $patchStyleText, $getSelectionStyleValueForProperty } from '@lexical/selection';
 import { TableNode, TableCellNode, TableRowNode, INSERT_TABLE_COMMAND } from '@lexical/table';
 import { Stack, Paper, Text, Group, ActionIcon, Tooltip, Divider, Button, Menu, Select } from '@mantine/core';
 import {
@@ -68,7 +76,19 @@ import {
   IconHighlight,
   IconClearFormatting,
   IconMinus,
+  IconPlus,
   IconChevronDown,
+  IconTypography,
+  IconScissors,
+  IconPhoto,
+  IconGif,
+  IconColumns,
+  IconNote,
+  IconCaretRightFilled,
+  IconCalendar,
+  IconBrandX,
+  IconBrandYoutube,
+  IconBrandFigma,
 } from '@tabler/icons-react';
 import { lexicalTheme, getCodeLanguageOptions } from './lexical-config';
 import './LexicalTheme.css'; // Global styles for Lexical theme classes
@@ -82,12 +102,84 @@ interface LexicalEditorProps {
   readOnly?: boolean;
 }
 
+const FONT_SIZE_OPTIONS: [string, string][] = [
+  ['10px', '10px'],
+  ['11px', '11px'],
+  ['12px', '12px'],
+  ['13px', '13px'],
+  ['14px', '14px'],
+  ['15px', '15px'],
+  ['16px', '16px'],
+  ['17px', '17px'],
+  ['18px', '18px'],
+  ['19px', '19px'],
+  ['20px', '20px'],
+  ['22px', '22px'],
+  ['24px', '24px'],
+  ['26px', '26px'],
+  ['28px', '28px'],
+  ['30px', '30px'],
+  ['32px', '32px'],
+];
+
+const FONT_FAMILY_OPTIONS: [string, string][] = [
+  ['Arial', 'Arial'],
+  ['Courier New', 'Courier New'],
+  ['Georgia', 'Georgia'],
+  ['Times New Roman', 'Times New Roman'],
+  ['Trebuchet MS', 'Trebuchet MS'],
+  ['Verdana', 'Verdana'],
+];
+
 const ToolbarPlugin: React.FC = () => {
   const [editor] = useLexicalComposerContext();
+  const [fontSize, setFontSize] = useState<string>('15px');
+  const [fontFamily, setFontFamily] = useState<string>('Arial');
+  const [isBold, setIsBold] = useState(false);
+  const [isItalic, setIsItalic] = useState(false);
+  const [isUnderline, setIsUnderline] = useState(false);
+  const [isStrikethrough, setIsStrikethrough] = useState(false);
+  const [isLink, setIsLink] = useState(false);
+  const [blockType, setBlockType] = useState<string>('paragraph');
 
   const execCommand = useCallback((command: any) => {
     editor.dispatchCommand(command, undefined);
   }, [editor]);
+
+  const applyStyleText = useCallback(
+    (styles: Record<string, string>) => {
+      editor.update(() => {
+        const selection = $getSelection();
+        if ($isRangeSelection(selection)) {
+          $patchStyleText(selection, styles);
+        }
+      });
+    },
+    [editor],
+  );
+
+  const updateFontSize = useCallback(
+    (val: string) => {
+      applyStyleText({ 'font-size': val });
+    },
+    [applyStyleText],
+  );
+
+  const incrementFontSize = useCallback(
+    (increment: number) => {
+      const currentSize = parseInt(fontSize.replace('px', '')) || 15;
+      const newSize = Math.max(8, Math.min(72, currentSize + increment));
+      updateFontSize(`${newSize}px`);
+    },
+    [fontSize, updateFontSize],
+  );
+
+  const updateFontFamily = useCallback(
+    (val: string) => {
+      applyStyleText({ 'font-family': val });
+    },
+    [applyStyleText],
+  );
 
   const toggleTextFormat = useCallback((format: 'bold' | 'italic' | 'underline' | 'strikethrough' | 'code') => {
     editor.dispatchCommand(FORMAT_TEXT_COMMAND, format);
@@ -130,6 +222,87 @@ const ToolbarPlugin: React.FC = () => {
 
   const insertTable = useCallback(() => {
     editor.dispatchCommand(INSERT_TABLE_COMMAND, { rows: '3', columns: '3' });
+  }, [editor]);
+
+  const insertHorizontalRule = useCallback(() => {
+    editor.dispatchCommand(INSERT_HORIZONTAL_RULE_COMMAND, undefined);
+  }, [editor]);
+
+  const insertPageBreak = useCallback(() => {
+    editor.update(() => {
+      const selection = $getSelection();
+      if ($isRangeSelection(selection)) {
+        selection.insertNodes([$createPageBreakNode()]);
+      }
+    });
+  }, [editor]);
+
+  const insertDate = useCallback(() => {
+    const dateStr = new Date().toLocaleDateString();
+    editor.update(() => {
+      const selection = $getSelection();
+      if ($isRangeSelection(selection)) {
+        selection.insertNodes([$createDateNode(dateStr)]);
+      }
+    });
+  }, [editor]);
+
+  const insertStickyNote = useCallback((color: 'yellow' | 'pink' | 'blue' | 'green' = 'yellow') => {
+    editor.update(() => {
+      const selection = $getSelection();
+      if ($isRangeSelection(selection)) {
+        const stickyNode = $createStickyNode(color);
+        const p = $createParagraphNode();
+        stickyNode.append(p);
+        selection.insertNodes([stickyNode]);
+      }
+    });
+  }, [editor]);
+
+  const insertCollapsible = useCallback(() => {
+    editor.update(() => {
+      const selection = $getSelection();
+      if ($isRangeSelection(selection)) {
+        const container = $createCollapsibleContainerNode(true);
+        const title = $createCollapsibleTitleNode();
+        const content = $createCollapsibleContentNode();
+
+        title.append($createTextNode('Title'));
+        content.append($createParagraphNode().append($createTextNode('Content')));
+
+        container.append(title, content);
+        selection.insertNodes([container]);
+      }
+    });
+  }, [editor]);
+
+  const insertLayout = useCallback((columns: string) => {
+    editor.update(() => {
+      const selection = $getSelection();
+      if ($isRangeSelection(selection)) {
+        const container = $createLayoutContainerNode(columns);
+        const colCount = columns.split(' ').length;
+
+        for (let i = 0; i < colCount; i++) {
+          const item = $createLayoutItemNode();
+          item.append($createParagraphNode());
+          container.append(item);
+        }
+
+        selection.insertNodes([container]);
+      }
+    });
+  }, [editor]);
+
+  const insertImage = useCallback((src: string, alt: string) => {
+    editor.dispatchCommand(INSERT_IMAGE_COMMAND, {
+      src,
+      altText: alt,
+    });
+  }, [editor]);
+
+  const insertYoutube = useCallback((videoId: string) => {
+    editor.dispatchCommand(INSERT_YOUTUBE_COMMAND, { videoId });
   }, [editor]);
 
   const formatText = useCallback((format: 'superscript' | 'subscript' | 'highlight') => {
@@ -180,6 +353,32 @@ const ToolbarPlugin: React.FC = () => {
           } else {
             setIsCode(false);
           }
+
+          // Update font styles
+          setFontSize($getSelectionStyleValueForProperty(selection, 'font-size', '15px'));
+          setFontFamily($getSelectionStyleValueForProperty(selection, 'font-family', 'Arial'));
+
+          // Update text formatting states
+          setIsBold(selection.hasFormat('bold'));
+          setIsItalic(selection.hasFormat('italic'));
+          setIsUnderline(selection.hasFormat('underline'));
+          setIsStrikethrough(selection.hasFormat('strikethrough'));
+
+          // Link detection
+          // const parent = anchorNode.getParent();
+          // setIsLink($isLinkNode(parent) || $isLinkNode(anchorNode));
+
+          // In Lexical, inline code is a text format, but block code is a node type.
+          const isInlineCode = selection.hasFormat('code');
+          setIsCode(isInlineCode || $isCodeNode(element));
+
+          if ($isCodeNode(element)) {
+            setSelectedLanguage(element.getLanguage() || 'plaintext');
+          }
+
+          // Update block type state
+          const type = $isHeadingNode(element) ? element.getTag() : element.getType();
+          setBlockType(type);
         }
       });
     });
@@ -202,9 +401,28 @@ const ToolbarPlugin: React.FC = () => {
     });
   }, [editor]);
 
-  const insertHorizontalRule = useCallback(() => {
-    // ... logic remains same if used
-  }, [editor]);
+  // Placeholder for missing command
+  const insertImagePrompt = useCallback(() => {
+    const src = prompt('Enter image URL:');
+    if (src) {
+      insertImage(src, 'Image');
+    }
+  }, [insertImage]);
+
+  const insertGifPrompt = useCallback(() => {
+    const src = prompt('Enter GIF URL:');
+    if (src) {
+      insertImage(src, 'GIF');
+    }
+  }, [insertImage]);
+
+  const insertYoutubePrompt = useCallback(() => {
+    const url = prompt('Enter YouTube URL:');
+    if (url) {
+      const videoId = url.split('v=')[1]?.split('&')[0] || url.split('/').pop();
+      if (videoId) insertYoutube(videoId);
+    }
+  }, [insertYoutube]);
 
   return (
     <Group gap={10} p={4} className={styles.toolbar} wrap="nowrap" justify="flex-start" align="center">
@@ -222,18 +440,123 @@ const ToolbarPlugin: React.FC = () => {
         </Tooltip>
       </Group>
 
-      {/* 2. Block Type Dropdown */}
+      <Divider orientation="vertical" h={24} mx={8} my={8} />
+
+      {/* 2. Font Family and Size */}
+      <Group gap={4} wrap="nowrap">
+        {/* Font Family */}
+        <Menu shadow="md" width={180}>
+          <Menu.Target>
+            <Button
+              variant="subtle"
+              size="xs"
+              leftSection={<IconTypography size={18} />}
+              rightSection={<IconChevronDown size={14} />}
+              px={8}
+              styles={{
+                root: { minWidth: 100, justifyContent: 'space-between' },
+                label: { overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }
+              }}
+            >
+              {fontFamily}
+            </Button>
+          </Menu.Target>
+          <Menu.Dropdown>
+            {FONT_FAMILY_OPTIONS.map(([value, label]) => (
+              <Menu.Item
+                key={value}
+                onClick={() => updateFontFamily(value)}
+                style={{ fontFamily: value, fontWeight: value === fontFamily ? 'bold' : 'normal' }}
+              >
+                {label}
+              </Menu.Item>
+            ))}
+          </Menu.Dropdown>
+        </Menu>
+
+        <Divider orientation="vertical" h={24} mx={8} my={8}/>
+
+        {/* Font Size Stepper */}
+        <Group gap={2} align="center" wrap="nowrap">
+          <ActionIcon
+            variant="subtle"
+            size="sm"
+            onClick={() => incrementFontSize(-1)}
+            disabled={parseInt(fontSize) <= 8}
+          >
+            <IconMinus size={14} stroke={2} />
+          </ActionIcon>
+
+          <Menu shadow="md" width={80} trigger="click">
+            <Menu.Target>
+              <Button
+                variant="default"
+                size="xs"
+                h={26}
+                w={46}
+                px={0}
+                bg="#ced1d8ff"
+                c="#000000ff"
+                styles={{
+                  root: { borderColor: '#929aaaff' },
+                  inner: { width: '100%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center' },
+                  label: { display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }
+                }}
+              >
+                {parseInt(fontSize) || 15}
+              </Button>
+            </Menu.Target>
+            <Menu.Dropdown style={{ maxHeight: '200px', overflowY: 'auto' }}>
+              {FONT_SIZE_OPTIONS.map(([value, label]) => (
+                <Menu.Item
+                  key={value}
+                  onClick={() => updateFontSize(value)}
+                  style={{ fontWeight: value === fontSize ? 'bold' : 'normal' }}
+                >
+                  {label.replace('px', '')}
+                </Menu.Item>
+              ))}
+            </Menu.Dropdown>
+          </Menu>
+
+          <ActionIcon
+            variant="subtle"
+            size="sm"
+            onClick={() => incrementFontSize(1)}
+            disabled={parseInt(fontSize) >= 72}
+          >
+            <IconPlus size={14} stroke={2} />
+          </ActionIcon>
+        </Group>
+      </Group>
+
+      <Divider orientation="vertical" h={24} mx={8} my={8} />
+
+      {/* 3. Block Type Dropdown */}
       <Menu shadow="md" width={180}>
         <Menu.Target>
           <Button
             variant="subtle"
             size="xs"
-            leftSection={<IconH1 size={16} />}
+            leftSection={
+              blockType === 'h1' ? <IconH1 size={16} /> :
+                blockType === 'h2' ? <IconH2 size={16} /> :
+                  blockType === 'h3' ? <IconH3 size={16} /> :
+                    blockType === 'quote' ? <IconQuote size={16} /> :
+                      blockType === 'ul' ? <IconList size={16} /> :
+                        blockType === 'ol' ? <IconListNumbers size={16} /> :
+                          <IconH1 size={16} />
+            }
             rightSection={<IconChevronDown size={14} />}
             px={8}
             className={styles.toolbarButton}
           >
-            Normal
+            {blockType === 'h1' ? 'Heading 1' :
+              blockType === 'h2' ? 'Heading 2' :
+                blockType === 'h3' ? 'Heading 3' :
+                  blockType === 'quote' ? 'Quote' :
+                    blockType === 'ul' ? 'Bullet List' :
+                      blockType === 'ol' ? 'Numbered List' : 'Normal'}
           </Button>
         </Menu.Target>
         <Menu.Dropdown>
@@ -244,7 +567,7 @@ const ToolbarPlugin: React.FC = () => {
         </Menu.Dropdown>
       </Menu>
 
-      <Divider orientation="vertical" h={20} />
+      <Divider orientation="vertical" h={24} mx={8} my={8} />
 
       <Group gap={2} wrap="nowrap">
         <Tooltip label="Bullet List">
@@ -259,32 +582,57 @@ const ToolbarPlugin: React.FC = () => {
         </Tooltip>
       </Group>
 
-      <Divider orientation="vertical" h={20} />
+      <Divider orientation="vertical" h={24} mx={8} my={8} />
 
       {/* 3. Text Formatting Group */}
       <Group gap={2} wrap="nowrap">
         <Tooltip label="Bold">
-          <ActionIcon variant="subtle" size="sm" onClick={() => toggleTextFormat('bold')}>
+          <ActionIcon
+            variant={isBold ? 'light' : 'subtle'}
+            size="sm"
+            onClick={() => toggleTextFormat('bold')}
+            color={isBold ? 'blue' : undefined}
+          >
             <IconBold size={18} />
           </ActionIcon>
         </Tooltip>
         <Tooltip label="Italic">
-          <ActionIcon variant="subtle" size="sm" onClick={() => toggleTextFormat('italic')}>
+          <ActionIcon
+            variant={isItalic ? 'light' : 'subtle'}
+            size="sm"
+            onClick={() => toggleTextFormat('italic')}
+            color={isItalic ? 'blue' : undefined}
+          >
             <IconItalic size={18} />
           </ActionIcon>
         </Tooltip>
         <Tooltip label="Underline">
-          <ActionIcon variant="subtle" size="sm" onClick={() => toggleTextFormat('underline')}>
+          <ActionIcon
+            variant={isUnderline ? 'light' : 'subtle'}
+            size="sm"
+            onClick={() => toggleTextFormat('underline')}
+            color={isUnderline ? 'blue' : undefined}
+          >
             <IconUnderline size={18} />
           </ActionIcon>
         </Tooltip>
         <Tooltip label="Inline Code">
-          <ActionIcon variant="subtle" size="sm" onClick={() => toggleTextFormat('code')}>
+          <ActionIcon
+            variant={isCode ? 'light' : 'subtle'}
+            size="sm"
+            onClick={() => toggleTextFormat('code')}
+            color={isCode ? 'blue' : undefined}
+          >
             <IconCode size={18} />
           </ActionIcon>
         </Tooltip>
         <Tooltip label="Code Block">
-          <ActionIcon variant="subtle" size="sm" onClick={insertCodeBlock} color={isCode ? 'blue' : undefined}>
+          <ActionIcon
+            variant={isCode ? 'light' : 'subtle'}
+            size="sm"
+            onClick={insertCodeBlock}
+            color={isCode ? 'blue' : undefined}
+          >
             <IconCodeDots size={18} />
           </ActionIcon>
         </Tooltip>
@@ -307,7 +655,7 @@ const ToolbarPlugin: React.FC = () => {
         </Tooltip>
       </Group>
 
-      <Divider orientation="vertical" h={20} />
+      <Divider orientation="vertical" h={24} mx={8} my={8} />
 
       {/* 4. More Options Dropdown */}
       <Menu shadow="md" width={180}>
@@ -326,15 +674,15 @@ const ToolbarPlugin: React.FC = () => {
         </Menu.Dropdown>
       </Menu>
 
-      <Divider orientation="vertical" h={20} />
+      <Divider orientation="vertical" h={24} mx={8} my={8} />
 
       {/* 5. Insert Dropdown */}
-      <Menu shadow="md" width={150}>
+      <Menu shadow="md" width={220}>
         <Menu.Target>
           <Button
             variant="subtle"
             size="xs"
-            leftSection={<Text size="sm" fw={700}>+</Text>}
+            leftSection={<Text size="sm" fw={500}>+</Text>}
             rightSection={<IconChevronDown size={14} />}
             px={8}
             className={styles.toolbarButton}
@@ -343,13 +691,25 @@ const ToolbarPlugin: React.FC = () => {
           </Button>
         </Menu.Target>
         <Menu.Dropdown>
-          <Menu.Item onClick={insertTable} leftSection={<IconTable size={16} />}>Table</Menu.Item>
-          <Menu.Item onClick={insertCodeBlock} leftSection={<IconCodeDots size={16} />}>Code Block</Menu.Item>
-          <Menu.Item onClick={insertHorizontalRule} leftSection={<IconMinus size={16} />}>Horizontal Rule</Menu.Item>
+          <Menu.Item onClick={insertHorizontalRule} leftSection={<IconMinus size={12} />}>Horizontal Rule</Menu.Item>
+          <Menu.Item onClick={insertPageBreak} leftSection={<IconScissors size={12} />}>Page Break</Menu.Item>
+          <Menu.Divider />
+          <Menu.Item onClick={insertImagePrompt} leftSection={<IconPhoto size={12} />}>Image</Menu.Item>
+          <Menu.Item onClick={insertGifPrompt} leftSection={<IconGif size={12} />}>GIF</Menu.Item>
+          <Menu.Divider />
+          <Menu.Item onClick={insertTable} leftSection={<IconTable size={12} />}>Table</Menu.Item>
+          <Menu.Item onClick={() => insertLayout('1fr 1fr')} leftSection={<IconColumns size={12} />}>2 Columns</Menu.Item>
+          <Menu.Item onClick={() => insertLayout('1fr 1fr 1fr')} leftSection={<IconColumns size={12} />}>3 Columns</Menu.Item>
+          <Menu.Divider />
+          <Menu.Item onClick={() => insertStickyNote('yellow')} leftSection={<IconNote size={12} />}>Sticky Note</Menu.Item>
+          <Menu.Item onClick={insertCollapsible} leftSection={<IconCaretRightFilled size={12} />}>Collapsible container</Menu.Item>
+          <Menu.Item onClick={insertDate} leftSection={<IconCalendar size={12} />}>Date</Menu.Item>
+          <Menu.Divider />
+          <Menu.Item onClick={insertYoutubePrompt} leftSection={<IconBrandYoutube size={12} />}>YouTube Video</Menu.Item>
         </Menu.Dropdown>
       </Menu>
 
-      <Divider orientation="vertical" h={20} />
+      <Divider orientation="vertical" h={24} mx={8} my={8} />
 
       {/* 6. Alignment Dropdown */}
       <Menu shadow="md" width={170}>
@@ -357,7 +717,7 @@ const ToolbarPlugin: React.FC = () => {
           <Button
             variant="subtle"
             size="xs"
-            leftSection={<IconAlignLeft size={16} />}
+            leftSection={<IconAlignLeft size={12} />}
             rightSection={<IconChevronDown size={14} />}
             px={8}
             className={styles.toolbarButton}
@@ -459,6 +819,15 @@ export const LexicalEditor: React.FC<LexicalEditorProps> = ({
       TableNode,
       TableCellNode,
       TableRowNode,
+      HorizontalRuleNode,
+      PageBreakNode,
+      DateNode,
+      StickyNode,
+      CollapsibleContainerNode,
+      CollapsibleTitleNode,
+      CollapsibleContentNode,
+      LayoutContainerNode,
+      LayoutItemNode,
     ],
     editable: !readOnly,
   };
@@ -487,6 +856,7 @@ export const LexicalEditor: React.FC<LexicalEditorProps> = ({
           <CodeHighlightPlugin />
           <ImagesPlugin />
           <YouTubePlugin />
+          <HorizontalRulePlugin />
           {/* <CodeActionMenuPlugin /> */}
           <InitialStatePlugin value={value} />
           <OnChangePluginWrapper onChange={onChange} />

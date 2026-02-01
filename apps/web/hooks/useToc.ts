@@ -5,16 +5,34 @@ import sanitizeHtml from 'sanitize-html';
 const sanitizeOptions = {
   allowedTags: [
     ...sanitizeHtml.defaults.allowedTags,
-    'img', 'iframe' // Add img and iframe to allowed tags
+    'img', 'iframe', 'details', 'summary', 'hr'
   ],
   // Preserve class and data-language on <pre> and <code> so highlighting classes survive
   allowedAttributes: {
     ...sanitizeHtml.defaults.allowedAttributes,
-    div: ['class', 'style'], // Allow styling on divs for wrappers
+    div: ['class', 'style'],
+    span: ['class', 'style'],
+    p: ['class', 'style'],
+    h1: ['class', 'style', 'id'],
+    h2: ['class', 'style', 'id'],
+    h3: ['class', 'style', 'id'],
+    h4: ['class', 'style', 'id'],
+    h5: ['class', 'style', 'id'],
+    h6: ['class', 'style', 'id'],
+    blockquote: ['class', 'style'],
+    ul: ['class', 'style'],
+    ol: ['class', 'style'],
+    li: ['class', 'style'],
     img: ['src', 'alt', 'title', 'width', 'height', 'loading', 'class', 'style'],
     iframe: ['src', 'title', 'allow', 'allowfullscreen', 'width', 'height', 'style', 'class', 'frameborder', 'loading'],
-    pre: ['class', 'data-language'],
-    code: ['class', 'data-language']
+    details: ['open', 'class', 'style'],
+    summary: ['class', 'style'],
+    hr: ['class', 'style'],
+    pre: ['class', 'data-language', 'style'],
+    code: ['class', 'data-language', 'style']
+  },
+  allowedClasses: {
+    '*': ['lexical-*', 'language-*', 'hljs*']
   },
   allowedSchemes: ['http', 'https', 'data']
 };
