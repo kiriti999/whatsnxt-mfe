@@ -256,7 +256,7 @@ export const NavbarDesktop = ({ links, cartItems, loginMenuLinks, drawerOpened, 
                     // Handle Profile with Menu.Sub for proper submenu
                     if (link.title === 'Profile' && link.children) {
                       return (
-                        <Menu key={index} trigger="hover" openDelay={100} closeDelay={200}>
+                        <Menu key={index} trigger="hover" openDelay={100} closeDelay={200} position="left-start" withArrow>
                           <Menu.Target>
                             <Menu.Item
                               leftSection={link.icon ? <link.icon style={{ width: rem(16), height: rem(16) }} /> : null}
@@ -301,7 +301,7 @@ export const NavbarDesktop = ({ links, cartItems, loginMenuLinks, drawerOpened, 
                     // Handle Blogs with Menu.Sub for proper submenu
                     if (link.title === 'Blogs' && link.children) {
                       return (
-                        <Menu key={index} trigger="hover" openDelay={100} closeDelay={200}>
+                        <Menu key={index} trigger="hover" openDelay={100} closeDelay={200} position="left-start" withArrow>
                           <Menu.Target>
                             <Menu.Item
                               leftSection={link.icon ? <link.icon style={{ width: rem(16), height: rem(16) }} /> : null}

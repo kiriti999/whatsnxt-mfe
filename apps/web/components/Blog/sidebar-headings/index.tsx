@@ -33,32 +33,31 @@ function SidebarHeadings({
     <>
       {headings.length > 1 && (
         <Box className="widget" mt={'lg'}>
-          <Title order={4} mt={'0.33rem'} mb={'xl'}
+          <Title order={5} mt={'0.33rem'} mb={'xs'}
             style={{ cursor: 'pointer' }}>
-            Table of contents
+            On this page:
           </Title>
 
           <Stack gap={0}>
             {headings.map((heading) => (
-              <Paper
+              <Paper withBorder={false}
                 key={heading.id}
                 className={`${styles.headingTile} ${heading.id === activeId ? styles.headingTileActive : ''}`}
                 onClick={(e) => handleAnchorClick(e, heading.id)}
                 style={{ cursor: 'pointer' }}
-                radius="md"
+                radius="xs"
                 shadow={heading.id === activeId ? "md" : "xs"}
-                p="sm"
+                p="0.4rem"
               >
                 <Stack gap={0}>
-                  <Text
-                    size="xs"
-                    fw={heading.id === activeId ? 600 : 400}
-                    lineClamp={2}
-                    truncate
+                  <Title
+                    order={5}
+                    fw={heading.id === activeId ? 500 : 400}
+                    lineClamp={1}
                     c={heading.id === activeId ? 'blue.6' : 'dimmed'}
                   >
                     {heading.text}
-                  </Text>
+                  </Title>
                 </Stack>
               </Paper>
             ))}

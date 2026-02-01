@@ -18,13 +18,12 @@ import {
     IconFile,
     IconPlus,
     IconTrash,
-    IconEdit,
     IconCopy,
     IconChevronDown,
     IconChevronRight,
     IconLink,
 } from '@tabler/icons-react';
-import { TreeNode, SelectedNode } from '../types';
+import { TreeNode, SelectedNode } from './types';
 
 interface TreeNavigatorProps {
     tutorialTitle: string;

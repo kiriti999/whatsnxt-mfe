@@ -1,0 +1,128 @@
+import { EditorThemeClasses } from 'lexical';
+
+export const lexicalTheme: EditorThemeClasses = {
+  text: {
+    bold: 'lexical-text-bold',
+    italic: 'lexical-text-italic',
+    overflowed: 'lexical-text-overflowed',
+    hashtag: 'lexical-text-hashtag',
+    underline: 'lexical-text-underline',
+    strikethrough: 'lexical-text-strikethrough',
+    underlineStrikethrough: 'lexical-text-underline-strikethrough',
+    code: 'lexical-text-code',
+  },
+  code: 'lexical-code-block',
+  codeHighlight: {
+    atrule: 'token keyword',
+    attr: 'token attr-name',
+    boolean: 'token boolean',
+    builtin: 'token builtin',
+    cdata: 'token cdata',
+    char: 'token char',
+    class: 'token class-name',
+    'class-name': 'token class-name',
+    comment: 'token comment',
+    constant: 'token constant',
+    deleted: 'token deleted',
+    doctype: 'token doctype',
+    entity: 'token entity',
+    function: 'token function',
+    important: 'token important',
+    inserted: 'token inserted',
+    keyword: 'token keyword',
+    namespace: 'token namespace',
+    number: 'token number',
+    operator: 'token operator',
+    prolog: 'token prolog',
+    property: 'token property',
+    punctuation: 'token punctuation',
+    regex: 'token regex',
+    selector: 'token selector',
+    string: 'token string',
+    symbol: 'token symbol',
+    tag: 'token tag',
+    url: 'token url',
+    variable: 'token variable',
+  },
+  heading: {
+    h1: 'lexical-heading-h1',
+    h2: 'lexical-heading-h2',
+    h3: 'lexical-heading-h3',
+    h4: 'lexical-heading-h4',
+    h5: 'lexical-heading-h5',
+    h6: 'lexical-heading-h6',
+  },
+  image: 'lexical-image',
+  imageResizer: 'lexical-image-resizer',
+  link: 'lexical-link',
+  list: {
+    listitem: 'lexical-listitem',
+    listitemChecked: 'lexical-listitem-checked',
+    listitemUnchecked: 'lexical-listitem-unchecked',
+    nested: {
+      listitem: 'lexical-nested-listitem',
+    },
+    ol: 'lexical-ol',
+    olDepth: [
+      'lexical-ol-depth-1',
+      'lexical-ol-depth-2',
+      'lexical-ol-depth-3',
+      'lexical-ol-depth-4',
+    ],
+    ul: 'lexical-ul',
+    ulDepth: [
+      'lexical-ul-depth-1',
+      'lexical-ul-depth-2',
+      'lexical-ul-depth-3',
+      'lexical-ul-depth-4',
+    ],
+  },
+  paragraph: 'lexical-paragraph',
+  quote: 'lexical-quote',
+  table: 'lexical-table',
+  tableAddColumns: 'lexical-table-add-columns',
+  tableAddRows: 'lexical-table-add-rows',
+  tableCellActionButton: 'lexical-table-cell-action-button',
+  tableCellActionButtonContainer: 'lexical-table-cell-action-button-container',
+  tableCellEditing: 'lexical-table-cell-editing',
+  tableCell: 'lexical-table-cell',
+  tableCellHeader: 'lexical-table-cell-header',
+  tableRow: 'lexical-table-row',
+  tableSelection: 'lexical-table-selection',
+};
+
+export const CODE_LANGUAGE_MAP = {
+  javascript: 'JavaScript',
+  typescript: 'TypeScript',
+  python: 'Python',
+  java: 'Java',
+  cpp: 'C++',
+  c: 'C',
+  csharp: 'C#',
+  php: 'PHP',
+  ruby: 'Ruby',
+  go: 'Go',
+  rust: 'Rust',
+  swift: 'Swift',
+  kotlin: 'Kotlin',
+  sql: 'SQL',
+  html: 'HTML',
+  css: 'CSS',
+  xml: 'XML',
+  json: 'JSON',
+  yaml: 'YAML',
+  markdown: 'Markdown',
+  bash: 'Bash',
+  shell: 'Shell',
+  plaintext: 'Plain Text',
+};
+
+export function getCodeLanguageOptions(): [string, string][] {
+  const options: [string, string][] = [];
+
+  for (const [lang, friendlyName] of Object.entries(CODE_LANGUAGE_MAP)) {
+    options.push([lang, friendlyName]);
+  }
+
+  return options;
+}

@@ -37,8 +37,66 @@ const codeBlockStyles = `
     margin-bottom: 0px;
   }
 
+  .rte blockquote, 
+  #blog-content blockquote,
+  .lexical-quote {
+    border-left: 4px solid #ced4da !important;
+    padding-left: 1.25rem !important;
+    margin: 1.5rem 0 !important;
+    font-style: italic !important;
+    color: #495057 !important;
+    border-left-color: #b9bac5 !important;
+    background-color: transparent !important;
+  }
+
+  [data-mantine-color-scheme='dark'] .rte blockquote, 
+  [data-mantine-color-scheme='dark'] #blog-content blockquote,
+  [data-mantine-color-scheme='dark'] .lexical-quote {
+    border-left-color: #ccc843 !important;
+    color: #ced4da !important;
+  }
+
+  /* Collapsible & Layout dark mode overrides */
+  [data-mantine-color-scheme='dark'] .lexical-collapsible-container {
+    border-color: #495057 !important;
+  }
+  
+  [data-mantine-color-scheme='dark'] .lexical-collapsible-title {
+    background-color: #2c2e33 !important;
+    color: #e9ecef !important;
+  }
+  
+  [data-mantine-color-scheme='dark'] .lexical-collapsible-content {
+    border-top-color: #495057 !important;
+    color: #ced4da !important;
+  }
+  
+  [data-mantine-color-scheme='dark'] .lexical-layout-item {
+    border-color: #495057 !important;
+    color: #ced4da !important;
+  }
+
+  [data-mantine-color-scheme='dark'] .lexical-date {
+    background-color: #1a1b1e !important;
+    color: #4dadf7 !important;
+  }
+
   ${syntaxHighlightingTheme}
 `;
+
+// Format date to human-readable format like "October 13, 2025"
+const formatDate = (dateString: string): string => {
+  try {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  } catch {
+    return dateString;
+  }
+};
 
 const BlogContent = ({
   url,
@@ -156,10 +214,10 @@ const BlogContent = ({
           </Title>
           <Flex align="center" gap="xs" mb="xl">
             <Text size="0.9rem" c="#6B6B6B" p="0.2rem" style={{ border: '1px dotted gray' }}>
-              {timeToRead}
+              {timeToRead || '1 min read'}
             </Text>
-            <Text size="0.9rem" c="#6B6B6B" p="0.2rem" style={{ border: '1px dotted gray' }}>
-              posted on {updatedAt}
+            <Text size="0.4rem" c="#6B6B6B" p="0.4rem" style={{ border: '1px dotted gray' }}>
+              Last updated: {formatDate(updatedAt)}
             </Text>
             <ShareOptions
               url={url}

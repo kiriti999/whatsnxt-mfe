@@ -110,7 +110,7 @@ export const StructuredTutorialEditor: React.FC = () => {
                                     posts: (s.postIds || []).map((p: any) => ({
                                         id: p._id || p.id,
                                         title: p.title,
-                                        description: p.description || '',
+                                        description: p.content?.lexicalState || p.description || '',
                                         contentFormat: p.contentFormat || 'HTML',
                                         order: p.order,
                                         isReused: p.isReused,
@@ -537,7 +537,7 @@ export const StructuredTutorialEditor: React.FC = () => {
                         posts: (s.postIds || []).map((p: any) => ({
                             id: p._id,
                             title: p.title,
-                            description: p.description || '',
+                            description: p.content?.lexicalState || p.description || '',
                             contentFormat: p.contentFormat || 'HTML',
                             order: p.order,
                             isReused: p.isReused,
@@ -555,7 +555,7 @@ export const StructuredTutorialEditor: React.FC = () => {
         if (!currentSectionIdForPost) return;
 
         try {
-            const response = await StructuredTutorialAPI.reusePost(
+            const response: any= await StructuredTutorialAPI.reusePost(
                 currentSectionIdForPost,
                 sourcePostId
             );
@@ -571,7 +571,7 @@ export const StructuredTutorialEditor: React.FC = () => {
                                     {
                                         id: response.data._id,
                                         title: response.data.title,
-                                        description: response.data.description || '',
+                                        description: response.data.content?.lexicalState || response.data.description || '',
                                         contentFormat: response.data.contentFormat || 'HTML',
                                         order: response.data.order,
                                         isReused: true,

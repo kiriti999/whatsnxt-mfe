@@ -364,10 +364,10 @@ const nextConfig: NextConfig = {
                             "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
                             "font-src 'self' https://fonts.gstatic.com",
                             // Updated img-src to specifically include Cloudinary domains and localhost for development
-                            `img-src 'self' data: https: blob: https://res.cloudinary.com https://*.cloudinary.com https://api.cloudinary.com https://ik.imagekit.io https://*.imagekit.io${isDevelopment ? ' http://localhost:*' : ''}`,
+                            `img-src 'self' data: https: blob: https://res.cloudinary.com https://*.cloudinary.com https://api.cloudinary.com https://ik.imagekit.io https://*.imagekit.io https://img.youtube.com https://i.ytimg.com${isDevelopment ? ' http://localhost:*' : ''}`,
                             `media-src 'self' https: blob: https://res.cloudinary.com https://*.cloudinary.com https://api.cloudinary.com${isDevelopment ? ' http://localhost:*' : ''}`,
                             `connect-src ${connectSrc}`,
-                            "frame-src 'self' https://api.razorpay.com",
+                            "frame-src 'self' https://api.razorpay.com https://www.youtube.com https://youtube.com",
                             // PARTYTOWN SPECIFIC: Essential for web workers and service workers
                             "worker-src 'self' blob: data:",
                             "child-src 'self' blob: data:",

@@ -39,7 +39,6 @@ interface TutorialSidebarProps {
 
 export function TutorialSidebar({ sidebarData, currentPostSlug, onCollapse, isMobile = false }: TutorialSidebarProps) {
     const router = useRouter();
-    const pathname = usePathname();
     const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
     const [searchQuery, setSearchQuery] = useState('');
 
