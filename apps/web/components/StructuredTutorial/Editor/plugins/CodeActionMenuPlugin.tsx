@@ -1,49 +1,12 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import {
-    $getNodeByKey,
     $getSelection,
     $isRangeSelection,
-    COMMAND_PRIORITY_CRITICAL,
-    KEY_ARROW_DOWN_COMMAND,
-    KEY_ARROW_UP_COMMAND,
-    KEY_ESCAPE_COMMAND,
-    KEY_TAB_COMMAND,
-    LexicalEditor,
-    NodeKey,
 } from 'lexical';
-import { $isCodeNode, CodeNode, getLanguageFriendlyName, normalizeCodeLang } from '@lexical/code';
+import { $isCodeNode, CodeNode, normalizeCodeLang } from '@lexical/code';
 import { Menu, Button } from '@mantine/core';
 import { IconChevronDown } from '@tabler/icons-react';
-
-const CODE_LANGUAGE_FRIENDLY_NAME_MAP = {
-    c: 'C',
-    clike: 'C-like',
-    cpp: 'C++',
-    css: 'CSS',
-    html: 'HTML',
-    java: 'Java',
-    javascript: 'JavaScript',
-    js: 'JavaScript',
-    markdown: 'Markdown',
-    objc: 'Objective-C',
-    php: 'PHP',
-    plaintext: 'Plain Text',
-    python: 'Python',
-    rust: 'Rust',
-    sql: 'SQL',
-    swift: 'Swift',
-    typescript: 'TypeScript',
-    ts: 'TypeScript',
-    xml: 'XML',
-    json: 'JSON',
-    bash: 'Bash',
-    shell: 'Shell',
-    yaml: 'YAML',
-    go: 'Go',
-    kotlin: 'Kotlin',
-    ruby: 'Ruby',
-};
 
 const CODE_LANGUAGE_MAP = {
     javascript: 'JavaScript',
