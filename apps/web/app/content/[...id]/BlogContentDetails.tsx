@@ -51,7 +51,19 @@ export interface PostSlugResponse {
   nestedSubCategory: string | null;
   published: boolean;
   listed: boolean;
-  tutorial?: any
+  tutorial?: any;
+  postType?: 'CONTENT' | 'MCQ';
+  mcqData?: {
+    question: string;
+    options: Array<{
+      id: string;
+      label: string;
+      text: string;
+      isCorrect: boolean;
+    }>;
+    explanation: string;
+    difficulty: 'EASY' | 'MEDIUM' | 'HARD';
+  };
 }
 
 interface BlogContentDetailsProps {

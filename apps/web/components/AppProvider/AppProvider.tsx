@@ -34,7 +34,7 @@ const CartInitializer = () => {
   return null;
 };
 
-export default function AppProvider({ children, user }: { children: ReactNode, user: User }): JSX.Element {
+export default function AppProvider({ children, user, token }: { children: ReactNode, user: User, token: string | null }): JSX.Element {
   const [queryClient] = useState(
     () =>
       new QueryClient({
@@ -136,7 +136,7 @@ export default function AppProvider({ children, user }: { children: ReactNode, u
       <CartInitializer />
       <MantineProvider theme={theme}>
         <QueryClientProvider client={queryClient}>
-          <AuthProvider userData={user}>
+          <AuthProvider userData={user} initialToken={token}>
             <FilterStore>
               <Notifications position="top-left" zIndex={1000} />
               <ModalsProvider>

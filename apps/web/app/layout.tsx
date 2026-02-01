@@ -40,11 +40,11 @@ const getAuthData = async () => {
 
       if (!user) {
         console.log('getAuthData :: user is null, returning null');
-        return null;
+        return { user: null, token: null };
       }
 
       if (user?.isAuthenticated) {
-        return user;
+        return { user, token: token.value };
       }
 
       const authenticatedUser = {
@@ -52,15 +52,15 @@ const getAuthData = async () => {
         isAuthenticated: true
       };
       console.log('getAuthData :: returning authenticated user:', authenticatedUser);
-      return authenticatedUser;
+      return { user: authenticatedUser, token: token.value };
 
     } catch (error) {
       console.error('getAuthData :: error fetching user:', error);
-      return null;
+      return { user: null, token: null };
     }
   } else {
     console.log('getAuthData :: no token, returning null');
-    return null;
+    return { user: null, token: null };
   }
 };
 
@@ -202,15 +202,16 @@ export const metadata: Metadata = {
       ]
     })
   }
-}
+};
 
 async function RootLayout({ children }: { children: ReactNode }) {
 
-  const userData = await getAuthData();
-  // console.log('RootLayout :: userData:', userData)
+  const { user, token } = await getAuthData();
+  // console.log('RootLayout :: userData:', user)
 
   return (
     <html lang="en" className={`${nunito.variable} ${nunito.className}`} suppressHydrationWarning>
+      {/* ... head content ... */}
       <head>
         <ColorSchemeScript defaultColorScheme="light" />
         {/* Resource hints for actual services you use */}
@@ -234,7 +235,7 @@ async function RootLayout({ children }: { children: ReactNode }) {
         <OrganizationStructuredData />
         <WebSiteStructuredData />
         <PartyTownScripts />
-        
+
         {/* Razorpay Script - Required for payment processing */}
         <Script
           id="razorpay-checkout-js"
@@ -243,7 +244,7 @@ async function RootLayout({ children }: { children: ReactNode }) {
         />
       </head>
       <body className="antialiased" suppressHydrationWarning>
-        <Providers user={userData}>
+        <Providers user={user} token={token}>
           {children}
         </Providers>
 

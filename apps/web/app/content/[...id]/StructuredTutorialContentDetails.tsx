@@ -13,6 +13,7 @@ import SidebarHeadings from '../../../components/Blog/sidebar-headings';
 import SidebarPost from '../../../components/Blog/sidebar';
 import BlogContent from '../../../components/Blog/Content/Blog';
 import { StickyTutorialFooter } from '../../../components/Blog/Content/Tutorial/StickyTutorialFooter';
+import { MCQPost } from '../../../components/Quiz/MCQPost';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../store/store';
 import { TutorialSidebarState } from '../../../store/slices/tutorialSidebarSlice';
@@ -28,6 +29,18 @@ interface StructuredTutorialContentDetailsProps {
         contentFormat?: string;
         timeToRead?: string;
         updatedAt?: string;
+        postType?: 'CONTENT' | 'MCQ';
+        mcqData?: {
+            question: string;
+            options: Array<{
+                id: string;
+                label: string;
+                text: string;
+                isCorrect: boolean;
+            }>;
+            explanation: string;
+            difficulty: 'EASY' | 'MEDIUM' | 'HARD';
+        };
     };
     tutorialId: string;
 }
@@ -172,19 +185,28 @@ export default function StructuredTutorialContentDetails({
                                 <Stack gap="md">
                                     {/* Content Paper */}
                                     <Paper withBorder p="xl" radius="xs">
-                                        <BlogContent
-                                            url={url}
-                                            views={0}
-                                            title={item.title}
-                                            thumbnailUrn={item.imageUrl || ''}
-                                            updatedAt={item.updatedAt || ''}
-                                            timeToRead={item.timeToRead || ''}
-                                            loading={loading}
-                                            contentFormat={(item.contentFormat || 'HTML') as 'HTML' | 'MARKDOWN'}
-                                            description={item.description}
-                                            onHeadingsExtracted={onHeadingsExtracted}
-                                            setActiveHeading={setActiveHeading}
-                                        />
+                                        {item.postType === 'MCQ' && item.mcqData ? (
+                                            <MCQPost
+                                                postId={item._id}
+                                                title={item.title}
+                                                mcqData={item.mcqData}
+                                                questionNumber={1}
+                                            />
+                                        ) : (
+                                            <BlogContent
+                                                url={url}
+                                                views={0}
+                                                title={item.title}
+                                                thumbnailUrn={item.imageUrl || ''}
+                                                updatedAt={item.updatedAt || ''}
+                                                timeToRead={item.timeToRead || ''}
+                                                loading={loading}
+                                                contentFormat={(item.contentFormat || 'HTML') as 'HTML' | 'MARKDOWN'}
+                                                description={item.description}
+                                                onHeadingsExtracted={onHeadingsExtracted}
+                                                setActiveHeading={setActiveHeading}
+                                            />
+                                        )}
                                     </Paper>
 
                                     <StickyTutorialFooter prev={prevPost} next={nextPost} />
@@ -222,7 +244,7 @@ export default function StructuredTutorialContentDetails({
                             </GridCol>
 
                             {/* Right Sidebar - Headings & Popular Posts */}
-                            <GridCol span={{ base: 12, md: 2.5 }}>
+                            <GridCol span={{ base: 12, md: 3 }}>
                                 <Box pos="sticky" top={80}>
                                     {itemHeadings.length > 0 && (
                                         <Box mb="lg">
