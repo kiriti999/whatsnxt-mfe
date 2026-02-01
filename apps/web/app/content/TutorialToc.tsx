@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Box, Text, Paper, Stack } from '@mantine/core';
+import { Text, Paper, Stack } from '@mantine/core';
 import clsx from 'clsx';
 import styles from './TutorialToc.module.css';
 import { TutorialsTocProps } from '../../types/TutorialContentDetails';

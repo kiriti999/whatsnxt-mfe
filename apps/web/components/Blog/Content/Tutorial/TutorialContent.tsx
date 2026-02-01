@@ -55,15 +55,17 @@ const TutorialContent = (props: PROPS) => {
         <Title order={4} mt={'0.33rem'} mb={'xl'}>
           {isTutorial ? title : ''}
         </Title>
+
+        {tutorials[active] && (
+          <div className="rte text-wrap" ref={containerRef} />
+        )}
+
         {isTutorial && (
           <TutorialNavButtons
             setActive={setActive}
             active={active}
             tutorials={tutorials}
           />
-        )}
-        {tutorials[active] && (
-          <div className="rte text-wrap" ref={containerRef} />
         )}
       </Box>
     </>
