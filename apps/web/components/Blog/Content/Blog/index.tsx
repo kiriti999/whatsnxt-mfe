@@ -40,6 +40,20 @@ const codeBlockStyles = `
   ${syntaxHighlightingTheme}
 `;
 
+// Format date to human-readable format like "October 13, 2025"
+const formatDate = (dateString: string): string => {
+  try {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  } catch {
+    return dateString;
+  }
+};
+
 const BlogContent = ({
   url,
   views,
@@ -158,8 +172,8 @@ const BlogContent = ({
             <Text size="0.9rem" c="#6B6B6B" p="0.2rem" style={{ border: '1px dotted gray' }}>
               {timeToRead}
             </Text>
-            <Text size="0.9rem" c="#6B6B6B" p="0.2rem" style={{ border: '1px dotted gray' }}>
-              posted on {updatedAt}
+            <Text size="0.4rem" c="#6B6B6B" p="0.4rem" style={{ border: '1px dotted gray' }}>
+              Last updated: {formatDate(updatedAt)}
             </Text>
             <ShareOptions
               url={url}
