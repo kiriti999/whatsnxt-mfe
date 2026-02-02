@@ -11,8 +11,9 @@ export default function CourseApproval({ course }: CourseProps) {
     const router = useRouter();
     const [opened, setOpened] = useState(false);
     const handleApprove = async () => {
+        const id = (course as any)?.courseId || course?._id;
         try {
-            await CourseBuilderAPI.updateCourseStatusApproved(course?._id).then((res) => {
+            await CourseBuilderAPI.updateCourseStatusApproved(id).then((res) => {
                 notifications.show({
                     position: 'bottom-right',
                     color: 'green',
@@ -33,10 +34,11 @@ export default function CourseApproval({ course }: CourseProps) {
     }
 
     const handleReject = async (event) => {
+        const id = (course as any)?.courseId || course?._id;
         event.preventDefault();
         try {
             if (event.target.reject_reason.value) {
-                await CourseBuilderAPI.updateCourseStatusRejected(course?._id, event.target.reject_reason.value).then((res) => {
+                await CourseBuilderAPI.updateCourseStatusRejected(id, event.target.reject_reason.value).then((res) => {
                     setOpened(false);
                     notifications.show({
                         position: 'bottom-right',
