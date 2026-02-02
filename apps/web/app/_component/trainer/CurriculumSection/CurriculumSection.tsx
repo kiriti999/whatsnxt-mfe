@@ -57,7 +57,7 @@ export const CurriculumSection: FC<CurriculumSectionProps> = ({
 
   return (
     <Card shadow="sm" radius="md" withBorder mb="lg" style={{ overflow: 'visible' }}>
-      <Accordion defaultCheck>
+      <Accordion defaultChecked>
         <Accordion.Item value="lecture" style={{ borderBottom: 0 }}>
           <Accordion.Control>
             <Group justify="space-between" align="center" style={{ width: '100%' }}>

@@ -87,9 +87,7 @@ import {
   IconNote,
   IconCaretRightFilled,
   IconCalendar,
-  IconBrandX,
   IconBrandYoutube,
-  IconBrandFigma,
 } from '@tabler/icons-react';
 import { lexicalTheme, getCodeLanguageOptions } from './lexical-config';
 import './LexicalTheme.css'; // Global styles for Lexical theme classes
@@ -850,8 +848,15 @@ export const LexicalEditor: React.FC<LexicalEditorProps> = ({
             }
             ErrorBoundary={LexicalErrorBoundary}
           />
-          <HistoryPlugin />
-          <AutoFocusPlugin />
+          {!readOnly && (
+            <>
+              <HistoryPlugin />
+              <AutoFocusPlugin />
+              <DraggableBlockPlugin />
+              <OnChangePluginWrapper onChange={onChange} />
+              <ClearEditorPlugin />
+            </>
+          )}
           <ListPlugin />
           <LinkPlugin />
           <CodeHighlightPlugin />
@@ -859,10 +864,7 @@ export const LexicalEditor: React.FC<LexicalEditorProps> = ({
           <YouTubePlugin />
           <HorizontalRulePlugin />
           {/* <CodeActionMenuPlugin /> */}
-          <DraggableBlockPlugin />
           <InitialStatePlugin value={value} />
-          <OnChangePluginWrapper onChange={onChange} />
-          <ClearEditorPlugin />
         </Paper>
       </Stack>
     </LexicalComposer>

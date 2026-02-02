@@ -11,7 +11,7 @@ const InterviewComponent = ({ course }) => {
             <div
                 className={`${styles['single-advisor-box']} ${advStyles['single-advisor-box']}`}
             >
-                <Title order={3} mt="md">Interviews</Title>
+                <Title order={5} mt="md">Interviews</Title>
                 <div className={`${styles['row']} ${advStyles['row']} align-items-center`}>
                     <InterviewClient course={course} pageLimit={5} />
                 </div>
