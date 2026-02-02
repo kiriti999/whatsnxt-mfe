@@ -201,7 +201,7 @@ export default function StructuredTutorialContentDetails({
                                                 updatedAt={item.updatedAt || ''}
                                                 timeToRead={item.timeToRead || ''}
                                                 loading={loading}
-                                                contentFormat={(item.contentFormat || 'HTML') as 'HTML' | 'MARKDOWN'}
+                                                contentFormat={(item.contentFormat || 'HTML') as 'HTML' | 'JSON'}
                                                 description={item.description}
                                                 onHeadingsExtracted={onHeadingsExtracted}
                                                 setActiveHeading={setActiveHeading}

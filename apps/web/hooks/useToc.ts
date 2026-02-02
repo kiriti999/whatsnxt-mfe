@@ -222,14 +222,9 @@ export const useHandleScroll = (contentRef: any, setActiveHeading: any) => {
   }, [contentRef, setActiveHeading]);
 
   useEffect(() => {
-    const content = contentRef.current;
-    if (content) {
-      content.addEventListener('scroll', handleScroll);
-    }
+    window.addEventListener('scroll', handleScroll);
     return () => {
-      if (content) {
-        content.removeEventListener('scroll', handleScroll);
-      }
+      window.removeEventListener('scroll', handleScroll);
     };
-  }, [contentRef.current, handleScroll]);
+  }, [handleScroll]); // Removed contentRef.current dependency as we bind to window now
 };

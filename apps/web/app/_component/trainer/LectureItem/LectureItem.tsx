@@ -12,8 +12,10 @@ import {
   Stack,
   Box,
   Flex,
+  Modal,
   Grid,
   Anchor,
+  useMantineColorScheme,
 } from "@mantine/core";
 import {
   IconEdit,
@@ -61,6 +63,8 @@ export const LectureItem: FC<LectureItemProps> = ({
   onRemoveDoc,
   onLectureLinksUpdated
 }) => {
+  const { colorScheme } = useMantineColorScheme();
+  const isDark = colorScheme === 'dark';
   const [progress, setProgress] = useState(0);
   const [isEditing, setIsEditing] = useState(false);
   const [isOrderEditing, setIsOrderEditing] = useState(false);
@@ -675,8 +679,8 @@ export const LectureItem: FC<LectureItemProps> = ({
                         component="a"
                         href={videoUrl}
                         target="_blank"
+                        c={isDark ? 'blue.4' : 'blue'}
                         style={{
-                          color: "blue",
                           fontSize: "14px",
                           fontWeight: 500,
                         }}

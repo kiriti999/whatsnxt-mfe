@@ -7,12 +7,10 @@ import {
 } from '../../../../hooks/useToc';
 import { Title, Text, Flex, Box } from '@mantine/core';
 import { ShareOptions } from '@whatsnxt/core-ui';
-import GooglePageViews from '../GooglePageViews';
 import useAuth from '../../../../hooks/Authentication/useAuth';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
-import { useEffect, useRef } from 'react';
-import { syntaxHighlightingTheme } from '../../../RichTextEditor/extensions/CodeHighlight/syntaxHighlightingTheme';
+import { LexicalEditor } from '../../../StructuredTutorial/Editor/LexicalEditor';
+import styles from '../BlogContent.module.css';
+
 
 interface BlogContentProps {
   url: string;
@@ -23,66 +21,12 @@ interface BlogContentProps {
   updatedAt: string;
   loading: boolean;
   description: string;
-  contentFormat?: 'MARKDOWN' | 'HTML'; // Optional prop to specify content format
+  contentFormat?: 'HTML' | 'JSON'; // Optional prop to specify content format
   onHeadingsExtracted: (
     headings: { ref: Element; text: string; id: string }[]
   ) => void;
   setActiveHeading: (headingRef: Element) => void;
 }
-
-// Combine base paragraph styles with comprehensive syntax highlighting theme
-const codeBlockStyles = `
-  /* Base styles for paragraphs */
-  .rte p, #blog-content p {
-    margin-bottom: 0px;
-  }
-
-  .rte blockquote, 
-  #blog-content blockquote,
-  .lexical-quote {
-    border-left: 4px solid #ced4da !important;
-    padding-left: 1.25rem !important;
-    margin: 1.5rem 0 !important;
-    font-style: italic !important;
-    color: #495057 !important;
-    border-left-color: #b9bac5 !important;
-    background-color: transparent !important;
-  }
-
-  [data-mantine-color-scheme='dark'] .rte blockquote, 
-  [data-mantine-color-scheme='dark'] #blog-content blockquote,
-  [data-mantine-color-scheme='dark'] .lexical-quote {
-    border-left-color: #ccc843 !important;
-    color: #ced4da !important;
-  }
-
-  /* Collapsible & Layout dark mode overrides */
-  [data-mantine-color-scheme='dark'] .lexical-collapsible-container {
-    border-color: #495057 !important;
-  }
-  
-  [data-mantine-color-scheme='dark'] .lexical-collapsible-title {
-    background-color: #2c2e33 !important;
-    color: #e9ecef !important;
-  }
-  
-  [data-mantine-color-scheme='dark'] .lexical-collapsible-content {
-    border-top-color: #495057 !important;
-    color: #ced4da !important;
-  }
-  
-  [data-mantine-color-scheme='dark'] .lexical-layout-item {
-    border-color: #495057 !important;
-    color: #ced4da !important;
-  }
-
-  [data-mantine-color-scheme='dark'] .lexical-date {
-    background-color: #1a1b1e !important;
-    color: #4dadf7 !important;
-  }
-
-  ${syntaxHighlightingTheme}
-`;
 
 // Format date to human-readable format like "October 13, 2025"
 const formatDate = (dateString: string): string => {
@@ -115,7 +59,7 @@ const BlogContent = ({
   const { user } = useAuth();
 
   // Handle different content formats
-  const mdRef = useRef<HTMLDivElement>(null);
+  // No longer using mdRef as MARKDOWN support is removed
 
   // For HTML content, use existing hooks
   const { containerRef } = useAddIdsToHeadings(
@@ -138,73 +82,8 @@ const BlogContent = ({
 
   useHandleScroll(contentRef, setActiveHeading);
 
-  // For Markdown content, extract headings after render
-  useEffect(() => {
-    if (contentFormat === 'MARKDOWN' && !loading && mdRef.current) {
-      // Wait for markdown to render fully
-      setTimeout(() => {
-        const headings = Array.from(
-          mdRef.current?.querySelectorAll('h1, h2, h3, h4, h5, h6') || []
-        ).map((heading, index) => {
-          // Add ID if it doesn't exist
-          if (!heading.id) {
-            const headingText = heading.textContent || `heading-${index}`;
-            const headingId = headingText
-              .toLowerCase()
-              .replace(/[^\w\s]/g, '')
-              .replace(/\s+/g, '_');
-            heading.id = headingId;
-          }
-
-          return {
-            ref: heading,
-            text: heading.textContent || '',
-            id: heading.id
-          };
-        });
-
-        onHeadingsExtractedCallback(headings);
-      }, 100);
-    }
-  }, [contentFormat, loading, description, onHeadingsExtractedCallback]);
-
-  // Handle scroll events for Markdown content
-  useEffect(() => {
-    if (contentFormat === 'MARKDOWN') {
-      const handleScroll = () => {
-        if (!mdRef.current) return;
-
-        const contentTop = mdRef.current.getBoundingClientRect().top;
-        const headings = mdRef.current.querySelectorAll('h1, h2, h3, h4, h5, h6');
-
-        let closestHeading = null;
-        let closestHeadingDistance = Number.MAX_VALUE;
-
-        headings.forEach((heading) => {
-          const { top } = heading.getBoundingClientRect();
-          const relativeTop = top - contentTop;
-
-          if (relativeTop >= 0 && relativeTop < closestHeadingDistance) {
-            closestHeadingDistance = relativeTop;
-            closestHeading = heading;
-          }
-        });
-
-        if (closestHeading) {
-          setActiveHeading(closestHeading);
-        }
-      };
-
-      window.addEventListener('scroll', handleScroll);
-      return () => window.removeEventListener('scroll', handleScroll);
-    }
-  }, [contentFormat, setActiveHeading]);
-
   return (
     <div>
-      {/* Include the content styles */}
-      <style>{codeBlockStyles}</style>
-
       {loading ? (
         <Skeleton count={30} height={50} />
       ) : (
@@ -226,19 +105,20 @@ const BlogContent = ({
               email={user?.email}
               description={description}
             />
-            {/* <GooglePageViews views={views} /> */}
           </Flex>
 
           {/* Conditionally render content based on format */}
-          {contentFormat === 'MARKDOWN' ? (
-            <div className="rte text-wrap" ref={mdRef}>
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                {description}
-              </ReactMarkdown>
+          {(contentFormat === 'JSON' || (typeof description === 'string' && description.trim().startsWith('{"root"'))) ? (
+            <div className={`${styles.content} rte text-wrap`} ref={contentRef}>
+              <LexicalEditor
+                value={description}
+                readOnly={true}
+                onChange={() => { }}
+              />
             </div>
           ) : (
             <div
-              className="rte text-wrap"
+              className={`${styles.content} rte text-wrap`}
               ref={containerRef}
             /* HTML content is injected by useAddIdsToHeadings */
             />

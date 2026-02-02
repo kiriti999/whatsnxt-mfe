@@ -2,11 +2,9 @@
 
 import { useState } from 'react';
 import {
-    Accordion,
     Anchor,
     Box,
     Card,
-    Divider,
     Group,
     Stack,
     Tabs,
@@ -17,8 +15,9 @@ import {
 import { IconExternalLink, IconFileText, IconPlus, IconMinus } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { CourseContentAPI, CourseContentSection } from '../../apis/v1/courses/course-content/course-content-api';
-import HtmlParser from '../Common/HtmlParse';
+import { LexicalEditor } from '../StructuredTutorial/Editor/LexicalEditor';
 import styles from './CourseContentDisplay.module.css';
+import blogStyles from '../Blog/Content/BlogContent.module.css';
 
 interface CourseContentDisplayProps {
     courseId: string;
@@ -77,7 +76,9 @@ const ContentSection = ({ section, isDark }: ContentSectionProps) => {
             {/* Overview */}
             {section.overview && (
                 <Box className={styles.overview} mb="xl">
-                    <HtmlParser content={section.overview} withOptions />
+                    <div className={`${blogStyles.content} rte`}>
+                        <LexicalEditor value={section.overview} readOnly={true} />
+                    </div>
                 </Box>
             )}
 
@@ -155,7 +156,9 @@ const ComparisonTabs = ({ title, description, tabs, isDark }: ComparisonTabsProp
 
                     {sortedTabs.map((tab) => (
                         <Tabs.Panel key={tab.tabTitle} value={tab.tabTitle} p="lg">
-                            <HtmlParser content={tab.content} withOptions />
+                            <div className={`${blogStyles.content} rte`}>
+                                <LexicalEditor value={tab.content} readOnly={true} />
+                            </div>
                         </Tabs.Panel>
                     ))}
                 </Tabs>
@@ -231,7 +234,9 @@ const CollapsibleSection = ({ title, description, items, isDark }: CollapsibleSe
 
                             {isOpen && (
                                 <Box className={styles.collapsibleContent} mt="md">
-                                    <HtmlParser content={item.content} withOptions />
+                                    <div className={`${blogStyles.content} rte`}>
+                                        <LexicalEditor value={item.content} readOnly={true} />
+                                    </div>
                                 </Box>
                             )}
                         </Card>

@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Button, Card, Grid, Group, Radio, Stack, Title, Text as MantineText } from "@mantine/core";
+import { Button, Card, Grid, Group, Radio, Stack, Title, Text as MantineText, useMantineColorScheme } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import { Controller, useForm } from "react-hook-form";
 import { CourseBuilderAPI } from "../../../../apis/v1/courses/course-builder/course-builder-api";
@@ -23,6 +23,8 @@ const CourseTypeForm = ({ courseId, cType }: Props) => {
 	const [disabledButton, setDisabledButton] = useState(true);
 	const [courseType, setCourseType] = useState(cType);
 	const { enabledSections, setEnabledSections } = useDashboardContext();
+	const { colorScheme } = useMantineColorScheme();
+	const isDark = colorScheme === 'dark';
 
 	const CURRENT_PAGE_PATH = useMemo(() => `/trainer/course/course-type-information/${courseId}`, [courseId]);
 	const NEXT_PAGE_PATH = useMemo(() => `/trainer/course/pricing-information/${courseId}`, [courseId]);
@@ -108,7 +110,9 @@ const CourseTypeForm = ({ courseId, cType }: Props) => {
 												style={{
 													cursor: 'pointer',
 													borderColor: isSelected ? 'var(--mantine-color-blue-6)' : undefined,
-													backgroundColor: isSelected ? 'var(--mantine-color-blue-0)' : undefined,
+													backgroundColor: isSelected
+														? (isDark ? 'var(--mantine-color-blue-9)' : 'var(--mantine-color-blue-0)')
+														: (isDark ? 'var(--mantine-color-dark-6)' : 'var(--mantine-color-gray-0)'),
 													transition: 'all 0.2s ease'
 												}}
 												onClick={() => {
@@ -128,7 +132,10 @@ const CourseTypeForm = ({ courseId, cType }: Props) => {
 														style={{ pointerEvents: 'none' }}
 													/>
 												</Group>
-												<MantineText size="sm" c="dimmed">
+												<MantineText
+													size="sm"
+													c={isSelected ? "white" : (isDark ? "gray.4" : "dimmed")}
+												>
 													{type === 'paid'
 														? "Earn money by selling your expertise. Set a price and get paid for every student."
 														: "Attract a larger audience by offering free content. Great for building your reputation."}

@@ -24,8 +24,6 @@ export interface UnifiedUploadOptions {
   bffApiUrl?: string;
 
   // Optional editor-specific options (for images)
-  editor?: any;
-  tempUrl?: string;
   lectureId?: string;
 
   // Behavior options
@@ -37,6 +35,13 @@ export interface UnifiedUploadOptions {
 export interface AssetItem {
   public_id: string;
   resource_type: 'image' | 'video' | 'raw' | 'auto' | string;
+}
+
+export interface UnifiedDeleteOptions {
+  assetsList: AssetItem[];
+  clearLocalStorage?: boolean;
+  returnDetailedResult?: boolean;
+  bffApiUrl?: string;
 }
 
 export interface WorkerResponse {

@@ -7,17 +7,11 @@ import { getCategoryId } from '../../../utils/form';
 import type { Category, Detail, Tutorial } from '../../../types/form';
 import { FormAPI, HistoryAPI } from '../../../apis/v1/blog';
 import Pagination from '../../Common/Pagination';
-import { RichTextEditor } from '../../RichTextEditor';
+import { LexicalEditor } from '../../StructuredTutorial/Editor/LexicalEditor';
 import { useRouter } from 'next/navigation';
 import { Alert, Box, Button, Container, FileInput, Grid, Group, Input, Select, Stack, Text, Title, LoadingOverlay, Loader } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { LoadingOverlay as CustomLoadingOverlay } from '@whatsnxt/core-ui';
-import { TiptapManageContextProvider } from '../../../context/TiptapManageContext';
-import AssetUploadProgress from '../../RichTextEditor/common/AssetUploadProgress';
-import {
-  cloudinaryAssetsUploadCleanup,
-  cloudinaryAssetsUploadCleanupForUpdate,
-} from '../../RichTextEditor/common';
 import { IconUpload, IconAlertCircle, IconCheck } from '@tabler/icons-react';
 import { default as NextImage } from 'next/image';
 import { uploadImage } from './util';
@@ -318,44 +312,11 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
     return false;
   };
 
-  const checkCleanupCloudinaryAssets = (tutorials: Tutorial[]) => {
-    let updatedTutorials: Tutorial[] = [];
-    if (edit && edit.tutorials) {
-      const maxLength = Math.max(edit?.tutorials?.length, tutorials?.length);
-      for (let index = 0; index < maxLength; index++) {
-        const oldContent = edit?.tutorials[index]?.description || null;
-        const newContent = tutorials[index]?.description || null;
-        const getList = cloudinaryAssetsUploadCleanupForUpdate({
-          oldContent,
-          newContent,
-        });
-        if (index < tutorials.length) {
-          updatedTutorials.push({
-            ...tutorials[index],
-            cloudinaryAssets: getList,
-          });
-        }
 
-      }
-
-      return updatedTutorials;
-    }
-
-    updatedTutorials = tutorials.map((tutorial) => {
-      const getList = cloudinaryAssetsUploadCleanup({
-        content: tutorial.description,
-      });
-      return {
-        ...tutorial,
-        cloudinaryAssets: getList,
-      }
-    });
-
-    return updatedTutorials;
-  };
 
   const handleFormSubmit = useCallback(
     async (formData: any) => {
+      const bffApiUrl = process.env.NEXT_PUBLIC_BFF_HOST_IMAGEKIT_API;
       const copyTutorial = [...tutorials];
       copyTutorial[active - 1] = { title: getValues('title'), description };
       setTutorials(copyTutorial);
@@ -363,40 +324,38 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
       if (checkValidationEachPage(copyTutorial)) {
         return;
       }
-      const updatedTutorialsList = checkCleanupCloudinaryAssets(copyTutorial);
 
       const categoryName: any = getValues('categoryName');
 
       let imageUrl = edit?.imageUrl || '';
-      let cloudinaryAssets = edit?.cloudinaryAssets || [];
+      let cloudinaryAssets = []; // Track only for cleanup on error
 
       // Only upload new image if one was selected
       if (tutorialImage) {
         // Upload image via worker
         const addToLocalStorage = false;
-        const bffApiUrl = process.env.NEXT_PUBLIC_BFF_HOST_IMAGEKIT_API;
-        const { secure_url, updatedAssets } = await uploadImage(tutorialImage, cloudinaryAssets, 'whatsnxt-tutorial', addToLocalStorage, bffApiUrl);
+        const { secure_url, updatedAssets } = await uploadImage(tutorialImage, [], 'whatsnxt-tutorial', addToLocalStorage, bffApiUrl);
         imageUrl = secure_url;
-        cloudinaryAssets = updatedAssets;
+        cloudinaryAssets = updatedAssets; // Only for error cleanup
       }
 
       const details = {
         title: getValues('tutorialName'),
-        description: formData.description,
+        description: description,
         categoryId: getCategoryId(categories, categoryName),
         categoryName,
         subCategory: formData.subCategory,
         nestedSubCategory: formData.nestedSubCategory,
         imageUrl: imageUrl,
         published: false,
-        cloudinaryAssets
+        contentFormat: 'JSON'
       };
 
       setUnsaved(false);
       open();
 
       try {
-        const payload = { ...details, tutorials: updatedTutorialsList };
+        const payload = { ...details, tutorials: copyTutorial };
 
         console.log('TutorialForm:: payload:', payload)
 
@@ -439,7 +398,7 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
         if (!cloudinaryAssets.length) {
           return;
         }
-        await unifiedDeleteWebWorker({ assetsList: cloudinaryAssets, clearLocalStorage: true, bffApiUrl });
+        await unifiedDeleteWebWorker({ assetsList: cloudinaryAssets as any, clearLocalStorage: true, bffApiUrl });
       } finally {
         close();
       }
@@ -508,284 +467,276 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
           </Alert>
         )}
 
-        < TiptapManageContextProvider
-          isAssetsUploading={isAssetsUploading}
-          setIsAssetsUploading={setIsAssetsUploading}
-        >
-          <CustomLoadingOverlay visible={visible}>
-            <form onSubmit={handleSubmit(handleFormSubmit)}>
-              <Stack gap={0} mt={'md'}>
-                <Text fz={15}>Tutorial name <Text component="span" m={0} size='lg' c="red">*</Text></Text>
-                <Input tabIndex={1}
-                  placeholder="Enter tutorial name"
-                  {...register('tutorialName', validationOptions.tutorialName)}
-                />
-                <Text className="text-danger">
-                  {errors?.tutorialName &&
-                    errors.tutorialName?.message?.toString()}
-                  {errors.tutorialName &&
-                    errors.tutorialName.type === 'maxLength' && (
-                      <span>Max length exceeded</span>
-                    )}
-                </Text>
-              </Stack>
-
-              <Stack gap={'0.1rem'} mt={'md'}>
-                <Text fz={15}>Title <Text component="span" m={0} size='lg' c="red">*</Text></Text>
-                <Input tabIndex={2}
-                  placeholder="Title"
-                  {...register('title', validationOptions.title)}
-                />
-                <Text className="text-danger">
-                  {errors?.title && errors.title?.message?.toString()}
-                  {errors.title && errors.title.type === 'maxLength' && (
+        <CustomLoadingOverlay visible={visible}>
+          <form onSubmit={handleSubmit(handleFormSubmit)}>
+            <Stack gap={0} mt={'md'}>
+              <Text fz={15}>Tutorial name <Text component="span" m={0} size='lg' c="red">*</Text></Text>
+              <Input tabIndex={1}
+                placeholder="Enter tutorial name"
+                {...register('tutorialName', validationOptions.tutorialName)}
+              />
+              <Text className="text-danger">
+                {errors?.tutorialName &&
+                  errors.tutorialName?.message?.toString()}
+                {errors.tutorialName &&
+                  errors.tutorialName.type === 'maxLength' && (
                     <span>Max length exceeded</span>
                   )}
-                </Text>
+              </Text>
+            </Stack>
+
+            <Stack gap={'0.1rem'} mt={'md'}>
+              <Text fz={15}>Title <Text component="span" m={0} size='lg' c="red">*</Text></Text>
+              <Input tabIndex={2}
+                placeholder="Title"
+                {...register('title', validationOptions.title)}
+              />
+              <Text className="text-danger">
+                {errors?.title && errors.title?.message?.toString()}
+                {errors.title && errors.title.type === 'maxLength' && (
+                  <span>Max length exceeded</span>
+                )}
+              </Text>
+            </Stack>
+
+            {detailed && (
+              <Stack gap={'0.1rem'} mt={'md'}>
+                <Text>Description</Text>
+                <LexicalEditor
+                  value={description}
+                  onChange={setDescription}
+                />
               </Stack>
+            )}
 
-              {detailed && (
-                <Stack gap={'0.1rem'} mt={'md'}>
-                  <Text>Description</Text>
-                  <div>
-                    <AssetUploadProgress />
-                  </div>
-                  <RichTextEditor
-                    content={description}
-                    onChange={setDescription}
+            <Stack gap={0} mt={'md'} mb={'xs'}>
+              <Grid gutter="lg">
+                {/* Categories */}
+                <Grid.Col span={{ base: 12, lg: 9, md: 12 }}>
+                  <Controller
+                    name="categoryName"
+                    control={control}
+                    rules={{ required: 'Category is required' }}
+                    render={({ field }) => (
+                      <Select
+                        label={<Text fz={15}>Category <Text component="span" m={0} size='lg' c="red">*</Text></Text>}
+                        placeholder="Select a category"
+                        data={categories.map((cat) => ({ value: cat.categoryName, label: cat.categoryName }))}
+                        value={field.value}
+                        onChange={(value) => {
+                          setValue('subCategory', '')
+                          setValue('nestedSubCategory', '')
+                          field.onChange(value);
+                          handleCategoryChange(value);
+                        }}
+                      />
+                    )}
                   />
-                </Stack>
-              )}
+                  {errors.categoryName && <Text c="red">{errors.categoryName?.message}</Text>}
+                </Grid.Col>
 
-              <Stack gap={0} mt={'md'} mb={'xs'}>
-                <Grid gutter="lg">
-                  {/* Categories */}
+                {/* Subcategories */}
+                {categoryValue && (
                   <Grid.Col span={{ base: 12, lg: 9, md: 12 }}>
                     <Controller
-                      name="categoryName"
+                      name="subCategory"
                       control={control}
-                      rules={{ required: 'Category is required' }}
+                      rules={{ required: 'SubCategory is required' }}
                       render={({ field }) => (
                         <Select
-                          label={<Text fz={15}>Category <Text component="span" m={0} size='lg' c="red">*</Text></Text>}
-                          placeholder="Select a category"
-                          data={categories.map((cat) => ({ value: cat.categoryName, label: cat.categoryName }))}
+                          label={<Text fz={15}>Subcategory <Text component="span" m={0} size='lg' c="red">*</Text></Text>}
+                          placeholder="Select a subcategory"
+                          data={subCategories}
                           value={field.value}
                           onChange={(value) => {
-                            setValue('subCategory', '')
-                            setValue('nestedSubCategory', '')
                             field.onChange(value);
-                            handleCategoryChange(value);
+                            setValue('nestedSubCategory', '');
+                            handleSubCategoryChange(value);
                           }}
                         />
                       )}
                     />
-                    {errors.categoryName && <Text c="red">{errors.categoryName?.message}</Text>}
+                    {errors.subCategory && <Text c="red">{errors.subCategory.message}</Text>}
                   </Grid.Col>
-
-                  {/* Subcategories */}
-                  {categoryValue && (
-                    <Grid.Col span={{ base: 12, lg: 9, md: 12 }}>
-                      <Controller
-                        name="subCategory"
-                        control={control}
-                        rules={{ required: 'SubCategory is required' }}
-                        render={({ field }) => (
-                          <Select
-                            label={<Text fz={15}>Subcategory <Text component="span" m={0} size='lg' c="red">*</Text></Text>}
-                            placeholder="Select a subcategory"
-                            data={subCategories}
-                            value={field.value}
-                            onChange={(value) => {
-                              field.onChange(value);
-                              setValue('nestedSubCategory', '');
-                              handleSubCategoryChange(value);
-                            }}
-                          />
-                        )}
-                      />
-                      {errors.subCategory && <Text c="red">{errors.subCategory.message}</Text>}
-                    </Grid.Col>
-                  )}
-
-                  {/* Nested Subcategories */}
-                  {nestedSubCategories.length > 0 && (
-                    <Grid.Col span={{ base: 12, lg: 9, md: 12 }}>
-                      <Controller
-                        name="nestedSubCategory"
-                        control={control}
-                        render={({ field }) => (
-                          <Select
-                            label={<Text fz={15}>Nested Subcategory <Text component="span" m={0} size='lg' c="red">*</Text></Text>}
-                            placeholder="Select a nested subcategory"
-                            data={nestedSubCategories}
-                            value={field.value}
-                            onChange={field.onChange}
-                          />
-                        )}
-                      />
-                    </Grid.Col>
-                  )}
-                </Grid>
-              </Stack>
-
-              {/* Tutorial Image Upload */}
-              <Controller
-                name="tutorialImagePreview"
-                control={control}
-                rules={{ required: edit ? false : 'Tutorial Image is required' }}
-                render={({ field }) => (
-                  <div>
-                    <FileInput
-                      clearable
-                      label={<Text fz={15}>Tutorial Image <Text component="span" m={0} size='lg' c="red">*</Text></Text>}
-                      placeholder={
-                        isScanning ? "🔍 Scanning image..." :
-                          isModelLoading ? "🤖 Loading AI model..." :
-                            "Select tutorial image"
-                      }
-                      leftSection={
-                        isScanning || isModelLoading ? (
-                          <Loader size={16} />
-                        ) : (
-                          <IconUpload size={16} />
-                        )
-                      }
-                      value={tutorialImage}
-                      onChange={(e) => {
-                        handleImageChange(e);
-                        field.onChange(e);
-                      }}
-                      accept=".png,.jpg,.jpeg"
-                      disabled={isScanning || isModelLoading}
-                    />
-
-                    {/* Status messages */}
-                    {(validationError || scanError) && (
-                      <Alert
-                        icon={<IconAlertCircle size={16} />}
-                        color="red"
-                        mt="xs"
-                        variant="light"
-                      >
-                        {validationError || scanError}
-                      </Alert>
-                    )}
-
-                    {validationSuccess && !validationError && !scanError && (
-                      <Alert
-                        icon={<IconCheck size={16} />}
-                        color="green"
-                        mt="xs"
-                        variant="light"
-                      >
-                        {validationSuccess}
-                      </Alert>
-                    )}
-
-                    {/* Scanning status */}
-                    {isScanning && (
-                      <Group gap="xs" mt="xs">
-                        <Loader size="xs" />
-                        <Text size="xs" c="blue">
-                          Running AI safety scan...
-                        </Text>
-                      </Group>
-                    )}
-
-                    {/* Model loading status */}
-                    {isModelLoading && (
-                      <Group gap="xs" mt="xs">
-                        <Loader size="xs" />
-                        <Text size="xs" c="gray">
-                          Loading AI model in browser...
-                        </Text>
-                      </Group>
-                    )}
-                  </div>
                 )}
-              />
-              {errors.tutorialImagePreview && <Text c="red">{errors.tutorialImagePreview.message}</Text>}
 
-              {/* Tutorial Image Technical Requirements */}
-              <ImageRequirements />
-
-              {/* Image Preview */}
-              {imagePreview && !validationError && !scanError && (
-                <Box mt="md">
-                  <Title order={5}>Image Preview:</Title>
-                  <NextImage
-                    alt="tutorial image preview"
-                    width={300}
-                    height={200}
-                    sizes="(max-width: 480px) 300px, (max-width: 768px) 320px, 340px"
-                    src={imagePreview}
-                    style={{
-                      borderRadius: '8px',
-                      border: '1px solid #e9ecef'
-                    }}
-                  />
-                </Box>
-              )}
-
-              <Stack>
-                <Pagination
-                  disabled={isAssetsUploading}
-                  nPages={tutorials.length}
-                  currentPage={active}
-                  setCurrentPage={navPage}
-                />
-              </Stack>
-
-              <Stack mb={'xl'} mt={'xl'}>
-                <Grid gutter={'xl'}>
-                  <Grid.Col span={{ base: 12, sm: 6, md: !categoryData?.imageUrl && categoryData.text ? 4 : 12 }}>
-                    <Stack mt={'0.5rem'}>
-                      {tutorials.length > 0 && (
-                        <>
-                          <Group>
-                            <Button fullWidth
-                              type="button" onClick={deleteTutorial}>
-                              Delete this page
-                            </Button>
-                          </Group>
-
-                          <Group>
-                            <Button fullWidth
-                              disabled={isAssetsUploading}
-                              type="button"
-                              onClick={addTutorial}
-                            >
-                              Add new page
-                            </Button>
-                          </Group>
-                        </>
+                {/* Nested Subcategories */}
+                {nestedSubCategories.length > 0 && (
+                  <Grid.Col span={{ base: 12, lg: 9, md: 12 }}>
+                    <Controller
+                      name="nestedSubCategory"
+                      control={control}
+                      render={({ field }) => (
+                        <Select
+                          label={<Text fz={15}>Nested Subcategory <Text component="span" m={0} size='lg' c="red">*</Text></Text>}
+                          placeholder="Select a nested subcategory"
+                          data={nestedSubCategories}
+                          value={field.value}
+                          onChange={field.onChange}
+                        />
                       )}
-
-                      <Group>
-                        <Button
-                          fullWidth
-                          disabled={
-                            isAssetsUploading ||
-                            isScanning ||
-                            isModelLoading ||
-                            (validationError !== null) ||
-                            (scanError !== null)
-                          }
-                          type="submit"
-                        >
-                          {edit ? 'Update' : 'Create'}
-                        </Button>
-                      </Group>
-                    </Stack>
+                    />
                   </Grid.Col>
+                )}
+              </Grid>
+            </Stack>
 
-                </Grid>
-              </Stack>
+            {/* Tutorial Image Upload */}
+            <Controller
+              name="tutorialImagePreview"
+              control={control}
+              rules={{ required: edit ? false : 'Tutorial Image is required' }}
+              render={({ field }) => (
+                <div>
+                  <FileInput
+                    clearable
+                    label={<Text fz={15}>Tutorial Image <Text component="span" m={0} size='lg' c="red">*</Text></Text>}
+                    placeholder={
+                      isScanning ? "🔍 Scanning image..." :
+                        isModelLoading ? "🤖 Loading AI model..." :
+                          "Select tutorial image"
+                    }
+                    leftSection={
+                      isScanning || isModelLoading ? (
+                        <Loader size={16} />
+                      ) : (
+                        <IconUpload size={16} />
+                      )
+                    }
+                    value={tutorialImage}
+                    onChange={(e) => {
+                      handleImageChange(e);
+                      field.onChange(e);
+                    }}
+                    accept=".png,.jpg,.jpeg"
+                    disabled={isScanning || isModelLoading}
+                  />
 
-            </form>
-          </CustomLoadingOverlay>
-        </TiptapManageContextProvider>
+                  {/* Status messages */}
+                  {(validationError || scanError) && (
+                    <Alert
+                      icon={<IconAlertCircle size={16} />}
+                      color="red"
+                      mt="xs"
+                      variant="light"
+                    >
+                      {validationError || scanError}
+                    </Alert>
+                  )}
+
+                  {validationSuccess && !validationError && !scanError && (
+                    <Alert
+                      icon={<IconCheck size={16} />}
+                      color="green"
+                      mt="xs"
+                      variant="light"
+                    >
+                      {validationSuccess}
+                    </Alert>
+                  )}
+
+                  {/* Scanning status */}
+                  {isScanning && (
+                    <Group gap="xs" mt="xs">
+                      <Loader size="xs" />
+                      <Text size="xs" c="blue">
+                        Running AI safety scan...
+                      </Text>
+                    </Group>
+                  )}
+
+                  {/* Model loading status */}
+                  {isModelLoading && (
+                    <Group gap="xs" mt="xs">
+                      <Loader size="xs" />
+                      <Text size="xs" c="gray">
+                        Loading AI model in browser...
+                      </Text>
+                    </Group>
+                  )}
+                </div>
+              )}
+            />
+            {errors.tutorialImagePreview && <Text c="red">{errors.tutorialImagePreview.message}</Text>}
+
+            {/* Tutorial Image Technical Requirements */}
+            <ImageRequirements />
+
+            {/* Image Preview */}
+            {imagePreview && !validationError && !scanError && (
+              <Box mt="md">
+                <Title order={5}>Image Preview:</Title>
+                <NextImage
+                  alt="tutorial image preview"
+                  width={300}
+                  height={200}
+                  sizes="(max-width: 480px) 300px, (max-width: 768px) 320px, 340px"
+                  src={imagePreview}
+                  style={{
+                    borderRadius: '8px',
+                    border: '1px solid #e9ecef'
+                  }}
+                />
+              </Box>
+            )}
+
+            <Stack>
+              <Pagination
+                disabled={isAssetsUploading}
+                nPages={tutorials.length}
+                currentPage={active}
+                setCurrentPage={navPage}
+              />
+            </Stack>
+
+            <Stack mb={'xl'} mt={'xl'}>
+              <Grid gutter={'xl'}>
+                <Grid.Col span={{ base: 12, sm: 6, md: !categoryData?.imageUrl && categoryData.text ? 4 : 12 }}>
+                  <Stack mt={'0.5rem'}>
+                    {tutorials.length > 0 && (
+                      <>
+                        <Group>
+                          <Button fullWidth
+                            type="button" onClick={deleteTutorial}>
+                            Delete this page
+                          </Button>
+                        </Group>
+
+                        <Group>
+                          <Button fullWidth
+                            disabled={isAssetsUploading}
+                            type="button"
+                            onClick={addTutorial}
+                          >
+                            Add new page
+                          </Button>
+                        </Group>
+                      </>
+                    )}
+
+                    <Group>
+                      <Button
+                        fullWidth
+                        disabled={
+                          isAssetsUploading ||
+                          isScanning ||
+                          isModelLoading ||
+                          (validationError !== null) ||
+                          (scanError !== null)
+                        }
+                        type="submit"
+                      >
+                        {edit ? 'Update' : 'Create'}
+                      </Button>
+                    </Group>
+                  </Stack>
+                </Grid.Col>
+
+              </Grid>
+            </Stack>
+
+          </form>
+        </CustomLoadingOverlay>
       </Box>
     </Container>
   );

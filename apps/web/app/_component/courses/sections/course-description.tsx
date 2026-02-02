@@ -1,25 +1,12 @@
 import { Accordion, Title } from '@mantine/core'
-import HtmlParser from '../../../../components/Common/HtmlParse'
 import styles from '../../../../components/Courses/Course.module.css';
-import { syntaxHighlightingTheme } from '../../../../components/RichTextEditor/extensions/CodeHighlight/syntaxHighlightingTheme';
-
-// Combine base code block styles with comprehensive syntax highlighting theme
-const codeBlockStyles = `
-  /* Base code block styles */
-  .rte p {
-    margin-bottom: 0px;
-  }
-
-  ${syntaxHighlightingTheme}
-`;
-
+import contentStyles from '../../../../components/Blog/Content/BlogContent.module.css';
+import { LexicalEditor } from '../../../../components/StructuredTutorial/Editor/LexicalEditor';
 
 const CourseDescription = ({ courseTopics }) => {
     return (
         <>
-            {/* Include the content styles */}
-            <style> {codeBlockStyles}</style >
-            <div className={`rte ${styles['courses-overview']}`}>
+            <div className={`${contentStyles.content} rte ${styles['courses-overview']}`}>
                 <div style={{ display: 'contents' }}>
                     <Accordion variant="default" defaultValue="description" transitionDuration={250}>
                         <Accordion.Item value="description" p={0}>
@@ -27,8 +14,7 @@ const CourseDescription = ({ courseTopics }) => {
                                 <Title order={3}>Description</Title>
                             </Accordion.Control>
                             <Accordion.Panel>
-                                {/* TODO: Add line clamp */}
-                                <HtmlParser content={courseTopics} withOptions />
+                                <LexicalEditor value={courseTopics} readOnly={true} />
                             </Accordion.Panel>
                         </Accordion.Item>
                     </Accordion>

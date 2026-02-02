@@ -763,7 +763,12 @@ const InitialStatePlugin: React.FC<{ value?: string }> = ({ value }) => {
       const currentEditorState = editor.getEditorState();
       const currentSerialized = JSON.stringify(currentEditorState.toJSON());
 
-      if (value !== currentSerialized) {
+      // Normalize value to string for comparison
+      const valueAsString = typeof value === 'string' ? value : JSON.stringify(value);
+
+      console.log('LexicalEditor debug:', { value, valueAsString, currentSerialized, match: valueAsString === currentSerialized });
+
+      if (valueAsString !== currentSerialized) {
         try {
           // If value is empty string, just clear
           if (value === '') {
@@ -773,7 +778,24 @@ const InitialStatePlugin: React.FC<{ value?: string }> = ({ value }) => {
             return;
           }
 
-          const editorState = editor.parseEditorState(value);
+
+          // Handle both string and object formats
+          // If value is already an object (from form), use it directly
+          // If value is a string, parse it first
+          let stateToParse;
+          if (typeof value === 'string') {
+            try {
+              stateToParse = JSON.parse(value);
+            } catch (parseError) {
+              console.error('LexicalEditor: Failed to parse string value:', parseError);
+              throw parseError; // Let outer catch handle it
+            }
+          } else {
+            // Value is already an object
+            stateToParse = value;
+          }
+
+          const editorState = editor.parseEditorState(stateToParse);
           editor.setEditorState(editorState);
         } catch (e) {
           // Not valid Lexical JSON, fallback to treating it as plain text content
@@ -783,6 +805,7 @@ const InitialStatePlugin: React.FC<{ value?: string }> = ({ value }) => {
           const p = $createParagraphNode();
           p.append($createTextNode(value));
           root.append(p);
+          console.error('LexicalEditor: Error parsing value:', e);
           console.warn('LexicalEditor: Value is not valid JSON, loaded as plain text fallback.');
         }
       }
@@ -850,8 +873,15 @@ export const LexicalEditor: React.FC<LexicalEditorProps> = ({
             }
             ErrorBoundary={LexicalErrorBoundary}
           />
-          <HistoryPlugin />
-          <AutoFocusPlugin />
+          {!readOnly && (
+            <>
+              <HistoryPlugin />
+              <AutoFocusPlugin />
+              <DraggableBlockPlugin />
+              <OnChangePluginWrapper onChange={onChange} />
+              <ClearEditorPlugin />
+            </>
+          )}
           <ListPlugin />
           <LinkPlugin />
           <CodeHighlightPlugin />
@@ -859,10 +889,7 @@ export const LexicalEditor: React.FC<LexicalEditorProps> = ({
           <YouTubePlugin />
           <HorizontalRulePlugin />
           {/* <CodeActionMenuPlugin /> */}
-          <DraggableBlockPlugin />
           <InitialStatePlugin value={value} />
-          <OnChangePluginWrapper onChange={onChange} />
-          <ClearEditorPlugin />
         </Paper>
       </Stack>
     </LexicalComposer>

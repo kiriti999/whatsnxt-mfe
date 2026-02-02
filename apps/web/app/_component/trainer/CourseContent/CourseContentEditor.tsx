@@ -16,6 +16,7 @@ import {
     Tabs,
     Divider,
     LoadingOverlay,
+    useMantineColorScheme,
 } from '@mantine/core';
 import {
     IconPlus,
@@ -29,9 +30,8 @@ import {
 } from '@tabler/icons-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
-import { RichTextEditor } from '../../../../components/RichTextEditor';
+import { LexicalEditor } from '../../../../components/StructuredTutorial/Editor/LexicalEditor';
 import { CourseContentAPI, CourseContentSection } from '../../../../apis/v1/courses/course-content/course-content-api';
-import { TiptapManageContextProvider } from '../../../../context/TiptapManageContext';
 import { useDashboardContext } from '../../../../context/DashboardContext';
 import styles from './CourseContent.module.css';
 
@@ -41,9 +41,10 @@ interface CourseContentEditorProps {
 
 const CourseContentEditor = ({ courseId }: CourseContentEditorProps) => {
     const queryClient = useQueryClient();
-    const [isAssetsUploading, setIsAssetsUploading] = useState(false);
     const [expandedSections, setExpandedSections] = useState<string[]>([]);
     const { setEnabledSections } = useDashboardContext();
+    const { colorScheme } = useMantineColorScheme();
+    const isDark = colorScheme === 'dark';
 
     // Enable navigation to other steps
     useEffect(() => {
@@ -142,58 +143,50 @@ const CourseContentEditor = ({ courseId }: CourseContentEditorProps) => {
     };
 
     return (
-        <TiptapManageContextProvider
-            isAssetsUploading={isAssetsUploading}
-            setIsAssetsUploading={setIsAssetsUploading}
-            courseId={courseId}
-        >
-            <Card shadow="sm" padding="lg" radius="md" withBorder>
-                <LoadingOverlay visible={isLoading} />
+        <Card shadow="sm" padding="lg" radius="md" withBorder>
+            <LoadingOverlay visible={isLoading} />
 
-                <Accordion defaultValue="course-content">
-                    <Accordion.Item value="course-content">
-                        <Accordion.Control>
-                            <Title order={4}>Course Content</Title>
-                            <Text size="sm" c="dimmed" mt={4}>
-                                Create structured content for your course including sections, comparisons, and collapsibles
-                            </Text>
-                        </Accordion.Control>
+            <Accordion defaultValue="course-content">
+                <Accordion.Item value="course-content">
+                    <Accordion.Control>
+                        <Title order={4}>Course Content</Title>
+                        <Text size="sm" c={isDark ? "gray.4" : "dimmed"} mt={4}>
+                            Create structured content for your course including sections, comparisons, and collapsibles
+                        </Text>
+                    </Accordion.Control>
 
-                        <Accordion.Panel>
-                            <Stack gap="md">
-                                {sections.map((section, index) => (
-                                    <ContentSectionEditor
-                                        key={section._id}
-                                        section={section}
-                                        courseId={courseId}
-                                        isExpanded={expandedSections.includes(section._id!)}
-                                        onToggle={() => toggleSection(section._id!)}
-                                        onUpdate={(data) =>
-                                            updateSectionMutation.mutate({ sectionId: section._id!, data })
-                                        }
-                                        onDelete={() => deleteSectionMutation.mutate(section._id!)}
-                                        isAssetsUploading={isAssetsUploading}
-                                        setIsAssetsUploading={setIsAssetsUploading}
-                                    />
-                                ))}
+                    <Accordion.Panel>
+                        <Stack gap="md">
+                            {sections.map((section, index) => (
+                                <ContentSectionEditor
+                                    key={section._id}
+                                    section={section}
+                                    courseId={courseId}
+                                    isExpanded={expandedSections.includes(section._id!)}
+                                    onToggle={() => toggleSection(section._id!)}
+                                    onUpdate={(data) =>
+                                        updateSectionMutation.mutate({ sectionId: section._id!, data })
+                                    }
+                                    onDelete={() => deleteSectionMutation.mutate(section._id!)}
+                                />
+                            ))}
 
-                                <Card shadow="sm" padding="md" radius="md" withBorder>
-                                    <Button
-                                        variant="outline"
-                                        leftSection={<IconPlus size={16} />}
-                                        onClick={handleAddSection}
-                                        loading={createSectionMutation.isPending}
-                                        fullWidth
-                                    >
-                                        Add Content Section
-                                    </Button>
-                                </Card>
-                            </Stack>
-                        </Accordion.Panel>
-                    </Accordion.Item>
-                </Accordion>
-            </Card>
-        </TiptapManageContextProvider>
+                            <Card shadow="sm" padding="md" radius="md" withBorder>
+                                <Button
+                                    variant="outline"
+                                    leftSection={<IconPlus size={16} />}
+                                    onClick={handleAddSection}
+                                    loading={createSectionMutation.isPending}
+                                    fullWidth
+                                >
+                                    Add Content Section
+                                </Button>
+                            </Card>
+                        </Stack>
+                    </Accordion.Panel>
+                </Accordion.Item>
+            </Accordion>
+        </Card>
     );
 };
 
@@ -204,8 +197,6 @@ interface ContentSectionEditorProps {
     onToggle: () => void;
     onUpdate: (data: Partial<CourseContentSection>) => void;
     onDelete: () => void;
-    isAssetsUploading: boolean;
-    setIsAssetsUploading: (value: boolean) => void;
 }
 
 const ContentSectionEditor = ({
@@ -215,8 +206,6 @@ const ContentSectionEditor = ({
     onToggle,
     onUpdate,
     onDelete,
-    isAssetsUploading,
-    setIsAssetsUploading,
 }: ContentSectionEditorProps) => {
     const [isEditingTitle, setIsEditingTitle] = useState(false);
     const [title, setTitle] = useState(section.title);
@@ -237,13 +226,36 @@ const ContentSectionEditor = ({
     const [resourcesTitle, setResourcesTitle] = useState(section.additionalResources?.title || '');
     const [resources, setResources] = useState(section.additionalResources?.items || []);
 
+    // Sync local state when section prop changes (after save/refetch)
+    // Using JSON.stringify for deep comparison to catch all changes
+    useEffect(() => {
+        setTitle(section.title);
+        setOverview(section.overview);
+        setComparisonsTitle(section.comparisons?.title || '');
+        setComparisonsDesc(section.comparisons?.description || '');
+        setTabs(section.comparisons?.tabs || []);
+        setCollapsiblesTitle(section.collapsibles?.title || '');
+        setCollapsiblesDesc(section.collapsibles?.description || '');
+        setCollapsibleItems(section.collapsibles?.items || []);
+        setResourcesTitle(section.additionalResources?.title || '');
+        setResources(section.additionalResources?.items || []);
+    }, [JSON.stringify(section)]);
+
+    // Log overview for debugging
+    useEffect(() => {
+        console.log('CourseContentEditor overview@@@@:', overview);
+    }, [overview]);
+
     const handleSaveTitle = () => {
         onUpdate({ title });
         setIsEditingTitle(false);
     };
 
     const handleSaveOverview = () => {
-        onUpdate({ overview });
+        console.log('CourseContentEditor: Saving overview =', overview);
+        // Convert object to string if needed (backend expects string)
+        const overviewToSave = typeof overview === 'object' ? JSON.stringify(overview) : overview;
+        onUpdate({ overview: overviewToSave });
     };
 
     const handleSaveComparisons = () => {
@@ -399,9 +411,9 @@ const ContentSectionEditor = ({
 
                     <Tabs.Panel value="overview" pt="md">
                         <Stack gap="md">
-                            <RichTextEditor content={overview} onChange={setOverview} />
+                            <LexicalEditor value={overview} onChange={setOverview} />
                             <Group justify="flex-end">
-                                <Button onClick={handleSaveOverview} disabled={isAssetsUploading}>
+                                <Button onClick={handleSaveOverview}>
                                     Save Overview
                                 </Button>
                             </Group>
@@ -438,8 +450,8 @@ const ContentSectionEditor = ({
                                             <IconTrash size={16} />
                                         </ActionIcon>
                                     </Group>
-                                    <RichTextEditor
-                                        content={tab.content}
+                                    <LexicalEditor
+                                        value={tab.content}
                                         onChange={(value) => updateComparisonTab(index, 'content', value)}
                                     />
                                 </Card>
@@ -450,7 +462,7 @@ const ContentSectionEditor = ({
                             </Button>
 
                             <Group justify="flex-end">
-                                <Button onClick={handleSaveComparisons} disabled={isAssetsUploading}>
+                                <Button onClick={handleSaveComparisons}>
                                     Save Comparisons
                                 </Button>
                             </Group>
@@ -487,10 +499,10 @@ const ContentSectionEditor = ({
                                             <IconTrash size={16} />
                                         </ActionIcon>
                                     </Group>
-                                    <RichTextEditor
-                                        content={item.content}
+                                    {/* <LexicalEditor
+                                        value={item.content}
                                         onChange={(value) => updateCollapsibleItem(index, 'content', value)}
-                                    />
+                                    /> */}
                                 </Card>
                             ))}
 
@@ -499,7 +511,7 @@ const ContentSectionEditor = ({
                             </Button>
 
                             <Group justify="flex-end">
-                                <Button onClick={handleSaveCollapsibles} disabled={isAssetsUploading}>
+                                <Button onClick={handleSaveCollapsibles}>
                                     Save Collapsibles
                                 </Button>
                             </Group>
@@ -561,7 +573,7 @@ const ContentSectionEditor = ({
                             </Button>
 
                             <Group justify="flex-end">
-                                <Button onClick={handleSaveResources} disabled={isAssetsUploading}>
+                                <Button onClick={handleSaveResources}>
                                     Save Resources
                                 </Button>
                             </Group>

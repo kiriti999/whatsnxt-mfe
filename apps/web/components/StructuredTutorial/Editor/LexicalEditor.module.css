@@ -35,15 +35,16 @@
   overflow-y: auto;
   position: relative;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-  font-size: 14px;
-  line-height: 1.5;
+  font-size: 16px;
+  line-height: 1.6;
 }
 
 .contentEditable {
   outline: none;
-  padding: 1rem 1rem 1rem 50px;
+  padding: 1rem;
   resize: vertical;
   min-height: 280px;
+  color: var(--mantine-color-dark-9);
 }
 
 .contentEditable:focus {
@@ -53,8 +54,8 @@
 .placeholder {
   position: absolute;
   top: 1rem;
-  left: 50px;
-  font-size: 14px;
+  left: 1rem;
+  font-size: 16px;
   color: var(--mantine-color-gray-5);
   pointer-events: none;
 }
@@ -76,31 +77,29 @@
 }
 
 /* ========== Dark Mode Support ========== */
-@media (prefers-color-scheme: dark) {
-  .toolbar {
-    background-color: #1f2937;
-    border-color: #374151;
-  }
+[data-mantine-color-scheme="dark"] .toolbar {
+  background-color: var(--mantine-color-dark-6);
+  border-color: var(--mantine-color-dark-4);
+}
 
-  .toolbarButton {
-    color: #d1d5db;
-  }
+[data-mantine-color-scheme="dark"] .toolbarButton {
+  color: var(--mantine-color-dark-0);
+}
 
-  .toolbarButton:hover {
-    background-color: #374151;
-    color: #f9fafb;
-  }
+[data-mantine-color-scheme="dark"] .toolbarButton:hover {
+  background-color: var(--mantine-color-dark-5);
+  color: var(--mantine-color-gray-0);
+}
 
-  .editorContainer {
-    background-color: #1f2937;
-    border-color: #374151;
-  }
+[data-mantine-color-scheme="dark"] .editorContainer {
+  background-color: var(--mantine-color-dark-6);
+  border-color: var(--mantine-color-dark-4);
+}
 
-  .contentEditable {
-    color: #f3f4f6;
-  }
+[data-mantine-color-scheme="dark"] .contentEditable {
+  color: var(--mantine-color-dark-0);
+}
 
-  .placeholder {
-    color: #6b7280;
-  }
+[data-mantine-color-scheme="dark"] .placeholder {
+  color: var(--mantine-color-dark-2);
 }

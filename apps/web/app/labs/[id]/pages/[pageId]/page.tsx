@@ -23,6 +23,7 @@ import {
   Alert,
   LoadingOverlay,
   Modal,
+  useMantineColorScheme,
 } from '@mantine/core';
 import { useMediaQuery, useDebouncedCallback, useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
@@ -69,6 +70,8 @@ const LabPageEditorPage = () => {
   const isStudent = isAuthenticated && user?.role === 'student';
   const isTrainer = isAuthenticated && user?.role === 'trainer';
   const isMobile = useMediaQuery('(max-width: 768px)');
+  const { colorScheme } = useMantineColorScheme();
+  const isDark = colorScheme === 'dark';
 
   const [questions, setQuestions] = useState<Question[]>([]);
   const [enablePracticeTest, setEnablePracticeTest] = useState(false);
@@ -124,7 +127,7 @@ const LabPageEditorPage = () => {
       // Fetch lab status and total pages count
       const labResponse = await labApi.getLabById(labId);
       setLabStatus(labResponse.data.status || 'draft');
-      
+
       // Extract total pages from lab response (feature 004)
       if (labResponse.data.pages) {
         setTotalLabPages(labResponse.data.pages.length);
@@ -238,10 +241,10 @@ const LabPageEditorPage = () => {
   const handlePageChange = async (pageNumber: number) => {
     try {
       setIsNavigating(true);
-      
+
       // Get page ID for target page number
       const targetPageId = getPageId(pageNumber);
-      
+
       if (!targetPageId) {
         notifications.show({
           title: 'Navigation Error',
@@ -250,7 +253,7 @@ const LabPageEditorPage = () => {
         });
         return;
       }
-      
+
       // Navigate to target page
       router.push(`/labs/${labId}/pages/${targetPageId}`);
     } catch (error) {
@@ -313,10 +316,10 @@ const LabPageEditorPage = () => {
 
   const removeQuestion = async () => {
     if (!questionToDelete) return;
-    
+
     const { id, isSaved } = questionToDelete;
     setIsDeleting(true);
-    
+
     if (isSaved) {
       // If question is saved on backend, delete it from backend
       try {
@@ -631,7 +634,7 @@ const LabPageEditorPage = () => {
       const sanitizedHints = hints
         .map(h => h.trim())
         .filter(h => h.length > 0);
-      
+
       // Only include hints if there are valid ones
       const hintsToSave = sanitizedHints.length > 0 ? sanitizedHints : undefined;
 
@@ -835,7 +838,7 @@ const LabPageEditorPage = () => {
             <Text size="sm" fw={500}>
               Page {currentPageNumber} of {totalLabPages}
             </Text>
-            
+
             {/* Pagination Component (US2, US4, US5, US6) */}
             <Pagination
               total={totalLabPages}
@@ -917,7 +920,7 @@ const LabPageEditorPage = () => {
 
               {/* Questions List */}
               {questions.length === 0 ? (
-                <Paper shadow="sm" p="xl" withBorder bg="gray.0" data-testid="empty-state">
+                <Paper shadow="sm" p="xl" withBorder data-testid="empty-state" style={{ backgroundColor: isDark ? 'var(--mantine-color-dark-6)' : 'var(--mantine-color-gray-0)' }}>
                   <Stack align="center" gap="md">
                     <Text size="xl" c="dimmed">No questions yet</Text>
                     <Text c="dimmed" ta="center">
@@ -926,7 +929,7 @@ const LabPageEditorPage = () => {
                   </Stack>
                 </Paper>
               ) : filteredQuestions.length === 0 ? (
-                <Paper shadow="sm" p="xl" withBorder bg="gray.0">
+                <Paper shadow="sm" p="xl" withBorder style={{ backgroundColor: isDark ? 'var(--mantine-color-dark-6)' : 'var(--mantine-color-gray-0)' }}>
                   <Stack align="center" gap="md">
                     <IconSearch size={48} color="gray" />
                     <Text size="xl" c="dimmed">No questions found</Text>
@@ -947,10 +950,17 @@ const LabPageEditorPage = () => {
                       const questionNumber = originalIndex + 1;
                       const isEditable = canEditContent && (question.isEditing || !question.isSaved);
                       return (
-                        <Paper key={question.id} p="lg" withBorder data-testid={!question.isSaved ? "auto-question-form" : undefined} data-auto-displayed={!question.isSaved ? "true" : undefined}>
+                        <Paper
+                          key={question.id}
+                          p="lg"
+                          withBorder
+                          data-testid={!question.isSaved ? "auto-question-form" : undefined}
+                          data-auto-displayed={!question.isSaved ? "true" : undefined}
+                          style={{ backgroundColor: isDark ? 'var(--mantine-color-dark-7)' : 'white' }}
+                        >
                           <Group justify="space-between" mb="md">
                             <Group gap="xs">
-                              <Text fw={600}>
+                              <Text fw={600} c={isDark ? 'white' : undefined}>
                                 Question {questionNumber}
                               </Text>
                               {question.isSaved && (
@@ -998,6 +1008,13 @@ const LabPageEditorPage = () => {
                               aria-label="Question text"
                               aria-required="true"
                               description="Must be unique within this lab - less than 85% similar to other questions (10-1000 characters)"
+                              styles={{
+                                input: {
+                                  backgroundColor: isDark ? 'var(--mantine-color-dark-6)' : 'white',
+                                  color: isDark ? 'white' : 'black',
+                                  borderColor: isDark ? 'var(--mantine-color-dark-4)' : undefined,
+                                }
+                              }}
                             />
 
                             <Select
@@ -1009,14 +1026,26 @@ const LabPageEditorPage = () => {
                               }
                               required
                               disabled={!isEditable}
+                              checkIconPosition="right"
+                              styles={{
+                                input: {
+                                  backgroundColor: isDark ? 'var(--mantine-color-dark-6)' : 'white',
+                                  color: isDark ? 'white' : 'black',
+                                  borderColor: isDark ? 'var(--mantine-color-dark-4)' : undefined,
+                                },
+                                dropdown: {
+                                  backgroundColor: isDark ? 'var(--mantine-color-dark-6)' : 'white',
+                                  color: isDark ? 'white' : 'black',
+                                }
+                              }}
                             />
 
                             {question.type === 'MCQ' && (
                               <Box>
-                                <Text size="sm" fw={500} mb={4}>
+                                <Text size="sm" fw={500} mb={4} c={isDark ? 'white' : undefined}>
                                   Options (comma separated)
                                 </Text>
-                                <Text size="xs" c="dimmed" mb={8}>
+                                <Text size="xs" c={isDark ? 'gray.4' : 'dimmed'} mb={8}>
                                   Enter options separated by commas
                                 </Text>
                                 <TextInput
@@ -1027,6 +1056,13 @@ const LabPageEditorPage = () => {
                                   }
                                   required
                                   disabled={!isEditable}
+                                  styles={{
+                                    input: {
+                                      backgroundColor: isDark ? 'var(--mantine-color-dark-6)' : 'white',
+                                      color: isDark ? 'white' : 'black',
+                                      borderColor: isDark ? 'var(--mantine-color-dark-4)' : undefined,
+                                    }
+                                  }}
                                 />
                               </Box>
                             )}
@@ -1040,6 +1076,13 @@ const LabPageEditorPage = () => {
                               }
                               required
                               disabled={!isEditable}
+                              styles={{
+                                input: {
+                                  backgroundColor: isDark ? 'var(--mantine-color-dark-6)' : 'white',
+                                  color: isDark ? 'white' : 'black',
+                                  borderColor: isDark ? 'var(--mantine-color-dark-4)' : undefined,
+                                }
+                              }}
                             />
 
                             {isEditable && (

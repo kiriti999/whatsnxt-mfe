@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Text, Title, Group, Card, Stack, Grid, Radio, NumberInput, Button, Box, Badge } from '@mantine/core';
+import { Text, Title, Group, Card, Stack, Grid, Radio, NumberInput, Button, Box, Badge, useMantineColorScheme } from '@mantine/core';
 import { IconVideo, IconBroadcast, IconChevronRight } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
 import { Controller, useForm } from 'react-hook-form';
@@ -22,6 +22,8 @@ const PriceInformationForm = ({ courseId, courseWithSections }) => {
 	const [disabledButton, setDisabledButton] = useState(true);
 	const [courseType, setCourseType] = useState(courseWithSections.courseType);
 	const { setEnabledSections } = useDashboardContext();
+	const { colorScheme } = useMantineColorScheme();
+	const isDark = colorScheme === 'dark';
 
 	const CURRENT_PAGE_PATH = useMemo(() => `/trainer/course/pricing-information/${courseId}`, [courseId]);
 	const NEXT_PAGE_PATH = useMemo(() => `/trainer/course/course-builder/${courseId}`, [courseId]);
@@ -123,11 +125,12 @@ const PriceInformationForm = ({ courseId, courseWithSections }) => {
 													radius="md"
 													withBorder
 													padding="md"
-													bg={!isSelected ? "gray.0" : undefined}
 													style={{
 														borderColor: isSelected ? 'var(--mantine-color-blue-6)' : undefined,
-														backgroundColor: isSelected ? 'var(--mantine-color-blue-0)' : 'var(--mantine-color-gray-0)',
-														opacity: isSelected ? 1 : 0.6,
+														backgroundColor: isSelected
+															? (isDark ? 'var(--mantine-color-blue-9)' : 'var(--mantine-color-blue-0)')
+															: (isDark ? 'var(--mantine-color-dark-6)' : 'var(--mantine-color-gray-0)'),
+														opacity: isSelected ? 1 : 0.7,
 														cursor: 'default'
 													}}
 												>
@@ -167,17 +170,31 @@ const PriceInformationForm = ({ courseId, courseWithSections }) => {
 														style={{
 															cursor: 'pointer',
 															borderColor: isSelected ? 'var(--mantine-color-blue-6)' : undefined,
-															backgroundColor: isSelected ? 'var(--mantine-color-blue-0)' : undefined,
+															backgroundColor: isSelected
+																? (isDark ? 'var(--mantine-color-blue-9)' : 'var(--mantine-color-blue-0)')
+																: (isDark ? 'var(--mantine-color-dark-6)' : 'var(--mantine-color-gray-0)'),
 															transition: 'all 0.2s ease'
 														}}
 														onClick={() => field.onChange(type)}
 													>
 														<Group justify="space-between" align="center">
 															<Group>
-																{type === 'video' ? <IconVideo size={24} /> : <IconBroadcast size={24} />}
+																{type === 'video'
+																	? <IconVideo size={24} color={isSelected ? "white" : undefined} />
+																	: <IconBroadcast size={24} color={isSelected ? "white" : undefined} />
+																}
 																<Box>
-																	<Text fw={600} style={{ textTransform: 'capitalize' }}>{type} Course</Text>
-																	<Text size="xs" c="dimmed">
+																	<Text
+																		fw={600}
+																		style={{ textTransform: 'capitalize' }}
+																		c={isSelected ? "white" : undefined}
+																	>
+																		{type} Course
+																	</Text>
+																	<Text
+																		size="xs"
+																		c={isSelected ? "white" : (isDark ? "gray.4" : "dimmed")}
+																	>
 																		{type === 'video' ? 'Pre-recorded video lessons' : 'Live interactive sessions'}
 																	</Text>
 																</Box>

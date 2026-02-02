@@ -7,6 +7,7 @@ import {
   ActionIcon,
   Box,
   Flex,
+  useMantineColorScheme,
 } from "@mantine/core";
 import {
   IconX,
@@ -38,6 +39,9 @@ const EditTextGroup: FC<EditTextGroupProps> = ({
   name,
   placeholder,
 }) => {
+  const { colorScheme } = useMantineColorScheme();
+  const isDark = colorScheme === 'dark';
+
   return (
     <Flex align="center" onClick={(e) => e.stopPropagation()} gap="xs">
       {isEditing ? (
@@ -79,7 +83,7 @@ const EditTextGroup: FC<EditTextGroupProps> = ({
       ) : (
         <Group>
           <Box>
-            <Text>{name}</Text>
+            <Text c={isDark ? "gray.3" : undefined}>{name}</Text>
           </Box>
 
           <Tooltip label="Edit Lecture">

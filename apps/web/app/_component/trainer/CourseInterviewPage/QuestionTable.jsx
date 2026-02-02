@@ -8,10 +8,8 @@ import {
   Flex,
   Text,
   Card,
+  Paper
 } from "@mantine/core";
-
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm"; // Enables GitHub-style markdown
 
 import { IconEdit, IconTrash } from "@tabler/icons-react";
 import { useMediaQuery } from "@mantine/hooks";
@@ -55,52 +53,46 @@ const QuestionTable = ({ questions, refreshQuestions, onEdit }) => {
           {questions.map((item) => (
             <Card key={item._id} withBorder radius="md" padding="md">
               {/* Action buttons in a row above the question */}
-              <Flex justify="flex-end" mb="xs" gap="xs">
-                <Tooltip label="Edit Question" withArrow>
-                  <ActionIcon
-                    variant="light"
-                    color="blue"
-                    size="md"
-                    aria-label="Edit Question"
-                    onClick={() => onEdit(item)}
-                  >
-                    <IconEdit size={16} />
-                  </ActionIcon>
-                </Tooltip>
-                <Tooltip label="Delete Question" withArrow>
-                  <ActionIcon
-                    variant="light"
-                    color="red"
-                    size="md"
-                    aria-label="Delete Question"
-                    onClick={() => handleDelete(item._id)}
-                  >
-                    {loadingId === item._id ? <Loader size="xs" /> : <IconTrash size={16} />}
-                  </ActionIcon>
-                </Tooltip>
-              </Flex>
-
-              {/* Question text */}
-              <Box mb="md">
-                <Text size="sm" fw={700} style={{ textAlign: "justify" }}>
+              {/* Header: Question Text + Action Buttons */}
+              <Flex justify="space-between" align="flex-start" mb="md" gap="md">
+                <Text size="sm" fw={700} style={{ textAlign: "justify", flex: 1 }} c="gray">
                   {item?.questionUpdated}
                 </Text>
-              </Box>
+
+                <Flex gap="xs" style={{ flexShrink: 0 }}>
+                  <Tooltip label="Edit Question" withArrow>
+                    <ActionIcon
+                      variant="light"
+                      color="blue"
+                      size="md"
+                      aria-label="Edit Question"
+                      onClick={() => onEdit(item)}
+                    >
+                      <IconEdit size={16} />
+                    </ActionIcon>
+                  </Tooltip>
+                  <Tooltip label="Delete Question" withArrow>
+                    <ActionIcon
+                      variant="light"
+                      color="red"
+                      size="md"
+                      aria-label="Delete Question"
+                      onClick={() => handleDelete(item._id)}
+                    >
+                      {loadingId === item._id ? <Loader size="xs" /> : <IconTrash size={16} />}
+                    </ActionIcon>
+                  </Tooltip>
+                </Flex>
+
+
+              </Flex>
 
               {/* Answer section */}
-              <Box
-                style={{
-                  padding: "10px",
-                  border: "1px solid #ddd",
-                  borderRadius: "5px",
-                  backgroundColor: "#f9f9f9",
-                  overflowX: "auto",
-                }}
-              >
-                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+              <Paper withBorder p="sm" radius="xs" style={{ overflowX: "auto" }} shadow='none'>
+                <Text c="gray">
                   {item?.answerUpdated}
-                </ReactMarkdown>
-              </Box>
+                </Text>
+              </Paper>
             </Card>
           ))}
         </Stack>

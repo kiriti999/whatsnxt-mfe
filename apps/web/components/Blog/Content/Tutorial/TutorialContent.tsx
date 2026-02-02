@@ -1,7 +1,8 @@
 import type { Dispatch, SetStateAction } from 'react';
 import { Box, Title } from '@mantine/core';
 import { useAddIdsToHeadings, useContentRefAndHeadings, useHandleScroll } from '../../../../hooks/useToc';
-import { syntaxHighlightingTheme } from '../../../RichTextEditor/extensions/CodeHighlight/syntaxHighlightingTheme';
+import { LexicalEditor } from '../../../StructuredTutorial/Editor/LexicalEditor';
+import styles from '../BlogContent.module.css';
 
 type PROPS = {
   isTutorial: boolean;
@@ -12,17 +13,6 @@ type PROPS = {
   tutorials: Array<any>;
   loading: boolean;
 }
-
-// Combine base paragraph styles with comprehensive syntax highlighting theme
-const codeBlockStyles = `
-  /* Base styles for paragraphs */
-  .rte p, #blog-content p {
-    margin-bottom: 0px;
-  }
-
-  ${syntaxHighlightingTheme}
-`;
-
 
 const TutorialContent = (props: PROPS) => {
   const {
@@ -47,16 +37,21 @@ const TutorialContent = (props: PROPS) => {
 
   return (
     <>
-      {/* Include the content styles */}
-      <style>{codeBlockStyles}</style>
-
       <Box mb='md' ref={contentRef}>
         <Title order={4} mt={'0.33rem'} mb={'xl'}>
           {isTutorial ? title : ''}
         </Title>
 
-        {tutorials[active] && (
-          <div className="rte text-wrap" ref={containerRef} />
+        {tutorials[active] && (tutorials[active].contentFormat === 'JSON' || (typeof tutorials[active].description === 'string' && tutorials[active].description.trim().startsWith('{'))) ? (
+          <div className={`${styles.content} rte text-wrap`} ref={contentRef}>
+            <LexicalEditor
+              value={tutorials[active].description}
+              readOnly={true}
+              onChange={() => { }}
+            />
+          </div>
+        ) : (
+          <div className={`${styles.content} rte text-wrap`} ref={containerRef} />
         )}
 
       </Box>

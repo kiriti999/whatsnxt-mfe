@@ -57,7 +57,7 @@ export default function CourseSlug({ course, reviews, reviewCommentCount, simila
           {isCourseReviewMode && (
             <Box my="xl">
               <Card shadow="sm" padding="lg" radius="md" withBorder>
-                <Title order={3} mb="md">Course Content (For Review)</Title>
+                <Title order={5} mb="md">Course Content (For Review)</Title>
                 <CourseContentDisplay courseId={course._id} />
               </Card>
             </Box>

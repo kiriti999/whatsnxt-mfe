@@ -3,7 +3,6 @@ import ReactPlayer from 'react-player';
 import { Avatar, Box, Group, Paper, Tabs, Text, Title } from '@mantine/core'
 import { useMediaQuery } from '@mantine/hooks';
 import styles from './lesson.module.css';
-import HtmlParser from '../Common/HtmlParse';
 import Syllabus from './syllabus';
 import Discussion from './discussion';
 import LectureLinks from './LectureLinks'
@@ -14,6 +13,8 @@ import UserFeedBack from './userFeedBack';
 import InterviewClient from './InterviewClient';
 import { CourseFeedbackAPI } from '../../apis/v1/courses/feedback/feedback';
 import CourseContentDisplay from './CourseContentDisplay';
+import { LexicalEditor } from '../StructuredTutorial/Editor/LexicalEditor';
+import blogStyles from '../Blog/Content/BlogContent.module.css';
 
 
 
@@ -90,10 +91,12 @@ const LessonPlayer = ({ lessonId, course, courseOverview, videoUrl = '', section
                     }
                 </Tabs.List>
                 <Tabs.Panel value="about" className={styles['tabs-panel']}>
-  
+
                     <Title order={4}>About Course</Title>
                     {/* TODO: Add line clamp */}
-                    <HtmlParser content={courseOverview} withOptions />
+                    <div className={`${blogStyles.content} rte`}>
+                        <LexicalEditor value={courseOverview} readOnly={true} />
+                    </div>
 
                     {/* Structured Course Content - Sections, Comparisons, Collapsibles, Resources */}
                     <CourseContentDisplay courseId={course._id} />

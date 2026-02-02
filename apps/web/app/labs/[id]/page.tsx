@@ -20,6 +20,7 @@ import {
   Pagination,
   ActionIcon,
   Modal,
+  useMantineColorScheme,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
@@ -52,6 +53,8 @@ const LabDetailPage = () => {
   const searchParams = useSearchParams();
   const labId = params.id as string;
   const { user, isAuthenticated } = useAuth();
+  const { colorScheme } = useMantineColorScheme();
+  const isDark = colorScheme === 'dark';
 
   // Get URL params for tab and page
   const urlTab = searchParams.get('tab');
@@ -264,7 +267,7 @@ const LabDetailPage = () => {
 
   const handleDeletePage = async () => {
     if (!pageToDelete) return;
-    
+
     setIsDeleting(true);
     try {
       await labApi.deleteLabPage(labId, pageToDelete.id);
@@ -386,7 +389,7 @@ const LabDetailPage = () => {
           )}
           {/* T035-T036: Clone button for published labs owned by instructor */}
           {isPublished && isOwner && (
-            <CloneLabButton 
+            <CloneLabButton
               labId={labId}
               onSuccess={(clonedLabId) => {
                 console.log('[LabDetailPage] Clone successful, redirecting to:', clonedLabId);
@@ -429,7 +432,7 @@ const LabDetailPage = () => {
       </Modal>
 
       {/* Republish Confirmation Modal (T069-T070) */}
-      <RepublishModal 
+      <RepublishModal
         labId={labId}
         opened={republishModalOpened}
         onClose={closeRepublishModal}
@@ -588,7 +591,7 @@ const LabDetailPage = () => {
                 <Group justify="space-between" mb="md">
                   <Box>
                     <Title order={4}>Tests & Questions</Title>
-                    <Text size="sm" c="dimmed">
+                    <Text size="sm" c="gray">
                       {searchQuery
                         ? `Showing ${filteredPages.length} of ${pages.length} pages`
                         : 'Each page can have a question test (MCQ, True/False, Fill in blank) and/or a diagram test'
@@ -713,9 +716,9 @@ const LabDetailPage = () => {
                         {page.hasQuestion ? (
                           <Paper p="md" radius="sm" className="bg-green-light">
                             <Stack gap="sm">
-                              <Text size="sm" fw={600} c="green.9" mb={0}>✓ Question Test</Text>
+                              <Text size="sm" fw={600} c={isDark ? "green.3" : "green.9"} mb={0}>✓ Question Test</Text>
                               {page.question?.questionText && (
-                                <Text size="sm" c="green.8" lineClamp={2} pl="md">
+                                <Text size="sm" c={isDark ? "green.2" : "green.8"} lineClamp={2} pl="md">
                                   {page.question.questionText}
                                 </Text>
                               )}
@@ -724,8 +727,8 @@ const LabDetailPage = () => {
                         ) : (
                           <Paper p="md" radius="sm" className="border-dashed">
                             <Stack gap="sm">
-                              <Text size="sm" c="dimmed" mb={0}>○ Question Test</Text>
-                              <Text size="sm" c="dimmed" pl="md">not configured</Text>
+                              <Text size="sm" c={isDark ? "gray.4" : "dimmed"} mb={0}>○ Question Test</Text>
+                              <Text size="sm" c={isDark ? "gray.5" : "dimmed"} pl="md">not configured</Text>
                             </Stack>
                           </Paper>
                         )}
@@ -733,9 +736,9 @@ const LabDetailPage = () => {
                         {page.hasDiagramTest ? (
                           <Paper p="md" radius="sm" className="bg-blue-light">
                             <Stack gap="sm">
-                              <Text size="sm" fw={600} c="blue.9" mb={0}>✓ Diagram Test</Text>
+                              <Text size="sm" fw={600} c={isDark ? "blue.3" : "blue.9"} mb={0}>✓ Diagram Test</Text>
                               {page.diagramTest?.architectureType && (
-                                <Text size="sm" c="blue.8" pl="md">
+                                <Text size="sm" c={isDark ? "blue.2" : "blue.8"} pl="md">
                                   Architecture: {page.diagramTest.architectureType}
                                 </Text>
                               )}
@@ -744,8 +747,8 @@ const LabDetailPage = () => {
                         ) : (
                           <Paper p="md" radius="sm" className="border-dashed">
                             <Stack gap="sm">
-                              <Text size="sm" c="dimmed" mb={0}>○ Diagram Test</Text>
-                              <Text size="sm" c="dimmed" pl="md">not configured</Text>
+                              <Text size="sm" c={isDark ? "gray.4" : "dimmed"} mb={0}>○ Diagram Test</Text>
+                              <Text size="sm" c={isDark ? "gray.5" : "dimmed"} pl="md">not configured</Text>
                             </Stack>
                           </Paper>
                         )}
@@ -771,8 +774,8 @@ const LabDetailPage = () => {
                   <Group gap="sm">
                     <Text size="lg">💡</Text>
                     <Box style={{ flex: 1 }}>
-                      <Text fw={600} mb={4}>Publishing Requirement</Text>
-                      <Text size="sm" c="dimmed">
+                      <Text fw={600} mb={4} c={isDark ? 'white' : undefined}>Publishing Requirement</Text>
+                      <Text size="sm" c={isDark ? "gray.3" : "dimmed"}>
                         At least one page must have a question test or diagram test before you can publish this lab.
                       </Text>
                     </Box>

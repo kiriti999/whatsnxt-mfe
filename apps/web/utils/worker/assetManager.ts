@@ -14,7 +14,6 @@
 
 
 import { notifications } from '@mantine/notifications';
-import { removeTempImageFromEditor, replaceImageLinksOnContentPreview } from '../../components/RichTextEditor/common/EditorUtils';
 import { UnifiedUploadOptions, UploadResponse, UnifiedDeleteOptions, DeleteAssetResult, WorkerResponse } from './types';
 
 
@@ -24,8 +23,6 @@ export const unifiedUploadWebWorker = async (options: UnifiedUploadOptions): Pro
         folder,
         resource_type,
         setProgress,
-        editor,
-        tempUrl,
         rejectOnError = false,
         addToLocalStorage = true,
         bffApiUrl = process.env.NEXT_PUBLIC_BFF_HOST_CLOUDINARY_API
@@ -50,11 +47,6 @@ export const unifiedUploadWebWorker = async (options: UnifiedUploadOptions): Pro
         const handleError = (error: any, message: string) => {
             console.error('❌ [Turbopack]', message, error);
             cleanup();
-
-            // Only handle image-specific cleanup for images when editor is available
-            if (editor && tempUrl) {
-                removeTempImageFromEditor({ editor, tempUrl });
-            }
 
             notifications.show({
                 position: 'bottom-right',
@@ -132,23 +124,7 @@ export const unifiedUploadWebWorker = async (options: UnifiedUploadOptions): Pro
                                 });
                         }
 
-                        // Handle conditional logic based on Cloudinary resource_type
-                        if (result.resource_type === 'image' && editor && tempUrl && addToLocalStorage) {
-                            // Only handle image replacement for actual images
-                            replaceImageLinksOnContentPreview({
-                                setProgress,
-                                timestamp: result.timestamp,
-                                file,
-                                tempUrl,
-                                imageUrl: result.secure_url,
-                                editor
-                            }).then(() => {
-                                resolve(result);
-                            }).catch(rejectOnError ? reject : () => resolve(null));
-                        } else {
-                            // For video and raw files, just resolve with the result
-                            resolve(result);
-                        }
+                        resolve(result);
                     } else {
                         handleError('Invalid response structure', 'Invalid response from upload service');
                     }

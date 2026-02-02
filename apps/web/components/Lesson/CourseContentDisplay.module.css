@@ -85,6 +85,10 @@
     opacity: 0.8;
 }
 
+.collapsibleHeader>h5 {
+    color: var(--mantine-color-white);
+}
+
 .collapsibleIcon {
     color: var(--mantine-color-gray-5);
     display: flex;
@@ -175,6 +179,10 @@
 
 [data-mantine-color-scheme='light'] .collapsibleItemOpen {
     background: var(--mantine-color-gray-0);
+}
+
+[data-mantine-color-scheme='light'] .collapsibleHeader>h5 {
+    color: var(--mantine-color-dark-9);
 }
 
 [data-mantine-color-scheme='light'] .collapsibleContent {

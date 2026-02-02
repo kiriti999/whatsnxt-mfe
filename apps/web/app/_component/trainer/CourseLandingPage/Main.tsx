@@ -22,8 +22,7 @@ import { Controller, useForm } from 'react-hook-form';
 import { useQuery } from '@tanstack/react-query';
 import { useDisclosure } from '@mantine/hooks';
 import CourseUploadAssetProgress from "../../../../components/Courses/CourseUploadAssetProgress";
-import { TiptapManageContextProvider } from "../../../../context/TiptapManageContext";
-import { RichTextEditor } from '../../../../components/RichTextEditor';
+import { LexicalEditor } from '../../../../components/StructuredTutorial/Editor/LexicalEditor';
 import { CategoriesAPI } from '../../../../apis/v1/courses/categories';
 import { LanguageAPI } from '../../../../apis/v1/language';
 import { getAssetFromLocalStorage } from '../../../../utils/worker/localStorageHandler';
@@ -36,6 +35,7 @@ import { useImageSafety } from '../../../../hooks/useImageSafety';
 import { validateFile, formatFileSize, DEFAULT_VALIDATION_OPTIONS } from '../../../../utils/imageValidation';
 import labApi from '../../../../apis/lab.api';
 import { ImageRequirements } from '@/components/Blog/Form/ImageRequirements';
+import { watch } from 'fs';
 
 const INIT_COURSE = {
 	overview: '',
@@ -49,7 +49,7 @@ const Main = ({ courseWithSections, courseId }) => {
 	const router = useRouter();
 	const [course] = useState(INIT_COURSE);
 	const [imageUploading, setImageUploading] = useState(false);
-	const [isAssetsUploading, setIsAssetsUploading] = useState(false);
+
 	const [visible, { open, close }] = useDisclosure(false);
 	const [coursePreviewVideo, setCoursePreviewVideo] = useState(course.course_preview_video || '');
 	const [disabledButton, setDisabledButton] = useState(true);
@@ -148,6 +148,7 @@ const Main = ({ courseWithSections, courseId }) => {
 		setValue,
 		control,
 		watch,
+		reset,
 		formState: { errors, isValid, isDirty },
 	} = useForm({
 		mode: 'onChange',
@@ -167,6 +168,32 @@ const Main = ({ courseWithSections, courseId }) => {
 			keepErrors: true,
 		},
 	});
+
+	// Reset form when courseWithSections changes (e.g., after save or navigation)
+	useEffect(() => {
+		if (courseWithSections) {
+			console.log('CourseLandingPage: courseWithSections.overview =', courseWithSections.overview);
+			const resetValues = {
+				course_preview_video: courseWithSections?.course_preview_video || '',
+				overview: courseWithSections?.overview || '',
+				topics: courseWithSections?.topics || '',
+				languages: courseWithSections?.languageIds?.map(lang => lang.abbr) || [],
+				categoryName: courseWithSections?.categoryName || '',
+				subCategoryName: courseWithSections?.subCategoryName || '',
+				nestedSubCategoryName: courseWithSections?.nestedSubCategoryName || '',
+				courseImagePreview: '',
+				associatedLabs: courseWithSections?.associatedLabs || [],
+			};
+			console.log('CourseLandingPage: Resetting form with overview =', resetValues.overview);
+
+			// Force update overview field even if dirty
+			if (resetValues.overview) {
+				setValue('overview', resetValues.overview, { shouldDirty: false, shouldValidate: true });
+			}
+
+			reset(resetValues, { keepDefaultValues: false });
+		}
+	}, [courseWithSections, reset]);
 
 	// Watch fields to update button state
 	const overviewValue = watch('overview');
@@ -270,14 +297,13 @@ const Main = ({ courseWithSections, courseId }) => {
 			!isValid ||
 			isOverviewEmpty ||
 			imageUploading ||
-			isAssetsUploading ||
 			!categoryValue ||
 			isScanning ||
 			isModelLoading ||
 			(validationError !== null) ||
 			(scanError !== null)
 		);
-	}, [overviewValue, categoryValue, imageUploading, isAssetsUploading, isValid, isDirty, isScanning, isModelLoading, validationError, scanError]);
+	}, [overviewValue, categoryValue, imageUploading, isValid, isDirty, isScanning, isModelLoading, validationError, scanError]);
 
 	// Fetch instructor's labs for association
 	useEffect(() => {
@@ -359,7 +385,7 @@ const Main = ({ courseWithSections, courseId }) => {
 		: [];
 
 	return (
-		<TiptapManageContextProvider isAssetsUploading={isAssetsUploading} setIsAssetsUploading={setIsAssetsUploading} courseId={courseId}>
+		<>
 			<CourseUploadAssetProgress />
 			<div style={{ position: 'relative' }} className="border-box">
 				<LoadingOverlay visible={visible} zIndex={1000} overlayProps={{ radius: 'sm', blur: 2 }} />
@@ -379,9 +405,10 @@ const Main = ({ courseWithSections, courseId }) => {
 								<Controller
 									name="overview"
 									control={control}
-									render={({ field }) => (
-										<RichTextEditor content={field.value} onChange={field.onChange} />
-									)}
+									render={({ field }) => {
+										console.log('CourseLandingPage: field.value for overview =', field.value);
+										return <LexicalEditor value={field.value} onChange={field.onChange} />;
+									}}
 								/>
 								{errors.overview && (
 									<Text c="red" size="sm" mt={4}>{errors.overview.message as string}</Text>
@@ -394,7 +421,7 @@ const Main = ({ courseWithSections, courseId }) => {
 									name="topics"
 									control={control}
 									render={({ field }) => (
-										<RichTextEditor content={field.value} onChange={field.onChange} />
+										<LexicalEditor value={field.value} onChange={field.onChange} />
 									)}
 								/>
 
@@ -677,7 +704,7 @@ const Main = ({ courseWithSections, courseId }) => {
 					</form>
 				</Card>
 			</div>
-		</TiptapManageContextProvider>)
+		</>)
 }
 
 export default Main;
