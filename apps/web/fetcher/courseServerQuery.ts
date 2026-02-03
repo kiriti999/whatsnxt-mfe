@@ -6,10 +6,17 @@ const BASEURL = process.env.BFF_HOST_COURSE_API as string;
 console.log('🚀 :: BASEURL:', BASEURL)
 
 export const fetchCourses = async (limit = 30, offset = 0) => {
-  const response = await serverFetcher(BASEURL, `/courses/course?limit=${limit}&offset=${offset}`, {
-    next: { revalidate: 3600 }
-  });
-  return response;
+  try {
+    const response = await serverFetcher(BASEURL, `/courses/course?limit=${limit}&offset=${offset}`, {
+      next: { revalidate: 3600 }
+    });
+    
+    // Ensure we always return a valid structure
+    return response || { courses: [], total: 0 };
+  } catch (error) {
+    console.error('Error fetching courses:', error);
+    return { courses: [], total: 0 };
+  }
 };
 
 export const fetchPopularCourses = async () => {

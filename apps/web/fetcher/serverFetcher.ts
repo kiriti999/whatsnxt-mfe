@@ -21,7 +21,7 @@ export const serverFetcher = async (BASEURL: string, URL: string, options: Fetch
 
         const headers: HeadersInit = {
             'Content-Type': 'application/json',
-            ...(token && { 'Authorization': token }), // Send as Authorization header (not Bearer prefix since middleware expects raw token)
+            ...(token && { 'Authorization': `Bearer ${token}` }), // Add Bearer prefix
             ...options.headers,
         };
 
@@ -44,14 +44,25 @@ export const serverFetcher = async (BASEURL: string, URL: string, options: Fetch
         );
 
         if (!response.ok) {
-            console.error('🔍 Server Fetcher - Response not OK:', response.status, response.statusText);
+            console.error('🔍 Server Fetcher - Response not OK:', {
+                status: response.status,
+                statusText: response.statusText,
+                url: URI,
+                method: options.method || 'GET'
+            });
+            // Return empty object instead of undefined to prevent crashes
+            return {};
         }
 
         const data = await response.json();
-
         return data;
     } catch (error) {
-        console.error('🚀 Server Fetcher Error:', error);
+        console.error('🚀 Server Fetcher Error:', {
+            error,
+            message: error instanceof Error ? error.message : String(error)
+        });
+        // Return empty object instead of undefined
+        return {};
     }
 };
 
