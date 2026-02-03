@@ -269,7 +269,6 @@ async function deleteIndex(id: string, indexName: IndexType | string): Promise<a
         return algoliaResponse;
     } catch (error) {
         console.error('algolia.js:: deleteIndex:: error:', error);
-        throw error;
     }
 }
 

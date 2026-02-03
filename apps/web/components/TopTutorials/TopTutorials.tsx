@@ -60,12 +60,6 @@ const TopTutorials = ({ tutorials, total, title }: { tutorials: Tutorial[], tota
     return (
         <Box className={styles.topCoursesContainer}>
             <Container size="xl">
-                <Box className={styles.topCoursesInner}>
-                    <Title order={5} className={styles.topCoursesTitle}>
-                        {title || "Top Tutorials"}
-                    </Title>
-                </Box>
-
                 <Grid gutter={{ base: "md", sm: "lg" }} justify="center">
                     {visibleTutorials.length > 0 ? (
                         visibleTutorials.map((tutorial) => (
