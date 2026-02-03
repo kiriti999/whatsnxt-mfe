@@ -181,12 +181,12 @@ export default function StructuredTutorialContentDetails({
                     <SkeletonBlogContent />
                 ) : (
                     <Box>
-                        <Grid gutter="xl">
+                        <Grid>
                             {/* Main Content */}
                             <GridCol span={{ base: 12, md: 9 }}>
                                 <Stack gap="md">
                                     {/* Content Paper */}
-                                    <Paper withBorder p="xl" radius="xs">
+                                    <Box px="xl">
                                         {item.postType === 'MCQ' && item.mcqData ? (
                                             <MCQPost
                                                 postId={item._id}
@@ -203,14 +203,14 @@ export default function StructuredTutorialContentDetails({
                                                 updatedAt={item.updatedAt || ''}
                                                 timeToRead={item.timeToRead || ''}
                                                 loading={loading}
-                                                contentFormat={(item.contentFormat || 'HTML') as 'HTML' | 'MARKDOWN' | 'LEXICAL'}
+                                                contentFormat={(item.contentFormat || 'HTML') as 'HTML' | 'LEXICAL'}
                                                 description={item.description}
                                                 lexicalState={item.lexicalState}
                                                 onHeadingsExtracted={onHeadingsExtracted}
                                                 setActiveHeading={setActiveHeading}
                                             />
                                         )}
-                                    </Paper>
+                                    </Box>
 
                                     <StickyTutorialFooter prev={prevPost} next={nextPost} />
 
@@ -261,8 +261,6 @@ export default function StructuredTutorialContentDetails({
                                 </Box>
                             </GridCol>
                         </Grid>
-
-
                     </Box>
                 )}
             </Box>

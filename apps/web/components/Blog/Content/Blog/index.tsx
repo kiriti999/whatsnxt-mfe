@@ -5,13 +5,10 @@ import {
   useContentRefAndHeadings,
   useHandleScroll,
 } from '../../../../hooks/useToc';
-import { Title, Text, Flex, Box } from '@mantine/core';
+import { Title, Text, Flex, Box, Paper } from '@mantine/core';
 import { ShareOptions } from '@whatsnxt/core-ui';
-import GooglePageViews from '../GooglePageViews';
 import useAuth from '../../../../hooks/Authentication/useAuth';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
-import { useEffect, useRef } from 'react';
+import { useRef } from 'react';
 import { syntaxHighlightingTheme } from '../../../RichTextEditor/extensions/CodeHighlight/syntaxHighlightingTheme';
 import { LexicalEditor } from '../../../StructuredTutorial/Editor/LexicalEditor';
 
@@ -24,7 +21,7 @@ interface BlogContentProps {
   updatedAt: string;
   loading: boolean;
   description: string;
-  contentFormat?: 'MARKDOWN' | 'HTML' | 'LEXICAL' | 'JSON';
+  contentFormat?: 'HTML' | 'LEXICAL' | 'JSON';
   lexicalState?: Record<string, any> | null;
   onHeadingsExtracted: (
     headings: { ref: Element; text: string; id: string }[]
@@ -117,7 +114,6 @@ const BlogContent = ({
   const { user } = useAuth();
 
   // Handle different content formats
-  const mdRef = useRef<HTMLDivElement>(null);
   const lexicalContainerRef = useRef<HTMLDivElement>(null);
 
   // For HTML content, use existing hooks
@@ -149,7 +145,7 @@ const BlogContent = ({
       {loading ? (
         <Skeleton count={30} height={50} />
       ) : (
-        <Box ref={contentRef} id="blog-content" mt="lg">
+        <Box ref={contentRef} id="blog-content">
           <Title order={4} id="blog-title">
             {title}
           </Title>
@@ -169,30 +165,26 @@ const BlogContent = ({
             />
           </Flex>
 
-          {/* Conditionally render content based on format */}
-          {contentFormat === 'MARKDOWN' ? (
-            <div className="rte text-wrap" ref={mdRef}>
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                {description}
-              </ReactMarkdown>
-            </div>
-          ) : contentFormat === 'LEXICAL' && lexicalState ? (
-            <div
-              className="rte text-wrap"
-              ref={lexicalContainerRef}
-            >
-              <LexicalEditor
-                value={typeof lexicalState === 'string' ? lexicalState : JSON.stringify(lexicalState)}
-                readOnly={true}
+          <Paper withBorder px="xl" radius="xs">
+            {/* Conditionally render content based on format */}
+            {contentFormat === 'LEXICAL' && lexicalState ? (
+              <div
+                className="rte text-wrap"
+                ref={lexicalContainerRef}
+              >
+                <LexicalEditor
+                  value={typeof lexicalState === 'string' ? lexicalState : JSON.stringify(lexicalState)}
+                  readOnly={true}
+                />
+              </div>
+            ) : (
+              <div
+                className="rte text-wrap"
+                ref={containerRef}
+              /* HTML content is injected by useAddIdsToHeadings */
               />
-            </div>
-          ) : (
-            <div
-              className="rte text-wrap"
-              ref={containerRef}
-            /* HTML content is injected by useAddIdsToHeadings */
-            />
-          )}
+            )}
+          </Paper>
         </Box>
       )}
     </div>

@@ -1,0 +1,40 @@
+.excalidrawWrapper {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+    margin: 1rem 0;
+    border: 2px solid transparent;
+    border-radius: 4px;
+    transition: border-color 0.2s;
+}
+
+.excalidrawWrapper:hover {
+    border-color: #e0e0e0;
+}
+
+.excalidrawWrapper.selected {
+    border-color: #228be6;
+    box-shadow: 0 0 0 2px rgba(34, 139, 230, 0.1);
+}
+
+.excalidrawImage {
+    display: block;
+    max-width: 100%;
+}
+
+.excalidrawImage svg {
+    max-width: 100%;
+    height: auto;
+}
+
+.editButton {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    opacity: 0.9;
+    transition: opacity 0.2s;
+}
+
+.editButton:hover {
+    opacity: 1;
+}

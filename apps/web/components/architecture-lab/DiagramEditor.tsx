@@ -865,7 +865,7 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
                                                 style={{
                                                     cursor: 'grab',
                                                     textAlign: 'center',
-                                                    backgroundColor: '#fafafa',
+                                                    backgroundColor: '#fff',
                                                     transition: 'transform 0.2s',
                                                 }}
                                                 onDragStart={(e) => {
@@ -915,7 +915,7 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
                                                 draggable
                                                 style={{
                                                     cursor: 'grab',
-                                                    backgroundColor: '#fafafa',
+                                                    backgroundColor: '#fff',
                                                     transition: 'transform 0.2s',
                                                     display: 'flex',
                                                     alignItems: 'center',

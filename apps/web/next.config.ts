@@ -63,7 +63,8 @@ const nextConfig: NextConfig = {
     transpilePackages: [
         '@mantine/core',
         '@mantine/hooks',
-        '@mantine/notifications'
+        '@mantine/notifications',
+        'diagram-core'
     ],
 
     // OPTIMIZATION: Enhanced image configuration for Next.js 16

@@ -15,9 +15,11 @@ import { ClearEditorPlugin } from '@lexical/react/LexicalClearEditorPlugin';
 import { CodeHighlightPlugin } from './plugins/CodeHighlightPlugin';
 import { ImagesPlugin, INSERT_IMAGE_COMMAND } from './plugins/ImagesPlugin';
 import { YouTubePlugin, INSERT_YOUTUBE_COMMAND } from './plugins/YouTubePlugin';
+import ExcalidrawPlugin, { INSERT_EXCALIDRAW_COMMAND } from './plugins/ExcalidrawPlugin';
 import DraggableBlockPlugin from './plugins/DraggableBlockPlugin';
 import { ImageNode } from './nodes/ImageNode';
 import { YouTubeNode } from './nodes/YouTubeNode';
+import { ExcalidrawNode } from './nodes/ExcalidrawNode';
 import { HorizontalRuleNode } from '@lexical/react/LexicalHorizontalRuleNode';
 import { HorizontalRulePlugin } from '@lexical/react/LexicalHorizontalRulePlugin';
 import { INSERT_HORIZONTAL_RULE_COMMAND } from '@lexical/react/LexicalHorizontalRuleNode';
@@ -88,6 +90,7 @@ import {
   IconCaretRightFilled,
   IconCalendar,
   IconBrandYoutube,
+  IconPencil,
 } from '@tabler/icons-react';
 import { lexicalTheme, getCodeLanguageOptions } from './lexical-config';
 import './LexicalTheme.css'; // Global styles for Lexical theme classes
@@ -706,6 +709,7 @@ const ToolbarPlugin: React.FC = () => {
           <Menu.Item onClick={insertDate} leftSection={<IconCalendar size={12} />}>Date</Menu.Item>
           <Menu.Divider />
           <Menu.Item onClick={insertYoutubePrompt} leftSection={<IconBrandYoutube size={12} />}>YouTube Video</Menu.Item>
+          <Menu.Item onClick={() => execCommand(INSERT_EXCALIDRAW_COMMAND)} leftSection={<IconPencil size={12} />}>Excalidraw Drawing</Menu.Item>
         </Menu.Dropdown>
       </Menu>
 
@@ -842,6 +846,7 @@ export const LexicalEditor: React.FC<LexicalEditorProps> = ({
       AutoLinkNode,
       ImageNode,
       YouTubeNode,
+      ExcalidrawNode,
       TableNode,
       TableCellNode,
       TableRowNode,
@@ -862,7 +867,7 @@ export const LexicalEditor: React.FC<LexicalEditorProps> = ({
     <LexicalComposer initialConfig={initialConfig}>
       <Stack gap={0}>
         {!readOnly && <ToolbarPlugin />}
-        <Paper p={0} className={styles.editorContainer}>
+        <Paper p={0} className={styles.editorContainer} data-editable={!readOnly}>
           <RichTextPlugin
             contentEditable={
               <ContentEditable
@@ -889,6 +894,7 @@ export const LexicalEditor: React.FC<LexicalEditorProps> = ({
           <CodeHighlightPlugin />
           <ImagesPlugin />
           <YouTubePlugin />
+          <ExcalidrawPlugin />
           <HorizontalRulePlugin />
           {/* <CodeActionMenuPlugin /> */}
           <InitialStatePlugin value={value} />
