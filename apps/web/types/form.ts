@@ -14,6 +14,7 @@ export interface SubCategory {
 export interface Tutorial {
   title: string;
   description: string;
+  lexicalState?: Record<string, any> | null;
   cloudinaryAssets?: { public_id: string; resource_type: string }[]
 }
 

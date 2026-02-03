@@ -753,38 +753,46 @@ const OnChangePluginWrapper: React.FC<{ onChange?: (state: string) => void }> = 
 
 const InitialStatePlugin: React.FC<{ value?: string }> = ({ value }) => {
   const [editor] = useLexicalComposerContext();
+  const hasLoadedInitialState = useRef(false);
 
   useEffect(() => {
     if (value === undefined || value === null) return;
 
-    editor.update(() => {
-      const currentEditorState = editor.getEditorState();
-      const currentSerialized = JSON.stringify(currentEditorState.toJSON());
+    // Skip if we've already loaded the initial state and value hasn't meaningfully changed
+    if (hasLoadedInitialState.current) {
+      const currentSerialized = JSON.stringify(editor.getEditorState().toJSON());
+      if (value === currentSerialized) {
+        return;
+      }
+    }
 
-      if (value !== currentSerialized) {
-        try {
-          // If value is empty string, just clear
-          if (value === '') {
-            const root = $getRoot();
-            root.clear();
-            root.append($createParagraphNode());
-            return;
-          }
-
-          const editorState = editor.parseEditorState(value);
-          editor.setEditorState(editorState);
-        } catch (e) {
-          // Not valid Lexical JSON, fallback to treating it as plain text content
-          // This helps load legacy description/content
+    try {
+      // If value is empty string, just clear
+      if (value === '') {
+        editor.update(() => {
           const root = $getRoot();
           root.clear();
-          const p = $createParagraphNode();
-          p.append($createTextNode(value));
-          root.append(p);
-          console.warn('LexicalEditor: Value is not valid JSON, loaded as plain text fallback.');
-        }
+          root.append($createParagraphNode());
+        });
+        hasLoadedInitialState.current = true;
+        return;
       }
-    });
+
+      const editorState = editor.parseEditorState(value);
+      editor.setEditorState(editorState);
+      hasLoadedInitialState.current = true;
+    } catch (e) {
+      // Not valid Lexical JSON, fallback to treating it as plain text content
+      editor.update(() => {
+        const root = $getRoot();
+        root.clear();
+        const p = $createParagraphNode();
+        p.append($createTextNode(value));
+        root.append(p);
+      });
+      hasLoadedInitialState.current = true;
+      console.warn('LexicalEditor: Value is not valid JSON, loaded as plain text fallback.', e);
+    }
   }, [value, editor]);
 
   return null;
@@ -870,3 +878,4 @@ export const LexicalEditor: React.FC<LexicalEditorProps> = ({
     </LexicalComposer>
   );
 };
+

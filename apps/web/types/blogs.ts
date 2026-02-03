@@ -11,6 +11,7 @@ export interface BlogFormProps {
     nestedSubCategory?: string;
     blogImagePreview?: string;
     contentFormat?: string;
+    lexicalState?: Record<string, any> | null;
     imageUrl?: string;
     cloudinaryAssets?: {
       public_id: string;

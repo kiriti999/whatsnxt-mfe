@@ -144,20 +144,26 @@ function TutorialContentDetails({ details }: any) {
             <Grid mb={'5rem'}>
               {!isMobile && (
                 <GridCol span={{ base: 12, md: 2.2 }}>
-                  <div className='position-sticky top-0'>
-                    <Title order={4} mt={'0.33rem'} mb={'xl'}>{item.title}</Title>
-                    <TutorialsToc tutorials={tutorials} active={active} navigateTutorial={navigateTutorial} />
-                  </div>
+                  <Box
+                    pos="sticky"
+                    top={100}
+                    style={{
+                      maxHeight: 'calc(100vh - 100px)',
+                      overflowY: 'auto'
+                    }}
+                  >
+                    {itemHeadings.length > 0 && (
+                      <SidebarHeadings
+                        headings={itemHeadings}
+                        activeHeadingRef={activeHeadingRef}
+                        // @ts-ignore
+                        activeHeadingId={activeHeadingRef?.id}
+                      />
+                    )}
+                  </Box>
                 </GridCol>
               )}
 
-              {/* show this col on mobile size */}
-              <div className='d-block d-lg-none p-2'>
-                <SidebarHeadings
-                  headings={itemHeadings}
-                  activeHeadingRef={activeHeadingRef}
-                />
-              </div>
 
               <GridCol span={{ base: 12, md: 7.5 }} mx="auto">
                 <Stack gap="md">
@@ -214,16 +220,18 @@ function TutorialContentDetails({ details }: any) {
               </GridCol>
 
               {/* show this col on tablet and desktop */}
-              <GridCol span={{ base: 12, md: 2.3 }} mb={'xl'}>
-                <div className='d-none d-lg-block position-sticky top-0'>
-                  <SidebarHeadings
-                    headings={itemHeadings}
-                    activeHeadingRef={activeHeadingRef}
-                  />
-                  <Box>
-                    <SidebarPost />
-                  </Box>
-                </div>
+              {/* show this col on tablet and desktop */}
+              <GridCol span={{ base: 12, md: 2.3 }} mb={'xl'}> {/* Reverted span to 2.3 */}
+                <Box
+                  pos="sticky"
+                  top={100}
+                  style={{
+                    maxHeight: 'calc(100vh - 100px)',
+                    overflowY: 'auto'
+                  }}
+                >
+                  <SidebarPost />
+                </Box>
               </GridCol>
             </Grid>
           </Box>

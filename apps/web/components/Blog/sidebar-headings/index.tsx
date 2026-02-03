@@ -32,8 +32,8 @@ function SidebarHeadings({
   return (
     <>
       {headings.length > 1 && (
-        <Box className="widget" mt={'lg'}>
-          <Title order={5} mt={'0.33rem'} mb={'xs'}
+        <Box className="widget">
+          <Title order={5} mb={'xs'}
             style={{ cursor: 'pointer' }}>
             On this page:
           </Title>

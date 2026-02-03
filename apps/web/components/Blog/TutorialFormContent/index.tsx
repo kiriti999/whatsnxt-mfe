@@ -9,6 +9,7 @@ export function TutorialFormContent() {
     const params = useSearchParams();
     const [categories, setCategories] = useState([]);
     const [editData, setEditData] = useState<any>(null);
+
     const editId = params.get('id');
 
     useEffect(() => {
@@ -38,6 +39,7 @@ export function TutorialFormContent() {
                         nestedSubCategory: post.nestedSubCategory || '', // handle null value
                         tutorials: post.tutorials,
                         description: post.description,
+                        lexicalState: post.lexicalState,
                         imageUrl: post.imageUrl,
                         cloudinaryAssets: post.cloudinaryAssets || null,
                         contentFormat: post.contentFormat,
@@ -69,6 +71,7 @@ export function TutorialFormContent() {
                         nestedSubCategory: post.nestedSubCategory || '', // handle null value
                         tutorials: post.tutorials,
                         description: post.description,
+                        lexicalState: post.lexicalState,
                         imageUrl: post.imageUrl,
                         cloudinaryAssets: post.cloudinaryAssets || null,
                         contentFormat: post.contentFormat,

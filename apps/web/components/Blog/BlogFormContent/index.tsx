@@ -54,14 +54,22 @@ export function BlogFormContent() {
                         title: post.title,
                         categoryName: post.categoryName,
                         tutorials: post.tutorials,
+                        lexicalState: post.lexicalState,
+                        contentFormat: post.contentFormat,
+                        cloudinaryAssets: post.cloudinaryAssets,
+                        imageUrl: post.imageUrl,
                     });
                 } else {
                     setEditData({
                         title: post.title,
                         categoryName: post.categoryName,
                         description: post.description,
+                        lexicalState: post.lexicalState,
+                        contentFormat: post.contentFormat,
                         subCategory: post.subCategory,
-                        nestedSubCategory: post.nestedSubCategory
+                        nestedSubCategory: post.nestedSubCategory,
+                        cloudinaryAssets: post.cloudinaryAssets,
+                        imageUrl: post.imageUrl,
                     });
                 }
             }

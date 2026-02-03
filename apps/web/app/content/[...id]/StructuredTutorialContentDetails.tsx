@@ -18,6 +18,7 @@ import { useSelector } from 'react-redux';
 import { RootState } from '../../../store/store';
 import { TutorialSidebarState } from '../../../store/slices/tutorialSidebarSlice';
 import useAuth from '../../../hooks/Authentication/useAuth';
+import type { SidebarPost as SidebarPostType } from '../../../apis/v1/blog/structuredTutorialApi';
 
 interface StructuredTutorialContentDetailsProps {
     details: {
@@ -26,7 +27,8 @@ interface StructuredTutorialContentDetailsProps {
         slug: string;
         description: string;
         imageUrl?: string;
-        contentFormat?: string;
+        contentFormat?: 'HTML' | 'MARKDOWN' | 'LEXICAL';
+        lexicalState?: Record<string, any> | null;
         timeToRead?: string;
         updatedAt?: string;
         postType?: 'CONTENT' | 'MCQ';
@@ -128,7 +130,7 @@ export default function StructuredTutorialContentDetails({
             const sidebarData = sidebarCache[tutorialId];
 
             if (sidebarData) {
-                const allPosts = sidebarData.sections.flatMap(section => section.posts);
+                const allPosts: SidebarPostType[] = sidebarData.sections.flatMap(section => section.posts);
                 const currentSlug = details.slug;
 
                 const currentIndex = allPosts.findIndex(post => post.slug === currentSlug);
@@ -201,8 +203,9 @@ export default function StructuredTutorialContentDetails({
                                                 updatedAt={item.updatedAt || ''}
                                                 timeToRead={item.timeToRead || ''}
                                                 loading={loading}
-                                                contentFormat={(item.contentFormat || 'HTML') as 'HTML' | 'MARKDOWN'}
+                                                contentFormat={(item.contentFormat || 'HTML') as 'HTML' | 'MARKDOWN' | 'LEXICAL'}
                                                 description={item.description}
+                                                lexicalState={item.lexicalState}
                                                 onHeadingsExtracted={onHeadingsExtracted}
                                                 setActiveHeading={setActiveHeading}
                                             />

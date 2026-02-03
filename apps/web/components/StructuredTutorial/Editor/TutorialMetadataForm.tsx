@@ -5,7 +5,6 @@ import { useForm, Controller } from 'react-hook-form';
 import {
     Stack,
     TextInput,
-    Textarea,
     Button,
     Group,
     Select,
@@ -16,10 +15,12 @@ import {
 import { IconUpload, IconDeviceFloppy } from '@tabler/icons-react';
 import Image from 'next/image';
 import { IconPicker } from '../Form/IconPicker';
+import { LexicalEditor } from './LexicalEditor';
 
 interface TutorialFormData {
     title: string;
     description: string;
+    lexicalState?: any;
     categoryName: string;
     subCategory: string;
     nestedSubCategory: string;
@@ -71,15 +72,32 @@ export const TutorialMetadataForm: React.FC<TutorialMetadataFormProps> = ({
     const [imagePreview, setImagePreview] = React.useState<string | null>(initialData?.imageUrl || null);
     const [subcategories, setSubcategories] = React.useState<Category[]>([]);
     const [nestedSubcategories, setNestedSubcategories] = React.useState<Category[]>([]);
+    const [isInitializing, setIsInitializing] = React.useState(true);
 
     const selectedCategory = watch('categoryName');
     const selectedSubCategory = watch('subCategory');
 
     useEffect(() => {
+        console.log('🚀 :: TutorialMetadataForm :: initialData:', initialData)
         if (initialData) {
+            // Priority for description in Lexical editor:
+            // 1. lexicalState (as JSON string)
+            // 2. description field if it looks like JSON
+            // 3. description field as HTML fallback
+            let initialDescription = '';
+            if (initialData.lexicalState) {
+                initialDescription = typeof initialData.lexicalState === 'string'
+                    ? initialData.lexicalState
+                    : JSON.stringify(initialData.lexicalState);
+            } else if (initialData.description?.trim().startsWith('{')) {
+                initialDescription = initialData.description;
+            } else {
+                initialDescription = initialData.description || '';
+            }
+
             reset({
                 title: initialData.title || '',
-                description: initialData.description || '',
+                description: initialDescription,
                 categoryName: initialData.categoryName || '',
                 subCategory: initialData.subCategory || '',
                 nestedSubCategory: initialData.nestedSubCategory || '',
@@ -88,11 +106,41 @@ export const TutorialMetadataForm: React.FC<TutorialMetadataFormProps> = ({
             if (initialData.imageUrl) {
                 setImagePreview(initialData.imageUrl);
             }
+
+            // Populate subcategories from initial category
+            if (initialData.categoryName && categoriesData) {
+                const categoryData = categoriesData.find(cat => cat.categoryName === initialData.categoryName);
+                if (categoryData?.subcategories) {
+                    const subcatOptions = categoryData.subcategories.map(subcat => ({
+                        value: subcat.name,
+                        label: subcat.name,
+                        subcategories: subcat.subcategories,
+                    }));
+                    setSubcategories(subcatOptions);
+
+                    // Populate nestedSubcategories from initial subcategory
+                    if (initialData.subCategory) {
+                        const subCategoryData = subcatOptions.find(sub => sub.value === initialData.subCategory);
+                        if ((subCategoryData as any)?.subcategories) {
+                            const nestedOptions = (subCategoryData as any).subcategories.map((nested: any) => ({
+                                value: nested.name,
+                                label: nested.name,
+                            }));
+                            setNestedSubcategories(nestedOptions);
+                        }
+                    }
+                }
+            }
+
+            setIsInitializing(false);
         }
-    }, [initialData, reset]);
+    }, [initialData, reset, categoriesData]);
 
     // Update subcategories when category changes
     useEffect(() => {
+        // Skip during initialization to preserve initialData values
+        if (isInitializing) return;
+
         if (selectedCategory && categoriesData && Array.isArray(categoriesData)) {
             const categoryData = categoriesData.find(cat => cat.categoryName === selectedCategory);
             if (categoryData && categoryData.subcategories) {
@@ -113,10 +161,13 @@ export const TutorialMetadataForm: React.FC<TutorialMetadataFormProps> = ({
             setSubcategories([]);
             setNestedSubcategories([]);
         }
-    }, [selectedCategory, categoriesData, setValue]);
+    }, [selectedCategory, categoriesData, setValue, isInitializing]);
 
     // Update nested subcategories when subcategory changes
     useEffect(() => {
+        // Skip during initialization to preserve initialData values
+        if (isInitializing) return;
+
         if (selectedSubCategory && subcategories.length > 0) {
             const subCategoryData = subcategories.find((sub: any) => sub.value === selectedSubCategory);
             if (subCategoryData && (subCategoryData as any).subcategories) {
@@ -133,7 +184,7 @@ export const TutorialMetadataForm: React.FC<TutorialMetadataFormProps> = ({
         } else {
             setNestedSubcategories([]);
         }
-    }, [selectedSubCategory, subcategories, setValue]);
+    }, [selectedSubCategory, subcategories, setValue, isInitializing]);
 
     const handleImageChange = (file: File | null) => {
         if (!file) {
@@ -167,11 +218,21 @@ export const TutorialMetadataForm: React.FC<TutorialMetadataFormProps> = ({
                     {...register('title', { required: 'Title is required' })}
                 />
 
-                <Textarea
-                    label="Description"
-                    placeholder="Describe your tutorial"
-                    rows={4}
-                    {...register('description')}
+                <Controller
+                    name="description"
+                    control={control}
+                    render={({ field }) => (
+                        <Box>
+                            <Text size="sm" fw={500} mb="xs">
+                                Description
+                            </Text>
+                            <LexicalEditor
+                                value={field.value}
+                                onChange={field.onChange}
+                                placeholder="Describe your tutorial..."
+                            />
+                        </Box>
+                    )}
                 />
 
                 <Controller

@@ -13,7 +13,7 @@ const BlogPage = () => {
     return (
         <Suspense fallback={<MantineLoader />}>
             <Container fluid mb={'5rem'}>
-                <Content type="blog" />
+                <Content type="both" />
             </Container>
         </Suspense>
     );

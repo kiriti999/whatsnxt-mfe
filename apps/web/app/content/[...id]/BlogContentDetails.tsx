@@ -10,9 +10,8 @@ import SidebarHeadings from '../../../components/Blog/sidebar-headings';
 import StickyHeader from '../../../components/Blog/Content/StickyHeader';
 import { SkeletonBlogContent } from '@whatsnxt/core-ui';
 import useAuth from '../../../hooks/Authentication/useAuth';
-import { Box, Container, Grid, GridCol, Stack, Divider, Title } from '@mantine/core';
+import { Box, Container, Grid, GridCol, Stack } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
-import { calculateTotalViews } from '../../../utils/pageViews';
 import useCommentHandlers from '@whatsnxt/blogcomments/src/hooks/useCommentHandlers';
 
 const initialProps = {
@@ -43,6 +42,8 @@ export interface PostSlugResponse {
   title: string;
   slug: string;
   description: string;
+  contentFormat?: 'HTML' | 'MARKDOWN' | 'LEXICAL';
+  lexicalState?: Record<string, any> | null;
   categoryId: string;
   categoryName: string;
   timeToRead: string;
@@ -78,6 +79,7 @@ function BlogContentDetails({ details }: BlogContentDetailsProps) {
   const isMobile = useMediaQuery('(max-width: 768px)');
   const [contentId, setContentId] = useState('');
   const [item, setItem] = useState(initialProps) as any;
+  console.log('🚀 :: BlogContentDetails :: item:', item)
   const [itemHeadings, setItemHeadings] = useState<
     { ref: HTMLElement; text: string; id: string }[]
   >([]);
@@ -131,13 +133,7 @@ function BlogContentDetails({ details }: BlogContentDetailsProps) {
     }
   }, [details._id]);
 
-  // analytics
-  // useEffect(() => {
-  //   (async () => {
-  //     const totalViews = await calculateTotalViews(fetchViews, pathName);
-  //     setViews(totalViews);
-  //   })();
-  // }, [pathName]);
+
 
   return (
     <Container fluid>
@@ -149,17 +145,7 @@ function BlogContentDetails({ details }: BlogContentDetailsProps) {
             {itemHeadings.length > 0 && isMobile && <StickyHeader titles={itemHeadings} />}
             <Box>
               <Grid gutter={'xl'}>
-                {!isMobile && itemHeadings.length > 0 && (
-                  <GridCol span={{ base: 12, md: 2.2 }} mb={'xl'}>
-                    <Box pos="sticky" top={100}>
-                      <SidebarHeadings
-                        headings={itemHeadings}
-                        activeHeadingRef={activeHeadingRef}
-                      />
-                    </Box>
-                  </GridCol>
-                )}
-                <GridCol span={itemHeadings.length > 0 ? { base: 12, md: 7.3 } : { base: 12, md: 9 }} >
+                <GridCol span={{ base: 12, md: 9 }} >
                   <BlogContent
                     url={url}
                     views={views}
@@ -170,49 +156,56 @@ function BlogContentDetails({ details }: BlogContentDetailsProps) {
                     loading={loading}
                     contentFormat={item.contentFormat}
                     description={item.description}
+                    lexicalState={item.lexicalState}
                     onHeadingsExtracted={onHeadingsExtracted}
                     setActiveHeading={setActiveHeading}
                   />
-
-                  {/* Comments */}
-                  <Stack my={'xl'} gap="md">
-                    <Divider />
-                    <Title order={4}>Comments</Title>
-                    <CommentReplyContextProvider
-                      email={email}
-                      contentId={contentId}
-                      handleComments={handleComments}
-                      comments={comments}
-                    >
-                      <CommentContextProvider>
-                        <BlogComment
-                          userId={userId}
-                          email={email}
-                          comment={comments}
-                          item={item}
-                          root={true}
-                          rootDepth={1}
-                          contentId={contentId}
-                          handleInsertNode={handleInsertNode}
-                          handleEditNode={handleEditNode}
-                          handleDeleteNode={handleDeleteNode}
-                          handleComments={handleComments}
-                          handleSubComment={handleSubComment}
-                        />
-                      </CommentContextProvider>
-                    </CommentReplyContextProvider>
-                  </Stack>
                 </GridCol>
 
-                <GridCol span={itemHeadings.length > 0 ? { base: 12, md: 2.5 } : { base: 12, md: 3 }}>
+                <GridCol span={{ base: 12, md: 3 }}>
                   <Box pos="sticky" top={100}>
-                    <Box mt={itemHeadings.length > 1 ? 'lg' : 0}>
+                    <Box>
                       <SidebarPost />
                     </Box>
+                    {!isMobile && itemHeadings.length > 0 && (
+                      <Box mt="xl">
+                        <SidebarHeadings
+                          headings={itemHeadings}
+                          activeHeadingRef={activeHeadingRef}
+                        />
+                      </Box>
+                    )}
                   </Box>
                 </GridCol>
               </Grid>
 
+              <Container fluid>
+                <Stack my={'xl'}>
+                  <CommentReplyContextProvider
+                    email={email}
+                    contentId={contentId}
+                    handleComments={handleComments}
+                    comments={comments}
+                  >
+                    <CommentContextProvider>
+                      <BlogComment
+                        userId={userId}
+                        email={email}
+                        comment={comments}
+                        item={item}
+                        root={true}
+                        rootDepth={1}
+                        contentId={contentId}
+                        handleInsertNode={handleInsertNode}
+                        handleEditNode={handleEditNode}
+                        handleDeleteNode={handleDeleteNode}
+                        handleComments={handleComments}
+                        handleSubComment={handleSubComment}
+                      />
+                    </CommentContextProvider>
+                  </CommentReplyContextProvider>
+                </Stack>
+              </Container>
 
             </Box>
           </>

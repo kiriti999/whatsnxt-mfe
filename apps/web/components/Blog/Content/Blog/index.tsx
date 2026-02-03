@@ -13,6 +13,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { useEffect, useRef } from 'react';
 import { syntaxHighlightingTheme } from '../../../RichTextEditor/extensions/CodeHighlight/syntaxHighlightingTheme';
+import { LexicalEditor } from '../../../StructuredTutorial/Editor/LexicalEditor';
 
 interface BlogContentProps {
   url: string;
@@ -23,7 +24,8 @@ interface BlogContentProps {
   updatedAt: string;
   loading: boolean;
   description: string;
-  contentFormat?: 'MARKDOWN' | 'HTML'; // Optional prop to specify content format
+  contentFormat?: 'MARKDOWN' | 'HTML' | 'LEXICAL' | 'JSON';
+  lexicalState?: Record<string, any> | null;
   onHeadingsExtracted: (
     headings: { ref: Element; text: string; id: string }[]
   ) => void;
@@ -100,14 +102,14 @@ const formatDate = (dateString: string): string => {
 
 const BlogContent = ({
   url,
-  views,
   title,
   thumbnailUrn,
   timeToRead,
   updatedAt,
   loading,
   description,
-  contentFormat = 'HTML', // Default to HTML if not specified
+  contentFormat = 'HTML',
+  lexicalState,
   onHeadingsExtracted,
   setActiveHeading,
 }: BlogContentProps) => {
@@ -116,10 +118,11 @@ const BlogContent = ({
 
   // Handle different content formats
   const mdRef = useRef<HTMLDivElement>(null);
+  const lexicalContainerRef = useRef<HTMLDivElement>(null);
 
   // For HTML content, use existing hooks
   const { containerRef } = useAddIdsToHeadings(
-    contentFormat === 'HTML' ? description : ''
+    (contentFormat === 'HTML' || contentFormat === 'JSON') ? description : ''
   );
 
   const onHeadingsExtractedCallback = useCallback(
@@ -137,68 +140,6 @@ const BlogContent = ({
   );
 
   useHandleScroll(contentRef, setActiveHeading);
-
-  // For Markdown content, extract headings after render
-  useEffect(() => {
-    if (contentFormat === 'MARKDOWN' && !loading && mdRef.current) {
-      // Wait for markdown to render fully
-      setTimeout(() => {
-        const headings = Array.from(
-          mdRef.current?.querySelectorAll('h1, h2, h3, h4, h5, h6') || []
-        ).map((heading, index) => {
-          // Add ID if it doesn't exist
-          if (!heading.id) {
-            const headingText = heading.textContent || `heading-${index}`;
-            const headingId = headingText
-              .toLowerCase()
-              .replace(/[^\w\s]/g, '')
-              .replace(/\s+/g, '_');
-            heading.id = headingId;
-          }
-
-          return {
-            ref: heading,
-            text: heading.textContent || '',
-            id: heading.id
-          };
-        });
-
-        onHeadingsExtractedCallback(headings);
-      }, 100);
-    }
-  }, [contentFormat, loading, description, onHeadingsExtractedCallback]);
-
-  // Handle scroll events for Markdown content
-  useEffect(() => {
-    if (contentFormat === 'MARKDOWN') {
-      const handleScroll = () => {
-        if (!mdRef.current) return;
-
-        const contentTop = mdRef.current.getBoundingClientRect().top;
-        const headings = mdRef.current.querySelectorAll('h1, h2, h3, h4, h5, h6');
-
-        let closestHeading = null;
-        let closestHeadingDistance = Number.MAX_VALUE;
-
-        headings.forEach((heading) => {
-          const { top } = heading.getBoundingClientRect();
-          const relativeTop = top - contentTop;
-
-          if (relativeTop >= 0 && relativeTop < closestHeadingDistance) {
-            closestHeadingDistance = relativeTop;
-            closestHeading = heading;
-          }
-        });
-
-        if (closestHeading) {
-          setActiveHeading(closestHeading);
-        }
-      };
-
-      window.addEventListener('scroll', handleScroll);
-      return () => window.removeEventListener('scroll', handleScroll);
-    }
-  }, [contentFormat, setActiveHeading]);
 
   return (
     <div>
@@ -226,7 +167,6 @@ const BlogContent = ({
               email={user?.email}
               description={description}
             />
-            {/* <GooglePageViews views={views} /> */}
           </Flex>
 
           {/* Conditionally render content based on format */}
@@ -235,6 +175,16 @@ const BlogContent = ({
               <ReactMarkdown remarkPlugins={[remarkGfm]}>
                 {description}
               </ReactMarkdown>
+            </div>
+          ) : contentFormat === 'LEXICAL' && lexicalState ? (
+            <div
+              className="rte text-wrap"
+              ref={lexicalContainerRef}
+            >
+              <LexicalEditor
+                value={typeof lexicalState === 'string' ? lexicalState : JSON.stringify(lexicalState)}
+                readOnly={true}
+              />
             </div>
           ) : (
             <div

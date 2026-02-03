@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, Suspense } from 'react';
+import React, { useEffect, useState, useCallback, Suspense, useRef } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { Box, Button, Container, FileInput, Grid, Select, Text, TextInput, Title, LoadingOverlay, Loader, Switch, Alert, Group, Modal, Stack, Anchor } from '@mantine/core';
 import { useRouter } from 'next/navigation';
@@ -7,7 +7,8 @@ import { BlogFormProps } from '../../../types/blogs';
 import { FormAPI, HistoryAPI } from '../../../apis/v1/blog';
 import { getCategoryId } from '../../../utils/form';
 import { IconUpload, IconAlertCircle, IconCheck } from '@tabler/icons-react';
-import { RichTextEditor } from '../../RichTextEditor';
+import { LexicalEditor } from '../../StructuredTutorial/Editor/LexicalEditor';
+import { lexicalToHtml } from '../../../utils/lexicalToHtml';
 import { useDisclosure } from '@mantine/hooks';
 import { MantineLoader } from '@whatsnxt/core-ui';
 import { AISuggestions } from '../../../apis/v1/blog/aiSuggestions';
@@ -28,7 +29,32 @@ const BlogForm: React.FC<BlogFormProps> = ({ categories, edit }) => {
   const [validationSuccess, setValidationSuccess] = useState<string | null>(null);
   const router = useRouter();
   const [wordCount, setWordCount] = useState(0);
-  const [contentIsMarkdown, setContentIsMarkdown] = useState(false);
+  const lastLoadedId = useRef<string | null>(null);
+  // Helper function to get initial description from edit data
+  const getInitialDescription = useCallback((editData: any) => {
+    if (editData?.lexicalState) {
+      try {
+        const lexicalStateStr = JSON.stringify(editData.lexicalState);
+        const parsed = JSON.parse(lexicalStateStr);
+
+        // Check if lexicalState has actual content (not just empty paragraphs)
+        const hasContent = parsed?.root?.children?.some((child: any) => {
+          return child.children && child.children.length > 0;
+        });
+
+        if (hasContent) {
+          return lexicalStateStr;
+        }
+      } catch (e) {
+        console.warn('❌ BlogForm: Failed to parse lexicalState:', e);
+      }
+    }
+    return editData?.description || '';
+  }, []);
+
+  const [description, setDescription] = useState<string>(() => {
+    return getInitialDescription(edit);
+  });
 
   // Image safety hook
   const {
@@ -83,46 +109,52 @@ const BlogForm: React.FC<BlogFormProps> = ({ categories, edit }) => {
   // Pre-fill the form with edit data if available
   useEffect(() => {
     if (edit) {
-      setValue('title', edit.title);
-      setValue('description', edit.description);
-      setValue('categoryName', edit.categoryName);
+      // Sync description state if it's the first time we're loading this specific edit data
+      if (edit.id !== lastLoadedId.current) {
+        setValue('title', edit.title);
+        setValue('categoryName', edit.categoryName);
 
-      // Set the content format state based on stored value
-      setContentIsMarkdown(edit.contentFormat === 'MARKDOWN');
+        const initialDesc = getInitialDescription(edit);
+        setDescription(initialDesc);
+        setValue('description', edit.description || '');
 
-      const selectedCategory = categories.find((cat) => cat.categoryName === edit.categoryName);
-      if (selectedCategory?.subcategories) {
-        const mappedSubCategories = selectedCategory.subcategories.map((sub) => ({
-          value: sub.name,        // ✅ Already correct - uses 'name'
-          label: sub.name,        // ✅ Already correct - uses 'name'
-          subcategories: sub.subcategories,
-        }));
-        setSubCategories(mappedSubCategories);
+        lastLoadedId.current = edit.id;
 
-        const selectedSubCategory = mappedSubCategories.find((sub) => sub.value === edit.subCategory);
-        if (selectedSubCategory?.subcategories) {
-          const mappedNestedSubCategories = selectedSubCategory.subcategories.map((nested) => ({
-            value: nested.name,   // ✅ Already correct - uses 'name'
-            label: nested.name,   // ✅ Already correct - uses 'name'
+        // Set the content format state based on stored value
+        const selectedCategory = categories.find((cat) => cat.categoryName === edit.categoryName);
+        if (selectedCategory?.subcategories) {
+          const mappedSubCategories = selectedCategory.subcategories.map((sub) => ({
+            value: sub.name,        // ✅ Already correct - uses 'name'
+            label: sub.name,        // ✅ Already correct - uses 'name'
+            subcategories: sub.subcategories,
           }));
-          setNestedSubCategories(mappedNestedSubCategories);
+          setSubCategories(mappedSubCategories);
+
+          const selectedSubCategory = mappedSubCategories.find((sub) => sub.value === edit.subCategory);
+          if (selectedSubCategory?.subcategories) {
+            const mappedNestedSubCategories = selectedSubCategory.subcategories.map((nested) => ({
+              value: nested.name,   // ✅ Already correct - uses 'name'
+              label: nested.name,   // ✅ Already correct - uses 'name'
+            }));
+            setNestedSubCategories(mappedNestedSubCategories);
+          }
+        }
+
+        if (edit.subCategory) {
+          setValue('subCategory', edit.subCategory)
+        }
+
+        if (edit.nestedSubCategory) {
+          setValue('nestedSubCategory', edit.nestedSubCategory)
+        }
+
+        // Set existing image preview if editing
+        if (edit.imageUrl) {
+          setImagePreview(edit.imageUrl);
         }
       }
-
-      if (edit.subCategory) {
-        setValue('subCategory', edit.subCategory)
-      }
-
-      if (edit.nestedSubCategory) {
-        setValue('nestedSubCategory', edit.nestedSubCategory)
-      }
-
-      // Set existing image preview if editing
-      if (edit.imageUrl) {
-        setImagePreview(edit.imageUrl);
-      }
     }
-  }, [edit, setValue]);
+  }, [edit, setValue, getInitialDescription, categories]);
 
   // Update subcategories when a category is selected
   const handleCategoryChange = useCallback(
@@ -230,8 +262,14 @@ const BlogForm: React.FC<BlogFormProps> = ({ categories, edit }) => {
       formData.nestedSubCategory = formData.nestedSubCategory || null; // Include nestedSubCategory if selected
       formData.published = false;
 
-      // Set content format as string value instead of enum
-      formData.contentFormat = contentIsMarkdown ? "MARKDOWN" : "HTML";
+      // Convert Lexical editor content to HTML and capture JSON state
+      formData.description = lexicalToHtml(description);
+      formData.contentFormat = 'LEXICAL';
+      try {
+        formData.lexicalState = JSON.parse(description);
+      } catch (e) {
+        formData.lexicalState = null;
+      }
 
       let imageUrl = edit?.imageUrl || '';
       let cloudinaryAssets = edit?.cloudinaryAssets || [];
@@ -313,17 +351,16 @@ const BlogForm: React.FC<BlogFormProps> = ({ categories, edit }) => {
 
     setIsFetching(true);
     try {
-      const response = await AISuggestions.getSuggestionByAI({ 
+      const response = await AISuggestions.getSuggestionByAI({
         question: questionText,
         aiModel: selectedAI,
         modelVersion: selectedModel
       });
-      
+
       if (response.status === 200 && response.data?.suggestion) {
         const suggestionText = response.data.suggestion;
         setValue('description', suggestionText);
         // Since AI generates markdown by default, set the format
-        setContentIsMarkdown(true);
         notifications.show({
           position: 'bottom-right',
           color: 'green',
@@ -338,10 +375,10 @@ const BlogForm: React.FC<BlogFormProps> = ({ categories, edit }) => {
       }
     } catch (error: any) {
       console.error("Error fetching suggestion:", error);
-      
+
       // Extract error message from various possible locations
       let errorMessage = 'Failed to fetch AI suggestions. Please provide your API key.';
-      
+
       if (error?.response?.data?.message) {
         errorMessage = error.response.data.message;
       } else if (error?.response?.data?.error) {
@@ -349,7 +386,7 @@ const BlogForm: React.FC<BlogFormProps> = ({ categories, edit }) => {
       } else if (error?.message) {
         errorMessage = error.message;
       }
-      
+
       // Only override with generic messages if no specific backend message was provided
       if (!error?.response?.data?.message && !error?.response?.data?.error) {
         if (error?.response?.status === 429) {
@@ -360,7 +397,7 @@ const BlogForm: React.FC<BlogFormProps> = ({ categories, edit }) => {
           errorMessage = 'Server error. The API account may be inactive or have billing issues. Please provide your own API key.';
         }
       }
-      
+
       setApiKeyError(errorMessage);
       openApiKeyModal();
     } finally {
@@ -375,8 +412,8 @@ const BlogForm: React.FC<BlogFormProps> = ({ categories, edit }) => {
     }
 
     try {
-      const response = await AISuggestions.saveAIConfig({ 
-        apiKey, 
+      const response = await AISuggestions.saveAIConfig({
+        apiKey,
         aiModel: selectedAI,
         modelVersion: selectedModel
       });
@@ -390,7 +427,7 @@ const BlogForm: React.FC<BlogFormProps> = ({ categories, edit }) => {
         setApiKey('');
         setApiKeyError('');
         closeApiKeyModal();
-        
+
         // Retry fetching suggestion
         fetchSuggestion();
       } else {
@@ -399,9 +436,9 @@ const BlogForm: React.FC<BlogFormProps> = ({ categories, edit }) => {
       }
     } catch (error: any) {
       console.error('Error saving API key:', error);
-      
+
       let errorMessage = 'Failed to save API key. Please try again.';
-      
+
       // Prioritize backend error messages
       if (error?.response?.data?.message) {
         errorMessage = error.response.data.message;
@@ -414,7 +451,7 @@ const BlogForm: React.FC<BlogFormProps> = ({ categories, edit }) => {
           errorMessage = `${error.message}. Please contact support.`;
         }
       }
-      
+
       // Only use generic messages if no backend message is available
       if (!error?.response?.data?.message && !error?.response?.data?.error && !error?.message) {
         if (error?.response?.status === 404) {
@@ -423,7 +460,7 @@ const BlogForm: React.FC<BlogFormProps> = ({ categories, edit }) => {
           errorMessage = 'Invalid API key. Please check and try again.';
         }
       }
-      
+
       setApiKeyError(errorMessage);
     }
   };
@@ -432,7 +469,7 @@ const BlogForm: React.FC<BlogFormProps> = ({ categories, edit }) => {
     <Suspense fallback={<MantineLoader />}>
       <Container size="lg" mb={'4rem'} pos='relative'>
         <LoadingOverlay visible={isVisible} zIndex={1000} overlayProps={{ radius: "sm", blur: 2 }} />
-        
+
         {/* API Key Modal */}
         <Modal
           opened={apiKeyModalOpened}
@@ -447,7 +484,7 @@ const BlogForm: React.FC<BlogFormProps> = ({ categories, edit }) => {
                 {apiKeyError}
               </Alert>
             )}
-            
+
             <Text size="sm" fw={500}>
               Add your own AI API key securely to overcome rate limits and get better performance.
             </Text>
@@ -550,26 +587,14 @@ const BlogForm: React.FC<BlogFormProps> = ({ categories, edit }) => {
               </Grid.Col>
 
               {/* Content Format Switch */}
-              <Grid.Col span={12}>
-                <Switch
-                  label="Content is Markdown"
-                  checked={contentIsMarkdown}
-                  onChange={(event) => setContentIsMarkdown(event.currentTarget.checked)}
-                  description="Toggle if content is Markdown instead of HTML"
-                />
-              </Grid.Col>
 
               {/* Description */}
               <Grid.Col span={12}>
                 <Text size="sm" className='required'>Description</Text>
-                <Controller
-                  name="description"
-                  control={control}
-                  render={({ field: { onChange, value } }) => (
-                    <RichTextEditor content={value}
-                      onChange={onChange}
-                      onWordCountChange={handleWordCountChange} />
-                  )}
+                <LexicalEditor
+                  value={description}
+                  onChange={setDescription}
+                  placeholder="Write your blog content here..."
                 />
                 {errors.description && <Text c="red">{errors.description.message}</Text>}
               </Grid.Col>
@@ -745,7 +770,7 @@ const BlogForm: React.FC<BlogFormProps> = ({ categories, edit }) => {
             <Button
               type="submit"
               mt="md"
-              disabled={!isDirty || isScanning || isModelLoading || (validationError !== null) || (scanError !== null)}
+              disabled={(!isDirty && !edit) || isScanning || isModelLoading || (validationError !== null) || (scanError !== null)}
             >
               {edit ? 'Update' : 'Create'}
             </Button>

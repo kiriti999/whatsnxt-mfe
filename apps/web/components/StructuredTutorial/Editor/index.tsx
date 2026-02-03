@@ -111,7 +111,7 @@ export const StructuredTutorialEditor: React.FC = () => {
                                     posts: (s.postIds || []).map((p: any) => ({
                                         id: p._id || p.id,
                                         title: p.title,
-                                        description: p.content?.lexicalState || p.description || '',
+                                        description: p.lexicalState || p.content?.lexicalState || p.description || '',
                                         contentFormat: p.contentFormat || 'HTML',
                                         postType: p.postType || 'CONTENT',
                                         mcqData: p.mcqData,
@@ -570,7 +570,7 @@ export const StructuredTutorialEditor: React.FC = () => {
                         posts: (s.postIds || []).map((p: any) => ({
                             id: p._id,
                             title: p.title,
-                            description: p.content?.lexicalState || p.description || '',
+                            description: p.lexicalState || p.content?.lexicalState || p.description || '',
                             contentFormat: p.contentFormat || 'HTML',
                             postType: p.postType || 'CONTENT',
                             mcqData: p.mcqData,
@@ -606,7 +606,7 @@ export const StructuredTutorialEditor: React.FC = () => {
                                     {
                                         id: response.data._id,
                                         title: response.data.title,
-                                        description: response.data.content?.lexicalState || response.data.description || '',
+                                        description: response.data.lexicalState || response.data.content?.lexicalState || response.data.description || '',
                                         contentFormat: response.data.contentFormat || 'HTML',
                                         order: response.data.order,
                                         isReused: true,

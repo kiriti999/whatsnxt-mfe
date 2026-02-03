@@ -160,12 +160,6 @@ export const QuizEditor: React.FC<QuizEditorProps> = ({
                 }
             );
 
-            notifications.show({
-                title: 'Success!',
-                message: 'Quiz created successfully',
-                color: 'green',
-            });
-
             // Handle potential redirect to new draft
             if (result.newTutorialId) {
                 notifications.show({

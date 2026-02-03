@@ -16,6 +16,8 @@ export interface StructuredTutorial {
     title: string;
     slug: string;
     description?: string;
+    lexicalState?: any;
+    contentFormat?: 'HTML' | 'MARKDOWN' | 'LEXICAL' | 'JSON';
     imageUrl?: string;
     icon?: string;
     userId: string;
@@ -53,7 +55,15 @@ export interface TutorialPost {
     title: string;
     slug: string;
     description?: string;
-    contentFormat: 'HTML' | 'MARKDOWN';
+    lexicalState?: any;
+    content?: {
+        lexicalState?: any;
+        plainText?: string;
+        exportFormats?: {
+            html?: string;
+        };
+    };
+    contentFormat?: 'HTML' | 'MARKDOWN' | 'LEXICAL' | 'JSON';
     order: number;
     sectionId: string;
     sourceId?: string;
@@ -249,7 +259,7 @@ export const StructuredTutorialAPI = {
         payload: {
             title: string;
             description?: string;
-            contentFormat?: 'HTML' | 'MARKDOWN';
+            contentFormat?: 'HTML' | 'MARKDOWN' | 'LEXICAL' | 'JSON';
             cloudinaryAssets?: CloudinaryAsset[];
         }
     ): Promise<ApiResponse<TutorialPost>> {
@@ -273,7 +283,7 @@ export const StructuredTutorialAPI = {
         payload: Partial<{
             title: string;
             description: string;
-            contentFormat: 'HTML' | 'MARKDOWN';
+            contentFormat: 'HTML' | 'MARKDOWN' | 'LEXICAL' | 'JSON';
             cloudinaryAssets: CloudinaryAsset[];
         }>
     ): Promise<ApiResponse<TutorialPost>> {
