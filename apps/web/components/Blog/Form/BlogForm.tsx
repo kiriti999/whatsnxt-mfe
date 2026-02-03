@@ -594,6 +594,7 @@ const BlogForm: React.FC<BlogFormProps> = ({ categories, edit }) => {
                 <LexicalEditor
                   value={description}
                   onChange={setDescription}
+                  onWordCountChange={handleWordCountChange}
                   placeholder="Write your blog content here..."
                 />
                 {errors.description && <Text c="red">{errors.description.message}</Text>}

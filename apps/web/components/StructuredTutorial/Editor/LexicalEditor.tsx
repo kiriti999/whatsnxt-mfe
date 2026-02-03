@@ -97,6 +97,7 @@ import styles from './LexicalEditor.module.css';
 interface LexicalEditorProps {
   value?: string; // Serialized Lexical state JSON
   onChange?: (state: string) => void;
+  onWordCountChange?: (count: number) => void;
   placeholder?: string;
   readOnly?: boolean;
 }
@@ -738,18 +739,35 @@ const ToolbarPlugin: React.FC = () => {
   );
 };
 
-const OnChangePluginWrapper: React.FC<{ onChange?: (state: string) => void }> = ({
+const OnChangePluginWrapper: React.FC<{
+  onChange?: (state: string) => void;
+  onWordCountChange?: (count: number) => void;
+}> = ({
   onChange,
+  onWordCountChange,
 }) => {
-  const handleChange = (editorState: EditorState) => {
-    if (onChange) {
-      const serialized = JSON.stringify(editorState.toJSON());
-      onChange(serialized);
-    }
-  };
+    const [editor] = useLexicalComposerContext();
 
-  return <OnChangePlugin onChange={handleChange} />;
-};
+    const handleChange = (editorState: EditorState) => {
+      editorState.read(() => {
+        // Handle serialization for parent state
+        if (onChange) {
+          const serialized = JSON.stringify(editorState.toJSON());
+          onChange(serialized);
+        }
+
+        // Handle word count
+        if (onWordCountChange) {
+          const textContent = $getRoot().getTextContent();
+          // Match sequences of one or more non-whitespace characters
+          const words = textContent.match(/\S+/g) || [];
+          onWordCountChange(words.length);
+        }
+      });
+    };
+
+    return <OnChangePlugin onChange={handleChange} />;
+  };
 
 const InitialStatePlugin: React.FC<{ value?: string }> = ({ value }) => {
   const [editor] = useLexicalComposerContext();
@@ -801,6 +819,7 @@ const InitialStatePlugin: React.FC<{ value?: string }> = ({ value }) => {
 export const LexicalEditor: React.FC<LexicalEditorProps> = ({
   value,
   onChange,
+  onWordCountChange,
   placeholder = 'Start typing...',
   readOnly = false,
 }) => {
@@ -861,7 +880,7 @@ export const LexicalEditor: React.FC<LexicalEditorProps> = ({
               <HistoryPlugin />
               <AutoFocusPlugin />
               <DraggableBlockPlugin />
-              <OnChangePluginWrapper onChange={onChange} />
+              <OnChangePluginWrapper onChange={onChange} onWordCountChange={onWordCountChange} />
               <ClearEditorPlugin />
             </>
           )}
