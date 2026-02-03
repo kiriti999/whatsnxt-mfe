@@ -124,7 +124,7 @@ export default function AppProvider({ children, user, token }: { children: React
           { title: 'Published blogs', url: `${domain}/content/my-dashboard?status=published`, icon: IconCertificate },
         ]
       },
-      { title: 'My Bookings', url: `${domain}/my-bookings`, icon: IconBook2 },
+      // { title: 'My Bookings', url: `${domain}/my-bookings`, icon: IconBook2 },
       { title: 'Notifications', url: `${domain}/notifications`, icon: IconBell },
       { title: 'Purchase History', url: `${domain}/purchase-history`, icon: IconHistoryToggle },
     ],
