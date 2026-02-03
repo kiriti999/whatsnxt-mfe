@@ -123,13 +123,13 @@ const TopCourses = ({ courses, total, title }: { courses: any[], total: number, 
             </Flex>
           )}
 
-          <Grid.Col span={12}>
+          {/* <Grid.Col span={12}>
             <Box className={styles.topCoursesCenterContainer}>
               <Text size="md" className={styles.topCoursesDescription}>
                 Discover your next skill or passion. Join thousands of learners worldwide and take the next step in your career, hobbies, or personal growth. Your learning journey starts here!
               </Text>
             </Box>
-          </Grid.Col>
+          </Grid.Col> */}
         </Grid>
 
       </Container>
