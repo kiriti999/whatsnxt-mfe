@@ -5,7 +5,6 @@ import {
     Skeleton,
     Text,
     Box,
-    Title,
     Grid,
     Container,
     Paper,
@@ -26,7 +25,7 @@ interface Tutorial {
     categoryName?: string;
 }
 
-const TopTutorials = ({ tutorials, total, title }: { tutorials: Tutorial[], total: number, title?: string }) => {
+const TopTutorials = ({ tutorials }: { tutorials: Tutorial[] }) => {
     console.log('🚀 :: TopTutorials :: tutorials:', tutorials)
     const [displayCount, setDisplayCount] = useState(8);
     const router = useRouter();

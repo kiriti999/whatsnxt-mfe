@@ -231,10 +231,10 @@ export async function indexRecord(
         }
 
         // Create a mutable copy and remove unwanted properties
-        const { description, tutorials, ...cleanRecord } = record;
+        const cleanRecord = { ...record };
 
         const data: AlgoliaRecord = {
-            objectID: record._id || record.id || record.objectID,
+            objectID: cleanRecord._id || cleanRecord.id || cleanRecord.objectID,
             ...cleanRecord,
         };
 
