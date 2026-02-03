@@ -1,5 +1,6 @@
 import React, { ReactElement } from "react";
 import TopCourses from './TopCourses/TopCourses';
+import TopTutorials from './TopTutorials/TopTutorials';
 import type { CourseType } from '@whatsnxt/core-util';
 import TrendingArticles from './TrendingArticles';
 import { Button, Container, Grid } from "@mantine/core";
@@ -8,15 +9,19 @@ import { Footer } from '@whatsnxt/core-ui';
 interface MicroFrontendProps {
   courses: CourseType[];
   total: number;
-  articles: any[]; // Add articles prop
-  totalArticles: number; // Add totalArticles prop
+  articles: any[];
+  totalArticles: number;
+  tutorials: any[];
+  totalTutorials: number;
 }
 
 export default function MicroFrontend({
   courses,
   total,
   articles,
-  totalArticles
+  totalArticles,
+  tutorials,
+  totalTutorials
 }: MicroFrontendProps): ReactElement {
   return (
     <>
@@ -30,6 +35,11 @@ export default function MicroFrontend({
           </Grid.Col>
         </Grid>
       </Container>
+
+      <TopTutorials
+        tutorials={tutorials || []}
+        total={totalTutorials || 0}
+      />
 
       <TrendingArticles
         articles={articles || []}

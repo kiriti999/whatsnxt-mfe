@@ -14,10 +14,14 @@ interface HomeProps {
     courses: any[];
     total: number;
   };
-  articles: []
+  articles: [];
+  tutorialsData: {
+    tutorials: any[];
+    total: number;
+  };
 }
 
-function Home({ data, articles }: HomeProps) {
+function Home({ data, articles, tutorialsData }: HomeProps) {
   return (
     <div>
       <MainBanner />
@@ -26,6 +30,8 @@ function Home({ data, articles }: HomeProps) {
         total={data?.total || 0}
         articles={articles || []} // Access the articles array properly
         totalArticles={articles?.length || 0} // Match the prop name
+        tutorials={tutorialsData?.tutorials || []}
+        totalTutorials={tutorialsData?.total || 0}
       />
     </div>
   )

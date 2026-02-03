@@ -1,14 +1,15 @@
 import React from 'react';
 import { fetchCourses } from '../fetcher/courseServerQuery';
 import Home from './_component/home/home';
-import { fetchTrendingArticles } from '../fetcher/blogServerQuery';
+import { fetchTrendingArticles, fetchStructuredTutorials } from '../fetcher/blogServerQuery';
 import { Box } from '@mantine/core';
 
 async function Page() {
   // Fetch data for CourseMicroFrontEnd
-  const [data, articles] = await Promise.all([
+  const [data, articles, tutorialsData] = await Promise.all([
     fetchCourses(30, 0),
-    fetchTrendingArticles(1, 15, 'both')
+    fetchTrendingArticles(1, 15, 'both'),
+    fetchStructuredTutorials(1, 16)
   ]);
   return (
     <Box
@@ -19,7 +20,7 @@ async function Page() {
       }}
       py={{ base: '2rem', sm: '3rem', md: '4rem' }}
     >
-      <Home data={data} articles={articles} />
+      <Home data={data} articles={articles} tutorialsData={tutorialsData} />
     </Box>
   );
 }
