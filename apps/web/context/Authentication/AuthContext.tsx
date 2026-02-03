@@ -53,13 +53,11 @@ const AuthContext = createContext<AuthContextType>(defaultProvider);
 interface AuthProviderProps {
   children: React.ReactNode;
   userData?: User | null;
-  initialToken?: string;
 }
 
 const AuthProvider = ({
   children,
-  userData,
-  initialToken
+  userData
 }: AuthProviderProps) => {
   const dispatch = useDispatch();
   const searchParams = useSearchParams();
@@ -68,7 +66,7 @@ const AuthProvider = ({
   // Initialize state from server-side data
   const [user, setUser] = useState<User | null>(userData || null);
   const [loading, setLoading] = useState<boolean>(false);
-  const [token] = useState<string | null>(initialToken || null);
+  const [token] = useState<string | null>(null);
 
   // Determine authentication status from user object
   const isAuthenticated = useMemo(() => {

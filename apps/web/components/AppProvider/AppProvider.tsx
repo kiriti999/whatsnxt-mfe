@@ -136,7 +136,7 @@ export default function AppProvider({ children, user, token }: { children: React
       <CartInitializer />
       <MantineProvider theme={theme}>
         <QueryClientProvider client={queryClient}>
-          <AuthProvider userData={user} initialToken={token}>
+          <AuthProvider userData={user}>
             <FilterStore>
               <Notifications position="top-left" zIndex={1000} />
               <ModalsProvider>
