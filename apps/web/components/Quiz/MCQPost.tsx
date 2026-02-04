@@ -42,15 +42,15 @@ export const MCQPost: React.FC<MCQPostProps> = ({
     const [attempts, setAttempts] = useState(0);
     const [loading, setLoading] = useState(false);
 
-    const { user, token } = useAuth();
+    const { user } = useAuth();
 
     // Load previous answer on mount
     useEffect(() => {
         const loadPreviousAnswer = async () => {
-            if (!token || !user) return;
+            if (!user) return;
 
             try {
-                const previousAnswer = await getUserQuizAnswer(postId, token);
+                const previousAnswer = await getUserQuizAnswer(postId);
                 if (previousAnswer) {
                     setSelectedOption(previousAnswer.selectedOptionId);
                     setIsAnswered(true);
@@ -63,12 +63,12 @@ export const MCQPost: React.FC<MCQPostProps> = ({
         };
 
         loadPreviousAnswer();
-    }, [postId, token, user]);
+    }, [postId, user]);
 
     const handleOptionClick = async (optionId: string) => {
         if (isAnswered || loading) return; // Prevent changing answer after submission
 
-        if (!token || !user) {
+        if (!user) {
             notifications.show({
                 title: 'Authentication Required',
                 message: 'Please log in to submit your answer',
@@ -82,7 +82,7 @@ export const MCQPost: React.FC<MCQPostProps> = ({
 
         try {
             // Submit answer to backend
-            const result = await submitQuizAnswer(postId, { selectedOptionId: optionId }, token);
+            const result = await submitQuizAnswer(postId, { selectedOptionId: optionId });
 
             setIsAnswered(true);
             setIsCorrect(result.isCorrect);

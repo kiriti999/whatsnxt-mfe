@@ -2,7 +2,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import SidebarHeadings from '../../../components/Blog/sidebar-headings';
 import { AnalyticsAPI } from '../../../apis/v1/blog/analyticsApi';
-import { usePathname } from 'next/navigation';
 import SidebarPost from '../../../components/Blog/sidebar-post';
 import ClipboardCopy from '@whatsnxt/core-ui/src/ShareOptions/ClipBoardCopy';
 import WhatsappShare from '@whatsnxt/core-ui/src/ShareOptions/WhatsappShare';
@@ -94,33 +93,6 @@ function TutorialContentDetails({ details }: any) {
       setLoading(false);
     }
   }, [details._id]);
-
-  const pathName = usePathname();
-
-  //TODO: Move Fetch views to server side rendering if possible
-  // useEffect(() => {
-  //   (async () => {
-  //     const resViews = await fetchViews();
-  //     let totalViews = 0;
-  //     for (let i = 0; i < resViews.rows.length; i++) {
-  //       const row = resViews.rows[i];
-  //       const dimension = row.dimensionValues[0].value;
-  //       const metric = parseInt(row.metricValues[0].value);
-  //       const pathname = pathName;
-  //       if (dimension.endsWith(pathname)) {
-  //         totalViews += metric;
-  //       }
-  //     }
-  //
-  //     setViews(totalViews);
-  //   })();
-  // }, [pathName]);
-
-  const navigateTutorial = (i: number) => {
-    return () => {
-      setActive(i);
-    };
-  };
 
   const prevPost = active > 0 ? {
     label: tutorials[active - 1]?.title,

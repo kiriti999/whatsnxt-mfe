@@ -1,4 +1,6 @@
-import React, { useCallback } from 'react';
+'use client';
+
+import React, { useCallback, lazy, Suspense } from 'react';
 import Skeleton from 'react-loading-skeleton';
 import {
   useAddIdsToHeadings,
@@ -10,7 +12,12 @@ import { ShareOptions } from '@whatsnxt/core-ui';
 import useAuth from '../../../../hooks/Authentication/useAuth';
 import { useRef } from 'react';
 import { syntaxHighlightingTheme } from '../../../RichTextEditor/extensions/CodeHighlight/syntaxHighlightingTheme';
-import { LexicalEditor } from '../../../StructuredTutorial/Editor/LexicalEditor';
+
+const LexicalEditor = lazy(() => 
+  import('../../../StructuredTutorial/Editor/LexicalEditor').then(mod => ({ 
+    default: mod.LexicalEditor 
+  }))
+);
 
 interface BlogContentProps {
   url: string;
@@ -172,10 +179,12 @@ const BlogContent = ({
                 className="rte text-wrap"
                 ref={lexicalContainerRef}
               >
-                <LexicalEditor
-                  value={typeof lexicalState === 'string' ? lexicalState : JSON.stringify(lexicalState)}
-                  readOnly={true}
-                />
+                <Suspense fallback={<div>Loading editor...</div>}>
+                  <LexicalEditor
+                    value={typeof lexicalState === 'string' ? lexicalState : JSON.stringify(lexicalState)}
+                    readOnly={true}
+                  />
+                </Suspense>
               </div>
             ) : (
               <div

@@ -15,22 +15,26 @@
 export const syntaxHighlightingTheme = `
   /* ====== Base Code Block Styles ====== */
   pre,
-  .hljs {
+  .hljs,
+  .lexical-code-block {
+    display: block !important;
     background-color: #1e1e1e !important;
     color: #d4d4d4 !important;
-    border-radius: 0px !important;
-    margin: 0px !important;
+    border-radius: 6px !important;
+    margin: 1rem 0 !important;
+    padding: 1rem !important;
     overflow-x: auto !important;
     border: 1px solid #333 !important;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
     font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, 'Courier New', monospace !important;
     font-size: 14px !important;
-    // line-height: 1.3 !important;
+    /* line-height: 1.3 !important; */
   }
 
   /* Code inside pre blocks */
   pre code,
-  .hljs code {
+  .hljs code,
+  .lexical-code-block code {
     background-color: transparent !important;
     color: inherit !important;
     padding: 0 !important;
@@ -306,10 +310,10 @@ export const syntaxHighlightingTheme = `
   }
 
   /* Standalone code elements */
-  code:not(pre code),
-  #blog-content code:not(pre code),
-  .rte code:not(pre code),
-  [class*="rte"] code:not(pre code) {
+  code:not(pre code):not(.lexical-code-block),
+  #blog-content code:not(pre code):not(.lexical-code-block),
+  .rte code:not(pre code):not(.lexical-code-block),
+  [class*="rte"] code:not(pre code):not(.lexical-code-block) {
     background-color: #f5f5f5 !important;
     color: #333 !important;
     padding: 0.2em 0.4em !important;
@@ -322,9 +326,9 @@ export const syntaxHighlightingTheme = `
   }
 
   /* Dark mode inline code */
-  body.dark code:not(pre code),
-  body.dark #blog-content code:not(pre code),
-  body.dark .rte code:not(pre code) {
+  body.dark code:not(pre code):not(.lexical-code-block),
+  body.dark #blog-content code:not(pre code):not(.lexical-code-block),
+  body.dark .rte code:not(pre code):not(.lexical-code-block) {
     background-color: #2d2d30 !important;
     color: #ce9178 !important;
     border: 1px solid #3e3e42 !important;
