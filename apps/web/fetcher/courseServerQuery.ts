@@ -8,7 +8,7 @@ console.log('🚀 :: BASEURL:', BASEURL)
 export const fetchCourses = async (limit = 30, offset = 0) => {
   try {
     const response = await serverFetcher(BASEURL, `/courses/course?limit=${limit}&offset=${offset}`, {
-      next: { revalidate: 3600 }
+      next: { revalidate: 300 }
     });
     
     // Ensure we always return a valid structure

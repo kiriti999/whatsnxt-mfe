@@ -577,10 +577,10 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
   );
 
   return (
-    <Container>
+    <Container size="xl" py="xl">
       <LoadingOverlay visible={visible} zIndex={1000} overlayProps={{ radius: "sm", blur: 2 }} />
       <Box>
-        <Title order={2}>{edit ? 'Edit tutorial details' : 'Post a tutorial'}</Title>
+        <Title order={2} mb="xl" fw={600}>{edit ? 'Edit tutorial details' : 'Post a tutorial'}</Title>
 
         {isAlert && <Alert withCloseButton>{showAlertMessage.message}</Alert>}
         {validationErrors.length > 0 && (
@@ -593,271 +593,293 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
 
         <CustomLoadingOverlay visible={visible}>
           <form onSubmit={handleSubmit(handleFormSubmit)}>
-            <Stack gap={0} mt={'md'}>
-              <Text fz={15}>Tutorial name <Text component="span" m={0} size='lg' c="red">*</Text></Text>
-              <Input tabIndex={1}
-                placeholder="Enter tutorial name"
-                {...register('tutorialName', validationOptions.tutorialName)}
-              />
-              <Text className="text-danger">
-                {errors?.tutorialName &&
-                  errors.tutorialName?.message?.toString()}
-                {errors.tutorialName &&
-                  errors.tutorialName.type === 'maxLength' && (
-                    <span>Max length exceeded</span>
-                  )}
-              </Text>
-            </Stack>
-
-            <Stack gap={'0.1rem'} mt={'md'}>
-              <Text fz={15}>Page name <Text component="span" m={0} size='lg' c="red">*</Text></Text>
-              <Input tabIndex={2}
-                placeholder="Page name"
-                {...register('title', validationOptions.title)}
-              />
-              <Text className="text-danger">
-                {errors?.title && errors.title?.message?.toString()}
-                {errors.title && errors.title.type === 'maxLength' && (
-                  <span>Max length exceeded</span>
-                )}
-              </Text>
-            </Stack>
-
-            {detailed && (
-              <Stack gap={'0.1rem'} mt={'md'}>
-                <Text>Description</Text>
-                <LexicalEditor
-                  value={description}
-                  onChange={setDescription}
-                  placeholder="Write tutorial description here..."
+            <Stack gap="lg">
+              <Stack gap="xs">
+                <Text fw={500} size="sm">Tutorial name <Text component="span" c="red" fw={600}>*</Text></Text>
+                <Input
+                  tabIndex={1}
+                  placeholder="Enter tutorial name"
+                  size="md"
+                  {...register('tutorialName', validationOptions.tutorialName)}
                 />
+                {(errors?.tutorialName) && (
+                  <Text c="red" size="sm">
+                    {errors.tutorialName?.message?.toString() || 'Max length exceeded'}
+                  </Text>
+                )}
               </Stack>
-            )}
 
-            <Stack gap={0} mt={'md'} mb={'xs'}>
-              <Grid gutter="lg">
-                {/* Categories */}
-                <Grid.Col span={{ base: 12, lg: 9, md: 12 }}>
-                  <Controller
-                    name="categoryName"
-                    control={control}
-                    rules={{ required: 'Category is required' }}
-                    render={({ field }) => (
-                      <Select
-                        label={<Text fz={15}>Category <Text component="span" m={0} size='lg' c="red">*</Text></Text>}
-                        placeholder="Select a category"
-                        data={categories.map((cat) => ({ value: cat.categoryName, label: cat.categoryName }))}
-                        value={field.value}
-                        onChange={(value) => {
-                          setValue('subCategory', '')
-                          setValue('nestedSubCategory', '')
-                          field.onChange(value);
-                          handleCategoryChange(value);
-                        }}
-                      />
-                    )}
+              <Stack gap="xs">
+                <Text fw={500} size="sm">Page name <Text component="span" c="red" fw={600}>*</Text></Text>
+                <Input
+                  tabIndex={2}
+                  placeholder="Page name"
+                  size="md"
+                  {...register('title', validationOptions.title)}
+                />
+                {(errors?.title) && (
+                  <Text c="red" size="sm">
+                    {errors.title?.message?.toString() || 'Max length exceeded'}
+                  </Text>
+                )}
+              </Stack>
+
+              {detailed && (
+                <Stack gap="xs">
+                  <Text fw={500} size="sm">Description</Text>
+                  <LexicalEditor
+                    value={description}
+                    onChange={setDescription}
+                    placeholder="Write tutorial description here..."
                   />
-                  {errors.categoryName && <Text c="red">{errors.categoryName?.message}</Text>}
-                </Grid.Col>
+                </Stack>
+              )}
 
-                {/* Subcategories */}
-                {categoryValue && (
+              <Stack gap="md">
+                <Grid gutter="lg">
+                  {/* Categories */}
                   <Grid.Col span={{ base: 12, lg: 9, md: 12 }}>
                     <Controller
-                      name="subCategory"
+                      name="categoryName"
                       control={control}
-                      rules={{ required: 'SubCategory is required' }}
+                      rules={{ required: 'Category is required' }}
                       render={({ field }) => (
                         <Select
-                          label={<Text fz={15}>Subcategory <Text component="span" m={0} size='lg' c="red">*</Text></Text>}
-                          placeholder="Select a subcategory"
-                          data={subCategories}
+                          label={<Text fw={500} size="sm">Category <Text component="span" c="red" fw={600}>*</Text></Text>}
+                          placeholder="Select a category"
+                          size="md"
+                          data={categories.map((cat) => ({ value: cat.categoryName, label: cat.categoryName }))}
                           value={field.value}
                           onChange={(value) => {
+                            setValue('subCategory', '')
+                            setValue('nestedSubCategory', '')
                             field.onChange(value);
-                            setValue('nestedSubCategory', '');
-                            handleSubCategoryChange(value);
+                            handleCategoryChange(value);
                           }}
                         />
                       )}
                     />
-                    {errors.subCategory && <Text c="red">{errors.subCategory.message}</Text>}
+                    {errors.categoryName && <Text c="red" size="sm" mt="xs">{errors.categoryName?.message}</Text>}
                   </Grid.Col>
-                )}
 
-                {/* Nested Subcategories */}
-                {nestedSubCategories.length > 0 && (
-                  <Grid.Col span={{ base: 12, lg: 9, md: 12 }}>
-                    <Controller
-                      name="nestedSubCategory"
-                      control={control}
-                      render={({ field }) => (
-                        <Select
-                          label={<Text fz={15}>Nested Subcategory <Text component="span" m={0} size='lg' c="red">*</Text></Text>}
-                          placeholder="Select a nested subcategory"
-                          data={nestedSubCategories}
-                          value={field.value}
-                          onChange={field.onChange}
-                        />
+                  {/* Subcategories */}
+                  {categoryValue && (
+                    <Grid.Col span={{ base: 12, lg: 9, md: 12 }}>
+                      <Controller
+                        name="subCategory"
+                        control={control}
+                        rules={{ required: 'SubCategory is required' }}
+                        render={({ field }) => (
+                          <Select
+                            label={<Text fw={500} size="sm">Subcategory <Text component="span" c="red" fw={600}>*</Text></Text>}
+                            placeholder="Select a subcategory"
+                            size="md"
+                            data={subCategories}
+                            value={field.value}
+                            onChange={(value) => {
+                              field.onChange(value);
+                              setValue('nestedSubCategory', '');
+                              handleSubCategoryChange(value);
+                            }}
+                          />
+                        )}
+                      />
+                      {errors.subCategory && <Text c="red" size="sm" mt="xs">{errors.subCategory.message}</Text>}
+                    </Grid.Col>
+                  )}
+
+                  {/* Nested Subcategories */}
+                  {nestedSubCategories.length > 0 && (
+                    <Grid.Col span={{ base: 12, lg: 9, md: 12 }}>
+                      <Controller
+                        name="nestedSubCategory"
+                        control={control}
+                        render={({ field }) => (
+                          <Select
+                            label={<Text fw={500} size="sm">Nested Subcategory <Text component="span" c="red" fw={600}>*</Text></Text>}
+                            placeholder="Select a nested subcategory"
+                            size="md"
+                            data={nestedSubCategories}
+                            value={field.value}
+                            onChange={field.onChange}
+                          />
+                        )}
+                      />
+                    </Grid.Col>
+                  )}
+                </Grid>
+              </Stack>
+
+              {/* Tutorial Image Upload */}
+              <Stack gap="xs">
+                <Controller
+                  name="tutorialImagePreview"
+                  control={control}
+                  rules={{ required: edit ? false : 'Tutorial Image is required' }}
+                  render={({ field }) => (
+                    <Box>
+                      <FileInput
+                        clearable
+                        label={<Text fw={500} size="sm">Tutorial Image <Text component="span" c="red" fw={600}>*</Text></Text>}
+                        placeholder={
+                          isScanning ? "🔍 Scanning image..." :
+                            isModelLoading ? "🤖 Loading AI model..." :
+                              "Select tutorial image"
+                        }
+                        size="md"
+                        leftSection={
+                          isScanning || isModelLoading ? (
+                            <Loader size={16} />
+                          ) : (
+                            <IconUpload size={16} />
+                          )
+                        }
+                        value={tutorialImage}
+                        onChange={(e) => {
+                          handleImageChange(e);
+                          field.onChange(e);
+                        }}
+                        accept=".png,.jpg,.jpeg"
+                        disabled={isScanning || isModelLoading}
+                      />
+
+                      {/* Status messages */}
+                      {(validationError || scanError) && (
+                        <Alert
+                          icon={<IconAlertCircle size={16} />}
+                          color="red"
+                          mt="xs"
+                          variant="light"
+                        >
+                          {validationError || scanError}
+                        </Alert>
                       )}
-                    />
-                  </Grid.Col>
-                )}
-              </Grid>
-            </Stack>
 
-            {/* Tutorial Image Upload */}
-            <Controller
-              name="tutorialImagePreview"
-              control={control}
-              rules={{ required: edit ? false : 'Tutorial Image is required' }}
-              render={({ field }) => (
-                <div>
-                  <FileInput
-                    clearable
-                    label={<Text fz={15}>Tutorial Image <Text component="span" m={0} size='lg' c="red">*</Text></Text>}
-                    placeholder={
-                      isScanning ? "🔍 Scanning image..." :
-                        isModelLoading ? "🤖 Loading AI model..." :
-                          "Select tutorial image"
-                    }
-                    leftSection={
-                      isScanning || isModelLoading ? (
-                        <Loader size={16} />
-                      ) : (
-                        <IconUpload size={16} />
-                      )
-                    }
-                    value={tutorialImage}
-                    onChange={(e) => {
-                      handleImageChange(e);
-                      field.onChange(e);
+                      {validationSuccess && !validationError && !scanError && (
+                        <Alert
+                          icon={<IconCheck size={16} />}
+                          color="green"
+                          mt="xs"
+                          variant="light"
+                        >
+                          {validationSuccess}
+                        </Alert>
+                      )}
+
+                      {/* Scanning status */}
+                      {isScanning && (
+                        <Group gap="xs" mt="xs">
+                          <Loader size="xs" />
+                          <Text size="xs" c="blue">
+                            Running AI safety scan...
+                          </Text>
+                        </Group>
+                      )}
+
+                      {/* Model loading status */}
+                      {isModelLoading && (
+                        <Group gap="xs" mt="xs">
+                          <Loader size="xs" />
+                          <Text size="xs" c="gray">
+                            Loading AI model in browser...
+                          </Text>
+                        </Group>
+                      )}
+                    </Box>
+                  )}
+                />
+                {errors.tutorialImagePreview && <Text c="red" size="sm">{errors.tutorialImagePreview.message}</Text>}
+              </Stack>
+
+              {/* Tutorial Image Technical Requirements */}
+              <ImageRequirements />
+
+              {/* Image Preview */}
+              {imagePreview && !validationError && !scanError && (
+                <Box>
+                  <Text fw={500} size="sm" mb="xs">Image Preview:</Text>
+                  <Box
+                    style={{
+                      borderRadius: '8px',
+                      border: '1px solid #e9ecef',
+                      overflow: 'hidden',
+                      display: 'inline-block'
                     }}
-                    accept=".png,.jpg,.jpeg"
-                    disabled={isScanning || isModelLoading}
-                  />
-
-                  {/* Status messages */}
-                  {(validationError || scanError) && (
-                    <Alert
-                      icon={<IconAlertCircle size={16} />}
-                      color="red"
-                      mt="xs"
-                      variant="light"
-                    >
-                      {validationError || scanError}
-                    </Alert>
-                  )}
-
-                  {validationSuccess && !validationError && !scanError && (
-                    <Alert
-                      icon={<IconCheck size={16} />}
-                      color="green"
-                      mt="xs"
-                      variant="light"
-                    >
-                      {validationSuccess}
-                    </Alert>
-                  )}
-
-                  {/* Scanning status */}
-                  {isScanning && (
-                    <Group gap="xs" mt="xs">
-                      <Loader size="xs" />
-                      <Text size="xs" c="blue">
-                        Running AI safety scan...
-                      </Text>
-                    </Group>
-                  )}
-
-                  {/* Model loading status */}
-                  {isModelLoading && (
-                    <Group gap="xs" mt="xs">
-                      <Loader size="xs" />
-                      <Text size="xs" c="gray">
-                        Loading AI model in browser...
-                      </Text>
-                    </Group>
-                  )}
-                </div>
+                  >
+                    <NextImage
+                      alt="tutorial image preview"
+                      width={300}
+                      height={200}
+                      sizes="(max-width: 480px) 300px, (max-width: 768px) 320px, 340px"
+                      src={imagePreview}
+                      style={{
+                        display: 'block'
+                      }}
+                    />
+                  </Box>
+                </Box>
               )}
-            />
-            {errors.tutorialImagePreview && <Text c="red">{errors.tutorialImagePreview.message}</Text>}
 
-            {/* Tutorial Image Technical Requirements */}
-            <ImageRequirements />
-
-            {/* Image Preview */}
-            {imagePreview && !validationError && !scanError && (
-              <Box mt="md">
-                <Title order={5}>Image Preview:</Title>
-                <NextImage
-                  alt="tutorial image preview"
-                  width={300}
-                  height={200}
-                  sizes="(max-width: 480px) 300px, (max-width: 768px) 320px, 340px"
-                  src={imagePreview}
-                  style={{
-                    borderRadius: '8px',
-                    border: '1px solid #e9ecef'
-                  }}
+              <Box mt="xl">
+                <Pagination
+                  disabled={isAssetsUploading}
+                  nPages={tutorials.length}
+                  currentPage={active}
+                  setCurrentPage={navPage}
                 />
               </Box>
-            )}
 
-            <Stack>
-              <Pagination
-                disabled={isAssetsUploading}
-                nPages={tutorials.length}
-                currentPage={active}
-                setCurrentPage={navPage}
-              />
-            </Stack>
+              {/* Action Buttons */}
+              <Box mt="xl" mb="xl">
+                <Grid gutter="md">
+                  {tutorials.length > 0 && (
+                    <>
+                      <Grid.Col span={{ base: 12, sm: 4 }}>
+                        <Button
+                          fullWidth
+                          variant="outline"
+                          color="red"
+                          size="md"
+                          type="button"
+                          onClick={deleteTutorial}
+                        >
+                          Delete this page
+                        </Button>
+                      </Grid.Col>
 
-            <Stack mb={'xl'} mt={'xl'}>
-              <Grid gutter={'xl'}>
-                <Grid.Col span={{ base: 12, sm: 6, md: !categoryData?.imageUrl && categoryData.text ? 4 : 12 }}>
-                  <Stack mt={'0.5rem'}>
-                    {tutorials.length > 0 && (
-                      <>
-                        <Group>
-                          <Button fullWidth
-                            type="button" onClick={deleteTutorial}>
-                            Delete this page
-                          </Button>
-                        </Group>
+                      <Grid.Col span={{ base: 12, sm: 4 }}>
+                        <Button
+                          fullWidth
+                          variant="light"
+                          size="md"
+                          disabled={isAssetsUploading}
+                          type="button"
+                          onClick={addTutorial}
+                        >
+                          Add new page
+                        </Button>
+                      </Grid.Col>
+                    </>
+                  )}
 
-                        <Group>
-                          <Button fullWidth
-                            disabled={isAssetsUploading}
-                            type="button"
-                            onClick={addTutorial}
-                          >
-                            Add new page
-                          </Button>
-                        </Group>
-                      </>
-                    )}
-
-                    <Group>
-                      <Button
-                        fullWidth
-                        disabled={
-                          isAssetsUploading ||
-                          isScanning ||
-                          isModelLoading ||
-                          (validationError !== null) ||
-                          (scanError !== null)
-                        }
-                        type="submit"
-                      >
-                        {edit ? 'Update' : 'Create'}
-                      </Button>
-                    </Group>
-                  </Stack>
-                </Grid.Col>
-
-              </Grid>
+                  <Grid.Col span={{ base: 12, sm: tutorials.length > 0 ? 4 : 12 }}>
+                    <Button
+                      fullWidth
+                      size="md"
+                      disabled={
+                        isAssetsUploading ||
+                        isScanning ||
+                        isModelLoading ||
+                        (validationError !== null) ||
+                        (scanError !== null)
+                      }
+                      type="submit"
+                    >
+                      {edit ? 'Update' : 'Create'}
+                    </Button>
+                  </Grid.Col>
+                </Grid>
+              </Box>
             </Stack>
 
           </form>

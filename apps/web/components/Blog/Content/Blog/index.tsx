@@ -96,7 +96,7 @@ const formatDate = (dateString: string): string => {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', {
       year: 'numeric',
-      month: 'long',
+      month: 'short',
       day: 'numeric'
     });
   } catch {
@@ -161,7 +161,7 @@ const BlogContent = ({
               {timeToRead || '1 min read'}
             </Text>
             <Text size="0.4rem" c="#6B6B6B" p="0.4rem" style={{ border: '1px dotted gray' }}>
-              Last updated: {formatDate(updatedAt)}
+              Updated: {formatDate(updatedAt)}
             </Text>
             <ShareOptions
               url={url}
