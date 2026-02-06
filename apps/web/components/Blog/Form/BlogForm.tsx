@@ -34,15 +34,28 @@ const BlogForm: React.FC<BlogFormProps> = ({ categories, edit }) => {
   const getInitialDescription = useCallback((editData: any) => {
     if (editData?.lexicalState) {
       try {
-        const lexicalStateStr = JSON.stringify(editData.lexicalState);
-        const parsed = JSON.parse(lexicalStateStr);
+        let lexicalStateStr: string;
+        let parsed: any;
+
+        if (typeof editData.lexicalState === 'string') {
+          lexicalStateStr = editData.lexicalState;
+          parsed = JSON.parse(lexicalStateStr);
+        } else {
+          parsed = editData.lexicalState;
+          lexicalStateStr = JSON.stringify(parsed);
+        }
 
         // Check if lexicalState has actual content (not just empty paragraphs)
         const hasContent = parsed?.root?.children?.some((child: any) => {
-          return child.children && child.children.length > 0;
+          // Check if child has children (content) OR if it's a decorator node / leaf node with content
+          return (child.children && child.children.length > 0) ||
+            (child.type !== 'paragraph') || // Non-paragraphs (like code blocks) might be empty but valid
+            (child.getTextContent && child.getTextContent().trim().length > 0);
         });
 
-        if (hasContent) {
+        // Simplified check: if it has root and children, it's likely valid. 
+        // We shouldn't be too aggressive in discarding it if the alternative is raw HTML.
+        if (parsed?.root) {
           return lexicalStateStr;
         }
       } catch (e) {
