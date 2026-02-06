@@ -16,9 +16,10 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { ExcalidrawNode } from './ExcalidrawNode';
 import ExcalidrawModal from './ExcalidrawModal';
 import { exportToSvg } from '@excalidraw/excalidraw';
-import { ActionIcon, Box } from '@mantine/core';
+import { ActionIcon, Box, useMantineColorScheme } from '@mantine/core';
 import { IconEdit } from '@tabler/icons-react';
 import styles from './ExcalidrawComponent.module.css';
+import { ExcalidrawFullscreen } from './ExcalidrawFullscreen';
 
 export type ExcalidrawInitialElements = ExcalidrawInitialDataState['elements'];
 
@@ -32,6 +33,7 @@ export default function ExcalidrawComponent({
     height: 'inherit' | number;
 }) {
     const [editor] = useLexicalComposerContext();
+    const { colorScheme } = useMantineColorScheme();
     const [isModalOpen, setModalOpen] = useState<boolean>(
         data === '[]' && editor.isEditable(),
     );
@@ -52,12 +54,17 @@ export default function ExcalidrawComponent({
             exportToSvg({
                 elements,
                 files,
-                appState: appState as AppState,
+                exportBackground: false,
+                appState: {
+                    ...appState,
+                    exportWithDarkMode: colorScheme === 'dark',
+                    viewBackgroundColor: 'transparent',
+                } as AppState,
             }).then((svg) => {
                 setSvg(svg);
             });
         }
-    }, [elements, files, appState]);
+    }, [elements, files, appState, colorScheme]);
 
     useEffect(() => {
         return mergeRegister(
@@ -66,6 +73,9 @@ export default function ExcalidrawComponent({
                 (event: MouseEvent) => {
                     const target = event.target as HTMLElement;
                     if (target.closest(`[data-excalidraw-key="${nodeKey}"]`)) {
+                        if (!editor.isEditable()) {
+                            return false;
+                        }
                         if (!event.shiftKey) {
                             clearSelection();
                         }
@@ -184,6 +194,10 @@ export default function ExcalidrawComponent({
                         className={styles.excalidrawImage}
                         dangerouslySetInnerHTML={{ __html: svg.outerHTML }}
                     />
+                    {/* Fullscreen button - always visible on hover */}
+                    <ExcalidrawFullscreen svgContent={svg.outerHTML} />
+
+                    {/* Edit button - only visible when editing */}
                     {isSelected && editor.isEditable() && (
                         <ActionIcon
                             className={styles.editButton}

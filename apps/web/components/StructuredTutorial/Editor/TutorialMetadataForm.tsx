@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import {
     Stack,
@@ -70,12 +70,36 @@ export const TutorialMetadataForm: React.FC<TutorialMetadataFormProps> = ({
 
     const [tutorialImage, setTutorialImage] = React.useState<File | null>(null);
     const [imagePreview, setImagePreview] = React.useState<string | null>(initialData?.imageUrl || null);
-    const [subcategories, setSubcategories] = React.useState<Category[]>([]);
-    const [nestedSubcategories, setNestedSubcategories] = React.useState<Category[]>([]);
-    const [isInitializing, setIsInitializing] = React.useState(true);
 
     const selectedCategory = watch('categoryName');
     const selectedSubCategory = watch('subCategory');
+
+    // Derive subcategories from selected category
+    const subcategoryOptions = useMemo(() => {
+        if (!selectedCategory || !categoriesData) return [];
+        const categoryData = categoriesData.find(cat => cat.categoryName === selectedCategory);
+        if (categoryData && categoryData.subcategories) {
+            return categoryData.subcategories.map(subcat => ({
+                value: subcat.name,
+                label: subcat.name,
+                subcategories: subcat.subcategories,
+            }));
+        }
+        return [];
+    }, [selectedCategory, categoriesData]);
+
+    // Derive nested subcategories from selected subcategory
+    const nestedSubcategoryOptions = useMemo(() => {
+        if (!selectedSubCategory || subcategoryOptions.length === 0) return [];
+        const subCategoryData = subcategoryOptions.find((sub: any) => sub.value === selectedSubCategory);
+        if (subCategoryData && (subCategoryData as any).subcategories) {
+            return (subCategoryData as any).subcategories.map((nested: any) => ({
+                value: nested.name,
+                label: nested.name,
+            }));
+        }
+        return [];
+    }, [selectedSubCategory, subcategoryOptions]);
 
     useEffect(() => {
         console.log('🚀 :: TutorialMetadataForm :: initialData:', initialData)
@@ -106,85 +130,8 @@ export const TutorialMetadataForm: React.FC<TutorialMetadataFormProps> = ({
             if (initialData.imageUrl) {
                 setImagePreview(initialData.imageUrl);
             }
-
-            // Populate subcategories from initial category
-            if (initialData.categoryName && categoriesData) {
-                const categoryData = categoriesData.find(cat => cat.categoryName === initialData.categoryName);
-                if (categoryData?.subcategories) {
-                    const subcatOptions = categoryData.subcategories.map(subcat => ({
-                        value: subcat.name,
-                        label: subcat.name,
-                        subcategories: subcat.subcategories,
-                    }));
-                    setSubcategories(subcatOptions);
-
-                    // Populate nestedSubcategories from initial subcategory
-                    if (initialData.subCategory) {
-                        const subCategoryData = subcatOptions.find(sub => sub.value === initialData.subCategory);
-                        if ((subCategoryData as any)?.subcategories) {
-                            const nestedOptions = (subCategoryData as any).subcategories.map((nested: any) => ({
-                                value: nested.name,
-                                label: nested.name,
-                            }));
-                            setNestedSubcategories(nestedOptions);
-                        }
-                    }
-                }
-            }
-
-            setIsInitializing(false);
         }
-    }, [initialData, reset, categoriesData]);
-
-    // Update subcategories when category changes
-    useEffect(() => {
-        // Skip during initialization to preserve initialData values
-        if (isInitializing) return;
-
-        if (selectedCategory && categoriesData && Array.isArray(categoriesData)) {
-            const categoryData = categoriesData.find(cat => cat.categoryName === selectedCategory);
-            if (categoryData && categoryData.subcategories) {
-                const subcatOptions = categoryData.subcategories.map(subcat => ({
-                    value: subcat.name,
-                    label: subcat.name,
-                    subcategories: subcat.subcategories,
-                }));
-                setSubcategories(subcatOptions);
-            } else {
-                setSubcategories([]);
-            }
-            // Reset subcategory and nested subcategory when category changes
-            setValue('subCategory', '');
-            setValue('nestedSubCategory', '');
-            setNestedSubcategories([]);
-        } else {
-            setSubcategories([]);
-            setNestedSubcategories([]);
-        }
-    }, [selectedCategory, categoriesData, setValue, isInitializing]);
-
-    // Update nested subcategories when subcategory changes
-    useEffect(() => {
-        // Skip during initialization to preserve initialData values
-        if (isInitializing) return;
-
-        if (selectedSubCategory && subcategories.length > 0) {
-            const subCategoryData = subcategories.find((sub: any) => sub.value === selectedSubCategory);
-            if (subCategoryData && (subCategoryData as any).subcategories) {
-                const nestedOptions = (subCategoryData as any).subcategories.map((nested: any) => ({
-                    value: nested.name,
-                    label: nested.name,
-                }));
-                setNestedSubcategories(nestedOptions);
-            } else {
-                setNestedSubcategories([]);
-            }
-            // Reset nested subcategory when subcategory changes
-            setValue('nestedSubCategory', '');
-        } else {
-            setNestedSubcategories([]);
-        }
-    }, [selectedSubCategory, subcategories, setValue, isInitializing]);
+    }, [initialData, reset]);
 
     const handleImageChange = (file: File | null) => {
         if (!file) {
@@ -244,7 +191,12 @@ export const TutorialMetadataForm: React.FC<TutorialMetadataFormProps> = ({
                             placeholder="Select a category"
                             data={categories}
                             value={field.value}
-                            onChange={field.onChange}
+                            onChange={(value) => {
+                                field.onChange(value);
+                                // Reset dependent fields when category changes by user
+                                setValue('subCategory', '');
+                                setValue('nestedSubCategory', '');
+                            }}
                             searchable
                             clearable
                         />
@@ -258,17 +210,21 @@ export const TutorialMetadataForm: React.FC<TutorialMetadataFormProps> = ({
                         <Select
                             label="Subcategory"
                             placeholder="Select a subcategory"
-                            data={subcategories}
+                            data={subcategoryOptions}
                             value={field.value}
-                            onChange={field.onChange}
+                            onChange={(value) => {
+                                field.onChange(value);
+                                // Reset dependent fields when subcategory changes by user
+                                setValue('nestedSubCategory', '');
+                            }}
                             searchable
                             clearable
-                            disabled={!selectedCategory || subcategories.length === 0}
+                            disabled={!selectedCategory || subcategoryOptions.length === 0}
                         />
                     )}
                 />
 
-                {nestedSubcategories.length > 0 && (
+                {nestedSubcategoryOptions.length > 0 && (
                     <Controller
                         name="nestedSubCategory"
                         control={control}
@@ -276,7 +232,7 @@ export const TutorialMetadataForm: React.FC<TutorialMetadataFormProps> = ({
                             <Select
                                 label="Nested Subcategory"
                                 placeholder="Select a nested subcategory"
-                                data={nestedSubcategories}
+                                data={nestedSubcategoryOptions}
                                 value={field.value}
                                 onChange={field.onChange}
                                 searchable

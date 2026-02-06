@@ -112,7 +112,13 @@ export default function ExcalidrawModal({
                             onChange={onChange}
                             excalidrawAPI={(api) => setExcalidrawAPI(api)}
                             initialData={{
-                                appState: initialAppState || { isLoading: false },
+                                appState: {
+                                    isLoading: false,
+                                    currentItemStrokeWidth: 1, // Thin
+                                    currentItemStrokeStyle: 'solid', // Solid
+                                    currentItemRoughness: 0, // Architect (Clean)
+                                    ...initialAppState,
+                                },
                                 elements: initialElements,
                                 files: initialFiles,
                             }}
