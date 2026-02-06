@@ -1,3 +1,4 @@
+import { div } from '@tensorflow/tfjs';
 import { useCallback, useEffect, useRef } from 'react';
 import sanitizeHtml from 'sanitize-html';
 
@@ -5,7 +6,7 @@ import sanitizeHtml from 'sanitize-html';
 const sanitizeOptions = {
   allowedTags: [
     ...sanitizeHtml.defaults.allowedTags,
-    'img', 'iframe', 'details', 'summary', 'hr'
+    'img', 'iframe', 'details', 'summary', 'hr', 'span'
   ],
   // Preserve class and data-language on <pre> and <code> so highlighting classes survive
   allowedAttributes: {

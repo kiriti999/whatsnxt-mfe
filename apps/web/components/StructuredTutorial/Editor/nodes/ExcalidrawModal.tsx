@@ -128,6 +128,18 @@ export default function ExcalidrawModal({
                         <Button variant="default" onClick={handleDiscard}>
                             Discard
                         </Button>
+                        <Button
+                            variant="default"
+                            onClick={() => {
+                                excalidrawAPI?.updateScene({
+                                    appState: {
+                                        openSidebar: { name: 'library' },
+                                    },
+                                });
+                            }}
+                        >
+                            Library
+                        </Button>
                         <Button onClick={save}>Save</Button>
                     </Group>
                 </div>

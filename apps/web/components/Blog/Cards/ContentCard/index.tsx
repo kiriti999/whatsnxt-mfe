@@ -98,7 +98,7 @@ function ContentCard({ content }: ContentCardProps) {
                             </Text>
 
                             <Text size="sm" c="dimmed" mb="md" lineClamp={3} h={73}>
-                                {content.description || 'No description available'}
+                                {content.description ? content.description.replace(/<[^>]+>/g, '') : 'No description available'}
                             </Text>
                         </Card>
                     </Anchor>
