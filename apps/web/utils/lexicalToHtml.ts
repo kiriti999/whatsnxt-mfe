@@ -61,25 +61,25 @@ const nodeToHtml = (node: LexicalNode): string => {
       const format = node.format || 0;
       const mode = node.mode || 'normal';
       let html = applyTextFormatting(node.text || '', format);
-      
+
       if (mode === 'token') {
         html = `<code>${html}</code>`;
       }
-      
+
       return html;
     }
 
     case 'paragraph': {
       const children = node.children?.map(nodeToHtml).join('') || '';
       const direction = node.direction ? ` dir="${node.direction}"` : '';
-      
+
       // Handle text alignment via format
       let styleClass = '';
       if (node.format === 'left') styleClass = 'style="text-align:left"';
       if (node.format === 'center') styleClass = 'style="text-align:center"';
       if (node.format === 'right') styleClass = 'style="text-align:right"';
       if (node.format === 'justify') styleClass = 'style="text-align:justify"';
-      
+
       return `<p${direction}${styleClass ? ' ' + styleClass : ''}>${children}</p>`;
     }
 
@@ -105,12 +105,12 @@ const nodeToHtml = (node: LexicalNode): string => {
     case 'listitem': {
       const children = node.children?.map(nodeToHtml).join('') || '';
       const checked = node.checked;
-      
+
       if (checked !== undefined && checked !== null) {
         const checkbox = `<input type="checkbox" ${checked ? 'checked' : ''} disabled />`;
         return `<li>${checkbox}${children}</li>`;
       }
-      
+
       return `<li>${children}</li>`;
     }
 
@@ -144,7 +144,8 @@ const nodeToHtml = (node: LexicalNode): string => {
       return `<tr>${children}</tr>`;
     }
 
-    case 'tablecell': {
+    case 'tablecell':
+    case 'tablecell-header': {
       const children = node.children?.map(nodeToHtml).join('') || '';
       const colSpan = node.colSpan ? ` colspan="${node.colSpan}"` : '';
       const rowSpan = node.rowSpan ? ` rowspan="${node.rowSpan}"` : '';
@@ -162,6 +163,14 @@ const nodeToHtml = (node: LexicalNode): string => {
       const width = node.width ? ` width="${node.width}"` : '';
       const height = node.height ? ` height="${node.height}"` : '';
       return `<img src="${src}" alt="${alt}"${width}${height} />`;
+    }
+
+    case 'code-highlight': {
+      return escapeHtml(node.text || '');
+    }
+
+    case 'tab': {
+      return '  ';
     }
 
     case 'linebreak':
@@ -211,6 +220,10 @@ export const lexicalToHtml = (lexicalState: string | LexicalState): string => {
 
     return html;
   } catch (error) {
+    // Check if it looks like HTML (contains tags)
+    if (typeof lexicalState === 'string' && /<[a-z][\s\S]*>/i.test(lexicalState.trim())) {
+      return lexicalState;
+    }
     console.error('Error converting Lexical state to HTML:', error);
     return '';
   }

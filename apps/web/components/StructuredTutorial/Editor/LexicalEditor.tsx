@@ -14,6 +14,7 @@ import { LexicalErrorBoundary } from '@lexical/react/LexicalErrorBoundary';
 import { ClearEditorPlugin } from '@lexical/react/LexicalClearEditorPlugin';
 import { CodeHighlightPlugin } from './plugins/CodeHighlightPlugin';
 import { ImagesPlugin, INSERT_IMAGE_COMMAND } from './plugins/ImagesPlugin';
+import { $generateNodesFromDOM } from '@lexical/html';
 import { YouTubePlugin, INSERT_YOUTUBE_COMMAND } from './plugins/YouTubePlugin';
 import ExcalidrawPlugin, { INSERT_EXCALIDRAW_COMMAND } from './plugins/ExcalidrawPlugin';
 import DraggableBlockPlugin from './plugins/DraggableBlockPlugin';
@@ -804,16 +805,38 @@ const InitialStatePlugin: React.FC<{ value?: string }> = ({ value }) => {
       editor.setEditorState(editorState);
       hasLoadedInitialState.current = true;
     } catch (e) {
-      // Not valid Lexical JSON, fallback to treating it as plain text content
-      editor.update(() => {
-        const root = $getRoot();
-        root.clear();
-        const p = $createParagraphNode();
-        p.append($createTextNode(value));
-        root.append(p);
-      });
-      hasLoadedInitialState.current = true;
-      console.warn('LexicalEditor: Value is not valid JSON, loaded as plain text fallback.', e);
+      // Not valid Lexical JSON
+      // Check if it looks like HTML (contains tags)
+      const isHTML = /<[a-z][\s\S]*>/i.test(value.trim());
+      if (isHTML) {
+        editor.update(() => {
+          const root = $getRoot();
+          root.clear();
+          const parser = new DOMParser();
+          const dom = parser.parseFromString(value, 'text/html');
+          const nodes = $generateNodesFromDOM(editor, dom.body);
+          if (nodes && nodes.length > 0) {
+            root.append(...nodes);
+          } else {
+            // Fallback to text if generation failed
+            const p = $createParagraphNode();
+            p.append($createTextNode(value));
+            root.append(p);
+          }
+        });
+        hasLoadedInitialState.current = true;
+      } else {
+        // Fallback to plain text
+        editor.update(() => {
+          const root = $getRoot();
+          root.clear();
+          const p = $createParagraphNode();
+          p.append($createTextNode(value));
+          root.append(p);
+        });
+        hasLoadedInitialState.current = true;
+        console.warn('LexicalEditor: Value is not valid JSON, loaded as plain text fallback.', e);
+      }
     }
   }, [value, editor]);
 
