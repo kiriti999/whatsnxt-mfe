@@ -3,6 +3,7 @@ import React from 'react';
 import dynamic from 'next/dynamic';
 import { Box, LoadingOverlay } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
+import { FullPageOverlay } from '../../../components/Common/FullPageOverlay';
 
 // Dynamically import the HistoryMUI component
 const HistoryMUI = dynamic(() => import('../../../components/Blog/History/table-mui'), {
@@ -20,9 +21,9 @@ const HistoryMUI = dynamic(() => import('../../../components/Blog/History/table-
 export default function History() {
   const [isVisible, { open, close }] = useDisclosure(false);
   return (
-    <Box>
-      <LoadingOverlay visible={isVisible} zIndex={1000} overlayProps={{ radius: "sm", blur: 2 }} />
+    <>
+      <FullPageOverlay visible={isVisible} />
       <HistoryMUI open={open} close={close} />
-    </Box>
+    </>
   );
 }

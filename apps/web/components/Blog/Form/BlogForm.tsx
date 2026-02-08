@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback, Suspense, useRef } from 'react';
 import { useForm, Controller } from 'react-hook-form';
-import { Box, Button, Container, FileInput, Grid, Select, Text, TextInput, Title, LoadingOverlay, Loader, Switch, Alert, Group, Modal, Stack, Anchor } from '@mantine/core';
+import { Box, Button, Container, FileInput, Grid, Select, Text, TextInput, Title, Loader, Alert, Group, Modal, Stack, Anchor } from '@mantine/core';
 import { useRouter } from 'next/navigation';
 import { notifications } from '@mantine/notifications';
 import { BlogFormProps } from '../../../types/blogs';
@@ -18,6 +18,7 @@ import { unifiedDeleteWebWorker } from '../../../utils/worker/assetManager';
 import { useImageSafety } from '../../../hooks/useImageSafety';
 import { validateFile, formatFileSize, DEFAULT_VALIDATION_OPTIONS } from '../../../utils/imageValidation';
 import { ImageRequirements } from './ImageRequirements';
+import { FullPageOverlay } from '@/components/Common/FullPageOverlay';
 
 const BlogForm: React.FC<BlogFormProps> = ({ categories, edit }) => {
   const [isVisible, { open, close }] = useDisclosure(false);
@@ -481,7 +482,7 @@ const BlogForm: React.FC<BlogFormProps> = ({ categories, edit }) => {
   return (
     <Suspense fallback={<MantineLoader />}>
       <Container size="lg" mb={'4rem'} pos='relative'>
-        <LoadingOverlay visible={isVisible} zIndex={1000} overlayProps={{ radius: "sm", blur: 2 }} />
+        <FullPageOverlay visible={isVisible} />
 
         {/* API Key Modal */}
         <Modal
