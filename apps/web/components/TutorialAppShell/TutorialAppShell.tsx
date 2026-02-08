@@ -116,7 +116,6 @@ export default function TutorialAppShell({ children }: TutorialAppShellProps) {
                     paddingTop: '80px', // Push content down to clear global navbar
                 }
             }}
-            padding="md"
         >
             {/* Mobile: Sidebar toggle - fixed position to ensure visibility below global navbar */}
             {isMobile && isTutorialPage && !opened && (

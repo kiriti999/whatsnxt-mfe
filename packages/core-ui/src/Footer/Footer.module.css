@@ -3,6 +3,7 @@
     position: relative;
     z-index: 1;
     padding-top: 75px;
+    padding-bottom: 0;
 }
 
 .single-footer-widget {
@@ -85,7 +86,7 @@
 
 .footer-bottom-area {
     border-top: 2px solid #181726;
-    padding: 1rem;
+    padding: 0.5rem;
 }
 
 .footer-bottom-area p {
@@ -303,7 +304,7 @@
 
     .footer-area {
         color: #ffffff;
-        padding: 30px 10px 10px 10px;
+        padding: 30px 10px 15px 10px;
     }
 
     .single-footer-widget h3 {
@@ -318,7 +319,7 @@
     .footer-bottom-area {
         text-align: center;
         padding-top: 20px;
-        padding-bottom: 20px;
+        padding-bottom: 15px;
     }
 
     .footer-bottom-area ul {
