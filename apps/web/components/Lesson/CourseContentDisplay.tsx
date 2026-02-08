@@ -19,6 +19,24 @@ import { useQuery } from '@tanstack/react-query';
 import { CourseContentAPI, CourseContentSection } from '../../apis/v1/courses/course-content/course-content-api';
 import HtmlParser from '../Common/HtmlParse';
 import styles from './CourseContentDisplay.module.css';
+import { lexicalToHtml } from '../../utils/lexicalToHtml';
+
+/**
+ * Convert content to HTML for rendering.
+ * Handles both Lexical JSON and legacy HTML content.
+ */
+const toRenderedHtml = (content: string): string => {
+    if (!content) return '';
+    try {
+        const parsed = JSON.parse(content);
+        if (parsed?.root) {
+            return lexicalToHtml(parsed);
+        }
+    } catch {
+        // Not JSON — treat as HTML
+    }
+    return content;
+};
 
 interface CourseContentDisplayProps {
     courseId: string;
@@ -77,7 +95,7 @@ const ContentSection = ({ section, isDark }: ContentSectionProps) => {
             {/* Overview */}
             {section.overview && (
                 <Box className={styles.overview} mb="xl">
-                    <HtmlParser content={section.overview} withOptions />
+                    <HtmlParser content={toRenderedHtml(section.overview)} withOptions />
                 </Box>
             )}
 
@@ -155,7 +173,7 @@ const ComparisonTabs = ({ title, description, tabs, isDark }: ComparisonTabsProp
 
                     {sortedTabs.map((tab) => (
                         <Tabs.Panel key={tab.tabTitle} value={tab.tabTitle} p="lg">
-                            <HtmlParser content={tab.content} withOptions />
+                            <HtmlParser content={toRenderedHtml(tab.content)} withOptions />
                         </Tabs.Panel>
                     ))}
                 </Tabs>
@@ -231,7 +249,7 @@ const CollapsibleSection = ({ title, description, items, isDark }: CollapsibleSe
 
                             {isOpen && (
                                 <Box className={styles.collapsibleContent} mt="md">
-                                    <HtmlParser content={item.content} withOptions />
+                                    <HtmlParser content={toRenderedHtml(item.content)} withOptions />
                                 </Box>
                             )}
                         </Card>

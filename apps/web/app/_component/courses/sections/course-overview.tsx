@@ -1,5 +1,6 @@
 import { Title, Box, Paper, Text } from '@mantine/core';
 import HtmlParser from '../../../../components/Common/HtmlParse';
+import { lexicalToHtml } from '../../../../utils/lexicalToHtml';
 
 // Add styles for both Markdown and HTML content
 const codeBlockStyles = `
@@ -31,6 +32,23 @@ const codeBlockStyles = `
     tab-size: 4;
   }
 `;
+
+/**
+ * Convert content to HTML for rendering.
+ * Handles both Lexical JSON and legacy HTML content.
+ */
+const toRenderedHtml = (content: string): string => {
+    if (!content) return '';
+    try {
+        const parsed = JSON.parse(content);
+        if (parsed?.root) {
+            return lexicalToHtml(parsed);
+        }
+    } catch {
+        // Not JSON — treat as HTML
+    }
+    return content;
+};
 
 const CourseOverview = ({ courseName, overview }) => {
   return (
@@ -71,7 +89,7 @@ const CourseOverview = ({ courseName, overview }) => {
             Overview
           </Title>
           <Box className="rte">
-            <HtmlParser content={overview} withOptions />
+            <HtmlParser content={toRenderedHtml(overview)} withOptions />
           </Box>
         </Paper>
       </Box>

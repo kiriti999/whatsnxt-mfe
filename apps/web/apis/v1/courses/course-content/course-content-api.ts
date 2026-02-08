@@ -29,6 +29,8 @@ export interface CourseContentSection {
     courseId: string;
     title: string;
     overview: string;
+    contentFormat?: 'HTML' | 'LEXICAL';
+    contentKey?: string;
     comparisons: {
         title: string;
         description: string;

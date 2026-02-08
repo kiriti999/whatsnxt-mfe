@@ -7,6 +7,7 @@ import { removeAssetFromLocalStoragesList } from "../../../../utils/worker/local
 import { revalidate } from "../../../../server-actions";
 import { uploadImage } from '../../../../components/Blog/Form/util';
 import { unifiedDeleteWebWorker } from '../../../../utils/worker/assetManager';
+import { lexicalToHtml } from '../../../../utils/lexicalToHtml';
 
 type Payload = {
     courseImagePreview?: File | string;
@@ -20,9 +21,28 @@ type Payload = {
     associatedLabs?: string[];
 };
 
+/**
+ * Convert content to HTML for asset extraction.
+ * Content may be Lexical JSON or legacy HTML.
+ */
+const toHtmlForAssetExtraction = (content: string): string => {
+    if (!content) return '';
+    try {
+        const parsed = JSON.parse(content);
+        if (parsed?.root) {
+            return lexicalToHtml(parsed);
+        }
+    } catch {
+        // Not JSON — treat as HTML
+    }
+    return content;
+};
+
 const extractCloudAssetsToSave = ({ overview, topics }) => {
-    const cloudinaryLinksOverview = extractCloudinaryLinksFromContent(overview);
-    const cloudinaryLinksTopics = extractCloudinaryLinksFromContent(topics);
+    const overviewHtml = toHtmlForAssetExtraction(overview);
+    const topicsHtml = toHtmlForAssetExtraction(topics);
+    const cloudinaryLinksOverview = extractCloudinaryLinksFromContent(overviewHtml);
+    const cloudinaryLinksTopics = extractCloudinaryLinksFromContent(topicsHtml);
     const usedPublicIdsInEditor = extractPublicIdsFromLinks([...cloudinaryLinksOverview, ...cloudinaryLinksTopics]);
     return { cloudinaryLinksOverview, cloudinaryLinksTopics, usedPublicIdsInEditor }
 };
@@ -92,6 +112,7 @@ export const handleLandingPageSubmit: HandleLandingPageSubmit = async (
         const payload: any = {
             ...data,
             cloudinaryAssets,
+            contentFormat: 'LEXICAL',
         };
 
         // Only include image fields if we're uploading a new image

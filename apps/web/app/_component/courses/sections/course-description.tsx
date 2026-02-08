@@ -2,6 +2,7 @@ import { Accordion, Title } from '@mantine/core'
 import HtmlParser from '../../../../components/Common/HtmlParse'
 import styles from '../../../../components/Courses/Course.module.css';
 import { syntaxHighlightingTheme } from '../../../../components/RichTextEditor/extensions/CodeHighlight/syntaxHighlightingTheme';
+import { lexicalToHtml } from '../../../../utils/lexicalToHtml';
 
 // Combine base code block styles with comprehensive syntax highlighting theme
 const codeBlockStyles = `
@@ -13,8 +14,26 @@ const codeBlockStyles = `
   ${syntaxHighlightingTheme}
 `;
 
+/**
+ * Convert content to HTML for rendering.
+ * Handles both Lexical JSON and legacy HTML content.
+ */
+const toRenderedHtml = (content: string): string => {
+    if (!content) return '';
+    try {
+        const parsed = JSON.parse(content);
+        if (parsed?.root) {
+            return lexicalToHtml(parsed);
+        }
+    } catch {
+        // Not JSON — treat as HTML
+    }
+    return content;
+};
+
 
 const CourseDescription = ({ courseTopics }) => {
+    const renderedContent = toRenderedHtml(courseTopics);
     return (
         <>
             {/* Include the content styles */}
@@ -28,7 +47,7 @@ const CourseDescription = ({ courseTopics }) => {
                             </Accordion.Control>
                             <Accordion.Panel>
                                 {/* TODO: Add line clamp */}
-                                <HtmlParser content={courseTopics} withOptions />
+                                <HtmlParser content={renderedContent} withOptions />
                             </Accordion.Panel>
                         </Accordion.Item>
                     </Accordion>
