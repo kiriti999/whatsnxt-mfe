@@ -12,8 +12,8 @@ import {
     Anchor,
     Center,
     Box,
-    LoadingOverlay,
 } from '@mantine/core';
+import { FullPageOverlay } from '@/components/Common/FullPageOverlay';
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form';
 import { useDisclosure } from '@mantine/hooks';
@@ -91,9 +91,10 @@ const ResetPassword = () => {
                 <Text c="dimmed" fz="sm" ta="center">
                     Enter your email to get a reset link
                 </Text>
-                <Box pos="relative">
-                    <LoadingOverlay visible={visible} zIndex={1000} overlayProps={{ radius: 'sm', blur: 2 }} />
-                    <form onSubmit={handleSubmit(resetPassword)}>
+                <>
+                    <FullPageOverlay visible={visible} />
+                    <Box pos="relative">
+                        <form onSubmit={handleSubmit(resetPassword)}>
                         <Paper withBorder shadow="md" p={30} radius="md" mt="xl">
                             <TextInput error={errors.email?.message && 'Invalid email'}  {...register('email', validationOptions.email)} label="Your email" placeholder="email" required />
                             <Group justify="space-between" mt="lg" className={classes.controls}>
@@ -108,7 +109,7 @@ const ResetPassword = () => {
                         </Paper>
                     </form>
                 </Box>
-
+                </>
 
 
 

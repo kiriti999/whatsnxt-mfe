@@ -9,11 +9,11 @@ import {
     Title,
     Button,
     Group,
-    LoadingOverlay,
     Text,
     Divider,
     Tooltip,
 } from '@mantine/core';
+import { FullPageOverlay } from '@/components/Common/FullPageOverlay';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { MantineLoader } from '@whatsnxt/core-ui';
@@ -662,8 +662,8 @@ export const StructuredTutorialEditor: React.FC = () => {
 
     return (
         <Suspense fallback={<MantineLoader />}>
+            <FullPageOverlay visible={isVisible} />
             <Box pos="relative" h="calc(100vh - 80px)">
-                <LoadingOverlay visible={isVisible} />
 
                 {/* Header */}
                 <Paper p="md" withBorder>

@@ -15,13 +15,13 @@ import {
   Checkbox,
   Anchor,
   Stack,
-  LoadingOverlay,
   Box,
   Container,
   Title,
   Alert,
   rem
 } from '@mantine/core';
+import { FullPageOverlay } from '@/components/Common/FullPageOverlay';
 import { notifications } from '@mantine/notifications';
 import { IconInfoCircle, IconCheck } from '@tabler/icons-react';
 import { GoogleButton } from '@whatsnxt/core-ui/src/GoogleButton';
@@ -417,14 +417,11 @@ export function AuthenticationForm(props: PaperProps) {
 
         <Divider label="Or continue with email" labelPosition="center" my="lg" />
 
-        <Box pos="relative">
-          <LoadingOverlay
-            visible={isLoading}
-            zIndex={1000}
-            overlayProps={{ radius: 'sm', blur: 2 }}
-          />
+        <>
+          <FullPageOverlay visible={isLoading} />
+          <Box pos="relative">
 
-          <form onSubmit={form.onSubmit(handleSubmit)}>
+            <form onSubmit={form.onSubmit(handleSubmit)}>
             <Stack gap="md">
               {isRegisterForm && (
                 <TextInput
@@ -528,6 +525,7 @@ export function AuthenticationForm(props: PaperProps) {
             </Stack>
           </form>
         </Box>
+        </>
       </Paper>
     </Container>
   );

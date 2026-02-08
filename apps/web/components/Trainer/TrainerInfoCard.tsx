@@ -3,7 +3,8 @@
 import React, { useState } from 'react'; // Import useState
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { Avatar, Button, Text, Grid, Flex, HoverCard, Modal, LoadingOverlay, Box, Stack, Badge } from '@mantine/core';
+import { Avatar, Button, Text, Grid, Flex, HoverCard, Modal, Box, Stack, Badge } from '@mantine/core';
+import { FullPageOverlay } from '@/components/Common/FullPageOverlay';
 import { useMediaQuery } from '@mantine/hooks'; // Import the hook
 import { useQuery } from '@tanstack/react-query';
 import { IconClockHour2 } from '@tabler/icons-react';
@@ -90,7 +91,7 @@ const TrainerInfoCard: React.FC<TrainerInfoCardProps> = ({
 
   return (
     <Box px={'md'}>
-      <LoadingOverlay visible={isVisible} zIndex={1000} overlayProps={{ radius: "sm", blur: 2 }} />
+      <FullPageOverlay visible={isVisible} />
       {/* Modal for payment message */}
       <Modal
         opened={payNowModalOpened}

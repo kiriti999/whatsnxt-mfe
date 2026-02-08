@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Anchor, Divider, LoadingOverlay, Tooltip } from '@mantine/core';
+import { Anchor, Divider, Tooltip } from '@mantine/core';
+import { FullPageOverlay } from '@/components/Common/FullPageOverlay';
 import {
   Card,
   Text,
@@ -24,14 +25,7 @@ function CourseCard({ course }: ICourseCard) {
 
   return (
     <>
-      {/* Overlay Loader */}
-      {loading && (
-        <LoadingOverlay
-          visible={loading}
-          zIndex={1000}
-          overlayProps={{ radius: "sm", blur: 2 }}
-        />
-      )}
+      <FullPageOverlay visible={loading} />
 
       {/* course Card */}
       {course && (

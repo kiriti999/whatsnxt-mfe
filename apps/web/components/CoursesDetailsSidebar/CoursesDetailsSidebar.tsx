@@ -3,7 +3,8 @@ import styles from './CoursesDetailsSidebar.module.css';
 import { notifications } from '@mantine/notifications';
 import { useSelector } from 'react-redux';
 import { useAppDispatch } from '../../store/hooks'; // Create this hook
-import { Anchor, LoadingOverlay, Text, Group, Paper, Stack, ActionIcon } from '@mantine/core';
+import { Anchor, Text, Group, Paper, Stack, ActionIcon } from '@mantine/core';
+import { FullPageOverlay } from '@/components/Common/FullPageOverlay';
 import Link from 'next/link';
 import ReactPlayer from 'react-player';
 import ActionButtons from './ActionButtons';
@@ -139,7 +140,7 @@ export const CoursesDetailsSidebar: FC<CoursesDetailsSidebarProps> = ({
 
   return !isFetching && (
     <>
-      <LoadingOverlay visible={isVisible} zIndex={1000} overlayProps={{ radius: "sm", blur: 2 }} />
+      <FullPageOverlay visible={isVisible} />
 
       {display && (
         <ReactPlayer

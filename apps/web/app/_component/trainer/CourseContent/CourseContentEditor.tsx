@@ -15,8 +15,8 @@ import {
     Tooltip,
     Tabs,
     Divider,
-    LoadingOverlay,
 } from '@mantine/core';
+import { FullPageOverlay } from '@/components/Common/FullPageOverlay';
 import {
     IconPlus,
     IconTrash,
@@ -147,8 +147,8 @@ const CourseContentEditor = ({ courseId }: CourseContentEditorProps) => {
             setIsAssetsUploading={setIsAssetsUploading}
             courseId={courseId}
         >
+            <FullPageOverlay visible={isLoading} />
             <Card shadow="sm" padding="lg" radius="md" withBorder>
-                <LoadingOverlay visible={isLoading} />
 
                 <Accordion defaultValue="course-content">
                     <Accordion.Item value="course-content">

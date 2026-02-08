@@ -10,9 +10,10 @@ import Pagination from '../../Common/Pagination';
 import { LexicalEditor } from '../../StructuredTutorial/Editor/LexicalEditor';
 import { lexicalToHtml } from '../../../utils/lexicalToHtml';
 import { useRouter } from 'next/navigation';
-import { Alert, Box, Button, Container, FileInput, Grid, Group, Input, Select, Stack, Text, Title, LoadingOverlay, Loader } from '@mantine/core';
+import { Alert, Box, Button, Container, FileInput, Grid, Group, Input, Select, Stack, Text, Title, Loader } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { LoadingOverlay as CustomLoadingOverlay } from '@whatsnxt/core-ui';
+import { FullPageOverlay } from '@/components/Common/FullPageOverlay';
 import { IconUpload, IconAlertCircle, IconCheck } from '@tabler/icons-react';
 import { default as NextImage } from 'next/image';
 import { uploadImage } from './util';
@@ -578,7 +579,7 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
 
   return (
     <Container size="xl" py="xl">
-      <LoadingOverlay visible={visible} zIndex={1000} overlayProps={{ radius: "sm", blur: 2 }} />
+      <FullPageOverlay visible={visible} />
       <Box>
         <Title order={2} mb="xl" fw={600}>{edit ? 'Edit tutorial details' : 'Post a tutorial'}</Title>
 

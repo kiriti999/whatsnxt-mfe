@@ -11,7 +11,6 @@ import {
   Paper,
   Text,
   Tabs,
-  LoadingOverlay,
   Badge,
   Stack,
   TextInput,
@@ -21,6 +20,7 @@ import {
   ActionIcon,
   Modal,
 } from '@mantine/core';
+import { FullPageOverlay } from '@/components/Common/FullPageOverlay';
 import { useForm } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
@@ -291,9 +291,9 @@ const LabDetailPage = () => {
 
   if (loading) {
     return (
-      <Container size="lg" py="xl">
-        <LoadingOverlay visible={loading} />
-      </Container>
+      <>
+        <FullPageOverlay visible={loading} />
+      </>
     );
   }
 

@@ -14,10 +14,11 @@ import {
   Divider,
   Checkbox,
   Anchor,
-  Stack, LoadingOverlay,
+  Stack,
   Box,
   Grid
 } from '@mantine/core';
+import { FullPageOverlay } from '@/components/Common/FullPageOverlay';
 import { GoogleButton } from '@whatsnxt/core-ui/src/GoogleButton';
 import Link from 'next/link';
 import { notifications } from '@mantine/notifications';
@@ -296,9 +297,10 @@ export const GuestCheckoutComponent: FC<GuestCheckoutComponentProps> = () => {
       </Group>
 
       <Divider label="Or continue with email" labelPosition="center" my="lg" />
-      <Box pos="relative">
-        <LoadingOverlay visible={registerHandler.isPending || otpSendHandler.isPending || loginHandler.isPending} zIndex={1000} overlayProps={{ radius: 'sm', blur: 2 }} />
-        <form onSubmit={handleSubmit(onSubmit)} className='pb-10'>
+      <>
+        <FullPageOverlay visible={registerHandler.isPending || otpSendHandler.isPending || loginHandler.isPending} />
+        <Box pos="relative">
+          <form onSubmit={handleSubmit(onSubmit)} className='pb-10'>
           <Stack>
             {isRegisterForm && (
               <TextInput
@@ -369,6 +371,7 @@ export const GuestCheckoutComponent: FC<GuestCheckoutComponentProps> = () => {
           </Group>
         </form>
       </Box>
+      </>
 
     </Paper>
   );

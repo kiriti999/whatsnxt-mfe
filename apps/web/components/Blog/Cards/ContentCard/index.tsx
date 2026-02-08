@@ -1,8 +1,8 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { Anchor, Divider, LoadingOverlay, Tooltip, Box } from '@mantine/core';
+import { Anchor, Divider, Tooltip, Box } from '@mantine/core';
+import { FullPageOverlay } from '@/components/Common/FullPageOverlay';
 import { Card, Text, Badge, Group } from '@mantine/core';
-import { IconLayoutList } from '@tabler/icons-react';
 import { useState } from 'react';
 
 interface ContentCardProps {
@@ -45,13 +45,7 @@ function ContentCard({ content }: ContentCardProps) {
 
     return (
         <>
-            {loading && (
-                <LoadingOverlay
-                    visible={loading}
-                    zIndex={1000}
-                    overlayProps={{ radius: "sm", blur: 2 }}
-                />
-            )}
+            <FullPageOverlay visible={loading} />
 
             {content && (
                 <Tooltip label={content.title} position="bottom">

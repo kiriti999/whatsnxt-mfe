@@ -3,7 +3,8 @@
 import React, { FC, useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useDisclosure } from '@mantine/hooks';
-import { Anchor, Box, Container, Divider, Flex, Group, LoadingOverlay, Text, Title } from '@mantine/core';
+import { Anchor, Box, Container, Divider, Flex, Group, Text, Title } from '@mantine/core';
+import { FullPageOverlay } from '@/components/Common/FullPageOverlay';
 import { PaymentButton } from '../paymentButton';
 import { calculateCartTotal } from '../../../utils/calculateCartTotal';
 
@@ -85,9 +86,8 @@ export const UserCheckoutComponent: FC = () => {
   };
 
   return (
-    <Box pos='relative'>
-      <LoadingOverlay visible={isVisible} zIndex={1000} overlayProps={{ radius: "sm", blur: 2 }} />
-
+    <>
+      <FullPageOverlay visible={isVisible} />
       <Container size={'lg'} className='ptb-80'>
         <Title order={3}>Your Order</Title>
 
@@ -132,6 +132,6 @@ export const UserCheckoutComponent: FC = () => {
           close={close}
         />
       </Container>
-    </Box>
+    </>
   );
 };

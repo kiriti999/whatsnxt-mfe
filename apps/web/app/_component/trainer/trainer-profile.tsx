@@ -12,7 +12,6 @@ import {
     Button,
     Paper,
     Anchor,
-    LoadingOverlay,
     TextInput,
     Textarea,
     NumberInput,
@@ -23,6 +22,7 @@ import {
     Title,
     Flex
 } from '@mantine/core';
+import { FullPageOverlay } from '@/components/Common/FullPageOverlay';
 import { IconEdit, IconDeviceFloppy, IconX, IconUpload } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
 import Link from 'next/link';
@@ -166,11 +166,12 @@ const TrainerProfile = ({ profile: profileData }) => {
     };
 
     return (
-        <Container>
-            <Box>
-                <LoadingOverlay visible={isVisible || loading} zIndex={1000} overlayProps={{ radius: "sm", blur: 2 }} />
+        <>
+            <FullPageOverlay visible={isVisible || loading} />
+            <Container>
+                <Box>
 
-                <Paper radius="md" p="xl" withBorder w="100%" mb={'3rem'}>
+                    <Paper radius="md" p="xl" withBorder w="100%" mb={'3rem'}>
                     {/* Header with Edit/Save/Cancel buttons */}
                     <Flex justify="space-between" align="center" mb="lg">
                         <Title order={2}>Trainer Profile</Title>
@@ -511,6 +512,7 @@ const TrainerProfile = ({ profile: profileData }) => {
                 </Paper>
             </Box>
         </Container>
+        </>
     );
 };
 

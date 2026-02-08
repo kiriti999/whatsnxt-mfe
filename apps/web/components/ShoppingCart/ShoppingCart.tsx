@@ -13,12 +13,12 @@ import {
   Text,
   Card,
   Grid,
-  LoadingOverlay,
   ScrollArea,
   Flex,
   useMantineTheme,
   Paper,
 } from "@mantine/core";
+import { FullPageOverlay } from '@/components/Common/FullPageOverlay';
 import { IconShoppingCart, IconTrash } from "@tabler/icons-react";
 import { CartItems } from "../CartItems/CartItems";
 import { calculateCartTotal } from "../../utils/calculateCartTotal";
@@ -258,10 +258,11 @@ export const ShoppingCart: FC = () => {
   }, []);
 
   return (
-    <Box pos='relative' my={'5rem'}>
-      <LoadingOverlay visible={isLoading} zIndex={1000} overlayProps={{ radius: "sm", blur: 2 }} />
+    <>
+      <FullPageOverlay visible={isLoading} />
       {!isLoading && (
-        <Container size={isMobile ? "100%" : "xl"} px={isMobile ? "xs" : "md"} py="md">
+        <Box pos='relative' my={'5rem'}>
+          <Container size={isMobile ? "100%" : "xl"} px={isMobile ? "xs" : "md"} py="md">
           <Grid justify='center'>
             <Grid.Col span={{ base: 12, md: 8, lg: 7 }}>
               <form>
@@ -377,8 +378,9 @@ export const ShoppingCart: FC = () => {
             </Grid.Col>
           </Grid>
         </Container>
+        </Box >
       )
       }
-    </Box >
+    </>
   );
 };

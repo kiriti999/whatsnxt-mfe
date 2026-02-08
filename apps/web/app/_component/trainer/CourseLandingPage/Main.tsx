@@ -15,8 +15,8 @@ import {
 	Card,
 	Grid,
 	Alert,
-	LoadingOverlay,
 } from '@mantine/core';
+import { FullPageOverlay } from '@/components/Common/FullPageOverlay';
 import { useCallback, useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { useQuery } from '@tanstack/react-query';
@@ -361,8 +361,8 @@ const Main = ({ courseWithSections, courseId }) => {
 	return (
 		<TiptapManageContextProvider isAssetsUploading={isAssetsUploading} setIsAssetsUploading={setIsAssetsUploading} courseId={courseId}>
 			<CourseUploadAssetProgress />
+			<FullPageOverlay visible={visible} />
 			<div style={{ position: 'relative' }} className="border-box">
-				<LoadingOverlay visible={visible} zIndex={1000} overlayProps={{ radius: 'sm', blur: 2 }} />
 
 				<Card shadow="sm" radius="md" withBorder padding="lg">
 					<form onSubmit={handleSubmit((payload) => handleLandingPageSubmit({

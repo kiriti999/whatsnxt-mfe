@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useEffect } from 'react';
-import { Container, Grid, LoadingOverlay } from '@mantine/core';
+import { Container, Grid } from '@mantine/core';
+import { FullPageOverlay } from '@/components/Common/FullPageOverlay';
 import { useDisclosure } from '@mantine/hooks';
 import Dashboard from '../../../../components/Trainer/Dashboard';
 import { DashboardContextProvider } from '../../../../context/DashboardContext';
@@ -21,7 +22,7 @@ const CourseContentPage: React.FC<CourseContentPageProps> = ({ id, courseData })
 
     return (
         <DashboardContextProvider>
-            <LoadingOverlay visible={isVisible} zIndex={1000} overlayProps={{ radius: 'sm', blur: 2 }} />
+            <FullPageOverlay visible={isVisible} />
             <Container mb="xl" fluid px="10%" mt={80}>
                 <Grid>
                     <Grid.Col span={{ base: 12, md: 4, lg: 3 }}>

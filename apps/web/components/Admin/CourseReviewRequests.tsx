@@ -12,7 +12,6 @@ import {
     Button,
     Center,
     Text,
-    LoadingOverlay,
     Pagination,
     Box,
     Badge,
@@ -25,6 +24,7 @@ import {
     Avatar,
     Divider,
 } from '@mantine/core';
+import { FullPageOverlay } from '@/components/Common/FullPageOverlay';
 import { useDisclosure } from '@mantine/hooks';
 import AdminSidebar from "./AdminSidebar";
 import { CourseAPI } from "../../apis/v1/courses/course/course";
@@ -118,8 +118,8 @@ const CourseReviewRequests = () => {
                 background: 'linear-gradient(180deg, rgba(99, 102, 241, 0.03) 0%, rgba(255, 255, 255, 0) 100%)',
             }}
         >
+            <FullPageOverlay visible={isOpened} />
             <Container size="xl" py="xl" pos='relative'>
-                <LoadingOverlay visible={isOpened} zIndex={1000} overlayProps={{ radius: 'sm', blur: 2 }} />
 
                 {/* Header Section */}
                 <Flex justify="space-between" align="center" mb="xl">

@@ -6,9 +6,10 @@ import {
   Title,
   Button,
   Container,
-  PasswordInput, Stack, LoadingOverlay,
+  PasswordInput, Stack,
   Box
 } from '@mantine/core';
+import { FullPageOverlay } from '@/components/Common/FullPageOverlay';
 import { useForm } from 'react-hook-form';
 import { useRouter } from 'next/navigation'
 import { useDisclosure } from '@mantine/hooks';
@@ -100,13 +101,14 @@ const SetPassword = () => {
 
   return (
     <div>
-      <Container size={460} my={30}>
-        <Title className={classes.title} ta="center">
-          Reset your password
-        </Title>
-        <Box pos="relative">
-          <LoadingOverlay visible={visible} zIndex={1000} overlayProps={{ radius: 'sm', blur: 2 }} />
-          <form onSubmit={handleSubmit(setPassword)}>
+      <>
+        <FullPageOverlay visible={visible} />
+        <Container size={460} my={30}>
+          <Title className={classes.title} ta="center">
+            Reset your password
+          </Title>
+          <Box pos="relative">
+            <form onSubmit={handleSubmit(setPassword)}>
             <Paper withBorder shadow="md" p={30} radius="md" mt="xl">
               <Stack>
                 <PasswordInput
@@ -131,6 +133,7 @@ const SetPassword = () => {
           </form>
         </Box>
       </Container>
+      </>
     </div>
   );
 };

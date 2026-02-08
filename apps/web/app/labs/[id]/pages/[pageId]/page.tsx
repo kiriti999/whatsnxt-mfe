@@ -21,9 +21,9 @@ import {
   Badge,
   Accordion,
   Alert,
-  LoadingOverlay,
   Modal,
 } from '@mantine/core';
+import { FullPageOverlay } from '@/components/Common/FullPageOverlay';
 import { useMediaQuery, useDebouncedCallback, useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { IconTrash, IconSearch, IconX, IconDeviceDesktop } from '@tabler/icons-react';
@@ -818,9 +818,10 @@ const LabPageEditorPage = () => {
   }
 
   return (
-    <Container size="xl" py="xl">
-      <LoadingOverlay visible={isCreatingPage} overlayProps={{ blur: 2 }} />
-      <Group justify="space-between" mb="xl">
+    <>
+      <FullPageOverlay visible={isCreatingPage} />
+      <Container size="xl" py="xl">
+        <Group justify="space-between" mb="xl">
         <Button variant="subtle" onClick={handleBackToTestsAndQuestions}>
           ← Back to Lab
         </Button>
@@ -1325,6 +1326,7 @@ const LabPageEditorPage = () => {
         </Stack>
       </Modal>
     </Container>
+    </>
   );
 };
 

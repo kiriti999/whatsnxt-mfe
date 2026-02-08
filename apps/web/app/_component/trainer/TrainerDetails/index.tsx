@@ -1,7 +1,8 @@
 'use client';
 
 import { Image, Paper, Stack } from '@mantine/core';
-import { Avatar, Box, Button, Container, Flex, Grid, Group, LoadingOverlay, Modal, Text, Title } from "@mantine/core";
+import { Avatar, Box, Button, Container, Flex, Grid, Group, Modal, Text, Title } from "@mantine/core";
+import { FullPageOverlay } from '@/components/Common/FullPageOverlay';
 import { IconBrandDatabricks, IconBrandRedhat, IconCurrencyRupee, IconSchool, IconScreenShare } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import Sections from "./Sections";
@@ -55,7 +56,7 @@ const TrainerDetails = ({ trainer, courses }) => {
 
     return (
         <Container>
-            <LoadingOverlay visible={isVisible} zIndex={1000} overlayProps={{ radius: "sm", blur: 2 }} />
+            <FullPageOverlay visible={isVisible} />
             <Modal
                 opened={payNowModalOpened}
                 onClose={() => setPayNowModalOpened(false)} // Close modal when clicking outside or on close button
