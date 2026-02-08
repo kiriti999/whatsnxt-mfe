@@ -12,8 +12,8 @@ import {
 import { validateFile, formatFileSize, DEFAULT_VALIDATION_OPTIONS } from '../../../../utils/imageValidation';
 
 // File size limits (in bytes)
-const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
-const RECOMMENDED_SIZE = 3 * 1024 * 1024; // 3MB
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const RECOMMENDED_SIZE = 2 * 1024 * 1024; // 2MB
 const MAX_DIMENSIONS = { width: 4096, height: 4096 }; // 4K max
 
 // Supported image formats

@@ -113,7 +113,7 @@ export const validateFile = async (
  */
 export const DEFAULT_VALIDATION_OPTIONS = {
   BLOG_TUTORIAL: {
-    maxSize: 2 * 1024 * 1024, // 2MB
+    maxSize: 5 * 1024 * 1024, // 5MB
     allowedTypes: ['image/png', 'image/jpg', 'image/jpeg'],
     minWidth: 750,
     minHeight: 422,
@@ -121,7 +121,7 @@ export const DEFAULT_VALIDATION_OPTIONS = {
     maxHeight: 6000,
   },
   PROFILE: {
-    maxSize: 2 * 1024 * 1024, // 2MB
+    maxSize: 5 * 1024 * 1024, //  5MB
     allowedTypes: ['image/png', 'image/jpg', 'image/jpeg'],
     minWidth: 150,
     minHeight: 150,
@@ -129,7 +129,7 @@ export const DEFAULT_VALIDATION_OPTIONS = {
     maxHeight: 2048,
   },
   RICH_TEXT_EDITOR: {
-    maxSize: 2 * 1024 * 1024, // 2MB
+    maxSize: 5 * 1024 * 1024, // 5MB
     allowedTypes: ['image/png', 'image/jpg', 'image/jpeg'],
     minWidth: 1,
     minHeight: 1,

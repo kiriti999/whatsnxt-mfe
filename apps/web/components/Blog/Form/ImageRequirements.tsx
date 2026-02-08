@@ -17,7 +17,7 @@ export const ImageRequirements = () => {
                 <strong>Maximum required dimensions:</strong> 6000 × 6000 pixels
             </Text>
             <Text size="sm" mt="xs">
-                <strong>File size:</strong> Maximum 2MB
+                <strong>File size:</strong> Maximum 5MB
             </Text>
             <Text size="sm" mt="xs" c="blue">
                 <strong>AI Safety:</strong> All images are automatically scanned for inappropriate content before upload.
