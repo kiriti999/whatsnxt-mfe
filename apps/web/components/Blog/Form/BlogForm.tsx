@@ -136,8 +136,10 @@ const BlogForm: React.FC<BlogFormProps> = ({ categories, edit }) => {
 
         // Set the content format state based on stored value
         const selectedCategory = categories.find((cat) => cat.categoryName === edit.categoryName);
+        let mappedSubCategories: any[] = [];
+
         if (selectedCategory?.subcategories) {
-          const mappedSubCategories = selectedCategory.subcategories.map((sub) => ({
+          mappedSubCategories = selectedCategory.subcategories.map((sub) => ({
             value: sub.name,        // ✅ Already correct - uses 'name'
             label: sub.name,        // ✅ Already correct - uses 'name'
             subcategories: sub.subcategories,
@@ -156,6 +158,9 @@ const BlogForm: React.FC<BlogFormProps> = ({ categories, edit }) => {
 
         if (edit.subCategory) {
           setValue('subCategory', edit.subCategory)
+        } else if (mappedSubCategories && mappedSubCategories.length > 0 && mappedSubCategories[0].value) {
+          // Auto-select first subcategory if edit doesn't have one
+          setValue('subCategory', mappedSubCategories[0].value);
         }
 
         if (edit.nestedSubCategory) {
@@ -188,8 +193,14 @@ const BlogForm: React.FC<BlogFormProps> = ({ categories, edit }) => {
 
       setSubCategories(selectedCategoriesToUpdate)
       setNestedSubCategories([]); // Reset nested subcategories
+
+      // Auto-select the first subcategory if available
+      if (selectedCategoriesToUpdate.length > 0 && selectedCategoriesToUpdate[0].value) {
+        setValue('subCategory', selectedCategoriesToUpdate[0].value);
+        handleSubCategoryChange(selectedCategoriesToUpdate[0].value);
+      }
     },
-    [categories]
+    [categories, setValue]
   );
 
   // Update nested subcategories when a subcategory is selected
