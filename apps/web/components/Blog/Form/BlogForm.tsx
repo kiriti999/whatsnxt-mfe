@@ -14,7 +14,6 @@ import { MantineLoader } from '@whatsnxt/core-ui';
 import { AISuggestions } from '../../../apis/v1/blog/aiSuggestions';
 import Image from 'next/image';
 import { uploadImage } from './util';
-import { unifiedDeleteWebWorker } from '../../../utils/worker/assetManager';
 import { useImageSafety } from '../../../hooks/useImageSafety';
 import { validateFile, formatFileSize, DEFAULT_VALIDATION_OPTIONS } from '../../../utils/imageValidation';
 import { ImageRequirements } from './ImageRequirements';
@@ -277,7 +276,6 @@ const BlogForm: React.FC<BlogFormProps> = ({ categories, edit }) => {
 
   const handleFormSubmit = async (formData: any, e: any) => {
     e.preventDefault();
-    let imageAssets = [] // store image assets image url for temp
     const bffApiUrl = process.env.NEXT_PUBLIC_BFF_HOST_IMAGEKIT_API;
     try {
       open();
@@ -303,12 +301,11 @@ const BlogForm: React.FC<BlogFormProps> = ({ categories, edit }) => {
       if (blogImage) {
         // Upload image via worker
         const addToLocalStorage = false;
-        const { secure_url, updatedAssets } = await uploadImage(blogImage, cloudinaryAssets, 'whatsnxt-blog', addToLocalStorage, bffApiUrl);
-        imageUrl = secure_url
-        cloudinaryAssets = updatedAssets;
+        const { secure_url, asset } = await uploadImage(blogImage, 'whatsnxt', addToLocalStorage, bffApiUrl);
 
-        if (secure_url) {
-          imageAssets = [...updatedAssets]
+        if (secure_url && asset) {
+          imageUrl = secure_url;
+          cloudinaryAssets = [asset];
         }
       }
 
@@ -347,13 +344,7 @@ const BlogForm: React.FC<BlogFormProps> = ({ categories, edit }) => {
         message: error?.message || 'An error occurred while saving the blog',
         color: 'red',
       });
-      // Early return if no assets to clean up
-      if (!imageAssets.length) {
-        return;
-      }
-      await unifiedDeleteWebWorker({ assetsList: imageAssets, clearLocalStorage: true, bffApiUrl });
     } finally {
-      imageAssets = [] // remove temp assests
       close();
     }
   };

@@ -15,7 +15,7 @@
 
 import { notifications } from '@mantine/notifications';
 import { removeTempImageFromEditor, replaceImageLinksOnContentPreview } from '../../components/RichTextEditor/common/EditorUtils';
-import { UnifiedUploadOptions, UploadResponse, UnifiedDeleteOptions, DeleteAssetResult, WorkerResponse } from './types';
+import { UnifiedUploadOptions, UploadResponse, DeleteAssetResult, WorkerResponse } from './types';
 
 
 export const unifiedUploadWebWorker = async (options: UnifiedUploadOptions): Promise<UploadResponse | null> => {
@@ -193,7 +193,7 @@ export const unifiedUploadWebWorker = async (options: UnifiedUploadOptions): Pro
     });
 };
 
-export const unifiedDeleteWebWorker = async (options: UnifiedDeleteOptions): Promise<DeleteAssetResult> => {
+export const unifiedDeleteWebWorker = async (options: any): Promise<DeleteAssetResult> => {
     const {
         assetsList,
         clearLocalStorage = false,

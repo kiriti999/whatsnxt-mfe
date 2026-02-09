@@ -6,7 +6,6 @@ import { extractCloudinaryLinksFromContent, extractPublicIdsAndTypeFromLinks, ex
 import { removeAssetFromLocalStoragesList } from "../../../../utils/worker/localStorageHandler";
 import { revalidate } from "../../../../server-actions";
 import { uploadImage } from '../../../../components/Blog/Form/util';
-import { unifiedDeleteWebWorker } from '../../../../utils/worker/assetManager';
 
 type Payload = {
     courseImagePreview?: File | string;
@@ -48,7 +47,6 @@ export const handleLandingPageSubmit: HandleLandingPageSubmit = async (
     open,
     close
 ) => {
-    let imageAssets = [] // store image assets image url for temp
     const bffApiUrl = process.env.NEXT_PUBLIC_BFF_HOST_IMAGEKIT_API;
     try {
         open()
@@ -65,21 +63,17 @@ export const handleLandingPageSubmit: HandleLandingPageSubmit = async (
             setImageUploading?.(true);
 
             try {
-                const { secure_url, updatedAssets } = await uploadImage(
+                const { secure_url, asset } = await uploadImage(
                     courseImagePreview,
-                    cloudinaryAssets,
                     courseId, // Using courseId as folder name
                     false, // addToLocalStorage - adjust based on your needs
                     bffApiUrl
                 );
 
-                if (secure_url) {
+                if (secure_url && asset) {
                     imageUrl = secure_url.replace(/^http:\/\//i, 'https://');
-                    // Extract public_id from the updated assets
-                    const uploadedAsset = updatedAssets[updatedAssets.length - 1];
-                    courseImagePublicId = uploadedAsset?.public_id || '';
-                    cloudinaryAssets = updatedAssets;
-                    imageAssets = [...updatedAssets]
+                    courseImagePublicId = asset.public_id || '';
+                    cloudinaryAssets = [asset];
                 }
             } finally {
                 setImageUploading?.(false);
@@ -119,13 +113,7 @@ export const handleLandingPageSubmit: HandleLandingPageSubmit = async (
             message: err?.response?.data || err?.message || 'Course failed to update',
             color: 'red',
         });
-        // Early return if no assets to clean up
-        if (!imageAssets.length) {
-            return;
-        }
-        await unifiedDeleteWebWorker({ assetsList: imageAssets, clearLocalStorage: true, bffApiUrl });
     } finally {
-        imageAssets = [] // remove temp assests
         setImageUploading?.(false);
         close()
     }

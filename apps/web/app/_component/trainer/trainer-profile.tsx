@@ -116,7 +116,6 @@ const TrainerProfile = ({ profile: profileData }) => {
                     const bffApiUrl = process.env.NEXT_PUBLIC_BFF_HOST_IMAGEKIT_API;
                     const { secure_url } = await uploadImage(
                         profileImage,
-                        [],
                         `users/${profile.name}/profile`,
                         true,
                         bffApiUrl
