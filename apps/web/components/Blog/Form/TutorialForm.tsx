@@ -17,7 +17,6 @@ import { FullPageOverlay } from '@/components/Common/FullPageOverlay';
 import { IconUpload, IconAlertCircle, IconCheck } from '@tabler/icons-react';
 import { default as NextImage } from 'next/image';
 import { uploadImage } from './util';
-import { unifiedDeleteWebWorker } from '../../../utils/worker/assetManager';
 import { useImageSafety } from '../../../hooks/useImageSafety';
 import { validateFile, formatFileSize, DEFAULT_VALIDATION_OPTIONS } from '../../../utils/imageValidation';
 import { ImageRequirements } from './ImageRequirements';
@@ -36,10 +35,10 @@ interface TutorialFormProps {
     imageUrl?: string;
     cloudinaryAssets: {
       public_id: string;
-      type: string;
       url: string;
       secure_url: string;
       format: string;
+      resource_type: string;
     }[] | null
     lexicalState?: Record<string, any> | null;
   };
@@ -457,9 +456,11 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
         // Upload image via worker
         const addToLocalStorage = false;
         const bffApiUrl = process.env.NEXT_PUBLIC_BFF_HOST_IMAGEKIT_API;
-        const { secure_url, updatedAssets } = await uploadImage(tutorialImage, cloudinaryAssets, 'whatsnxt-tutorial', addToLocalStorage, bffApiUrl);
-        imageUrl = secure_url;
-        cloudinaryAssets = updatedAssets;
+        const { secure_url, asset } = await uploadImage(tutorialImage, 'whatsnxt-tutorial', addToLocalStorage, bffApiUrl);
+        if (secure_url && asset) {
+          imageUrl = secure_url;
+          cloudinaryAssets = [asset];
+        }
       }
 
       const details = {
@@ -519,11 +520,6 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
           color: 'red',
         });
 
-        // Early return if no assets to clean up
-        if (!cloudinaryAssets.length) {
-          return;
-        }
-        await unifiedDeleteWebWorker({ assetsList: cloudinaryAssets, clearLocalStorage: true, bffApiUrl });
       } finally {
         close();
       }

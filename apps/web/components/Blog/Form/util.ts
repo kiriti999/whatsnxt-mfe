@@ -1,8 +1,8 @@
 import { unifiedUploadWebWorker } from '../../../utils/worker/assetManager';
 
-export const uploadImage = async (image, cloudinaryAssets, folder, addToLocalStorage, bffApiUrl) => {
+export const uploadImage = async (image, folder, addToLocalStorage, bffApiUrl) => {
     if (!image) {
-        return { imageUrl: null, updatedAssets: cloudinaryAssets };
+        return { secure_url: null, asset: null };
     }
 
     console.log(`uploadImage:: Uploading via worker...`);
@@ -24,24 +24,23 @@ export const uploadImage = async (image, cloudinaryAssets, folder, addToLocalSto
             bffApiUrl
         });
 
-        let secure_url = null;
-        let updatedAssets = [...cloudinaryAssets];
-
-        if (fileUploadResData) {
-            secure_url = fileUploadResData.secure_url;
-            updatedAssets.push({
-                public_id: fileUploadResData.public_id,
-                resource_type: fileUploadResData.resource_type,
-                url: fileUploadResData.url,
-                secure_url: secure_url,
-                format: fileUploadResData.format
-            });
-        }
-
         // Clean up temporary URL
         URL.revokeObjectURL(tempUrl);
 
-        return { secure_url, updatedAssets };
+        if (!fileUploadResData) {
+            return { secure_url: null, asset: null };
+        }
+
+        // Return only the new card image asset — callers replace the old one
+        const asset = {
+            public_id: fileUploadResData.public_id,
+            resource_type: fileUploadResData.resource_type,
+            url: fileUploadResData.url,
+            secure_url: fileUploadResData.secure_url,
+            format: fileUploadResData.format
+        };
+
+        return { secure_url: fileUploadResData.secure_url, asset };
 
     } catch (error) {
         console.error('Upload failed:', error);

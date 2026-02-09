@@ -21,6 +21,26 @@ interface ContentCardProps {
     };
 }
 
+/**
+ * Decode HTML entities to readable text
+ * Converts entities like &#039; to ' and &amp; to &
+ */
+function decodeHtmlEntities(text: string): string {
+    const textarea = document.createElement('textarea');
+    textarea.innerHTML = text;
+    return textarea.value;
+}
+
+/**
+ * Strip HTML tags and decode entities to get clean plain text
+ */
+function getPlainText(html: string): string {
+    // First strip HTML tags
+    const withoutTags = html.replace(/<[^>]+>/g, '');
+    // Then decode HTML entities
+    return decodeHtmlEntities(withoutTags);
+}
+
 function ContentCard({ content }: ContentCardProps) {
     const [loading, setLoading] = useState(false);
 
@@ -69,7 +89,7 @@ function ContentCard({ content }: ContentCardProps) {
                                         sizes="(max-width: 480px) 300px, (max-width: 768px) 280px, 300px"
                                         style={{
                                             width: '100%',
-                                            height: '230px',
+                                            height: '245px',
                                             display: 'block',
                                             objectFit: 'cover'
                                         }}
@@ -91,8 +111,8 @@ function ContentCard({ content }: ContentCardProps) {
                                 {content.title}
                             </Text>
 
-                            <Text size="sm" c="dimmed" mb="md" lineClamp={3} h={73}>
-                                {content.description ? content.description.replace(/<[^>]+>/g, '') : 'No description available'}
+                            <Text size="sm" c="dimmed" mb="md" lineClamp={4} h={77}>
+                                {content.description ? getPlainText(content.description) : 'No description available'}
                             </Text>
                         </Card>
                     </Anchor>

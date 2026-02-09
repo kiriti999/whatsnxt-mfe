@@ -175,8 +175,6 @@ self.onmessage = async (event) => {
                 const originalSize = file.size;
                 file = await convertToWebP(file, 0.85);
                 const newSize = file.size;
-                const savings = ((originalSize - newSize) / originalSize * 100).toFixed(1);
-                // console.log(`✅ [Upload Worker] WebP conversion complete. Size reduced by ${savings}%`);
             } catch (conversionError) {
                 console.warn('⚠️ [Upload Worker] WebP conversion failed, using original:', conversionError);
                 // Continue with original file

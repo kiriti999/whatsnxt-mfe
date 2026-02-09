@@ -222,9 +222,8 @@ const RegisterForm = ({ user }: { user: any }) => {
       if (profileImage) {
         try {
           const bffApiUrl = process.env.NEXT_PUBLIC_BFF_HOST_IMAGEKIT_API;
-          const { secure_url, updatedAssets } = await uploadImage(
+          const { secure_url, asset } = await uploadImage(
             profileImage,
-            [], // No existing cloudinary assets for profile photo
             `users/${user?.email}/profile`, // folder path
             true, // addToLocalStorage - adjust based on your needs
             bffApiUrl

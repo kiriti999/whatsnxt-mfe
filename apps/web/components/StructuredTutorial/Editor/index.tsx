@@ -191,15 +191,16 @@ export const StructuredTutorialEditor: React.FC = () => {
 
             if (imageFile) {
                 const bffApiUrl = process.env.NEXT_PUBLIC_BFF_HOST_IMAGEKIT_API;
-                const { secure_url, updatedAssets } = await uploadImage(
+                const { secure_url, asset } = await uploadImage(
                     imageFile,
-                    [],
-                    'whatsnxt-tutorials',
+                    'whatsnxt',
                     false,
                     bffApiUrl
                 );
-                imageUrl = secure_url;
-                cloudinaryAssets = updatedAssets;
+                if (secure_url && asset) {
+                    imageUrl = secure_url;
+                    cloudinaryAssets = [asset];
+                }
             }
 
             let response;
