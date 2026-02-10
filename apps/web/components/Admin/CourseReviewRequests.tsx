@@ -30,7 +30,6 @@ import AdminSidebar from "./AdminSidebar";
 import { CourseAPI } from "../../apis/v1/courses/course/course";
 import {
     IconBook,
-    IconEye,
     IconClockHour4,
     IconFileDescription,
     IconChevronRight,

@@ -13,6 +13,7 @@ import Pagination from '../../../components/pagination/pagination';
 import { addPopularityToCourses } from '../../../utils';
 import { AnalyticsAPI } from '../../../apis/v1/analytics';
 import { useQuery } from '@tanstack/react-query';
+import { lexicalToHtml } from '../../../utils/lexicalToHtml';
 
 export default function CoursePage({ courses, enrolled, categories }: { courses: CourseType[], enrolled: any[], categories: Category[] }) {
   const searchParams = useSearchParams();
@@ -181,7 +182,14 @@ function Courses({ allCourses, courses, categories, totalRecords }: CourseProps)
                             size="sm"
                             lineClamp={3}
                           >
-                            {htmlReactParser(course.overview)}
+                          {(() => {
+                            let html = course.overview;
+                            try {
+                              const parsed = JSON.parse(course.overview);
+                              if (parsed?.root) html = lexicalToHtml(parsed);
+                            } catch { /* legacy HTML */ }
+                            return htmlReactParser(html);
+                          })()}
                           </Text>
                         )}
                       </Box>

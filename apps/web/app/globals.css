@@ -564,45 +564,6 @@ Profile Authentication Area CSS
 }
 
 
-/* Tiptap.module.css for tables*/
-.editor-content table {
-  border-collapse: collapse;
-  width: 100%;
-  border: 1px solid #ccc;
-  resize: both;
-  overflow: auto;
-}
-
-.editor-content th,
-.editor-content td {
-  border: 1px solid #ccc;
-  padding: 8px;
-  text-align: left;
-}
-
-.editor-content th {
-  background-color: #f4f4f4;
-}
-
-.tableWrapper {
-  position: relative;
-}
-
-.resize-handle {
-  position: absolute;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  width: 5px;
-  cursor: col-resize;
-  background-color: rgba(0, 0, 0, 0.2);
-  z-index: 10;
-}
-
-.resize-handle:hover {
-  background-color: rgba(0, 0, 0, 0.4);
-}
-
 .required::after {
   content: ' *';
   color: red;

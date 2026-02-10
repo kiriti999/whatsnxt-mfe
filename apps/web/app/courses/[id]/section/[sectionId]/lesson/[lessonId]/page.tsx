@@ -31,18 +31,24 @@ export default async function LessonPage({ params }: LessonPageProps) {
             return notFound();
         }
 
-        // Fetch videos by section
-        const videos = await fetchVideosBySection(sectionId);
-        if (!videos || !Array.isArray(videos) || videos.length === 0) {
-            console.error('No videos found for the section');
-            return notFound();
-        }
+        // Special case: 'review' lessonId is for the Rate & Review page
+        const isReview = lessonId === 'review';
 
-        // Find the current lesson
-        const currentLesson = videos.find((item) => item._id === lessonId);
-        if (!currentLesson) {
-            console.error('Lesson not found');
-            return notFound();
+        let currentLesson = null;
+        if (!isReview) {
+            // Fetch videos by section
+            const videos = await fetchVideosBySection(sectionId);
+            if (!videos || !Array.isArray(videos) || videos.length === 0) {
+                console.error('No videos found for the section');
+                return notFound();
+            }
+
+            // Find the current lesson
+            currentLesson = videos.find((item) => item._id === lessonId);
+            if (!currentLesson) {
+                console.error('Lesson not found');
+                return notFound();
+            }
         }
 
         // Render the Lesson component

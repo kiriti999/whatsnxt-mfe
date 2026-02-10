@@ -17,7 +17,7 @@ import {
 	Alert,
 } from '@mantine/core';
 import { FullPageOverlay } from '@/components/Common/FullPageOverlay';
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { useQuery } from '@tanstack/react-query';
 import { useDisclosure } from '@mantine/hooks';
@@ -26,12 +26,10 @@ import { TiptapManageContextProvider } from "../../../../context/TiptapManageCon
 import { RichTextEditor } from '../../../../components/RichTextEditor';
 import { CategoriesAPI } from '../../../../apis/v1/courses/categories';
 import { LanguageAPI } from '../../../../apis/v1/language';
-import { getAssetFromLocalStorage } from '../../../../utils/worker/localStorageHandler';
 import { useDashboardContext } from '../../../../context/DashboardContext';
 import { handleCategoryChange, handleLandingPageSubmit, handleSubCategoryChange } from './actions';
 import { useRouter } from "next/navigation";
 import { IconUpload, IconAlertCircle, IconCheck } from '@tabler/icons-react';
-import { unifiedDeleteWebWorker } from '../../../../utils/worker/assetManager';
 import { useImageSafety } from '../../../../hooks/useImageSafety';
 import { validateFile, formatFileSize, DEFAULT_VALIDATION_OPTIONS } from '../../../../utils/imageValidation';
 import labApi from '../../../../apis/lab.api';
@@ -115,33 +113,6 @@ const Main = ({ courseWithSections, courseId }) => {
 			return temp
 		})
 	}, [])
-
-	// delete ids on unload
-	useEffect(() => {
-		return () => {
-			// calls on unload
-			deleteUnusedAssets()
-		}
-	}, [])
-
-	const deleteUnusedAssets = useCallback(async () => {
-		try {
-			const storedAssets = getAssetFromLocalStorage();
-
-			// Early return if no assets to clean up
-			if (!storedAssets?.length) {
-				return;
-			}
-			const bffApiUrl = process.env.NEXT_PUBLIC_BFF_HOST_IMAGEKIT_API;
-			console.log(`Cleaning up ${storedAssets.length} unused assets`);
-			await unifiedDeleteWebWorker({ assetsList: storedAssets, clearLocalStorage: true, bffApiUrl });
-
-
-		} catch (error) {
-			console.error('Failed to delete unused assets:', error);
-
-		}
-	}, []);
 
 	const {
 		handleSubmit,

@@ -14,10 +14,29 @@ import UserFeedBack from './userFeedBack';
 import InterviewClient from './InterviewClient';
 import { CourseFeedbackAPI } from '../../apis/v1/courses/feedback/feedback';
 import CourseContentDisplay from './CourseContentDisplay';
+import { lexicalToHtml } from '../../utils/lexicalToHtml';
+
+/**
+ * Convert content to HTML for rendering.
+ * Handles both Lexical JSON and legacy HTML content.
+ */
+const toRenderedHtml = (content: string): string => {
+    if (!content) return '';
+    try {
+        const parsed = JSON.parse(content);
+        if (parsed?.root) {
+            return lexicalToHtml(parsed);
+        }
+    } catch {
+        // Not JSON — treat as HTML
+    }
+    return content;
+};
 
 
 
 const LessonPlayer = ({ lessonId, course, courseOverview, videoUrl = '', sections, courseSlug }) => {
+    console.log('🚀 :: LessonPlayer :: course:', course)
 
     const authorName = course?.trainerInfo?.name;
     const authorDesignation = course.trainerInfo?.designation;
@@ -36,6 +55,7 @@ const LessonPlayer = ({ lessonId, course, courseOverview, videoUrl = '', section
 
     // Assume video URLs come from the sections prop
     const videoUrls = sections.flatMap((section) => section.videos.map((video) => video.videoUrl));
+    console.log('🚀 :: LessonPlayer :: videoUrls:', videoUrls)
     const lessonIds = sections.flatMap((section) => section.videos.map((video) => video._id));
     const lectureLinks = sections.flatMap((section) => section.videos.map((video) => video.lectureLinks));
     const [currentVideoIndex, setCurrentVideoIndex] = useState(
@@ -44,6 +64,7 @@ const LessonPlayer = ({ lessonId, course, courseOverview, videoUrl = '', section
 
     // State for maintaing video auto starts
     const [play, setPlay] = useState<boolean>(false)
+
     const handleVideoEnd = async () => {
         await CoursesEnrolledAPI.updateCourseProgress({
             userId: user?._id,
@@ -67,7 +88,7 @@ const LessonPlayer = ({ lessonId, course, courseOverview, videoUrl = '', section
                 <Paper withBorder>
                     <ReactPlayer
                         url={videoUrls[currentVideoIndex]} // Dynamically update the video URL
-                        light={videoUrls[currentVideoIndex] + "&poster=true"}
+                        light={videoUrls[currentVideoIndex]?.includes('youtube.com') || videoUrls[currentVideoIndex]?.includes('youtu.be') ? true : videoUrls[currentVideoIndex] + "&poster=true"}
                         playing={play}
                         onClickPreview={() => { setPlay(true) }}
                         width="100%"
@@ -90,13 +111,13 @@ const LessonPlayer = ({ lessonId, course, courseOverview, videoUrl = '', section
                     }
                 </Tabs.List>
                 <Tabs.Panel value="about" className={styles['tabs-panel']}>
-  
+
                     <Title order={4}>About Course</Title>
                     {/* TODO: Add line clamp */}
-                    <HtmlParser content={courseOverview} withOptions />
+                    <HtmlParser content={toRenderedHtml(courseOverview)} withOptions />
 
                     {/* Structured Course Content - Sections, Comparisons, Collapsibles, Resources */}
-                    <CourseContentDisplay courseId={course._id} />
+                    <CourseContentDisplay courseId={course.courseId || course._id} />
                 </Tabs.Panel>
                 {!isDesktop && (
                     <Tabs.Panel value="syllabus" className={styles['tabs-panel']}>

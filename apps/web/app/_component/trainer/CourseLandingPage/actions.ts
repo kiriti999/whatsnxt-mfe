@@ -3,9 +3,9 @@ import type { AppRouterInstance } from "next/dist/shared/lib/app-router-context.
 import { notifications } from "@mantine/notifications";
 import { CourseBuilderAPI } from "../../../../apis/v1/courses/course-builder/course-builder-api";
 import { extractCloudinaryLinksFromContent, extractPublicIdsAndTypeFromLinks, extractPublicIdsFromLinks } from "../../../../components/RichTextEditor/common";
-import { removeAssetFromLocalStoragesList } from "../../../../utils/worker/localStorageHandler";
 import { revalidate } from "../../../../server-actions";
 import { uploadImage } from '../../../../components/Blog/Form/util';
+import { lexicalToHtml } from '../../../../utils/lexicalToHtml';
 
 type Payload = {
     courseImagePreview?: File | string;
@@ -19,9 +19,28 @@ type Payload = {
     associatedLabs?: string[];
 };
 
+/**
+ * Convert content to HTML for asset extraction.
+ * Content may be Lexical JSON or legacy HTML.
+ */
+const toHtmlForAssetExtraction = (content: string): string => {
+    if (!content) return '';
+    try {
+        const parsed = JSON.parse(content);
+        if (parsed?.root) {
+            return lexicalToHtml(parsed);
+        }
+    } catch {
+        // Not JSON — treat as HTML
+    }
+    return content;
+};
+
 const extractCloudAssetsToSave = ({ overview, topics }) => {
-    const cloudinaryLinksOverview = extractCloudinaryLinksFromContent(overview);
-    const cloudinaryLinksTopics = extractCloudinaryLinksFromContent(topics);
+    const overviewHtml = toHtmlForAssetExtraction(overview);
+    const topicsHtml = toHtmlForAssetExtraction(topics);
+    const cloudinaryLinksOverview = extractCloudinaryLinksFromContent(overviewHtml);
+    const cloudinaryLinksTopics = extractCloudinaryLinksFromContent(topicsHtml);
     const usedPublicIdsInEditor = extractPublicIdsFromLinks([...cloudinaryLinksOverview, ...cloudinaryLinksTopics]);
     return { cloudinaryLinksOverview, cloudinaryLinksTopics, usedPublicIdsInEditor }
 };
@@ -80,12 +99,10 @@ export const handleLandingPageSubmit: HandleLandingPageSubmit = async (
             }
         }
 
-        // Remove from local storage before saving into db
-        removeAssetFromLocalStoragesList(usedPublicIdsInEditor);
-
         const payload: any = {
             ...data,
             cloudinaryAssets,
+            contentFormat: 'LEXICAL',
         };
 
         // Only include image fields if we're uploading a new image

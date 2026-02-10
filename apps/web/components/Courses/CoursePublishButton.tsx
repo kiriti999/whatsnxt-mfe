@@ -3,7 +3,7 @@ import { deleteIndex, indexRecord } from '@whatsnxt/core-util';
 import { ActionIcon, Tooltip } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { CourseAPI } from '../../apis/v1/courses/course/course';
-import { IconEyeOff, IconEye } from '@tabler/icons-react';
+import { IconWorld, IconWorldOff } from '@tabler/icons-react';
 
 const CoursePublishButton = ({
     _id,
@@ -91,7 +91,7 @@ const CoursePublishButton = ({
 
     return (
         <Tooltip
-            label={effectiveStatus === 'published' ? 'UnPublish' : 'Publish'}
+            label={effectiveStatus === 'published' ? 'Take Offline' : 'Go Live'}
             position="bottom"
             withArrow
             fz="xs"
@@ -107,12 +107,12 @@ const CoursePublishButton = ({
                     effectiveStatus === 'draft'
                 }
                 loading={loading}
-                color={effectiveStatus === 'published' ? 'blue' : 'red'}
+                color={effectiveStatus === 'published' ? 'green' : 'gray'}
             >
                 {effectiveStatus === 'published' ? (
-                    <IconEye size={14} />
+                    <IconWorld size={14} />
                 ) : (
-                    <IconEyeOff size={14} />
+                    <IconWorldOff size={14} />
                 )}
             </ActionIcon>
         </Tooltip>
