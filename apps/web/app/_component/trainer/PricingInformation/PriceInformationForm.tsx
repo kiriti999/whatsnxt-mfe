@@ -2,13 +2,14 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Text, Title, Group, Card, Stack, Grid, Radio, NumberInput, Button, Box, Badge } from '@mantine/core';
+import { Text, Title, Group, Card, Stack, Grid, Radio, NumberInput, Button, Box, Badge, useMantineColorScheme } from '@mantine/core';
 import { IconVideo, IconBroadcast, IconChevronRight } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
 import { Controller, useForm } from 'react-hook-form';
 import { CourseBuilderAPI } from '../../../../apis/v1/courses/course-builder/course-builder-api';
 import { useDashboardContext } from '../../../../context/DashboardContext';
 import { revalidate } from '../../../../server-actions';
+// ... existing imports
 
 type Payload = {
 	courseType: 'paid' | 'free';
@@ -22,6 +23,8 @@ const PriceInformationForm = ({ courseId, courseWithSections }) => {
 	const [disabledButton, setDisabledButton] = useState(true);
 	const [courseType, setCourseType] = useState(courseWithSections.courseType);
 	const { setEnabledSections } = useDashboardContext();
+	const { colorScheme } = useMantineColorScheme();
+	const isDark = colorScheme === 'dark';
 
 	const CURRENT_PAGE_PATH = useMemo(() => `/trainer/course/pricing-information/${courseId}`, [courseId]);
 	const NEXT_PAGE_PATH = useMemo(() => `/trainer/course/course-builder/${courseId}`, [courseId]);
@@ -123,12 +126,15 @@ const PriceInformationForm = ({ courseId, courseWithSections }) => {
 													radius="md"
 													withBorder
 													padding="md"
-													bg={!isSelected ? "gray.0" : undefined}
+													bg={
+														isSelected
+															? (isDark ? 'blue.9' : 'blue.0')
+															: (isDark ? 'dark.6' : 'gray.0')
+													}
 													style={{
 														borderColor: isSelected ? 'var(--mantine-color-blue-6)' : undefined,
-														backgroundColor: isSelected ? 'var(--mantine-color-blue-0)' : 'var(--mantine-color-gray-0)',
-														opacity: isSelected ? 1 : 0.6,
-														cursor: 'default'
+														cursor: 'default',
+														transition: 'background-color 0.2s ease',
 													}}
 												>
 													<Group justify="space-between" align="start">
@@ -164,11 +170,15 @@ const PriceInformationForm = ({ courseId, courseWithSections }) => {
 														radius="md"
 														withBorder
 														padding="md"
+														bg={
+															isSelected
+																? (isDark ? 'blue.9' : 'blue.0')
+																: (isDark ? 'dark.6' : 'gray.0')
+														}
 														style={{
 															cursor: 'pointer',
 															borderColor: isSelected ? 'var(--mantine-color-blue-6)' : undefined,
-															backgroundColor: isSelected ? 'var(--mantine-color-blue-0)' : undefined,
-															transition: 'all 0.2s ease'
+															transition: 'background-color 0.2s ease'
 														}}
 														onClick={() => field.onChange(type)}
 													>

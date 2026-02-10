@@ -62,7 +62,7 @@ export const CoursesDetailsSidebar: FC<CoursesDetailsSidebarProps> = ({
   const [isVisible, { open, close }] = useDisclosure(true);
 
   const { isEnrolled, isFetching } = useIsEnrolled(courseId);
-  console.log('🚀 :: CoursesDetailsSidebar :: isEnrolled:', isEnrolled)
+
   const isFreeCourse = courseData?.courseType === 'free';
 
   const url = useMemo(() => `${process.env.NEXT_PUBLIC_MFE_HOST}/courses/${slug}`, [slug]);

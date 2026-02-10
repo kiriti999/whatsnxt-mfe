@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Button, Card, Grid, Group, Radio, Stack, Title, Text as MantineText } from "@mantine/core";
+import { Button, Card, Grid, Group, Radio, Stack, Title, Text as MantineText, useMantineColorScheme } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import { Controller, useForm } from "react-hook-form";
 import { CourseBuilderAPI } from "../../../../apis/v1/courses/course-builder/course-builder-api";
@@ -23,6 +23,8 @@ const CourseTypeForm = ({ courseId, cType }: Props) => {
 	const [disabledButton, setDisabledButton] = useState(true);
 	const [courseType, setCourseType] = useState(cType);
 	const { enabledSections, setEnabledSections } = useDashboardContext();
+	const { colorScheme } = useMantineColorScheme();
+	const isDark = colorScheme === "dark";
 
 	const CURRENT_PAGE_PATH = useMemo(() => `/trainer/course/course-type-information/${courseId}`, [courseId]);
 	const NEXT_PAGE_PATH = useMemo(() => `/trainer/course/pricing-information/${courseId}`, [courseId]);
@@ -105,11 +107,15 @@ const CourseTypeForm = ({ courseId, cType }: Props) => {
 												shadow={isSelected ? "md" : "xs"}
 												radius="md"
 												withBorder
+												bg={
+													isSelected
+														? (isDark ? 'blue.9' : 'blue.0')
+														: (isDark ? 'dark.6' : 'gray.0')
+												}
 												style={{
 													cursor: 'pointer',
 													borderColor: isSelected ? 'var(--mantine-color-blue-6)' : undefined,
-													backgroundColor: isSelected ? 'var(--mantine-color-blue-0)' : undefined,
-													transition: 'all 0.2s ease'
+													transition: 'background-color 0.2s ease'
 												}}
 												onClick={() => {
 													setCourseType(type);
