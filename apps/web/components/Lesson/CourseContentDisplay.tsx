@@ -67,7 +67,11 @@ const CourseContentDisplay = ({ courseId }: CourseContentDisplayProps) => {
     }
 
     if (sections.length === 0) {
-        return null;
+        return (
+            <Box py="md">
+                <Text c="dimmed">No course content sections found.</Text>
+            </Box>
+        );
     }
 
     return (

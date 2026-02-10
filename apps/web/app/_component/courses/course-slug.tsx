@@ -17,6 +17,7 @@ export default function CourseSlug({ course, reviews, reviewCommentCount, simila
   const [isCourseReviewMode, setisCourseReviewMode] = useState(false);
   const { user: loggedInUser } = useAuth();
 
+  const courseId = course?._id || course?.id;
 
   useEffect(() => {
     if (loggedInUser?.role == "admin") {
@@ -58,7 +59,7 @@ export default function CourseSlug({ course, reviews, reviewCommentCount, simila
             <Box my="xl">
               <Card shadow="sm" padding="lg" radius="md" withBorder>
                 <Title order={5} mb="md">Course Content (For Review)</Title>
-                <CourseContentDisplay courseId={course._id} />
+                <CourseContentDisplay courseId={courseId} />
               </Card>
             </Box>
           )}

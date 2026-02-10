@@ -310,6 +310,10 @@ const nextConfig: NextConfig = {
             'https://checkout.razorpay.com',
             'https://lumberjack.razorpay.com',
             'https://*.razorpay.com',
+            // YouTube video thumbnails (used by ReactPlayer light mode)
+            'https://noembed.com',
+            'https://i.ytimg.com',
+            'https://img.youtube.com',
             // Analytics services - Google Analytics (all domains)
             'https://www.google-analytics.com',
             'https://analytics.google.com',
@@ -361,7 +365,7 @@ const nextConfig: NextConfig = {
                         value: [
                             "default-src 'self'",
                             // PARTYTOWN: Allow all Partytown scripts and external analytics
-                            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com https://www.googletagmanager.com https://www.google-analytics.com https://checkout.razorpay.com data: blob:",
+                            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com https://www.googletagmanager.com https://www.google-analytics.com https://checkout.razorpay.com https://www.youtube.com https://s.ytimg.com data: blob:",
                             "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
                             "font-src 'self' https://fonts.gstatic.com",
                             // Updated img-src to specifically include Cloudinary domains and localhost for development

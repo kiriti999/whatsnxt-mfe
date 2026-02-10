@@ -5,11 +5,7 @@ import {
     Dispatch,
     SetStateAction,
     useEffect,
-    useCallback,
 } from 'react';
-import useAuth from '../hooks/Authentication/useAuth';
-import { getAssetFromLocalStorage } from '../utils/worker/localStorageHandler';
-import { unifiedDeleteWebWorker } from '../utils/worker/assetManager';
 
 // ** Defaults
 interface ProgressEntry {
@@ -22,7 +18,6 @@ interface TiptapManageContextProps {
     courseId?: string;
     progressList: ProgressEntry[];
     setProgressList: Dispatch<SetStateAction<ProgressEntry[]>>;
-    userId?: string | '';
     updateProgress: (entry: ProgressEntry) => void;
     isAssetsUploading: boolean;
 }
@@ -33,7 +28,6 @@ const defaultProvider: TiptapManageContextProps = {
     setProgressList: () => { },
     updateProgress: () => { },
     isAssetsUploading: false,
-    userId: '',
 };
 
 const TiptapManageContext = createContext(defaultProvider);
@@ -47,8 +41,6 @@ interface TiptapManageContextProviderProps {
 
 const TiptapManageContextProvider = ({ isAssetsUploading, children, courseId, setIsAssetsUploading }: TiptapManageContextProviderProps) => {
     const [progressList, setProgressList] = useState<ProgressEntry[]>([]);
-    const [userId, setUserId] = useState('');
-    const { user } = useAuth();
 
     useEffect(() => {
         if (progressList.length > 0) {
@@ -57,34 +49,6 @@ const TiptapManageContextProvider = ({ isAssetsUploading, children, courseId, se
             setIsAssetsUploading(false)
         }
     }, [progressList])
-
-    useEffect(() => {
-        if (user) {
-            (async function () {
-                const userId = user?._id
-                // @ts-ignore
-                setUserId(userId);
-            })();
-        }
-
-    }, [user]);
-
-
-    // delete ids on unload
-    useEffect(() => {
-        return () => {
-            // calls on unload
-            deleteUnusedAssets()
-        }
-    }, [])
-
-    const deleteUnusedAssets = useCallback(async () => {
-        if (getAssetFromLocalStorage() && getAssetFromLocalStorage().length > 0) {
-            const bffApiUrl = process.env.NEXT_PUBLIC_BFF_HOST_IMAGEKIT_API;
-            await unifiedDeleteWebWorker({ assetsList: getAssetFromLocalStorage(), clearLocalStorage: true, bffApiUrl })
-        }
-    }, [])
-
 
     const updateProgress = ({ fileName, timestamp, progress, isCompleted = false }) => {
         setProgressList(prevProgressList => {

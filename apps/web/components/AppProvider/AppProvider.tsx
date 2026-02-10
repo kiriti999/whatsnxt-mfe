@@ -10,7 +10,6 @@ import Layout from '../Layout';
 import FilterStore from '../../context/filterStore';
 import { store } from '../../store/store';
 import { IconAddressBook, IconBell, IconBook2, IconCertificate, IconFlask, IconHistoryToggle, IconPasswordUser, IconPencil, IconUserEdit } from '@tabler/icons-react';
-import { CourseManageContextProvider } from '../../context/CourseManageContext';
 import { AuthProvider } from '../../context/Authentication/AuthContext';
 import React from 'react';
 import { User } from '../Navbar/types';
@@ -142,9 +141,7 @@ export default function AppProvider({ children, user, token }: { children: React
               <ModalsProvider>
                 <SearchProvider>
                   <Layout {...headerProps}>
-                    <CourseManageContextProvider>
-                      {children}
-                    </CourseManageContextProvider>
+                    {children}
                   </Layout>
                 </SearchProvider>
               </ModalsProvider>

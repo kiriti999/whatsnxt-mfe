@@ -10,7 +10,7 @@ import Link from 'next/link';
 import { ActionIcon, Box, Button, Center, Collapse, Grid, Group, Loader, Pagination, Select, TextInput, Tooltip, Menu, Container, GridCol, Title, Text, Badge, Paper, Stack } from '@mantine/core';
 import { CourseAPI } from '../../../apis/v1/courses/course/course';
 import { notifications } from '@mantine/notifications';
-import { IconChevronDown, IconChevronUp, IconEye, IconEyeOff, IconPlus, IconDotsVertical } from '@tabler/icons-react';
+import { IconChevronDown, IconChevronUp, IconWorld, IconWorldOff, IconPlus, IconDotsVertical } from '@tabler/icons-react';
 import CourseDeleteModal from './course-delete-model';
 import ActionButtons from './CourseHistoryActionButtonsMobile'; // Import the new component
 
@@ -250,7 +250,7 @@ const CourseHistory = () => {
     if (!isMobile) {
       return (
         <Tooltip fz={'xs'}
-          label={isPublish ? "Unpublish" : "Publish"}
+          label={isPublish ? "Take Offline" : "Go Live"}
           position="bottom"
           withArrow
         >
@@ -259,9 +259,9 @@ const CourseHistory = () => {
             radius="md"
             size="sm"
             variant="outline"
-            color={isPublish ? "blue" : "red"}
+            color={isPublish ? "green" : "gray"}
           >
-            {isPublish ? <IconEye size={16} /> : <IconEyeOff size={14} />}
+            {isPublish ? <IconWorld size={16} /> : <IconWorldOff size={14} />}
           </ActionIcon>
         </Tooltip>
       );
@@ -277,9 +277,9 @@ const CourseHistory = () => {
         </Menu.Target>
         <Menu.Dropdown>
           <Menu.Item
-            leftSection={isPublish ? <IconEyeOff size={16} /> : <IconEye size={16} />}
+            leftSection={isPublish ? <IconWorldOff size={16} /> : <IconWorld size={16} />}
             onClick={() => { publishVideo(video._id, sectionId, isPublish); }}
-            color={isPublish ? "red" : "blue"}
+            color={isPublish ? "gray" : "green"}
           >
             <Group align="center" >
               <span>{isPublish ? "Unpublish" : "Publish"}</span>
@@ -444,8 +444,8 @@ const CourseHistory = () => {
                                                 <Menu.Item
                                                   leftSection={
                                                     section?.videos.filter((x: Video) => x.isPublish).length !== section?.videos.length ?
-                                                      <IconEye size={16} /> :
-                                                      <IconEyeOff size={16} />
+                                                      <IconWorld size={16} /> :
+                                                      <IconWorldOff size={16} />
                                                   }
                                                   onClick={() => {
                                                     section?.videos.filter((x: Video) => x.isPublish).length !== section?.videos.length
@@ -458,7 +458,7 @@ const CourseHistory = () => {
                                               </Menu.Dropdown>
                                             </Menu>
                                           ) : (
-                                            <Tooltip label="Publish/Unpublish All">
+                                            <Tooltip label={section?.videos.filter((x: Video) => x.isPublish).length !== section?.videos.length ? "Publish All" : "Unpublish All"}>
                                               <ActionIcon
                                                 onClick={() => {
                                                   section?.videos.filter((x: Video) => x.isPublish).length !== section?.videos.length
@@ -466,10 +466,10 @@ const CourseHistory = () => {
                                                     : publishAllVideosInSection(section._id, true);
                                                 }}
                                                 variant="light"
-                                                color="blue"
+                                                color="green"
                                                 size="sm"
                                               >
-                                                {section?.videos.filter((x: Video) => x.isPublish).length !== section?.videos.length ? <IconEye size={16} /> : <IconEyeOff size={16} />}
+                                                {section?.videos.filter((x: Video) => x.isPublish).length !== section?.videos.length ? <IconWorld size={16} /> : <IconWorldOff size={16} />}
                                               </ActionIcon>
                                             </Tooltip>
                                           )

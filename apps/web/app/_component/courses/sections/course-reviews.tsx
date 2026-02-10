@@ -24,6 +24,8 @@ const CourseReviews = ({
     const [hasMoreReviews, setHasMoreReviews] = useState(true);
     const { user } = useAuth();
 
+    const courseId = course?._id || course?.id;
+
     useEffect(() => {
         setReviewsPage(2);
         if (!courseReviews?.length) return;
@@ -50,7 +52,7 @@ const CourseReviews = ({
     const loadMore = async (e) => {
         e.preventDefault();
 
-        const res = await CourseFeedbackAPI.getReviews(course._id, reviewsPage);
+        const res = await CourseFeedbackAPI.getReviews(courseId, reviewsPage);
         if (courseReviews) {
             setReviewsPage(reviewsPage + 1);
             if (res.data.total <= courseReviews.length + res.data?.reviews.length) {
