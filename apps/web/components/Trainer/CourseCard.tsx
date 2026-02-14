@@ -59,10 +59,6 @@ function CourseCard({ course }) {
             </Anchor>
           </Text>
 
-          <Text size="xs" c="dimmed" mb="md">
-            Led by experts
-          </Text>
-
           <Group justify="space-between" align="center" mb="xs">
             <Box>
               {course?.discount > 0 ? (

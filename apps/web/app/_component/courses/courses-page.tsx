@@ -156,7 +156,7 @@ function Courses({ allCourses, courses, categories, totalRecords }: CourseProps)
                       </Group>
 
                       {/* Author Info (kept compact) */}
-                      <Flex align="center" mb="xs">
+                      {/* <Flex align="center" mb="xs">
                         {course.userId?.profilePhoto ? (
                           <Image
                             width={24}
@@ -171,7 +171,7 @@ function Courses({ allCourses, courses, categories, totalRecords }: CourseProps)
                         <Text ml="xs" size="xs" c="dimmed">
                           Led by experts
                         </Text>
-                      </Flex>
+                      </Flex> */}
 
                       {/* Overview Text */}
                       <Box style={{ flex: 1, marginBottom: '10px' }}>
@@ -182,14 +182,14 @@ function Courses({ allCourses, courses, categories, totalRecords }: CourseProps)
                             size="sm"
                             lineClamp={3}
                           >
-                          {(() => {
-                            let html = course.overview;
-                            try {
-                              const parsed = JSON.parse(course.overview);
-                              if (parsed?.root) html = lexicalToHtml(parsed);
-                            } catch { /* legacy HTML */ }
-                            return htmlReactParser(html);
-                          })()}
+                            {(() => {
+                              let html = course.overview;
+                              try {
+                                const parsed = JSON.parse(course.overview);
+                                if (parsed?.root) html = lexicalToHtml(parsed);
+                              } catch { /* legacy HTML */ }
+                              return htmlReactParser(html);
+                            })()}
                           </Text>
                         )}
                       </Box>
