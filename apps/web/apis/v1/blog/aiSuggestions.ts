@@ -1,4 +1,4 @@
-import { articleApiClient } from '@whatsnxt/core-util';
+import { articleApiClient, commonApiClient } from '@whatsnxt/core-util';
 
 export const AISuggestions = {
     getSuggestionByAI: async (params: { question: string; aiModel?: string; modelVersion?: string }) => {
@@ -7,6 +7,10 @@ export const AISuggestions = {
     },
     saveAIConfig: async (params: { apiKey: string; aiModel: string; modelVersion?: string }) => {
         const response = await articleApiClient.post('/post/saveKey', params);
+        return response;
+    },
+    getAIConfig: async () => {
+        const response = await commonApiClient.get('/ai/config');
         return response;
     },
 };

@@ -27,6 +27,7 @@ import { FullPageOverlay } from '@/components/Common/FullPageOverlay';
 import { useMediaQuery, useDebouncedCallback, useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { IconTrash, IconSearch, IconX, IconDeviceDesktop } from '@tabler/icons-react';
+import { AISuggestionButton } from '@/components/Common/AISuggestionButton';
 import labApi from '@/apis/lab.api';
 import DiagramEditor from '@/components/architecture-lab/DiagramEditor';
 import { StudentTestRunner } from '@/components/Lab/StudentTestRunner';
@@ -34,7 +35,7 @@ import HintsEditor from '@/components/Lab/HintsEditor';
 import useAuth from '@/hooks/Authentication/useAuth';
 import { useAutoPageCreation } from '@/hooks/useAutoPageCreation';
 import { usePageMapping } from '@/hooks/usePageMapping';
-import { getAvailableArchitectures } from '@/utils/shape-libraries';
+import { getAvailableArchitectures, getArchitectureShapes, genericD3Shapes } from '@/utils/shape-libraries';
 
 // Get architecture types dynamically from centralized registry
 const ARCHITECTURE_TYPES = getAvailableArchitectures();
@@ -54,6 +55,222 @@ const QUESTION_TYPES = [
   { value: 'True/False', label: 'True/False' },
   { value: 'Fill in the blank', label: 'Fill in the blank' },
 ];
+
+/**
+ * Build a prompt for the AI to generate architecture diagram JSON.
+ * The prompt includes available shape types so the AI uses valid shape IDs.
+ */
+const buildDiagramAIPrompt = (userPrompt: string, archType: string): string => {
+  // Gather available shape IDs for the selected architecture type
+  const archShapes = getArchitectureShapes(archType);
+  const commonShapes = Object.values(genericD3Shapes);
+
+  const archShapeList = archShapes.map((s: any) => `${s.id} (${s.name})`).join(', ');
+  const commonShapeList = commonShapes.map((s: any) => `${s.id} (${s.name})`).join(', ');
+
+  return `You are an architecture diagram generator. Generate a diagram as JSON based on the following user prompt.
+
+User prompt: "${userPrompt}"
+Architecture type: ${archType}
+
+Available architecture-specific shapes (use these shape IDs for the "shapeId" field):
+${archShapeList || 'None available'}
+
+Available common shapes:
+${commonShapeList}
+
+IMPORTANT RULES:
+1. Respond ONLY with valid JSON, no markdown, no explanation.
+2. Use the exact shape IDs listed above.
+3. Use "container" type shapes (like common-container or common-group) for grouping related components.
+4. Position nodes logically - containers should be large (width: 400+, height: 300+) and child nodes should be placed inside them.
+5. Provide meaningful labels for each node.
+6. Connect related nodes with links using their IDs.
+
+JSON format:
+{
+  "nodes": [
+    {
+      "id": "unique-id-1",
+      "shapeId": "<shape-id-from-above>",
+      "x": 100,
+      "y": 100,
+      "width": 60,
+      "height": 60,
+      "label": "My Component"
+    }
+  ],
+  "links": [
+    {
+      "source": "unique-id-1",
+      "target": "unique-id-2"
+    }
+  ]
+}
+
+Generate a professional, well-organized architecture diagram with 5-15 nodes and appropriate connections.`;
+};
+
+/**
+ * Parse raw AI text response into diagram state {nodes, links}.
+ * The AI response should be JSON, but may be wrapped in markdown code fences.
+ */
+const parseAIDiagramResponse = (
+  rawResponse: string,
+  archType: string
+): { nodes: any[]; links: any[] } | null => {
+  try {
+    // Strip markdown code fences if present
+    let jsonStr = rawResponse.trim();
+    if (jsonStr.startsWith('```')) {
+      jsonStr = jsonStr.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '');
+    }
+
+    const parsed = JSON.parse(jsonStr);
+    if (!parsed.nodes || !Array.isArray(parsed.nodes)) {
+      console.error('AI response missing nodes array');
+      return null;
+    }
+
+    // Gather available shapes for lookup
+    const archShapes = getArchitectureShapes(archType);
+    const commonShapes = Object.values(genericD3Shapes);
+    const allShapes = [...archShapes, ...commonShapes];
+
+    // Transform AI nodes into DiagramEditor NodeType format
+    const nodes = parsed.nodes.map((aiNode: any) => {
+      // Find matching shape definition (cast to any since different architecture
+      // libraries have varying property types)
+      const shapeDef: any = allShapes.find(
+        (s: any) =>
+          s.id === aiNode.shapeId ||
+          s.type === aiNode.shapeId?.toLowerCase()
+      );
+
+      return {
+        id: aiNode.id || Date.now().toString() + Math.random().toString(36).substr(2, 5),
+        x: aiNode.x ?? 50 + Math.random() * 400,
+        y: aiNode.y ?? 50 + Math.random() * 400,
+        type: shapeDef?.type || 'rect',
+        label: aiNode.label || shapeDef?.name || 'Node',
+        width: aiNode.width || shapeDef?.width || 60,
+        height: aiNode.height || shapeDef?.height || 60,
+        fill: shapeDef?.fill || '#fff',
+        stroke: shapeDef?.stroke || '#333',
+        strokeWidth: shapeDef?.strokeWidth || 1,
+        rx: shapeDef?.rx,
+        strokeDashArray: shapeDef?.strokeDashArray,
+        pathData: shapeDef?.pathData,
+        shapeId: aiNode.shapeId,
+      };
+    });
+
+    // Transform links
+    const links = (parsed.links || []).map((aiLink: any) => ({
+      source: aiLink.source,
+      target: aiLink.target,
+      waypoints: aiLink.waypoints || [],
+    }));
+
+    return { nodes, links };
+  } catch (err) {
+    console.error('Failed to parse AI diagram response:', err, rawResponse);
+    return null;
+  }
+};
+
+/**
+ * Build a prompt for the AI to generate answer/options for a question.
+ * Adapts based on question type (MCQ, True/False, Fill in the blank).
+ */
+const buildQuestionAIPrompt = (questionText: string, questionType: string): string => {
+  const typeInstructions: Record<string, string> = {
+    'MCQ': `This is a Multiple Choice Question.
+Generate 4 plausible options (one correct, three distractors) and identify the correct answer.
+
+Respond ONLY with valid JSON in this exact format:
+{
+  "options": ["Option A", "Option B", "Option C", "Option D"],
+  "correctAnswer": "Option A"
+}
+
+Rules:
+- The correct answer must exactly match one of the options.
+- Distractors should be plausible but clearly wrong.
+- Keep options concise (under 100 characters each).`,
+
+    'True/False': `This is a True/False Question.
+Determine whether the statement is True or False.
+
+Respond ONLY with valid JSON in this exact format:
+{
+  "options": ["True", "False"],
+  "correctAnswer": "True"
+}
+
+Rules:
+- The correctAnswer must be exactly "True" or "False".`,
+
+    'Fill in the blank': `This is a Fill in the Blank Question.
+Provide the correct answer that fills the blank.
+
+Respond ONLY with valid JSON in this exact format:
+{
+  "options": [],
+  "correctAnswer": "the correct answer here"
+}
+
+Rules:
+- Keep the answer concise and precise.
+- No options are needed for fill-in-the-blank.`,
+  };
+
+  const instructions = typeInstructions[questionType] || typeInstructions['MCQ'];
+
+  return `You are an educational assessment expert. Given the following question, generate the answer.
+
+Question: "${questionText}"
+Question Type: ${questionType}
+
+${instructions}
+
+IMPORTANT: Respond ONLY with the JSON object. No markdown, no explanation, no extra text.`;
+};
+
+/**
+ * Parse the AI response for a question answer into { options, correctAnswer }.
+ */
+const parseAIQuestionResponse = (
+  rawResponse: string
+): { options: string; correctAnswer: string } | null => {
+  try {
+    // Strip markdown code fences if present
+    let jsonStr = rawResponse.trim();
+    if (jsonStr.startsWith('```')) {
+      jsonStr = jsonStr.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '');
+    }
+
+    const parsed = JSON.parse(jsonStr);
+
+    if (typeof parsed.correctAnswer !== 'string') {
+      console.error('AI response missing correctAnswer');
+      return null;
+    }
+
+    // Options: join array into comma-separated string (matches the form's format)
+    const options = Array.isArray(parsed.options)
+      ? parsed.options.join(', ')
+      : '';
+
+    return {
+      options,
+      correctAnswer: parsed.correctAnswer,
+    };
+  } catch (err) {
+    console.error('Failed to parse AI question response:', err, rawResponse);
+    return null;
+  }
+};
 
 const LabPageEditorPage = () => {
   const params = useParams();
@@ -124,7 +341,7 @@ const LabPageEditorPage = () => {
       // Fetch lab status and total pages count
       const labResponse = await labApi.getLabById(labId);
       setLabStatus(labResponse.data.status || 'draft');
-      
+
       // Extract total pages from lab response (feature 004)
       if (labResponse.data.pages) {
         setTotalLabPages(labResponse.data.pages.length);
@@ -238,10 +455,10 @@ const LabPageEditorPage = () => {
   const handlePageChange = async (pageNumber: number) => {
     try {
       setIsNavigating(true);
-      
+
       // Get page ID for target page number
       const targetPageId = getPageId(pageNumber);
-      
+
       if (!targetPageId) {
         notifications.show({
           title: 'Navigation Error',
@@ -250,7 +467,7 @@ const LabPageEditorPage = () => {
         });
         return;
       }
-      
+
       // Navigate to target page
       router.push(`/labs/${labId}/pages/${targetPageId}`);
     } catch (error) {
@@ -313,10 +530,10 @@ const LabPageEditorPage = () => {
 
   const removeQuestion = async () => {
     if (!questionToDelete) return;
-    
+
     const { id, isSaved } = questionToDelete;
     setIsDeleting(true);
-    
+
     if (isSaved) {
       // If question is saved on backend, delete it from backend
       try {
@@ -631,7 +848,7 @@ const LabPageEditorPage = () => {
       const sanitizedHints = hints
         .map(h => h.trim())
         .filter(h => h.length > 0);
-      
+
       // Only include hints if there are valid ones
       const hintsToSave = sanitizedHints.length > 0 ? sanitizedHints : undefined;
 
@@ -822,510 +1039,595 @@ const LabPageEditorPage = () => {
       <FullPageOverlay visible={isCreatingPage} />
       <Container size="xl" py="xl">
         <Group justify="space-between" mb="xl">
-        <Button variant="subtle" onClick={handleBackToTestsAndQuestions}>
-          ← Back to Lab
-        </Button>
+          <Button variant="subtle" onClick={handleBackToTestsAndQuestions}>
+            ← Back to Lab
+          </Button>
 
-      </Group>
+        </Group>
 
-      {/* Pagination Controls - Show only if multiple pages exist (Feature 004) */}
-      {totalLabPages > 1 && (
-        <Paper shadow="xs" p="md" mb="lg" withBorder>
-          <Group justify="space-between" align="center">
-            {/* Page Position Indicator (US1) */}
-            <Text size="sm" fw={500}>
-              Page {currentPageNumber} of {totalLabPages}
-            </Text>
-            
-            {/* Pagination Component (US2, US4, US5, US6) */}
-            <Pagination
-              total={totalLabPages}
-              value={currentPageNumber}
-              onChange={debouncedPageChange}
-              disabled={isNavigating || isMappingLoading}
-              siblings={isMobile ? 0 : 1}
-              boundaries={isMobile ? 1 : 2}
-              size={isMobile ? 'sm' : 'md'}
-              aria-label="Page navigation"
-            />
-          </Group>
-        </Paper>
-      )}
+        {/* Pagination Controls - Show only if multiple pages exist (Feature 004) */}
+        {totalLabPages > 1 && (
+          <Paper shadow="xs" p="md" mb="lg" withBorder>
+            <Group justify="space-between" align="center">
+              {/* Page Position Indicator (US1) */}
+              <Text size="sm" fw={500}>
+                Page {currentPageNumber} of {totalLabPages}
+              </Text>
 
-      <Paper shadow="sm" p="xl" withBorder>
-        <Tabs defaultValue="question-test">
-          <Tabs.List>
-            <Tabs.Tab value="question-test">Question Test</Tabs.Tab>
-            <Tabs.Tab value="diagram-test">Diagram Test</Tabs.Tab>
-          </Tabs.List>
+              {/* Pagination Component (US2, US4, US5, US6) */}
+              <Pagination
+                total={totalLabPages}
+                value={currentPageNumber}
+                onChange={debouncedPageChange}
+                disabled={isNavigating || isMappingLoading}
+                siblings={isMobile ? 0 : 1}
+                boundaries={isMobile ? 1 : 2}
+                size={isMobile ? 'sm' : 'md'}
+                aria-label="Page navigation"
+              />
+            </Group>
+          </Paper>
+        )}
 
-          <Tabs.Panel value="question-test" pt="md">
-            <Stack gap="xl">
-              {/* Back to Tests & Questions Button */}
-              <Group justify="flex-start">
-                <Button
-                  variant="subtle"
-                  onClick={handleBackToTestsAndQuestions}
-                  leftSection="←"
-                >
-                  Back to Tests & Questions
-                </Button>
-              </Group>
+        <Paper shadow="sm" p="xl" withBorder>
+          <Tabs defaultValue="question-test">
+            <Tabs.List>
+              <Tabs.Tab value="question-test">Question Test</Tabs.Tab>
+              <Tabs.Tab value="diagram-test">Diagram Test</Tabs.Tab>
+            </Tabs.List>
 
-              {/* Questions Section Header with Add Button */}
-              {canEditContent && (
-                <Group justify="space-between" align="center">
-                  <Box>
-                    <Text size="lg" fw={600}>
-                      Questions ({filteredQuestions.length}/{questions.length})
-                    </Text>
-                    <Text size="sm" c="dimmed">
-                      {searchQuery ? `Showing ${filteredQuestions.length} of ${questions.length} questions` : 'Add up to 30 questions for this page'}
-                    </Text>
-                  </Box>
+            <Tabs.Panel value="question-test" pt="md">
+              <Stack gap="xl">
+                {/* Back to Tests & Questions Button */}
+                <Group justify="flex-start">
                   <Button
-                    variant="outline"
-                    onClick={addQuestion}
-                    leftSection="+"
-                    disabled={questions.length >= 30}
+                    variant="subtle"
+                    onClick={handleBackToTestsAndQuestions}
+                    leftSection="←"
                   >
-                    Add Question
+                    Back to Tests & Questions
                   </Button>
                 </Group>
-              )}
 
-              {/* Search Bar */}
-              {questions.length > 0 && (
-                <TextInput
-                  placeholder="Search questions by text, type, answer, or options..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  leftSection={<IconSearch size={16} />}
-                  rightSection={
-                    searchQuery && (
-                      <ActionIcon
-                        variant="subtle"
-                        onClick={() => setSearchQuery('')}
-                        size="sm"
-                      >
-                        <IconX size={16} />
-                      </ActionIcon>
-                    )
-                  }
-                  size="md"
-                />
-              )}
-
-              {/* Questions List */}
-              {questions.length === 0 ? (
-                <Paper shadow="sm" p="xl" withBorder bg="gray.0" data-testid="empty-state">
-                  <Stack align="center" gap="md">
-                    <Text size="xl" c="dimmed">No questions yet</Text>
-                    <Text c="dimmed" ta="center">
-                      Click "Add Question" above to create your first question
-                    </Text>
-                  </Stack>
-                </Paper>
-              ) : filteredQuestions.length === 0 ? (
-                <Paper shadow="sm" p="xl" withBorder bg="gray.0">
-                  <Stack align="center" gap="md">
-                    <IconSearch size={48} color="gray" />
-                    <Text size="xl" c="dimmed">No questions found</Text>
-                    <Text c="dimmed" ta="center">
-                      No questions match your search "{searchQuery}"
-                    </Text>
-                    <Button variant="subtle" onClick={() => setSearchQuery('')}>
-                      Clear Search
+                {/* Questions Section Header with Add Button */}
+                {canEditContent && (
+                  <Group justify="space-between" align="center">
+                    <Box>
+                      <Text size="lg" fw={600}>
+                        Questions ({filteredQuestions.length}/{questions.length})
+                      </Text>
+                      <Text size="sm" c="dimmed">
+                        {searchQuery ? `Showing ${filteredQuestions.length} of ${questions.length} questions` : 'Add up to 30 questions for this page'}
+                      </Text>
+                    </Box>
+                    <Button
+                      variant="outline"
+                      onClick={addQuestion}
+                      leftSection="+"
+                      disabled={questions.length >= 30}
+                    >
+                      Add Question
                     </Button>
-                  </Stack>
-                </Paper>
-              ) : (
-                <>
-                  <Stack gap="xl">
-                    {paginatedQuestions.map((question) => {
-                      // Calculate the actual question number from the original list
-                      const originalIndex = questions.findIndex(q => q.id === question.id);
-                      const questionNumber = originalIndex + 1;
-                      const isEditable = canEditContent && (question.isEditing || !question.isSaved);
-                      return (
-                        <Paper key={question.id} p="lg" withBorder data-testid={!question.isSaved ? "auto-question-form" : undefined} data-auto-displayed={!question.isSaved ? "true" : undefined}>
-                          <Group justify="space-between" mb="md">
-                            <Group gap="xs">
-                              <Text fw={600}>
-                                Question {questionNumber}
-                              </Text>
-                              {question.isSaved && (
-                                <Badge size="sm" color="green" variant="light">
-                                  Saved
-                                </Badge>
-                              )}
+                  </Group>
+                )}
+
+                {/* Search Bar */}
+                {questions.length > 0 && (
+                  <TextInput
+                    placeholder="Search questions by text, type, answer, or options..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    leftSection={<IconSearch size={16} />}
+                    rightSection={
+                      searchQuery && (
+                        <ActionIcon
+                          variant="subtle"
+                          onClick={() => setSearchQuery('')}
+                          size="sm"
+                        >
+                          <IconX size={16} />
+                        </ActionIcon>
+                      )
+                    }
+                    size="md"
+                  />
+                )}
+
+                {/* Questions List */}
+                {questions.length === 0 ? (
+                  <Paper shadow="sm" p="xl" withBorder bg="gray.0" data-testid="empty-state">
+                    <Stack align="center" gap="md">
+                      <Text size="xl" c="dimmed">No questions yet</Text>
+                      <Text c="dimmed" ta="center">
+                        Click "Add Question" above to create your first question
+                      </Text>
+                    </Stack>
+                  </Paper>
+                ) : filteredQuestions.length === 0 ? (
+                  <Paper shadow="sm" p="xl" withBorder bg="gray.0">
+                    <Stack align="center" gap="md">
+                      <IconSearch size={48} color="gray" />
+                      <Text size="xl" c="dimmed">No questions found</Text>
+                      <Text c="dimmed" ta="center">
+                        No questions match your search "{searchQuery}"
+                      </Text>
+                      <Button variant="subtle" onClick={() => setSearchQuery('')}>
+                        Clear Search
+                      </Button>
+                    </Stack>
+                  </Paper>
+                ) : (
+                  <>
+                    <Stack gap="xl">
+                      {paginatedQuestions.map((question) => {
+                        // Calculate the actual question number from the original list
+                        const originalIndex = questions.findIndex(q => q.id === question.id);
+                        const questionNumber = originalIndex + 1;
+                        const isEditable = canEditContent && (question.isEditing || !question.isSaved);
+                        return (
+                          <Paper key={question.id} p="lg" withBorder data-testid={!question.isSaved ? "auto-question-form" : undefined} data-auto-displayed={!question.isSaved ? "true" : undefined}>
+                            <Group justify="space-between" mb="md">
+                              <Group gap="xs">
+                                <Text fw={600}>
+                                  Question {questionNumber}
+                                </Text>
+                                {question.isSaved && (
+                                  <Badge size="sm" color="green" variant="light">
+                                    Saved
+                                  </Badge>
+                                )}
+                              </Group>
+                              <Group gap="xs">
+                                {canEditContent && question.isSaved && !question.isEditing && (
+                                  <Button
+                                    size="xs"
+                                    variant="subtle"
+                                    onClick={() => toggleEditQuestion(question.id)}
+                                  >
+                                    Edit
+                                  </Button>
+                                )}
+                                {canEditContent && (
+                                  <ActionIcon
+                                    color="red"
+                                    variant="subtle"
+                                    onClick={() => confirmDeleteQuestion(question.id, question.isSaved || false)}
+                                    title="Delete Question"
+                                  >
+                                    <IconTrash size={18} />
+                                  </ActionIcon>
+                                )}
+                              </Group>
                             </Group>
-                            <Group gap="xs">
-                              {canEditContent && question.isSaved && !question.isEditing && (
-                                <Button
-                                  size="xs"
-                                  variant="subtle"
-                                  onClick={() => toggleEditQuestion(question.id)}
-                                >
-                                  Edit
-                                </Button>
-                              )}
-                              {canEditContent && (
-                                <ActionIcon
-                                  color="red"
-                                  variant="subtle"
-                                  onClick={() => confirmDeleteQuestion(question.id, question.isSaved || false)}
-                                  title="Delete Question"
-                                >
-                                  <IconTrash size={18} />
-                                </ActionIcon>
-                              )}
-                            </Group>
-                          </Group>
 
-                          <Stack gap="md">
-                            <Textarea
-                              label="Question Text"
-                              placeholder="Enter question text (minimum 10 characters)"
-                              value={question.questionText}
-                              onChange={(e) =>
-                                updateQuestion(question.id, 'questionText', e.target.value)
-                              }
-                              required
-                              disabled={!isEditable}
-                              minRows={2}
-                              autoFocus={!question.isSaved}
-                              data-testid="question-text-input"
-                              aria-label="Question text"
-                              aria-required="true"
-                              description="Must be unique within this lab - less than 85% similar to other questions (10-1000 characters)"
-                            />
-
-                            <Select
-                              label="Question Type"
-                              data={QUESTION_TYPES}
-                              value={question.type}
-                              onChange={(value) =>
-                                updateQuestion(question.id, 'type', value || 'MCQ')
-                              }
-                              required
-                              disabled={!isEditable}
-                            />
-
-                            {question.type === 'MCQ' && (
+                            <Stack gap="md">
                               <Box>
-                                <Text size="sm" fw={500} mb={4}>
-                                  Options (comma separated)
-                                </Text>
-                                <Text size="xs" c="dimmed" mb={8}>
-                                  Enter options separated by commas
-                                </Text>
-                                <TextInput
-                                  placeholder="Option 1, Option 2, Option 3"
-                                  value={question.options}
+                                <Group gap="xs" mb={4}>
+                                  <Text size="sm" fw={500}>Question Text <span style={{ color: 'red' }}>*</span></Text>
+                                  {isEditable && (
+                                    <AISuggestionButton
+                                      prompt={() => buildQuestionAIPrompt(question.questionText, question.type)}
+                                      label="Generate answer with AI"
+                                      disabled={!question.questionText.trim() || question.questionText.trim().length < 10}
+                                      onEmptyPrompt={() => {
+                                        notifications.show({
+                                          title: 'Question Required',
+                                          message: 'Please enter a question (at least 10 characters) before generating an answer.',
+                                          color: 'orange',
+                                        });
+                                      }}
+                                      onSuggestion={(suggestion) => {
+                                        const result = parseAIQuestionResponse(suggestion);
+                                        if (result) {
+                                          // Batch both options + correctAnswer into a single state update
+                                          // to avoid stale closure overwrite (updateQuestion reads from
+                                          // the same snapshot, so sequential calls drop earlier updates)
+                                          setQuestions(prev => prev.map(q => {
+                                            if (q.id !== question.id) return q;
+                                            const updates: Partial<Question> = {
+                                              correctAnswer: result.correctAnswer,
+                                            };
+                                            if (question.type === 'MCQ' && result.options) {
+                                              updates.options = result.options;
+                                            }
+                                            if (question.type === 'True/False') {
+                                              updates.options = 'True, False';
+                                            }
+                                            return { ...q, ...updates };
+                                          }));
+                                          notifications.show({
+                                            title: 'Answer Generated',
+                                            message: `AI generated the ${question.type === 'MCQ' ? 'options and ' : ''}correct answer.`,
+                                            color: 'teal',
+                                          });
+                                        } else {
+                                          notifications.show({
+                                            title: 'Generation Failed',
+                                            message: 'Could not parse the AI response. Please try again.',
+                                            color: 'red',
+                                          });
+                                        }
+                                      }}
+                                    />
+                                  )}
+                                </Group>
+                                <Textarea
+                                  placeholder="Enter question text (minimum 10 characters)"
+                                  value={question.questionText}
                                   onChange={(e) =>
-                                    updateQuestion(question.id, 'options', e.target.value)
+                                    updateQuestion(question.id, 'questionText', e.target.value)
                                   }
                                   required
                                   disabled={!isEditable}
+                                  minRows={2}
+                                  autoFocus={!question.isSaved}
+                                  data-testid="question-text-input"
+                                  aria-label="Question text"
+                                  aria-required="true"
+                                  description="Must be unique within this lab - less than 85% similar to other questions (10-1000 characters)"
                                 />
                               </Box>
-                            )}
 
-                            <TextInput
-                              label="Correct Answer / Solution"
-                              placeholder="Enter correct answer"
-                              value={question.correctAnswer}
-                              onChange={(e) =>
-                                updateQuestion(question.id, 'correctAnswer', e.target.value)
-                              }
-                              required
-                              disabled={!isEditable}
-                            />
+                              <Select
+                                label="Question Type"
+                                data={QUESTION_TYPES}
+                                value={question.type}
+                                onChange={(value) =>
+                                  updateQuestion(question.id, 'type', value || 'MCQ')
+                                }
+                                required
+                                disabled={!isEditable}
+                              />
 
-                            {isEditable && (
-                              <Group justify="flex-end" mt="sm">
-                                {question.isSaved && (
+                              {question.type === 'MCQ' && (
+                                <Box>
+                                  <Text size="sm" fw={500} mb={4}>
+                                    Options (comma separated)
+                                  </Text>
+                                  <Text size="xs" c="dimmed" mb={8}>
+                                    Enter options separated by commas
+                                  </Text>
+                                  <TextInput
+                                    placeholder="Option 1, Option 2, Option 3"
+                                    value={question.options}
+                                    onChange={(e) =>
+                                      updateQuestion(question.id, 'options', e.target.value)
+                                    }
+                                    required
+                                    disabled={!isEditable}
+                                  />
+                                </Box>
+                              )}
+
+                              <TextInput
+                                label="Correct Answer / Solution"
+                                placeholder="Enter correct answer"
+                                value={question.correctAnswer}
+                                onChange={(e) =>
+                                  updateQuestion(question.id, 'correctAnswer', e.target.value)
+                                }
+                                required
+                                disabled={!isEditable}
+                              />
+
+                              {isEditable && (
+                                <Group justify="flex-end" mt="sm">
+                                  {question.isSaved && (
+                                    <Button
+                                      variant="subtle"
+                                      size="sm"
+                                      onClick={() => toggleEditQuestion(question.id)}
+                                    >
+                                      Cancel
+                                    </Button>
+                                  )}
+                                  {!question.isSaved && (
+                                    <Button
+                                      variant="subtle"
+                                      size="sm"
+                                      onClick={() => {
+                                        // T011: Cancel handler - set isFormCancelled flag and clear unsaved question
+                                        setIsFormCancelled(true);
+                                        setQuestions(questions.filter((q) => q.id !== question.id));
+                                      }}
+                                    >
+                                      Cancel
+                                    </Button>
+                                  )}
                                   <Button
-                                    variant="subtle"
                                     size="sm"
-                                    onClick={() => toggleEditQuestion(question.id)}
+                                    onClick={() => saveIndividualQuestion(question.id)}
+                                    loading={savingQuestionId === question.id}
                                   >
-                                    Cancel
+                                    Save Question
                                   </Button>
-                                )}
-                                {!question.isSaved && (
-                                  <Button
-                                    variant="subtle"
-                                    size="sm"
-                                    onClick={() => {
-                                      // T011: Cancel handler - set isFormCancelled flag and clear unsaved question
-                                      setIsFormCancelled(true);
-                                      setQuestions(questions.filter((q) => q.id !== question.id));
-                                    }}
-                                  >
-                                    Cancel
-                                  </Button>
-                                )}
-                                <Button
-                                  size="sm"
-                                  onClick={() => saveIndividualQuestion(question.id)}
-                                  loading={savingQuestionId === question.id}
-                                >
-                                  Save Question
-                                </Button>
-                              </Group>
-                            )}
-                          </Stack>
-                        </Paper>
-                      );
-                    })}
+                                </Group>
+                              )}
+                            </Stack>
+                          </Paper>
+                        );
+                      })}
 
-                    {totalPages > 1 && (
-                      <Group justify="center">
-                        <Pagination
-                          total={totalPages}
-                          value={currentPage}
-                          onChange={setCurrentPage}
-                          size="md"
-                        />
-                      </Group>
-                    )}
-                  </Stack>
-                </>
-              )}
-
-              {/* Practice Test Configuration */}
-              <Divider label="Practice Test Configuration" labelPosition="center" />
-
-              {canEditContent && (
-                <Group>
-                  <Switch
-                    checked={enablePracticeTest}
-                    onChange={(event) => setEnablePracticeTest(event.currentTarget.checked)}
-                    label="Enable Practice Test"
-                  />
-                </Group>
-              )}
-            </Stack>
-          </Tabs.Panel>
-
-          <Tabs.Panel value="diagram-test" pt="md">
-            <Stack gap="md">
-              {/* Back to Tests & Questions Button */}
-              <Group justify="flex-start">
-                <Button
-                  variant="subtle"
-                  onClick={handleBackToTestsAndQuestions}
-                  leftSection="←"
-                >
-                  Back to Tests & Questions
-                </Button>
-              </Group>
-
-              <Select
-                label="Architecture Type"
-                placeholder="Select architecture type"
-                data={ARCHITECTURE_TYPES}
-                value={architectureType}
-                onChange={(value) => setArchitectureType(value || '')}
-                required
-                disabled={!canEditContent}
-              />
-
-              <Textarea
-                label="Prompt"
-                description="Instructions for students (10-2000 characters)"
-                placeholder="Describe what diagram students should create..."
-                minLength={10}
-                maxLength={2000}
-                rows={4}
-                value={prompt}
-                onChange={(e) => setPrompt(e.target.value)}
-                required
-                disabled={!canEditContent}
-              />
-
-              {/* Hints Editor - Optional hints for students */}
-              <HintsEditor
-                hints={hints}
-                onUpdate={(updatedHints) => {
-                  setHints(updatedHints);
-                  console.log('Hints updated:', updatedHints);
-                }}
-                disabled={!canEditContent}
-              />
-
-              {/* Instructor Information Accordion */}
-              <Accordion transitionDuration={1000}
-                styles={{
-                  root: {
-                    backgroundColor: '#e7f5ff',
-                    borderRadius: '8px',
-                    border: '1px solid #339af0',
-                  },
-                  item: {
-                    border: 'none',
-                  },
-                  control: {
-                    padding: '12px 16px',
-                    '&:hover': {
-                      backgroundColor: '#d0ebff',
-                    },
-                  },
-                  content: {
-                    padding: '0 16px 16px 16px',
-                  },
-                }}
-              >
-                <Accordion.Item value="instructor-info">
-                  <Accordion.Control>
-                    <Group gap="xs">
-                      <Text size="sm" fw={600} c="blue.9">
-                        💡 How Diagram Tests Work
-                      </Text>
-                    </Group>
-                  </Accordion.Control>
-                  <Accordion.Panel>
-                    <Stack gap="xs">
-                      <Text size="xs" c="blue.9">
-                        <strong>What You Do:</strong> Create the correct diagram below by placing shapes inside containers (VPC, Namespace, Zones) and connecting them with arrows.
-                      </Text>
-                      <Text size="xs" c="blue.9">
-                        <strong>What Students See:</strong> Your diagram is automatically jumbled - shapes are scattered randomly outside containers with no arrow connections.
-                      </Text>
-                      <Text size="xs" c="blue.9">
-                        <strong>What Students Must Do:</strong> Reconstruct your exact diagram by (1) dragging shapes INTO the correct containers, and (2) drawing correct arrow connections.
-                      </Text>
-                      <Text size="xs" c="blue.9">
-                        <strong>Grading:</strong> Students are graded on both <strong>nesting</strong> (50% - shapes in correct containers) and <strong>connections</strong> (50% - correct arrows). They must achieve 100% to pass.
-                      </Text>
-                      <Group gap="xs" mt="xs">
-                        <Badge size="sm" color="blue" variant="light">Tip: Use 5-10 shapes for best results</Badge>
-                        <Badge size="sm" color="blue" variant="light">Make containers large enough (400×300+)</Badge>
-                        <Badge size="sm" color="blue" variant="light">Use clear labels</Badge>
-                      </Group>
+                      {totalPages > 1 && (
+                        <Group justify="center">
+                          <Pagination
+                            total={totalPages}
+                            value={currentPage}
+                            onChange={setCurrentPage}
+                            size="md"
+                          />
+                        </Group>
+                      )}
                     </Stack>
-                  </Accordion.Panel>
-                </Accordion.Item>
-              </Accordion>
-
-              <Box>
-                <Text size="sm" fw={500} mb={8}>Diagram Editor</Text>
-                <Text size="xs" c="dimmed" mb={8}>
-                  Drag shapes onto the canvas to create your expected diagram
-                </Text>
-
-                <Group align="flex-start" gap="md">
-                  {/* Canvas - DiagramEditor */}
-                  <Box style={{ flex: 1, minWidth: 0 }}>
-                    {!architectureType ? (
-                      <Paper
-                        withBorder
-                        p="xl"
-                        style={{
-                          minHeight: 400,
-                          backgroundColor: '#f8f9fa',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                        }}
-                      >
-                        <Text c="dimmed" ta="center" size="sm">
-                          Select an architecture type to enable diagram editor
-                        </Text>
-                      </Paper>
-                    ) : (
-                      <>
-                        {isMobile && canEditContent && (
-                          <Alert icon={<IconDeviceDesktop size={16} />} title="Screen Too Small" color="blue" mb="md">
-                            Creating diagrams on mobile is difficult. We suggest updating the diagram from a larger screen.
-                          </Alert>
-                        )}
-                        <DiagramEditor
-                          initialGraph={expectedDiagramState}
-                          mode={canEditContent ? "instructor" : "student"}
-                          architectureType={architectureType}
-                          onGraphChange={(graph) => {
-                            setExpectedDiagramState(graph);
-                          }}
-                          className="diagram-editor"
-                        />
-                      </>
-                    )}
-                  </Box>
-                </Group>
-              </Box>
-
-              <Group justify="space-between">
-                {canEditContent && (
-                  <Group>
-                    <Button
-                      variant="subtle"
-                      color="red"
-                      leftSection={<IconTrash size={16} />}
-                      onClick={openDeleteDiagramModal}
-                      loading={saving}
-                    >
-                      Delete Test
-                    </Button>
-                  </Group>
+                  </>
                 )}
+
+                {/* Practice Test Configuration */}
+                <Divider label="Practice Test Configuration" labelPosition="center" />
 
                 {canEditContent && (
                   <Group>
-                    <Button variant="outline" onClick={() => router.push(`/labs/${labId}`)}>
-                      Cancel
-                    </Button>
-                    <Button onClick={handleSaveDiagramTest} loading={saving}>
-                      Save Diagram Test
-                    </Button>
+                    <Switch
+                      checked={enablePracticeTest}
+                      onChange={(event) => setEnablePracticeTest(event.currentTarget.checked)}
+                      label="Enable Practice Test"
+                    />
                   </Group>
                 )}
+              </Stack>
+            </Tabs.Panel>
 
-                {!canEditContent && (
-                  <Button variant="outline" onClick={() => router.push(`/labs/${labId}`)}>
-                    Back to Lab
+            <Tabs.Panel value="diagram-test" pt="md">
+              <Stack gap="md">
+                {/* Back to Tests & Questions Button */}
+                <Group justify="flex-start">
+                  <Button
+                    variant="subtle"
+                    onClick={handleBackToTestsAndQuestions}
+                    leftSection="←"
+                  >
+                    Back to Tests & Questions
                   </Button>
-                )}
-              </Group>
-            </Stack>
-          </Tabs.Panel>
-        </Tabs>
-      </Paper>
+                </Group>
 
-      {/* Delete Question Confirmation Modal */}
-      <Modal opened={deleteQuestionModalOpened} onClose={closeDeleteQuestionModal} title="Delete Question" centered>
-        <Stack>
-          <Text>Are you sure you want to delete this question?</Text>
-          <Text size="sm" c="dimmed">This action cannot be undone.</Text>
-          <Group justify="flex-end" mt="md">
-            <Button variant="default" onClick={closeDeleteQuestionModal}>
-              Cancel
-            </Button>
-            <Button color="red" onClick={removeQuestion} loading={isDeleting}>
-              Delete Question
-            </Button>
-          </Group>
-        </Stack>
-      </Modal>
+                <Select
+                  label="Architecture Type"
+                  placeholder="Select architecture type"
+                  data={ARCHITECTURE_TYPES}
+                  value={architectureType}
+                  onChange={(value) => setArchitectureType(value || '')}
+                  required
+                  disabled={!canEditContent}
+                />
 
-      {/* Delete Diagram Test Confirmation Modal */}
-      <Modal opened={deleteDiagramModalOpened} onClose={closeDeleteDiagramModal} title="Delete Diagram Test" centered>
-        <Stack>
-          <Text>Are you sure you want to delete this diagram test?</Text>
-          <Text size="sm" c="dimmed">This action cannot be undone. The expected diagram state will be permanently deleted.</Text>
-          <Group justify="flex-end" mt="md">
-            <Button variant="default" onClick={closeDeleteDiagramModal}>
-              Cancel
-            </Button>
-            <Button color="red" onClick={handleDeleteDiagramTest} loading={isDeleting}>
-              Delete Diagram Test
-            </Button>
-          </Group>
-        </Stack>
-      </Modal>
-    </Container>
+                <Box>
+                  <Group gap="xs" mb={4}>
+                    <Text size="sm" fw={500}>Prompt <span style={{ color: 'red' }}>*</span></Text>
+                    {canEditContent && (
+                      <AISuggestionButton
+                        prompt={() => buildDiagramAIPrompt(prompt, architectureType)}
+                        label="Generate diagram from prompt with AI"
+                        disabled={!prompt.trim() || !architectureType}
+                        onEmptyPrompt={() => {
+                          notifications.show({
+                            title: 'Missing Information',
+                            message: 'Please enter a prompt and select an architecture type first.',
+                            color: 'orange',
+                          });
+                        }}
+                        onSuggestion={(suggestion) => {
+                          const diagramData = parseAIDiagramResponse(suggestion, architectureType);
+                          if (diagramData) {
+                            setExpectedDiagramState(diagramData);
+                            notifications.show({
+                              title: 'Diagram Generated',
+                              message: `Created ${diagramData.nodes.length} nodes and ${diagramData.links.length} connections.`,
+                              color: 'teal',
+                            });
+                          } else {
+                            notifications.show({
+                              title: 'Generation Failed',
+                              message: 'Could not parse the AI response into a diagram. Please try again.',
+                              color: 'red',
+                            });
+                          }
+                        }}
+                      />
+                    )}
+                  </Group>
+                  <Textarea
+                    description="Instructions for students (10-2000 characters)"
+                    placeholder="Describe what diagram students should create..."
+                    minLength={10}
+                    maxLength={2000}
+                    rows={4}
+                    value={prompt}
+                    onChange={(e) => setPrompt(e.target.value)}
+                    required
+                    disabled={!canEditContent}
+                  />
+                </Box>
+
+                {/* Hints Editor - Optional hints for students */}
+                <HintsEditor
+                  hints={hints}
+                  onUpdate={(updatedHints) => {
+                    setHints(updatedHints);
+                    console.log('Hints updated:', updatedHints);
+                  }}
+                  disabled={!canEditContent}
+                />
+
+                {/* Instructor Information Accordion */}
+                <Accordion transitionDuration={1000}
+                  styles={{
+                    root: {
+                      backgroundColor: '#e7f5ff',
+                      borderRadius: '8px',
+                      border: '1px solid #339af0',
+                    },
+                    item: {
+                      border: 'none',
+                    },
+                    control: {
+                      padding: '12px 16px',
+                      '&:hover': {
+                        backgroundColor: '#d0ebff',
+                      },
+                    },
+                    content: {
+                      padding: '0 16px 16px 16px',
+                    },
+                  }}
+                >
+                  <Accordion.Item value="instructor-info">
+                    <Accordion.Control>
+                      <Group gap="xs">
+                        <Text size="sm" fw={600} c="blue.9">
+                          💡 How Diagram Tests Work
+                        </Text>
+                      </Group>
+                    </Accordion.Control>
+                    <Accordion.Panel>
+                      <Stack gap="xs">
+                        <Text size="xs" c="blue.9">
+                          <strong>What You Do:</strong> Create the correct diagram below by placing shapes inside containers (VPC, Namespace, Zones) and connecting them with arrows.
+                        </Text>
+                        <Text size="xs" c="blue.9">
+                          <strong>What Students See:</strong> Your diagram is automatically jumbled - shapes are scattered randomly outside containers with no arrow connections.
+                        </Text>
+                        <Text size="xs" c="blue.9">
+                          <strong>What Students Must Do:</strong> Reconstruct your exact diagram by (1) dragging shapes INTO the correct containers, and (2) drawing correct arrow connections.
+                        </Text>
+                        <Text size="xs" c="blue.9">
+                          <strong>Grading:</strong> Students are graded on both <strong>nesting</strong> (50% - shapes in correct containers) and <strong>connections</strong> (50% - correct arrows). They must achieve 100% to pass.
+                        </Text>
+                        <Group gap="xs" mt="xs">
+                          <Badge size="sm" color="blue" variant="light">Tip: Use 5-10 shapes for best results</Badge>
+                          <Badge size="sm" color="blue" variant="light">Make containers large enough (400×300+)</Badge>
+                          <Badge size="sm" color="blue" variant="light">Use clear labels</Badge>
+                        </Group>
+                      </Stack>
+                    </Accordion.Panel>
+                  </Accordion.Item>
+                </Accordion>
+
+                <Box>
+                  <Text size="sm" fw={500} mb={8}>Diagram Editor</Text>
+                  <Text size="xs" c="dimmed" mb={8}>
+                    Drag shapes onto the canvas to create your expected diagram
+                  </Text>
+
+                  <Group align="flex-start" gap="md">
+                    {/* Canvas - DiagramEditor */}
+                    <Box style={{ flex: 1, minWidth: 0 }}>
+                      {!architectureType ? (
+                        <Paper
+                          withBorder
+                          p="xl"
+                          style={{
+                            minHeight: 400,
+                            backgroundColor: '#f8f9fa',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                          }}
+                        >
+                          <Text c="dimmed" ta="center" size="sm">
+                            Select an architecture type to enable diagram editor
+                          </Text>
+                        </Paper>
+                      ) : (
+                        <>
+                          {isMobile && canEditContent && (
+                            <Alert icon={<IconDeviceDesktop size={16} />} title="Screen Too Small" color="blue" mb="md">
+                              Creating diagrams on mobile is difficult. We suggest updating the diagram from a larger screen.
+                            </Alert>
+                          )}
+                          <DiagramEditor
+                            initialGraph={expectedDiagramState}
+                            mode={canEditContent ? "instructor" : "student"}
+                            architectureType={architectureType}
+                            onGraphChange={(graph) => {
+                              setExpectedDiagramState(graph);
+                            }}
+                            className="diagram-editor"
+                          />
+                        </>
+                      )}
+                    </Box>
+                  </Group>
+                </Box>
+
+                <Group justify="space-between">
+                  {canEditContent && (
+                    <Group>
+                      <Button
+                        variant="subtle"
+                        color="red"
+                        leftSection={<IconTrash size={16} />}
+                        onClick={openDeleteDiagramModal}
+                        loading={saving}
+                      >
+                        Delete Test
+                      </Button>
+                    </Group>
+                  )}
+
+                  {canEditContent && (
+                    <Group>
+                      <Button variant="outline" onClick={() => router.push(`/labs/${labId}`)}>
+                        Cancel
+                      </Button>
+                      <Button onClick={handleSaveDiagramTest} loading={saving}>
+                        Save Diagram Test
+                      </Button>
+                    </Group>
+                  )}
+
+                  {!canEditContent && (
+                    <Button variant="outline" onClick={() => router.push(`/labs/${labId}`)}>
+                      Back to Lab
+                    </Button>
+                  )}
+                </Group>
+              </Stack>
+            </Tabs.Panel>
+          </Tabs>
+        </Paper>
+
+        {/* Delete Question Confirmation Modal */}
+        <Modal opened={deleteQuestionModalOpened} onClose={closeDeleteQuestionModal} title="Delete Question" centered>
+          <Stack>
+            <Text>Are you sure you want to delete this question?</Text>
+            <Text size="sm" c="dimmed">This action cannot be undone.</Text>
+            <Group justify="flex-end" mt="md">
+              <Button variant="default" onClick={closeDeleteQuestionModal}>
+                Cancel
+              </Button>
+              <Button color="red" onClick={removeQuestion} loading={isDeleting}>
+                Delete Question
+              </Button>
+            </Group>
+          </Stack>
+        </Modal>
+
+        {/* Delete Diagram Test Confirmation Modal */}
+        <Modal opened={deleteDiagramModalOpened} onClose={closeDeleteDiagramModal} title="Delete Diagram Test" centered>
+          <Stack>
+            <Text>Are you sure you want to delete this diagram test?</Text>
+            <Text size="sm" c="dimmed">This action cannot be undone. The expected diagram state will be permanently deleted.</Text>
+            <Group justify="flex-end" mt="md">
+              <Button variant="default" onClick={closeDeleteDiagramModal}>
+                Cancel
+              </Button>
+              <Button color="red" onClick={handleDeleteDiagramTest} loading={isDeleting}>
+                Delete Diagram Test
+              </Button>
+            </Group>
+          </Stack>
+        </Modal>
+      </Container>
     </>
   );
 };

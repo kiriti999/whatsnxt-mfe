@@ -8,9 +8,13 @@
 import * as d3 from 'd3';
 import { NodeType } from './lab-utils';
 
+export type EdgeSide = 'top' | 'right' | 'bottom' | 'left';
+
 export interface LinkType {
   source: string; // Node ID
   target: string; // Node ID
+  sourceEdge?: EdgeSide; // Which edge of source to connect from
+  targetEdge?: EdgeSide; // Which edge of target to connect to
   waypoints?: { x: number; y: number }[];
 }
 
@@ -23,12 +27,12 @@ export function createArrowMarkers(
   colorScheme: 'light' | 'dark'
 ): void {
   const defs = svg.append('defs');
-  
+
   // Standard arrow marker
   defs.append('marker')
     .attr('id', 'arrow')
     .attr('viewBox', '0 -5 10 10')
-    .attr('refX', 8)
+    .attr('refX', 10)
     .attr('refY', 0)
     .attr('markerWidth', 6)
     .attr('markerHeight', 6)
@@ -36,12 +40,12 @@ export function createArrowMarkers(
     .append('path')
     .attr('d', 'M0,-5L10,0L0,5')
     .attr('fill', colorScheme === 'dark' ? '#FFF' : '#333');
-  
+
   // Temporary arrow marker (for drawing new links)
   defs.append('marker')
     .attr('id', 'arrow-temp')
     .attr('viewBox', '0 -5 10 10')
-    .attr('refX', 8)
+    .attr('refX', 10)
     .attr('refY', 0)
     .attr('markerWidth', 6)
     .attr('markerHeight', 6)
@@ -74,72 +78,145 @@ export function getWaypointPath(
   waypoints?: { x: number; y: number }[]
 ): { path: string; waypoints: { x: number; y: number }[] } {
   if (!waypoints || waypoints.length === 0) {
-    // Default: orthogonal path with midpoint
-    const midX = (x1 + x2) / 2;
-    return {
-      path: `M ${x1} ${y1} L ${midX} ${y1} L ${midX} ${y2} L ${x2} ${y2}`,
-      waypoints: [{ x: midX, y: y1 }, { x: midX, y: y2 }],
-    };
+    // Determine primary axis to ensure the last path segment
+    // has a clear direction for the arrowhead marker
+    const dx = Math.abs(x2 - x1);
+    const dy = Math.abs(y2 - y1);
+
+    if (dx >= dy) {
+      // Primarily horizontal: H → V → H (arrowhead points left/right)
+      const midX = (x1 + x2) / 2;
+      return {
+        path: `M ${x1} ${y1} L ${midX} ${y1} L ${midX} ${y2} L ${x2} ${y2}`,
+        waypoints: [{ x: midX, y: y1 }, { x: midX, y: y2 }],
+      };
+    } else {
+      // Primarily vertical: V → H → V (arrowhead points up/down)
+      const midY = (y1 + y2) / 2;
+      return {
+        path: `M ${x1} ${y1} L ${x1} ${midY} L ${x2} ${midY} L ${x2} ${y2}`,
+        waypoints: [{ x: x1, y: midY }, { x: x2, y: midY }],
+      };
+    }
   }
-  
+
   // Filter out any undefined/null waypoints
   const validWaypoints = waypoints.filter(
     wp => wp && typeof wp.x === 'number' && typeof wp.y === 'number'
   );
-  
+
   // Build path through waypoints
   let pathD = `M ${x1} ${y1}`;
   validWaypoints.forEach(wp => {
     pathD += ` L ${wp.x} ${wp.y}`;
   });
   pathD += ` L ${x2} ${y2}`;
-  
+
   return { path: pathD, waypoints: validWaypoints };
 }
 
+// How far inside the bounding box edge to place connection points.
+// Most shape icons render with ~10% padding (e.g. 8px inside an 80px node).
+const EDGE_INSET = 8;
+
 /**
- * Calculate connection points between two nodes
- * Returns coordinates for source and target connection points
+ * Find the point where a ray from a rectangle's center towards a target point
+ * exits the rectangle boundary. Works for all 4 sides and corners.
+ * Insets the point slightly so it touches the visual shape, not just the bounding box.
+ */
+function getRectEdgePoint(
+  nodeX: number,
+  nodeY: number,
+  nodeW: number,
+  nodeH: number,
+  targetX: number,
+  targetY: number
+): { x: number; y: number } {
+  // Inset the bounding box so connection points touch the visual icon
+  const insetX = nodeX + EDGE_INSET;
+  const insetY = nodeY + EDGE_INSET;
+  const insetW = nodeW - 2 * EDGE_INSET;
+  const insetH = nodeH - 2 * EDGE_INSET;
+
+  const cx = insetX + insetW / 2;
+  const cy = insetY + insetH / 2;
+  const hw = insetW / 2;
+  const hh = insetH / 2;
+
+  const dx = targetX - cx;
+  const dy = targetY - cy;
+
+  // If centers overlap, default to right edge
+  if (dx === 0 && dy === 0) return { x: cx + hw, y: cy };
+
+  // Scale factors to reach each axis-aligned edge
+  const scaleX = dx !== 0 ? hw / Math.abs(dx) : Infinity;
+  const scaleY = dy !== 0 ? hh / Math.abs(dy) : Infinity;
+
+  // The smaller scale hits the closer edge first
+  const scale = Math.min(scaleX, scaleY);
+
+  return {
+    x: cx + dx * scale,
+    y: cy + dy * scale,
+  };
+}
+
+/**
+ * Get the midpoint of a specific edge of a rectangle.
+ */
+function getEdgeMidpoint(
+  nodeX: number, nodeY: number, nodeW: number, nodeH: number,
+  edge: EdgeSide
+): { x: number; y: number } {
+  switch (edge) {
+    case 'top': return { x: nodeX + nodeW / 2, y: nodeY + EDGE_INSET };
+    case 'bottom': return { x: nodeX + nodeW / 2, y: nodeY + nodeH - EDGE_INSET };
+    case 'left': return { x: nodeX + EDGE_INSET, y: nodeY + nodeH / 2 };
+    case 'right': return { x: nodeX + nodeW - EDGE_INSET, y: nodeY + nodeH / 2 };
+  }
+}
+
+/**
+ * Calculate connection points between two nodes.
+ * If edge preferences (sourceEdge/targetEdge) are provided, use them.
+ * Otherwise fall back to center-to-center ray intersection.
  */
 export function calculateConnectionPoints(
   sourceNode: NodeType,
-  targetNode: NodeType
+  targetNode: NodeType,
+  sourceEdge?: EdgeSide,
+  targetEdge?: EdgeSide
 ): { x1: number; y1: number; x2: number; y2: number } {
   const sx = sourceNode.x || 0;
   const sy = sourceNode.y || 0;
   const tx = targetNode.x || 0;
   const ty = targetNode.y || 0;
-  
-  let x1: number, y1: number, x2: number, y2: number;
-  
-  // Determine connection points based on relative positions
-  if (tx > sx + sourceNode.width) {
-    // Target is to the right
-    x1 = sx + sourceNode.width;
-    y1 = sy + sourceNode.height / 2;
-    x2 = tx;
-    y2 = ty + targetNode.height / 2;
-  } else if (tx + targetNode.width < sx) {
-    // Target is to the left
-    x1 = sx;
-    y1 = sy + sourceNode.height / 2;
-    x2 = tx + targetNode.width;
-    y2 = ty + targetNode.height / 2;
-  } else if (ty > sy + sourceNode.height) {
-    // Target is below
-    x1 = sx + sourceNode.width / 2;
-    y1 = sy + sourceNode.height;
-    x2 = tx + targetNode.width / 2;
-    y2 = ty;
+
+  let srcPt: { x: number; y: number };
+  let tgtPt: { x: number; y: number };
+
+  if (sourceEdge) {
+    // Use the user-specified edge
+    srcPt = getEdgeMidpoint(sx, sy, sourceNode.width, sourceNode.height, sourceEdge);
   } else {
-    // Target is above
-    x1 = sx + sourceNode.width / 2;
-    y1 = sy;
-    x2 = tx + targetNode.width / 2;
-    y2 = ty + targetNode.height;
+    // Auto-detect via ray intersection toward target center
+    const tCx = tx + targetNode.width / 2;
+    const tCy = ty + targetNode.height / 2;
+    srcPt = getRectEdgePoint(sx, sy, sourceNode.width, sourceNode.height, tCx, tCy);
   }
-  
-  return { x1, y1, x2, y2 };
+
+  if (targetEdge) {
+    // Use the user-specified edge
+    tgtPt = getEdgeMidpoint(tx, ty, targetNode.width, targetNode.height, targetEdge);
+  } else {
+    // Auto-detect via ray intersection toward source center
+    const sCx = sx + sourceNode.width / 2;
+    const sCy = sy + sourceNode.height / 2;
+    tgtPt = getRectEdgePoint(tx, ty, targetNode.width, targetNode.height, sCx, sCy);
+  }
+
+  return { x1: srcPt.x, y1: srcPt.y, x2: tgtPt.x, y2: tgtPt.y };
 }
 
 /**
@@ -164,21 +241,23 @@ export function renderLink(
   pathResult: { path: string; waypoints: { x: number; y: number }[] };
 } {
   const { isSelected, colorScheme, onLinkClick, onDeleteClick } = options;
-  
-  // Calculate connection points
-  const { x1, y1, x2, y2 } = calculateConnectionPoints(sourceNode, targetNode);
-  
+
+  // Calculate connection points (using stored edge preferences if available)
+  const { x1, y1, x2, y2 } = calculateConnectionPoints(
+    sourceNode, targetNode, link.sourceEdge, link.targetEdge
+  );
+
   // Get path with waypoints
   const pathResult = getWaypointPath(x1, y1, x2, y2, link.waypoints);
-  
+
   // Create link wrapper group
   const lw = linkGroup.append('g').attr('class', 'link-wrapper');
-  
+
   // Visible path with arrow
-  const strokeColor = isSelected 
-    ? '#3498db' 
+  const strokeColor = isSelected
+    ? '#3498db'
     : (colorScheme === 'dark' ? '#FFF' : '#333');
-  
+
   const vp = lw.append('path')
     .attr('d', pathResult.path)
     .attr('class', 'visible-path')
@@ -186,7 +265,7 @@ export function renderLink(
     .attr('stroke-width', isSelected ? 3 : 2)
     .attr('fill', 'none')
     .attr('marker-end', 'url(#arrow)');
-  
+
   // Invisible wider path for easier clicking
   lw.append('path')
     .attr('d', pathResult.path)
@@ -198,12 +277,12 @@ export function renderLink(
       e.stopPropagation();
       onLinkClick();
     });
-  
+
   // Delete icon position
   const diPos = (pathResult.waypoints && pathResult.waypoints.length > 0 && pathResult.waypoints[0])
     ? { x: pathResult.waypoints[0].x, y: pathResult.waypoints[0].y - 20 }
     : { x: (x1 + x2) / 2, y: (y1 + y2) / 2 };
-  
+
   const di = lw.append('g')
     .attr('transform', `translate(${diPos.x},${diPos.y})`)
     .attr('cursor', 'pointer')
@@ -212,17 +291,17 @@ export function renderLink(
       e.stopPropagation();
       onDeleteClick();
     });
-  
+
   di.append('circle')
     .attr('r', 12)
     .attr('fill', '#e74c3c');
-  
+
   di.append('text')
     .attr('text-anchor', 'middle')
     .attr('dy', '0.35em')
     .attr('fill', 'white')
     .text('×');
-  
+
   // Hover effects
   lw.on('mouseenter', () => {
     if (!isSelected) {
@@ -236,7 +315,7 @@ export function renderLink(
     }
     di.style('display', 'none');
   });
-  
+
   return { linkWrapper: lw, visiblePath: vp, deleteIcon: di, pathResult };
 }
 
@@ -255,11 +334,11 @@ export function renderWaypointHandles(
   g: d3.Selection<SVGGElement, unknown, null, undefined>
 ): void {
   if (!pathResult.waypoints || pathResult.waypoints.length === 0) return;
-  
+
   pathResult.waypoints.forEach((wp, wpi) => {
     // Skip undefined waypoints
     if (!wp || typeof wp.x !== 'number' || typeof wp.y !== 'number') return;
-    
+
     const cp = linkWrapper.append('circle')
       .attr('cx', wp.x)
       .attr('cy', wp.y)
@@ -268,12 +347,12 @@ export function renderWaypointHandles(
       .attr('stroke', '#FFF')
       .attr('stroke-width', 2)
       .attr('cursor', 'move');
-    
+
     const cd = d3.drag<SVGCircleElement, unknown>()
       .on('drag', function (e) {
         const [mx, my] = d3.pointer(e, g.node());
         d3.select(this).attr('cx', mx).attr('cy', my);
-        
+
         // Reconstruct path locally for drag visualization
         let np = `M ${x1} ${y1}`;
         pathResult.waypoints!.forEach((w, wi) => {
@@ -285,7 +364,7 @@ export function renderWaypointHandles(
           }
         });
         np += ` L ${x2} ${y2}`;
-        
+
         visiblePath.attr('d', np);
         linkWrapper.select('path[stroke="transparent"]').attr('d', np);
       })
@@ -293,7 +372,7 @@ export function renderWaypointHandles(
         const [mx, my] = d3.pointer(e, g.node());
         onWaypointDragEnd(wpi, mx, my);
       });
-    
+
     cp.call(cd);
   });
 }

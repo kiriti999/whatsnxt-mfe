@@ -1,7 +1,14 @@
-import { useState, useEffect } from "react";
-import { Button, TextInput, Textarea, Group, Loader, Box } from "@mantine/core";
-import { interviewAPI } from "../../../../apis/v1/courses/interview/interview";
+import { useState } from "react";
+import { Button, TextInput, Group, Loader, Box, Text, Flex } from "@mantine/core";
 import { showNotification } from "@mantine/notifications";
+import { interviewAPI } from "../../../../apis/v1/courses/interview/interview";
+import { AISuggestionButton } from "../../../../components/Common/AISuggestionButton";
+import dynamic from "next/dynamic";
+
+const LexicalEditor = dynamic(
+  () => import("../../../../components/StructuredTutorial/Editor/LexicalEditor").then(mod => ({ default: mod.LexicalEditor })),
+  { ssr: false }
+);
 
 const EditQuestion = ({ questionData, onUpdate, onCancel }) => {
   const [questionText, setQuestionText] = useState(questionData.questionUpdated);
@@ -43,14 +50,20 @@ const EditQuestion = ({ questionData, onUpdate, onCancel }) => {
         onChange={(e) => setQuestionText(e.target.value)}
         mb="md"
       />
-      <Textarea
-        label="Edit Answer"
-        value={answerText}
-        onChange={(e) => setAnswerText(e.target.value)}
-        autosize
-        minRows={3}
-        mb="md"
-      />
+      <Box mb="md" mt="xs">
+        <Flex align="center" gap={4} mb="xs">
+          <Text size="sm" fw={500}>Edit Answer</Text>
+          <AISuggestionButton
+            prompt={() => questionText}
+            onSuggestion={(text) => setAnswerText(text)}
+          />
+        </Flex>
+        <LexicalEditor
+          value={answerText}
+          onChange={(state) => setAnswerText(state)}
+          placeholder="Edit your answer..."
+        />
+      </Box>
       <Group position="apart">
         <Button color="green" onClick={handleUpdate} disabled={isUpdating}>
           {isUpdating ? <Loader color="white" size="sm" /> : "Save"}

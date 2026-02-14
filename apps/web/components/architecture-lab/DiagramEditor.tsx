@@ -16,6 +16,7 @@ import {
     renderLink,
     renderWaypointHandles,
     calculateConnectionPoints,
+    EdgeSide,
 } from '../../utils/d3-link-renderers';
 import { Button, Group, Paper as MantinePaper, Text, Divider, useComputedColorScheme, ActionIcon, Tooltip, Stack, ScrollArea, Box, Modal } from '@mantine/core';
 import { IconZoomReset } from '@tabler/icons-react';
@@ -25,9 +26,13 @@ import { genericD3Shapes } from '../../utils/shape-libraries/generic-d3-shapes';
 import { getArchitectureShapes, getArchitectureMetadata } from '../../utils/shape-libraries';
 
 
+
+
 interface LinkType {
     source: string; // ID
     target: string; // ID
+    sourceEdge?: EdgeSide; // Which edge of source node to connect from
+    targetEdge?: EdgeSide; // Which edge of target node to connect to
     waypoints?: { x: number; y: number }[]; // Custom waypoints for path (optional)
 }
 
@@ -396,13 +401,21 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
         let tempLinkLine: d3.Selection<SVGLineElement, unknown, null, undefined> | null = null;
 
         const linkDrag = d3.drag<SVGCircleElement, NodeType>()
-            .on('start', (event, d) => {
+            .on('start', function (event, d) {
                 event.sourceEvent.stopPropagation();
                 event.sourceEvent.preventDefault();
-                const startX = (d.x || 0) + d.width / 2;
-                const startY = (d.y || 0) + d.height / 2;
 
-                tempLinkLine = linkLayer.append('line') // Render into linkLayer
+                // Detect which edge handle the drag started from
+                const edgeAttr = d3.select(this).attr('data-edge') as EdgeSide | null;
+                (this as any).__sourceEdge = edgeAttr || 'bottom';
+
+                // Start position is the handle's position (edge midpoint)
+                const handleCx = parseFloat(d3.select(this).attr('cx'));
+                const handleCy = parseFloat(d3.select(this).attr('cy'));
+                const startX = (d.x || 0) + handleCx;
+                const startY = (d.y || 0) + handleCy;
+
+                tempLinkLine = linkLayer.append('line')
                     .attr('x1', startX)
                     .attr('y1', startY)
                     .attr('x2', startX)
@@ -413,18 +426,22 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
                     .attr('marker-end', 'url(#arrow-temp)')
                     .style('pointer-events', 'none');
             })
-            .on('drag', (event, d) => {
+            .on('drag', function (event, d) {
                 event.sourceEvent.stopPropagation();
                 event.sourceEvent.preventDefault();
                 if (!tempLinkLine) return;
                 const [mx, my] = d3.pointer(event, g.node());
-                const startX = (d.x || 0) + d.width / 2;
-                const startY = (d.y || 0) + d.height / 2;
+                const handleCx = parseFloat(d3.select(this).attr('cx'));
+                const handleCy = parseFloat(d3.select(this).attr('cy'));
+                const startX = (d.x || 0) + handleCx;
+                const startY = (d.y || 0) + handleCy;
                 tempLinkLine.attr('x1', startX).attr('y1', startY).attr('x2', mx).attr('y2', my);
             })
-            .on('end', (event, d) => {
+            .on('end', function (event, d) {
                 event.sourceEvent.stopPropagation();
                 event.sourceEvent.preventDefault();
+                const sourceEdge = (this as any).__sourceEdge as EdgeSide;
+
                 if (tempLinkLine) {
                     tempLinkLine.remove();
                     tempLinkLine = null;
@@ -452,7 +469,27 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
                 const targetNode = candidates.length > 0 ? candidates[0] : undefined;
 
                 if (targetNode) {
-                    const newLink = { source: d.id!, target: targetNode.id! };
+                    // Detect which edge of the target the user dropped nearest to
+                    const tnx = targetNode.x || 0;
+                    const tny = targetNode.y || 0;
+                    const distToTop = Math.abs(my - tny);
+                    const distToBottom = Math.abs(my - (tny + targetNode.height));
+                    const distToLeft = Math.abs(mx - tnx);
+                    const distToRight = Math.abs(mx - (tnx + targetNode.width));
+                    const minDist = Math.min(distToTop, distToBottom, distToLeft, distToRight);
+
+                    let targetEdge: EdgeSide = 'left';
+                    if (minDist === distToTop) targetEdge = 'top';
+                    else if (minDist === distToBottom) targetEdge = 'bottom';
+                    else if (minDist === distToRight) targetEdge = 'right';
+                    else targetEdge = 'left';
+
+                    const newLink: LinkType = {
+                        source: d.id!,
+                        target: targetNode.id!,
+                        sourceEdge,
+                        targetEdge,
+                    };
                     if (!links.some(l => (l.source === newLink.source && l.target === newLink.target))) {
                         const newLinks = [...links, newLink];
                         setLinks(newLinks);
@@ -576,12 +613,12 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
 
                 // Add link handle for non-containers
                 if (!['pool', 'group', 'zone'].includes(d.type || '')) {
-                    const lh = renderLinkHandle(el, d);
+                    renderLinkHandle(el, d);
                     el.on('mouseenter', () => {
-                        lh.attr('opacity', 1);
+                        el.selectAll('.link-handle').attr('opacity', 1);
                         delIcon.style('display', 'block');
                     }).on('mouseleave', () => {
-                        lh.attr('opacity', 0);
+                        el.selectAll('.link-handle').attr('opacity', 0);
                         delIcon.style('display', 'none');
                     });
                 } else {
@@ -644,7 +681,7 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
 
             // Render waypoint handles for selected link
             if (isSelected) {
-                const { x1, y1, x2, y2 } = calculateConnectionPoints(sourceNode, targetNode);
+                const { x1, y1, x2, y2 } = calculateConnectionPoints(sourceNode, targetNode, link.sourceEdge, link.targetEdge);
                 renderWaypointHandles(
                     linkWrapper,
                     pathResult,

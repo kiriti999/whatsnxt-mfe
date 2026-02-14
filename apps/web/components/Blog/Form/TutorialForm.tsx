@@ -10,7 +10,7 @@ import Pagination from '../../Common/Pagination';
 import { LexicalEditor } from '../../StructuredTutorial/Editor/LexicalEditor';
 import { lexicalToHtml } from '../../../utils/lexicalToHtml';
 import { useRouter } from 'next/navigation';
-import { Alert, Box, Button, Container, FileInput, Grid, Group, Input, Select, Stack, Text, Title, Loader } from '@mantine/core';
+import { Alert, Box, Button, Container, FileInput, Flex, Grid, Group, Input, Select, Stack, Text, Title, Loader } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { LoadingOverlay as CustomLoadingOverlay } from '@whatsnxt/core-ui';
 import { FullPageOverlay } from '@/components/Common/FullPageOverlay';
@@ -21,6 +21,7 @@ import { useImageSafety } from '../../../hooks/useImageSafety';
 import { validateFile, formatFileSize, DEFAULT_VALIDATION_OPTIONS } from '../../../utils/imageValidation';
 import { ImageRequirements } from './ImageRequirements';
 import { cloudinaryAssetsUploadCleanup, cloudinaryAssetsUploadCleanupForUpdate } from '@/components/RichTextEditor/common';
+import { AISuggestionButton } from '../../Common/AISuggestionButton';
 
 interface TutorialFormProps {
   categories: Category[];
@@ -623,7 +624,13 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
 
               {detailed && (
                 <Stack gap="xs">
-                  <Text fw={500} size="sm">Description</Text>
+                  <Flex align="center" gap={4}>
+                    <Text fw={500} size="sm">Description</Text>
+                    <AISuggestionButton
+                      prompt={() => getValues('title') || ''}
+                      onSuggestion={(text) => setDescription(text)}
+                    />
+                  </Flex>
                   <LexicalEditor
                     value={description}
                     onChange={setDescription}

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, lazy, Suspense } from "react";
 import {
   Tooltip,
   ActionIcon,
@@ -15,6 +15,12 @@ import { IconEdit, IconTrash } from "@tabler/icons-react";
 import { useMediaQuery } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
 import { interviewAPI } from "../../../../apis/v1/courses/interview/interview";
+
+const LexicalEditor = lazy(() =>
+  import("../../../../components/StructuredTutorial/Editor/LexicalEditor").then(mod => ({
+    default: mod.LexicalEditor
+  }))
+);
 
 const QuestionTable = ({ questions, refreshQuestions, onEdit }) => {
   const [loadingId, setLoadingId] = useState(null);
@@ -88,10 +94,13 @@ const QuestionTable = ({ questions, refreshQuestions, onEdit }) => {
               </Flex>
 
               {/* Answer section */}
-              <Paper withBorder p="sm" radius="xs" style={{ overflowX: "auto" }} shadow='none'>
-                <Text c="gray">
-                  {item?.answerUpdated}
-                </Text>
+              <Paper withBorder p="sm" radius="xs" style={{ overflowX: "auto", maxHeight: "200px", overflow: "hidden" }} shadow='none'>
+                <Suspense fallback={<Loader size="xs" />}>
+                  <LexicalEditor
+                    value={item?.answerUpdated}
+                    readOnly
+                  />
+                </Suspense>
               </Paper>
             </Card>
           ))}
