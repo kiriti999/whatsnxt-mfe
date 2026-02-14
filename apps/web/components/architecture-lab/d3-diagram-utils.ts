@@ -84,22 +84,39 @@ export function renderShapeLabel(
 }
 
 /**
- * Render link handle (blue circle at bottom for creating connections)
+ * Render link handles on all 4 sides of a shape for creating connections.
+ * Each handle stores a `data-edge` attribute: 'top' | 'right' | 'bottom' | 'left'
  */
 export function renderLinkHandle(
   element: d3.Selection<SVGGElement, NodeType, null, undefined>,
   shape: NodeType
 ): d3.Selection<SVGCircleElement, unknown, null, undefined> {
-  return element.append('circle')
-    .classed('link-handle', true)
-    .attr('cx', shape.width / 2)
-    .attr('cy', shape.height)
-    .attr('r', 8)
-    .attr('fill', 'blue')
-    .attr('stroke', 'white')
-    .attr('stroke-width', 2)
-    .attr('opacity', 0)
-    .attr('cursor', 'crosshair');
+  const handles = [
+    { cx: shape.width / 2, cy: 0, edge: 'top' },
+    { cx: shape.width, cy: shape.height / 2, edge: 'right' },
+    { cx: shape.width / 2, cy: shape.height, edge: 'bottom' },
+    { cx: 0, cy: shape.height / 2, edge: 'left' },
+  ];
+
+  let lastHandle: d3.Selection<SVGCircleElement, unknown, null, undefined> | null = null;
+
+  handles.forEach(h => {
+    const handle = element.append('circle')
+      .classed('link-handle', true)
+      .attr('cx', h.cx)
+      .attr('cy', h.cy)
+      .attr('r', 6)
+      .attr('fill', 'blue')
+      .attr('stroke', 'white')
+      .attr('stroke-width', 2)
+      .attr('opacity', 0)
+      .attr('cursor', 'crosshair')
+      .attr('data-edge', h.edge);
+    lastHandle = handle;
+  });
+
+  // Return the last handle for compatibility (though all 4 are added)
+  return lastHandle!;
 }
 
 /**

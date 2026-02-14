@@ -208,11 +208,16 @@ const createApiClient = (type: ApiClientType) => {
         (requestConfig: any) => {
             // Apply type-specific request interceptor if exists
             if (config.requestInterceptor) {
-                // Check if this is the AI suggestion endpoint
-                const isAISuggestionEndpoint = requestConfig.url && requestConfig.url.includes('/post/suggestionByChatGpt');
+                // Check if this is a long-running AI endpoint that needs more time
+                const isLongRunningEndpoint = requestConfig.url && (
+                    requestConfig.url.includes('/post/suggestionByChatGpt') ||
+                    requestConfig.url.includes('/post/suggestionByAI') ||
+                    requestConfig.url.includes('/visualizer/generate') ||
+                    requestConfig.url.includes('/visualizer/regenerate')
+                );
 
-                // Only apply timeout for non-AI suggestion endpoints
-                if (!isAISuggestionEndpoint) {
+                // Only apply timeout for non-long-running endpoints
+                if (!isLongRunningEndpoint) {
                     const controller = new AbortController();
                     requestConfig.signal = controller.signal;
 

@@ -1,13 +1,17 @@
 'use client';
-import React, { FC } from "react";
+import React, { FC, lazy, Suspense } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { IconArrowBack, IconArrowRight, IconBulb, IconChevronRight } from "@tabler/icons-react";
-import { Box, Button, Card, Flex, Text, ThemeIcon, useMantineColorScheme } from "@mantine/core";
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
+import { Box, Button, Card, Flex, Loader, Text, ThemeIcon, useMantineColorScheme } from "@mantine/core";
 import useAuth from "../../hooks/Authentication/useAuth";
 import styles from './question.module.css'
+
+const LexicalEditor = lazy(() =>
+  import('../StructuredTutorial/Editor/LexicalEditor').then(mod => ({
+    default: mod.LexicalEditor
+  }))
+);
 
 type QuestionProps = {
     showFullInfo?: boolean;
@@ -87,17 +91,14 @@ const Question: FC<QuestionProps> = ({
                     borderLeft: `4px solid var(--mantine-color-blue-5)`,
                 }}
             >
-                <Text
-                    lineClamp={showFullInfo ? 0 : 4}
-                    size="sm"
-                    c={isDark ? 'gray.3' : 'dark.6'}
-                    style={{ lineHeight: 1.7 }}
-                    component="div"
-                >
-                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                        {(isAdmin && answerUpdated) ? answerUpdated : answer}
-                    </ReactMarkdown>
-                </Text>
+                <Box style={!showFullInfo ? { maxHeight: '150px', overflow: 'hidden' } : undefined}>
+                    <Suspense fallback={<Loader size="sm" />}>
+                        <LexicalEditor
+                            value={(isAdmin && answerUpdated) ? answerUpdated : answer}
+                            readOnly
+                        />
+                    </Suspense>
+                </Box>
 
                 {!showFullInfo && (
                     <Link href={`/interview/${slug}`} style={{ textDecoration: 'none' }}>

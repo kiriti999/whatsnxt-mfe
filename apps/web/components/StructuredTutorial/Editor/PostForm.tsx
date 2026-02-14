@@ -6,8 +6,10 @@ import {
     Stack,
     TextInput,
     Text,
+    Flex,
 } from '@mantine/core';
 import { LexicalEditor } from './LexicalEditor';
+import { AISuggestionButton } from '../../Common/AISuggestionButton';
 
 interface PostFormData {
     title: string;
@@ -122,9 +124,15 @@ export const PostForm: React.FC<PostFormProps> = ({
                 />
 
                 <div>
-                    <Text size="sm" fw={500} mb="xs">
-                        Post Content <Text component="span" c="red">*</Text>
-                    </Text>
+                    <Flex align="center" gap={4} mb="xs">
+                        <Text size="sm" fw={500}>
+                            Post Content <Text component="span" c="red">*</Text>
+                        </Text>
+                        <AISuggestionButton
+                            prompt={() => formValues.title || ''}
+                            onSuggestion={(text) => setValue('description', text, { shouldDirty: true })}
+                        />
+                    </Flex>
                     <LexicalEditor
                         value={description}
                         onChange={(state) => setValue('description', state, { shouldDirty: true })}

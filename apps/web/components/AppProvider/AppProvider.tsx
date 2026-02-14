@@ -15,6 +15,7 @@ import React from 'react';
 import { User } from '../Navbar/types';
 import { ModalsProvider } from '@mantine/modals';
 import SearchProvider from '../../context/SearchContext';
+import { AIConfigProvider } from '../../context/AIConfigContext';
 
 // Component to initialize cart on client side
 const CartInitializer = () => {
@@ -136,6 +137,7 @@ export default function AppProvider({ children, user, token }: { children: React
       <MantineProvider theme={theme}>
         <QueryClientProvider client={queryClient}>
           <AuthProvider userData={user}>
+            <AIConfigProvider isAuthenticated={!!user?.isAuthenticated}>
             <FilterStore>
               <Notifications position="top-left" zIndex={1000} />
               <ModalsProvider>
@@ -152,6 +154,7 @@ export default function AppProvider({ children, user, token }: { children: React
                 showSpinner={false}
               />
             </FilterStore>
+            </AIConfigProvider>
           </AuthProvider>
         </QueryClientProvider>
       </MantineProvider>

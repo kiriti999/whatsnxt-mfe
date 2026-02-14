@@ -11,11 +11,13 @@ import {
     FileInput,
     Text,
     Box,
+    Flex,
 } from '@mantine/core';
 import { IconUpload, IconDeviceFloppy } from '@tabler/icons-react';
 import Image from 'next/image';
 import { IconPicker } from '../Form/IconPicker';
 import { LexicalEditor } from './LexicalEditor';
+import { AISuggestionButton } from '../../Common/AISuggestionButton';
 
 interface TutorialFormData {
     title: string;
@@ -170,9 +172,15 @@ export const TutorialMetadataForm: React.FC<TutorialMetadataFormProps> = ({
                     control={control}
                     render={({ field }) => (
                         <Box>
-                            <Text size="sm" fw={500} mb="xs">
-                                Description
-                            </Text>
+                            <Flex align="center" gap={4} mb="xs">
+                                <Text size="sm" fw={500}>
+                                    Description
+                                </Text>
+                                <AISuggestionButton
+                                    prompt={() => watch('title') || ''}
+                                    onSuggestion={(text) => field.onChange(text)}
+                                />
+                            </Flex>
                             <LexicalEditor
                                 value={field.value}
                                 onChange={field.onChange}
