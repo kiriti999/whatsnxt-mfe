@@ -1,11 +1,9 @@
-import React from 'react';
-import Link from 'next/link';
-import { Skeleton, Title } from '@mantine/core';
+import { Skeleton } from '@mantine/core';
 import PopularPost from '@whatsnxt/core-ui/src/PopularPost';
 import { type CourseType, type Category } from '@whatsnxt/core-util';
 import styles from './Widget.module.css';
 
-const CoursesSidebar = ({ courses, categories }: { courses: CourseType[]; categories: Category[] }) => {
+const CoursesSidebar = ({ courses }: { courses: CourseType[]; categories: Category[] }) => {
   return (
     <div className={styles['widget-area']}>
       <div className={`${styles['widget']} ${styles['widget_recent_courses']}`}>
@@ -33,21 +31,6 @@ const CoursesSidebar = ({ courses, categories }: { courses: CourseType[]; catego
         ) : (
           [...Array(5).keys()].map((i) => <Skeleton key={i} height={20} width="100%" mt={5} />)
         )}
-      </div>
-
-      <div className={`${styles['widget']} ${styles['widget_tag_cloud']}`}>
-        <Title order={5}>Popular Tags</Title>
-        <div className={styles['tagcloud']}>
-          {categories?.length > 0 ? (
-            categories.map((item, i) => (
-              <Link key={i} href={`/courses?category=${encodeURIComponent(item.categoryName)}`}>
-                {item.categoryName} <span className="tag-link-count">({item.count})</span>
-              </Link>
-            ))
-          ) : (
-            [...Array(5).keys()].map((i) => <Skeleton key={i} height={20} width="100%" mt={5} />)
-          )}
-        </div>
       </div>
     </div>
   );

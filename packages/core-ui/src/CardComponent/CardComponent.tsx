@@ -12,8 +12,8 @@ export const CardComponent = ({ image, courseName, link, paidType, children }: I
         </Anchor>
       </Card.Section>
       <Flex justify="space-between" align="center" h={55} mt="sm">
-        <Anchor component={Link} href={link} underline='never' style={{ textDecoration: 'none', flex: 1 }}>
-          <Text fw={500} lineClamp={2} c="var(--mantine-color-text)" title={courseName}>
+        <Anchor component={Link} href={link} underline='never' style={{ textDecoration: 'none', flex: 1, color: 'inherit' }}>
+          <Text fw={500} lineClamp={2} title={courseName}>
             {courseName}
           </Text>
         </Anchor>

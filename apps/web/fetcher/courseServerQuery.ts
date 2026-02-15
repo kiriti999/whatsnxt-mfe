@@ -10,7 +10,7 @@ export const fetchCourses = async (limit = 30, offset = 0) => {
     const response = await serverFetcher(BASEURL, `/courses/course?limit=${limit}&offset=${offset}`, {
       next: { revalidate: 300 }
     });
-    
+
     // Ensure we always return a valid structure
     return response || { courses: [], total: 0 };
   } catch (error) {
@@ -24,10 +24,16 @@ export const fetchPopularCourses = async () => {
   return response?.enrolled || [];
 };
 
+// Retain existing export
 export const fetchCategoriesByCount = async () => {
   const response = await serverFetcher(BASEURL, '/courses/categories/categoryByCount') as any;
   console.log(' fetchCategoriesByCount :: response:', response)
   return response?.data?.categoriesCount || [];
+};
+
+export const fetchCategories = async () => {
+  const response = await serverFetcher(BASEURL, '/courses/categories') as any;
+  return response?.categories || [];
 };
 
 export const fetchCourseBySlug = async (slug: string): Promise<CourseType> => {

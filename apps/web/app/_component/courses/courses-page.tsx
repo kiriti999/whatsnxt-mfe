@@ -4,23 +4,33 @@ import React, { useState } from 'react';
 import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
 import htmlReactParser from 'html-react-parser';
-import { Skeleton, Avatar, Text, Container, Grid, GridCol, Flex, Box, Paper, Group, Badge, Rating } from '@mantine/core';
+import { Skeleton, Text, Container, Grid, GridCol, Flex, Box, Paper, Group, Badge, Rating, SimpleGrid } from '@mantine/core';
 import { Amount, CardComponent, SortByComponent } from '@whatsnxt/core-ui';
 import type { CourseType, Category } from '@whatsnxt/core-util';
+import { InfiniteScrollComponent as InfiniteScroll } from '@whatsnxt/core-util';
 import sortStyles from './index.module.css';
 import CoursesSidebar from '../../../components/Courses/CoursesSidebar';
-import Pagination from '../../../components/pagination/pagination';
 import { addPopularityToCourses } from '../../../utils';
 import { AnalyticsAPI } from '../../../apis/v1/analytics';
 import { useQuery } from '@tanstack/react-query';
 import { lexicalToHtml } from '../../../utils/lexicalToHtml';
 
+import { CoursesFilter } from '../../../components/Courses/CoursesFilter'; // Ensure correct path
+
 export default function CoursePage({ courses, enrolled, categories }: { courses: CourseType[], enrolled: any[], categories: Category[] }) {
   const searchParams = useSearchParams();
   const category = searchParams.get("category");
+  const subcategory = searchParams.get("subcategory");
   const sort = searchParams.get("sort");
 
-  const filteredCourses = category ? courses.filter(c => c.categoryName === category) : courses;
+  let filteredCourses = courses;
+  if (category) {
+    filteredCourses = filteredCourses.filter(c => c.categoryName === category);
+  }
+  if (subcategory) {
+    filteredCourses = filteredCourses.filter(c => c.subCategoryName === subcategory);
+  }
+
   const coursesPopularity = enrolled || [];
   const coursesWithPopularity = addPopularityToCourses(filteredCourses, coursesPopularity);
 
@@ -66,44 +76,73 @@ export default function CoursePage({ courses, enrolled, categories }: { courses:
 }
 
 function Courses({ allCourses, courses, categories, totalRecords }: CourseProps) {
-  const [recordsPerPage] = useState(9);
-  const [currentPage, setCurrentPage] = useState(1);
-  const indexOfLastRecord = currentPage * recordsPerPage;
-  const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
-  const currentRecords = courses.slice(indexOfFirstRecord, indexOfLastRecord);
-  const nPages = Math.ceil(totalRecords / recordsPerPage);
+  const BATCH_SIZE = 6;
+  const [displayCount, setDisplayCount] = useState(BATCH_SIZE);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const currentRecords = courses.slice(0, displayCount);
+  const hasMore = displayCount < totalRecords;
+
+  const loadMore = () => {
+    if (isLoading || !hasMore) return;
+    setIsLoading(true);
+    // Small delay to show loading state
+    setTimeout(() => {
+      setDisplayCount(prev => Math.min(prev + BATCH_SIZE, totalRecords));
+      setIsLoading(false);
+    }, 300);
+  };
 
   return (
     <div>
       <Container fluid>
         <Grid>
           <GridCol span={{ base: 12, sm: 12, md: 9, lg: 9 }}>
-            <div
-              className={`${sortStyles['whatsnxt-grid-sorting']} row align-items-center`}
+            <Box maw={1114} mx="auto" px="0">
+              <div
+                className={`${sortStyles['whatsnxt-grid-sorting']} row align-items-center`}
+              >
+                <Grid>
+                  <GridCol
+                    span={{ base: 12 }}
+                    className={sortStyles['result-count']}
+                  >
+                    <Text>
+                      We found{' '}
+                      <span className={sortStyles['count']}>{totalRecords}</span>{' '}
+                      courses available for you
+                    </Text>
+                  </GridCol>
+
+                  <GridCol span={{ base: 12 }}>
+                    <Grid align="flex-end">
+                      <GridCol span={{ base: 12, md: 8 }}>
+                        <CoursesFilter categories={categories} />
+                      </GridCol>
+                      <GridCol span={{ base: 12, md: 4 }}>
+                        <SortByComponent />
+                      </GridCol>
+                    </Grid>
+                  </GridCol>
+                </Grid>
+
+              </div>
+            </Box>
+
+            <InfiniteScroll
+              isLoading={isLoading}
+              onViewPortCallback={loadMore}
+              isScrollCompleted={!hasMore}
             >
-              <Grid>
-                <GridCol
-                  span={{ base: 12 }}
-                  className={sortStyles['result-count']}
-                >
-                  <Text>
-                    We found{' '}
-                    <span className={sortStyles['count']}>{totalRecords}</span>{' '}
-                    courses available for you
-                  </Text>
-                </GridCol>
-
-                <GridCol span={{ base: 12 }}>
-                  <SortByComponent />
-                </GridCol>
-              </Grid>
-
-            </div>
-
-            <Grid gutter="xl">
-              {currentRecords.map((course) => (
-                <GridCol span={{ base: 12, sm: 6, lg: 4 }} key={course._id}>
+              <SimpleGrid
+                cols={{ base: 1, xs: 1, sm: 2, md: 3, lg: 4 }}
+                spacing="lg"
+                verticalSpacing="lg"
+                px="md"
+              >
+                {currentRecords.map((course) => (
                   <Paper
+                    key={course._id}
                     shadow="xs"
                     p={0}
                     radius="md"
@@ -155,43 +194,25 @@ function Courses({ allCourses, courses, categories, totalRecords }: CourseProps)
                         )}
                       </Group>
 
-                      {/* Author Info (kept compact) */}
-                      {/* <Flex align="center" mb="xs">
-                        {course.userId?.profilePhoto ? (
-                          <Image
-                            width={24}
-                            height={24}
-                            src={`${course?.userId?.profilePhoto}`}
-                            className="rounded-circle"
-                            alt="avatar"
-                          />
-                        ) : (
-                          <Avatar variant="light" radius="xl" size="sm" />
-                        )}
-                        <Text ml="xs" size="xs" c="dimmed">
-                          Led by experts
-                        </Text>
-                      </Flex> */}
 
                       {/* Overview Text */}
-                      <Box style={{ flex: 1, marginBottom: '10px' }}>
-                        {course.overview && (
-                          <Text
-                            className={sortStyles['overview-style']}
-                            c="dimmed"
-                            size="sm"
-                            lineClamp={3}
-                          >
-                            {(() => {
-                              let html = course.overview;
-                              try {
-                                const parsed = JSON.parse(course.overview);
-                                if (parsed?.root) html = lexicalToHtml(parsed);
-                              } catch { /* legacy HTML */ }
-                              return htmlReactParser(html);
-                            })()}
-                          </Text>
-                        )}
+                      <Box mb="xs">
+                        <Text
+                          className={sortStyles['overview-style']}
+                          c="dimmed"
+                          size="sm"
+                          lineClamp={3}
+                          h={60}
+                        >
+                          {course.overview ? (() => {
+                            let html = course.overview;
+                            try {
+                              const parsed = JSON.parse(course.overview);
+                              if (parsed?.root) html = lexicalToHtml(parsed);
+                            } catch { /* legacy HTML */ }
+                            return htmlReactParser(html);
+                          })() : 'No description available'}
+                        </Text>
                       </Box>
 
                       {/* Rating and Duration/Lessons */}
@@ -210,32 +231,23 @@ function Courses({ allCourses, courses, categories, totalRecords }: CourseProps)
                       </Flex>
                     </CardComponent>
                   </Paper>
-                </GridCol>
-              ))}
-              {totalRecords > 0 && currentRecords.length === 0 && (
-                [...Array(3).keys()].map((i) => (
-                  <GridCol span={{ base: 12, sm: 6, lg: 4 }} key={i}>
-                    <Skeleton width="100%" height={400} radius="sm" />
-                  </GridCol>
-                ))
-              )}
-            </Grid>
+                ))}
+                {totalRecords > 0 && currentRecords.length === 0 && (
+                  [...Array(3).keys()].map((i) => (
+                    <Skeleton key={i} height={350} radius="sm" />
+                  ))
+                )}
+              </SimpleGrid>
+            </InfiniteScroll>
 
-            <GridCol span={12}>
-              {currentRecords?.length > 0 && (
-                <Pagination
-                  nPages={nPages}
-                  currentPage={currentPage}
-                  setCurrentPage={setCurrentPage}
-                />
-              )}
+            <Box w="100%" mt="xl">
               {totalRecords > 0 && currentRecords?.length === 0 && (
                 <Flex align="center" gap="xs" justify="center" mt="md">
                   {[...Array(3).keys()].map((i) => <Skeleton key={i} width={35} height={35} radius="sm" />)}
                 </Flex>
 
               )}
-            </GridCol>
+            </Box>
           </GridCol>
 
           {/* TODO: Enable CoursesSidebar component to show courses based on popularity (GA page views) */}

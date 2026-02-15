@@ -16,6 +16,8 @@ interface ContentCardProps {
         categoryName?: string;
         tutorial?: boolean;
         isStructured?: boolean;
+        subCategory?: string;
+        nestedSubCategory?: string;
         firstPostSlug?: string; // Added from backend
         [key: string]: any;
     };
@@ -63,6 +65,9 @@ function ContentCard({ content }: ContentCardProps) {
     const imageSrc = content.imageUrl ||
         'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80';
 
+    // Logic for displaying hierarchy: nestedSubCategory > subCategory > categoryName
+    const displayCategory = content.nestedSubCategory || content.subCategory || content.categoryName || 'General';
+
     return (
         <>
             <FullPageOverlay visible={loading} />
@@ -103,7 +108,7 @@ function ContentCard({ content }: ContentCardProps) {
 
                             <Group justify="space-between" mt="md" mb="sm">
                                 <Badge color={categoryBadgeColor} variant={categoryBadgeVariant}>
-                                    {content.categoryName || 'General'}
+                                    {displayCategory}
                                 </Badge>
                             </Group>
 

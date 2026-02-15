@@ -36,6 +36,7 @@ export interface Question extends BaseEntity {
   questionText: string;
   options?: string[]; // For Multiple Choice
   correctAnswer?: string | string[]; // For Text or Multiple Choice
+  isPreview?: boolean; // Whether this question is available as a free preview
 }
 
 export interface DiagramTest extends BaseEntity {

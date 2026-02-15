@@ -1,103 +1,119 @@
 .overview-style {
-    display: -webkit-box;
-    font-size: 15px;
-    line-clamp: 4;
-    box-orient: 'vertical';
-    overflow: hidden;
-  }
-  
+  display: -webkit-box;
+  font-size: 15px;
+  line-clamp: 4;
+  box-orient: 'vertical';
+  overflow: hidden;
+}
+
+.whatsnxt-grid-sorting {
+  margin-bottom: 40px;
+}
+
+.whatsnxt-grid-sorting .result-count p .count {
+  font-weight: 700;
+  color: light-dark(#221638, var(--mantine-color-white));
+}
+
+.whatsnxt-grid-sorting .ordering {
+  text-align: right;
+}
+
+.whatsnxt-grid-sorting .ordering label {
+  display: inline-block;
+  margin-bottom: 0;
+  color: light-dark(#ababab, var(--mantine-color-dimmed));
+  margin-right: 5px;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.whatsnxt-grid-sorting .ordering .form-select {
+  font-size: 15px;
+  padding: 10px 15px;
+}
+
+.course-image-container {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  min-height: 180px;
+}
+
+@media only screen and (max-width: 767px) {
   .whatsnxt-grid-sorting {
-    margin-bottom: 40px;
+    text-align: center;
   }
-  
-  .whatsnxt-grid-sorting .result-count p .count {
-    font-weight: 700;
-    color: light-dark(#221638, var(--mantine-color-white));
+
+  .whatsnxt-grid-sorting .result-count {
+    margin-bottom: 13px;
   }
-  
+
   .whatsnxt-grid-sorting .ordering {
-    text-align: right;
+    text-align: center;
   }
-  
+
   .whatsnxt-grid-sorting .ordering label {
-    display: inline-block;
-    margin-bottom: 0;
-    color: light-dark(#ababab, var(--mantine-color-dimmed));
-    margin-right: 5px;
-    font-size: 16px;
-    font-weight: 700;
+    font-size: 14px;
   }
-  
-  .whatsnxt-grid-sorting .ordering .form-select {
-    font-size: 15px;
-    padding: 10px 15px;
-  }
+}
 
-  .course-image-container {
-    position: relative;
-    width: 100%;
-    height: 200px;
-  }
-  
-  @media only screen and (max-width: 767px) {
-    .whatsnxt-grid-sorting {
-      text-align: center;
-    }
-  
-    .whatsnxt-grid-sorting .result-count {
-      margin-bottom: 13px;
-    }
-  
-    .whatsnxt-grid-sorting .ordering {
-      text-align: center;
-    }
-  
-    .whatsnxt-grid-sorting .ordering label {
-      font-size: 14px;
-    }
-  }
+/* Copied and adapted from TopCourses.module.css */
+.card-paper {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  transition: box-shadow 200ms ease;
+}
 
-  /* Copied and adapted from TopCourses.module.css */
-  .card-paper {
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    transition: box-shadow 200ms ease;
-  }
+.card-paper:hover {
+  box-shadow: 0 10px 25px -5px rgba(0, 102, 204, 0.25), 0 10px 10px -5px rgba(0, 102, 204, 0.1);
+}
 
-  .card-paper:hover {
-    box-shadow: 0 10px 25px -5px rgba(0, 102, 204, 0.25), 0 10px 10px -5px rgba(0, 102, 204, 0.1);
-  }
+/* Force title color inside CardComponent */
+.card-paper :is(h3, h4, h5, h6, a) {
+  color: light-dark(#1a1a1a, var(--mantine-color-white)) !important;
+  text-decoration: none;
+}
 
-  /* Force title color inside CardComponent */
-  .card-paper :is(h3, h4, h5, h6, a) {
-      color: light-dark(#1a1a1a, var(--mantine-color-white)) !important;
-      text-decoration: none;
-  }
+.course-image {
+  object-fit: cover;
+  border: 0.5px solid light-dark(#e3dfdf, var(--mantine-color-dark-4));
+}
 
-  .course-image {
-    object-fit: cover;
-    border: 0.5px solid light-dark(#e3dfdf, var(--mantine-color-dark-4));
-  }
+.free-text {
+  font-weight: 600;
+  color: light-dark(#1a1a1a, var(--mantine-color-white)) !important;
+}
 
-  .free-text {
-      font-weight: 600;
-      color: light-dark(#1a1a1a, var(--mantine-color-white)) !important;
-  }
+.discount-text {
+  font-weight: 700;
+  color: light-dark(#1a1a1a, var(--mantine-color-white)) !important;
+}
 
-  .discount-text {
-      font-weight: 700;
-      color: light-dark(#1a1a1a, var(--mantine-color-white)) !important;
-  }
+.meta-text {
+  color: light-dark(#555555, var(--mantine-color-dimmed)) !important;
+}
 
-  .meta-text {
-      color: light-dark(#555555, var(--mantine-color-dimmed)) !important;
-  }
+.best-seller-badge {
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
 
-  .best-seller-badge {
-    text-transform: uppercase;
-    font-weight: 700;
-    letter-spacing: 0.5px;
+.course-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 280px));
+  gap: 24px;
+  justify-content: center;
+  padding: 0 8px;
+}
+
+@media (max-width: 600px) {
+  .course-grid {
+    grid-template-columns: 1fr;
+    padding: 0 16px;
   }
+}

@@ -22,15 +22,13 @@ export const SortByComponent = () => {
   ]
 
   return (
-    <div className="col-lg-4 col-md-6">
-      <Select
-        size="md"
-        radius="md"
-        placeholder="Sort by"
-        clearable={true}
-        data={opts}
-        onChange={sortCourses}
-      />
-    </div>
+    <Select
+      size="md"
+      radius="md"
+      placeholder="Sort by"
+      clearable={true}
+      data={opts}
+      onChange={sortCourses}
+    />
   );
 };

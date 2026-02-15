@@ -27,7 +27,7 @@ export type CourseType = {
   price: number | null;
   paidType: 'video' | 'live',
   purchaseCount: number;
-  courseType: String;
+  courseType: string;
   rating: number;
   published: boolean;
   imageUrl: string;
@@ -36,6 +36,8 @@ export type CourseType = {
   lessons: string;
   access: string | null;
   categoryName: string;
+  subCategoryName?: string;
+  nestedSubCategoryName?: string;
   userId: any;
   createdAt: string;
   updatedAt: string;

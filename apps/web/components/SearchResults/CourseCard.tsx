@@ -11,6 +11,8 @@ interface CourseCardProps {
 
 export function CourseCard({ course }: CourseCardProps) {
     const paidType = course.paidType || 'video';
+    // Handle both title and courseName fields (Algolia may use either)
+    const courseName = course.courseName || (course as any).title || 'Untitled Course';
 
     return (
         <Paper
@@ -34,7 +36,7 @@ export function CourseCard({ course }: CourseCardProps) {
             }}
         >
             <CardComponent
-                courseName={course.courseName}
+                courseName={courseName}
                 paidType={paidType}
                 link={`/courses/${course.slug}`}
                 image={
@@ -42,7 +44,7 @@ export function CourseCard({ course }: CourseCardProps) {
                         <Image
                             fill
                             style={{ objectFit: 'cover' }}
-                            alt={course.courseName}
+                            alt={courseName}
                             src={course.imageUrl}
                             priority={false}
                             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
