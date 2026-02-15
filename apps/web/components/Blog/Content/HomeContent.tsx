@@ -5,13 +5,14 @@ import { StructuredTutorialAPI } from '../../../apis/v1/blog/structuredTutorialA
 import { useSelector } from 'react-redux';
 import {
     selectCurrentTag,
+    selectContentLoading,
     selectArticles
 } from '../../../store/slices/contentSlice';
 import { LandingPagePostGrid } from './Grids/LandingPagePostGrid';
 
- 
+
 type ContentType = "blog" | "tutorial" | "both";
- 
+
 interface ContentProps {
     type: ContentType;
 }
@@ -34,6 +35,7 @@ function HomeContent(props: ContentProps) {
 
     const currentSelectedTag = useSelector(selectCurrentTag);
     const currentArticles = useSelector(selectArticles);
+    const isReduxLoading = useSelector(selectContentLoading);
 
     // Fetch regular posts (blogs + tutorials)
     const postsQuery = useInfiniteQuery<PostPage>({
@@ -89,27 +91,42 @@ function HomeContent(props: ContentProps) {
         },
         initialPageParam: undefined
     });
-    console.log('🚀 :: HomeContent :: structuredTutorialsQuery:', structuredTutorialsQuery)
 
     // Combine data from both queries
     const combinedData = React.useMemo(() => {
         const regularPosts = postsQuery.data?.pages.flatMap(page => page.posts) || [];
         const structuredPosts = structuredTutorialsQuery.data?.pages.flatMap(page => page.posts) || [];
 
-        console.log('🔍 regularPosts:', regularPosts);
-        console.log('🔍 structuredPosts:', structuredPosts);
-
         // Interleave or combine as needed - here we put structured tutorials first
         return [...structuredPosts, ...regularPosts] as any[];
     }, [postsQuery.data, structuredTutorialsQuery.data]);
-    console.log('🚀 :: HomeContent :: combinedData:', combinedData)
+
+    // When a tag is selected, show the Redux-filtered articles
+    // When no tag is selected, show the react-query combined data
+    const displayData = React.useMemo(() => {
+        if (currentSelectedTag && currentArticles.length > 0) {
+            return currentArticles as any[];
+        }
+        if (currentSelectedTag && currentArticles.length === 0) {
+            // Tag is selected but no matching articles found (or still loading)
+            return [];
+        }
+        return combinedData;
+    }, [currentSelectedTag, currentArticles, combinedData]);
 
     // Combined loading and fetching states
-    const isLoading = postsQuery.isLoading || structuredTutorialsQuery.isLoading;
-    const isFetching = postsQuery.isFetching || structuredTutorialsQuery.isFetching;
-    const hasNextPage = postsQuery.hasNextPage || structuredTutorialsQuery.hasNextPage;
+    const isLoading = currentSelectedTag
+        ? isReduxLoading  // Redux handles loading for tag-filtered data
+        : (postsQuery.isLoading || structuredTutorialsQuery.isLoading);
+    const isFetching = currentSelectedTag
+        ? isReduxLoading
+        : (postsQuery.isFetching || structuredTutorialsQuery.isFetching);
+    const hasNextPage = currentSelectedTag
+        ? false  // No pagination for tag-filtered results
+        : (postsQuery.hasNextPage || structuredTutorialsQuery.hasNextPage);
 
     const handleInfiniteScroll = () => {
+        if (currentSelectedTag) return; // Don't paginate when filtering
         if (postsQuery.hasNextPage && !postsQuery.isFetching) {
             postsQuery.fetchNextPage();
         }
@@ -120,7 +137,7 @@ function HomeContent(props: ContentProps) {
 
     return (
         <LandingPagePostGrid
-            data={combinedData}
+            data={displayData}
             isLoading={isLoading}
             isFetching={isFetching}
             hasNextPage={hasNextPage || false}

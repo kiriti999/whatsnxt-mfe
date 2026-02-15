@@ -11,6 +11,11 @@ export const CategoryAPI = {
     return data ? data : [];
   },
 
+  getArticleCountBySubCategory: async function () {
+    const { data } = await articleApiClient.get('/category/getArticleCountBySubCategory');
+    return data ? data : [];
+  },
+
   editCategory: async function ({
     categoryId,
     categoryName,

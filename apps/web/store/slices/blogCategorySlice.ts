@@ -2,14 +2,20 @@ import { createSlice, createAsyncThunk, PayloadAction, Reducer, createSelector }
 import { CategoryAPI } from '../../apis/v1/blog/categoryApi';
 
 export interface BlogCategory {
-  categoryId: string;
+  categoryId?: string;
   categoryName: string;
+  count: number;
+}
+
+export interface SubCategoryCount {
+  subCategoryName: string;
   count: number;
 }
 
 export interface CategoryStoreState {
   categories: BlogCategory[];      // ← For getCategories API
   categoryCount: BlogCategory[];   // ← For getArticleCountByCategory API
+  subCategoryCount: SubCategoryCount[]; // ← For getArticleCountBySubCategory API
   loading: boolean;
   error: string;
 }
@@ -21,9 +27,11 @@ export interface IMemoStore {
   error: string;
 }
 
+
 const initialState: CategoryStoreState = {
   categories: [],      // ← For getCategories API
   categoryCount: [],   // ← For getArticleCountByCategory API
+  subCategoryCount: [], // ← For getArticleCountBySubCategory API
   loading: false,      // ← Changed from true to false for better UX
   error: '',
 };
@@ -59,6 +67,21 @@ export const getArticleCountByCategory = createAsyncThunk<
   },
 );
 
+export const getArticleCountBySubCategory = createAsyncThunk<
+  SubCategoryCount[],
+  void
+>(
+  'blogCategory/getArticleCountBySubCategory',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await CategoryAPI.getArticleCountBySubCategory();
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(error?.message || 'Failed to fetch subcategory counts');
+    }
+  },
+);
+
 const blogCategorySlice = createSlice({
   name: 'blogCategory',
   initialState,
@@ -69,6 +92,7 @@ const blogCategorySlice = createSlice({
     resetCategories: (state) => {
       state.categories = [];
       state.categoryCount = [];
+      state.subCategoryCount = [];
       state.loading = false;
       state.error = '';
     },
@@ -108,6 +132,22 @@ const blogCategorySlice = createSlice({
         state.loading = false;
         state.categoryCount = [];  // ← Reset categoryCount field
         state.error = (action.payload as string) || action.error.message || 'Failed to fetch article counts';
+      })
+
+      // Handle getArticleCountBySubCategory
+      .addCase(getArticleCountBySubCategory.pending, (state) => {
+        state.loading = true;
+        state.error = '';
+      })
+      .addCase(getArticleCountBySubCategory.fulfilled, (state, action) => {
+        state.subCategoryCount = action.payload;
+        state.loading = false;
+        state.error = '';
+      })
+      .addCase(getArticleCountBySubCategory.rejected, (state, action) => {
+        state.loading = false;
+        state.subCategoryCount = [];
+        state.error = (action.payload as string) || action.error.message || 'Failed to fetch subcategory counts';
       });
   },
 });
@@ -125,6 +165,9 @@ export const selectCategories = (state: { blogCategory: CategoryStoreState }) =>
 export const selectCategoryCount = (state: { blogCategory: CategoryStoreState }) =>
   state.blogCategory.categoryCount;
 
+export const selectSubCategoryCount = (state: { blogCategory: CategoryStoreState }) =>
+  state.blogCategory.subCategoryCount;
+
 export const selectBlogCategoryLoading = (state: { blogCategory: CategoryStoreState }) =>
   state.blogCategory.loading;
 
@@ -136,6 +179,20 @@ export const selectIMemoStore = createSelector(
   [selectCategoryCount, selectBlogCategoryLoading, selectBlogCategoryError],
   (categoryCount, loading, error): IMemoStore => ({
     categoryCount,
+    loading,
+    error,
+  })
+);
+
+// Memoized selector that maps subCategoryCount into the shape PopularTag expects
+// (PopularTag uses categoryCount[].categoryName, so we alias subCategoryName → categoryName)
+export const selectSubCategoryMemoStore = createSelector(
+  [selectSubCategoryCount, selectBlogCategoryLoading, selectBlogCategoryError],
+  (subCategoryCount, loading, error): IMemoStore => ({
+    categoryCount: subCategoryCount.map((item) => ({
+      categoryName: item.subCategoryName,
+      count: item.count,
+    })),
     loading,
     error,
   })

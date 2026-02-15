@@ -36,7 +36,6 @@ const getAuthData = async () => {
   if (token) {
     try {
       const user = await fetchUser(token.value);
-      console.log('getAuthData :: fetchUser response:', user);
 
       if (!user) {
         console.log('getAuthData :: user is null, returning null');

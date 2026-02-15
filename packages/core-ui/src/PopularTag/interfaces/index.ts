@@ -4,8 +4,8 @@ export interface IMemoStore {
     error: string;
 }
 
-interface ICategory {
-    categoryId: string;
+export interface ICategory {
+    categoryId?: string;
     categoryName: string;
     count: number;
 }

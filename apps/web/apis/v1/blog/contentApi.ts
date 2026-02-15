@@ -60,6 +60,11 @@ export const ContentAPI = {
     return data ? data : [];
   },
 
+  getPostsBySubCategory: async function (subCategoryName: string) {
+    const { data } = await articleApiClient.get(`/post/getPostsBySubCategory?subCategoryName=${encodeURIComponent(subCategoryName)}`)
+    return data ? data : [];
+  },
+
   getComments: async function (payload: any) {
     const queryParams = new URLSearchParams({
       id: payload.blogId,

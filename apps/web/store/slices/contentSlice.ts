@@ -16,6 +16,8 @@ export interface ContentItem {
   tutorial: boolean;
   listed: boolean;
   isStructured?: boolean; // Added flag
+  subCategory?: string;
+  nestedSubCategory?: string;
 }
 
 // Clean, consistent API response interface
@@ -109,6 +111,21 @@ export const getPostsByCategory = createAsyncThunk<
       return response;
     } catch (error: any) {
       return rejectWithValue(error?.message || 'Failed to fetch posts by category');
+    }
+  },
+);
+
+export const getPostsBySubCategory = createAsyncThunk<
+  ContentItem[],
+  string
+>(
+  'content/getPostsBySubCategory',
+  async (subCategoryName: string, { rejectWithValue }) => {
+    try {
+      const response = await ContentAPI.getPostsBySubCategory(subCategoryName);
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(error?.message || 'Failed to fetch posts by subcategory');
     }
   },
 );
@@ -243,6 +260,24 @@ const contentSlice = createSlice({
         state.articles = [];
         state.totalCount = 0;
         state.error = (action.payload as string) || action.error.message || 'Failed to fetch posts by category';
+      })
+
+      // Handle getPostsBySubCategory
+      .addCase(getPostsBySubCategory.pending, (state) => {
+        state.loading = true;
+        state.error = '';
+      })
+      .addCase(getPostsBySubCategory.fulfilled, (state, action) => {
+        state.articles = Array.isArray(action.payload) ? action.payload : [];
+        state.totalCount = state.articles.length;
+        state.loading = false;
+        state.error = '';
+      })
+      .addCase(getPostsBySubCategory.rejected, (state, action) => {
+        state.loading = false;
+        state.articles = [];
+        state.totalCount = 0;
+        state.error = (action.payload as string) || action.error.message || 'Failed to fetch posts by subcategory';
       })
 
       // Handle getTutorials
