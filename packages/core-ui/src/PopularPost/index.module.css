@@ -11,18 +11,19 @@
     Greycliff CF,
     var(--mantine-font-family);
   line-height: 1.2;
+  color: light-dark(var(--mantine-color-dark-7), var(--mantine-color-white));
 }
 
 .body {
   padding: var(--mantine-spacing-xs);
 }
 
-.author{
+.author {
   flex-wrap: nowrap;
 }
 
 @media only screen and (max-width: 1300px) {
-  .author{
+  .author {
     flex-wrap: wrap;
   }
 }

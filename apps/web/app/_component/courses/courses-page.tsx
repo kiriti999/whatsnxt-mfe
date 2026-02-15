@@ -14,6 +14,7 @@ import { addPopularityToCourses } from '../../../utils';
 import { AnalyticsAPI } from '../../../apis/v1/analytics';
 import { useQuery } from '@tanstack/react-query';
 import { lexicalToHtml } from '../../../utils/lexicalToHtml';
+import labApi from '../../../apis/lab.api';
 
 import { CoursesFilter } from '../../../components/Courses/CoursesFilter'; // Ensure correct path
 
@@ -40,6 +41,15 @@ export default function CoursePage({ courses, enrolled, categories }: { courses:
     queryFn: async () => {
       const data = await AnalyticsAPI.getData();
       return data || [];
+    }
+  })
+
+  // fetch latest labs for sidebar
+  const { data: labsData } = useQuery({
+    queryKey: ["latestLabs"],
+    queryFn: async () => {
+      const response = await labApi.getPublishedLabs(1, 3);
+      return response?.data || [];
     }
   })
   // modify course data
@@ -71,11 +81,12 @@ export default function CoursePage({ courses, enrolled, categories }: { courses:
       allCourses={courses || []}
       courses={coursesWithPopularity}
       totalRecords={coursesWithPopularity.length}
+      labs={labsData || []}
     />
   )
 }
 
-function Courses({ allCourses, courses, categories, totalRecords }: CourseProps) {
+function Courses({ allCourses, courses, categories, totalRecords, labs }: CourseProps) {
   const BATCH_SIZE = 6;
   const [displayCount, setDisplayCount] = useState(BATCH_SIZE);
   const [isLoading, setIsLoading] = useState(false);
@@ -253,7 +264,7 @@ function Courses({ allCourses, courses, categories, totalRecords }: CourseProps)
           {/* TODO: Enable CoursesSidebar component to show courses based on popularity (GA page views) */}
           <Grid.Col span={{ base: 12, md: 3 }}>
             {/* Your content here */}
-            <CoursesSidebar courses={allCourses} categories={categories} />
+            <CoursesSidebar courses={allCourses} categories={categories} labs={labs} />
           </Grid.Col>
         </Grid>
       </Container>
@@ -267,4 +278,5 @@ type CourseProps = {
   allCourses: CourseType[];
   categories: Category[];
   totalRecords: number;
+  labs: any[];
 }
