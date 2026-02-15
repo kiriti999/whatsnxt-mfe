@@ -30,10 +30,10 @@ export const ROUTE_PATHS = {
   LAB_CREATE: '/lab/create',
   LAB_DETAIL: (labId: string) => `/labs/${labId}`,
   LAB_EDIT: (labId: string) => `/lab/edit/${labId}`,
-  
+
   // Lab Page Editor Routes
   LAB_PAGE_EDITOR: (labId: string, pageId: string) => `/labs/${labId}/pages/${pageId}`,
-  
+
   // Authentication Routes
   LOGIN: '/login',
   REGISTER: '/register',
@@ -58,16 +58,6 @@ export const ARCHITECTURE_TYPES = {
   GCP: 'GCP',
   COMMON: 'Common',
   HYBRID: 'Hybrid',
-} as const;
-
-// Lab Types (Categories)
-export const LAB_TYPES = {
-  CLOUD_COMPUTING: 'Cloud Computing',
-  NETWORKING: 'Networking',
-  SECURITY: 'Security',
-  DATABASE: 'Database',
-  DEVOPS: 'DevOps',
-  ARCHITECTURE: 'Architecture',
 } as const;
 
 // Diagram Shape Types

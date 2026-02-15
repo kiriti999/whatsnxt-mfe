@@ -21,15 +21,17 @@ import {
     IconPalette,
     IconTrash,
     IconEye,
-    IconDownload,
     IconPlus,
     IconCalendar,
+    IconPhoto,
 } from '@tabler/icons-react';
 import { useRouter } from 'next/navigation';
+import { ShareOptions } from '@whatsnxt/core-ui';
 import { VisualizerAPI } from '../../apis/v1/visualizer';
 import type { DiagramData, DiagramType } from './types';
 import { getRenderer } from './renderers';
 import styles from './visualizer.module.css';
+import useAuth from '@/hooks/Authentication/useAuth';
 
 interface SavedDiagram {
     _id: string;
@@ -53,6 +55,7 @@ const TYPE_LABELS: Record<string, { label: string; color: string }> = {
 
 export function DiagramGallery() {
     const router = useRouter();
+    const { user } = useAuth();
     const [diagrams, setDiagrams] = useState<SavedDiagram[]>([]);
     const [loading, setLoading] = useState(true);
     const [page, setPage] = useState(1);
@@ -63,6 +66,7 @@ export function DiagramGallery() {
     } | null>(null);
     const [deleting, setDeleting] = useState(false);
     const [previewModal, setPreviewModal] = useState<SavedDiagram | null>(null);
+    const [exportingId, setExportingId] = useState<string | null>(null);
 
     const limit = 12;
 
@@ -115,6 +119,80 @@ export function DiagramGallery() {
             year: date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined,
         });
     };
+
+    const exportDiagramAsPNG = useCallback((diagram: SavedDiagram) => {
+        setExportingId(diagram._id);
+        try {
+            const container = document.getElementById(`diagram-thumb-${diagram._id}`);
+            const svgElement = container?.querySelector('svg') as SVGSVGElement | null;
+            if (!svgElement) return;
+
+            const serializer = new XMLSerializer();
+            const svgString = serializer.serializeToString(svgElement);
+            const viewBox = svgElement.getAttribute('viewBox')?.split(' ').map(Number) || [0, 0, 1200, 800];
+            const svgWidth = viewBox[2] || 1200;
+            const svgHeight = viewBox[3] || 800;
+            const outWidth = 1200;
+            const outHeight = 627;
+
+            const canvas = document.createElement('canvas');
+            canvas.width = outWidth;
+            canvas.height = outHeight;
+            const ctx = canvas.getContext('2d');
+            if (!ctx) return;
+
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, outWidth, outHeight);
+
+            const img = new Image();
+            const svgBlob = new Blob(
+                [`<?xml version="1.0" encoding="UTF-8"?>\n${svgString}`],
+                { type: 'image/svg+xml;charset=utf-8' },
+            );
+            const url = URL.createObjectURL(svgBlob);
+
+            img.onload = () => {
+                const svgAspect = svgWidth / svgHeight;
+                const targetAspect = outWidth / outHeight;
+                let drawWidth: number, drawHeight: number, offsetX: number, offsetY: number;
+
+                if (svgAspect > targetAspect) {
+                    drawWidth = outWidth;
+                    drawHeight = outWidth / svgAspect;
+                    offsetX = 0;
+                    offsetY = (outHeight - drawHeight) / 2;
+                } else {
+                    drawHeight = outHeight;
+                    drawWidth = outHeight * svgAspect;
+                    offsetX = (outWidth - drawWidth) / 2;
+                    offsetY = 0;
+                }
+
+                ctx.drawImage(img, offsetX, offsetY, drawWidth, drawHeight);
+                canvas.toBlob((blob) => {
+                    if (blob) {
+                        const link = document.createElement('a');
+                        link.href = URL.createObjectURL(blob);
+                        link.download = `${diagram.title || 'diagram'}-${Date.now()}.png`;
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                    }
+                    URL.revokeObjectURL(url);
+                    setExportingId(null);
+                }, 'image/png');
+            };
+
+            img.onerror = () => {
+                URL.revokeObjectURL(url);
+                setExportingId(null);
+            };
+
+            img.src = url;
+        } catch {
+            setExportingId(null);
+        }
+    }, []);
 
     const totalPages = Math.ceil(total / limit);
 
@@ -206,7 +284,10 @@ export function DiagramGallery() {
                                             className={styles.galleryThumbnail}
                                             onClick={() => setPreviewModal(diagram)}
                                         >
-                                            <div className={styles.galleryThumbnailInner}>
+                                            <div
+                                                id={`diagram-thumb-${diagram._id}`}
+                                                className={styles.galleryThumbnailInner}
+                                            >
                                                 {(() => {
                                                     const Renderer = getRenderer(
                                                         diagram.diagramType,
@@ -262,6 +343,29 @@ export function DiagramGallery() {
                                                     </Text>
                                                 </Group>
                                                 <Group gap={4}>
+                                                    <Tooltip label="Export PNG">
+                                                        <ActionIcon
+                                                            variant="subtle"
+                                                            size="sm"
+                                                            color="blue"
+                                                            loading={exportingId === diagram._id}
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                exportDiagramAsPNG(diagram);
+                                                            }}
+                                                        >
+                                                            <IconPhoto size={14} />
+                                                        </ActionIcon>
+                                                    </Tooltip>
+                                                    <div onClick={(e) => e.stopPropagation()}>
+                                                        <ShareOptions
+                                                            url={typeof window !== 'undefined' ? `${window.location.origin}/blogs` : '/blogs'}
+                                                            title={diagram.title}
+                                                            thumbnailUrn=""
+                                                            description={diagram.prompt}
+                                                            email={user?.email}
+                                                        />
+                                                    </div>
                                                     <Tooltip label="Delete">
                                                         <ActionIcon
                                                             variant="subtle"

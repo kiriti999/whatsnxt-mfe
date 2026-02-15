@@ -1,10 +1,38 @@
 'use client';
 
-import React from 'react';
-import { Textarea, Select, Stack, Group, Button, Text } from '@mantine/core';
+import React, { useState, useCallback, useRef } from 'react';
+import { Select, Stack, Group, Button, Text, Loader } from '@mantine/core';
 import { IconSparkles } from '@tabler/icons-react';
+import dynamic from 'next/dynamic';
 import type { DiagramOptions, DiagramType } from './types';
+import { AISuggestionButton } from '../Common/AISuggestionButton';
 import styles from './visualizer.module.css';
+
+const LexicalEditor = dynamic(
+    () =>
+        import('../StructuredTutorial/Editor/LexicalEditor').then((mod) => ({
+            default: mod.LexicalEditor,
+        })),
+    { ssr: false, loading: () => <Loader size="sm" /> },
+);
+
+/** Recursively extract plain text from a Lexical JSON node tree. */
+function getTextFromNode(node: Record<string, unknown>): string {
+    if (node.type === 'text') return (node.text as string) || '';
+    if (!Array.isArray(node.children)) return '';
+    const texts = (node.children as Record<string, unknown>[]).map(getTextFromNode);
+    return node.type === 'root' ? texts.join('\n') : texts.join('');
+}
+
+/** Convert serialized Lexical JSON state to plain text. */
+function extractTextContent(json: string): string {
+    try {
+        const state = JSON.parse(json);
+        return getTextFromNode(state.root).trim();
+    } catch {
+        return json;
+    }
+}
 
 const THEME_OPTIONS = [
     { value: 'default', label: '🔵 Default Blue' },
@@ -70,15 +98,41 @@ export function PromptInput({
     onBack,
 }: PromptInputProps) {
     const typeInfo = TYPE_LABELS[diagramType];
+    const [editorJson, setEditorJson] = useState('');
+    const promptRef = useRef(prompt);
+    promptRef.current = prompt;
 
-    const handleKeyDown = (e: React.KeyboardEvent) => {
-        if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
-            e.preventDefault();
-            if (prompt.trim().length > 0 && !isLoading) {
-                onGenerate();
-            }
+    const handleGenerate = () => {
+        if (prompt.trim().length > 0 && !isLoading) {
+            onGenerate();
         }
     };
+
+    const handleEditorChange = useCallback(
+        (json: string) => {
+            setEditorJson(json);
+            onPromptChange(extractTextContent(json));
+        },
+        [onPromptChange],
+    );
+
+    /** Push AI suggestion into the editor by resetting editorJson so editorValue falls back to the new prompt. */
+    const handleAISuggestion = useCallback(
+        (suggestion: string) => {
+            setEditorJson('');
+            onPromptChange(suggestion);
+        },
+        [onPromptChange],
+    );
+
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+        if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+            e.preventDefault();
+            handleGenerate();
+        }
+    };
+
+    const editorValue = editorJson || prompt;
 
     return (
         <div className={`${styles.promptContainer} ${styles.fadeIn}`}>
@@ -92,18 +146,28 @@ export function PromptInput({
             </div>
 
             <Stack gap="md">
-                <Textarea
-                    className={styles.promptTextarea}
-                    placeholder={PLACEHOLDER_PROMPTS[diagramType]}
-                    value={prompt}
-                    onChange={(e) => onPromptChange(e.currentTarget.value)}
-                    onKeyDown={handleKeyDown}
-                    minRows={5}
-                    maxRows={10}
-                    autosize
-                    label="Describe your diagram"
-                    description="Be specific about the concepts, number of items, and relationships you want to visualize"
-                />
+                <div>
+                    <Group gap={4} mb={4}>
+                        <Text component="label" size="sm" fw={500}>
+                            Describe your diagram
+                        </Text>
+                        <AISuggestionButton
+                            prompt={() => promptRef.current}
+                            onSuggestion={handleAISuggestion}
+                            label="AI-generate description from prompt"
+                        />
+                    </Group>
+                    <Text size="xs" c="dimmed" mb={6}>
+                        Be specific about the concepts, number of items, and relationships you want to visualize
+                    </Text>
+                    <div onKeyDown={handleKeyDown}>
+                        <LexicalEditor
+                            value={editorValue}
+                            onChange={handleEditorChange}
+                            placeholder={PLACEHOLDER_PROMPTS[diagramType]}
+                        />
+                    </div>
+                </div>
 
                 <div className={styles.optionsGrid}>
                     <div>

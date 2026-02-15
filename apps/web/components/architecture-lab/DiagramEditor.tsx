@@ -600,7 +600,7 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
                 const fill = d.fill === 'transparent' ? 'transparent' : d.fill;
 
                 // Use isolated shape renderer
-                renderShape({ element: el, shape: d, fill, color, architecture: architectureType });
+                renderShape({ element: el, shape: d, fill, color, architecture: architectureType, architectureTypes: normalizedArchitectureTypes });
 
                 // Render selection outline if selected
                 if (selectedNodeId === d.id) {
@@ -609,7 +609,7 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
                 }
 
                 // Render shape label
-                renderShapeLabel(el, d);
+                renderShapeLabel(el, d, computedColorScheme);
 
                 // Add link handle for non-containers
                 if (!['pool', 'group', 'zone'].includes(d.type || '')) {
@@ -630,9 +630,11 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
                 const delIcon = renderDeleteIcon(el, d, () => {
                     const nodeId = d.id!;
                     const newNodes = nodes.filter(n => n.id !== nodeId);
-                    // Keep all links - don't delete arrows when node is deleted
+                    // Remove links connected to the deleted node
+                    const newLinks = links.filter(l => l.source !== nodeId && l.target !== nodeId);
                     setNodes(newNodes);
-                    saveToHistory(newNodes, links);
+                    setLinks(newLinks);
+                    saveToHistory(newNodes, newLinks);
                     setSelectedNodeId(null);
                 });
             });
@@ -826,10 +828,12 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
     const deleteSelectedNode = useCallback(() => {
         if (selectedNodeId) {
             const newNodes = nodes.filter(n => n.id !== selectedNodeId);
-            // Keep all links - don't delete arrows when node is deleted
+            // Remove links connected to the deleted node
+            const newLinks = links.filter(l => l.source !== selectedNodeId && l.target !== selectedNodeId);
             setNodes(newNodes);
+            setLinks(newLinks);
             setSelectedNodeId(null);
-            saveToHistory(newNodes, links);
+            saveToHistory(newNodes, newLinks);
         }
     }, [selectedNodeId, nodes, links, saveToHistory]);
 

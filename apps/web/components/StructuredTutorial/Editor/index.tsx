@@ -391,7 +391,22 @@ export const StructuredTutorialEditor: React.FC = () => {
         });
     };
 
-    const handleAddPost = (sectionId: string) => {
+    const handleAddPost = async (sectionId: string) => {
+        // Auto-save section if it has a temp ID
+        let resolvedSectionId = sectionId;
+        if (sectionId.startsWith('temp-')) {
+            const realId = await ensureSectionSaved(sectionId);
+            if (!realId) {
+                notifications.show({
+                    title: 'Info',
+                    message: 'Please save the tutorial info first',
+                    color: 'orange',
+                });
+                return;
+            }
+            resolvedSectionId = realId;
+        }
+
         const newPost: LocalPost = {
             id: `temp-${Date.now()}`,
             title: 'New Post',
@@ -401,15 +416,30 @@ export const StructuredTutorialEditor: React.FC = () => {
 
         setSections(prev =>
             prev.map(s =>
-                s.id === sectionId ? { ...s, posts: [...s.posts, newPost] } : s
+                s.id === resolvedSectionId ? { ...s, posts: [...s.posts, newPost] } : s
             )
         );
 
-        setSelectedNode({ type: 'post', id: newPost.id, sectionId });
-        setExpandedNodes(prev => new Set([...prev, sectionId]));
+        setSelectedNode({ type: 'post', id: newPost.id, sectionId: resolvedSectionId });
+        setExpandedNodes(prev => new Set([...prev, resolvedSectionId]));
     };
 
-    const handleAddMCQ = (sectionId: string) => {
+    const handleAddMCQ = async (sectionId: string) => {
+        // Auto-save section if it has a temp ID
+        let resolvedSectionId = sectionId;
+        if (sectionId.startsWith('temp-')) {
+            const realId = await ensureSectionSaved(sectionId);
+            if (!realId) {
+                notifications.show({
+                    title: 'Info',
+                    message: 'Please save the tutorial info first',
+                    color: 'orange',
+                });
+                return;
+            }
+            resolvedSectionId = realId;
+        }
+
         const newMCQ: LocalPost = {
             id: `temp-mcq-${Date.now()}`,
             title: 'New MCQ Quiz',
@@ -431,24 +461,66 @@ export const StructuredTutorialEditor: React.FC = () => {
 
         setSections(prev =>
             prev.map(s =>
-                s.id === sectionId ? { ...s, posts: [...s.posts, newMCQ] } : s
+                s.id === resolvedSectionId ? { ...s, posts: [...s.posts, newMCQ] } : s
             )
         );
 
-        setSelectedNode({ type: 'mcq', id: newMCQ.id, sectionId });
-        setExpandedNodes(prev => new Set([...prev, sectionId]));
+        setSelectedNode({ type: 'mcq', id: newMCQ.id, sectionId: resolvedSectionId });
+        setExpandedNodes(prev => new Set([...prev, resolvedSectionId]));
+    };
+
+    // Auto-save a temp section and return the real MongoDB ID
+    const ensureSectionSaved = async (tempSectionId: string): Promise<string | null> => {
+        if (!tempSectionId.startsWith('temp-')) return tempSectionId;
+
+        const tutorialId = editTutorialId || tutorialData?._id;
+        if (!tutorialId) return null;
+
+        const section = sections.find(s => s.id === tempSectionId);
+        if (!section) return null;
+
+        const sectionData = { title: section.title, description: section.description, icon: section.icon };
+        const response = await StructuredTutorialAPI.createSection(tutorialId, sectionData);
+
+        if (response?.newTutorialId) {
+            router.push(`/form/structured-tutorial?id=${response.newTutorialId}`);
+            return null;
+        }
+
+        if (!response?.success) return null;
+
+        const realId = response.data._id;
+        setSections(prev =>
+            prev.map(s => (s.id === tempSectionId ? { ...s, id: realId } : s))
+        );
+        return realId;
     };
 
     const handleSavePost = async (data: any) => {
         if (!selectedNode.sectionId) return;
 
-        const sectionId = selectedNode.sectionId;
+        let sectionId = selectedNode.sectionId;
         const postId = selectedNode.id;
         const isNew = !postId || postId.startsWith('temp-');
 
         setIsSaving(true);
 
         try {
+            // Auto-save section first if it has a temp ID
+            if (sectionId.startsWith('temp-')) {
+                const realSectionId = await ensureSectionSaved(sectionId);
+                if (!realSectionId) {
+                    notifications.show({
+                        title: 'Error',
+                        message: 'Please save the section before adding posts',
+                        color: 'orange',
+                    });
+                    return;
+                }
+                sectionId = realSectionId;
+                setSelectedNode(prev => ({ ...prev, sectionId: realSectionId }));
+            }
+
             let response;
             if (isNew) {
                 response = await StructuredTutorialAPI.createPost(sectionId, data);

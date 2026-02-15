@@ -230,7 +230,7 @@ export function TutorialSidebar({ sidebarData, currentPostSlug, onCollapse, isMo
                                         className="section-header-hover"
                                     >
                                         <Group gap="sm" wrap="nowrap" justify="space-between">
-                                            <Text size="xs" fw={600} lineClamp={2} style={{ flex: 1 }}>
+                                            <Text size="xs" fw={600} lineClamp={2} c="bright" style={{ flex: 1 }}>
                                                 {section.title}
                                             </Text>
                                             <Group gap="xs" wrap="nowrap">
@@ -267,7 +267,7 @@ export function TutorialSidebar({ sidebarData, currentPostSlug, onCollapse, isMo
                                                             size="xs"
                                                             fw={isActive ? 600 : 400}
                                                             lineClamp={2}
-                                                            c={isActive ? 'cyan.6' : 'dimmed'}
+                                                            c={isActive ? 'cyan.6' : 'bright'}
                                                         >
                                                             {post.title}
                                                         </Text>

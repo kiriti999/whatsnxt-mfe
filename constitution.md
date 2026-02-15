@@ -114,6 +114,9 @@ All API integrations MUST connect to actual backend services. Test environments 
 
 **Rationale**: Mock data and mock APIs create false confidence in code quality, hide integration issues until late in development, cause divergence between test and production behavior, and lead to bugs that only surface in production. Real APIs and data ensure code is tested against actual system behavior from the start, catch integration issues early, and maintain consistency across all environments.
 
+**D3 shsapes and diagrams**: Shapes and arrows must not overlap. If shapes need nested, use groups and pools. All arrows should be deletable
+
+
 ## Additional Constraints
 
 - Technology stack: Turbo monorepo, Next.js 16 (frontend) with React 19 and Webpack bundling, Node.js 24 LTS (runtime), Mantine UI (frontend components), pnpm 10+ workspace, Express.js v5 (backend APIs), axios from `@whatsnxt/http-client` for all HTTP communication, Winston (backend logging), D3.js (diagram and shape rendering), Docker with Node Alpine base images for deployment

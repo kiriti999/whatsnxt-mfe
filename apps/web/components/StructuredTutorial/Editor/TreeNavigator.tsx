@@ -34,8 +34,8 @@ interface TreeNavigatorProps {
     onSelectNode: (node: SelectedNode) => void;
     onToggleExpand: (nodeId: string) => void;
     onAddSection: () => void;
-    onAddPost: (sectionId: string) => void;
-    onAddMCQ: (sectionId: string) => void;
+    onAddPost: (sectionId: string) => void | Promise<void>;
+    onAddMCQ: (sectionId: string) => void | Promise<void>;
     onDeleteSection: (sectionId: string) => void;
     onDeletePost: (sectionId: string, postId: string) => void;
     onReuseSection: () => void;

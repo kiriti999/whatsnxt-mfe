@@ -81,11 +81,18 @@ export const TutorialMetadataForm: React.FC<TutorialMetadataFormProps> = ({
         if (!selectedCategory || !categoriesData) return [];
         const categoryData = categoriesData.find(cat => cat.categoryName === selectedCategory);
         if (categoryData && categoryData.subcategories) {
-            return categoryData.subcategories.map(subcat => ({
-                value: subcat.name,
-                label: subcat.name,
-                subcategories: subcat.subcategories,
-            }));
+            const seen = new Set<string>();
+            return categoryData.subcategories
+                .filter(subcat => {
+                    if (seen.has(subcat.name)) return false;
+                    seen.add(subcat.name);
+                    return true;
+                })
+                .map(subcat => ({
+                    value: subcat.name,
+                    label: subcat.name,
+                    subcategories: subcat.subcategories,
+                }));
         }
         return [];
     }, [selectedCategory, categoriesData]);
@@ -95,10 +102,17 @@ export const TutorialMetadataForm: React.FC<TutorialMetadataFormProps> = ({
         if (!selectedSubCategory || subcategoryOptions.length === 0) return [];
         const subCategoryData = subcategoryOptions.find((sub: any) => sub.value === selectedSubCategory);
         if (subCategoryData && (subCategoryData as any).subcategories) {
-            return (subCategoryData as any).subcategories.map((nested: any) => ({
-                value: nested.name,
-                label: nested.name,
-            }));
+            const seen = new Set<string>();
+            return (subCategoryData as any).subcategories
+                .filter((nested: any) => {
+                    if (seen.has(nested.name)) return false;
+                    seen.add(nested.name);
+                    return true;
+                })
+                .map((nested: any) => ({
+                    value: nested.name,
+                    label: nested.name,
+                }));
         }
         return [];
     }, [selectedSubCategory, subcategoryOptions]);

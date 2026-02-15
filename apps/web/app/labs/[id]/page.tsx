@@ -24,27 +24,14 @@ import { FullPageOverlay } from '@/components/Common/FullPageOverlay';
 import { useForm } from '@mantine/form';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
+import { useQuery } from '@tanstack/react-query';
 import { IconSearch, IconX, IconTrash } from '@tabler/icons-react';
 import { Lab, LabPage } from '@whatsnxt/core-types';
 import labApi from '@/apis/lab.api';
-import { getAvailableArchitectures } from '@/utils/shape-libraries';
 import { LabAccessButton } from '@/components/Lab/LabAccessButton';
 import CloneLabButton from '@/components/Lab/CloneLabButton';
 import RepublishModal from '@/components/Lab/RepublishModal';
 import useAuth from '@/hooks/Authentication/useAuth';
-
-const LAB_TYPES = [
-  'Cloud Computing',
-  'Networking',
-  'Cybersecurity',
-  'Database Management',
-  'DevOps & Automation',
-  'Software Architecture',
-  'System Design',
-];
-
-// Get architecture types dynamically from centralized registry
-const ARCHITECTURE_TYPES = getAvailableArchitectures();
 
 const LabDetailPage = () => {
   const params = useParams();
@@ -68,8 +55,35 @@ const LabDetailPage = () => {
   const [deleteModalOpened, { open: openDeleteModal, close: closeDeleteModal }] = useDisclosure(false);
   const [deletePageModalOpened, { open: openDeletePageModal, close: closeDeletePageModal }] = useDisclosure(false);
   const [republishModalOpened, { open: openRepublishModal, close: closeRepublishModal }] = useDisclosure(false);
+  const [subCategories, setSubCategories] = useState<Array<{ name: string; subcategories?: Array<{ name: string }> }>>([]);
+  const [nestedSubCategories, setNestedSubCategories] = useState<Array<{ name: string }>>([]);
   const [pageToDelete, setPageToDelete] = useState<{ id: string; pageNumber: number } | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  const { data: categories = [] } = useQuery({
+    queryKey: ['labCategories'],
+    queryFn: async () => {
+      const response = await labApi.getCategories();
+      return response?.categories || [];
+    },
+  });
+
+  const categoryOptions = categories.map((cat: { categoryName: string; subcategories?: any[] }) => ({
+    value: cat.categoryName,
+    label: cat.categoryName,
+    subcategories: cat.subcategories || [],
+  }));
+
+  const subCategoryOptions = subCategories.map((sub) => ({
+    value: sub.name,
+    label: sub.name,
+    subcategories: sub.subcategories || [],
+  }));
+
+  const nestedSubCategoryOptions = nestedSubCategories.map((nested) => ({
+    value: nested.name,
+    label: nested.name,
+  }));
 
   // Derived values (must come after state declarations)
   const isTrainer = isAuthenticated && user?.role === 'trainer';
@@ -98,14 +112,32 @@ const LabDetailPage = () => {
       name: '',
       description: '',
       labType: '',
-      architectureType: '',
+      subCategory: '',
+      nestedSubCategory: '',
     },
     validate: {
       name: (value) => (value ? null : 'Lab name is required'),
-      labType: (value) => (value ? null : 'Lab type is required'),
-      architectureType: (value) => (value ? null : 'Architecture type is required'),
+      labType: (value) => (value ? null : 'Category is required'),
     },
   });
+
+  const handleCategoryChange = (value: string | null) => {
+    form.setFieldValue('labType', value || '');
+    form.setFieldValue('subCategory', '');
+    form.setFieldValue('nestedSubCategory', '');
+    setNestedSubCategories([]);
+
+    const selected = categoryOptions.find((opt: { value: string }) => opt.value === value);
+    setSubCategories(selected?.subcategories || []);
+  };
+
+  const handleSubCategoryChange = (value: string | null) => {
+    form.setFieldValue('subCategory', value || '');
+    form.setFieldValue('nestedSubCategory', '');
+
+    const selected = subCategoryOptions.find((opt: { value: string }) => opt.value === value);
+    setNestedSubCategories(selected?.subcategories || []);
+  };
 
   const fetchLabData = useCallback(async () => {
     console.log('[fetchLabData] Starting fetch for labId:', labId);
@@ -138,8 +170,20 @@ const LabDetailPage = () => {
         name: labData.name,
         description: labData.description || '',
         labType: labData.labType,
-        architectureType: labData.architectureType,
+        subCategory: labData.subCategory || '',
+        nestedSubCategory: labData.nestedSubCategory || '',
       });
+
+      // Populate cascading category state from existing lab data
+      if (labData.labType && categories.length > 0) {
+        const selectedCat = categories.find((cat: { categoryName: string }) => cat.categoryName === labData.labType);
+        const subs = selectedCat?.subcategories || [];
+        setSubCategories(subs);
+        if (labData.subCategory) {
+          const selectedSub = subs.find((sub: { name: string }) => sub.name === labData.subCategory);
+          setNestedSubCategories(selectedSub?.subcategories || []);
+        }
+      }
       console.log('[fetchLabData] Fetch completed successfully');
     } catch (error: any) {
       const errorMessage = error?.response?.data?.message || error?.message || 'Failed to load lab.';
@@ -161,9 +205,39 @@ const LabDetailPage = () => {
     }
   }, [labId, fetchLabData]);
 
+  // Populate cascading category state when categories load after lab data
+  useEffect(() => {
+    if (lab && categories.length > 0) {
+      const selectedCat = categories.find((cat: { categoryName: string }) => cat.categoryName === lab.labType);
+      const subs = selectedCat?.subcategories || [];
+      setSubCategories(subs);
+      if (lab.subCategory) {
+        const selectedSub = subs.find((sub: { name: string }) => sub.name === lab.subCategory);
+        setNestedSubCategories(selectedSub?.subcategories || []);
+      }
+    }
+  }, [lab, categories]);
+
   const handleUpdateLab = async (values: any) => {
     try {
-      const response = await labApi.updateLab(labId, values);
+      const response = await labApi.updateLab(labId, {
+        ...values,
+        subCategory: values.subCategory || undefined,
+        nestedSubCategory: values.nestedSubCategory || undefined,
+      });
+      // Sync cascading state after update
+      const updated = response.data;
+      if (updated.labType && categories.length > 0) {
+        const selectedCat = categories.find((cat: { categoryName: string }) => cat.categoryName === updated.labType);
+        const subs = selectedCat?.subcategories || [];
+        setSubCategories(subs);
+        if (updated.subCategory) {
+          const selectedSub = subs.find((sub: { name: string }) => sub.name === updated.subCategory);
+          setNestedSubCategories(selectedSub?.subcategories || []);
+        } else {
+          setNestedSubCategories([]);
+        }
+      }
       setLab(response.data);
       setIsEditing(false);
       notifications.show({
@@ -264,7 +338,7 @@ const LabDetailPage = () => {
 
   const handleDeletePage = async () => {
     if (!pageToDelete) return;
-    
+
     setIsDeleting(true);
     try {
       await labApi.deleteLabPage(labId, pageToDelete.id);
@@ -386,7 +460,7 @@ const LabDetailPage = () => {
           )}
           {/* T035-T036: Clone button for published labs owned by instructor */}
           {isPublished && isOwner && (
-            <CloneLabButton 
+            <CloneLabButton
               labId={labId}
               onSuccess={(clonedLabId) => {
                 console.log('[LabDetailPage] Clone successful, redirecting to:', clonedLabId);
@@ -429,7 +503,7 @@ const LabDetailPage = () => {
       </Modal>
 
       {/* Republish Confirmation Modal (T069-T070) */}
-      <RepublishModal 
+      <RepublishModal
         labId={labId}
         opened={republishModalOpened}
         onClose={closeRepublishModal}
@@ -485,19 +559,37 @@ const LabDetailPage = () => {
                     {...form.getInputProps('description')}
                   />
                   <Select
-                    label="Lab Type"
-                    placeholder="Select lab type"
-                    data={LAB_TYPES}
-                    {...form.getInputProps('labType')}
+                    label="Category"
+                    placeholder="Select category"
+                    data={categoryOptions}
+                    searchable
+                    value={form.values.labType}
+                    onChange={handleCategoryChange}
+                    error={form.errors.labType as string}
                     required
                   />
-                  <Select
-                    label="Architecture Type"
-                    placeholder="Select architecture type"
-                    data={ARCHITECTURE_TYPES}
-                    {...form.getInputProps('architectureType')}
-                    required
-                  />
+                  {subCategoryOptions.length > 0 && (
+                    <Select
+                      label="Sub Category"
+                      placeholder="Select sub category"
+                      data={subCategoryOptions}
+                      searchable
+                      value={form.values.subCategory}
+                      onChange={handleSubCategoryChange}
+                      error={form.errors.subCategory as string}
+                    />
+                  )}
+                  {nestedSubCategoryOptions.length > 0 && (
+                    <Select
+                      label="Topic"
+                      placeholder="Select topic"
+                      data={nestedSubCategoryOptions}
+                      searchable
+                      value={form.values.nestedSubCategory}
+                      onChange={(value) => form.setFieldValue('nestedSubCategory', value || '')}
+                      error={form.errors.nestedSubCategory as string}
+                    />
+                  )}
 
                   <Group justify="flex-end" mt="md">
                     <Button variant="subtle" onClick={() => setIsEditing(false)}>
@@ -519,13 +611,21 @@ const LabDetailPage = () => {
                 </Box>
                 <Group>
                   <Box>
-                    <Text size="sm" c="dimmed">Lab Type</Text>
+                    <Text size="sm" c="dimmed">Category</Text>
                     <Badge size="lg">{lab.labType}</Badge>
                   </Box>
-                  <Box>
-                    <Text size="sm" c="dimmed">Architecture Type</Text>
-                    <Badge size="lg" color="blue">{lab.architectureType}</Badge>
-                  </Box>
+                  {lab.subCategory && (
+                    <Box>
+                      <Text size="sm" c="dimmed">Sub Category</Text>
+                      <Badge size="lg" color="grape">{lab.subCategory}</Badge>
+                    </Box>
+                  )}
+                  {lab.nestedSubCategory && (
+                    <Box>
+                      <Text size="sm" c="dimmed">Topic</Text>
+                      <Badge size="lg" color="violet">{lab.nestedSubCategory}</Badge>
+                    </Box>
+                  )}
                 </Group>
 
                 {/* Associated Courses */}

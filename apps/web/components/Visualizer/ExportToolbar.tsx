@@ -16,6 +16,7 @@ import {
     IconFileTypeSvg,
     IconChevronDown,
 } from '@tabler/icons-react';
+import { ShareOptions } from '@whatsnxt/core-ui';
 import styles from './visualizer.module.css';
 
 interface ExportPreset {
@@ -53,6 +54,9 @@ interface ExportToolbarProps {
     onSave?: () => void;
     isLoading: boolean;
     hasDiagram: boolean;
+    diagramTitle?: string;
+    prompt?: string;
+    email?: string;
 }
 
 export function ExportToolbar({
@@ -60,6 +64,9 @@ export function ExportToolbar({
     onSave,
     isLoading,
     hasDiagram,
+    diagramTitle,
+    prompt,
+    email,
 }: ExportToolbarProps) {
     const [exporting, setExporting] = useState<string | null>(null);
 
@@ -290,6 +297,16 @@ export function ExportToolbar({
                     >
                         Save to History
                     </Button>
+                )}
+
+                {hasDiagram && (
+                    <ShareOptions
+                        url={typeof window !== 'undefined' ? `${window.location.origin}/blogs` : '/blogs'}
+                        title={diagramTitle || 'Diagram'}
+                        thumbnailUrn=""
+                        description={prompt}
+                        email={email}
+                    />
                 )}
             </Group>
         </div>

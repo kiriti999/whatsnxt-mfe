@@ -23,9 +23,10 @@ interface Tutorial {
     imageUrl?: string;
     description?: string;
     categoryName?: string;
+    total?: any;
 }
 
-const TopTutorials = ({ tutorials }: { tutorials: Tutorial[] }) => {
+const TopTutorials = ({ tutorials }: { tutorials: Tutorial[], total: any }) => {
     console.log('🚀 :: TopTutorials :: tutorials:', tutorials)
     const [displayCount, setDisplayCount] = useState(8);
     const router = useRouter();

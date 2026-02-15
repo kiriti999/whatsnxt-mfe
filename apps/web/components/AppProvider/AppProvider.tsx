@@ -9,7 +9,7 @@ import { Notifications } from '@mantine/notifications';
 import Layout from '../Layout';
 import FilterStore from '../../context/filterStore';
 import { store } from '../../store/store';
-import { IconAddressBook, IconBell, IconBook2, IconCertificate, IconFlask, IconHistoryToggle, IconPasswordUser, IconPencil, IconUserEdit } from '@tabler/icons-react';
+import { IconAddressBook, IconBell, IconBook2, IconCertificate, IconFlask, IconHistoryToggle, IconPalette, IconPasswordUser, IconPencil, IconUserEdit } from '@tabler/icons-react';
 import { AuthProvider } from '../../context/Authentication/AuthContext';
 import React from 'react';
 import { User } from '../Navbar/types';
@@ -122,6 +122,7 @@ export default function AppProvider({ children, user, token }: { children: React
           { title: 'My blogs', url: `${domain}/content/my-dashboard?status=all`, icon: IconBook2 },
           { title: 'Draft blogs', url: `${domain}/content/my-dashboard?status=draft`, icon: IconPencil },
           { title: 'Published blogs', url: `${domain}/content/my-dashboard?status=published`, icon: IconCertificate },
+          { title: 'My Diagrams', url: `${domain}/form/diagrams`, icon: IconPalette },
         ]
       },
       // { title: 'My Bookings', url: `${domain}/my-bookings`, icon: IconBook2 },
@@ -138,22 +139,22 @@ export default function AppProvider({ children, user, token }: { children: React
         <QueryClientProvider client={queryClient}>
           <AuthProvider userData={user}>
             <AIConfigProvider isAuthenticated={!!user?.isAuthenticated}>
-            <FilterStore>
-              <Notifications position="top-left" zIndex={1000} />
-              <ModalsProvider>
-                <SearchProvider>
-                  <Layout {...headerProps}>
-                    {children}
-                  </Layout>
-                </SearchProvider>
-              </ModalsProvider>
-              <NextTopLoader
-                color="red"
-                height={2}
-                shadow="none"
-                showSpinner={false}
-              />
-            </FilterStore>
+              <FilterStore>
+                <Notifications position="top-left" zIndex={1000} />
+                <ModalsProvider>
+                  <SearchProvider>
+                    <Layout {...headerProps}>
+                      {children}
+                    </Layout>
+                  </SearchProvider>
+                </ModalsProvider>
+                <NextTopLoader
+                  color="red"
+                  height={2}
+                  shadow="none"
+                  showSpinner={false}
+                />
+              </FilterStore>
             </AIConfigProvider>
           </AuthProvider>
         </QueryClientProvider>

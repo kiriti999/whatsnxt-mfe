@@ -27,6 +27,7 @@ import type { DiagramType, DiagramData, DiagramOptions, BuilderStep } from './ty
 import styles from './visualizer.module.css';
 import { AIConfigModal } from '../Common/AIConfigModal';
 import { useAIConfig } from '../../context/AIConfigContext';
+import useAuth from '../../hooks/Authentication/useAuth';
 
 const STEP_LABELS: Record<BuilderStep, { label: string; number: string }> = {
     'select-type': { label: 'Choose Type', number: '1' },
@@ -36,6 +37,7 @@ const STEP_LABELS: Record<BuilderStep, { label: string; number: string }> = {
 
 export function VisualizerBuilder() {
     const router = useRouter();
+    const { user } = useAuth();
 
     // Builder state
     const [step, setStep] = useState<BuilderStep>('select-type');
@@ -523,6 +525,9 @@ export function VisualizerBuilder() {
                                 onSave={handleSave}
                                 isLoading={isLoading}
                                 hasDiagram={!!diagramData}
+                                diagramTitle={diagramData.title}
+                                prompt={prompt}
+                                email={user?.email}
                             />
                         )}
                     </div>

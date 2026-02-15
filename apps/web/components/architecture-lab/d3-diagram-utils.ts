@@ -59,7 +59,8 @@ export function renderResizeHandles(
  */
 export function renderShapeLabel(
   element: d3.Selection<SVGGElement, NodeType, null, undefined>,
-  shape: NodeType
+  shape: NodeType,
+  colorScheme?: string
 ): void {
   if (shape.type === 'pool') {
     // Pool has its own label rendering
@@ -68,6 +69,7 @@ export function renderShapeLabel(
 
   const fontSize = '12px';
   const labelY = shape.height + 5; // Position below the shape
+  const textFill = colorScheme === 'dark' ? '#E0E0E0' : '#333';
 
   element.append('text')
     .classed('shape-label', true)
@@ -77,7 +79,7 @@ export function renderShapeLabel(
     .attr('dominant-baseline', 'hanging')
     .style('font-size', fontSize)
     .style('font-weight', '500')
-    .style('fill', '#333')
+    .style('fill', textFill)
     .style('pointer-events', 'none')
     .style('user-select', 'none')
     .text(shape.label || shape.type);

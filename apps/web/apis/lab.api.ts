@@ -27,7 +27,9 @@ export interface CreateLabRequest {
   name: string;
   description?: string;
   labType: string;
-  architectureType: string;
+  subCategory?: string;
+  nestedSubCategory?: string;
+  architectureType?: string;
   instructorId: string;
   pricing?: any;
   associatedCourses?: string[];
@@ -37,6 +39,8 @@ export interface UpdateLabRequest {
   name?: string;
   description?: string;
   labType?: string;
+  subCategory?: string;
+  nestedSubCategory?: string;
   architectureType?: string;
   pricing?: any;
   associatedCourses?: string[];
@@ -80,6 +84,8 @@ export interface CreateDiagramTestRequest {
     metadata?: Record<string, any>;
   };
   architectureType: string;
+  additionalSubCatArchTypes?: string[]; // Additional L2 sub-category shape libraries (max 5)
+  additionalNestedArchTypes?: string[]; // Additional L3 topic shape libraries (max 5)
   hints?: string[]; // Optional array of hint texts (max 5, each max 500 chars)
 }
 
@@ -332,6 +338,13 @@ const labApi = {
    */
   republishLab: (labId: string) =>
     http.post<{ success: boolean; data: { lab: Lab } }>(`/labs/${labId}/republish`, {}),
+
+  /**
+   * Get all lab categories (IT categories for lab type selection)
+   * @returns Array of categories with subcategories
+   */
+  getCategories: () =>
+    http.get<{ categories: Array<{ categoryName: string; subcategories: Array<{ name: string; subcategories?: Array<{ name: string }> }> }> }>('/labs/categories'),
 };
 
 export default labApi;

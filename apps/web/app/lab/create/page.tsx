@@ -5,25 +5,11 @@ import { Container, Title, Button, Group, Box, TextInput, Textarea, Select } fro
 import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
 import { useRouter } from 'next/navigation';
+import { useQuery } from '@tanstack/react-query';
 import labApi from '@/apis/lab.api';
 import useAuth from '@/hooks/Authentication/useAuth';
-import { getAvailableArchitectures } from '@/utils/shape-libraries';
 import { LabPricingForm } from '@/components/Lab/LabPricingForm';
 import { SUCCESS_MESSAGES, ERROR_MESSAGES, ROUTE_PATHS } from '@whatsnxt/constants';
-
-const LAB_TYPES = [
-  'Cloud Computing',
-  'Networking',
-  'Cybersecurity',
-  'Database Management',
-  'DevOps & Automation',
-  'Software Architecture',
-  'System Design',
-];
-
-// Get architecture types dynamically from centralized registry
-// This automatically includes: AWS, Azure, Kubernetes, Generic
-const ARCHITECTURE_TYPES = getAvailableArchitectures();
 
 function LabCreationPage() {
   const router = useRouter();
@@ -35,22 +21,67 @@ function LabCreationPage() {
     purchaseType: 'free'
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [subCategories, setSubCategories] = useState<Array<{ name: string; subcategories?: Array<{ name: string }> }>>([]);
+  const [nestedSubCategories, setNestedSubCategories] = useState<Array<{ name: string }>>([]);
+
+  const { data: categories = [] } = useQuery({
+    queryKey: ['labCategories'],
+    queryFn: async () => {
+      const response = await labApi.getCategories();
+      return response?.categories || [];
+    },
+  });
+
+  const categoryOptions = categories.map((cat: { categoryName: string; subcategories?: any[] }) => ({
+    value: cat.categoryName,
+    label: cat.categoryName,
+    subcategories: cat.subcategories || [],
+  }));
+
+  const subCategoryOptions = subCategories.map((sub) => ({
+    value: sub.name,
+    label: sub.name,
+    subcategories: sub.subcategories || [],
+  }));
+
+  const nestedSubCategoryOptions = nestedSubCategories.map((nested) => ({
+    value: nested.name,
+    label: nested.name,
+  }));
 
   const form = useForm({
     initialValues: {
       name: '',
       description: '',
       labType: '',
-      architectureType: '',
+      subCategory: '',
+      nestedSubCategory: '',
     },
     validate: {
       name: (value) => (value ? null : 'Lab name is required'),
-      labType: (value) => (value ? null : 'Lab type is required'),
-      architectureType: (value) => (value ? null : 'Architecture type is required'),
+      labType: (value) => (value ? null : 'Category is required'),
     },
   });
 
-  const handleSubmit = async (values: { name: string; description: string; labType: string; architectureType: string }) => {
+  const handleCategoryChange = (value: string | null) => {
+    form.setFieldValue('labType', value || '');
+    form.setFieldValue('subCategory', '');
+    form.setFieldValue('nestedSubCategory', '');
+    setNestedSubCategories([]);
+
+    const selected = categoryOptions.find((opt: { value: string }) => opt.value === value);
+    setSubCategories(selected?.subcategories || []);
+  };
+
+  const handleSubCategoryChange = (value: string | null) => {
+    form.setFieldValue('subCategory', value || '');
+    form.setFieldValue('nestedSubCategory', '');
+
+    const selected = subCategoryOptions.find((opt: { value: string }) => opt.value === value);
+    setNestedSubCategories(selected?.subcategories || []);
+  };
+
+  const handleSubmit = async (values: { name: string; description: string; labType: string; subCategory: string; nestedSubCategory: string }) => {
     // Validate pricing for paid labs
     if (pricing.purchaseType === 'paid' && (!pricing.price || pricing.price < 10 || pricing.price > 100000)) {
       notifications.show({
@@ -65,11 +96,13 @@ function LabCreationPage() {
     try {
       const response = await labApi.createLab({
         ...values,
+        subCategory: values.subCategory || undefined,
+        nestedSubCategory: values.nestedSubCategory || undefined,
         instructorId,
         pricing,
       });
       const newLab = response.data;
-      
+
       // Check if backend returned defaultPageId (for new streamlined flow)
       if (newLab.defaultPageId) {
         notifications.show({
@@ -140,21 +173,41 @@ function LabCreationPage() {
             mb="md"
           />
           <Select
-            label="Lab Type"
-            placeholder="Select lab type"
-            data={LAB_TYPES}
-            {...form.getInputProps('labType')}
+            label="Category"
+            placeholder="Select category"
+            data={categoryOptions}
+            searchable
+            value={form.values.labType}
+            onChange={handleCategoryChange}
+            error={form.errors.labType as string}
             required
             mb="md"
           />
-          <Select
-            label="Architecture Type"
-            placeholder="Select architecture type"
-            data={ARCHITECTURE_TYPES}
-            {...form.getInputProps('architectureType')}
-            required
-            mb="md"
-          />
+          {subCategoryOptions.length > 0 && (
+            <Select
+              label="Sub Category"
+              placeholder="Select sub category"
+              data={subCategoryOptions}
+              searchable
+              value={form.values.subCategory}
+              onChange={handleSubCategoryChange}
+              error={form.errors.subCategory as string}
+              mb="md"
+            />
+          )}
+          {nestedSubCategoryOptions.length > 0 && (
+            <Select
+              label="Topic"
+              placeholder="Select topic"
+              data={nestedSubCategoryOptions}
+              searchable
+              value={form.values.nestedSubCategory}
+              onChange={(value) => form.setFieldValue('nestedSubCategory', value || '')}
+              error={form.errors.nestedSubCategory as string}
+              mb="md"
+            />
+          )}
+
 
           <Box mt="xl">
             <LabPricingForm

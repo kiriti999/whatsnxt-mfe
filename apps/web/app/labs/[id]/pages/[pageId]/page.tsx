@@ -22,6 +22,7 @@ import {
   Accordion,
   Alert,
   Modal,
+  MultiSelect,
 } from '@mantine/core';
 import { FullPageOverlay } from '@/components/Common/FullPageOverlay';
 import { useMediaQuery, useDebouncedCallback, useDisclosure } from '@mantine/hooks';
@@ -35,10 +36,17 @@ import HintsEditor from '@/components/Lab/HintsEditor';
 import useAuth from '@/hooks/Authentication/useAuth';
 import { useAutoPageCreation } from '@/hooks/useAutoPageCreation';
 import { usePageMapping } from '@/hooks/usePageMapping';
-import { getAvailableArchitectures, getArchitectureShapes, genericD3Shapes } from '@/utils/shape-libraries';
+import {
+  getArchitectureShapes,
+  genericD3Shapes,
+  mapSubCategoryToArchitecture,
+  getArchitectureSelectOptions,
+  L2_ARCHITECTURE_TYPES,
+  L3_ARCHITECTURE_TYPES,
+  MAX_ADDITIONAL_SELECTIONS,
+} from '@/utils/shape-libraries';
 
 // Get architecture types dynamically from centralized registry
-const ARCHITECTURE_TYPES = getAvailableArchitectures();
 
 interface Question {
   id: string;
@@ -60,9 +68,10 @@ const QUESTION_TYPES = [
  * Build a prompt for the AI to generate architecture diagram JSON.
  * The prompt includes available shape types so the AI uses valid shape IDs.
  */
-const buildDiagramAIPrompt = (userPrompt: string, archType: string): string => {
-  // Gather available shape IDs for the selected architecture type
-  const archShapes = getArchitectureShapes(archType);
+const buildDiagramAIPrompt = (userPrompt: string, archType: string, additionalTypes: string[] = []): string => {
+  // Gather available shape IDs for primary + additional architecture types
+  const allTypes = [archType, ...additionalTypes];
+  const archShapes = allTypes.flatMap((t) => getArchitectureShapes(t));
   const commonShapes = Object.values(genericD3Shapes);
 
   const archShapeList = archShapes.map((s: any) => `${s.id} (${s.name})`).join(', ');
@@ -324,10 +333,15 @@ const LabPageEditorPage = () => {
   });
 
   // Diagram test state
-  const [architectureType, setArchitectureType] = useState('');
+  const [architectureType, setArchitectureType] = useState('Generic');
+  const [additionalSubCatArchTypes, setAdditionalSubCatArchTypes] = useState<string[]>([]);
+  const [additionalNestedArchTypes, setAdditionalNestedArchTypes] = useState<string[]>([]);
   const [prompt, setPrompt] = useState('');
   const [expectedDiagramState, setExpectedDiagramState] = useState<any>(null);
   const [hints, setHints] = useState<string[]>([]);
+
+  // Combine primary + additional architecture types for DiagramEditor
+  const allArchitectureTypes = [architectureType, ...additionalSubCatArchTypes, ...additionalNestedArchTypes];
 
 
   useEffect(() => {
@@ -340,11 +354,15 @@ const LabPageEditorPage = () => {
     try {
       // Fetch lab status and total pages count
       const labResponse = await labApi.getLabById(labId);
-      setLabStatus(labResponse.data.status || 'draft');
+      const labData = labResponse.data;
+      setLabStatus(labData.status || 'draft');
+
+      // Derive architecture type from lab's sub-category and nested sub-category
+      const derivedArchType = mapSubCategoryToArchitecture(labData.subCategory, labData.nestedSubCategory);
 
       // Extract total pages from lab response (feature 004)
-      if (labResponse.data.pages) {
-        setTotalLabPages(labResponse.data.pages.length);
+      if (labData.pages) {
+        setTotalLabPages(labData.pages.length);
       }
 
       const response = await labApi.getLabPageById(labId, pageId);
@@ -377,7 +395,9 @@ const LabPageEditorPage = () => {
       if (pageData.diagramTest) {
         const dt = pageData.diagramTest;
         setPrompt(dt.prompt || '');
-        setArchitectureType(dt.architectureType || '');
+        setArchitectureType(dt.architectureType || derivedArchType);
+        setAdditionalSubCatArchTypes(dt.additionalSubCatArchTypes || []);
+        setAdditionalNestedArchTypes(dt.additionalNestedArchTypes || []);
         setHints(dt.hints || []); // Load hints from backend
 
         // Store diagram test data for student mode
@@ -423,6 +443,11 @@ const LabPageEditorPage = () => {
         } else {
           setExpectedDiagramState(null);
         }
+      }
+
+      // If no diagram test exists yet, use derived architecture from lab sub-category
+      if (!pageData.diagramTest) {
+        setArchitectureType(derivedArchType);
       }
     } catch (error: any) {
       console.error('Failed to load page data:', error);
@@ -771,15 +796,6 @@ const LabPageEditorPage = () => {
 
   const handleSaveDiagramTest = async () => {
     // Validation
-    if (!architectureType) {
-      notifications.show({
-        title: 'Validation Error',
-        message: 'Architecture type is required',
-        color: 'red',
-      });
-      return;
-    }
-
     if (!prompt || prompt.trim().length < 10) {
       notifications.show({
         title: 'Validation Error',
@@ -807,38 +823,42 @@ const LabPageEditorPage = () => {
 
       // Transform DiagramEditor format (nodes/links) to backend format (shapes/connections)
       // Handle empty diagram case
+      const shapes = expectedDiagramState?.nodes?.map((node: any) => ({
+        shapeId: node.shapeId || node.id,
+        x: node.x,
+        y: node.y,
+        width: node.width,
+        height: node.height,
+        rotation: node.rotation || 0,
+        label: node.label || '',
+        metadata: {
+          // Store ALL node properties needed for rendering
+          type: node.type,
+          fill: node.fill,
+          stroke: node.stroke,
+          strokeWidth: node.strokeWidth,
+          strokeDashArray: node.strokeDashArray,
+          pathData: node.pathData,
+          rx: node.rx,
+          ...node.metadata,
+        },
+      })) || [];
+
+      // Build a set of valid shapeIds for filtering orphaned connections
+      const validShapeIds = new Set(shapes.map((s: any) => s.shapeId));
+
       const transformedDiagramState = {
-        shapes: expectedDiagramState?.nodes?.map((node: any) => {
-          console.log('Saving node:', node);
-          return {
-            shapeId: node.shapeId || node.id,
-            x: node.x,
-            y: node.y,
-            width: node.width,
-            height: node.height,
-            rotation: node.rotation || 0,
-            label: node.label || '',
-            metadata: {
-              // Store ALL node properties needed for rendering
-              type: node.type,
-              fill: node.fill,
-              stroke: node.stroke,
-              strokeWidth: node.strokeWidth,
-              strokeDashArray: node.strokeDashArray,
-              pathData: node.pathData,
-              rx: node.rx,
-              ...node.metadata,
-            },
-          };
-        }) || [],
-        connections: expectedDiagramState?.links?.map((link: any) => ({
+        shapes,
+        connections: (expectedDiagramState?.links?.map((link: any) => ({
           id: link.id || `${link.source}-${link.target}`,
           sourceShapeId: link.source,
           targetShapeId: link.target,
           type: link.type || 'arrow',
           label: link.label || '',
           metadata: { waypoints: link.waypoints || [] },
-        })) || [],
+        })) || []).filter((conn: any) =>
+          validShapeIds.has(conn.sourceShapeId) && validShapeIds.has(conn.targetShapeId)
+        ),
         metadata: {},
       };
 
@@ -856,6 +876,8 @@ const LabPageEditorPage = () => {
         prompt: prompt.trim(),
         expectedDiagramState: transformedDiagramState,
         architectureType: architectureType,
+        additionalSubCatArchTypes: additionalSubCatArchTypes.length > 0 ? additionalSubCatArchTypes : undefined,
+        additionalNestedArchTypes: additionalNestedArchTypes.length > 0 ? additionalNestedArchTypes : undefined,
         hints: hintsToSave, // Include sanitized hints
       });
 
@@ -1390,28 +1412,18 @@ const LabPageEditorPage = () => {
                   </Button>
                 </Group>
 
-                <Select
-                  label="Architecture Type"
-                  placeholder="Select architecture type"
-                  data={ARCHITECTURE_TYPES}
-                  value={architectureType}
-                  onChange={(value) => setArchitectureType(value || '')}
-                  required
-                  disabled={!canEditContent}
-                />
-
                 <Box>
                   <Group gap="xs" mb={4}>
                     <Text size="sm" fw={500}>Prompt <span style={{ color: 'red' }}>*</span></Text>
                     {canEditContent && (
                       <AISuggestionButton
-                        prompt={() => buildDiagramAIPrompt(prompt, architectureType)}
+                        prompt={() => buildDiagramAIPrompt(prompt, architectureType, [...additionalSubCatArchTypes, ...additionalNestedArchTypes])}
                         label="Generate diagram from prompt with AI"
-                        disabled={!prompt.trim() || !architectureType}
+                        disabled={!prompt.trim()}
                         onEmptyPrompt={() => {
                           notifications.show({
                             title: 'Missing Information',
-                            message: 'Please enter a prompt and select an architecture type first.',
+                            message: 'Please enter a prompt first.',
                             color: 'orange',
                           });
                         }}
@@ -1515,46 +1527,55 @@ const LabPageEditorPage = () => {
                 <Box>
                   <Text size="sm" fw={500} mb={8}>Diagram Editor</Text>
                   <Text size="xs" c="dimmed" mb={8}>
-                    Drag shapes onto the canvas to create your expected diagram
+                    Drag shapes onto the canvas to create your expected diagram. Add more shape libraries below.
                   </Text>
+
+                  {canEditContent && (
+                    <Group grow mb="md">
+                      <MultiSelect
+                        label="Additional Sub Categories"
+                        description={`Add up to ${MAX_ADDITIONAL_SELECTIONS} extra sub-category shape libraries`}
+                        placeholder="Select additional sub-categories"
+                        data={getArchitectureSelectOptions(L2_ARCHITECTURE_TYPES, architectureType)}
+                        value={additionalSubCatArchTypes}
+                        onChange={(val) => setAdditionalSubCatArchTypes(val.slice(0, MAX_ADDITIONAL_SELECTIONS))}
+                        maxValues={MAX_ADDITIONAL_SELECTIONS}
+                        searchable
+                        clearable
+                      />
+                      <MultiSelect
+                        label="Additional Topics"
+                        description={`Add up to ${MAX_ADDITIONAL_SELECTIONS} extra topic shape libraries`}
+                        placeholder="Select additional topics"
+                        data={getArchitectureSelectOptions(L3_ARCHITECTURE_TYPES, architectureType)}
+                        value={additionalNestedArchTypes}
+                        onChange={(val) => setAdditionalNestedArchTypes(val.slice(0, MAX_ADDITIONAL_SELECTIONS))}
+                        maxValues={MAX_ADDITIONAL_SELECTIONS}
+                        searchable
+                        clearable
+                      />
+                    </Group>
+                  )}
 
                   <Group align="flex-start" gap="md">
                     {/* Canvas - DiagramEditor */}
                     <Box style={{ flex: 1, minWidth: 0 }}>
-                      {!architectureType ? (
-                        <Paper
-                          withBorder
-                          p="xl"
-                          style={{
-                            minHeight: 400,
-                            backgroundColor: '#f8f9fa',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
+                      <>
+                        {isMobile && canEditContent && (
+                          <Alert icon={<IconDeviceDesktop size={16} />} title="Screen Too Small" color="blue" mb="md">
+                            Creating diagrams on mobile is difficult. We suggest updating the diagram from a larger screen.
+                          </Alert>
+                        )}
+                        <DiagramEditor
+                          initialGraph={expectedDiagramState}
+                          mode={canEditContent ? "instructor" : "student"}
+                          architectureTypes={allArchitectureTypes}
+                          onGraphChange={(graph) => {
+                            setExpectedDiagramState(graph);
                           }}
-                        >
-                          <Text c="dimmed" ta="center" size="sm">
-                            Select an architecture type to enable diagram editor
-                          </Text>
-                        </Paper>
-                      ) : (
-                        <>
-                          {isMobile && canEditContent && (
-                            <Alert icon={<IconDeviceDesktop size={16} />} title="Screen Too Small" color="blue" mb="md">
-                              Creating diagrams on mobile is difficult. We suggest updating the diagram from a larger screen.
-                            </Alert>
-                          )}
-                          <DiagramEditor
-                            initialGraph={expectedDiagramState}
-                            mode={canEditContent ? "instructor" : "student"}
-                            architectureType={architectureType}
-                            onGraphChange={(graph) => {
-                              setExpectedDiagramState(graph);
-                            }}
-                            className="diagram-editor"
-                          />
-                        </>
-                      )}
+                          className="diagram-editor"
+                        />
+                      </>
                     </Box>
                   </Group>
                 </Box>
