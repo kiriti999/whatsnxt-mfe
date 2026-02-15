@@ -3,7 +3,8 @@ import { Container, Text, SimpleGrid, Paper, Stack, ThemeIcon, Box, Title, Group
 import { MantineLoader } from '@whatsnxt/core-ui'
 import { IconArticle, IconBook, IconSparkles, IconLayoutList, IconPalette } from '@tabler/icons-react'
 import Link from 'next/link'
-import React, { Suspense } from 'react'
+import React, { Suspense, useMemo } from 'react'
+import useAuth from '../../../hooks/Authentication/useAuth'
 
 const contentTypes = [
     {
@@ -40,7 +41,22 @@ const contentTypes = [
     }
 ]
 
+const VISUALIZER_ALLOWED_EMAIL = 'kiriti.k999@gmail.com'
+
+function isVisualizerAllowed(role?: string, email?: string): boolean {
+    return role === 'admin' || email === VISUALIZER_ALLOWED_EMAIL
+}
+
 export function ContentTypeForm() {
+    const { user } = useAuth()
+
+    const visibleContentTypes = useMemo(() => {
+        if (isVisualizerAllowed(user?.role, user?.email)) {
+            return contentTypes
+        }
+        return contentTypes.filter((type) => type.href !== '/form/visualizer')
+    }, [user?.role, user?.email])
+
     return (
         <Suspense fallback={<MantineLoader />}>
             <Container size="md" py={{ base: 'xl', sm: '4rem' }}>
@@ -77,7 +93,7 @@ export function ContentTypeForm() {
                         w="100%"
                         mt="md"
                     >
-                        {contentTypes.map((type) => (
+                        {visibleContentTypes.map((type) => (
                             <Link
                                 key={type.href}
                                 href={type.href}
