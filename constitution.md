@@ -1,24 +1,23 @@
 <!--
 Sync Impact Report
 
-- Version change: 5.1.0 → 5.2.0
-- List of modified principles: Updated Section VI (API Communication Standards)
+- Version change: 5.2.0 → 5.3.0
+- List of modified principles: Updated Section III (User Experience Consistency)
 - Added sections: None
 - Removed sections: None
 - Modified content:
-  - Added requirement for D3.js library for all diagram and shape rendering
-  - Added D3.js to technology stack in Additional Constraints
-  - Updated rationale to include justification for D3.js requirement
+  - Added requirement for InfiniteScrollComponent from @whatsnxt/core-util for scroll-to-load patterns
+  - Added requirement for Mantine SimpleGrid for responsive card layouts
+  - Added guidance on aspect-ratio CSS for responsive images
+  - Updated Additional Constraints with new UI patterns
 - Templates requiring updates:
-  - ⚠️ Diagram and visualization components should be reviewed to use D3.js
-  - ⚠️ Development documentation should specify D3.js for diagram features
-  - ⚠️ Component library documentation should include D3.js usage guidelines
+  - ⚠️ List/grid pages should use InfiniteScrollComponent instead of pagination where appropriate
+  - ⚠️ Card grids should use Mantine SimpleGrid for responsive layouts
+  - ⚠️ Image containers should use aspect-ratio CSS for consistent sizing
 - Follow-up TODOs:
-  - Install D3.js library (npm install d3 @types/d3)
-  - Audit existing diagram components for D3.js migration
-  - Create D3.js diagram component templates and utilities
-  - Update development setup documentation to include D3.js
-  - Create D3.js best practices guide for diagram rendering
+  - Audit existing pagination components for infinite scroll migration
+  - Update card grid components to use SimpleGrid
+  - Review image containers for aspect-ratio compliance
 -->
 
 # WhatsNxt Constitution
@@ -34,6 +33,12 @@ All code MUST adhere to industry best practices for maintainability, readability
 
 ### III. User Experience Consistency
 UI MUST be built using Mantine UI. Layouts and components MUST be responsive and accessible. User experience consistency is enforced across all packages and apps. Accessibility and code readability are top priorities. CSS classes MUST be used instead of Mantine style attributes wherever possible to prevent performance issues as recommended by the Mantine team.
+
+**Responsive Grid Layouts**: Card-based layouts MUST use Mantine's `SimpleGrid` component with responsive column breakpoints. Applications MUST NOT use custom CSS grid implementations when SimpleGrid provides the required functionality.
+
+**Infinite Scroll Pattern**: List views with large datasets SHOULD use `InfiniteScrollComponent` from `@whatsnxt/core-util` for scroll-to-load functionality instead of traditional pagination. This improves user experience by eliminating page navigation and providing seamless content loading.
+
+**Responsive Images**: Image containers MUST use CSS `aspect-ratio` property for consistent sizing across breakpoints. Fixed pixel heights SHOULD be avoided to prevent image distortion on different screen sizes.
 
 ### IV. Performance Requirements and Shared Packages
 All features MUST meet defined performance goals. Monorepo structure MUST use pnpm workspace with reusable components and packages as dependencies. Performance bottlenecks MUST be identified and resolved before release.
@@ -120,7 +125,7 @@ All API integrations MUST connect to actual backend services. Test environments 
 - All constants MUST be defined in `@whatsnxt/constants` workspace package and imported where needed.
 - All HTTP communication MUST reuse axios client from `@whatsnxt/http-client` workspace package.
 - All diagrams and diagram shapes MUST be created using D3.js library.
-- Maximum cyclomatic complexity is 5 for all functions and methods.
+- Maximum cyclomatic complexity is 5 for all functions and methods and 10 for .tsx files
 - Accessibility and code readability are non-negotiable.
 - CSS classes preferred over inline Mantine styles for performance optimization.
 - All backend APIs MUST use Express.js version 5 framework.
@@ -129,6 +134,9 @@ All API integrations MUST connect to actual backend services. Test environments 
 - OpenAPI specifications MUST be in JSON format, not YAML.
 - Documentation (HLD, LLD, user flows, sequence diagrams) MUST accompany all features.
 - All Dockerfiles MUST use Node Alpine base images (e.g., node:24-alpine) for minimal size and improved security.
+- Card-based layouts MUST use Mantine SimpleGrid with responsive breakpoints.
+- Infinite scroll MUST use InfiniteScrollComponent from @whatsnxt/core-util.
+- Image containers MUST use CSS aspect-ratio for responsive sizing.
 
 ## Development Workflow & Quality Gates
 
@@ -149,4 +157,4 @@ All API integrations MUST connect to actual backend services. Test environments 
 
 This constitution supersedes all other practices and guidance. Amendments require documentation, approval, and a migration plan. All PRs and reviews MUST verify compliance. Complexity MUST be justified. Use runtime guidance files for development reference.
 
-**Version**: 5.2.0 | **Ratified**: 2025-11-03 | **Last Amended**: 2025-12-15
+**Version**: 5.3.0 | **Ratified**: 2025-11-03 | **Last Amended**: 2026-02-15
