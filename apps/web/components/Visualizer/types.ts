@@ -9,7 +9,13 @@ export type DiagramType =
     | 'cheat-sheet'
     | 'timeline'
     | 'mind-map'
-    | 'matrix-table';
+    | 'matrix-table'
+    | 'decision-tree'
+    | 'hierarchy-chart'
+    | 'sequence-diagram'
+    | 'kanban-board'
+    | 'swot-analysis'
+    | 'network-topology';
 
 // Diagram Data (returned by AI)
 export interface DiagramNode {

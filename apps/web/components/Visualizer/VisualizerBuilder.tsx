@@ -22,6 +22,7 @@ import { DiagramCanvas } from './DiagramCanvas';
 import { ExportToolbar } from './ExportToolbar';
 import { DiagramEditPanel } from './DiagramEditPanel';
 import { VisualizerAPI } from '../../apis/v1/visualizer';
+import { FormAPI } from '../../apis/v1/blog/formApi';
 import { useUndoRedo } from './hooks/useUndoRedo';
 import type { DiagramType, DiagramData, DiagramOptions, BuilderStep } from './types';
 import styles from './visualizer.module.css';
@@ -55,6 +56,7 @@ export function VisualizerBuilder() {
     const [error, setError] = useState<string | null>(null);
     const [aiModel, setAiModel] = useState<string>('');
     const [notification, setNotification] = useState<{ message: string; color: string } | null>(null);
+    const [savedBlogSlug, setSavedBlogSlug] = useState<string | null>(null);
 
     // Phase 3: Edit state
     const [isEditing, setIsEditing] = useState(false);
@@ -152,6 +154,7 @@ export function VisualizerBuilder() {
         setStep('preview');
         setIsEditing(false);
         setSelectedNodeId(null);
+        setSavedBlogSlug(null);
 
         try {
             const response = await VisualizerAPI.generateDiagram({
@@ -193,6 +196,7 @@ export function VisualizerBuilder() {
         setError(null);
         setIsEditing(false);
         setSelectedNodeId(null);
+        setSavedBlogSlug(null);
 
         try {
             const response = await VisualizerAPI.regenerateDiagram({
@@ -226,23 +230,50 @@ export function VisualizerBuilder() {
         }
     }, [selectedType, prompt, options, setDiagramWithHistory, handleApiError, aiConfig.selectedAI, aiConfig.selectedModel]);
 
+    const saveDiagramToHistory = useCallback(async () => {
+        await VisualizerAPI.saveDiagram({
+            title: diagramData?.title || 'Untitled Diagram',
+            diagramType: selectedType!,
+            prompt,
+            options: {
+                theme: options.theme,
+                layout: options.layout,
+                style: options.style,
+            },
+            diagramData: diagramData!,
+            aiModel,
+        });
+    }, [selectedType, diagramData, prompt, options, aiModel]);
+
+    // Auto-create draft blog when a new diagram is generated so share URL is always available
+    useEffect(() => {
+        if (!diagramData || !selectedType || savedBlogSlug) return;
+
+        const createDraftBlog = async () => {
+            try {
+                const title = diagramData.title || 'Untitled Diagram';
+                const description = prompt || `${selectedType} diagram`;
+                const result = await FormAPI.createBlog({
+                    title,
+                    description,
+                    contentFormat: 'HTML',
+                    categoryName: 'misc',
+                    wordCount: description.split(/\s+/).length,
+                });
+                if (result?.slug) setSavedBlogSlug(result.slug);
+            } catch (err) {
+                console.error('Auto draft blog creation failed:', err);
+            }
+        };
+
+        createDraftBlog();
+    }, [diagramData, selectedType, prompt, savedBlogSlug]);
+
     const handleSave = useCallback(async () => {
         if (!selectedType || !diagramData) return;
 
         try {
-            await VisualizerAPI.saveDiagram({
-                title: diagramData.title || 'Untitled Diagram',
-                diagramType: selectedType,
-                prompt,
-                options: {
-                    theme: options.theme,
-                    layout: options.layout,
-                    style: options.style,
-                },
-                diagramData,
-                aiModel,
-            });
-
+            await saveDiagramToHistory();
             setNotification({ message: 'Diagram saved to your history!', color: 'green' });
             setTimeout(() => setNotification(null), 3000);
         } catch (err: any) {
@@ -253,7 +284,7 @@ export function VisualizerBuilder() {
             });
             setTimeout(() => setNotification(null), 4000);
         }
-    }, [selectedType, diagramData, prompt, options, aiModel]);
+    }, [selectedType, diagramData, saveDiagramToHistory]);
 
     // --- API Key Modal handlers ---
     const handleModalGenerate = useCallback(() => {
@@ -528,6 +559,7 @@ export function VisualizerBuilder() {
                                 diagramTitle={diagramData.title}
                                 prompt={prompt}
                                 email={user?.email}
+                                savedBlogUrl={savedBlogSlug ? `/content/${savedBlogSlug}` : undefined}
                             />
                         )}
                     </div>

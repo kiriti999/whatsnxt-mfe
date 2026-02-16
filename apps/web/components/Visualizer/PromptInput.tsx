@@ -69,6 +69,12 @@ const TYPE_LABELS: Record<DiagramType, { label: string; icon: string }> = {
     'timeline': { label: 'Timeline', icon: '⏳' },
     'mind-map': { label: 'Mind Map', icon: '🧠' },
     'matrix-table': { label: 'Matrix Table', icon: '📊' },
+    'decision-tree': { label: 'Decision Tree', icon: '🌳' },
+    'hierarchy-chart': { label: 'Hierarchy Chart', icon: '🏛️' },
+    'sequence-diagram': { label: 'Sequence Diagram', icon: '🔄' },
+    'kanban-board': { label: 'Kanban Board', icon: '📌' },
+    'swot-analysis': { label: 'SWOT Analysis', icon: '🎯' },
+    'network-topology': { label: 'Network Topology', icon: '🌐' },
 };
 
 const PLACEHOLDER_PROMPTS: Record<DiagramType, string> = {
@@ -82,6 +88,12 @@ const PLACEHOLDER_PROMPTS: Record<DiagramType, string> = {
     'timeline': 'Show the evolution of JavaScript frameworks from jQuery to React, Vue, Angular, Svelte, and modern meta-frameworks...',
     'mind-map': 'Create a mind map of system design concepts branching into scalability, reliability, availability, and performance...',
     'matrix-table': 'Compare REST vs GraphQL vs gRPC across performance, caching, typing, tooling, and learning curve...',
+    'decision-tree': 'Create a decision tree for choosing the right database: relational vs document vs key-value vs graph based on data model, scale, and consistency needs...',
+    'hierarchy-chart': 'Show a software engineering team hierarchy from CTO to VP Engineering, Engineering Managers, Tech Leads, and Senior/Junior developers...',
+    'sequence-diagram': 'Show the OAuth 2.0 authorization code flow between User, Client App, Auth Server, and Resource Server with all request/response steps...',
+    'kanban-board': 'Create a sprint board with columns for Backlog, To Do, In Progress, Code Review, and Done with sample user story cards...',
+    'swot-analysis': 'Analyze migrating from monolith to microservices — strengths, weaknesses, opportunities, and threats for the engineering team...',
+    'network-topology': 'Show a three-tier web architecture with load balancer, web servers, application servers, database cluster, and CDN with network connections...',
 };
 
 interface PromptInputProps {

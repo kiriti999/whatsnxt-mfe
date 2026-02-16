@@ -57,6 +57,7 @@ interface ExportToolbarProps {
     diagramTitle?: string;
     prompt?: string;
     email?: string;
+    savedBlogUrl?: string;
 }
 
 export function ExportToolbar({
@@ -67,6 +68,7 @@ export function ExportToolbar({
     diagramTitle,
     prompt,
     email,
+    savedBlogUrl,
 }: ExportToolbarProps) {
     const [exporting, setExporting] = useState<string | null>(null);
 
@@ -301,7 +303,7 @@ export function ExportToolbar({
 
                 {hasDiagram && (
                     <ShareOptions
-                        url={typeof window !== 'undefined' ? `${window.location.origin}/blogs` : '/blogs'}
+                        url={typeof window !== 'undefined' ? `${window.location.origin}${savedBlogUrl || '/blogs'}` : (savedBlogUrl || '/blogs')}
                         title={diagramTitle || 'Diagram'}
                         thumbnailUrn=""
                         description={prompt}
