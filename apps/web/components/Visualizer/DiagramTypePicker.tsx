@@ -54,6 +54,38 @@ const diagramTypes: DiagramTypeOption[] = [
         gradient: 'linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%)',
         color: '#a18cd1',
     },
+    {
+        type: 'cheat-sheet',
+        title: 'Cheat Sheet',
+        description: 'Categorized reference cards — perfect for HTTP status codes, Git commands, and quick-reference guides',
+        icon: '📝',
+        gradient: 'linear-gradient(135deg, #ff6b6b 0%, #feca57 100%)',
+        color: '#ff6b6b',
+    },
+    {
+        type: 'timeline',
+        title: 'Timeline',
+        description: 'Chronological progression with milestones — ideal for processes, version histories, and learning paths',
+        icon: '⏳',
+        gradient: 'linear-gradient(135deg, #0984e3 0%, #6c5ce7 100%)',
+        color: '#0984e3',
+    },
+    {
+        type: 'mind-map',
+        title: 'Mind Map',
+        description: 'Hierarchical branching from a central topic — great for brainstorming, topic organization, and knowledge trees',
+        icon: '🧠',
+        gradient: 'linear-gradient(135deg, #00b894 0%, #55efc4 100%)',
+        color: '#00b894',
+    },
+    {
+        type: 'matrix-table',
+        title: 'Matrix Table',
+        description: 'Structured grid with headers and cells — perfect for feature comparisons, decision matrices, and data tables',
+        icon: '📊',
+        gradient: 'linear-gradient(135deg, #636e72 0%, #b2bec3 100%)',
+        color: '#636e72',
+    },
 ];
 
 interface DiagramTypePickerProps {

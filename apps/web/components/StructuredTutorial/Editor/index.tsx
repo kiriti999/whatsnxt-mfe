@@ -16,6 +16,7 @@ import {
 import { FullPageOverlay } from '@/components/Common/FullPageOverlay';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
+import { modals } from '@mantine/modals';
 import { MantineLoader } from '@whatsnxt/core-ui';
 import { IconArrowLeft, IconCheck } from '@tabler/icons-react';
 import { TreeNavigator } from './TreeNavigator';
@@ -230,11 +231,28 @@ export const StructuredTutorialEditor: React.FC = () => {
                 router.push('/history/table');
             }
         } catch (error: any) {
-            notifications.show({
-                title: 'Error',
-                message: error?.message || 'Failed to save tutorial',
-                color: 'red',
-            });
+            const isConflict = error?.status === 409 || error?.response?.status === 409;
+            if (isConflict) {
+                modals.open({
+                    title: 'Duplicate Title Detected',
+                    centered: true,
+                    children: (
+                        <Box>
+                            <Text size="sm" mb="md">{error?.message || 'A tutorial with a similar title already exists.'}</Text>
+                            <Text size="xs" c="dimmed">Please change your title and try again.</Text>
+                            <Group justify="flex-end" mt="md">
+                                <Button onClick={() => modals.closeAll()}>OK</Button>
+                            </Group>
+                        </Box>
+                    ),
+                });
+            } else {
+                notifications.show({
+                    title: 'Error',
+                    message: error?.message || 'Failed to save tutorial',
+                    color: 'red',
+                });
+            }
         } finally {
             setIsSaving(false);
         }

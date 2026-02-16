@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { notifications } from '@mantine/notifications';
+import { modals } from '@mantine/modals';
 import { CategoryData } from '../../../types/form';
 import { useSaved } from '../../../hooks/saved';
 import { getCategoryId } from '../../../utils/form';
@@ -515,11 +516,28 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
           });
         }
       } catch (error) {
-        notifications.show({
-          title: `Tutorial ${edit ? 'Update' : 'Create'} Error`,
-          message: `${error.message}`,
-          color: 'red',
-        });
+        const isConflict = error?.status === 409 || error?.response?.status === 409;
+        if (isConflict) {
+          modals.open({
+            title: 'Duplicate Title Detected',
+            centered: true,
+            children: (
+              <Box>
+                <Text size="sm" mb="md">{error?.message || 'A tutorial with a similar title already exists.'}</Text>
+                <Text size="xs" c="dimmed">Please change your title and try again.</Text>
+                <Group justify="flex-end" mt="md">
+                  <Button onClick={() => modals.closeAll()}>OK</Button>
+                </Group>
+              </Box>
+            ),
+          });
+        } else {
+          notifications.show({
+            title: `Tutorial ${edit ? 'Update' : 'Create'} Error`,
+            message: `${error.message}`,
+            color: 'red',
+          });
+        }
 
       } finally {
         close();

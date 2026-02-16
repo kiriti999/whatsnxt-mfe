@@ -5,7 +5,11 @@ export type DiagramType =
     | 'architecture'
     | 'comparison-grid'
     | 'concept-explainer'
-    | 'pattern-catalog';
+    | 'pattern-catalog'
+    | 'cheat-sheet'
+    | 'timeline'
+    | 'mind-map'
+    | 'matrix-table';
 
 // Diagram Data (returned by AI)
 export interface DiagramNode {

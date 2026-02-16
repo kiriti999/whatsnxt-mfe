@@ -65,6 +65,10 @@ const TYPE_LABELS: Record<DiagramType, { label: string; icon: string }> = {
     'comparison-grid': { label: 'Comparison Grid', icon: '⚖️' },
     'concept-explainer': { label: 'Concept Explainer', icon: '💡' },
     'pattern-catalog': { label: 'Pattern Catalog', icon: '🧩' },
+    'cheat-sheet': { label: 'Cheat Sheet', icon: '📝' },
+    'timeline': { label: 'Timeline', icon: '⏳' },
+    'mind-map': { label: 'Mind Map', icon: '🧠' },
+    'matrix-table': { label: 'Matrix Table', icon: '📊' },
 };
 
 const PLACEHOLDER_PROMPTS: Record<DiagramType, string> = {
@@ -74,6 +78,10 @@ const PLACEHOLDER_PROMPTS: Record<DiagramType, string> = {
     'comparison-grid': 'Compare SQL vs NoSQL databases across performance, scalability, schema flexibility, and use cases...',
     'concept-explainer': 'Explain the concept of idempotency in distributed systems with strategies and examples...',
     'pattern-catalog': 'Show 12 system design patterns including Circuit Breaker, CQRS, Event Sourcing, Saga...',
+    'cheat-sheet': 'Create a cheat sheet of 18 HTTP status codes grouped by Success, Redirection, Client Error, and Server Error...',
+    'timeline': 'Show the evolution of JavaScript frameworks from jQuery to React, Vue, Angular, Svelte, and modern meta-frameworks...',
+    'mind-map': 'Create a mind map of system design concepts branching into scalability, reliability, availability, and performance...',
+    'matrix-table': 'Compare REST vs GraphQL vs gRPC across performance, caching, typing, tooling, and learning curve...',
 };
 
 interface PromptInputProps {

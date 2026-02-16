@@ -3,6 +3,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { Box, Button, Container, FileInput, Flex, Grid, Select, Text, TextInput, Title, Loader, Alert, Group } from '@mantine/core';
 import { useRouter } from 'next/navigation';
 import { notifications } from '@mantine/notifications';
+import { modals } from '@mantine/modals';
 import { BlogFormProps } from '../../../types/blogs';
 import { FormAPI, HistoryAPI } from '../../../apis/v1/blog';
 import { getCategoryId } from '../../../utils/form';
@@ -327,12 +328,29 @@ const BlogForm: React.FC<BlogFormProps> = ({ categories, edit }) => {
         throw new Error('Blog creation failed.');
       }
     } catch (error: any) {
-      notifications.show({
-        position: 'bottom-right',
-        title: 'Error',
-        message: error?.message || 'An error occurred while saving the blog',
-        color: 'red',
-      });
+      const isConflict = error?.status === 409 || error?.response?.status === 409;
+      if (isConflict) {
+        modals.open({
+          title: 'Duplicate Title Detected',
+          centered: true,
+          children: (
+            <Box>
+              <Text size="sm" mb="md">{error?.message || 'A blog with a similar title already exists.'}</Text>
+              <Text size="xs" c="dimmed">Please change your title and try again.</Text>
+              <Group justify="flex-end" mt="md">
+                <Button onClick={() => modals.closeAll()}>OK</Button>
+              </Group>
+            </Box>
+          ),
+        });
+      } else {
+        notifications.show({
+          position: 'bottom-right',
+          title: 'Error',
+          message: error?.message || 'An error occurred while saving the blog',
+          color: 'red',
+        });
+      }
     } finally {
       close();
     }
