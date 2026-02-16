@@ -60,13 +60,37 @@ const HistoryMUI = ({ open, close }: any) => {
   };
 
   const handleDownloadEbook = async (rowData: any) => {
-    const { filename, fileContent } = await HistoryAPI.downloadEBook(rowData._id);
-    downloadBase64File(fileContent, filename, 'application/epub+zip');
+    try {
+      const { filename, fileContent } = await HistoryAPI.downloadEBook(rowData._id);
+      downloadBase64File(fileContent, filename, 'application/epub+zip');
+      notifications.show({
+        message: 'eBook downloaded successfully',
+        color: 'green',
+      });
+    } catch (error) {
+      notifications.show({
+        title: 'Error',
+        message: 'Error downloading eBook',
+        color: 'red',
+      });
+    }
   };
 
   const handleDownloadPDF = async (rowData: any) => {
-    const { filename, fileContent } = await HistoryAPI.downloadPDF(rowData._id);
-    downloadBase64File(fileContent, filename, 'application/pdf');
+    try {
+      const { filename, fileContent } = await HistoryAPI.downloadPDF(rowData._id);
+      downloadBase64File(fileContent, filename, 'application/pdf');
+      notifications.show({
+        message: 'PDF downloaded successfully',
+        color: 'green',
+      });
+    } catch (error) {
+      notifications.show({
+        title: 'Error',
+        message: 'Error downloading PDF',
+        color: 'red',
+      });
+    }
   };
 
   const handleDownloadPPT = async (rowData: any) => {

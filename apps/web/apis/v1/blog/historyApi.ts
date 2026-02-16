@@ -34,7 +34,7 @@ export const HistoryAPI = {
 
   downloadEBook: async function (id: string) {
     const { data } = await articleApiClient.get('/history/downloadEBook', {
-      id
+      params: { id }
     }) as { data: any };
 
     return data.data ? data.data.generateEbook : '';
@@ -42,7 +42,7 @@ export const HistoryAPI = {
 
   downloadPDF: async function (id: string) {
     const { data } = await articleApiClient.get('/history/downloadPDF', {
-      id
+      params: { id }
     }) as { data: any };
 
     return data.data ? data.data.generatePDF : '';
@@ -50,7 +50,7 @@ export const HistoryAPI = {
 
   downloadPPT: async function (id: string) {
     const { data } = await articleApiClient.get('/history/downloadPPT', {
-      id
+      params: { id }
     }) as { data: any };
 
     return data.data ? data.data.generatePPT : '';
