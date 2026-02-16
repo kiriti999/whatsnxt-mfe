@@ -17,7 +17,7 @@ import {
   Box,
   Tabs,
 } from '@mantine/core';
-import { IconCheck, IconChevronLeft, IconChevronRight, IconBrain, IconTopologyStarRing3 } from '@tabler/icons-react';
+import { IconCheck, IconChevronLeft, IconChevronRight, IconBrain, IconTopologyStarRing3, IconEye } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
 import { useRouter } from 'next/navigation';
 import DiagramEditor from '../architecture-lab/DiagramEditor';
@@ -30,6 +30,7 @@ interface Question {
   type: 'MCQ' | 'True/False' | 'Fill in the blank';
   options: { text: string }[];
   correctAnswer: string;
+  isPreview?: boolean;
 }
 
 interface DiagramTest {
@@ -38,6 +39,7 @@ interface DiagramTest {
   architectureType: string;
   expectedDiagramState: any;
   hints?: string[]; // Optional array of hints for progressive disclosure
+  isPreview?: boolean;
 }
 
 interface StudentTestRunnerProps {
@@ -45,6 +47,7 @@ interface StudentTestRunnerProps {
   pageId: string;
   questions: Question[];
   diagramTest?: DiagramTest;
+  isPreviewMode?: boolean;
   onSubmit: (submission: {
     questionAnswers?: Record<string, string>;
     diagramAnswer?: any;
@@ -56,22 +59,31 @@ interface StudentTestRunnerProps {
 export const StudentTestRunner: React.FC<StudentTestRunnerProps> = ({
   labId,
   pageId,
-  questions,
-  diagramTest,
+  questions: allQuestions,
+  diagramTest: rawDiagramTest,
+  isPreviewMode = false,
   onSubmit,
 }) => {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<string | null>('questions');
-  
+
+  // In preview mode, only show preview-marked content
+  const questions = isPreviewMode
+    ? allQuestions.filter(q => q.isPreview)
+    : allQuestions;
+  const diagramTest = isPreviewMode
+    ? (rawDiagramTest?.isPreview ? rawDiagramTest : undefined)
+    : rawDiagramTest;
+
   // Question test state
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [questionAnswers, setQuestionAnswers] = useState<Record<string, string>>({});
-  
+
   // Diagram test state
   const [jumbledDiagram, setJumbledDiagram] = useState<any>(null);
   const [studentDiagram, setStudentDiagram] = useState<any>(null);
   const [revealedHintsCount, setRevealedHintsCount] = useState(0);
-  
+
   // Overall state
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -122,7 +134,7 @@ export const StudentTestRunner: React.FC<StudentTestRunnerProps> = ({
 
   const calculateQuestionScore = () => {
     if (totalQuestions === 0) return 100;
-    
+
     let correctCount = 0;
     questions.forEach((q) => {
       if (questionAnswers[q.id] === q.correctAnswer) {
@@ -134,7 +146,7 @@ export const StudentTestRunner: React.FC<StudentTestRunnerProps> = ({
 
   const handleSubmit = async () => {
     setSubmitting(true);
-    
+
     try {
       let questionScore = 100;
       let diagramScore = 100;
@@ -220,15 +232,26 @@ export const StudentTestRunner: React.FC<StudentTestRunnerProps> = ({
             Score: {finalScore}%
           </Text>
           <Text c="dimmed" mb="xl">
-            {finalPassed 
-              ? 'You have successfully passed this test!' 
-              : 'You need 100% to pass. Review the material and try again.'}
+            {isPreviewMode
+              ? 'This was a free preview. Purchase the lab to access all tests and track your progress!'
+              : finalPassed
+                ? 'You have successfully passed this test!'
+                : 'You need 100% to pass. Review the material and try again.'}
           </Text>
           <Group justify="center">
             <Button onClick={() => router.push(`/labs/${labId}`)}>
-              Back to Lab
+              {isPreviewMode ? 'Back to Lab' : 'Back to Lab'}
             </Button>
-            {!finalPassed && (
+            {isPreviewMode && (
+              <Button
+                variant="filled"
+                color="orange"
+                onClick={() => router.push(`/labs/${labId}?tab=details`)}
+              >
+                Get Full Access
+              </Button>
+            )}
+            {!finalPassed && !isPreviewMode && (
               <Button variant="light" onClick={() => window.location.reload()}>
                 Retry Test
               </Button>
@@ -242,6 +265,16 @@ export const StudentTestRunner: React.FC<StudentTestRunnerProps> = ({
   return (
     <Container size="xl" py="md">
       <Paper withBorder p="lg" radius="md">
+        {isPreviewMode && (
+          <Paper p="sm" mb="md" radius="sm" bg="orange.0" withBorder style={{ borderColor: 'var(--mantine-color-orange-4)' }}>
+            <Group gap="sm">
+              <IconEye size={20} color="var(--mantine-color-orange-7)" />
+              <Text size="sm" fw={600} c="orange.8">
+                Free Preview Mode — Try this test before purchasing the lab
+              </Text>
+            </Group>
+          </Paper>
+        )}
         <Tabs value={activeTab} onChange={setActiveTab}>
           <Tabs.List mb="md">
             {hasQuestions && (
@@ -260,13 +293,13 @@ export const StudentTestRunner: React.FC<StudentTestRunnerProps> = ({
             <Tabs.Panel value="questions">
               {currentQuestion && (
                 <>
-                  <Progress 
-                    value={((currentQuestionIndex + 1) / totalQuestions) * 100} 
-                    mb="lg" 
-                    size="sm" 
-                    radius="xl" 
+                  <Progress
+                    value={((currentQuestionIndex + 1) / totalQuestions) * 100}
+                    mb="lg"
+                    size="sm"
+                    radius="xl"
                   />
-                  
+
                   <Group justify="space-between" mb="md">
                     <Text fw={500}>
                       Question {currentQuestionIndex + 1} of {totalQuestions}
@@ -287,10 +320,10 @@ export const StudentTestRunner: React.FC<StudentTestRunnerProps> = ({
                     >
                       <Stack>
                         {currentQuestion.options?.map((option, index) => (
-                          <Radio 
-                            key={index} 
-                            value={option.text} 
-                            label={option.text} 
+                          <Radio
+                            key={index}
+                            value={option.text}
+                            label={option.text}
                           />
                         ))}
                       </Stack>
@@ -341,9 +374,9 @@ export const StudentTestRunner: React.FC<StudentTestRunnerProps> = ({
                 <Text size="lg" fw={600} mb="md">
                   {diagramTest?.prompt || 'Reconstruct the architecture diagram'}
                 </Text>
-                
+
                 <Text size="sm" c="dimmed" mb="md">
-                  Drag the shapes to their correct positions and create connections between them. 
+                  Drag the shapes to their correct positions and create connections between them.
                   All connections from the original diagram have been removed.
                 </Text>
 

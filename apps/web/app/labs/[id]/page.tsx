@@ -666,22 +666,70 @@ const LabDetailPage = () => {
 
         <Tabs.Panel value="tests" pt="md">
           {!canViewTests && isPublished && isStudent && requiresAccess ? (
-            <Paper shadow="sm" p="xl" withBorder className="bg-yellow-light">
-              <Stack align="center" gap="md">
-                <Text size="xl" fw={600}>🔒 Access Required</Text>
-                <Text c="dimmed" ta="center" size="lg">
-                  You need to purchase this lab or enroll in a course to view tests and questions.
-                </Text>
-                <LabAccessButton
-                  labId={labId}
-                  labTitle={lab.name}
-                  pricing={lab.pricing}
-                  onAccessGranted={() => {
-                    fetchLabData();
-                  }}
-                />
-              </Stack>
-            </Paper>
+            <Stack gap="lg">
+              <Paper shadow="sm" p="xl" withBorder className="bg-yellow-light">
+                <Stack align="center" gap="md">
+                  <Text size="xl" fw={600}>🔒 Access Required</Text>
+                  <Text c="dimmed" ta="center" size="lg">
+                    You need to purchase this lab or enroll in a course to view all tests and questions.
+                  </Text>
+                  <LabAccessButton
+                    labId={labId}
+                    labTitle={lab.name}
+                    pricing={lab.pricing}
+                    onAccessGranted={() => {
+                      fetchLabData();
+                    }}
+                  />
+                </Stack>
+              </Paper>
+
+              {/* Preview Pages Section */}
+              {pages.some((p: any) =>
+                (p.hasQuestion && p.question?.isPreview) ||
+                (p.hasDiagramTest && p.diagramTest?.isPreview)
+              ) && (
+                  <Paper shadow="sm" p="lg" withBorder>
+                    <Stack gap="md">
+                      <Group gap="sm">
+                        <Text size="lg" fw={600}>👁 Free Preview Available</Text>
+                        <Badge color="orange" variant="light">Try before you buy</Badge>
+                      </Group>
+                      <Text size="sm" c="dimmed">
+                        The instructor has made some tests available for free preview. Try them to see what this lab offers!
+                      </Text>
+                      <Stack gap="sm">
+                        {pages.filter((p: any) =>
+                          (p.hasQuestion && p.question?.isPreview) ||
+                          (p.hasDiagramTest && p.diagramTest?.isPreview)
+                        ).map((page: any) => (
+                          <Paper key={page.id} p="md" withBorder radius="sm">
+                            <Group justify="space-between" align="center">
+                              <Group gap="sm">
+                                <Text fw={600} size="sm">Page {page.pageNumber}</Text>
+                                {page.hasQuestion && page.question?.isPreview && (
+                                  <Badge size="sm" color="green" variant="light">Question Preview</Badge>
+                                )}
+                                {page.hasDiagramTest && page.diagramTest?.isPreview && (
+                                  <Badge size="sm" color="blue" variant="light">Diagram Preview</Badge>
+                                )}
+                              </Group>
+                              <Button
+                                size="xs"
+                                variant="light"
+                                color="orange"
+                                onClick={() => router.push(`/labs/${labId}/pages/${page.id}?preview=true&returnPage=${currentPage}`)}
+                              >
+                                Try Preview
+                              </Button>
+                            </Group>
+                          </Paper>
+                        ))}
+                      </Stack>
+                    </Stack>
+                  </Paper>
+                )}
+            </Stack>
           ) : (
             <Stack>
               {canEdit && (
@@ -764,9 +812,19 @@ const LabDetailPage = () => {
                                 Question Test
                               </Badge>
                             )}
+                            {page.hasQuestion && page.question?.isPreview && (
+                              <Badge size="sm" color="orange" variant="light">
+                                👁 Preview
+                              </Badge>
+                            )}
                             {page.hasDiagramTest && (
                               <Badge size="md" color="blue" variant="light">
                                 Diagram Test
+                              </Badge>
+                            )}
+                            {page.hasDiagramTest && page.diagramTest?.isPreview && (
+                              <Badge size="sm" color="orange" variant="light">
+                                👁 Preview
                               </Badge>
                             )}
                             {!page.hasQuestion && !page.hasDiagramTest && (

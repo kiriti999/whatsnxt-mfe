@@ -58,6 +58,7 @@ export interface CreateQuestionRequest {
   options?: Array<{ text: string }>;
   correctAnswer: string;
   questionId?: string; // For updates
+  isPreview?: boolean; // Whether this question is available as a free preview
 }
 
 export interface CreateDiagramTestRequest {
@@ -87,6 +88,7 @@ export interface CreateDiagramTestRequest {
   additionalSubCatArchTypes?: string[]; // Additional L2 sub-category shape libraries (max 5)
   additionalNestedArchTypes?: string[]; // Additional L3 topic shape libraries (max 5)
   hints?: string[]; // Optional array of hint texts (max 5, each max 500 chars)
+  isPreview?: boolean; // Whether this diagram test is available as a free preview
 }
 
 /**
@@ -186,12 +188,15 @@ const labApi = {
    * Get a specific lab page with populated tests
    * @param labId - Lab UUID
    * @param pageId - Page UUID
+   * @param preview - If true, request preview-only content (for students without access)
    * @returns Lab page with question and diagram test
    */
-  getLabPageById: (labId: string, pageId: string) =>
+  getLabPageById: (labId: string, pageId: string, preview?: boolean) =>
     http.get<{
       data: LabPage & { question?: Question; diagramTest?: DiagramTest };
-    }>(`/labs/${labId}/pages/${pageId}`),
+    }>(`/labs/${labId}/pages/${pageId}`, {
+      params: preview ? { preview: 'true' } : undefined,
+    }),
 
   /**
    * Update a lab page

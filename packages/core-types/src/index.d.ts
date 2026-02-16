@@ -49,6 +49,7 @@ export interface DiagramTest extends BaseEntity {
   additionalSubCatArchTypes?: string[]; // Additional L2 sub-category shape libraries (max 5)
   additionalNestedArchTypes?: string[]; // Additional L3 topic shape libraries (max 5)
   hints?: string[]; // Optional array of hint texts (max 5, each max 500 chars)
+  isPreview?: boolean; // Whether this diagram test is available as a free preview
 }
 
 export interface DiagramShape extends BaseEntity {

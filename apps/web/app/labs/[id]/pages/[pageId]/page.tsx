@@ -56,6 +56,7 @@ interface Question {
   correctAnswer: string;
   isEditing?: boolean;
   isSaved?: boolean;
+  isPreview?: boolean;
 }
 
 const QUESTION_TYPES = [
@@ -290,6 +291,7 @@ const LabPageEditorPage = () => {
   const labId = params.id as string;
   const pageId = params.pageId as string;
   const returnPage = searchParams.get('returnPage') || '1';
+  const isPreviewRequest = searchParams.get('preview') === 'true';
 
   // Determine user role
   const isStudent = isAuthenticated && user?.role === 'student';
@@ -305,6 +307,7 @@ const LabPageEditorPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [labStatus, setLabStatus] = useState<'draft' | 'published'>('draft');
   const [diagramTestData, setDiagramTestData] = useState<any>(null);
+  const [isPreviewDiagram, setIsPreviewDiagram] = useState(false);
   const [isFormCancelled, setIsFormCancelled] = useState(false);
   const [currentPageNumber, setCurrentPageNumber] = useState(1);
   const [totalLabPages, setTotalLabPages] = useState(1);
@@ -365,7 +368,7 @@ const LabPageEditorPage = () => {
         setTotalLabPages(labData.pages.length);
       }
 
-      const response = await labApi.getLabPageById(labId, pageId);
+      const response = await labApi.getLabPageById(labId, pageId, isPreviewRequest);
       const pageData = response.data as any;
 
       // Set current page number for auto-page-creation (feature 003) and pagination (feature 004)
@@ -385,6 +388,7 @@ const LabPageEditorPage = () => {
             correctAnswer: q.correctAnswer || '',
             isEditing: false,
             isSaved: true,
+            isPreview: q.isPreview ?? false,
           };
         });
 
@@ -399,6 +403,7 @@ const LabPageEditorPage = () => {
         setAdditionalSubCatArchTypes(dt.additionalSubCatArchTypes || []);
         setAdditionalNestedArchTypes(dt.additionalNestedArchTypes || []);
         setHints(dt.hints || []); // Load hints from backend
+        setIsPreviewDiagram(dt.isPreview ?? false); // Load preview flag from backend
 
         // Store diagram test data for student mode
         setDiagramTestData(dt);
@@ -680,6 +685,7 @@ const LabPageEditorPage = () => {
         options: optionsArray,
         correctAnswer: question.correctAnswer.trim(),
         questionId: question.isSaved ? question.id : undefined, // Include questionId if updating
+        isPreview: question.isPreview ?? false,
       });
 
       // Determine if this was an edit or new question
@@ -879,6 +885,7 @@ const LabPageEditorPage = () => {
         additionalSubCatArchTypes: additionalSubCatArchTypes.length > 0 ? additionalSubCatArchTypes : undefined,
         additionalNestedArchTypes: additionalNestedArchTypes.length > 0 ? additionalNestedArchTypes : undefined,
         hints: hintsToSave, // Include sanitized hints
+        isPreview: isPreviewDiagram,
       });
 
       notifications.show({
@@ -1035,6 +1042,7 @@ const LabPageEditorPage = () => {
       type: q.type,
       options: q.options ? q.options.split(',').map(opt => ({ text: opt.trim() })) : [],
       correctAnswer: q.correctAnswer,
+      isPreview: q.isPreview ?? false,
     }));
 
     const diagramTestForStudent = diagramTestData ? {
@@ -1043,6 +1051,7 @@ const LabPageEditorPage = () => {
       architectureType: diagramTestData.architectureType || 'Generic',
       expectedDiagramState: expectedDiagramState,
       hints: diagramTestData.hints, // Pass hints to student
+      isPreview: diagramTestData.isPreview ?? false,
     } : undefined;
 
     return (
@@ -1051,6 +1060,7 @@ const LabPageEditorPage = () => {
         pageId={pageId}
         questions={transformedQuestions}
         diagramTest={diagramTestForStudent}
+        isPreviewMode={isPreviewRequest}
         onSubmit={handleStudentSubmit}
       />
     );
@@ -1198,8 +1208,44 @@ const LabPageEditorPage = () => {
                                     Saved
                                   </Badge>
                                 )}
+                                {question.isSaved && question.isPreview && (
+                                  <Badge size="sm" color="orange" variant="light">
+                                    👁 Preview
+                                  </Badge>
+                                )}
                               </Group>
                               <Group gap="xs">
+                                {canEditContent && question.isSaved && (
+                                  <Switch
+                                    size="xs"
+                                    label="Preview"
+                                    checked={question.isPreview ?? false}
+                                    onChange={(e) => {
+                                      updateQuestion(question.id, 'isPreview', e.currentTarget.checked);
+                                      // Auto-save the preview toggle change
+                                      const updatedQuestion = { ...question, isPreview: e.currentTarget.checked };
+                                      const optionsArray = updatedQuestion.type === 'MCQ'
+                                        ? updatedQuestion.options.split(',').map((opt) => ({ text: opt.trim() })).filter((opt) => opt.text)
+                                        : updatedQuestion.type === 'True/False'
+                                          ? [{ text: 'True' }, { text: 'False' }]
+                                          : [];
+                                      labApi.saveQuestion(labId, pageId, {
+                                        type: updatedQuestion.type,
+                                        questionText: updatedQuestion.questionText.trim(),
+                                        options: optionsArray,
+                                        correctAnswer: updatedQuestion.correctAnswer.trim(),
+                                        questionId: updatedQuestion.id,
+                                        isPreview: e.currentTarget.checked,
+                                      }).catch(() => {
+                                        notifications.show({
+                                          title: 'Error',
+                                          message: 'Failed to update preview status',
+                                          color: 'red',
+                                        });
+                                      });
+                                    }}
+                                  />
+                                )}
                                 {canEditContent && question.isSaved && !question.isEditing && (
                                   <Button
                                     size="xs"
@@ -1592,6 +1638,12 @@ const LabPageEditorPage = () => {
                       >
                         Delete Test
                       </Button>
+                      <Switch
+                        label="Mark as Preview"
+                        checked={isPreviewDiagram}
+                        onChange={(e) => setIsPreviewDiagram(e.currentTarget.checked)}
+                        description="Allow students to try this test before purchasing"
+                      />
                     </Group>
                   )}
 
