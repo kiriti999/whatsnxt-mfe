@@ -389,7 +389,10 @@ const BlogForm: React.FC<BlogFormProps> = ({ categories, edit }) => {
                   <Text size="sm" className='required'>Description</Text>
                   <AISuggestionButton
                     prompt={() => titleValue || ''}
-                    onSuggestion={(suggestion) => setValue('description', suggestion)}
+                    onSuggestion={(suggestion) => {
+                      setValue('description', suggestion);
+                      setDescription(suggestion);
+                    }}
                   />
                 </Flex>
                 <LexicalEditor
