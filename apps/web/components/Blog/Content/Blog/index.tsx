@@ -6,6 +6,7 @@ import {
   useAddIdsToHeadings,
   useContentRefAndHeadings,
   useHandleScroll,
+  useLexicalHeadings,
 } from '../../../../hooks/useToc';
 import { Title, Text, Flex, Box, Paper } from '@mantine/core';
 import { ShareOptions } from '@whatsnxt/core-ui';
@@ -13,9 +14,9 @@ import useAuth from '../../../../hooks/Authentication/useAuth';
 import { useRef } from 'react';
 import { syntaxHighlightingTheme } from '../../../RichTextEditor/extensions/CodeHighlight/syntaxHighlightingTheme';
 
-const LexicalEditor = lazy(() => 
-  import('../../../StructuredTutorial/Editor/LexicalEditor').then(mod => ({ 
-    default: mod.LexicalEditor 
+const LexicalEditor = lazy(() =>
+  import('../../../StructuredTutorial/Editor/LexicalEditor').then(mod => ({
+    default: mod.LexicalEditor
   }))
 );
 
@@ -143,6 +144,13 @@ const BlogContent = ({
   );
 
   useHandleScroll(contentRef, setActiveHeading);
+
+  // Extract headings from Lexical editor after it renders (async/lazy-loaded)
+  useLexicalHeadings(
+    lexicalContainerRef,
+    contentFormat === 'LEXICAL' && !!lexicalState,
+    onHeadingsExtractedCallback,
+  );
 
   return (
     <div>

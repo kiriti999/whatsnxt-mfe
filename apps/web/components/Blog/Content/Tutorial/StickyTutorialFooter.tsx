@@ -1,6 +1,7 @@
 import React from 'react';
 import { Box, Group, Text, Button, useMantineColorScheme } from '@mantine/core';
 import { IconChevronLeft, IconChevronRight, IconHome, IconCheck } from '@tabler/icons-react';
+import { useMediaQuery } from '@mantine/hooks';
 import Link from 'next/link';
 
 interface NavItem {
@@ -17,6 +18,7 @@ interface StickyTutorialFooterProps {
 
 export const StickyTutorialFooter = ({ prev, next }: StickyTutorialFooterProps) => {
     const { colorScheme } = useMantineColorScheme();
+    const isMobile = useMediaQuery('(max-width: 768px)');
 
     const renderButton = (item: NavItem, isNext: boolean) => {
         if (item.href) {
@@ -83,7 +85,9 @@ export const StickyTutorialFooter = ({ prev, next }: StickyTutorialFooterProps) 
                 backgroundColor: colorScheme === 'dark' ? '#1a1b1e' : '#ffffff',
             }}
         >
-            <Group justify="space-between" mx="23rem">
+            <Group justify="space-between" mx="auto" px="md"
+                style={{ maxWidth: isMobile ? '100%' : '62.5%' }}
+            >
                 {prev ? (
                     renderButton(prev, false)
                 ) : (

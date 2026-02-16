@@ -23,11 +23,10 @@
     transform: translateY(-1px);
 }
 
-/* Legacy styles - you can remove these if not used elsewhere */
-.heading-text {
-    flex: 1;
-    font-size: 1rem;
-    margin-bottom: 10px;
-    border-bottom: 1px rgb(212, 209, 209) solid !important;
-    color: rgb(36, 35, 35);
+.headingText {
+    color: light-dark(rgba(0, 0, 0, 0.65), rgba(255, 255, 255, 0.85));
+}
+
+.headingTextActive {
+    color: light-dark(var(--mantine-color-blue-7), var(--mantine-color-blue-4));
 }

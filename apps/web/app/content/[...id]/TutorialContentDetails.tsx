@@ -8,8 +8,7 @@ import TutorialContent from '../../../components/Blog/Content/Tutorial/TutorialC
 import { TutorialArticle } from '../../../types/contentDetails';
 import { ShareOptions } from '@whatsnxt/core-ui';
 import { SkeletonBlogContent } from '@whatsnxt/core-ui';
-import { Text, Box, Container, Group, Stack, Grid, GridCol, Title, Divider, Paper } from '@mantine/core';
-import TutorialsToc from '../TutorialToc';
+import { Text, Box, Container, Group, Stack, Grid, GridCol, Title, Paper } from '@mantine/core';
 import useAuth from '../../../hooks/Authentication/useAuth';
 import { useMediaQuery } from '@mantine/hooks';
 import useCommentHandlers from '@whatsnxt/blogcomments/src/hooks/useCommentHandlers';
@@ -17,6 +16,7 @@ import BlogComment from '@whatsnxt/blogcomments/src';
 import { CommentReplyContextProvider } from '@whatsnxt/blogcomments/src/contexts/comment-reply-context';
 import { CommentContextProvider } from '@whatsnxt/blogcomments/src/contexts/comment-context';
 import { StickyTutorialFooter } from '../../../components/Blog/Content/Tutorial/StickyTutorialFooter';
+import StickyHeader from '../../../components/Blog/Content/StickyHeader';
 
 const initialProps = {
   title: '',
@@ -111,6 +111,7 @@ function TutorialContentDetails({ details }: any) {
           </div>
         ) : (
           <Box>
+            {itemHeadings.length > 0 && isMobile && <StickyHeader titles={itemHeadings} />}
             <Grid mb={'5rem'}>
               {!isMobile && (
                 <GridCol span={{ base: 12, md: 2.2 }}>

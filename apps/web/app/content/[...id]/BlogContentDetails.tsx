@@ -71,10 +71,6 @@ interface BlogContentDetailsProps {
   details: PostSlugResponse;
 }
 
-async function fetchViews() {
-  return await AnalyticsAPI.fetchViews();
-}
-
 function BlogContentDetails({ details }: BlogContentDetailsProps) {
   const isMobile = useMediaQuery('(max-width: 768px)');
   const [contentId, setContentId] = useState('');

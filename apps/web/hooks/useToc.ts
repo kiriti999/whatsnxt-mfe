@@ -234,3 +234,57 @@ export const useHandleScroll = (contentRef: any, setActiveHeading: any) => {
     };
   }, [contentRef.current, handleScroll]);
 };
+
+/**
+ * Extracts headings from a Lexical editor container after it renders.
+ * Uses MutationObserver to wait for the lazy-loaded Lexical content to appear,
+ * then sets `id` attributes on heading elements and calls onHeadingsExtracted.
+ */
+export const useLexicalHeadings = (
+  containerRef: { current: HTMLDivElement | null },
+  isActive: boolean,
+  onHeadingsExtracted: (headings: { ref: Element; text: string; id: string }[]) => void,
+) => {
+  useEffect(() => {
+    if (!isActive || !containerRef.current) return;
+
+    const extractHeadings = (): boolean => {
+      const container = containerRef.current;
+      if (!container) return false;
+
+      const headingElements = Array.from(
+        container.querySelectorAll('h1, h2, h3, h4, h5, h6'),
+      );
+
+      if (headingElements.length === 0) return false;
+
+      const headings = headingElements.map((heading) => {
+        const text = heading.textContent || '';
+        const id = text.toLowerCase().replace(/\s+/g, '_');
+        heading.id = id;
+        return { ref: heading, text, id };
+      });
+
+      headings.shift();
+      onHeadingsExtracted(headings);
+      return true;
+    };
+
+    // Try immediately (editor may already be rendered)
+    if (extractHeadings()) return;
+
+    // Otherwise observe DOM changes until Lexical renders headings
+    const observer = new MutationObserver(() => {
+      if (extractHeadings()) {
+        observer.disconnect();
+      }
+    });
+
+    observer.observe(containerRef.current, {
+      childList: true,
+      subtree: true,
+    });
+
+    return () => observer.disconnect();
+  }, [isActive, onHeadingsExtracted]);
+};

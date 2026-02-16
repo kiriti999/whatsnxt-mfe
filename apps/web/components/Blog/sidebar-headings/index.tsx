@@ -1,4 +1,4 @@
-import { Title, Text, Box, Paper, Stack } from '@mantine/core';
+import { Title, Box, Paper, Stack } from '@mantine/core';
 import { useObserverManage } from '../../../hooks/useObserverManage';
 import styles from './sidebarHeadings.module.css';
 
@@ -54,7 +54,7 @@ function SidebarHeadings({
                     order={5}
                     fw={heading.id === activeId ? 500 : 400}
                     lineClamp={1}
-                    c={heading.id === activeId ? 'blue.6' : 'dimmed'}
+                    className={heading.id === activeId ? styles.headingTextActive : styles.headingText}
                   >
                     {heading.text}
                   </Title>
