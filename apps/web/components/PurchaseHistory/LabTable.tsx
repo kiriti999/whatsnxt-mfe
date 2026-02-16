@@ -75,11 +75,6 @@ const LabCard = ({ purchase, onRefundClick }: LabCardProps) => {
                 <Box style={{ flex: 1 }}>
                     <Group mb="xs">
                         <Text fw={700}>{purchase.labTitle || 'Unknown Lab'}</Text>
-                        {purchase.architectureType && (
-                            <Badge size="sm" variant="light" color="blue">
-                                {purchase.architectureType}
-                            </Badge>
-                        )}
                         {purchase.labType && (
                             <Badge size="sm" variant="light" color="grape">
                                 {purchase.labType}

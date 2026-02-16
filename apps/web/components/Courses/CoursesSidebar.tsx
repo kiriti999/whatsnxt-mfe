@@ -52,9 +52,6 @@ const CoursesSidebar = ({ courses, labs }: CoursesSidebarProps) => {
                     <Text size="xs" c="dimmed" lineClamp={1} truncate mt={2} className={styles['lab-description']}>{lab.description}</Text>
                   )}
                   <Group gap={4} mt={6}>
-                    {lab.architectureType && (
-                      <Badge size="xs" variant="light" color="cyan" radius="sm">{lab.architectureType}</Badge>
-                    )}
                     {lab.labType && (
                       <Badge size="xs" variant="light" color="violet" radius="sm">{lab.labType}</Badge>
                     )}

@@ -14,7 +14,6 @@ export interface Lab extends BaseEntity {
   labType: string; // Category/type of the lab (e.g., 'Cloud Computing', 'Networking', 'Security')
   subCategory?: string; // Sub-category within the lab type
   nestedSubCategory?: string; // Nested sub-category (topic)
-  architectureType?: string; // Architecture platform (e.g., 'AWS', 'Azure', 'GCP', 'Common', 'Hybrid')
   instructorId: string; // Assuming Instructor entity has a UUID
   associatedCourses?: string[]; // Course IDs that include this lab
   pricing?: any;
@@ -45,7 +44,6 @@ export interface DiagramTest extends BaseEntity {
   labPageId: string;
   prompt: string;
   expectedDiagramState: Record<string, any>; // JSON representation
-  architectureType: string; // e.g., 'AWS', 'Azure', 'GCP', 'Common'
   additionalSubCatArchTypes?: string[]; // Additional L2 sub-category shape libraries (max 5)
   additionalNestedArchTypes?: string[]; // Additional L3 topic shape libraries (max 5)
   hints?: string[]; // Optional array of hint texts (max 5, each max 500 chars)
@@ -78,7 +76,6 @@ export interface CreateLabRequest {
   labType: string;
   subCategory?: string;
   nestedSubCategory?: string;
-  architectureType?: string;
   instructorId: string;
   associatedCourses?: string[];
 }
@@ -89,7 +86,6 @@ export interface UpdateLabRequest {
   labType?: string;
   subCategory?: string;
   nestedSubCategory?: string;
-  architectureType?: string;
   associatedCourses?: string[];
 }
 

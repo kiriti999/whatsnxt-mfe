@@ -399,7 +399,7 @@ const LabPageEditorPage = () => {
       if (pageData.diagramTest) {
         const dt = pageData.diagramTest;
         setPrompt(dt.prompt || '');
-        setArchitectureType(dt.architectureType || derivedArchType);
+        setArchitectureType(derivedArchType);
         setAdditionalSubCatArchTypes(dt.additionalSubCatArchTypes || []);
         setAdditionalNestedArchTypes(dt.additionalNestedArchTypes || []);
         setHints(dt.hints || []); // Load hints from backend
@@ -881,7 +881,6 @@ const LabPageEditorPage = () => {
       await labApi.saveDiagramTest(labId, pageId, {
         prompt: prompt.trim(),
         expectedDiagramState: transformedDiagramState,
-        architectureType: architectureType,
         additionalSubCatArchTypes: additionalSubCatArchTypes.length > 0 ? additionalSubCatArchTypes : undefined,
         additionalNestedArchTypes: additionalNestedArchTypes.length > 0 ? additionalNestedArchTypes : undefined,
         hints: hintsToSave, // Include sanitized hints
@@ -1048,7 +1047,7 @@ const LabPageEditorPage = () => {
     const diagramTestForStudent = diagramTestData ? {
       id: diagramTestData.id || pageId,
       prompt: diagramTestData.prompt || '',
-      architectureType: diagramTestData.architectureType || 'Generic',
+      architectureTypes: allArchitectureTypes, // Derived from lab categories
       expectedDiagramState: expectedDiagramState,
       hints: diagramTestData.hints, // Pass hints to student
       isPreview: diagramTestData.isPreview ?? false,

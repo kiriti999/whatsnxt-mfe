@@ -51,15 +51,6 @@ export const QUESTION_TYPES = {
   TEXT: 'Text',
 } as const;
 
-// Architecture Types
-export const ARCHITECTURE_TYPES = {
-  AWS: 'AWS',
-  AZURE: 'Azure',
-  GCP: 'GCP',
-  COMMON: 'Common',
-  HYBRID: 'Hybrid',
-} as const;
-
 // Diagram Shape Types
 export const SHAPE_TYPES = {
   COMPUTE: 'compute',
@@ -123,7 +114,6 @@ export const ERROR_MESSAGES = {
   LAB_NOT_FOUND: 'Lab not found',
   LAB_NAME_REQUIRED: 'Lab name is required',
   LAB_TYPE_REQUIRED: 'Lab type is required',
-  ARCHITECTURE_TYPE_REQUIRED: 'Architecture type is required',
   CANNOT_DELETE_PUBLISHED_LAB: 'Cannot delete a published lab',
   CANNOT_UPDATE_PUBLISHED_LAB: 'Cannot update a published lab',
   LAB_CREATION_FAILED: 'Failed to create lab and default page. Please try again.',

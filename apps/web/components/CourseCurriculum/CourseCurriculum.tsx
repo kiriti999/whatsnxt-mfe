@@ -208,11 +208,6 @@ const CourseCurriculum: FC<CourseCurriculumProps> = ({
                             {lab.labType}
                           </Text>
                         )}
-                        {lab.architectureType && (
-                          <Text size="xs" c="dimmed">
-                            • {lab.architectureType}
-                          </Text>
-                        )}
                       </Group>
                     </div>
                     <Button

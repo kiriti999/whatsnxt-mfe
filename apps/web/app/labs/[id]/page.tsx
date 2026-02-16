@@ -422,8 +422,7 @@ const LabDetailPage = () => {
     // Search in diagram test
     if (page.diagramTest) {
       return (
-        page.diagramTest.prompt?.toLowerCase().includes(query) ||
-        page.diagramTest.architectureType?.toLowerCase().includes(query)
+        page.diagramTest.prompt?.toLowerCase().includes(query)
       );
     }
 
@@ -892,11 +891,6 @@ const LabDetailPage = () => {
                           <Paper p="md" radius="sm" className="bg-blue-light">
                             <Stack gap="sm">
                               <Text size="sm" fw={600} c="blue.9" mb={0}>✓ Diagram Test</Text>
-                              {page.diagramTest?.architectureType && (
-                                <Text size="sm" c="blue.8" pl="md">
-                                  Architecture: {page.diagramTest.architectureType}
-                                </Text>
-                              )}
                             </Stack>
                           </Paper>
                         ) : (

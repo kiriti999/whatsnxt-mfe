@@ -14,7 +14,6 @@ export interface LabPurchase {
     };
     labTitle: string;
     labType?: string;
-    architectureType?: string;
 }
 
 export interface LabPurchasesResponse {

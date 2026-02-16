@@ -208,7 +208,6 @@ function LabCreationPage() {
             />
           )}
 
-
           <Box mt="xl">
             <LabPricingForm
               initialPricing={pricing}
