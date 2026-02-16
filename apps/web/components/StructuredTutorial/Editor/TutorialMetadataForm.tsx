@@ -12,8 +12,9 @@ import {
     Text,
     Box,
     Flex,
+    Switch,
 } from '@mantine/core';
-import { IconUpload, IconDeviceFloppy } from '@tabler/icons-react';
+import { IconUpload, IconDeviceFloppy, IconCrown } from '@tabler/icons-react';
 import Image from 'next/image';
 import { CategorySearch } from '@whatsnxt/core-ui';
 import type { CategoryPath } from '@whatsnxt/core-ui';
@@ -30,6 +31,7 @@ interface TutorialFormData {
     nestedSubCategory: string;
     icon: string;
     imageUrl?: string;
+    isPremium?: boolean;
 }
 
 interface Category {
@@ -68,6 +70,7 @@ export const TutorialMetadataForm: React.FC<TutorialMetadataFormProps> = ({
             subCategory: '',
             nestedSubCategory: '',
             icon: 'IconBook',
+            isPremium: false,
             ...initialData,
         },
     });
@@ -144,6 +147,7 @@ export const TutorialMetadataForm: React.FC<TutorialMetadataFormProps> = ({
                 subCategory: initialData.subCategory || '',
                 nestedSubCategory: initialData.nestedSubCategory || '',
                 icon: initialData.icon || 'IconBook',
+                isPremium: initialData.isPremium ?? false,
             });
             if (initialData.imageUrl) {
                 setImagePreview(initialData.imageUrl);
@@ -293,6 +297,21 @@ export const TutorialMetadataForm: React.FC<TutorialMetadataFormProps> = ({
                     accept="image/*"
                     leftSection={<IconUpload size={16} />}
                     onChange={handleImageChange}
+                />
+
+                <Controller
+                    name="isPremium"
+                    control={control}
+                    render={({ field }) => (
+                        <Switch
+                            label="Premium Content"
+                            description="Mark this tutorial as premium. Only subscribers can access it."
+                            checked={field.value || false}
+                            onChange={(event) => field.onChange(event.currentTarget.checked)}
+                            thumbIcon={field.value ? <IconCrown size={12} color="orange" /> : undefined}
+                            color="yellow"
+                        />
+                    )}
                 />
 
                 {imagePreview && (

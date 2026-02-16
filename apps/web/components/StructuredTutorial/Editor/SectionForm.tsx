@@ -9,14 +9,16 @@ import {
     Button,
     Group,
     Text,
+    Switch,
 } from '@mantine/core';
-import { IconDeviceFloppy } from '@tabler/icons-react';
+import { IconDeviceFloppy, IconEye } from '@tabler/icons-react';
 import { IconPicker } from '../Form/IconPicker';
 
 interface SectionFormData {
     title: string;
     description: string;
     icon: string;
+    isFreePreview?: boolean;
 }
 
 interface SectionFormProps {
@@ -41,6 +43,7 @@ export const SectionForm: React.FC<SectionFormProps> = ({
             title: '',
             description: '',
             icon: 'IconFolder',
+            isFreePreview: false,
             ...initialData,
         },
     });
@@ -68,12 +71,14 @@ export const SectionForm: React.FC<SectionFormProps> = ({
                 title: initialData.title || '',
                 description: initialData.description || '',
                 icon: initialData.icon || 'IconFolder',
+                isFreePreview: initialData.isFreePreview || false,
             });
             // Update last saved ref when initialData changes
             lastSavedRef.current = JSON.stringify({
                 title: initialData.title || '',
                 description: initialData.description || '',
                 icon: initialData.icon || 'IconFolder',
+                isFreePreview: initialData.isFreePreview || false,
             });
         }
     }, [initialData, reset]);
@@ -147,6 +152,21 @@ export const SectionForm: React.FC<SectionFormProps> = ({
                             label="Section Icon"
                             value={field.value}
                             onChange={field.onChange}
+                        />
+                    )}
+                />
+
+                <Controller
+                    name="isFreePreview"
+                    control={control}
+                    render={({ field }) => (
+                        <Switch
+                            label="Free Preview"
+                            description="Allow students to view this section without a premium subscription"
+                            checked={field.value || false}
+                            onChange={(event) => field.onChange(event.currentTarget.checked)}
+                            thumbIcon={<IconEye size={12} />}
+                            color="teal"
                         />
                     )}
                 />

@@ -1,0 +1,199 @@
+.premiumPage {
+    min-height: 100vh;
+    padding-top: 2rem;
+    padding-bottom: 4rem;
+}
+
+.hero {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.heroTitle {
+    font-size: 2.5rem;
+    font-weight: 800;
+    line-height: 1.2;
+    margin-bottom: 0.75rem;
+    color: light-dark(var(--mantine-color-dark-9), var(--mantine-color-white));
+}
+
+@media (max-width: 768px) {
+    .heroTitle {
+        font-size: 1.75rem;
+    }
+}
+
+.heroSubtitle {
+    font-size: 1.1rem;
+    max-width: 600px;
+    margin: 0 auto;
+    color: light-dark(var(--mantine-color-gray-6), var(--mantine-color-gray-5));
+}
+
+/* Card grid */
+.pricingGrid {
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+/* Individual pricing card */
+.pricingCard {
+    position: relative;
+    border: 1px solid light-dark(var(--mantine-color-gray-3), var(--mantine-color-dark-4));
+    border-radius: var(--mantine-radius-lg);
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: light-dark(var(--mantine-color-white), var(--mantine-color-dark-7));
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.pricingCard:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+/* Highlighted card (popular / best value) */
+.pricingCardHighlighted {
+    border-color: var(--mantine-color-green-6);
+    border-width: 2px;
+}
+
+/* Ribbon badge */
+.ribbonBadge {
+    position: absolute;
+    top: -14px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+/* Plan title */
+.planTitle {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+    color: light-dark(var(--mantine-color-dark-9), var(--mantine-color-white));
+}
+
+.planDuration {
+    font-size: 0.875rem;
+    color: light-dark(var(--mantine-color-gray-6), var(--mantine-color-gray-5));
+    margin-bottom: 1rem;
+}
+
+/* Discount label */
+.discountLabel {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--mantine-color-green-6);
+    margin-bottom: 0.25rem;
+}
+
+/* Price */
+.priceWrapper {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.price {
+    font-size: 2.25rem;
+    font-weight: 800;
+    color: light-dark(var(--mantine-color-dark-9), var(--mantine-color-white));
+}
+
+.originalPrice {
+    font-size: 1rem;
+    text-decoration: line-through;
+    color: light-dark(var(--mantine-color-gray-5), var(--mantine-color-gray-6));
+}
+
+/* Features list */
+.featuresList {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 2rem 0;
+    flex: 1;
+}
+
+.featureItem {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+    font-size: 0.9rem;
+    color: light-dark(var(--mantine-color-dark-6), var(--mantine-color-gray-3));
+}
+
+.featureIcon {
+    color: var(--mantine-color-green-6);
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+/* CTA button */
+.ctaButton {
+    width: 100%;
+    font-weight: 600;
+    font-size: 1rem;
+    height: 48px;
+}
+
+.ctaButtonHighlighted {
+    background: var(--mantine-color-green-6);
+    color: var(--mantine-color-white);
+}
+
+.ctaButtonHighlighted:hover {
+    background: var(--mantine-color-green-7);
+}
+
+.ctaButtonDefault {
+    background: light-dark(var(--mantine-color-gray-1), var(--mantine-color-dark-5));
+    color: light-dark(var(--mantine-color-dark-9), var(--mantine-color-white));
+}
+
+.ctaButtonDefault:hover {
+    background: light-dark(var(--mantine-color-gray-2), var(--mantine-color-dark-4));
+}
+
+/* Support text at bottom */
+.supportText {
+    text-align: center;
+    margin-top: 2rem;
+    font-size: 0.875rem;
+    color: light-dark(var(--mantine-color-gray-6), var(--mantine-color-gray-5));
+}
+
+.supportLink {
+    color: var(--mantine-color-green-6);
+    text-decoration: none;
+}
+
+.supportLink:hover {
+    text-decoration: underline;
+}
+
+/* FAQ section */
+.faqSection {
+    max-width: 800px;
+    margin: 4rem auto 0;
+}
+
+.faqTitle {
+    text-align: center;
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: 2rem;
+    color: light-dark(var(--mantine-color-dark-9), var(--mantine-color-white));
+}
+
+/* Bottom banner */
+.bottomBanner {
+    text-align: center;
+    margin-top: 3rem;
+    font-size: 0.875rem;
+    color: light-dark(var(--mantine-color-gray-6), var(--mantine-color-gray-5));
+}

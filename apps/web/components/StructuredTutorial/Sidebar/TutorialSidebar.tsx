@@ -21,6 +21,8 @@ import {
     IconSearch,
     IconChevronsDown,
     IconChevronsUp,
+    IconLock,
+    IconEye,
 } from '@tabler/icons-react';
 import { useClickOutside } from '@mantine/hooks';
 import { SidebarTree, SidebarSection, SidebarPost } from '../../../apis/v1/blog/structuredTutorialApi';
@@ -115,8 +117,14 @@ export function TutorialSidebar({ sidebarData, currentPostSlug, onCollapse, isMo
     };
 
     const navigateToPost = (post: SidebarPost, section: SidebarSection) => {
+        // If tutorial is premium and section is not free preview, redirect to /premium
+        const isSectionLocked = sidebarData.isPremium && !section.isFreePreview;
+        if (isSectionLocked) {
+            router.push('/premium');
+            return;
+        }
+
         // Navigate to the post page with tutorial context
-        // Post slug is usually 'tutorial-post', we want '/content/tutorial/post'
         let shortSlug = post.slug;
         const prefix = `${sidebarData.tutorialSlug}-`;
         if (shortSlug.startsWith(prefix)) {
@@ -234,6 +242,11 @@ export function TutorialSidebar({ sidebarData, currentPostSlug, onCollapse, isMo
                                                 {section.title}
                                             </Text>
                                             <Group gap="xs" wrap="nowrap">
+                                                {sidebarData.isPremium && (
+                                                    section.isFreePreview
+                                                        ? <IconEye size={14} color="var(--mantine-color-teal-6)" aria-label="Free preview" />
+                                                        : <IconLock size={14} color="var(--mantine-color-yellow-6)" aria-label="Premium only" />
+                                                )}
                                                 <Text size="xs" c="dimmed">
                                                     0/{section.posts.length}
                                                 </Text>
@@ -247,6 +260,7 @@ export function TutorialSidebar({ sidebarData, currentPostSlug, onCollapse, isMo
                                         <Stack gap={0}>
                                             {section.posts.map((post, postIndex) => {
                                                 const isActive = post.slug === currentPostSlug;
+                                                const isSectionLocked = sidebarData.isPremium && !section.isFreePreview;
 
                                                 return (
                                                     <Box
@@ -260,17 +274,21 @@ export function TutorialSidebar({ sidebarData, currentPostSlug, onCollapse, isMo
                                                             backgroundColor: isActive ? 'var(--mantine-primary-color-light)' : 'transparent',
                                                             borderLeft: isActive ? '3px solid var(--mantine-primary-color-filled)' : '3px solid transparent',
                                                             transition: 'all 0.15s ease',
+                                                            opacity: isSectionLocked ? 0.5 : 1,
                                                         }}
                                                         className="post-item-hover"
                                                     >
-                                                        <Text
-                                                            size="xs"
-                                                            fw={isActive ? 600 : 400}
-                                                            lineClamp={2}
-                                                            c={isActive ? 'cyan.6' : 'bright'}
-                                                        >
-                                                            {post.title}
-                                                        </Text>
+                                                        <Group gap={6} wrap="nowrap">
+                                                            {isSectionLocked && <IconLock size={12} color="var(--mantine-color-yellow-6)" />}
+                                                            <Text
+                                                                size="xs"
+                                                                fw={isActive ? 600 : 400}
+                                                                lineClamp={2}
+                                                                c={isActive ? 'cyan.6' : 'bright'}
+                                                            >
+                                                                {post.title}
+                                                            </Text>
+                                                        </Group>
                                                     </Box>
                                                 );
                                             })}

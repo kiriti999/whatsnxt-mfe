@@ -23,6 +23,7 @@ export interface StructuredTutorial {
     userId: string;
     published: boolean;
     listed: boolean;
+    isPremium?: boolean;
     sectionIds: TutorialSection[];
     cloudinaryAssets?: CloudinaryAsset[];
     categoryId?: string;
@@ -44,6 +45,7 @@ export interface TutorialSection {
     postIds: TutorialPost[];
     sourceId?: string;
     isReused: boolean;
+    isFreePreview?: boolean;
     cloudinaryAssets?: CloudinaryAsset[];
     createdAt: string;
     updatedAt: string;
@@ -89,6 +91,7 @@ export interface SidebarTree {
     tutorialId: string;
     tutorialTitle: string;
     tutorialSlug: string;
+    isPremium?: boolean;
     sections: SidebarSection[];
 }
 
@@ -98,6 +101,7 @@ export interface SidebarSection {
     slug: string;
     icon: string;
     order: number;
+    isFreePreview?: boolean;
     posts: SidebarPost[];
 }
 

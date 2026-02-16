@@ -3,6 +3,7 @@ import Image from 'next/image';
 import { Anchor, Divider, Tooltip, Box } from '@mantine/core';
 import { FullPageOverlay } from '@/components/Common/FullPageOverlay';
 import { Card, Text, Badge, Group } from '@mantine/core';
+import { IconCrown } from '@tabler/icons-react';
 import { useState } from 'react';
 
 interface ContentCardProps {
@@ -19,6 +20,7 @@ interface ContentCardProps {
         subCategory?: string;
         nestedSubCategory?: string;
         firstPostSlug?: string; // Added from backend
+        isPremium?: boolean;
         [key: string]: any;
     };
 }
@@ -99,6 +101,19 @@ function ContentCard({ content }: ContentCardProps) {
                                             objectFit: 'cover'
                                         }}
                                     />
+                                    {content.isPremium && (
+                                        <Badge
+                                            pos="absolute"
+                                            top={8}
+                                            right={8}
+                                            color="yellow"
+                                            variant="filled"
+                                            leftSection={<IconCrown size={12} />}
+                                            size="sm"
+                                        >
+                                            Premium
+                                        </Badge>
+                                    )}
                                 </Box>
                             </Card.Section>
 

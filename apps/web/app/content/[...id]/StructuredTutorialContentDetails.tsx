@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
-import { Box, Container, Grid, GridCol, Stack, Title, Paper } from '@mantine/core';
+import { useEffect, useState, useCallback, useMemo } from 'react';
+import { Box, Container, Grid, GridCol, Stack, Title, Paper, Text, Button, Center } from '@mantine/core';
 import { SkeletonBlogContent } from '@whatsnxt/core-ui';
 
 import BlogComment from '@whatsnxt/blogcomments/src';
@@ -14,11 +14,13 @@ import SidebarPost from '../../../components/Blog/sidebar';
 import BlogContent from '../../../components/Blog/Content/Blog';
 import { StickyTutorialFooter } from '../../../components/Blog/Content/Tutorial/StickyTutorialFooter';
 import { MCQPost } from '../../../components/Quiz/MCQPost';
+import { IconLock } from '@tabler/icons-react';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../store/store';
 import { TutorialSidebarState } from '../../../store/slices/tutorialSidebarSlice';
 import useAuth from '../../../hooks/Authentication/useAuth';
 import type { SidebarPost as SidebarPostType } from '../../../apis/v1/blog/structuredTutorialApi';
+import Link from 'next/link';
 
 interface StructuredTutorialContentDetailsProps {
     details: {
@@ -83,6 +85,35 @@ export default function StructuredTutorialContentDetails({
     const [activeHeadingRef, setActiveHeadingRef] = useState<HTMLElement | null>(null);
     const [prevPost, setPrevPost] = useState<{ label: string; href: string } | null>(null);
     const [nextPost, setNextPost] = useState<{ label: string; href: string } | null>(null);
+
+    /** Check if the current post is in a locked (non-preview) section of a premium tutorial */
+    const isContentLocked = useMemo(() => {
+        const sidebarData = sidebarCache[tutorialId];
+        if (!sidebarData?.isPremium) return false;
+
+        const currentSection = sidebarData.sections.find(section =>
+            section.posts.some(post => post.slug === details.slug)
+        );
+
+        if (!currentSection) return false;
+        return !currentSection.isFreePreview;
+    }, [sidebarCache, tutorialId, details.slug]);
+
+    /** Check if the next post is in a locked section */
+    const isNextPostLocked = useMemo(() => {
+        const sidebarData = sidebarCache[tutorialId];
+        if (!sidebarData?.isPremium) return false;
+        if (!nextPost) return false;
+
+        // Find which section the next post belongs to
+        const nextSlug = nextPost.href.split('/').pop() || '';
+        const nextSection = sidebarData.sections.find(section =>
+            section.posts.some(post => post.slug === nextSlug || nextPost.href.endsWith(post.slug))
+        );
+
+        if (!nextSection) return false;
+        return !nextSection.isFreePreview;
+    }, [sidebarCache, tutorialId, nextPost]);
 
     const { user } = useAuth();
     const email = user?.email;
@@ -187,7 +218,26 @@ export default function StructuredTutorialContentDetails({
                                 <Stack gap="md">
                                     {/* Content Paper */}
                                     <Box px="xl">
-                                        {item.postType === 'MCQ' && item.mcqData ? (
+                                        {isContentLocked ? (
+                                            <Center py={80}>
+                                                <Stack align="center" gap="md" maw={420}>
+                                                    <IconLock size={48} color="var(--mantine-color-yellow-6)" />
+                                                    <Title order={3} ta="center">Premium Content</Title>
+                                                    <Text c="dimmed" ta="center">
+                                                        This section is part of our premium content. Upgrade your plan to unlock all tutorials and guided practice.
+                                                    </Text>
+                                                    <Button
+                                                        component={Link}
+                                                        href="/premium"
+                                                        color="green"
+                                                        radius="md"
+                                                        size="md"
+                                                    >
+                                                        Upgrade to Premium
+                                                    </Button>
+                                                </Stack>
+                                            </Center>
+                                        ) : item.postType === 'MCQ' && item.mcqData ? (
                                             <MCQPost
                                                 postId={item._id}
                                                 title={item.title}
@@ -211,8 +261,10 @@ export default function StructuredTutorialContentDetails({
                                             />
                                         )}
                                     </Box>
-
-                                    <StickyTutorialFooter prev={prevPost} next={nextPost} />
+                                    <StickyTutorialFooter
+                                        prev={prevPost}
+                                        next={nextPost ? { ...nextPost, isLocked: isNextPostLocked } : null}
+                                    />
 
                                     {/* Comments Paper */}
                                     <Paper withBorder p="xl" radius="xs">

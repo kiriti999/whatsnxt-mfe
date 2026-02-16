@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box, Group, Text, Button, useMantineColorScheme } from '@mantine/core';
-import { IconChevronLeft, IconChevronRight, IconHome, IconCheck } from '@tabler/icons-react';
+import { IconChevronLeft, IconChevronRight, IconHome, IconCheck, IconCrown } from '@tabler/icons-react';
 import { useMediaQuery } from '@mantine/hooks';
 import Link from 'next/link';
 
@@ -9,6 +9,7 @@ interface NavItem {
     subLabel?: string;
     href?: string;
     onClick?: () => void;
+    isLocked?: boolean;
 }
 
 interface StickyTutorialFooterProps {
@@ -107,7 +108,31 @@ export const StickyTutorialFooter = ({ prev, next }: StickyTutorialFooterProps) 
                 )}
 
                 {next ? (
-                    renderButton(next, true)
+                    next.isLocked ? (
+                        <Button
+                            component={Link}
+                            href="/premium"
+                            variant="filled"
+                            color="green"
+                            leftSection={<IconCrown size={18} />}
+                            rightSection={<IconChevronRight size={20} />}
+                            styles={{
+                                root: {
+                                    padding: '12px 16px',
+                                },
+                                label: {
+                                    maxWidth: '200px',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    whiteSpace: 'nowrap',
+                                }
+                            }}
+                        >
+                            Purchase to Continue
+                        </Button>
+                    ) : (
+                        renderButton(next, true)
+                    )
                 ) : (
                     <Button
                         variant="filled"
