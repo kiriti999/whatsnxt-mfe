@@ -73,7 +73,7 @@
 }
 
 /* Force title color inside CardComponent */
-.card-paper :is(h3, h4, h5, h6, a) {
+.card-paper :is(h3, h4, h5, h6, a, p) {
   color: light-dark(#1a1a1a, var(--mantine-color-white)) !important;
   text-decoration: none;
 }
