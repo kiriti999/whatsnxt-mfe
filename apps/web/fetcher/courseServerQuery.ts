@@ -27,7 +27,6 @@ export const fetchPopularCourses = async () => {
 // Retain existing export
 export const fetchCategoriesByCount = async () => {
   const response = await serverFetcher(BASEURL, '/courses/categories/categoryByCount') as any;
-  console.log(' fetchCategoriesByCount :: response:', response)
   return response?.data?.categoriesCount || [];
 };
 

@@ -10,10 +10,6 @@ export const CategoryAPI = {
     const response = await courseApiClient.get('/articleCountByCategory');
 
     // returning the data returned by the API
-    console.log(
-      'CategoryAPI:: articleCountByCategory:: response: ',
-      response?.data,
-    );
     return response?.data || [];
   },
 };

@@ -15,6 +15,8 @@ import {
 } from '@mantine/core';
 import { IconUpload, IconDeviceFloppy } from '@tabler/icons-react';
 import Image from 'next/image';
+import { CategorySearch } from '@whatsnxt/core-ui';
+import type { CategoryPath } from '@whatsnxt/core-ui';
 import { IconPicker } from '../Form/IconPicker';
 import { LexicalEditor } from './LexicalEditor';
 import { AISuggestionButton } from '../../Common/AISuggestionButton';
@@ -202,6 +204,15 @@ export const TutorialMetadataForm: React.FC<TutorialMetadataFormProps> = ({
                             />
                         </Box>
                     )}
+                />
+
+                <CategorySearch
+                    categories={categoriesData}
+                    onSelect={(path: CategoryPath) => {
+                        setValue('categoryName', path.category);
+                        setValue('subCategory', path.subCategory);
+                        setValue('nestedSubCategory', path.nestedSubCategory);
+                    }}
                 />
 
                 <Controller

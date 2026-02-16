@@ -20,7 +20,6 @@ export const fetchStructuredTutorials = async (page: number, limit: number) => {
     const response = await serverFetcher(BASEURL, `/structured-tutorial?page=${page}&limit=${limit}&published=true`, {
       next: { revalidate: 300 }
     });
-    console.log(' fetchStructuredTutorials :: response:', response?.data)
     return response?.data || { tutorials: [], total: 0 };
   } catch (error) {
     console.log(' fetchStructuredTutorials :: error:', error);

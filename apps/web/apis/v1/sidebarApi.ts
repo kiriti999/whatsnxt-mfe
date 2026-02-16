@@ -5,7 +5,6 @@ export const SidebarAPI = {
     const response = await courseApiClient.get('/popular');
 
     // returning the data returned by the API
-    console.log('SidebarAPI:: getPopular:: response: ', response?.data);
     return response?.data || [];
   },
 };

@@ -38,11 +38,17 @@ const LinkedInCallback = () => {
             console.log('LinkedIn authorization successful. Token saved:', callbackResult);
 
             // 🔹 Step 2: Share the post after token exchange
+            // description is already stripped of HTML (cleaned in LinkedInShare before storing)
+            const truncatedDescription = description && description.length > 1900
+                ? description.substring(0, 1897) + '...'
+                : description;
+            const descriptionWithLink = `${truncatedDescription}\n\nRead more at: ${url}`;
+
             const shareResult = await LinkedInAPI.sharePost({
                 url,
                 title,
                 email,
-                text: description,
+                text: descriptionWithLink,
                 thumbnailUrn,
                 media: media?.filter(Boolean) ?? [], // Ensure media is non-nullable
             });

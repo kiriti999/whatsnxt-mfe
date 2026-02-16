@@ -2,7 +2,8 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Button, Select, Text, TextInput, Box, Title, Container, Paper, Stack, Group } from '@mantine/core';
-import { LoadingSpinner } from '@whatsnxt/core-ui';
+import { LoadingSpinner, CategorySearch } from '@whatsnxt/core-ui';
+import type { CategoryPath } from '@whatsnxt/core-ui';
 import { notifications } from '@mantine/notifications';
 import { CourseAPI } from '../../../../apis/v1/courses/course/course';
 import { Controller, useForm } from 'react-hook-form';
@@ -25,6 +26,7 @@ const CreateCourseName = () => {
     reset,
     watch,
     control,
+    setValue,
     formState: { errors, isValid },
   } = useForm({
     mode: 'onChange',
@@ -158,6 +160,25 @@ const CreateCourseName = () => {
                   If you're not sure about the right category, you can change it later.
                 </Text>
 
+                {categories && categories.length > 0 && (
+                  <Box mb="sm">
+                    <CategorySearch
+                      categories={categories}
+                      onSelect={(path: CategoryPath) => {
+                        setValue('categoryName', path.category);
+                        setValue('subCategory', path.subCategory);
+                        setValue('nestedSubCategory', path.nestedSubCategory);
+                        const selectedCat = categories.find((c) => c.categoryName === path.category);
+                        if (selectedCat) handleCategoryChange(selectedCat);
+                        if (path.subCategory) {
+                          const selectedSub = selectedCat?.subcategories?.find((s) => s.name === path.subCategory);
+                          if (selectedSub) handleSubCategoryChange(selectedSub);
+                        }
+                      }}
+                    />
+                  </Box>
+                )}
+
                 {categoryOptions.length > 0 && (
                   <Box mb="sm">
                     <Controller
@@ -180,6 +201,7 @@ const CreateCourseName = () => {
                             field.onChange(value);
                             handleCategoryChange(option);
                           }}
+                          searchable
                         />
                       )}
                     />
@@ -209,6 +231,7 @@ const CreateCourseName = () => {
                             field.onChange(value);
                             handleSubCategoryChange(option);
                           }}
+                          searchable
                         />
                       )}
                     />
@@ -233,6 +256,7 @@ const CreateCourseName = () => {
                             }
                           }}
                           {...field}
+                          searchable
                         />
                       )}
                     />

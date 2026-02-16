@@ -213,7 +213,8 @@ const createApiClient = (type: ApiClientType) => {
                     requestConfig.url.includes('/post/suggestionByChatGpt') ||
                     requestConfig.url.includes('/post/suggestionByAI') ||
                     requestConfig.url.includes('/visualizer/generate') ||
-                    requestConfig.url.includes('/visualizer/regenerate')
+                    requestConfig.url.includes('/visualizer/regenerate') ||
+                    requestConfig.url.includes('/linkedin/share')
                 );
 
                 // Only apply timeout for non-long-running endpoints

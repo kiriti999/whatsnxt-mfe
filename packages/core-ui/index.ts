@@ -17,6 +17,7 @@ export * from './src/NotFoundComponent'
 export * from './src/Footer'
 export * from './src/SearchBarResult'
 export * from './src/ShareOptions'
+export * from './src/CategorySearch'
 
 export { default as PopularTag } from './src/PopularTag/index';
 export { default as PopularPost } from './src/PopularPost/index';

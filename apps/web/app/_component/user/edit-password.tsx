@@ -38,7 +38,6 @@ const EditPassword = () => {
       setLoading(true);
       const payload = { ...user };
       const response = await ProfileAPI.editPassword(payload)
-      console.log('pages:: edit-password:: response.data: ', response);
     } catch (error) {
       console.log('error ', error);
       notifications.show({

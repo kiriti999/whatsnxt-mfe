@@ -14,15 +14,41 @@ interface LinkedInShareProps {
     media?: string[];
 }
 
+// Strip HTML tags and decode entities for plain text output
+const stripHtmlForLinkedIn = (html: string): string => {
+    if (!html) return '';
+    return html
+        .replace(/<br\s*\/?>/gi, '\n')
+        .replace(/<\/p>/gi, '\n\n')
+        .replace(/<\/li>/gi, '\n')
+        .replace(/<[^>]*>/g, '')
+        .replace(/&nbsp;/g, ' ')
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&amp;/g, '&')
+        .replace(/&quot;/g, '"')
+        .replace(/&#039;/g, "'")
+        .replace(/\n{3,}/g, '\n\n')
+        .trim();
+};
+
+const truncateLinkedInText = (text: string, maxLength = 1900): string => {
+    if (!text) return '';
+    if (text.length <= maxLength) return text;
+    const truncateAt = maxLength - 3;
+    return text.substring(0, truncateAt) + '...';
+};
+
 const LinkedInShare: React.FC<LinkedInShareProps> = ({ url, title, thumbnailUrn, description, email, media }: any) => {
     const style = { cursor: 'pointer' };
     const router = useRouter();
     const [tokenAvailable, setTokenAvailable] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
-    // Save data to localStorage
+    // Strip HTML and store clean text in localStorage for OAuth callback flow
     useEffect(() => {
-        localStorage.setItem('linkedinShareData', JSON.stringify({ url, title, thumbnailUrn, description, email }));
+        const cleanDescription = stripHtmlForLinkedIn(description);
+        localStorage.setItem('linkedinShareData', JSON.stringify({ url, title, thumbnailUrn, description: cleanDescription, email }));
     }, [url, title, thumbnailUrn, description, email]);
 
     // Check token on component mount
@@ -36,19 +62,6 @@ const LinkedInShare: React.FC<LinkedInShareProps> = ({ url, title, thumbnailUrn,
 
         checkTokenStatus();
     }, [email]);
-
-    const truncateLinkedInText = (text: string, maxLength = 1900) => {
-        if (!text) return '';
-
-        // If text is within limit, return as is
-        if (text.length <= maxLength) {
-            return text;
-        }
-
-        // Truncate at 2996 characters and append "..."
-        const truncateAt = maxLength - 3; // Reserve 3 characters for "..."
-        return text.substring(0, truncateAt) + '...';
-    };
 
     const handleShare = async (e: React.MouseEvent) => {
         e.preventDefault();
@@ -95,8 +108,9 @@ const LinkedInShare: React.FC<LinkedInShareProps> = ({ url, title, thumbnailUrn,
 
                 // If token is available, proceed to share the post
                 try {
-                    const truncatedText = truncateLinkedInText(description);
-                    const descriptionWithLink = `${truncatedText} Read more at: ${url}`;
+                    const cleanText = stripHtmlForLinkedIn(description);
+                    const truncatedText = truncateLinkedInText(cleanText);
+                    const descriptionWithLink = `${truncatedText}\n\nRead more at: ${url}`;
 
                     const shareResult = await LinkedInAPI.sharePost({
                         url,
@@ -106,11 +120,12 @@ const LinkedInShare: React.FC<LinkedInShareProps> = ({ url, title, thumbnailUrn,
                         thumbnailUrn,
                         media: media?.filter(Boolean) ?? [],
                     });
+                    console.log('🚀 :: handleShare :: shareResult:', shareResult)
 
                     if (shareResult) {
                         notifications.show({
                             title: 'Success',
-                            message: 'Post shared to the company page on LinkedIn!',
+                            message: 'Shared to the company page on LinkedIn!',
                             color: 'green',
                         });
                         router.push(url);

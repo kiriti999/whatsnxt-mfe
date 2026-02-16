@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, Suspense, useRef } from 'react';
+import React, { useEffect, useState, useCallback, Suspense, useRef, useMemo } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { Box, Button, Container, FileInput, Flex, Grid, Select, Text, TextInput, Title, Loader, Alert, Group } from '@mantine/core';
 import { useRouter } from 'next/navigation';
@@ -11,7 +11,8 @@ import { IconUpload, IconAlertCircle, IconCheck } from '@tabler/icons-react';
 import { LexicalEditor } from '../../StructuredTutorial/Editor/LexicalEditor';
 import { lexicalToHtml } from '../../../utils/lexicalToHtml';
 import { useDisclosure } from '@mantine/hooks';
-import { MantineLoader } from '@whatsnxt/core-ui';
+import { MantineLoader, CategorySearch } from '@whatsnxt/core-ui';
+import type { CategoryPath } from '@whatsnxt/core-ui';
 import { AISuggestionButton } from '../../Common/AISuggestionButton';
 import Image from 'next/image';
 import { uploadImage } from './util';
@@ -400,6 +401,22 @@ const BlogForm: React.FC<BlogFormProps> = ({ categories, edit }) => {
                 {errors.description && <Text c="red">{errors.description.message}</Text>}
               </Grid.Col>
 
+              {/* Find My Category Search */}
+              <Grid.Col span={{ base: 12, lg: 9, md: 12 }}>
+                <CategorySearch
+                  categories={categories}
+                  onSelect={(path: CategoryPath) => {
+                    setValue('categoryName', path.category);
+                    setValue('subCategory', path.subCategory);
+                    setValue('nestedSubCategory', path.nestedSubCategory);
+                    handleCategoryChange(path.category);
+                    if (path.subCategory) {
+                      handleSubCategoryChange(path.subCategory);
+                    }
+                  }}
+                />
+              </Grid.Col>
+
               {/* Categories */}
               <Grid.Col span={{ base: 12, lg: 9, md: 12 }}>
                 <Controller
@@ -418,6 +435,7 @@ const BlogForm: React.FC<BlogFormProps> = ({ categories, edit }) => {
                         field.onChange(value);
                         handleCategoryChange(value);
                       }}
+                      searchable
                     />
                   )}
                 />
@@ -442,6 +460,7 @@ const BlogForm: React.FC<BlogFormProps> = ({ categories, edit }) => {
                           setValue('nestedSubCategory', '');
                           handleSubCategoryChange(value);
                         }}
+                        searchable
                       />
                     )}
                   />
@@ -462,6 +481,7 @@ const BlogForm: React.FC<BlogFormProps> = ({ categories, edit }) => {
                         data={nestedSubCategories}
                         value={field.value}
                         onChange={field.onChange}
+                        searchable
                       />
                     )}
                   />

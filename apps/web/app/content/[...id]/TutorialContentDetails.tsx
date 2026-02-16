@@ -3,12 +3,10 @@ import { useEffect, useState, useCallback } from 'react';
 import SidebarHeadings from '../../../components/Blog/sidebar-headings';
 import { AnalyticsAPI } from '../../../apis/v1/blog/analyticsApi';
 import SidebarPost from '../../../components/Blog/sidebar-post';
-import ClipboardCopy from '@whatsnxt/core-ui/src/ShareOptions/ClipBoardCopy';
-import WhatsappShare from '@whatsnxt/core-ui/src/ShareOptions/WhatsappShare';
 import GooglePageViews from '../../../components/Blog/Content/GooglePageViews';
 import TutorialContent from '../../../components/Blog/Content/Tutorial/TutorialContent';
 import { TutorialArticle } from '../../../types/contentDetails';
-import FacebookShare from '@whatsnxt/core-ui/src/ShareOptions/FacebookShare';
+import { ShareOptions } from '@whatsnxt/core-ui';
 import { SkeletonBlogContent } from '@whatsnxt/core-ui';
 import { Text, Box, Container, Group, Stack, Grid, GridCol, Title, Divider, Paper } from '@mantine/core';
 import TutorialsToc from '../TutorialToc';
@@ -152,7 +150,14 @@ function TutorialContentDetails({ details }: any) {
                     />
 
                     <Stack m={0}>
-                      <ShareOptions url={url} views={views} />
+                      <ShareOptionsWithViews
+                        url={url}
+                        views={views}
+                        title={item.title}
+                        thumbnailUrn={item.imageUrl}
+                        description={item.description}
+                        email={email}
+                      />
                     </Stack>
                   </Paper>
 
@@ -213,12 +218,16 @@ function TutorialContentDetails({ details }: any) {
   );
 }
 
-interface ShareOptionsProps {
+interface ShareOptionsWithViewsProps {
   url: string;
   views: number;
+  title?: string;
+  thumbnailUrn?: string;
+  description?: string;
+  email?: string;
 }
 
-const ShareOptions: React.FC<ShareOptionsProps> = ({ url, views }) => {
+const ShareOptionsWithViews: React.FC<ShareOptionsWithViewsProps> = ({ url, views, title, thumbnailUrn, description, email }) => {
   return (
     <Box my="md">
       <Text size="md" mb="sm" c="inherit">
@@ -226,9 +235,13 @@ const ShareOptions: React.FC<ShareOptionsProps> = ({ url, views }) => {
       </Text>
       <Group justify="space-between">
         <Group gap="xs">
-          <WhatsappShare url={url} />
-          <FacebookShare url={url} />
-          <ClipboardCopy url={url} />
+          <ShareOptions
+            url={url}
+            title={title}
+            thumbnailUrn={thumbnailUrn || ''}
+            description={description}
+            email={email}
+          />
         </Group>
         <GooglePageViews views={views} />
       </Group>

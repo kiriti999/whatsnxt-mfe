@@ -13,7 +13,8 @@ import { lexicalToHtml } from '../../../utils/lexicalToHtml';
 import { useRouter } from 'next/navigation';
 import { Alert, Box, Button, Container, FileInput, Flex, Grid, Group, Input, Select, Stack, Text, Title, Loader } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { LoadingOverlay as CustomLoadingOverlay } from '@whatsnxt/core-ui';
+import { LoadingOverlay as CustomLoadingOverlay, CategorySearch } from '@whatsnxt/core-ui';
+import type { CategoryPath } from '@whatsnxt/core-ui';
 import { FullPageOverlay } from '@/components/Common/FullPageOverlay';
 import { IconUpload, IconAlertCircle, IconCheck } from '@tabler/icons-react';
 import { default as NextImage } from 'next/image';
@@ -659,6 +660,22 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
 
               <Stack gap="md">
                 <Grid gutter="lg">
+                  {/* Find My Category Search */}
+                  <Grid.Col span={{ base: 12, lg: 9, md: 12 }}>
+                    <CategorySearch
+                      categories={categories}
+                      onSelect={(path: CategoryPath) => {
+                        setValue('categoryName', path.category);
+                        setValue('subCategory', path.subCategory);
+                        setValue('nestedSubCategory', path.nestedSubCategory);
+                        handleCategoryChange(path.category);
+                        if (path.subCategory) {
+                          handleSubCategoryChange(path.subCategory);
+                        }
+                      }}
+                    />
+                  </Grid.Col>
+
                   {/* Categories */}
                   <Grid.Col span={{ base: 12, lg: 9, md: 12 }}>
                     <Controller
@@ -678,6 +695,7 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
                             field.onChange(value);
                             handleCategoryChange(value);
                           }}
+                          searchable
                         />
                       )}
                     />
@@ -703,6 +721,7 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
                               setValue('nestedSubCategory', '');
                               handleSubCategoryChange(value);
                             }}
+                            searchable
                           />
                         )}
                       />
@@ -724,6 +743,7 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
                             data={nestedSubCategories}
                             value={field.value}
                             onChange={field.onChange}
+                            searchable
                           />
                         )}
                       />
