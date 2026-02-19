@@ -104,28 +104,106 @@ app/
 - YAML format for OpenAPI (use JSON)
 - Alternative visualization libraries (use D3.js)
 
+### 6. Auto Create Content Pipeline (Programmatic SEO)
+
+**Feature**: AI-powered content pipeline that generates and publishes blog posts with embedded SVG diagrams from structured topic outlines. Triggered daily via AWS Lambda + EventBridge cron.
+
+**Architecture**:
+- **Frontend**: "Auto Create Content" card on `/form` page → form at `/form/auto-create` accepting title, description (Lexical + AI sparkle for topic generation), category, sub-category, nested sub-category
+- **Backend**: `contentPlanSchema.ts` (MongoDB model), `contentPlanService.ts` (business logic), `contentPlan.routes.ts` (API)
+- **Lambda**: `lambda/content-generation/` — daily cron reads active plans, picks one pending topic per plan, generates blog content + SVG diagrams via AI, publishes to `blogPosts` collection
+- **Terraform**: `lambda-content-generation.tf` with dedicated EventBridge rule `cron(0 11 * * ? *)` (daily 11am UTC)
+
+**Content Plan MongoDB Schema** (`contentPlans` collection):
+```typescript
+{
+  title: string,              // Parent title (unique per user)
+  description: string,        // Original Lexical/HTML description
+  userId: ObjectId,           // Owner
+  categoryName: string,
+  subCategory?: string,
+  nestedSubCategory?: string,
+  topics: [{
+    _key: string,             // UUID for idempotency
+    title: string,            // Extracted topic
+    status: 'pending' | 'processing' | 'published' | 'error' | 'skipped',
+    blogPostId?: ObjectId,    // Reference to created blogPost
+    error?: string,
+    processedAt?: Date,
+    retryCount: number,       // Max 3 retries
+  }],
+  status: 'active' | 'completed' | 'paused' | 'cancelled',
+  completedCount: number,
+  totalCount: number,
+  rateLimitedUntil?: Date,
+}
+// Indexes: { userId: 1, status: 1 }, { status: 1, rateLimitedUntil: 1 }, { userId: 1, title: 1 } (unique)
+```
+
+**AI-Generated SVG Diagrams**:
+- The AI model MUST generate one or more SVG diagrams per topic alongside blog content
+- Diagrams MUST leverage the existing Visualizer Builder diagram types (Architecture Diagram, Flow Diagram, Mind Map, etc.) and D3.js shape libraries
+- Diagram complexity scales with topic context — small diagrams for simple concepts, larger multi-component diagrams for architecture/system topics
+- SVG output is embedded directly in the blog content as inline SVG within the Lexical/HTML structure
+- The AI prompt MUST include the diagram type hint based on category (e.g., architecture topics → Architecture Diagram, process topics → Flow Diagram)
+
+**Design Patterns**:
+| Pattern | Implementation |
+|---------|---------------|
+| Job Queue | MongoDB-backed embedded topics array (bounded 5-20 per plan) |
+| Idempotency | Each topic has `_key` + `status` + `processedAt` |
+| Circuit Breaker | On AI rate limit (429) → set `rateLimitedUntil` → skip until cooldown |
+| Budget Guard | Configurable `maxTopicsPerRun` (default: 5) + `maxPlansPerRun` (default: 10) |
+| FIFO Fairness | `$sort: { lastProcessedAt: 1 }` + `$limit` for cursor-based processing |
+| Fault Isolation | Per-topic error handling; plan stays `active` until all topics resolved |
+| Prompt Engineering | System prompt includes: parent title context, topic, category, word count target, SEO keywords, diagram type hint |
+
+**Lambda Processing**:
+1. Query `contentPlans` where `status = 'active'` and not rate-limited
+2. For each plan: get user's AI config from `users.aiConfig` (user key or system fallback)
+3. Pick next `pending` topic → mark `processing` (atomic) → call AI → create blog + diagrams → publish to `blogPosts` → mark `published`
+4. On rate limit → reset topic to `pending`, set `rateLimitedUntil` = now + 24h, skip to next plan
+5. On error → increment `retryCount`, mark `error` (or `skipped` after 3 retries)
+6. If all topics done → mark plan `completed`
+
+**Implementation Phases**:
+| Phase | Scope |
+|-------|-------|
+| Phase 1 | MongoDB model + API routes + service (Backend) |
+| Phase 2 | Frontend card + form page + AI topic generation |
+| Phase 3 | Lambda handler with AI content + SVG diagram generation |
+| Phase 4 | Terraform deployment (Lambda + EventBridge) |
+| Phase 5 | Dashboard/progress tracking UI |
+
 ## Quick Reference
 
 <!--
 Sync Impact Report
 
-- Version change: 5.2.0 → 5.3.0
-- List of modified principles: Updated Section III (User Experience Consistency)
-- Added sections: None
+- Version change: 5.3.0 → 5.4.0
+- List of modified principles: Added Section 6 (Auto Create Content Pipeline)
+- Added sections: Section 6 - Auto Create Content Pipeline (Programmatic SEO), Section XII - Content Pipeline Automation Standards
 - Removed sections: None
 - Modified content:
-  - Added requirement for InfiniteScrollComponent from @whatsnxt/core-util for scroll-to-load patterns
-  - Added requirement for Mantine SimpleGrid for responsive card layouts
-  - Added guidance on aspect-ratio CSS for responsive images
-  - Updated Additional Constraints with new UI patterns
+  - Added Auto Create Content Pipeline feature specification with MongoDB schema, Lambda processing, and AI SVG diagram generation
+  - Added requirement for AI-generated SVG diagrams using existing Visualizer Builder diagram types and D3.js shape libraries
+  - Added content plan MongoDB schema design with embedded topics queue pattern
+  - Added Lambda processing algorithm with circuit breaker, budget guard, and FIFO fairness patterns
+  - Added implementation phases (Backend → Frontend → Lambda → Terraform → Dashboard)
+  - Added Additional Constraints for content pipeline automation
 - Templates requiring updates:
-  - ⚠️ List/grid pages should use InfiniteScrollComponent instead of pagination where appropriate
-  - ⚠️ Card grids should use Mantine SimpleGrid for responsive layouts
-  - ⚠️ Image containers should use aspect-ratio CSS for consistent sizing
+  - ⚠️ ContentTypeForm must include "Auto Create Content" card
+  - ⚠️ New form page at /form/auto-create with Lexical editor + AI sparkle for topic generation
+  - ⚠️ New Lambda function lambda/content-generation/ with Terraform deployment
+  - ⚠️ AI prompts must include diagram type hints for SVG generation
 - Follow-up TODOs:
-  - Audit existing pagination components for infinite scroll migration
-  - Update card grid components to use SimpleGrid
-  - Review image containers for aspect-ratio compliance
+  - Create contentPlanSchema.ts in app/models/
+  - Create contentPlanService.ts in app/services/
+  - Create contentPlan.routes.ts in app/routes/
+  - Create lambda/content-generation/ handler
+  - Create lambda-content-generation.tf in terraform/
+  - Create AutoCreateForm frontend component
+  - Add progress tracking to dashboard
 -->
 
 # WhatsNxt Constitution
@@ -268,7 +346,7 @@ All API integrations MUST connect to actual backend services. Test environments 
 
 This constitution supersedes all other practices and guidance. Amendments require documentation, approval, and a migration plan. All PRs and reviews MUST verify compliance. Complexity MUST be justified. Use runtime guidance files for development reference.
 
-**Version**: 5.3.0 | **Ratified**: 2025-11-03 | **Last Amended**: 2026-02-15
+**Version**: 5.4.0 | **Ratified**: 2025-11-03 | **Last Amended**: 2026-02-19
 
 ### File Locations
 - Frontend app: `apps/web/`
@@ -299,4 +377,4 @@ import { API_ENDPOINTS } from '@whatsnxt/constants';
 
 ---
 
-*WhatsNxt Constitution v5.3.0 | Node.js 24 LTS | Next.js 16 | React 19 | pnpm 10+*
+*WhatsNxt Constitution v5.4.0 | Node.js 24 LTS | Next.js 16 | React 19 | pnpm 10+*
