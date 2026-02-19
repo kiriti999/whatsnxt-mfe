@@ -165,5 +165,34 @@ export const SUCCESS_MESSAGES = {
   DRAFT_SAVED: 'Draft saved successfully',
 } as const;
 
+// Content Plan Status (Auto Create Content Pipeline)
+export const CONTENT_PLAN_STATUS = {
+  ACTIVE: 'active',
+  COMPLETED: 'completed',
+  PAUSED: 'paused',
+  CANCELLED: 'cancelled',
+} as const;
+
+// Content Plan Topic Status
+export const CONTENT_PLAN_TOPIC_STATUS = {
+  PENDING: 'pending',
+  PROCESSING: 'processing',
+  PUBLISHED: 'published',
+  ERROR: 'error',
+  SKIPPED: 'skipped',
+} as const;
+
+// Content Plan Validation Constants
+export const CONTENT_PLAN_VALIDATION = {
+  MAX_TITLE_LENGTH: 200,
+  MAX_DESCRIPTION_LENGTH: 5000,
+  MIN_TOPICS: 1,
+  MAX_TOPICS: 20,
+  MAX_RETRY_COUNT: 3,
+  MAX_TOPICS_PER_RUN: 5,
+  MAX_PLANS_PER_RUN: 10,
+  RATE_LIMIT_COOLDOWN_HOURS: 24,
+} as const;
+
 // Lab-specific constants (feature 003-auto-page-creation)
 export * from './lab.constants';

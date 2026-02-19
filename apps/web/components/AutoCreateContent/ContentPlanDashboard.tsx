@@ -71,7 +71,7 @@ export function ContentPlanDashboard() {
         queryKey: ['contentPlans'],
         queryFn: async () => {
             const response = await ContentPlanAPI.list();
-            return response.data?.data || [];
+            return response.data || [];
         },
     });
 

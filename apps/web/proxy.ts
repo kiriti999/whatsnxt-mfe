@@ -74,6 +74,7 @@ const authenticationRoutes = [
   '/set-password',
   '/category-dashboard',
   '/categories',
+  '/form/auto-create/dashboard'
 ];
 
 // Helper function to check if route is public
