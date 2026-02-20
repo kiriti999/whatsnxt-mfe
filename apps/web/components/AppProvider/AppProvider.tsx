@@ -34,7 +34,7 @@ const CartInitializer = () => {
   return null;
 };
 
-export default function AppProvider({ children, user, token }: { children: ReactNode, user: User, token: string | null }): JSX.Element {
+export default function AppProvider({ children, user }: { children: ReactNode, user: User, token: string | null }): JSX.Element {
   const [queryClient] = useState(
     () =>
       new QueryClient({
