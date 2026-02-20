@@ -49,7 +49,7 @@ export const ContentPlanAPI = {
         return http.get(`/content-plans/${id}`);
     },
 
-    updateStatus: async (id: string, status: string): Promise<{ message: string; data: ContentPlan }> => {
+    updateStatus: async (id: string, status: ContentPlan['status']): Promise<{ message: string; data: ContentPlan }> => {
         return http.patch(`/content-plans/${id}`, { status });
     },
 

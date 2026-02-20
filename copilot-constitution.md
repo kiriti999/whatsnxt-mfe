@@ -108,7 +108,7 @@ Sync Impact Report
 
 - Version change: 5.3.0 → 5.4.0
 - List of modified principles: Added Auto Create Content Pipeline section
-- Added sections: Auto Create Content Pipeline (Programmatic SEO), Section XII - Content Pipeline Automation Standards
+- Added sections: Auto Create Content Pipeline (Programmatic SEO)
 - Removed sections: None
 - Modified content:
   - Added Auto Create Content Pipeline feature specification

@@ -76,7 +76,7 @@ export function ContentPlanDashboard() {
     });
 
     const statusMutation = useMutation({
-        mutationFn: ({ id, status }: { id: string; status: string }) =>
+        mutationFn: ({ id, status }: { id: string; status: ContentPlan['status'] }) =>
             ContentPlanAPI.updateStatus(id, status),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['contentPlans'] });

@@ -49,10 +49,10 @@ const contentTypes = [
     }
 ]
 
-const VISUALIZER_ALLOWED_EMAIL = 'kiriti.k999@gmail.com'
+const GATED_FEATURE_ALLOWED_EMAIL = 'kiriti.k999@gmail.com'
 
-function isVisualizerAllowed(role?: string, email?: string): boolean {
-    return role === 'admin' || email === VISUALIZER_ALLOWED_EMAIL
+function isPrivilegedUser(role?: string, email?: string): boolean {
+    return role === 'admin' || email === GATED_FEATURE_ALLOWED_EMAIL
 }
 
 export function ContentTypeForm() {
@@ -60,7 +60,7 @@ export function ContentTypeForm() {
 
     const visibleContentTypes = useMemo(() => {
         const gatedRoutes = ['/form/visualizer', '/form/auto-create']
-        if (isVisualizerAllowed(user?.role, user?.email)) {
+        if (isPrivilegedUser(user?.role, user?.email)) {
             return contentTypes
         }
         return contentTypes.filter((type) => !gatedRoutes.includes(type.href))
