@@ -269,7 +269,7 @@ All API integrations MUST connect to actual backend services. Test environments 
 
 This constitution supersedes all other practices and guidance. Amendments require documentation, approval, and a migration plan. All PRs and reviews MUST verify compliance. Complexity MUST be justified. Use runtime guidance files for development reference.
 
-**Version**: 5.3.0 | **Ratified**: 2025-11-03 | **Last Amended**: 2026-02-15
+**Version**: 5.4.0 | **Ratified**: 2025-11-03 | **Last Amended**: 2026-02-19
 
 ---
 *Based on WhatsNxt Constitution v5.4.0 | Last Updated: 2026-02-19*
