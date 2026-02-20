@@ -9,7 +9,7 @@ import { Notifications } from '@mantine/notifications';
 import Layout from '../Layout';
 import FilterStore from '../../context/filterStore';
 import { store } from '../../store/store';
-import { IconAddressBook, IconBell, IconBook2, IconCertificate, IconFlask, IconHistoryToggle, IconPalette, IconPasswordUser, IconPencil, IconUserEdit } from '@tabler/icons-react';
+import { IconAddressBook, IconBell, IconCertificate, IconFlask, IconHistoryToggle, IconPalette, IconPasswordUser, IconPencil, IconRocket, IconUserEdit } from '@tabler/icons-react';
 import { AuthProvider } from '../../context/Authentication/AuthContext';
 import React from 'react';
 import { User } from '../Navbar/types';
@@ -34,7 +34,7 @@ const CartInitializer = () => {
   return null;
 };
 
-export default function AppProvider({ children, user, token }: { children: ReactNode, user: User, token: string | null }): JSX.Element {
+export default function AppProvider({ children, user }: { children: ReactNode, user: User }): JSX.Element {
   const [queryClient] = useState(
     () =>
       new QueryClient({
@@ -119,9 +119,7 @@ export default function AppProvider({ children, user, token }: { children: React
         url: '',
         children: [
           { title: 'History', url: `${domain}/history/table`, icon: IconHistoryToggle },
-          { title: 'My blogs', url: `${domain}/content/my-dashboard?status=all`, icon: IconBook2 },
-          { title: 'Draft blogs', url: `${domain}/content/my-dashboard?status=draft`, icon: IconPencil },
-          { title: 'Published blogs', url: `${domain}/content/my-dashboard?status=published`, icon: IconCertificate },
+          ...((user?.role === 'admin' || user?.email === 'kiriti.k999@gmail.com') ? [{ title: 'Programmatic SEO', url: `${domain}/form/auto-create/dashboard`, icon: IconRocket }] : []),
           { title: 'My Diagrams', url: `${domain}/form/diagrams`, icon: IconPalette },
         ]
       },

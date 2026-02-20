@@ -1,7 +1,7 @@
 'use client'
 import { Container, Text, SimpleGrid, Paper, Stack, ThemeIcon, Box, Title, Group } from '@mantine/core'
 import { MantineLoader } from '@whatsnxt/core-ui'
-import { IconArticle, IconBook, IconSparkles, IconLayoutList, IconPalette } from '@tabler/icons-react'
+import { IconArticle, IconBook, IconSparkles, IconLayoutList, IconPalette, IconRocket } from '@tabler/icons-react'
 import Link from 'next/link'
 import React, { Suspense, useMemo } from 'react'
 import useAuth from '../../../hooks/Authentication/useAuth'
@@ -38,23 +38,32 @@ const contentTypes = [
         description: 'Create stunning architectural diagrams with AI assistance',
         gradient: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
         color: '#fa709a'
+    },
+    {
+        href: '/form/auto-create',
+        icon: IconRocket,
+        title: 'Auto Create Content',
+        description: 'Generate blog posts with AI from a structured topic outline',
+        gradient: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+        color: '#43e97b'
     }
 ]
 
-const VISUALIZER_ALLOWED_EMAIL = 'kiriti.k999@gmail.com'
+const GATED_FEATURE_ALLOWED_EMAIL = 'kiriti.k999@gmail.com'
 
-function isVisualizerAllowed(role?: string, email?: string): boolean {
-    return role === 'admin' || email === VISUALIZER_ALLOWED_EMAIL
+function isPrivilegedUser(role?: string, email?: string): boolean {
+    return role === 'admin' || email === GATED_FEATURE_ALLOWED_EMAIL
 }
 
 export function ContentTypeForm() {
     const { user } = useAuth()
 
     const visibleContentTypes = useMemo(() => {
-        if (isVisualizerAllowed(user?.role, user?.email)) {
+        const gatedRoutes = ['/form/visualizer', '/form/auto-create']
+        if (isPrivilegedUser(user?.role, user?.email)) {
             return contentTypes
         }
-        return contentTypes.filter((type) => type.href !== '/form/visualizer')
+        return contentTypes.filter((type) => !gatedRoutes.includes(type.href))
     }, [user?.role, user?.email])
 
     return (

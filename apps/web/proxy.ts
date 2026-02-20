@@ -73,7 +73,7 @@ const authenticationRoutes = [
   '/reset-password',
   '/set-password',
   '/category-dashboard',
-  '/categories',
+  '/categories'
 ];
 
 // Helper function to check if route is public

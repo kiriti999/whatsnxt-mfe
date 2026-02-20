@@ -68,6 +68,35 @@ All backend code in `apps/whatsnxt-bff/app/`:
 - Fixed pixel heights for responsive images
 - Custom CSS grids when SimpleGrid works
 
+### Auto Create Content Pipeline (Programmatic SEO)
+
+AI-powered content pipeline that generates and publishes blog posts with embedded SVG diagrams from structured topic outlines. Triggered daily via AWS Lambda + EventBridge cron.
+
+**Architecture**:
+- **Frontend**: "Auto Create Content" card → `/form/auto-create` form (title, Lexical description + AI sparkle, category, sub-category, nested sub-category)
+- **Backend**: `contentPlanSchema.ts`, `contentPlanService.ts`, `contentPlan.routes.ts`
+- **Lambda**: `lambda/content-generation/` — daily cron processes one topic per plan per run
+- **Terraform**: `lambda-content-generation.tf` with dedicated EventBridge rule `cron(0 11 * * ? *)` (daily 11am UTC)
+
+**Content Plan Schema** (`contentPlans` collection):
+- `title` (unique per user), `description`, `userId`, `categoryName`, `subCategory?`, `nestedSubCategory?`
+- `topics[]`: embedded queue with `_key`, `title`, `status` (pending/processing/published/error/skipped), `blogPostId?`, `retryCount`
+- `status`: active/completed/paused/cancelled
+- `rateLimitedUntil?`: circuit breaker timestamp
+
+**AI-Generated SVG Diagrams**:
+- AI MUST generate one or more SVG diagrams per topic alongside blog content
+- MUST leverage existing Visualizer Builder diagram types and D3.js shape libraries
+- Diagram complexity scales with topic context (small → large based on content type)
+- SVG embedded inline in blog Lexical/HTML content
+- AI prompt includes diagram type hint based on category
+
+**Design Patterns**: MongoDB-backed job queue, idempotency via `_key` + `status`, circuit breaker on rate limits, budget guard (`maxTopicsPerRun`), FIFO fairness, per-topic fault isolation, structured prompt engineering with diagram type hints.
+
+**Lambda Flow**: Query active plans → get user AI config → pick pending topic → mark processing (atomic) → call AI for content + SVG → publish to blogPosts → mark published. Rate limit → skip plan 24h. Error → retry up to 3x then skip. All topics done → plan completed.
+
+**Phases**: 1) Backend model/routes/service → 2) Frontend form → 3) Lambda handler → 4) Terraform → 5) Dashboard UI
+
 ### Documentation
 - Include HLD/LLD diagrams for features
 - OpenAPI in JSON format (not YAML)
@@ -77,23 +106,27 @@ All backend code in `apps/whatsnxt-bff/app/`:
 <!--
 Sync Impact Report
 
-- Version change: 5.2.0 → 5.3.0
-- List of modified principles: Updated Section III (User Experience Consistency)
-- Added sections: None
+- Version change: 5.3.0 → 5.4.0
+- List of modified principles: Added Auto Create Content Pipeline section
+- Added sections: Auto Create Content Pipeline (Programmatic SEO)
 - Removed sections: None
 - Modified content:
-  - Added requirement for InfiniteScrollComponent from @whatsnxt/core-util for scroll-to-load patterns
-  - Added requirement for Mantine SimpleGrid for responsive card layouts
-  - Added guidance on aspect-ratio CSS for responsive images
-  - Updated Additional Constraints with new UI patterns
+  - Added Auto Create Content Pipeline feature specification
+  - Added AI SVG diagram generation using Visualizer Builder + D3.js
+  - Added content plan MongoDB schema with embedded topics queue
+  - Added Lambda processing with circuit breaker and budget guard
+  - Added Additional Constraints for content pipeline automation
 - Templates requiring updates:
-  - ⚠️ List/grid pages should use InfiniteScrollComponent instead of pagination where appropriate
-  - ⚠️ Card grids should use Mantine SimpleGrid for responsive layouts
-  - ⚠️ Image containers should use aspect-ratio CSS for consistent sizing
+  - ⚠️ ContentTypeForm must include "Auto Create Content" card
+  - ⚠️ New form page at /form/auto-create
+  - ⚠️ New Lambda function lambda/content-generation/
+  - ⚠️ AI prompts must include diagram type hints
 - Follow-up TODOs:
-  - Audit existing pagination components for infinite scroll migration
-  - Update card grid components to use SimpleGrid
-  - Review image containers for aspect-ratio compliance
+  - Implement contentPlanSchema, service, routes
+  - Create lambda/content-generation/ handler
+  - Create Terraform deployment config
+  - Build AutoCreateForm frontend
+  - Add progress dashboard
 -->
 
 # WhatsNxt Constitution
@@ -236,7 +269,7 @@ All API integrations MUST connect to actual backend services. Test environments 
 
 This constitution supersedes all other practices and guidance. Amendments require documentation, approval, and a migration plan. All PRs and reviews MUST verify compliance. Complexity MUST be justified. Use runtime guidance files for development reference.
 
-**Version**: 5.3.0 | **Ratified**: 2025-11-03 | **Last Amended**: 2026-02-15
+**Version**: 5.4.0 | **Ratified**: 2025-11-03 | **Last Amended**: 2026-02-19
 
 ---
-*Based on WhatsNxt Constitution v5.3.0 | Last Updated: 2026-02-15*
+*Based on WhatsNxt Constitution v5.4.0 | Last Updated: 2026-02-19*

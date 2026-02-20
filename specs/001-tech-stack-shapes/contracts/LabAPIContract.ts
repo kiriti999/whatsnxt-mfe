@@ -165,7 +165,7 @@ export const LAB_API_VALIDATION = {
    * Description constraints
    */
   MIN_DESCRIPTION_LENGTH: 10,
-  MAX_DESCRIPTION_LENGTH: 5000,
+  MAX_DESCRIPTION_LENGTH: 50000,
 };
 
 /**

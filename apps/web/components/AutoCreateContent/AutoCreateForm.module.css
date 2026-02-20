@@ -1,0 +1,54 @@
+.formContainer {
+    max-width: 720px;
+    margin: 0 auto;
+}
+
+.header {
+    text-align: center;
+}
+
+.headerTitle {
+    color: light-dark(var(--mantine-color-dark-8), var(--mantine-color-white));
+}
+
+.headerDescription {
+    color: light-dark(rgba(0, 0, 0, 0.6), rgba(255, 255, 255, 0.6));
+}
+
+.formPaper {
+    border: 1px solid light-dark(var(--mantine-color-gray-2), var(--mantine-color-dark-5));
+}
+
+.labelText {
+    font-size: 15px;
+}
+
+.requiredStar {
+    color: var(--mantine-color-red-6);
+}
+
+.descriptionLabel {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: var(--mantine-spacing-xs);
+}
+
+.topicChip {
+    padding: 4px 12px;
+    border-radius: var(--mantine-radius-sm);
+    background-color: light-dark(var(--mantine-color-gray-1), var(--mantine-color-dark-5));
+    color: light-dark(var(--mantine-color-dark-7), var(--mantine-color-gray-3));
+    font-size: var(--mantine-font-size-sm);
+}
+
+.topicPreviewBox {
+    padding: var(--mantine-spacing-md);
+    border: 1px solid light-dark(var(--mantine-color-gray-2), var(--mantine-color-dark-5));
+    border-radius: var(--mantine-radius-md);
+    background-color: light-dark(var(--mantine-color-gray-0), var(--mantine-color-dark-7));
+}
+
+.topicCountBadge {
+    font-weight: 600;
+}

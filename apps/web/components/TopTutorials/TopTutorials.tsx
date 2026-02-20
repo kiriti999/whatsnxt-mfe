@@ -27,7 +27,6 @@ interface Tutorial {
 }
 
 const TopTutorials = ({ tutorials }: { tutorials: Tutorial[], total: any }) => {
-    console.log('🚀 :: TopTutorials :: tutorials:', tutorials)
     const [displayCount, setDisplayCount] = useState(8);
     const router = useRouter();
     const observerTarget = useRef(null);
