@@ -248,8 +248,8 @@ self.onmessage = async (event) => {
         // 1. Configure the request with URL
         xhr.open('POST', `${bffApiUrl}/upload`);
 
-        // Add any authentication headers your BFF requires
-        // xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+        // Send cookies for authentication (same as @whatsnxt/http-client withCredentials)
+        xhr.withCredentials = true;
 
         // 2. Send the request
         xhr.send(formData);
