@@ -28,17 +28,11 @@ export default function PopularTag(props: Props) {
                                     mr={5}
                                     mb={5}
                                     variant={isActive ? 'filled' : 'light'}
-                                    style={isActive ? {
-                                        boxShadow: '0 0 0 2px rgba(255,255,255,0.3)',
-                                        transform: 'scale(1.05)',
-                                        transition: 'all 0.2s ease',
-                                    } : {
-                                        transition: 'all 0.2s ease',
-                                    }}
+                                    className={isActive ? 'tag-button-active' : 'tag-button'}
                                     onClick={() => onClick(item.categoryName)}
                                 >
-                                    <Title order={6} c="white" className="tag-link"> {item.categoryName} </Title>
-                                    <Title order={6} c="white" className="tag-link-count">({item.count})</Title>
+                                    <Title order={6} className="tag-link"> {item.categoryName} </Title>
+                                    <Title order={6} className="tag-link-count">({item.count})</Title>
                                 </Button>
                             );
                         }
