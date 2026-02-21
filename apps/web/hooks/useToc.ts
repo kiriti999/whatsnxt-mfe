@@ -79,6 +79,9 @@ export const useAddIdsToHeadings = (desc: string) => {
       if (p.children.length === 1 && p.children[0].tagName === 'CODE') {
         const codeEl = p.children[0] as HTMLElement;
 
+        // Normalize <br> tags to newlines (Lexical editor uses <br /> in code blocks)
+        codeEl.querySelectorAll('br').forEach(br => br.replaceWith('\n'));
+
         // Heuristics: treat as block code if code text contains a newline or has a language class
         const text = codeEl.textContent || '';
         const hasNewline = text.includes('\n');
@@ -121,6 +124,9 @@ export const useAddIdsToHeadings = (desc: string) => {
             const codeBlocks = Array.from(contentEl.querySelectorAll('pre code')) as HTMLElement[];
             codeBlocks.forEach((codeEl) => {
               try {
+                // Normalize <br> tags to newlines (Lexical editor uses <br /> in code blocks)
+                codeEl.querySelectorAll('br').forEach(br => br.replaceWith('\n'));
+
                 // If the block is marked as plaintext, allow auto-detection
                 const classAttr = codeEl.getAttribute('class') || '';
                 const text = codeEl.textContent || '';
