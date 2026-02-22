@@ -1,14 +1,14 @@
-import { Partytown } from '@builder.io/partytown/react';
-import React from 'react';
-import Script from 'next/script';
+import { Partytown } from "@builder.io/partytown/react";
+import Script from "next/script";
+import React from "react";
 
 export default function PartyTownScripts() {
     // const GA_MEASUREMENT_ID = 'GT-K8KF8BJN';
-    const GA_MEASUREMENT_ID = 'G-4F0FTBLZ5K';
+    const GA_MEASUREMENT_ID = "G-4F0FTBLZ5K";
 
     return (
         <>
-            <Partytown debug forward={['dataLayer.push']} />
+            <Partytown debug forward={["dataLayer.push"]} />
 
             {/* Load gtag library */}
             <Script

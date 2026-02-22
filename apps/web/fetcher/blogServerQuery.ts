@@ -26,3 +26,28 @@ export const fetchStructuredTutorials = async (page: number, limit: number) => {
     return { tutorials: [], total: 0 };
   }
 };
+
+/**
+ * Fetch trending content ordered by Google Analytics page views (last 30 days).
+ * @param limit   Number of items (default 8, max 20)
+ * @param type    "blog" | "tutorial" | "structured-tutorial" | "all"
+ */
+export const fetchGATrendingContent = async (
+  limit = 8,
+  type: 'blog' | 'tutorial' | 'structured-tutorial' | 'all' = 'all',
+) => {
+  try {
+    const response = await serverFetcher(
+      BASEURL,
+      `/post/getGATrending?limit=${limit}&type=${type}`,
+      { next: { revalidate: 3600 } }, // 1-hour cache matching Redis TTL
+    );
+    return {
+      articles: response?.data || [],
+      total: response?.total || 0,
+    };
+  } catch (error) {
+    console.log('fetchGATrendingContent :: error:', error);
+    return { articles: [], total: 0 };
+  }
+};
