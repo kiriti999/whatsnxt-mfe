@@ -1,16 +1,21 @@
-'use client';
+"use client";
 
-import type { Dispatch, SetStateAction } from 'react';
-import { useRef, lazy, Suspense } from 'react';
-import { Box, Title } from '@mantine/core';
-import { useAddIdsToHeadings, useContentRefAndHeadings, useHandleScroll, useLexicalHeadings } from '../../../../hooks/useToc';
-import { syntaxHighlightingTheme } from '../../../RichTextEditor/extensions/CodeHighlight/syntaxHighlightingTheme';
+import { Box, Title } from "@mantine/core";
+import type { Dispatch, SetStateAction } from "react";
+import { lazy, Suspense, useRef } from "react";
+import {
+  useAddIdsToHeadings,
+  useContentRefAndHeadings,
+  useHandleScroll,
+  useLexicalHeadings,
+} from "../../../../hooks/useToc";
+import { syntaxHighlightingTheme } from "../../../RichTextEditor/extensions/CodeHighlight/syntaxHighlightingTheme";
 
 // Lazy load LexicalEditor only on client
 const LexicalEditor = lazy(() =>
-  import('../../../StructuredTutorial/Editor/LexicalEditor').then(mod => ({
-    default: mod.LexicalEditor
-  }))
+  import("../../../StructuredTutorial/Editor/LexicalEditor").then((mod) => ({
+    default: mod.LexicalEditor,
+  })),
 );
 
 type PROPS = {
@@ -21,13 +26,26 @@ type PROPS = {
   setActiveHeading: (headingRef: HTMLElement) => void;
   tutorials: Array<any>;
   loading: boolean;
-}
+};
 
 // Combine base paragraph styles with comprehensive syntax highlighting theme
 const codeBlockStyles = `
   /* Base styles for paragraphs */
   .rte p, #blog-content p {
     margin-bottom: 0px;
+  }
+
+  /* Prevent AI-generated content from overflowing horizontally */
+  .rte,
+  .rte * {
+    overflow-wrap: break-word;
+    word-break: break-word;
+  }
+
+  .rte svg {
+    max-width: 100%;
+    height: auto;
+    overflow: hidden;
   }
 
   /* Force theme-aware text colors on content (overrides AI-generated inline styles) */
@@ -60,7 +78,6 @@ const codeBlockStyles = `
   ${syntaxHighlightingTheme}
 `;
 
-
 const TutorialContent = (props: PROPS) => {
   const {
     isTutorial,
@@ -85,20 +102,16 @@ const TutorialContent = (props: PROPS) => {
   useHandleScroll(contentRef, setActiveHeading);
 
   // Extract headings from Lexical editor after it renders (async/lazy-loaded)
-  useLexicalHeadings(
-    lexicalContainerRef,
-    !!lexicalState,
-    onHeadingsExtracted,
-  );
+  useLexicalHeadings(lexicalContainerRef, !!lexicalState, onHeadingsExtracted);
 
   return (
     <>
       {/* Include the content styles */}
       <style>{codeBlockStyles}</style>
 
-      <Box mb='md' ref={!lexicalState ? contentRef : undefined}>
-        <Title order={4} mt={'0.33rem'} mb={'xl'}>
-          {isTutorial ? title : ''}
+      <Box mb="md" ref={!lexicalState ? contentRef : undefined}>
+        <Title order={4} mt={"0.33rem"} mb={"xl"}>
+          {isTutorial ? title : ""}
         </Title>
 
         {tutorial && (
@@ -107,7 +120,11 @@ const TutorialContent = (props: PROPS) => {
               <div ref={lexicalContainerRef}>
                 <Suspense fallback={<div>Loading editor...</div>}>
                   <LexicalEditor
-                    value={typeof lexicalState === 'string' ? lexicalState : JSON.stringify(lexicalState)}
+                    value={
+                      typeof lexicalState === "string"
+                        ? lexicalState
+                        : JSON.stringify(lexicalState)
+                    }
                     readOnly={true}
                   />
                 </Suspense>
@@ -117,7 +134,6 @@ const TutorialContent = (props: PROPS) => {
             )}
           </div>
         )}
-
       </Box>
     </>
   );

@@ -43,6 +43,24 @@ const codeBlockStyles = `
     margin-bottom: 0px;
   }
 
+  /* Prevent AI-generated content from overflowing horizontally */
+  #blog-content {
+    overflow-x: hidden;
+    max-width: 100%;
+  }
+
+  #blog-content .rte,
+  #blog-content .rte * {
+    overflow-wrap: break-word;
+    word-break: break-word;
+  }
+
+  #blog-content .rte svg {
+    max-width: 100%;
+    height: auto;
+    overflow: hidden;
+  }
+
   /* Force theme-aware text colors on blog content (overrides AI-generated inline styles) */
   #blog-content .rte h1,
   #blog-content .rte h2,
