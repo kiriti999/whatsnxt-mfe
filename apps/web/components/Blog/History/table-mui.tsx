@@ -115,7 +115,7 @@ const HistoryMUI = ({ open, close }: any) => {
 
     console.log(' deleteContent :: rowData:', rowData)
 
-    let deleteResult;
+    let deleteResult: any;
     if (rowData?.source === 'structured') {
       deleteResult = await StructuredTutorialAPI.delete(rowData._id);
     } else {
@@ -189,7 +189,7 @@ const HistoryMUI = ({ open, close }: any) => {
     try {
       open();
       const publish = !rowData.published;
-      let publishRes;
+      let publishRes: any;
 
       if (rowData?.source === 'structured') {
         const response = await StructuredTutorialAPI.publish(rowData._id, publish);
@@ -268,7 +268,7 @@ const HistoryMUI = ({ open, close }: any) => {
             textDecoration: 'none'
           }}
         >
-          {row.original.title}
+          {row.original.title.substring(0, 50)}{row.original.title.length > 50 ? '...' : ''}
         </a>
       ),
     },
