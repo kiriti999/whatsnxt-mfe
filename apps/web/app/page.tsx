@@ -1,5 +1,4 @@
 import { Box } from "@mantine/core";
-import React from "react";
 import {
   fetchGATrendingContent,
   fetchStructuredTutorials,
@@ -20,7 +19,7 @@ async function Page() {
   ]);
 
   // Prefer GA-ordered articles (by real page views); fall back to time-based
-  const articles = gaResult.articles.length > 0 ? gaResult.articles : fallbackArticles;
+  const articles = gaResult.articles.length >= 4 ? gaResult.articles : fallbackArticles;
 
   return (
     <Box>
