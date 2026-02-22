@@ -1,30 +1,34 @@
 // layout.tsx - CLEANED VERSION (remove unnecessary scripts)
 // Global Styles
-import "./globals.css"
-import '@mantine/core/styles.css';
-import '@mantine/notifications/styles.css';
+import "./globals.css";
+import "@mantine/core/styles.css";
+import "@mantine/notifications/styles.css";
+import "mantine-datatable/styles.css";
 
-import React, { ReactNode } from 'react'
-import { Nunito } from "next/font/google"
+import { ColorSchemeScript } from "@mantine/core";
+import type { Metadata } from "next";
+import { Nunito } from "next/font/google";
 import { cookies } from "next/headers";
-import { Metadata } from "next";
-import { ColorSchemeScript } from '@mantine/core';
-import { fetchUser } from '../utils/commonHelper';
+import Script from "next/script";
+import React, { type ReactNode } from "react";
 // import dynamic from 'next/dynamic';
-import Providers from '../components/AppProvider/AppProvider'
-import Script from 'next/script';
-import { OrganizationStructuredData, WebSiteStructuredData } from '../components/StructuredData';
-import PartyTownScripts from '../components/PartyTownScripts';
+import Providers from "../components/AppProvider/AppProvider";
+import PartyTownScripts from "../components/PartyTownScripts";
+import {
+  OrganizationStructuredData,
+  WebSiteStructuredData,
+} from "../components/StructuredData";
+import { fetchUser } from "../utils/commonHelper";
 
 const nunito = Nunito({
   subsets: ["latin"],
-  weight: ['200', '300', '400', '600', '700', '900'],
-  style: ['normal', 'italic'],
-  display: 'swap',
+  weight: ["200", "300", "400", "600", "700", "900"],
+  style: ["normal", "italic"],
+  display: "swap",
   preload: true,
-  fallback: ['system-ui', 'arial'],
+  fallback: ["system-ui", "arial"],
   adjustFontFallback: true,
-  variable: '--font-nunito',
+  variable: "--font-nunito",
 });
 
 const getAuthData = async () => {
@@ -38,7 +42,7 @@ const getAuthData = async () => {
       const user = await fetchUser(token.value);
 
       if (!user) {
-        console.log('getAuthData :: user is null, returning null');
+        console.log("getAuthData :: user is null, returning null");
         return { user: null, token: null };
       }
 
@@ -48,17 +52,19 @@ const getAuthData = async () => {
 
       const authenticatedUser = {
         ...user,
-        isAuthenticated: true
+        isAuthenticated: true,
       };
-      console.log('getAuthData :: returning authenticated user:', authenticatedUser);
+      console.log(
+        "getAuthData :: returning authenticated user:",
+        authenticatedUser,
+      );
       return { user: authenticatedUser, token: token.value };
-
     } catch (error) {
-      console.error('getAuthData :: error fetching user:', error);
+      console.error("getAuthData :: error fetching user:", error);
       return { user: null, token: null };
     }
   } else {
-    console.log('getAuthData :: no token, returning null');
+    console.log("getAuthData :: no token, returning null");
     return { user: null, token: null };
   }
 };
@@ -67,13 +73,20 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://www.whatsnxt.in"),
   title: {
     default: "whatsnxt - Online skill development & learning provider",
-    template: "%s | whatsnxt"
+    template: "%s | whatsnxt",
   },
-  description: "whatsnxt - Video courses and digital learning through articles and series on different categories. Facilitate learning through trainer search and connect",
+  description:
+    "whatsnxt - Video courses and digital learning through articles and series on different categories. Facilitate learning through trainer search and connect",
   applicationName: "whatsnxt",
   authors: [{ name: "whatsnxt Team" }],
   generator: "Next.js",
-  keywords: ["online learning", "skill development", "courses", "tutorials", "training"],
+  keywords: [
+    "online learning",
+    "skill development",
+    "courses",
+    "tutorials",
+    "training",
+  ],
   creator: "whatsnxt",
   publisher: "whatsnxt",
   formatDetection: {
@@ -84,40 +97,40 @@ export const metadata: Metadata = {
 
   icons: {
     icon: [
-      { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
-      { url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
-      { url: '/favicon.ico', sizes: 'any' }
+      { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+      { url: "/favicon.ico", sizes: "any" },
     ],
-    apple: [
-      { url: '/apple-icon.png', sizes: '180x180', type: 'image/png' }
-    ],
-    shortcut: '/favicon.ico',
+    apple: [{ url: "/apple-icon.png", sizes: "180x180", type: "image/png" }],
+    shortcut: "/favicon.ico",
   },
 
   openGraph: {
-    type: 'website',
-    locale: 'en_US',
-    url: 'https://www.whatsnxt.in',
-    siteName: 'whatsnxt',
+    type: "website",
+    locale: "en_US",
+    url: "https://www.whatsnxt.in",
+    siteName: "whatsnxt",
     title: "whatsnxt - Online skill development & learning provider",
-    description: "whatsnxt - Video courses and digital learning through articles and series on different categories. Facilitate learning through trainer search and connect",
+    description:
+      "whatsnxt - Video courses and digital learning through articles and series on different categories. Facilitate learning through trainer search and connect",
     images: [
       {
-        url: '/og-image.jpg',
+        url: "/og-image.jpg",
         width: 1200,
         height: 630,
-        alt: 'whatsnxt - Online Learning Platform',
-        type: 'image/jpeg',
-      }
-    ]
+        alt: "whatsnxt - Online Learning Platform",
+        type: "image/jpeg",
+      },
+    ],
   },
 
   twitter: {
-    card: 'summary_large_image',
+    card: "summary_large_image",
     title: "whatsnxt - Online skill development & learning provider",
-    description: "whatsnxt - Video courses and digital learning through articles and series on different categories. Facilitate learning through trainer search and connect",
-    images: ['/twitter-image.jpg'],
-    creator: '@whatsnxt',
+    description:
+      "whatsnxt - Video courses and digital learning through articles and series on different categories. Facilitate learning through trainer search and connect",
+    images: ["/twitter-image.jpg"],
+    creator: "@whatsnxt",
   },
 
   alternates: {
@@ -126,8 +139,8 @@ export const metadata: Metadata = {
 
   appleWebApp: {
     capable: true,
-    statusBarStyle: 'default',
-    title: 'whatsnxt',
+    statusBarStyle: "default",
+    title: "whatsnxt",
   },
 
   verification: {
@@ -135,7 +148,7 @@ export const metadata: Metadata = {
     yandex: process.env.YANDEX_VERIFICATION,
   },
 
-  category: 'education',
+  category: "education",
 
   robots: {
     index: true,
@@ -143,79 +156,87 @@ export const metadata: Metadata = {
     googleBot: {
       index: true,
       follow: true,
-      'max-video-preview': -1,
-      'max-image-preview': 'large',
-      'max-snippet': -1,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
     },
   },
 
-  manifest: '/manifest.json',
+  manifest: "/manifest.json",
 
   // Add Local Business Schema here
   other: {
-    'application/ld+json': JSON.stringify({
+    "application/ld+json": JSON.stringify({
       "@context": "https://schema.org",
       "@type": "EducationalOrganization",
-      "name": "whatsnxt",
-      "alternateName": "whatsnxt - Online Learning Platform",
-      "description": "Video courses and digital learning through articles and series on different categories. Facilitate learning through trainer search and connect",
-      "url": "https://www.whatsnxt.in",
-      "logo": "https://www.whatsnxt.in/logo.png",
-      "image": "https://www.whatsnxt.in/og-image.jpg",
-      "foundingDate": "2024", // Update with your actual founding date
-      "founder": {
+      name: "whatsnxt",
+      alternateName: "whatsnxt - Online Learning Platform",
+      description:
+        "Video courses and digital learning through articles and series on different categories. Facilitate learning through trainer search and connect",
+      url: "https://www.whatsnxt.in",
+      logo: "https://www.whatsnxt.in/logo.png",
+      image: "https://www.whatsnxt.in/og-image.jpg",
+      foundingDate: "2024", // Update with your actual founding date
+      founder: {
         "@type": "Organization",
-        "name": "whatsnxt Team"
+        name: "whatsnxt Team",
       },
-      "address": {
+      address: {
         "@type": "PostalAddress",
-        "addressLocality": "Hyderabad", // Update with your city
-        "addressRegion": "Telangana",
-        "addressCountry": "IN"
+        addressLocality: "Hyderabad", // Update with your city
+        addressRegion: "Telangana",
+        addressCountry: "IN",
       },
-      "contactPoint": {
+      contactPoint: {
         "@type": "ContactPoint",
-        "contactType": "customer service",
-        "availableLanguage": ["English", "Hindi", "Telugu"]
+        contactType: "customer service",
+        availableLanguage: ["English", "Hindi", "Telugu"],
       },
-      "offers": {
+      offers: {
         "@type": "Offer",
-        "category": "Educational Services",
-        "description": "Online skill development courses and training programs"
+        category: "Educational Services",
+        description: "Online skill development courses and training programs",
       },
-      "serviceArea": {
+      serviceArea: {
         "@type": "Country",
-        "name": "India"
+        name: "India",
       },
-      "educationalCredentialAwarded": "Certificate of Completion",
-      "hasCredential": {
+      educationalCredentialAwarded: "Certificate of Completion",
+      hasCredential: {
         "@type": "EducationalOccupationalCredential",
-        "credentialCategory": "Professional Development"
+        credentialCategory: "Professional Development",
       },
-      "sameAs": [
+      sameAs: [
         "https://x.com/whatsnxtsocial",
         // Add other social media URLs
         // "https://www.facebook.com/whatsnxt",
         // "https://www.linkedin.com/company/whatsnxt",
         // "https://www.youtube.com/channel/whatsnxt"
-      ]
-    })
-  }
+      ],
+    }),
+  },
 };
 
 async function RootLayout({ children }: { children: ReactNode }) {
-
   const { user, token } = await getAuthData();
   // console.log('RootLayout :: userData:', user)
 
   return (
-    <html lang="en" className={`${nunito.variable} ${nunito.className}`} suppressHydrationWarning>
+    <html
+      lang="en"
+      className={`${nunito.variable} ${nunito.className}`}
+      suppressHydrationWarning
+    >
       {/* ... head content ... */}
       <head>
         <ColorSchemeScript defaultColorScheme="light" />
         {/* Resource hints for actual services you use */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin=""
+        />
         <link rel="preconnect" href="https://res.cloudinary.com" />
         <link rel="preconnect" href="https://api.cloudinary.com" />
 
@@ -226,7 +247,10 @@ async function RootLayout({ children }: { children: ReactNode }) {
         <link rel="dns-prefetch" href="//whatsnxt.in" />
         <link rel="dns-prefetch" href="//www.googletagmanager.com" />
 
-        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes" />
+        <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes"
+        />
         <meta name="theme-color" content="#000000" />
         <meta name="msapplication-TileColor" content="#000000" />
 
@@ -248,7 +272,7 @@ async function RootLayout({ children }: { children: ReactNode }) {
         </Providers>
 
         {/* Keep only essential scripts */}
-        {process.env.NODE_ENV === 'production' && (
+        {process.env.NODE_ENV === "production" && (
           <>
             {/* Google Analytics */}
             <Script
@@ -297,10 +321,9 @@ async function RootLayout({ children }: { children: ReactNode }) {
             />
           </>
         )}
-
       </body>
     </html>
-  )
+  );
 }
 
-export default RootLayout
+export default RootLayout;

@@ -79,7 +79,7 @@
     "knip": "5.61.0",
     "lexical": "^0.39.0",
     "lowlight": "3.3.0",
-    "material-react-table": "3.2.1",
+    "mantine-datatable": "^8.3.13",
     "next": "16.1.6",
     "next-redux-wrapper": "8.1.0",
     "nextjs-toploader": "3.8.16",
