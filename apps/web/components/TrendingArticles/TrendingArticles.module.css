@@ -1,121 +1,13 @@
 /* TrendingArticles.module.css */
 
-/* High contrast carousel controls */
-.carouselControl {
-    background-color: light-dark(#ffffff, var(--mantine-color-dark-6)) !important;
-    border: 1px solid light-dark(#0066cc, var(--mantine-color-indigo-5)) !important;
-    color: light-dark(#0066cc, var(--mantine-color-indigo-4)) !important;
+/* Card image container — fixed height so cards are uniform */
+.imageContainer {
+    position: relative;
+    width: 100%;
+    height: 180px;
+    overflow: hidden;
 }
 
-.carouselControl:hover {
-    background-color: light-dark(#0066cc, var(--mantine-color-indigo-6)) !important;
-    color: #ffffff !important;
-}
-
-.carouselControl[data-inactive] {
-    opacity: 0;
-    cursor: default;
-}
-
-.carouselIndicator {
-    width: 12px;
-    height: 4px;
-    transition: width 250ms ease;
-    background-color: light-dark(#cccccc, var(--mantine-color-dark-4)) !important;
-}
-
-.carouselIndicator[data-active] {
-    width: 40px;
-    background-color: light-dark(#0066cc, var(--mantine-color-indigo-5)) !important;
-}
-
-/* High contrast text improvements */
-.trendingTitle {
-    color: light-dark(#1a1a1a, var(--mantine-color-white)) !important;
-    font-weight: 600;
-}
-
-.trendingTitleClickable {
-    color: light-dark(#1a1a1a, var(--mantine-color-white)) !important;
-    font-weight: 600;
-    cursor: pointer;
-}
-
-.trendingDescription {
-    color: light-dark(#333333, var(--mantine-color-dimmed)) !important;
-    /* Better than dimmed for contrast */
-}
-
-.trendingMeta {
-    color: light-dark(#555555, var(--mantine-color-dimmed)) !important;
-    /* High contrast for meta text */
-    max-width: 120px;
-}
-
-/* Empty state high contrast */
-.trendingEmptyTitle {
-    color: light-dark(#333333, var(--mantine-color-white)) !important;
-}
-
-.trendingEmptyText {
-    color: light-dark(#555555, var(--mantine-color-dimmed)) !important;
-}
-
-.trendingEmptyIcon {
-    color: light-dark(#666666, var(--mantine-color-dimmed)) !important;
-}
-
-/* Button styles */
-.trendingReadMore {
-    background-color: #0066cc;
-    color: #ffffff;
-    font-weight: 600;
-    transition: all 200ms ease;
-    border: none;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    text-rendering: optimizeLegibility;
-}
-
-.trendingReadMore:hover {
-    background-color: #0052a3 !important;
-    color: #ffffff !important;
-    transform: translateY(-2px);
-}
-
-/* Card styles */
-.trendingCard {
-    display: flex;
-    flex-direction: column;
-    transition: box-shadow 200ms ease;
-    cursor: pointer;
-    border: 0.75px solid light-dark(#d1d5db, var(--mantine-color-dark-4));
-}
-
-.trendingCard:hover {
-    box-shadow: light-dark(0 10px 25px -5px rgba(0, 102, 204, 0.25),
-            0 10px 25px -5px rgba(99, 102, 241, 0.4)),
-        light-dark(0 10px 10px -5px rgba(0, 102, 204, 0.1),
-            0 10px 10px -5px rgba(99, 102, 241, 0.2));
-}
-
-/* Avatar styles */
-.trendingAvatar {
-    background-color: #0066cc;
-}
-
-/* Image styles */
-.trendingImage {
+.image {
     object-fit: cover;
-    border: 0.5px solid light-dark(#e3dfdf, var(--mantine-color-dark-4));
-    border-radius: var(--mantine-radius-lg);
-}
-
-/* Paper styles */
-.trendingEmptyPaper {
-    border-color: light-dark(#d1d5db, var(--mantine-color-dark-4));
-}
-
-/* Stack styles */
-.trendingContentStack {
-    flex: 1;
 }

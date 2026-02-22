@@ -30,6 +30,7 @@ WhatsNxt is a Turbo monorepo with:
 
 - **Cyclomatic complexity**: Max 5 per function, max 10 for `.tsx` and `.ts` files
 - **SOLID principles**: Mandatory
+- **UI Standards**: Always use mantine elements and styles unless not possible. Always use css modules instead of inline styles.
 - **TypeScript**: Strict mode, interfaces in `types/` folders
 - **Testing**: Use vitest
 - **D3 shsapes and diagrams**: Shapes and arrows must not overlap. If shapes need nested, use groups and pools. All arrows should be deletable

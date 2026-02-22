@@ -1,13 +1,13 @@
-"use client"
+"use client";
 
-import { MainBanner } from '@whatsnxt/core-ui'
-import React from 'react'
-import dynamic from 'next/dynamic'
-import PartyTownScripts from '../../../components/PartyTownScripts'
+import { MainBanner } from "@whatsnxt/core-ui";
+import dynamic from "next/dynamic";
+import React from "react";
+import PartyTownScripts from "../../../components/PartyTownScripts";
 
 const DynamicComponent = dynamic(() =>
-  import('../../../components/MicroFrontEnd').then((mfe) => mfe)
-)
+  import("../../../components/MicroFrontEnd").then((mfe) => mfe),
+);
 
 interface HomeProps {
   data: {
@@ -19,9 +19,10 @@ interface HomeProps {
     tutorials: any[];
     total: number;
   };
+  labs: any[];
 }
 
-function Home({ data, articles, tutorialsData }: HomeProps) {
+function Home({ data, articles, tutorialsData, labs }: HomeProps) {
   return (
     <div>
       <MainBanner />
@@ -32,9 +33,10 @@ function Home({ data, articles, tutorialsData }: HomeProps) {
         totalArticles={articles?.length || 0} // Match the prop name
         tutorials={tutorialsData?.tutorials || []}
         totalTutorials={tutorialsData?.total || 0}
+        labs={labs || []}
       />
     </div>
-  )
+  );
 }
 
-export default Home
+export default Home;

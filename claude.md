@@ -29,6 +29,7 @@ WhatsNxt is a Turbo monorepo with:
 ### 2. Code Quality Standards
 
 - **Cyclomatic complexity**: Max 5 per function, max 10 for `.tsx` and `.ts` files
+- **UI Standards**: Always use mantine elements and styles unless not possible. Always use css modules instead of inline styles.
 - **SOLID principles**: Mandatory
 - **TypeScript**: Strict mode, interfaces in `types/` folders
 - **Testing**: Use vitest

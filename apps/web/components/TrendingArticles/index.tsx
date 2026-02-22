@@ -1,28 +1,26 @@
 "use client";
 
-import React from 'react';
 import {
-  Container,
-  Title,
-  Card,
-  Image,
-  Text,
-  Badge,
-  Stack,
-  Button,
   Avatar,
-  Center,
-  rem,
-  Paper,
+  Badge,
   Box,
+  Button,
+  Center,
+  Container,
   Group,
-  useMantineColorScheme,
-} from '@mantine/core';
-import { Carousel } from '@mantine/carousel';
-import { IconUser, IconEye, IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
-import '@mantine/carousel/styles.css';
-import { createExcerpt } from '@whatsnxt/core-util';
-import styles from './TrendingArticles.module.css';
+  Paper,
+  rem,
+  SimpleGrid,
+  Stack,
+  Text,
+  Title,
+} from "@mantine/core";
+import { IconEye, IconUser } from "@tabler/icons-react";
+import { CardComponent } from "@whatsnxt/core-ui";
+import { createExcerpt, InfiniteScrollComponent } from "@whatsnxt/core-util";
+import Image from "next/image";
+import { useState } from "react";
+import styles from "./TrendingArticles.module.css";
 
 interface Article {
   _id: string;
@@ -42,272 +40,158 @@ interface TrendingArticlesProps {
   total: number;
 }
 
-const TrendingArticles = ({ articles, total }: TrendingArticlesProps) => {
-  const { colorScheme } = useMantineColorScheme();
-  const isDark = colorScheme === 'dark';
+const BATCH_SIZE = 4;
 
+const TrendingArticles = ({ articles, total }: TrendingArticlesProps) => {
+  const [displayCount, setDisplayCount] = useState(BATCH_SIZE);
+
+  const visibleArticles = articles.slice(0, displayCount);
+  const hasMore = displayCount < articles.length;
+
+  const loadMore = () => {
+    setDisplayCount((prev) => Math.min(prev + BATCH_SIZE, articles.length));
+  };
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
     });
   };
 
-  const handleReadMore = (slug: string) => {
-    // Add validation
-    if (!slug || slug === 'undefined') {
-      console.warn('Invalid slug provided:', slug);
-      window.location.href = 'https://www.whatsnxt.in/'; // fallback to home page
-      return;
-    }
-    window.location.href = `/content/${slug}`;
-  };
-
-  const handleKeyDown = (event: React.KeyboardEvent, slug: string) => {
-    if (event.key === 'Enter' || event.key === ' ') {
-      event.preventDefault();
-      handleReadMore(slug);
-    }
-  };
+  const getLink = (slug: string) =>
+    !slug || slug === "undefined"
+      ? "https://www.whatsnxt.in/"
+      : `/content/${slug}`;
 
   return (
-    <Container size="xl" py="xl">
-      <Stack gap="xl">
-        {/* Enhanced Header with Gradient */}
-        <Group justify="center" align="center" mb="md">
-          <Box
-            style={{
-              width: 40,
-              height: 40,
-              borderRadius: '50%',
-              background: 'linear-gradient(135deg, var(--mantine-color-indigo-6), var(--mantine-color-cyan-5))',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              boxShadow: isDark
-                ? '0 4px 12px rgba(99, 102, 241, 0.5)'
-                : '0 4px 12px rgba(99, 102, 241, 0.25)'
-            }}
+    <Container size="xl">
+      <Stack gap="lg">
+        {/* Mobile: all centred, badge directly under heading */}
+        <Stack align="center" gap={4} hiddenFrom="sm">
+          <Text
+            size="xs"
+            fw={700}
+            tt="uppercase"
+            c="indigo"
+            style={{ letterSpacing: "0.07em" }}
           >
-            <IconEye size={20} color="white" />
-          </Box>
-          <div>
-            <Group gap="sm">
-              <Title
-                order={4}
-                fw={800}
-                style={{
-                  background: 'linear-gradient(135deg, var(--mantine-color-indigo-7) 0%, var(--mantine-color-cyan-6) 100%)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent'
-                }}
-              >
-                Trending Articles
-              </Title>
-              <Badge
-                size="md"
-                variant="gradient"
-                gradient={{ from: 'indigo', to: 'cyan', deg: 45 }}
-                radius="xl"
-                styles={{
-                  root: {
-                    textTransform: 'none',
-                    fontWeight: 600
-                  }
-                }}
-              >
-                {total} Articles
-              </Badge>
-            </Group>
-            <Text c="dimmed" size="sm" mt={4}>
-              Discover the most popular content
+            Latest Reading
+          </Text>
+          <Title order={5} ta="center" fw={700}>
+            Trending Articles
+          </Title>
+          <Badge size="md" variant="light" color="indigo" radius="xl">
+            {total} Articles
+          </Badge>
+        </Stack>
+
+        {/* Desktop: centred title with badge pinned right */}
+        <Box pos="relative" visibleFrom="sm">
+          <Stack align="center" gap={2}>
+            <Text
+              size="xs"
+              fw={700}
+              tt="uppercase"
+              c="indigo"
+              style={{ letterSpacing: "0.07em" }}
+            >
+              Latest Reading
             </Text>
-          </div>
-        </Group>
-
-        {/* Articles Carousel */}
-        {articles.length > 0 ? (
-          <Carousel
-            withControls
-            height={480}
-            slideSize={{ base: '100%', sm: '50%', md: '33.333333%' }}
-            slideGap={{ base: 0, sm: 'md' }}
-            controlsOffset="xs"
-            controlSize={40}
-            nextControlIcon={<IconChevronRight size={20} />}
-            previousControlIcon={<IconChevronLeft size={20} />}
-            draggable
-            classNames={{
-              control: styles.carouselControl,
-              indicator: styles.carouselIndicator,
-            }}
+            <Title order={5} ta="center" fw={700}>
+              Trending Articles
+            </Title>
+          </Stack>
+          <Badge
+            pos="absolute"
+            right={0}
+            top="50%"
+            style={{ transform: "translateY(-50%)" }}
+            size="md"
+            variant="light"
+            color="indigo"
+            radius="xl"
           >
-            {articles.map((article) => (
-              <Carousel.Slide key={article._id}>
-                <Card
-                  shadow="lg"
-                  padding="0"
-                  radius="lg"
-                  h="100%"
-                  withBorder
-                  className={styles.trendingCard}
-                  tabIndex={0}
-                  role="article"
-                  aria-label={`Article: ${article.title}`}
-                  onKeyDown={(e) => handleKeyDown(e, article.slug)}
-                  styles={{
-                    root: {
-                      transition: 'all 0.3s ease',
-                      '&:hover': {
-                        transform: 'translateY(-4px)',
-                        boxShadow: isDark
-                          ? '0 8px 24px rgba(99, 102, 241, 0.35)'
-                          : '0 8px 24px rgba(99, 102, 241, 0.15)'
-                      }
-                    }
-                  }}
-                >
-                  <Card.Section>
-                    <Box style={{
-                      position: 'relative',
-                      overflow: 'hidden',
-                      aspectRatio: '16/9',
-                      width: '100%'
-                    }}>
-                      <Image
-                        onClick={() => handleReadMore(article.slug)}
-                        src={article.imageUrl || '/placeholder-article.jpg'}
-                        height="100%"
-                        width="100%"
-                        alt={`Cover image for article: ${article.title}`}
-                        fit="cover"
-                        className={styles.trendingImage}
-                        fetchPriority='auto'
-                        styles={{
-                          root: {
-                            objectFit: 'cover',
-                            width: '100%',
-                            height: '100%',
-                            transition: 'transform 0.3s ease',
-                            '&:hover': {
-                              transform: 'scale(1.05)'
-                            }
-                          }
-                        }}
-                      />
+            {total} Articles
+          </Badge>
+        </Box>
+
+        {articles.length > 0 ? (
+          <InfiniteScrollComponent
+            isLoading={false}
+            isScrollCompleted={!hasMore}
+            onViewPortCallback={loadMore}
+          >
+            <SimpleGrid cols={{ base: 1, sm: 2, md: 3, lg: 4 }} spacing="lg">
+              {visibleArticles.map((article) => (
+                <CardComponent
+                  key={article._id}
+                  courseName={article.title}
+                  link={getLink(article.slug)}
+                  image={
+                    <Box className={styles.imageContainer}>
+                      {article.imageUrl && (
+                        <Image
+                          fill
+                          className={styles.image}
+                          alt={article.title}
+                          src={article.imageUrl}
+                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                        />
+                      )}
                     </Box>
-                  </Card.Section>
+                  }
+                >
+                  <Badge
+                    variant="light"
+                    color="indigo"
+                    size="xs"
+                    tt="uppercase"
+                    fw={600}
+                    mb="xs"
+                  >
+                    {article.categoryName}
+                  </Badge>
 
-                  <Stack gap="xs" mt="md" px="md" pb="md" className={styles.trendingContentStack}>
-                    {/* Category Badge with gradient */}
-                    <Badge
-                      variant="light"
-                      size="sm"
-                      w="fit-content"
-                      color="indigo"
-                      radius="md"
-                      styles={{
-                        root: {
-                          textTransform: 'uppercase',
-                          fontWeight: 600,
-                          fontSize: '0.7rem'
-                        }
-                      }}
-                    >
-                      {article.categoryName}
-                    </Badge>
+                  {article.description && (
+                    <Text size="xs" c="dimmed" lineClamp={2} mb="xs">
+                      {createExcerpt(article.description)}
+                    </Text>
+                  )}
 
-                    {/* Title with high contrast */}
-                    <Title
-                      order={5}
-                      lineClamp={1}
-                      fw={600}
-                      size="sm"
-                      my={'xs'}
-                      className={styles.trendingTitleClickable}
-                      onClick={() => handleReadMore(article.slug)}
-                      tabIndex={0}
-                      onKeyDown={(e) => handleKeyDown(e, article.slug)}
-                    >
-                      {article.title}
-                    </Title>
+                  <Group gap="xs" mb="sm">
+                    <Avatar size="xs" radius="xl" color="indigo">
+                      <IconUser size={rem(10)} color="#ffffff" />
+                    </Avatar>
+                    <Text size="xs" c="dimmed" suppressHydrationWarning>
+                      {formatDate(article.updatedAt)}
+                    </Text>
+                  </Group>
 
-                    {/* Description with improved contrast */}
-                    {article.description && (
-                      <Text
-                        size="sm"
-                        lineClamp={1}
-                        m={0}
-                        className={styles.trendingDescription}
-                      >
-                        {createExcerpt(article.description)}
-                      </Text>
-                    )}
-
-                    {/* Author and Date with high contrast */}
-                    <Group gap="xs" mt="auto" mb="xs">
-                      <Avatar size="xs" radius="xl" className={styles.trendingAvatar}>
-                        <IconUser size={rem(12)} color="#ffffff" />
-                      </Avatar>
-                      <Text
-                        size="xs"
-                        truncate
-                        className={styles.trendingMeta}
-                      >
-                        {article.author}
-                      </Text>
-                      <Text
-                        size="xs"
-                        className={styles.trendingMeta}
-                        suppressHydrationWarning
-                      >
-                        {formatDate(article.updatedAt)}
-                      </Text>
-                    </Group>
-
-                    {/* Enhanced Read More Button */}
-                    <Button
-                      variant="gradient"
-                      gradient={{ from: 'indigo', to: 'cyan', deg: 45 }}
-                      size="xs"
-                      fullWidth
-                      radius="xl"
-                      mb={12}
-                      className={`${styles.trendingReadMore} ${styles.trendingButton}`}
-                      onClick={() => handleReadMore(article.slug)}
-                      styles={{
-                        root: {
-                          fontWeight: 600,
-                          transition: 'all 0.2s ease'
-                        }
-                      }}
-                    >
-                      Read More →
-                    </Button>
-                  </Stack>
-                </Card>
-              </Carousel.Slide>
-            ))}
-          </Carousel>
+                  <Button
+                    component="a"
+                    href={getLink(article.slug)}
+                    variant="filled"
+                    color="indigo"
+                    size="xs"
+                    fullWidth
+                    radius="md"
+                  >
+                    Read More →
+                  </Button>
+                </CardComponent>
+              ))}
+            </SimpleGrid>
+          </InfiniteScrollComponent>
         ) : (
-          <Paper radius="md" p="xl" withBorder className={styles.trendingEmptyPaper}>
+          <Paper radius="md" p="xl" withBorder>
             <Center py="xl">
               <Stack align="center" gap="md">
-                <IconEye
-                  size={48}
-                  className={styles.trendingEmptyIcon}
-                />
-                <Title
-                  order={3}
-                  className={styles.trendingEmptyTitle}
-                >
+                <IconEye size={48} color="var(--mantine-color-dimmed)" />
+                <Title order={3} c="dimmed">
                   No trending articles available
                 </Title>
-                <Text
-                  ta="center"
-                  className={styles.trendingEmptyText}
-                >
+                <Text ta="center" c="dimmed">
                   Check back later for the latest trending content!
                 </Text>
               </Stack>
