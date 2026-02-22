@@ -17,9 +17,8 @@ import {
 } from "@mantine/core";
 import { IconEye, IconUser } from "@tabler/icons-react";
 import { CardComponent } from "@whatsnxt/core-ui";
-import { createExcerpt, InfiniteScrollComponent } from "@whatsnxt/core-util";
+import { createExcerpt } from "@whatsnxt/core-util";
 import Image from "next/image";
-import { useState } from "react";
 import styles from "./TrendingArticles.module.css";
 
 interface Article {
@@ -40,17 +39,11 @@ interface TrendingArticlesProps {
   total: number;
 }
 
-const BATCH_SIZE = 4;
+const MAX_ARTICLES = 8;
 
 const TrendingArticles = ({ articles, total }: TrendingArticlesProps) => {
-  const [displayCount, setDisplayCount] = useState(BATCH_SIZE);
+  const visibleArticles = articles.slice(0, MAX_ARTICLES);
 
-  const visibleArticles = articles.slice(0, displayCount);
-  const hasMore = displayCount < articles.length;
-
-  const loadMore = () => {
-    setDisplayCount((prev) => Math.min(prev + BATCH_SIZE, articles.length));
-  };
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("en-US", {
       year: "numeric",
@@ -117,72 +110,66 @@ const TrendingArticles = ({ articles, total }: TrendingArticlesProps) => {
         </Box>
 
         {articles.length > 0 ? (
-          <InfiniteScrollComponent
-            isLoading={false}
-            isScrollCompleted={!hasMore}
-            onViewPortCallback={loadMore}
-          >
-            <SimpleGrid cols={{ base: 1, sm: 2, md: 3, lg: 4 }} spacing="lg">
-              {visibleArticles.map((article) => (
-                <CardComponent
-                  key={article._id}
-                  courseName={article.title}
-                  link={getLink(article.slug)}
-                  image={
-                    <Box className={styles.imageContainer}>
-                      {article.imageUrl && (
-                        <Image
-                          fill
-                          className={styles.image}
-                          alt={article.title}
-                          src={article.imageUrl}
-                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                        />
-                      )}
-                    </Box>
-                  }
+          <SimpleGrid cols={{ base: 1, sm: 2, md: 3, lg: 4 }} spacing="lg">
+            {visibleArticles.map((article) => (
+              <CardComponent
+                key={article._id}
+                courseName={article.title}
+                link={getLink(article.slug)}
+                image={
+                  <Box className={styles.imageContainer}>
+                    {article.imageUrl && (
+                      <Image
+                        fill
+                        className={styles.image}
+                        alt={article.title}
+                        src={article.imageUrl}
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                      />
+                    )}
+                  </Box>
+                }
+              >
+                <Badge
+                  variant="light"
+                  color="indigo"
+                  size="xs"
+                  tt="uppercase"
+                  fw={600}
+                  mb="xs"
                 >
-                  <Badge
-                    variant="light"
-                    color="indigo"
-                    size="xs"
-                    tt="uppercase"
-                    fw={600}
-                    mb="xs"
-                  >
-                    {article.categoryName}
-                  </Badge>
+                  {article.categoryName}
+                </Badge>
 
-                  {article.description && (
-                    <Text size="xs" c="dimmed" lineClamp={2} mb="xs">
-                      {createExcerpt(article.description)}
-                    </Text>
-                  )}
+                {article.description && (
+                  <Text size="xs" c="dimmed" lineClamp={2} mb="xs">
+                    {createExcerpt(article.description)}
+                  </Text>
+                )}
 
-                  <Group gap="xs" mb="sm">
-                    <Avatar size="xs" radius="xl" color="indigo">
-                      <IconUser size={rem(10)} color="#ffffff" />
-                    </Avatar>
-                    <Text size="xs" c="dimmed" suppressHydrationWarning>
-                      {formatDate(article.updatedAt)}
-                    </Text>
-                  </Group>
+                <Group gap="xs" mb="sm">
+                  <Avatar size="xs" radius="xl" color="indigo">
+                    <IconUser size={rem(10)} color="#ffffff" />
+                  </Avatar>
+                  <Text size="xs" c="dimmed" suppressHydrationWarning>
+                    {formatDate(article.updatedAt)}
+                  </Text>
+                </Group>
 
-                  <Button
-                    component="a"
-                    href={getLink(article.slug)}
-                    variant="filled"
-                    color="indigo"
-                    size="xs"
-                    fullWidth
-                    radius="md"
-                  >
-                    Read More →
-                  </Button>
-                </CardComponent>
-              ))}
-            </SimpleGrid>
-          </InfiniteScrollComponent>
+                <Button
+                  component="a"
+                  href={getLink(article.slug)}
+                  variant="filled"
+                  color="indigo"
+                  size="xs"
+                  fullWidth
+                  radius="md"
+                >
+                  Read More →
+                </Button>
+              </CardComponent>
+            ))}
+          </SimpleGrid>
         ) : (
           <Paper radius="md" p="xl" withBorder>
             <Center py="xl">
