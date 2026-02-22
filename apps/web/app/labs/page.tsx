@@ -273,15 +273,15 @@ const LabsPage = () => {
           </Text>
         </Stack>
 
-        <div style={{
+        {/* <div style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
           gap: '24px',
           position: 'relative',
           zIndex: 1
-        }}>
+        }}> */}
           {/* Card 1: Cloud Architecture */}
-          <FeatureCard
+          {/* <FeatureCard
             icon={<IconCloud size={28} />}
             color="blue"
             title="Cloud Architecture"
@@ -293,10 +293,10 @@ const LabsPage = () => {
                 <Badge variant="outline" color="red">GCP</Badge>
               </>
             }
-          />
+          /> */}
 
           {/* Card 2: DevOps & Containers */}
-          <FeatureCard
+          {/* <FeatureCard
             icon={<IconBrandDocker size={28} />}
             color="cyan"
             title="DevOps & Containers"
@@ -307,10 +307,10 @@ const LabsPage = () => {
                 <Badge variant="outline" color="indigo">Kubernetes</Badge>
               </>
             }
-          />
+          /> */}
 
           {/* Card 3: Education & Creativity */}
-          <FeatureCard
+          {/* <FeatureCard
             icon={<IconSchool size={28} />}
             color="green"
             title="Interactive Education"
@@ -321,8 +321,8 @@ const LabsPage = () => {
                 <Badge variant="outline" color="teal">Visual Learning</Badge>
               </>
             }
-          />
-        </div>
+          /> */}
+        {/* </div> */}
       </Paper>
 
       <Group justify="space-between" mb="xl">
