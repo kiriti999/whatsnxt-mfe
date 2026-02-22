@@ -65,7 +65,7 @@ const TrendingArticles = ({ articles, total }: TrendingArticlesProps) => {
       : `/content/${slug}`;
 
   return (
-    <Container size="xl">
+    <Container size="xl" my={'3.5rem'}>
       <Stack gap="lg">
         {/* Mobile: all centred, badge directly under heading */}
         <Stack align="center" gap={4} hiddenFrom="sm">
