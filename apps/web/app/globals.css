@@ -592,6 +592,8 @@ Profile Authentication Area CSS
   align-items: center;
   display: inline-flex;
   background-color: #00d53b;
+  color: #fff;
+  font-weight: 600;
   object-fit: cover;
   height: 2em;
   width: 2em;
@@ -649,6 +651,13 @@ Profile Authentication Area CSS
 
 .comment-name {
   margin-left: 3.9rem;
+  color: light-dark(rgba(0, 0, 0, 0.85), rgba(255, 255, 255, 1));
+}
+
+@media (max-width: 767px) {
+  .comment-name {
+    margin-left: 3rem;
+  }
 }
 
 .comment-heading {

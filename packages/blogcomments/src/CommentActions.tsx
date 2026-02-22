@@ -83,7 +83,7 @@ const CommentActions = ({
                         )}
 
                         <Group gap={'0.2rem'}>
-                            <ActionIcon onClick={likeComment} variant='transparent'>
+                            <ActionIcon onClick={likeComment} variant='transparent' size='sm'>
                                 {comment.hasLiked ? (
                                     <IconThumbUpFilled size={15} />
                                 ) : (
@@ -94,7 +94,7 @@ const CommentActions = ({
                         </Group>
 
                         <Group gap={'0.2rem'}>
-                            <ActionIcon onClick={dislikeComment} variant='transparent'>
+                            <ActionIcon onClick={dislikeComment} variant='transparent' size='sm'>
                                 {comment.hasDisliked ? (
                                     <IconThumbDownFilled size={15} />
                                 ) : (

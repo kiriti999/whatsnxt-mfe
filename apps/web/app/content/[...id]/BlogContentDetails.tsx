@@ -1,6 +1,5 @@
 'use client';
 import { useEffect, useState, useCallback } from 'react';
-import { AnalyticsAPI } from '../../../apis/v1/blog/analyticsApi';
 import SidebarPost from '../../../components/Blog/sidebar';
 import BlogComment from '@whatsnxt/blogcomments/src';
 import { CommentContextProvider } from '@whatsnxt/blogcomments/src/contexts/comment-context';
@@ -10,7 +9,7 @@ import SidebarHeadings from '../../../components/Blog/sidebar-headings';
 import StickyHeader from '../../../components/Blog/Content/StickyHeader';
 import { SkeletonBlogContent } from '@whatsnxt/core-ui';
 import useAuth from '../../../hooks/Authentication/useAuth';
-import { Box, Container, Grid, GridCol, Stack } from '@mantine/core';
+import { Box, Container, Grid, GridCol, Paper, Stack, Title } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import useCommentHandlers from '@whatsnxt/blogcomments/src/hooks/useCommentHandlers';
 
@@ -142,20 +141,52 @@ function BlogContentDetails({ details }: BlogContentDetailsProps) {
             <Box>
               <Grid gutter={'xl'}>
                 <GridCol span={{ base: 12, md: 9 }} >
-                  <BlogContent
-                    url={url}
-                    views={views}
-                    title={item.title}
-                    thumbnailUrn={item.imageUrl}
-                    updatedAt={item.updatedAt}
-                    timeToRead={item.timeToRead}
-                    loading={loading}
-                    contentFormat={item.contentFormat}
-                    description={item.description}
-                    lexicalState={item.lexicalState}
-                    onHeadingsExtracted={onHeadingsExtracted}
-                    setActiveHeading={setActiveHeading}
-                  />
+                  <Stack gap="md">
+                    <BlogContent
+                      url={url}
+                      views={views}
+                      title={item.title}
+                      thumbnailUrn={item.imageUrl}
+                      updatedAt={item.updatedAt}
+                      timeToRead={item.timeToRead}
+                      loading={loading}
+                      contentFormat={item.contentFormat}
+                      description={item.description}
+                      lexicalState={item.lexicalState}
+                      onHeadingsExtracted={onHeadingsExtracted}
+                      setActiveHeading={setActiveHeading}
+                    />
+
+                    {/* Comments Paper */}
+                    <Paper radius="xs">
+                      <Stack gap="md">
+                        <Title order={4}>Comments</Title>
+                        <CommentReplyContextProvider
+                          email={email}
+                          contentId={contentId}
+                          handleComments={handleComments}
+                          comments={comments}
+                        >
+                          <CommentContextProvider>
+                            <BlogComment
+                              userId={userId}
+                              email={email}
+                              comment={comments}
+                              item={item}
+                              root={true}
+                              rootDepth={1}
+                              contentId={contentId}
+                              handleInsertNode={handleInsertNode}
+                              handleEditNode={handleEditNode}
+                              handleDeleteNode={handleDeleteNode}
+                              handleComments={handleComments}
+                              handleSubComment={handleSubComment}
+                            />
+                          </CommentContextProvider>
+                        </CommentReplyContextProvider>
+                      </Stack>
+                    </Paper>
+                  </Stack>
                 </GridCol>
 
                 <GridCol span={{ base: 12, md: 3 }}>
@@ -174,34 +205,6 @@ function BlogContentDetails({ details }: BlogContentDetailsProps) {
                   </Box>
                 </GridCol>
               </Grid>
-
-              <Container fluid>
-                <Stack my={'xl'}>
-                  <CommentReplyContextProvider
-                    email={email}
-                    contentId={contentId}
-                    handleComments={handleComments}
-                    comments={comments}
-                  >
-                    <CommentContextProvider>
-                      <BlogComment
-                        userId={userId}
-                        email={email}
-                        comment={comments}
-                        item={item}
-                        root={true}
-                        rootDepth={1}
-                        contentId={contentId}
-                        handleInsertNode={handleInsertNode}
-                        handleEditNode={handleEditNode}
-                        handleDeleteNode={handleDeleteNode}
-                        handleComments={handleComments}
-                        handleSubComment={handleSubComment}
-                      />
-                    </CommentContextProvider>
-                  </CommentReplyContextProvider>
-                </Stack>
-              </Container>
 
             </Box>
           </>

@@ -1,32 +1,35 @@
-/* Keep your existing styles and add these new ones */
+.sidebarTitle {
+    color: light-dark(rgba(0, 0, 0, 0.8), rgba(255, 255, 255, 0.9));
+}
 
 .headingTile {
-    transition: all 0.2s ease;
-    background-color: light-dark(var(--mantine-color-white), var(--mantine-color-dark-6));
-    border: 1px solid light-dark(var(--mantine-color-gray-2), var(--mantine-color-dark-4));
+    transition: all 0.15s ease;
+    background-color: transparent;
+    border-bottom: 1px solid light-dark(var(--mantine-color-gray-2), var(--mantine-color-dark-5));
+    border-radius: 0;
 }
 
 .headingTile:hover {
-    background-color: light-dark(var(--mantine-color-gray-0), var(--mantine-color-dark-5));
-    transform: translateY(-1px);
-    border-color: light-dark(var(--mantine-color-blue-4), var(--mantine-color-blue-5));
-    box-shadow: var(--mantine-shadow-sm);
+    background-color: light-dark(var(--mantine-color-gray-0), var(--mantine-color-dark-6));
+    padding-left: 0.6rem;
 }
 
 .headingTileActive {
-    background-color: light-dark(var(--mantine-color-blue-0), var(--mantine-color-dark-5));
-    border-color: light-dark(var(--mantine-color-blue-5), var(--mantine-color-blue-6));
+    background-color: light-dark(var(--mantine-color-blue-0), rgba(66, 133, 244, 0.08));
+    border-left: 3px solid light-dark(var(--mantine-color-blue-6), var(--mantine-color-blue-4));
+    border-bottom: 1px solid light-dark(var(--mantine-color-gray-2), var(--mantine-color-dark-5));
 }
 
 .headingTileActive:hover {
-    background-color: light-dark(var(--mantine-color-blue-0), var(--mantine-color-dark-5));
-    transform: translateY(-1px);
+    background-color: light-dark(var(--mantine-color-blue-0), rgba(66, 133, 244, 0.12));
 }
 
 .headingText {
-    color: light-dark(rgba(0, 0, 0, 0.65), rgba(255, 255, 255, 0.85));
+    color: light-dark(rgba(0, 0, 0, 0.6), rgba(255, 255, 255, 0.7));
+    font-size: 0.875rem;
 }
 
 .headingTextActive {
     color: light-dark(var(--mantine-color-blue-7), var(--mantine-color-blue-4));
+    font-size: 0.875rem;
 }

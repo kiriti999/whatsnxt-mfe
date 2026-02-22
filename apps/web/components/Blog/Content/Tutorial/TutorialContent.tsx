@@ -1,7 +1,7 @@
 'use client';
 
 import type { Dispatch, SetStateAction } from 'react';
-import { useEffect, useRef, lazy, Suspense } from 'react';
+import { useRef, lazy, Suspense } from 'react';
 import { Box, Title } from '@mantine/core';
 import { useAddIdsToHeadings, useContentRefAndHeadings, useHandleScroll, useLexicalHeadings } from '../../../../hooks/useToc';
 import { syntaxHighlightingTheme } from '../../../RichTextEditor/extensions/CodeHighlight/syntaxHighlightingTheme';
@@ -28,6 +28,33 @@ const codeBlockStyles = `
   /* Base styles for paragraphs */
   .rte p, #blog-content p {
     margin-bottom: 0px;
+  }
+
+  /* Force theme-aware text colors on content (overrides AI-generated inline styles) */
+  .rte h1,
+  .rte h2,
+  .rte h3,
+  .rte h4,
+  .rte h5,
+  .rte h6 {
+    color: light-dark(#221638, var(--mantine-color-white)) !important;
+  }
+
+  .rte p,
+  .rte li,
+  .rte ul,
+  .rte ol,
+  .rte td,
+  .rte th,
+  .rte blockquote,
+  .rte summary,
+  .rte details {
+    color: light-dark(rgba(0, 0, 0, 0.85), rgba(255, 255, 255, 0.9)) !important;
+  }
+
+  .rte strong,
+  .rte b {
+    color: light-dark(rgba(0, 0, 0, 0.95), rgba(255, 255, 255, 1)) !important;
   }
 
   ${syntaxHighlightingTheme}

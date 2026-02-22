@@ -1,4 +1,4 @@
-import { Title, Box, Paper, Stack } from '@mantine/core';
+import { Title, Text, Box, Stack } from '@mantine/core';
 import { useObserverManage } from '../../../hooks/useObserverManage';
 import styles from './sidebarHeadings.module.css';
 
@@ -33,33 +33,29 @@ function SidebarHeadings({
     <>
       {headings.length > 1 && (
         <Box className="widget">
-          <Title order={5} mb={'xs'}
-            style={{ cursor: 'pointer' }}>
+          <Title order={6} mb={'xs'} className={styles.sidebarTitle}>
             On this page:
           </Title>
 
           <Stack gap={0}>
             {headings.map((heading) => (
-              <Paper withBorder={false}
+              <Box
                 key={heading.id}
                 className={`${styles.headingTile} ${heading.id === activeId ? styles.headingTileActive : ''}`}
                 onClick={(e) => handleAnchorClick(e, heading.id)}
                 style={{ cursor: 'pointer' }}
-                radius="xs"
-                shadow={heading.id === activeId ? "md" : "xs"}
-                p="0.4rem"
+                py="xs"
+                px="sm"
               >
-                <Stack gap={0}>
-                  <Title
-                    order={5}
-                    fw={heading.id === activeId ? 500 : 400}
-                    lineClamp={1}
-                    className={heading.id === activeId ? styles.headingTextActive : styles.headingText}
-                  >
-                    {heading.text}
-                  </Title>
-                </Stack>
-              </Paper>
+                <Text
+                  size="sm"
+                  fw={heading.id === activeId ? 600 : 400}
+                  lineClamp={1}
+                  className={heading.id === activeId ? styles.headingTextActive : styles.headingText}
+                >
+                  {heading.text}
+                </Text>
+              </Box>
             ))}
           </Stack>
         </Box>

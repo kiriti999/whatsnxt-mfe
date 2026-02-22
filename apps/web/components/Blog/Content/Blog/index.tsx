@@ -44,6 +44,33 @@ const codeBlockStyles = `
     margin-bottom: 0px;
   }
 
+  /* Force theme-aware text colors on blog content (overrides AI-generated inline styles) */
+  #blog-content .rte h1,
+  #blog-content .rte h2,
+  #blog-content .rte h3,
+  #blog-content .rte h4,
+  #blog-content .rte h5,
+  #blog-content .rte h6 {
+    color: light-dark(#221638, var(--mantine-color-white)) !important;
+  }
+
+  #blog-content .rte p,
+  #blog-content .rte li,
+  #blog-content .rte ul,
+  #blog-content .rte ol,
+  #blog-content .rte td,
+  #blog-content .rte th,
+  #blog-content .rte blockquote,
+  #blog-content .rte summary,
+  #blog-content .rte details {
+    color: light-dark(rgba(0, 0, 0, 0.85), rgba(255, 255, 255, 0.9)) !important;
+  }
+
+  #blog-content .rte strong,
+  #blog-content .rte b {
+    color: light-dark(rgba(0, 0, 0, 0.95), rgba(255, 255, 255, 1)) !important;
+  }
+
   .rte blockquote, 
   #blog-content blockquote,
   .lexical-quote {
@@ -165,10 +192,10 @@ const BlogContent = ({
             {title}
           </Title>
           <Flex align="center" gap="xs" mb="xl">
-            <Text size="0.9rem" c="#6B6B6B" p="0.2rem" style={{ border: '1px dotted gray' }}>
+            <Text size="0.9rem" c="light-dark(rgba(0,0,0,0.6), rgba(255,255,255,0.75))" px="0.4rem" py="0.2rem" style={{ border: '1px dotted light-dark(rgba(0,0,0,0.3), rgba(255,255,255,0.4))' }}>
               {timeToRead || '1 min read'}
             </Text>
-            <Text size="0.4rem" c="#6B6B6B" p="0.4rem" style={{ border: '1px dotted gray' }}>
+            <Text size="0.9rem" c="light-dark(rgba(0,0,0,0.6), rgba(255,255,255,0.75))" px="0.4rem" py="0.2rem" style={{ border: '1px dotted light-dark(rgba(0,0,0,0.3), rgba(255,255,255,0.4))' }}>
               Updated: {formatDate(updatedAt)}
             </Text>
             <ShareOptions

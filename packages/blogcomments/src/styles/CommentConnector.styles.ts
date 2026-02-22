@@ -23,7 +23,7 @@ export const CommentContainer = styled.div<CommentContainerProps>`
     position: absolute;
     inset-inline-start: 15px;
     top: 31px;
-    bottom: ${({ commentHeight }) => `-${48}px`};
+    bottom: ${({ commentHeight }) => `-${66}px`};
     width: 1.5px;
     background: #bbaaaa96;
   }
@@ -37,9 +37,9 @@ export const CommentContainer = styled.div<CommentContainerProps>`
     content: "";
     position: absolute;
     top: -1px;
-    left: ${({ isMobile }) => (isMobile ? "-30px" : "-17px")};
+    left: ${({ isMobile }) => (isMobile ? "-21px" : "-17px")};
     height: 18px;
-    width: 17px;
+    width: ${({ isMobile }) => (isMobile ? "21px" : "17px")};
     -webkit-border-start: 1.5px solid #bbaaaa96;
     border-inline-start: 1.5px solid #bbaaaa96;
     border-bottom: 1.5px solid #bbaaaa96;
@@ -58,7 +58,7 @@ export const CommentContainer = styled.div<CommentContainerProps>`
     font-weight: 600;
     color: #606060;
     cursor: pointer;
-    margin: 1rem 0;
+    margin: 0.75rem 0;
     margin-left: 1rem;
     width: fit-content;
   }
@@ -69,7 +69,7 @@ export const CommentContainer = styled.div<CommentContainerProps>`
 
   .comment-thread {
     padding-left: 32px;
-    margin: 0.5rem 0;
+    margin: 1rem 0;
   }
 
   .comment-input-btn {
@@ -147,7 +147,7 @@ export const CommentContainer = styled.div<CommentContainerProps>`
 
   @media only screen and (max-width: 767px) {
     .comment-thread {
-      padding-left: 50px;
+      padding-left: 36px;
       margin-top: 1rem;
     }
     .child-connector input {
@@ -158,10 +158,10 @@ export const CommentContainer = styled.div<CommentContainerProps>`
     .child-comment-connector::before {
       content: "";
       position: absolute;
-      inset-inline-start: -35px;
+      inset-inline-start: -21px;
       top: -1px;
       height: 18px;
-      width: 35px;
+      width: 21px;
       -webkit-border-start: 1.5px solid #bbaaaa96;
       border-inline-start: 1.5px solid #bbaaaa96;
       border-bottom: 1.5px solid #bbaaaa96;

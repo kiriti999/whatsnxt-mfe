@@ -1,24 +1,21 @@
 import React from 'react';
+import { Anchor, Text } from '@mantine/core';
 
-// Format comment text to display @username with red and #text with green and hyperlinks with blue color
+// Format comment text to display @username, #hashtag, and hyperlinks with theme-aware colors
 export function FormatCommentText(text: any) {
   if (text) {
-    let content = text?.split(/((?:#|@|https?:\/\/[^\s]+)[a-zA-Z]+)/);
-    let hashtag: any;
-    let username: any;
+    const content = text?.split(/((?:#|@|https?:\/\/[^\s]+)[a-zA-Z]+)/);
 
     return content.map((word: string, i: number) => {
       if (word.startsWith('#')) {
-        hashtag = word.replace('#', '');
-        return <a style={{ color: 'green' }} key={`${word}-${i}`}>{word}</a>;
+        return <Text component="span" c="green" key={`${word}-${i}`}>{word}</Text>;
       } else if (word.startsWith('@')) {
-        username = word.replace('@', '');
-        return <a style={{ color: 'red' }} key={`${word}-${i}`}>{word}</a>;
+        return <Text component="span" c="red" key={`${word}-${i}`}>{word}</Text>;
       } else if (word.includes('http')) {
         return (
-          <a target="_blank" href={word} style={{ color: 'blue' }} key={`${word}-${i}`}>
+          <Anchor target="_blank" href={word} key={`${word}-${i}`}>
             {word}
-          </a>
+          </Anchor>
         );
       } else {
         return word;
