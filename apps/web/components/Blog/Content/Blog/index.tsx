@@ -1,23 +1,22 @@
-'use client';
+"use client";
 
-import React, { useCallback, lazy, Suspense } from 'react';
-import Skeleton from 'react-loading-skeleton';
+import { Box, Flex, Paper, Text, Title } from "@mantine/core";
+import { ShareOptions } from "@whatsnxt/core-ui";
+import React, { lazy, Suspense, useCallback, useRef } from "react";
+import Skeleton from "react-loading-skeleton";
+import useAuth from "../../../../hooks/Authentication/useAuth";
 import {
   useAddIdsToHeadings,
   useContentRefAndHeadings,
   useHandleScroll,
   useLexicalHeadings,
-} from '../../../../hooks/useToc';
-import { Title, Text, Flex, Box, Paper } from '@mantine/core';
-import { ShareOptions } from '@whatsnxt/core-ui';
-import useAuth from '../../../../hooks/Authentication/useAuth';
-import { useRef } from 'react';
-import { syntaxHighlightingTheme } from '../../../RichTextEditor/extensions/CodeHighlight/syntaxHighlightingTheme';
+} from "../../../../hooks/useToc";
+import { syntaxHighlightingTheme } from "../../../RichTextEditor/extensions/CodeHighlight/syntaxHighlightingTheme";
 
 const LexicalEditor = lazy(() =>
-  import('../../../StructuredTutorial/Editor/LexicalEditor').then(mod => ({
-    default: mod.LexicalEditor
-  }))
+  import("../../../StructuredTutorial/Editor/LexicalEditor").then((mod) => ({
+    default: mod.LexicalEditor,
+  })),
 );
 
 interface BlogContentProps {
@@ -29,10 +28,10 @@ interface BlogContentProps {
   updatedAt: string;
   loading: boolean;
   description: string;
-  contentFormat?: 'HTML' | 'LEXICAL' | 'JSON';
+  contentFormat?: "HTML" | "LEXICAL" | "JSON";
   lexicalState?: Record<string, any> | null;
   onHeadingsExtracted: (
-    headings: { ref: Element; text: string; id: string }[]
+    headings: { ref: Element; text: string; id: string }[],
   ) => void;
   setActiveHeading: (headingRef: Element) => void;
 }
@@ -115,6 +114,17 @@ const codeBlockStyles = `
     color: #4dadf7 !important;
   }
 
+  /* Blog content paper - no border on mobile */
+  .blog-content-paper {
+    border: none;
+  }
+
+  @media (min-width: 48em) {
+    .blog-content-paper {
+      border: 1px solid light-dark(var(--mantine-color-gray-3), var(--mantine-color-dark-4));
+    }
+  }
+
   ${syntaxHighlightingTheme}
 `;
 
@@ -122,10 +132,10 @@ const codeBlockStyles = `
 const formatDate = (dateString: string): string => {
   try {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
     });
   } catch {
     return dateString;
@@ -140,12 +150,11 @@ const BlogContent = ({
   updatedAt,
   loading,
   description,
-  contentFormat = 'HTML',
+  contentFormat = "HTML",
   lexicalState,
   onHeadingsExtracted,
   setActiveHeading,
 }: BlogContentProps) => {
-
   const { user } = useAuth();
 
   // Handle different content formats
@@ -153,7 +162,7 @@ const BlogContent = ({
 
   // For HTML content, use existing hooks
   const { containerRef } = useAddIdsToHeadings(
-    (contentFormat === 'HTML' || contentFormat === 'JSON') ? description : ''
+    contentFormat === "HTML" || contentFormat === "JSON" ? description : "",
   );
 
   const onHeadingsExtractedCallback = useCallback(
@@ -161,13 +170,13 @@ const BlogContent = ({
       // Don't filter out first heading
       onHeadingsExtracted(headings);
     },
-    [onHeadingsExtracted]
+    [onHeadingsExtracted],
   );
 
   const contentRef = useContentRefAndHeadings(
     loading,
     description,
-    onHeadingsExtractedCallback
+    onHeadingsExtractedCallback,
   );
 
   useHandleScroll(contentRef, setActiveHeading);
@@ -175,7 +184,7 @@ const BlogContent = ({
   // Extract headings from Lexical editor after it renders (async/lazy-loaded)
   useLexicalHeadings(
     lexicalContainerRef,
-    contentFormat === 'LEXICAL' && !!lexicalState,
+    contentFormat === "LEXICAL" && !!lexicalState,
     onHeadingsExtractedCallback,
   );
 
@@ -192,10 +201,28 @@ const BlogContent = ({
             {title}
           </Title>
           <Flex align="center" gap="xs" mb="xl">
-            <Text size="0.9rem" c="light-dark(rgba(0,0,0,0.6), rgba(255,255,255,0.75))" px="0.4rem" py="0.2rem" style={{ border: '1px dotted light-dark(rgba(0,0,0,0.3), rgba(255,255,255,0.4))' }}>
-              {timeToRead || '1 min read'}
+            <Text
+              size="0.9rem"
+              c="light-dark(rgba(0,0,0,0.6), rgba(255,255,255,0.75))"
+              px="0.4rem"
+              py="0.2rem"
+              style={{
+                border:
+                  "1px dotted light-dark(rgba(0,0,0,0.3), rgba(255,255,255,0.4))",
+              }}
+            >
+              {timeToRead || "1 min read"}
             </Text>
-            <Text size="0.9rem" c="light-dark(rgba(0,0,0,0.6), rgba(255,255,255,0.75))" px="0.4rem" py="0.2rem" style={{ border: '1px dotted light-dark(rgba(0,0,0,0.3), rgba(255,255,255,0.4))' }}>
+            <Text
+              size="0.9rem"
+              c="light-dark(rgba(0,0,0,0.6), rgba(255,255,255,0.75))"
+              px="0.4rem"
+              py="0.2rem"
+              style={{
+                border:
+                  "1px dotted light-dark(rgba(0,0,0,0.3), rgba(255,255,255,0.4))",
+              }}
+            >
               Updated: {formatDate(updatedAt)}
             </Text>
             <ShareOptions
@@ -207,16 +234,21 @@ const BlogContent = ({
             />
           </Flex>
 
-          <Paper withBorder px="xl" radius="xs">
+          <Paper
+            px={{ base: "xs", sm: "xl" }}
+            radius="xs"
+            className="blog-content-paper"
+          >
             {/* Conditionally render content based on format */}
-            {contentFormat === 'LEXICAL' && lexicalState ? (
-              <div
-                className="rte text-wrap"
-                ref={lexicalContainerRef}
-              >
+            {contentFormat === "LEXICAL" && lexicalState ? (
+              <div className="rte text-wrap" ref={lexicalContainerRef}>
                 <Suspense fallback={<div>Loading editor...</div>}>
                   <LexicalEditor
-                    value={typeof lexicalState === 'string' ? lexicalState : JSON.stringify(lexicalState)}
+                    value={
+                      typeof lexicalState === "string"
+                        ? lexicalState
+                        : JSON.stringify(lexicalState)
+                    }
                     readOnly={true}
                   />
                 </Suspense>

@@ -1,26 +1,37 @@
-'use client';
+"use client";
 
-import { useEffect, useState, useCallback, useMemo } from 'react';
-import { Box, Container, Grid, GridCol, Stack, Title, Paper, Text, Button, Center } from '@mantine/core';
-import { SkeletonBlogContent } from '@whatsnxt/core-ui';
+import {
+    Box,
+    Button,
+    Center,
+    Container,
+    Grid,
+    GridCol,
+    Paper,
+    Stack,
+    Text,
+    Title,
+} from "@mantine/core";
+import { useMediaQuery } from "@mantine/hooks";
+import { IconLock } from "@tabler/icons-react";
 
-import BlogComment from '@whatsnxt/blogcomments/src';
-import { CommentContextProvider } from '@whatsnxt/blogcomments/src/contexts/comment-context';
-import { CommentReplyContextProvider } from '@whatsnxt/blogcomments/src/contexts/comment-reply-context';
-import useCommentHandlers from '@whatsnxt/blogcomments/src/hooks/useCommentHandlers';
-
-import SidebarHeadings from '../../../components/Blog/sidebar-headings';
-import SidebarPost from '../../../components/Blog/sidebar';
-import BlogContent from '../../../components/Blog/Content/Blog';
-import { StickyTutorialFooter } from '../../../components/Blog/Content/Tutorial/StickyTutorialFooter';
-import { MCQPost } from '../../../components/Quiz/MCQPost';
-import { IconLock } from '@tabler/icons-react';
-import { useSelector } from 'react-redux';
-import { RootState } from '../../../store/store';
-import { TutorialSidebarState } from '../../../store/slices/tutorialSidebarSlice';
-import useAuth from '../../../hooks/Authentication/useAuth';
-import type { SidebarPost as SidebarPostType } from '../../../apis/v1/blog/structuredTutorialApi';
-import Link from 'next/link';
+import BlogComment from "@whatsnxt/blogcomments/src";
+import { CommentContextProvider } from "@whatsnxt/blogcomments/src/contexts/comment-context";
+import { CommentReplyContextProvider } from "@whatsnxt/blogcomments/src/contexts/comment-reply-context";
+import useCommentHandlers from "@whatsnxt/blogcomments/src/hooks/useCommentHandlers";
+import { SkeletonBlogContent } from "@whatsnxt/core-ui";
+import Link from "next/link";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useSelector } from "react-redux";
+import type { SidebarPost as SidebarPostType } from "../../../apis/v1/blog/structuredTutorialApi";
+import BlogContent from "../../../components/Blog/Content/Blog";
+import { StickyTutorialFooter } from "../../../components/Blog/Content/Tutorial/StickyTutorialFooter";
+import SidebarPost from "../../../components/Blog/sidebar";
+import SidebarHeadings from "../../../components/Blog/sidebar-headings";
+import { MCQPost } from "../../../components/Quiz/MCQPost";
+import useAuth from "../../../hooks/Authentication/useAuth";
+import type { TutorialSidebarState } from "../../../store/slices/tutorialSidebarSlice";
+import type { RootState } from "../../../store/store";
 
 interface StructuredTutorialContentDetailsProps {
     details: {
@@ -29,11 +40,11 @@ interface StructuredTutorialContentDetailsProps {
         slug: string;
         description: string;
         imageUrl?: string;
-        contentFormat?: 'HTML' | 'MARKDOWN' | 'LEXICAL';
+        contentFormat?: "HTML" | "MARKDOWN" | "LEXICAL";
         lexicalState?: Record<string, any> | null;
         timeToRead?: string;
         updatedAt?: string;
-        postType?: 'CONTENT' | 'MCQ';
+        postType?: "CONTENT" | "MCQ";
         mcqData?: {
             question: string;
             options: Array<{
@@ -43,7 +54,7 @@ interface StructuredTutorialContentDetailsProps {
                 isCorrect: boolean;
             }>;
             explanation: string;
-            difficulty: 'EASY' | 'MEDIUM' | 'HARD';
+            difficulty: "EASY" | "MEDIUM" | "HARD";
         };
     };
     tutorialId: string;
@@ -69,30 +80,45 @@ export default function StructuredTutorialContentDetails({
     details,
     tutorialId,
 }: StructuredTutorialContentDetailsProps) {
+    const isMobile = useMediaQuery("(max-width: 768px)");
     const [loading, setLoading] = useState(true);
-    const [contentId, setContentId] = useState('');
+    const [contentId, setContentId] = useState("");
     const [item, setItem] = useState(details);
-    const [comments, setComments] = useState<{ id: number; items: CommentNode[] }>({
+    const [comments, setComments] = useState<{
+        id: number;
+        items: CommentNode[];
+    }>({
         id: 1,
         items: [],
     });
-    const [url, setUrl] = useState<string>('');
-    const sidebarCache = useSelector((state: RootState) => (state.tutorialSidebar as unknown as TutorialSidebarState).cache);
+    const [url, setUrl] = useState<string>("");
+    const sidebarCache = useSelector(
+        (state: RootState) =>
+            (state.tutorialSidebar as unknown as TutorialSidebarState).cache,
+    );
 
     const [itemHeadings, setItemHeadings] = useState<
         { ref: HTMLElement; text: string; id: string }[]
     >([]);
-    const [activeHeadingRef, setActiveHeadingRef] = useState<HTMLElement | null>(null);
-    const [prevPost, setPrevPost] = useState<{ label: string; href: string } | null>(null);
-    const [nextPost, setNextPost] = useState<{ label: string; href: string } | null>(null);
+    const [activeHeadingRef, setActiveHeadingRef] = useState<HTMLElement | null>(
+        null,
+    );
+    const [prevPost, setPrevPost] = useState<{
+        label: string;
+        href: string;
+    } | null>(null);
+    const [nextPost, setNextPost] = useState<{
+        label: string;
+        href: string;
+    } | null>(null);
 
     /** Check if the current post is in a locked (non-preview) section of a premium tutorial */
     const isContentLocked = useMemo(() => {
         const sidebarData = sidebarCache[tutorialId];
         if (!sidebarData?.isPremium) return false;
 
-        const currentSection = sidebarData.sections.find(section =>
-            section.posts.some(post => post.slug === details.slug)
+        const currentSection = sidebarData.sections.find((section) =>
+            section.posts.some((post) => post.slug === details.slug),
         );
 
         if (!currentSection) return false;
@@ -106,9 +132,11 @@ export default function StructuredTutorialContentDetails({
         if (!nextPost) return false;
 
         // Find which section the next post belongs to
-        const nextSlug = nextPost.href.split('/').pop() || '';
-        const nextSection = sidebarData.sections.find(section =>
-            section.posts.some(post => post.slug === nextSlug || nextPost.href.endsWith(post.slug))
+        const nextSlug = nextPost.href.split("/").pop() || "";
+        const nextSection = sidebarData.sections.find((section) =>
+            section.posts.some(
+                (post) => post.slug === nextSlug || nextPost.href.endsWith(post.slug),
+            ),
         );
 
         if (!nextSection) return false;
@@ -135,7 +163,7 @@ export default function StructuredTutorialContentDetails({
         (headings: { ref: HTMLElement; text: string; id: string }[]) => {
             setItemHeadings(headings);
         },
-        []
+        [],
     );
 
     const setActiveHeading = useCallback((headingRef: HTMLElement) => {
@@ -161,10 +189,14 @@ export default function StructuredTutorialContentDetails({
             const sidebarData = sidebarCache[tutorialId];
 
             if (sidebarData) {
-                const allPosts: SidebarPostType[] = sidebarData.sections.flatMap(section => section.posts);
+                const allPosts: SidebarPostType[] = sidebarData.sections.flatMap(
+                    (section) => section.posts,
+                );
                 const currentSlug = details.slug;
 
-                const currentIndex = allPosts.findIndex(post => post.slug === currentSlug);
+                const currentIndex = allPosts.findIndex(
+                    (post) => post.slug === currentSlug,
+                );
 
                 const tutorialSlug = sidebarData.tutorialSlug;
 
@@ -217,14 +249,21 @@ export default function StructuredTutorialContentDetails({
                             <GridCol span={{ base: 12, md: 9 }}>
                                 <Stack gap="md">
                                     {/* Content Paper */}
-                                    <Box px="xl">
+                                    <Box px={isMobile ? "0" : "xl"}>
                                         {isContentLocked ? (
                                             <Center py={80}>
                                                 <Stack align="center" gap="md" maw={420}>
-                                                    <IconLock size={48} color="var(--mantine-color-yellow-6)" />
-                                                    <Title order={3} ta="center">Premium Content</Title>
+                                                    <IconLock
+                                                        size={48}
+                                                        color="var(--mantine-color-yellow-6)"
+                                                    />
+                                                    <Title order={3} ta="center">
+                                                        Premium Content
+                                                    </Title>
                                                     <Text c="dimmed" ta="center">
-                                                        This section is part of our premium content. Upgrade your plan to unlock all tutorials and guided practice.
+                                                        This section is part of our premium content. Upgrade
+                                                        your plan to unlock all tutorials and guided
+                                                        practice.
                                                     </Text>
                                                     <Button
                                                         component={Link}
@@ -237,7 +276,7 @@ export default function StructuredTutorialContentDetails({
                                                     </Button>
                                                 </Stack>
                                             </Center>
-                                        ) : item.postType === 'MCQ' && item.mcqData ? (
+                                        ) : item.postType === "MCQ" && item.mcqData ? (
                                             <MCQPost
                                                 postId={item._id}
                                                 title={item.title}
@@ -249,11 +288,13 @@ export default function StructuredTutorialContentDetails({
                                                 url={url}
                                                 views={0}
                                                 title={item.title}
-                                                thumbnailUrn={item.imageUrl || ''}
-                                                updatedAt={item.updatedAt || ''}
-                                                timeToRead={item.timeToRead || ''}
+                                                thumbnailUrn={item.imageUrl || ""}
+                                                updatedAt={item.updatedAt || ""}
+                                                timeToRead={item.timeToRead || ""}
                                                 loading={loading}
-                                                contentFormat={(item.contentFormat || 'HTML') as 'HTML' | 'LEXICAL'}
+                                                contentFormat={
+                                                    (item.contentFormat || "HTML") as "HTML" | "LEXICAL"
+                                                }
                                                 description={item.description}
                                                 lexicalState={item.lexicalState}
                                                 onHeadingsExtracted={onHeadingsExtracted}
@@ -263,7 +304,11 @@ export default function StructuredTutorialContentDetails({
                                     </Box>
                                     <StickyTutorialFooter
                                         prev={prevPost}
-                                        next={nextPost ? { ...nextPost, isLocked: isNextPostLocked } : null}
+                                        next={
+                                            nextPost
+                                                ? { ...nextPost, isLocked: isNextPostLocked }
+                                                : null
+                                        }
                                     />
 
                                     {/* Comments Paper */}
@@ -316,6 +361,6 @@ export default function StructuredTutorialContentDetails({
                     </Box>
                 )}
             </Box>
-        </Container >
+        </Container>
     );
 }

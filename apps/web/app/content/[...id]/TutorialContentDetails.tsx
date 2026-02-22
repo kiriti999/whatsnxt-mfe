@@ -1,64 +1,72 @@
-'use client';
-import { useEffect, useState, useCallback } from 'react';
-import SidebarHeadings from '../../../components/Blog/sidebar-headings';
-import { AnalyticsAPI } from '../../../apis/v1/blog/analyticsApi';
-import SidebarPost from '../../../components/Blog/sidebar-post';
-import GooglePageViews from '../../../components/Blog/Content/GooglePageViews';
-import TutorialContent from '../../../components/Blog/Content/Tutorial/TutorialContent';
-import { TutorialArticle } from '../../../types/contentDetails';
-import { ShareOptions } from '@whatsnxt/core-ui';
-import { SkeletonBlogContent } from '@whatsnxt/core-ui';
-import { Text, Box, Container, Group, Stack, Grid, GridCol, Title, Paper } from '@mantine/core';
-import useAuth from '../../../hooks/Authentication/useAuth';
-import { useMediaQuery } from '@mantine/hooks';
-import useCommentHandlers from '@whatsnxt/blogcomments/src/hooks/useCommentHandlers';
-import BlogComment from '@whatsnxt/blogcomments/src';
-import { CommentReplyContextProvider } from '@whatsnxt/blogcomments/src/contexts/comment-reply-context';
-import { CommentContextProvider } from '@whatsnxt/blogcomments/src/contexts/comment-context';
-import { StickyTutorialFooter } from '../../../components/Blog/Content/Tutorial/StickyTutorialFooter';
-import StickyHeader from '../../../components/Blog/Content/StickyHeader';
+"use client";
+import {
+  Box,
+  Container,
+  Grid,
+  GridCol,
+  Group,
+  Paper,
+  Stack,
+  Text,
+  Title,
+} from "@mantine/core";
+import { useMediaQuery } from "@mantine/hooks";
+import BlogComment from "@whatsnxt/blogcomments/src";
+import { CommentContextProvider } from "@whatsnxt/blogcomments/src/contexts/comment-context";
+import { CommentReplyContextProvider } from "@whatsnxt/blogcomments/src/contexts/comment-reply-context";
+import useCommentHandlers from "@whatsnxt/blogcomments/src/hooks/useCommentHandlers";
+import { ShareOptions, SkeletonBlogContent } from "@whatsnxt/core-ui";
+import { useCallback, useEffect, useState } from "react";
+import GooglePageViews from "../../../components/Blog/Content/GooglePageViews";
+import StickyHeader from "../../../components/Blog/Content/StickyHeader";
+import { StickyTutorialFooter } from "../../../components/Blog/Content/Tutorial/StickyTutorialFooter";
+import TutorialContent from "../../../components/Blog/Content/Tutorial/TutorialContent";
+import SidebarHeadings from "../../../components/Blog/sidebar-headings";
+import SidebarPost from "../../../components/Blog/sidebar-post";
+import useAuth from "../../../hooks/Authentication/useAuth";
+import type { TutorialArticle } from "../../../types/contentDetails";
 
 const initialProps = {
-  title: '',
-  description: '',
+  title: "",
+  description: "",
   categoryName: [],
   tutorial: false,
 };
 
-async function fetchViews() {
-  return await AnalyticsAPI.fetchViews();
-}
-
 function TutorialContentDetails({ details }: any) {
-  const isMobile = useMediaQuery('(max-width: 768px)');
+  const isMobile = useMediaQuery("(max-width: 768px)");
   const [item, setItem] = useState(initialProps) as any;
   const [tutorials, setTutorials] = useState<TutorialArticle[]>([]);
   const [active, setActive] = useState(0);
   const [loading, setLoading] = useState(true);
 
-  const [contentId, setContentId] = useState('');
+  const [contentId, setContentId] = useState("");
   const [comments, setComments] = useState<any>({
     id: 1,
     items: [],
   });
   const [views, setViews] = useState(0);
   const { user } = useAuth();
-  const email = user?.email || '';
+  const email = user?.email || "";
   const userId = user?._id;
 
   const [activeHeadingRef, setActiveHeadingRef] = useState<HTMLElement | null>(
-    null
+    null,
   );
-  const [itemHeadings, setItemHeadings] = useState<{
-    ref: HTMLElement;
-    text: string;
-    id: string
-  }[]>([]);
+  const [itemHeadings, setItemHeadings] = useState<
+    {
+      ref: HTMLElement;
+      text: string;
+      id: string;
+    }[]
+  >([]);
 
   const onHeadingsExtracted = useCallback(
     (headings: { ref: HTMLElement; text: string; id: string }[]) => {
       setItemHeadings(headings);
-    }, []);
+    },
+    [],
+  );
 
   const setActiveHeading = useCallback((headingRef: HTMLElement) => {
     setActiveHeadingRef(headingRef);
@@ -69,14 +77,14 @@ function TutorialContentDetails({ details }: any) {
     handleEditNode,
     handleDeleteNode,
     handleComments,
-    handleSubComment
+    handleSubComment,
   } = useCommentHandlers({
     contentId,
     comments,
-    setComments
+    setComments,
   });
 
-  const [url, setUrl] = useState<string>('');
+  const [url, setUrl] = useState<string>("");
 
   useEffect(() => {
     setUrl(window.location.href);
@@ -92,15 +100,21 @@ function TutorialContentDetails({ details }: any) {
     }
   }, [details._id]);
 
-  const prevPost = active > 0 ? {
-    label: tutorials[active - 1]?.title,
-    onClick: () => setActive(active - 1)
-  } : null;
+  const prevPost =
+    active > 0
+      ? {
+        label: tutorials[active - 1]?.title,
+        onClick: () => setActive(active - 1),
+      }
+      : null;
 
-  const nextPost = active < tutorials.length - 1 ? {
-    label: tutorials[active + 1]?.title,
-    onClick: () => setActive(active + 1)
-  } : null;
+  const nextPost =
+    active < tutorials.length - 1
+      ? {
+        label: tutorials[active + 1]?.title,
+        onClick: () => setActive(active + 1),
+      }
+      : null;
 
   return (
     <Container fluid>
@@ -111,23 +125,25 @@ function TutorialContentDetails({ details }: any) {
           </div>
         ) : (
           <Box>
-            {itemHeadings.length > 0 && isMobile && <StickyHeader titles={itemHeadings} />}
-            <Grid mb={'5rem'}>
+            {itemHeadings.length > 0 && isMobile && (
+              <StickyHeader titles={itemHeadings} />
+            )}
+            <Grid mb={"5rem"}>
               {!isMobile && (
                 <GridCol span={{ base: 12, md: 2.2 }}>
                   <Box
                     pos="sticky"
                     top={100}
                     style={{
-                      maxHeight: 'calc(100vh - 100px)',
-                      overflowY: 'auto'
+                      maxHeight: "calc(100vh - 100px)",
+                      overflowY: "auto",
                     }}
                   >
                     {itemHeadings.length > 0 && (
                       <SidebarHeadings
                         headings={itemHeadings}
                         activeHeadingRef={activeHeadingRef}
-                        // @ts-ignore
+                        // @ts-expect-error
                         activeHeadingId={activeHeadingRef?.id}
                       />
                     )}
@@ -135,11 +151,10 @@ function TutorialContentDetails({ details }: any) {
                 </GridCol>
               )}
 
-
               <GridCol span={{ base: 12, md: 7.5 }} mx="auto">
                 <Stack gap="md">
                   {/* Content Paper */}
-                  <Paper withBorder p="xl" radius="xs">
+                  <Paper p={isMobile ? "0" : "xl"} withBorder={isMobile === true} radius="xs">
                     <TutorialContent
                       active={active}
                       setActive={setActive}
@@ -199,13 +214,15 @@ function TutorialContentDetails({ details }: any) {
 
               {/* show this col on tablet and desktop */}
               {/* show this col on tablet and desktop */}
-              <GridCol span={{ base: 12, md: 2.3 }} mb={'xl'}> {/* Reverted span to 2.3 */}
+              <GridCol span={{ base: 12, md: 2.3 }} mb={"xl"}>
+                {" "}
+                {/* Reverted span to 2.3 */}
                 <Box
                   pos="sticky"
                   top={100}
                   style={{
-                    maxHeight: 'calc(100vh - 100px)',
-                    overflowY: 'auto'
+                    maxHeight: "calc(100vh - 100px)",
+                    overflowY: "auto",
                   }}
                 >
                   <SidebarPost />
@@ -215,7 +232,7 @@ function TutorialContentDetails({ details }: any) {
           </Box>
         )}
       </Box>
-    </Container >
+    </Container>
   );
 }
 
@@ -228,7 +245,14 @@ interface ShareOptionsWithViewsProps {
   email?: string;
 }
 
-const ShareOptionsWithViews: React.FC<ShareOptionsWithViewsProps> = ({ url, views, title, thumbnailUrn, description, email }) => {
+const ShareOptionsWithViews: React.FC<ShareOptionsWithViewsProps> = ({
+  url,
+  views,
+  title,
+  thumbnailUrn,
+  description,
+  email,
+}) => {
   return (
     <Box my="md">
       <Text size="md" mb="sm" c="inherit">
@@ -239,7 +263,7 @@ const ShareOptionsWithViews: React.FC<ShareOptionsWithViewsProps> = ({ url, view
           <ShareOptions
             url={url}
             title={title}
-            thumbnailUrn={thumbnailUrn || ''}
+            thumbnailUrn={thumbnailUrn || ""}
             description={description}
             email={email}
           />

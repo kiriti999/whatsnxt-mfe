@@ -1,9 +1,7 @@
 // Update the content page to use the new fetcher
-import { createExcerpt } from '@whatsnxt/core-util/src/GenerateMetaTags';
-import { getPostBySlugServer } from '../../../fetcher/serverFetcher';
-import React from 'react';
-import ContentWrapper from './ContentWrapper';
-
+import { createExcerpt } from "@whatsnxt/core-util/src/GenerateMetaTags";
+import { getPostBySlugServer } from "../../../fetcher/serverFetcher";
+import ContentWrapper from "./ContentWrapper";
 
 const ContentPage = async (props: any) => {
   const params = await props.params;
@@ -45,37 +43,37 @@ const ContentPage = async (props: any) => {
           __html: JSON.stringify({
             "@context": "https://schema.org",
             "@type": "Article",
-            "headline": slugData.title,
-            "description": createExcerpt(slugData.description, 155),
-            "image": slugData.imageUrl ? {
-              "@type": "ImageObject",
-              "url": slugData.imageUrl,
-              "width": 1200,
-              "height": 630
-            } : undefined,
-            "author": {
-              "@type": "Organization",
-              "name": "whatsnxt.in",
-              "url": "https://www.whatsnxt.in"
-            },
-            "publisher": {
-              "@type": "Organization",
-              "name": "whatsnxt.in",
-              "logo": {
+            headline: slugData.title,
+            description: createExcerpt(slugData.description, 155),
+            image: slugData.imageUrl
+              ? {
                 "@type": "ImageObject",
-                "url": "https://www.whatsnxt.in/logo.png"
-              },
-              "sameAs": [
-                "https://www.linkedin.com/company/105606569"
-              ]
+                url: slugData.imageUrl,
+                width: 1200,
+                height: 630,
+              }
+              : undefined,
+            author: {
+              "@type": "Organization",
+              name: "whatsnxt.in",
+              url: "https://www.whatsnxt.in",
             },
-            "datePublished": slugData.createdAt || slugData.updatedAt,
-            "dateModified": slugData.updatedAt,
-            "mainEntityOfPage": {
+            publisher: {
+              "@type": "Organization",
+              name: "whatsnxt.in",
+              logo: {
+                "@type": "ImageObject",
+                url: "https://www.whatsnxt.in/logo.png",
+              },
+              sameAs: ["https://www.linkedin.com/company/105606569"],
+            },
+            datePublished: slugData.createdAt || slugData.updatedAt,
+            dateModified: slugData.updatedAt,
+            mainEntityOfPage: {
               "@type": "WebPage",
-              "@id": `https://www.whatsnxt.in/content/${params.id}`
-            }
-          })
+              "@id": `https://www.whatsnxt.in/content/${params.id}`,
+            },
+          }),
         }}
       />
 

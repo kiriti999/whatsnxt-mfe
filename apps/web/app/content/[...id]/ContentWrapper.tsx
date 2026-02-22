@@ -1,11 +1,12 @@
-'use client';
+"use client";
 
-import { Box } from '@mantine/core';
-import { useSearchParams } from 'next/navigation';
-import BlogContentDetails from './BlogContentDetails';
-import TutorialContentDetails from './TutorialContentDetails';
-import StructuredTutorialContentDetails from './StructuredTutorialContentDetails';
-import { PostSlugResponse } from './BlogContentDetails';
+import { Box } from "@mantine/core";
+import { useSearchParams } from "next/navigation";
+import BlogContentDetails, {
+  type PostSlugResponse,
+} from "./BlogContentDetails";
+import StructuredTutorialContentDetails from "./StructuredTutorialContentDetails";
+import TutorialContentDetails from "./TutorialContentDetails";
 
 interface ContentWrapperProps {
   details: PostSlugResponse;
@@ -13,13 +14,20 @@ interface ContentWrapperProps {
 
 export default function ContentWrapper({ details }: ContentWrapperProps) {
   const searchParams = useSearchParams();
-  const tutorialIdParam = searchParams.get('tutorial');
-  const tutorialId = tutorialIdParam || (details as any).tutorialId || ((details as any).isStructuredTutorial ? (details as any)._id : null);
+  const tutorialIdParam = searchParams.get("tutorial");
+  const tutorialId =
+    tutorialIdParam ||
+    (details as any).tutorialId ||
+    ((details as any).isStructuredTutorial ? (details as any)._id : null);
 
   // If there's a tutorial query param or it's a structured tutorial type (root or post)
-  if ((details as any).isStructuredTutorial || (details as any).isStructuredTutorialPost || tutorialIdParam) {
+  if (
+    (details as any).isStructuredTutorial ||
+    (details as any).isStructuredTutorialPost ||
+    tutorialIdParam
+  ) {
     return (
-      <Box my={'xl'}>
+      <Box my={"xl"}>
         <StructuredTutorialContentDetails
           details={details}
           tutorialId={tutorialId}
@@ -29,7 +37,7 @@ export default function ContentWrapper({ details }: ContentWrapperProps) {
   }
 
   return (
-    <Box my={'xl'}>
+    <Box my={"xl"}>
       {details?.tutorial ? (
         <TutorialContentDetails details={details} />
       ) : (
@@ -38,4 +46,3 @@ export default function ContentWrapper({ details }: ContentWrapperProps) {
     </Box>
   );
 }
-

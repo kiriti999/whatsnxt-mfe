@@ -1,15 +1,18 @@
-'use client';
+"use client";
 
-import { AppShell, ActionIcon } from '@mantine/core';
-import { useDisclosure, useMediaQuery } from '@mantine/hooks';
-import { usePathname } from 'next/navigation';
-import { ReactNode, useEffect, useState } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { IconLayoutSidebarRightCollapse } from '@tabler/icons-react';
-import { RootState } from '../../store/store';
-import { TutorialSidebar } from '../StructuredTutorial/Sidebar';
-import { StructuredTutorialAPI, SidebarTree } from '../../apis/v1/blog/structuredTutorialApi';
-import { setSidebarCache } from '../../store/slices/tutorialSidebarSlice';
+import { ActionIcon, AppShell } from "@mantine/core";
+import { useDisclosure, useMediaQuery } from "@mantine/hooks";
+import { IconLayoutSidebarRightCollapse } from "@tabler/icons-react";
+import { usePathname } from "next/navigation";
+import { type ReactNode, useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import {
+    type SidebarTree,
+    StructuredTutorialAPI,
+} from "../../apis/v1/blog/structuredTutorialApi";
+import { setSidebarCache } from "../../store/slices/tutorialSidebarSlice";
+import type { RootState } from "../../store/store";
+import { TutorialSidebar } from "../StructuredTutorial/Sidebar";
 
 interface TutorialAppShellProps {
     children: ReactNode;
@@ -19,18 +22,18 @@ export default function TutorialAppShell({ children }: TutorialAppShellProps) {
     const pathname = usePathname();
     const dispatch = useDispatch();
     const [opened, { toggle, close }] = useDisclosure(true); // Start open
-    const isMobile = useMediaQuery('(max-width: 992px)'); // Match 'md' breakpoint
+    const isMobile = useMediaQuery("(max-width: 992px)"); // Match 'md' breakpoint
 
     // Check if we're on a tutorial/post page
-    const isTutorialPage = pathname?.startsWith('/content/');
+    const isTutorialPage = pathname?.startsWith("/content/");
 
     // Extract tutorial slug from pathname (e.g., /content/slug-test or /content/slug-test/post-slug)
-    const pathSegments = pathname?.split('/').filter(Boolean) || [];
+    const pathSegments = pathname?.split("/").filter(Boolean) || [];
     const tutorialSlug = pathSegments[1]; // 'content' is index 0, tutorial slug is index 1
 
     // Get cached sidebar data
-    const sidebarCache = useSelector((state: RootState) =>
-        (state as any).tutorialSidebar?.cache || {}
+    const sidebarCache = useSelector(
+        (state: RootState) => (state as any).tutorialSidebar?.cache || {},
     );
 
     const [sidebarData, setSidebarData] = useState<SidebarTree | null>(null);
@@ -45,7 +48,7 @@ export default function TutorialAppShell({ children }: TutorialAppShellProps) {
 
         // Check if we have cached data for any tutorial ID with this slug
         const cachedEntry = Object.values(sidebarCache).find(
-            (data: any) => data?.tutorialSlug === tutorialSlug
+            (data: any) => data?.tutorialSlug === tutorialSlug,
         ) as SidebarTree | undefined;
 
         if (cachedEntry) {
@@ -58,7 +61,8 @@ export default function TutorialAppShell({ children }: TutorialAppShellProps) {
             setLoading(true);
             try {
                 // Try to get tutorial by slug first to get the ID
-                const tutorialResponse = await StructuredTutorialAPI.getBySlug(tutorialSlug);
+                const tutorialResponse =
+                    await StructuredTutorialAPI.getBySlug(tutorialSlug);
                 if (tutorialResponse?.success && tutorialResponse.data) {
                     const tutorialId = tutorialResponse.data._id;
 
@@ -70,17 +74,20 @@ export default function TutorialAppShell({ children }: TutorialAppShellProps) {
                     }
 
                     // Fetch sidebar
-                    const sidebarResponse = await StructuredTutorialAPI.getSidebar(tutorialId);
+                    const sidebarResponse =
+                        await StructuredTutorialAPI.getSidebar(tutorialId);
                     if (sidebarResponse?.success && sidebarResponse.data) {
                         setSidebarData(sidebarResponse.data);
-                        dispatch(setSidebarCache({
-                            tutorialId,
-                            data: sidebarResponse.data
-                        }));
+                        dispatch(
+                            setSidebarCache({
+                                tutorialId,
+                                data: sidebarResponse.data,
+                            }),
+                        );
                     }
                 }
             } catch (error) {
-                console.error('Error fetching sidebar:', error);
+                console.error("Error fetching sidebar:", error);
             } finally {
                 setLoading(false);
             }
@@ -101,20 +108,23 @@ export default function TutorialAppShell({ children }: TutorialAppShellProps) {
         <AppShell
             navbar={{
                 width: {
-                    base: 280,  // Mobile: slightly larger
-                    sm: 300,    // Small screens
-                    md: 320,    // Tablet and up - increased for better readability
+                    base: 280, // Mobile: slightly larger
+                    sm: 300, // Small screens
+                    md: 320, // Tablet and up - increased for better readability
                 },
-                breakpoint: 'md',  // Switch at 992px
-                collapsed: { mobile: !opened || !showSidebar, desktop: !opened || !showSidebar },
+                breakpoint: "md", // Switch at 992px
+                collapsed: {
+                    mobile: !opened || !showSidebar,
+                    desktop: !opened || !showSidebar,
+                },
             }}
             styles={{
                 navbar: {
-                    maxWidth: '70vw',  // Limit to 70% on very small screens
+                    maxWidth: "70vw", // Limit to 70% on very small screens
                 },
                 main: {
-                    paddingTop: '80px', // Push content down to clear global navbar
-                }
+                    paddingTop: "80px", // Push content down to clear global navbar
+                },
             }}
         >
             {/* Mobile: Sidebar toggle - fixed position to ensure visibility below global navbar */}
@@ -124,11 +134,11 @@ export default function TutorialAppShell({ children }: TutorialAppShellProps) {
                     size="md" // Reduced from lg to match sidebar style better
                     variant="default" // Changed to default for better visibility but less aggressive than filled
                     style={{
-                        position: 'fixed',
-                        top: '90px',
-                        left: '16px', // Aligned with content padding
+                        position: "fixed",
+                        top: "80px",
+                        left: "16px", // Aligned with content padding
                         zIndex: 1100,
-                        boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+                        boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
                     }}
                     aria-label="Toggle sidebar"
                 >
@@ -157,11 +167,11 @@ export default function TutorialAppShell({ children }: TutorialAppShellProps) {
                         variant="default"
                         aria-label="Open sidebar"
                         style={{
-                            position: 'fixed',
-                            top: '90px', // Match mobile position
-                            left: '16px', // Match mobile position
+                            position: "fixed",
+                            top: "80px", // Match mobile position
+                            left: "16px", // Match mobile position
                             zIndex: 99,
-                            boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+                            boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
                         }}
                     >
                         <IconLayoutSidebarRightCollapse size={20} />
