@@ -1,4 +1,4 @@
-import { articleApiClient } from '@whatsnxt/core-util';
+import { articleApiClient } from "@whatsnxt/core-util";
 
 // ============ Types ============
 
@@ -17,7 +17,7 @@ export interface StructuredTutorial {
     slug: string;
     description?: string;
     lexicalState?: any;
-    contentFormat?: 'HTML' | 'MARKDOWN' | 'LEXICAL' | 'JSON';
+    contentFormat?: "HTML" | "MARKDOWN" | "LEXICAL" | "JSON";
     imageUrl?: string;
     icon?: string;
     userId: string;
@@ -65,13 +65,13 @@ export interface TutorialPost {
             html?: string;
         };
     };
-    contentFormat?: 'HTML' | 'MARKDOWN' | 'LEXICAL' | 'JSON';
+    contentFormat?: "HTML" | "MARKDOWN" | "LEXICAL" | "JSON";
     order: number;
     sectionId: string;
     sourceId?: string;
     isReused: boolean;
     cloudinaryAssets?: CloudinaryAsset[];
-    postType?: 'CONTENT' | 'MCQ';
+    postType?: "CONTENT" | "MCQ";
     mcqData?: {
         question: string;
         options: Array<{
@@ -81,7 +81,7 @@ export interface TutorialPost {
             isCorrect: boolean;
         }>;
         explanation: string;
-        difficulty: 'EASY' | 'MEDIUM' | 'HARD';
+        difficulty: "EASY" | "MEDIUM" | "HARD";
     };
     createdAt: string;
     updatedAt: string;
@@ -125,8 +125,8 @@ export interface ApiResponse<T> {
     success: boolean;
     data: T;
     message?: string;
-    newTutorialId?: string;  // Returned when operation creates a draft copy
-    newSectionId?: string;   // Returned when operation creates a section in draft copy
+    newTutorialId?: string; // Returned when operation creates a draft copy
+    newSectionId?: string; // Returned when operation creates a section in draft copy
 }
 
 // ============ API Client ============
@@ -134,7 +134,7 @@ export interface ApiResponse<T> {
 export const StructuredTutorialAPI = {
     // ========== Tutorial CRUD ==========
 
-    create: async function (payload: {
+    create: async (payload: {
         title: string;
         description?: string;
         imageUrl?: string;
@@ -142,38 +142,45 @@ export const StructuredTutorialAPI = {
         categoryId?: string;
         categoryName?: string;
         cloudinaryAssets?: CloudinaryAsset[];
-    }): Promise<ApiResponse<StructuredTutorial>> {
-        const { data } = await articleApiClient.post('/structured-tutorial', payload);
+    }): Promise<ApiResponse<StructuredTutorial>> => {
+        const { data } = await articleApiClient.post(
+            "/structured-tutorial",
+            payload,
+        );
         return data;
     },
 
-    getAll: async function (
+    getAll: async (
         page = 1,
         limit = 10,
-        published?: boolean
-    ): Promise<ApiResponse<PaginatedResponse<StructuredTutorial>>> {
+        published?: boolean,
+    ): Promise<ApiResponse<PaginatedResponse<StructuredTutorial>>> => {
         const params = new URLSearchParams({
             page: page.toString(),
             limit: limit.toString(),
         });
         if (published !== undefined) {
-            params.append('published', published.toString());
+            params.append("published", published.toString());
         }
-        const { data } = await articleApiClient.get(`/structured-tutorial?${params.toString()}`);
+        const { data } = await articleApiClient.get(
+            `/structured-tutorial?${params.toString()}`,
+        );
         return data;
     },
 
-    getById: async function (id: string): Promise<ApiResponse<StructuredTutorial>> {
+    getById: async (id: string): Promise<ApiResponse<StructuredTutorial>> => {
         const { data } = await articleApiClient.get(`/structured-tutorial/${id}`);
         return data;
     },
 
-    getBySlug: async function (slug: string): Promise<ApiResponse<StructuredTutorial>> {
-        const { data } = await articleApiClient.get(`/structured-tutorial/slug/${slug}`);
+    getBySlug: async (slug: string): Promise<ApiResponse<StructuredTutorial>> => {
+        const { data } = await articleApiClient.get(
+            `/structured-tutorial/slug/${slug}`,
+        );
         return data;
     },
 
-    update: async function (
+    update: async (
         id: string,
         payload: Partial<{
             title: string;
@@ -182,26 +189,40 @@ export const StructuredTutorialAPI = {
             icon: string;
             categoryId: string;
             categoryName: string;
+            subCategory: string;
+            nestedSubCategory: string;
+            isPremium: boolean;
             cloudinaryAssets: CloudinaryAsset[];
-        }>
-    ): Promise<ApiResponse<StructuredTutorial>> {
-        const { data } = await articleApiClient.put(`/structured-tutorial/${id}`, payload);
+        }>,
+    ): Promise<ApiResponse<StructuredTutorial>> => {
+        const { data } = await articleApiClient.put(
+            `/structured-tutorial/${id}`,
+            payload,
+        );
         return data;
     },
 
-    delete: async function (id: string): Promise<ApiResponse<null>> {
-        const { data } = await articleApiClient.delete(`/structured-tutorial/${id}`);
+    delete: async (id: string): Promise<ApiResponse<null>> => {
+        const { data } = await articleApiClient.delete(
+            `/structured-tutorial/${id}`,
+        );
         return data;
     },
 
-    publish: async function (id: string, published: boolean): Promise<ApiResponse<StructuredTutorial>> {
-        const { data } = await articleApiClient.patch(`/structured-tutorial/${id}/publish`, { published });
+    publish: async (
+        id: string,
+        published: boolean,
+    ): Promise<ApiResponse<StructuredTutorial>> => {
+        const { data } = await articleApiClient.patch(
+            `/structured-tutorial/${id}/publish`,
+            { published },
+        );
         return data;
     },
 
     // ========== Section CRUD ==========
 
-    createSection: async function (
+    createSection: async (
         tutorialId: string,
         payload: {
             title: string;
@@ -209,18 +230,25 @@ export const StructuredTutorialAPI = {
             imageUrl?: string;
             icon?: string;
             cloudinaryAssets?: CloudinaryAsset[];
-        }
-    ): Promise<ApiResponse<TutorialSection>> {
-        const { data } = await articleApiClient.post(`/structured-tutorial/${tutorialId}/section`, payload);
+        },
+    ): Promise<ApiResponse<TutorialSection>> => {
+        const { data } = await articleApiClient.post(
+            `/structured-tutorial/${tutorialId}/section`,
+            payload,
+        );
         return data;
     },
 
-    getSections: async function (tutorialId: string): Promise<ApiResponse<TutorialSection[]>> {
-        const { data } = await articleApiClient.get(`/structured-tutorial/${tutorialId}/section`);
+    getSections: async (
+        tutorialId: string,
+    ): Promise<ApiResponse<TutorialSection[]>> => {
+        const { data } = await articleApiClient.get(
+            `/structured-tutorial/${tutorialId}/section`,
+        );
         return data;
     },
 
-    updateSection: async function (
+    updateSection: async (
         tutorialId: string,
         sectionId: string,
         payload: Partial<{
@@ -229,115 +257,141 @@ export const StructuredTutorialAPI = {
             imageUrl: string;
             icon: string;
             cloudinaryAssets: CloudinaryAsset[];
-        }>
-    ): Promise<ApiResponse<TutorialSection>> {
+        }>,
+    ): Promise<ApiResponse<TutorialSection>> => {
         const { data } = await articleApiClient.put(
             `/structured-tutorial/${tutorialId}/section/${sectionId}`,
-            payload
+            payload,
         );
         return data;
     },
 
-    deleteSection: async function (tutorialId: string, sectionId: string): Promise<ApiResponse<null>> {
-        const { data } = await articleApiClient.delete(
-            `/structured-tutorial/${tutorialId}/section/${sectionId}`
-        );
-        return data;
-    },
-
-    reuseSection: async function (
+    deleteSection: async (
         tutorialId: string,
-        sourceSectionId: string
-    ): Promise<ApiResponse<TutorialSection>> {
+        sectionId: string,
+    ): Promise<ApiResponse<null>> => {
+        const { data } = await articleApiClient.delete(
+            `/structured-tutorial/${tutorialId}/section/${sectionId}`,
+        );
+        return data;
+    },
+
+    reuseSection: async (
+        tutorialId: string,
+        sourceSectionId: string,
+    ): Promise<ApiResponse<TutorialSection>> => {
         const { data } = await articleApiClient.post(
             `/structured-tutorial/${tutorialId}/section/${sourceSectionId}/reuse`,
-            {}
+            {},
         );
         return data;
     },
 
     // ========== Post CRUD ==========
 
-    createPost: async function (
+    createPost: async (
         sectionId: string,
         payload: {
             title: string;
             description?: string;
-            contentFormat?: 'HTML' | 'MARKDOWN' | 'LEXICAL' | 'JSON';
+            contentFormat?: "HTML" | "MARKDOWN" | "LEXICAL" | "JSON";
             cloudinaryAssets?: CloudinaryAsset[];
-        }
-    ): Promise<ApiResponse<TutorialPost>> {
-        const { data } = await articleApiClient.post(`/structured-tutorial/section/${sectionId}/post`, payload);
+        },
+    ): Promise<ApiResponse<TutorialPost>> => {
+        const { data } = await articleApiClient.post(
+            `/structured-tutorial/section/${sectionId}/post`,
+            payload,
+        );
         return data;
     },
 
-    getPosts: async function (sectionId: string): Promise<ApiResponse<TutorialPost[]>> {
-        const { data } = await articleApiClient.get(`/structured-tutorial/section/${sectionId}/post`);
+    getPosts: async (sectionId: string): Promise<ApiResponse<TutorialPost[]>> => {
+        const { data } = await articleApiClient.get(
+            `/structured-tutorial/section/${sectionId}/post`,
+        );
         return data;
     },
 
-    getPostById: async function (sectionId: string, postId: string): Promise<ApiResponse<TutorialPost>> {
-        const { data } = await articleApiClient.get(`/structured-tutorial/section/${sectionId}/post/${postId}`);
+    getPostById: async (
+        sectionId: string,
+        postId: string,
+    ): Promise<ApiResponse<TutorialPost>> => {
+        const { data } = await articleApiClient.get(
+            `/structured-tutorial/section/${sectionId}/post/${postId}`,
+        );
         return data;
     },
 
-    updatePost: async function (
+    updatePost: async (
         sectionId: string,
         postId: string,
         payload: Partial<{
             title: string;
             description: string;
-            contentFormat: 'HTML' | 'MARKDOWN' | 'LEXICAL' | 'JSON';
+            contentFormat: "HTML" | "MARKDOWN" | "LEXICAL" | "JSON";
             cloudinaryAssets: CloudinaryAsset[];
-        }>
-    ): Promise<ApiResponse<TutorialPost>> {
+        }>,
+    ): Promise<ApiResponse<TutorialPost>> => {
         const { data } = await articleApiClient.put(
             `/structured-tutorial/section/${sectionId}/post/${postId}`,
-            payload
+            payload,
         );
         return data;
     },
 
-    deletePost: async function (sectionId: string, postId: string): Promise<ApiResponse<null>> {
-        const { data } = await articleApiClient.delete(
-            `/structured-tutorial/section/${sectionId}/post/${postId}`
-        );
-        return data;
-    },
-
-    reusePost: async function (
+    deletePost: async (
         sectionId: string,
-        sourcePostId: string
-    ): Promise<ApiResponse<TutorialPost>> {
+        postId: string,
+    ): Promise<ApiResponse<null>> => {
+        const { data } = await articleApiClient.delete(
+            `/structured-tutorial/section/${sectionId}/post/${postId}`,
+        );
+        return data;
+    },
+
+    reusePost: async (
+        sectionId: string,
+        sourcePostId: string,
+    ): Promise<ApiResponse<TutorialPost>> => {
         const { data } = await articleApiClient.post(
             `/structured-tutorial/section/${sectionId}/post/${sourcePostId}/reuse`,
-            {}
+            {},
         );
         return data;
     },
 
     // ========== Sidebar ==========
 
-    getSidebar: async function (tutorialId: string): Promise<ApiResponse<SidebarTree>> {
-        const { data } = await articleApiClient.get(`/structured-tutorial/${tutorialId}/sidebar`);
+    getSidebar: async (tutorialId: string): Promise<ApiResponse<SidebarTree>> => {
+        const { data } = await articleApiClient.get(
+            `/structured-tutorial/${tutorialId}/sidebar`,
+        );
         return data;
     },
 
     // ========== Reuse Lists ==========
 
-    getAvailableSections: async function (
-        excludeTutorialId?: string
-    ): Promise<ApiResponse<TutorialSection[]>> {
-        const params = excludeTutorialId ? `?excludeTutorialId=${excludeTutorialId}` : '';
-        const { data } = await articleApiClient.get(`/structured-tutorial/reuse/sections${params}`);
+    getAvailableSections: async (
+        excludeTutorialId?: string,
+    ): Promise<ApiResponse<TutorialSection[]>> => {
+        const params = excludeTutorialId
+            ? `?excludeTutorialId=${excludeTutorialId}`
+            : "";
+        const { data } = await articleApiClient.get(
+            `/structured-tutorial/reuse/sections${params}`,
+        );
         return data;
     },
 
-    getAvailablePosts: async function (
-        excludeSectionId?: string
-    ): Promise<ApiResponse<TutorialPost[]>> {
-        const params = excludeSectionId ? `?excludeSectionId=${excludeSectionId}` : '';
-        const { data } = await articleApiClient.get(`/structured-tutorial/reuse/posts${params}`);
+    getAvailablePosts: async (
+        excludeSectionId?: string,
+    ): Promise<ApiResponse<TutorialPost[]>> => {
+        const params = excludeSectionId
+            ? `?excludeSectionId=${excludeSectionId}`
+            : "";
+        const { data } = await articleApiClient.get(
+            `/structured-tutorial/reuse/posts${params}`,
+        );
         return data;
     },
 };

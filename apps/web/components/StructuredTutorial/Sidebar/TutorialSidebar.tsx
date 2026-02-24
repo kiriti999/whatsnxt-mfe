@@ -1,43 +1,58 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect, useMemo } from 'react';
 import {
+    ActionIcon,
     Box,
+    Collapse,
+    Divider,
+    Group,
     Paper,
+    ScrollArea,
     Stack,
     Text,
-    Collapse,
-    Group,
-    ScrollArea,
-    ActionIcon,
     TextInput,
-    Divider,
-} from '@mantine/core';
-import { useRouter } from 'next/navigation';
+} from "@mantine/core";
+import { useClickOutside } from "@mantine/hooks";
 import {
     IconChevronDown,
     IconChevronRight,
-    IconLayoutSidebarLeftCollapse,
-    IconSearch,
     IconChevronsDown,
     IconChevronsUp,
-    IconLock,
     IconEye,
-} from '@tabler/icons-react';
-import { useClickOutside } from '@mantine/hooks';
-import { SidebarTree, SidebarSection, SidebarPost } from '../../../apis/v1/blog/structuredTutorialApi';
+    IconLayoutSidebarLeftCollapse,
+    IconLock,
+    IconSearch,
+} from "@tabler/icons-react";
+import { useRouter } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
+import type {
+    SidebarPost,
+    SidebarSection,
+    SidebarTree,
+} from "../../../apis/v1/blog/structuredTutorialApi";
 
 interface TutorialSidebarProps {
     sidebarData: SidebarTree;
     currentPostSlug?: string;
     onCollapse?: () => void;
     isMobile?: boolean;
+    hasUserAccess?: boolean;
+    accessChecked?: boolean;
 }
 
-export function TutorialSidebar({ sidebarData, currentPostSlug, onCollapse, isMobile = false }: TutorialSidebarProps) {
+export function TutorialSidebar({
+    sidebarData,
+    currentPostSlug,
+    onCollapse,
+    isMobile = false,
+    hasUserAccess = false,
+    accessChecked = true,
+}: TutorialSidebarProps) {
     const router = useRouter();
-    const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
-    const [searchQuery, setSearchQuery] = useState('');
+    const [expandedSections, setExpandedSections] = useState<Set<string>>(
+        new Set(),
+    );
+    const [searchQuery, setSearchQuery] = useState("");
 
     const ref = useClickOutside(() => {
         if (isMobile && onCollapse) {
@@ -58,7 +73,7 @@ export function TutorialSidebar({ sidebarData, currentPostSlug, onCollapse, isMo
 
                 // Filter posts that match
                 const matchingPosts = section.posts.filter((post) =>
-                    post.title.toLowerCase().includes(lowerQuery)
+                    post.title.toLowerCase().includes(lowerQuery),
                 );
 
                 // If section title matches, return section with all posts
@@ -90,12 +105,12 @@ export function TutorialSidebar({ sidebarData, currentPostSlug, onCollapse, isMo
     // Auto-expand section containing current post
     useEffect(() => {
         if (currentPostSlug && sidebarData?.sections) {
-            const activeSection = sidebarData.sections.find(section =>
-                section.posts.some(post => post.slug === currentPostSlug)
+            const activeSection = sidebarData.sections.find((section) =>
+                section.posts.some((post) => post.slug === currentPostSlug),
             );
 
             if (activeSection) {
-                setExpandedSections(prev => {
+                setExpandedSections((prev) => {
                     const next = new Set(prev);
                     next.add(activeSection.id);
                     return next;
@@ -116,15 +131,8 @@ export function TutorialSidebar({ sidebarData, currentPostSlug, onCollapse, isMo
         });
     };
 
-    const navigateToPost = (post: SidebarPost, section: SidebarSection) => {
-        // If tutorial is premium and section is not free preview, redirect to /premium
-        const isSectionLocked = sidebarData.isPremium && !section.isFreePreview;
-        if (isSectionLocked) {
-            router.push('/premium');
-            return;
-        }
-
-        // Navigate to the post page with tutorial context
+    const navigateToPost = (post: SidebarPost) => {
+        // Always navigate to the post — the content page shows PremiumPaywall when locked
         let shortSlug = post.slug;
         const prefix = `${sidebarData.tutorialSlug}-`;
         if (shortSlug.startsWith(prefix)) {
@@ -142,12 +150,17 @@ export function TutorialSidebar({ sidebarData, currentPostSlug, onCollapse, isMo
         } else {
             // Expand all
             const allIds = new Set<string>();
-            sidebarData?.sections?.forEach(section => allIds.add(section.id));
+            sidebarData?.sections?.forEach((section) => {
+                allIds.add(section.id);
+            });
             setExpandedSections(allIds);
         }
     };
 
-    const allSectionsExpanded = sidebarData?.sections?.every(section => expandedSections.has(section.id)) ?? false;
+    const allSectionsExpanded =
+        sidebarData?.sections?.every((section) =>
+            expandedSections.has(section.id),
+        ) ?? false;
 
     if (!sidebarData || !sidebarData.sections) {
         return null;
@@ -159,10 +172,10 @@ export function TutorialSidebar({ sidebarData, currentPostSlug, onCollapse, isMo
             withBorder={false}
             p={0}
             style={{
-                position: 'sticky',
-                top: '80px',
-                maxHeight: 'calc(100vh - 100px)',
-                backgroundColor: 'transparent',
+                position: "sticky",
+                top: "80px",
+                maxHeight: "calc(100vh - 100px)",
+                backgroundColor: "transparent",
             }}
         >
             <Stack gap={0}>
@@ -179,10 +192,18 @@ export function TutorialSidebar({ sidebarData, currentPostSlug, onCollapse, isMo
                                 variant="subtle"
                                 size="sm"
                                 onClick={toggleAllSections}
-                                aria-label={allSectionsExpanded ? "Collapse all sections" : "Expand all sections"}
+                                aria-label={
+                                    allSectionsExpanded
+                                        ? "Collapse all sections"
+                                        : "Expand all sections"
+                                }
                                 title={allSectionsExpanded ? "Collapse all" : "Expand all"}
                             >
-                                {allSectionsExpanded ? <IconChevronsUp size={18} /> : <IconChevronsDown size={18} />}
+                                {allSectionsExpanded ? (
+                                    <IconChevronsUp size={18} />
+                                ) : (
+                                    <IconChevronsDown size={18} />
+                                )}
                             </ActionIcon>
                             {onCollapse && (
                                 <ActionIcon
@@ -209,9 +230,9 @@ export function TutorialSidebar({ sidebarData, currentPostSlug, onCollapse, isMo
                         onChange={(e) => setSearchQuery(e.currentTarget.value)}
                         styles={{
                             input: {
-                                backgroundColor: 'var(--mantine-color-default)',
-                                border: '1px solid var(--mantine-color-default-border)',
-                            }
+                                backgroundColor: "var(--mantine-color-default)",
+                                border: "1px solid var(--mantine-color-default-border)",
+                            },
                         }}
                     />
                 </Box>
@@ -220,9 +241,10 @@ export function TutorialSidebar({ sidebarData, currentPostSlug, onCollapse, isMo
 
                 <ScrollArea.Autosize mah="calc(100vh - 280px)">
                     <Stack gap={0} py="xs">
-                        {filteredSections.map((section, sectionIndex) => {
-                            const isExpanded = searchQuery ? true : expandedSections.has(section.id);
-                            const hasCurrentPost = section.posts.some((post) => post.slug === currentPostSlug);
+                        {filteredSections.map((section) => {
+                            const isExpanded = searchQuery
+                                ? true
+                                : expandedSections.has(section.id);
 
                             return (
                                 <Box key={section.id}>
@@ -232,25 +254,44 @@ export function TutorialSidebar({ sidebarData, currentPostSlug, onCollapse, isMo
                                         py="xs"
                                         onClick={() => toggleSection(section.id)}
                                         style={{
-                                            cursor: 'pointer',
-                                            transition: 'background-color 0.15s ease',
+                                            cursor: "pointer",
+                                            transition: "background-color 0.15s ease",
                                         }}
                                         className="section-header-hover"
                                     >
                                         <Group gap="sm" wrap="nowrap" justify="space-between">
-                                            <Text size="xs" fw={600} lineClamp={2} c="bright" style={{ flex: 1 }}>
+                                            <Text
+                                                size="xs"
+                                                fw={600}
+                                                lineClamp={2}
+                                                c="bright"
+                                                style={{ flex: 1 }}
+                                            >
                                                 {section.title}
                                             </Text>
                                             <Group gap="xs" wrap="nowrap">
-                                                {sidebarData.isPremium && (
-                                                    section.isFreePreview
-                                                        ? <IconEye size={14} color="var(--mantine-color-teal-6)" aria-label="Free preview" />
-                                                        : <IconLock size={14} color="var(--mantine-color-yellow-6)" aria-label="Premium only" />
-                                                )}
+                                                {sidebarData.isPremium && accessChecked && !hasUserAccess &&
+                                                    (section.isFreePreview ? (
+                                                        <IconEye
+                                                            size={14}
+                                                            color="var(--mantine-color-teal-6)"
+                                                            aria-label="Free preview"
+                                                        />
+                                                    ) : (
+                                                        <IconLock
+                                                            size={14}
+                                                            color="var(--mantine-color-yellow-6)"
+                                                            aria-label="Premium only"
+                                                        />
+                                                    ))}
                                                 <Text size="xs" c="dimmed">
                                                     0/{section.posts.length}
                                                 </Text>
-                                                {isExpanded ? <IconChevronDown size={16} /> : <IconChevronRight size={16} />}
+                                                {isExpanded ? (
+                                                    <IconChevronDown size={16} />
+                                                ) : (
+                                                    <IconChevronRight size={16} />
+                                                )}
                                             </Group>
                                         </Group>
                                     </Box>
@@ -258,9 +299,10 @@ export function TutorialSidebar({ sidebarData, currentPostSlug, onCollapse, isMo
                                     {/* Posts */}
                                     <Collapse in={isExpanded}>
                                         <Stack gap={0}>
-                                            {section.posts.map((post, postIndex) => {
+                                            {section.posts.map((post) => {
                                                 const isActive = post.slug === currentPostSlug;
-                                                const isSectionLocked = sidebarData.isPremium && !section.isFreePreview;
+                                                const isSectionLocked =
+                                                    sidebarData.isPremium && !section.isFreePreview && accessChecked && !hasUserAccess;
 
                                                 return (
                                                     <Box
@@ -268,23 +310,32 @@ export function TutorialSidebar({ sidebarData, currentPostSlug, onCollapse, isMo
                                                         px="md"
                                                         py="xs"
                                                         pl="lg"
-                                                        onClick={() => navigateToPost(post, section)}
+                                                        onClick={() => navigateToPost(post)}
                                                         style={{
-                                                            cursor: 'pointer',
-                                                            backgroundColor: isActive ? 'var(--mantine-primary-color-light)' : 'transparent',
-                                                            borderLeft: isActive ? '3px solid var(--mantine-primary-color-filled)' : '3px solid transparent',
-                                                            transition: 'all 0.15s ease',
+                                                            cursor: "pointer",
+                                                            backgroundColor: isActive
+                                                                ? "var(--mantine-primary-color-light)"
+                                                                : "transparent",
+                                                            borderLeft: isActive
+                                                                ? "3px solid var(--mantine-primary-color-filled)"
+                                                                : "3px solid transparent",
+                                                            transition: "all 0.15s ease",
                                                             opacity: isSectionLocked ? 0.5 : 1,
                                                         }}
                                                         className="post-item-hover"
                                                     >
                                                         <Group gap={6} wrap="nowrap">
-                                                            {isSectionLocked && <IconLock size={12} color="var(--mantine-color-yellow-6)" />}
+                                                            {isSectionLocked && (
+                                                                <IconLock
+                                                                    size={12}
+                                                                    color="var(--mantine-color-yellow-6)"
+                                                                />
+                                                            )}
                                                             <Text
                                                                 size="xs"
                                                                 fw={isActive ? 600 : 400}
                                                                 lineClamp={2}
-                                                                c={isActive ? 'cyan.6' : 'bright'}
+                                                                c={isActive ? "cyan.6" : "bright"}
                                                             >
                                                                 {post.title}
                                                             </Text>

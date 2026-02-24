@@ -1,53 +1,64 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect, Suspense } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
 import {
     Box,
-    Grid,
-    Paper,
-    Title,
     Button,
-    Group,
-    Text,
     Divider,
+    Grid,
+    Group,
+    Paper,
+    Text,
+    Title,
     Tooltip,
-} from '@mantine/core';
-import { FullPageOverlay } from '@/components/Common/FullPageOverlay';
-import { useDisclosure } from '@mantine/hooks';
-import { notifications } from '@mantine/notifications';
-import { modals } from '@mantine/modals';
-import { MantineLoader } from '@whatsnxt/core-ui';
-import { IconArrowLeft, IconCheck } from '@tabler/icons-react';
-import { TreeNavigator } from './TreeNavigator';
-import { TutorialMetadataForm } from './TutorialMetadataForm';
-import { SectionForm } from './SectionForm';
-import { PostForm } from './PostForm';
-import { ReuseSectionDialog } from './ReuseSectionDialog';
-import { ReusePostDialog } from './ReusePostDialog';
-import { QuizEditor } from '../../Quiz/QuizEditor';
-import { TreeNode, SelectedNode, LocalSection, LocalPost } from './types';
-import { StructuredTutorialAPI, TutorialSection } from '../../../apis/v1/blog/structuredTutorialApi';
-import { CategoryAPI } from '../../../apis/v1/blog';
-import { uploadImage } from '../../Blog/Form/util';
+} from "@mantine/core";
+import { useDisclosure } from "@mantine/hooks";
+import { modals } from "@mantine/modals";
+import { notifications } from "@mantine/notifications";
+import { IconArrowLeft, IconCheck } from "@tabler/icons-react";
+import { MantineLoader } from "@whatsnxt/core-ui";
+import { useRouter, useSearchParams } from "next/navigation";
+import type React from "react";
+import { Suspense, useEffect, useState } from "react";
+import { FullPageOverlay } from "@/components/Common/FullPageOverlay";
+import { CategoryAPI } from "../../../apis/v1/blog";
+import {
+    StructuredTutorialAPI,
+    type TutorialSection,
+} from "../../../apis/v1/blog/structuredTutorialApi";
+import { uploadImage } from "../../Blog/Form/util";
+import { QuizEditor } from "../../Quiz/QuizEditor";
+import { PostForm } from "./PostForm";
+import { ReusePostDialog } from "./ReusePostDialog";
+import { ReuseSectionDialog } from "./ReuseSectionDialog";
+import { SectionForm } from "./SectionForm";
+import { TreeNavigator } from "./TreeNavigator";
+import { TutorialMetadataForm } from "./TutorialMetadataForm";
+import type { LocalPost, LocalSection, SelectedNode, TreeNode } from "./types";
 
 export const StructuredTutorialEditor: React.FC = () => {
     const router = useRouter();
     const searchParams = useSearchParams();
-    const editTutorialId = searchParams?.get('id');
+    const editTutorialId = searchParams?.get("id");
 
     // State
     const [tutorialData, setTutorialData] = useState<any>(null);
     const [sections, setSections] = useState<LocalSection[]>([]);
-    const [categories, setCategories] = useState<Array<{ value: string; label: string }>>([]);
+    const [categories, setCategories] = useState<
+        Array<{ value: string; label: string }>
+    >([]);
     const [categoriesData, setCategoriesData] = useState<any[]>([]); // Raw category data with subcategories
-    const [selectedNode, setSelectedNode] = useState<SelectedNode>({ type: 'tutorial', id: null });
+    const [selectedNode, setSelectedNode] = useState<SelectedNode>({
+        type: "tutorial",
+        id: null,
+    });
     const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set());
     const [isVisible, { open, close }] = useDisclosure(false);
     const [isSaving, setIsSaving] = useState(false);
     const [reuseSectionDialogOpen, setReuseSectionDialogOpen] = useState(false);
     const [reusePostDialogOpen, setReusePostDialogOpen] = useState(false);
-    const [currentSectionIdForPost, setCurrentSectionIdForPost] = useState<string | null>(null);
+    const [currentSectionIdForPost, setCurrentSectionIdForPost] = useState<
+        string | null
+    >(null);
 
     // Load tutorial data on mount (if editing)
     useEffect(() => {
@@ -57,7 +68,7 @@ export const StructuredTutorialEditor: React.FC = () => {
                 // Fetch categories (always needed)
                 try {
                     const categoriesData = await CategoryAPI.getCategories();
-                    console.log('🚀 :: fetchData :: categoriesData:', categoriesData)
+                    console.log("🚀 :: fetchData :: categoriesData:", categoriesData);
 
                     if (categoriesData && Array.isArray(categoriesData)) {
                         // Store raw data for subcategory filtering
@@ -75,7 +86,7 @@ export const StructuredTutorialEditor: React.FC = () => {
                         setCategoriesData([]);
                     }
                 } catch (error) {
-                    console.error('Error fetching categories:', error);
+                    console.error("Error fetching categories:", error);
                     setCategories([]);
                     setCategoriesData([]);
                 }
@@ -83,8 +94,9 @@ export const StructuredTutorialEditor: React.FC = () => {
                 // Only fetch tutorial data if editing (editTutorialId exists)
                 if (editTutorialId) {
                     try {
-                        const tutorialRes = await StructuredTutorialAPI.getById(editTutorialId);
-                        console.log('🚀 :: fetchData :: tutorialRes:', tutorialRes)
+                        const tutorialRes =
+                            await StructuredTutorialAPI.getById(editTutorialId);
+                        console.log("🚀 :: fetchData :: tutorialRes:", tutorialRes);
                         if (tutorialRes.success && tutorialRes.data) {
                             const tutorial = tutorialRes.data;
                             setTutorialData(tutorial);
@@ -93,56 +105,67 @@ export const StructuredTutorialEditor: React.FC = () => {
                             let sectionsData = tutorial.sectionIds;
 
                             // If not populated (just IDs) or missing, fetch separate
-                            if (!sectionsData || (sectionsData.length > 0 && typeof sectionsData[0] === 'string')) {
-                                const sectionsRes = await StructuredTutorialAPI.getSections(editTutorialId);
+                            if (
+                                !sectionsData ||
+                                (sectionsData.length > 0 && typeof sectionsData[0] === "string")
+                            ) {
+                                const sectionsRes =
+                                    await StructuredTutorialAPI.getSections(editTutorialId);
                                 if (sectionsRes.success && sectionsRes.data) {
                                     sectionsData = sectionsRes.data;
                                 }
                             }
 
                             if (sectionsData) {
-                                const mappedSections: LocalSection[] = sectionsData.map((s: any) => ({
-                                    id: s._id || s.id,
-                                    title: s.title,
-                                    description: s.description || '',
-                                    icon: s.icon || 'IconFolder',
-                                    order: s.order,
-                                    isReused: s.isReused,
-                                    sourceId: s.sourceId,
-                                    posts: (s.postIds || []).map((p: any) => ({
-                                        id: p._id || p.id,
-                                        title: p.title,
-                                        description: p.lexicalState || p.content?.lexicalState || p.description || '',
-                                        contentFormat: p.contentFormat || 'HTML',
-                                        postType: p.postType || 'CONTENT',
-                                        mcqData: p.mcqData,
-                                        order: p.order,
-                                        isReused: p.isReused,
-                                        sourceId: p.sourceId,
-                                    })),
-                                }));
+                                const mappedSections: LocalSection[] = sectionsData.map(
+                                    (s: any) => ({
+                                        id: s._id || s.id,
+                                        title: s.title,
+                                        description: s.description || "",
+                                        icon: s.icon || "IconFolder",
+                                        order: s.order,
+                                        isFreePreview: s.isFreePreview || false,
+                                        isReused: s.isReused,
+                                        sourceId: s.sourceId,
+                                        posts: (s.postIds || []).map((p: any) => ({
+                                            id: p._id || p.id,
+                                            title: p.title,
+                                            description:
+                                                p.lexicalState ||
+                                                p.content?.lexicalState ||
+                                                p.description ||
+                                                "",
+                                            contentFormat: p.contentFormat || "HTML",
+                                            postType: p.postType || "CONTENT",
+                                            mcqData: p.mcqData,
+                                            order: p.order,
+                                            isReused: p.isReused,
+                                            sourceId: p.sourceId,
+                                        })),
+                                    }),
+                                );
                                 setSections(mappedSections);
 
                                 // Auto-expand all sections
-                                const allSectionIds = new Set(mappedSections.map(s => s.id!));
+                                const allSectionIds = new Set(mappedSections.map((s) => s.id!));
                                 setExpandedNodes(allSectionIds);
                             }
                         }
                     } catch (error) {
-                        console.error('Error loading tutorial data:', error);
+                        console.error("Error loading tutorial data:", error);
                         notifications.show({
-                            title: 'Error',
-                            message: 'Failed to load tutorial data',
-                            color: 'red',
+                            title: "Error",
+                            message: "Failed to load tutorial data",
+                            color: "red",
                         });
                     }
                 }
             } catch (error) {
-                console.error('Error loading categories:', error);
+                console.error("Error loading categories:", error);
                 notifications.show({
-                    title: 'Error',
-                    message: 'Failed to load categories',
-                    color: 'red',
+                    title: "Error",
+                    message: "Failed to load categories",
+                    color: "red",
                 });
             } finally {
                 close();
@@ -156,14 +179,14 @@ export const StructuredTutorialEditor: React.FC = () => {
     const buildTreeNodes = (): TreeNode[] => {
         return sections.map((section) => ({
             id: section.id!,
-            type: 'section',
+            type: "section",
             title: section.title,
             isExpanded: expandedNodes.has(section.id!),
             isReused: section.isReused,
             order: section.order,
             children: section.posts.map((post) => ({
                 id: post.id!,
-                type: 'post',
+                type: "post",
                 title: post.title,
                 isReused: post.isReused,
                 order: post.order,
@@ -187,16 +210,16 @@ export const StructuredTutorialEditor: React.FC = () => {
     const handleSaveTutorial = async (data: any, imageFile?: File | null) => {
         setIsSaving(true);
         try {
-            let imageUrl = tutorialData?.imageUrl || '';
+            let imageUrl = tutorialData?.imageUrl || "";
             let cloudinaryAssets: any[] = tutorialData?.cloudinaryAssets || [];
 
             if (imageFile) {
-                const bffApiUrl = process.env.NEXT_PUBLIC_BFF_HOST_IMAGEKIT_API;
+                const bffApiUrl = process.env.NEXT_PUBLIC_BFF_HOST_CLOUDINARY_API;
                 const { secure_url, asset } = await uploadImage(
                     imageFile,
-                    'whatsnxt',
+                    "whatsnxt",
                     false,
-                    bffApiUrl
+                    bffApiUrl,
                 );
                 if (secure_url && asset) {
                     imageUrl = secure_url;
@@ -222,24 +245,30 @@ export const StructuredTutorialEditor: React.FC = () => {
             if (response?.success) {
                 setTutorialData(response.data);
                 notifications.show({
-                    title: 'Success',
-                    message: editTutorialId ? 'Tutorial updated' : 'Tutorial created',
-                    color: 'green',
+                    title: "Success",
+                    message: editTutorialId ? "Tutorial updated" : "Tutorial created",
+                    color: "green",
                 });
 
                 // Redirect to history table
-                router.push('/history/table');
+                router.push("/history/table");
             }
         } catch (error: any) {
-            const isConflict = error?.status === 409 || error?.response?.status === 409;
+            const isConflict =
+                error?.status === 409 || error?.response?.status === 409;
             if (isConflict) {
                 modals.open({
-                    title: 'Duplicate Title Detected',
+                    title: "Duplicate Title Detected",
                     centered: true,
                     children: (
                         <Box>
-                            <Text size="sm" mb="md">{error?.message || 'A tutorial with a similar title already exists.'}</Text>
-                            <Text size="xs" c="dimmed">Please change your title and try again.</Text>
+                            <Text size="sm" mb="md">
+                                {error?.message ||
+                                    "A tutorial with a similar title already exists."}
+                            </Text>
+                            <Text size="xs" c="dimmed">
+                                Please change your title and try again.
+                            </Text>
                             <Group justify="flex-end" mt="md">
                                 <Button onClick={() => modals.closeAll()}>OK</Button>
                             </Group>
@@ -248,9 +277,9 @@ export const StructuredTutorialEditor: React.FC = () => {
                 });
             } else {
                 notifications.show({
-                    title: 'Error',
-                    message: error?.message || 'Failed to save tutorial',
-                    color: 'red',
+                    title: "Error",
+                    message: error?.message || "Failed to save tutorial",
+                    color: "red",
                 });
             }
         } finally {
@@ -261,14 +290,14 @@ export const StructuredTutorialEditor: React.FC = () => {
     const handleAddSection = () => {
         const newSection: LocalSection = {
             id: `temp-${Date.now()}`,
-            title: 'New Section',
-            description: '',
-            icon: 'IconFolder',
+            title: "New Section",
+            description: "",
+            icon: "IconFolder",
             posts: [],
         };
         setSections([...sections, newSection]);
-        setSelectedNode({ type: 'section', id: newSection.id });
-        setExpandedNodes(prev => new Set([...prev, newSection.id!]));
+        setSelectedNode({ type: "section", id: newSection.id });
+        setExpandedNodes((prev) => new Set([...prev, newSection.id!]));
     };
 
     const handleSectionChange = (data: Partial<any>) => {
@@ -276,12 +305,8 @@ export const StructuredTutorialEditor: React.FC = () => {
         if (!sectionId) return;
 
         // Update local state in real-time (optimistic update)
-        setSections(prev =>
-            prev.map(s =>
-                s.id === sectionId
-                    ? { ...s, ...data }
-                    : s
-            )
+        setSections((prev) =>
+            prev.map((s) => (s.id === sectionId ? { ...s, ...data } : s)),
         );
     };
 
@@ -291,28 +316,26 @@ export const StructuredTutorialEditor: React.FC = () => {
         if (!postId || !sectionId) return;
 
         // Update local state in real-time (optimistic update)
-        setSections(prev =>
-            prev.map(s =>
+        setSections((prev) =>
+            prev.map((s) =>
                 s.id === sectionId
                     ? {
                         ...s,
-                        posts: s.posts.map(p =>
-                            p.id === postId
-                                ? { ...p, ...data }
-                                : p
+                        posts: s.posts.map((p) =>
+                            p.id === postId ? { ...p, ...data } : p,
                         ),
                     }
-                    : s
-            )
+                    : s,
+            ),
         );
     };
 
     const handleSaveSection = async (data: any) => {
         if (!editTutorialId && !tutorialData?._id) {
             notifications.show({
-                title: 'Error',
-                message: 'Please save tutorial info first',
-                color: 'orange',
+                title: "Error",
+                message: "Please save tutorial info first",
+                color: "orange",
             });
             return;
         }
@@ -322,7 +345,7 @@ export const StructuredTutorialEditor: React.FC = () => {
 
         try {
             const sectionId = selectedNode.id;
-            const isNew = !sectionId || sectionId.startsWith('temp-');
+            const isNew = !sectionId || sectionId.startsWith("temp-");
 
             let response;
             if (isNew) {
@@ -336,17 +359,19 @@ export const StructuredTutorialEditor: React.FC = () => {
 
                 if (response?.success) {
                     // Replace temp section with real one
-                    setSections(prev =>
-                        prev.map(s =>
-                            s.id === sectionId
-                                ? { ...s, ...data, id: response.data._id }
-                                : s
-                        )
+                    setSections((prev) =>
+                        prev.map((s) =>
+                            s.id === sectionId ? { ...s, ...data, id: response.data._id } : s,
+                        ),
                     );
-                    setSelectedNode({ type: 'section', id: response.data._id });
+                    setSelectedNode({ type: "section", id: response.data._id });
                 }
             } else {
-                response = await StructuredTutorialAPI.updateSection(tutorialId, sectionId!, data);
+                response = await StructuredTutorialAPI.updateSection(
+                    tutorialId,
+                    sectionId!,
+                    data,
+                );
 
                 // Check if backend created a draft copy
                 if (response?.newTutorialId) {
@@ -356,8 +381,8 @@ export const StructuredTutorialEditor: React.FC = () => {
                 }
 
                 if (response?.success) {
-                    setSections(prev =>
-                        prev.map(s => (s.id === sectionId ? { ...s, ...data } : s))
+                    setSections((prev) =>
+                        prev.map((s) => (s.id === sectionId ? { ...s, ...data } : s)),
                     );
                 }
             }
@@ -365,9 +390,9 @@ export const StructuredTutorialEditor: React.FC = () => {
             // Don't show success notification for auto-save (too noisy)
         } catch (error: any) {
             notifications.show({
-                title: 'Error',
-                message: error?.message || 'Failed to save section',
-                color: 'red',
+                title: "Error",
+                message: error?.message || "Failed to save section",
+                color: "red",
             });
         } finally {
             setIsSaving(false);
@@ -375,14 +400,21 @@ export const StructuredTutorialEditor: React.FC = () => {
     };
 
     const handleDeleteSection = async (sectionId: string) => {
-        if (!window.confirm('Are you sure you want to delete this section and all its posts?')) {
+        if (
+            !window.confirm(
+                "Are you sure you want to delete this section and all its posts?",
+            )
+        ) {
             return;
         }
 
-        if (!sectionId.startsWith('temp-')) {
+        if (!sectionId.startsWith("temp-")) {
             const tutorialId = editTutorialId || tutorialData._id;
             try {
-                const response = await StructuredTutorialAPI.deleteSection(tutorialId, sectionId);
+                const response = await StructuredTutorialAPI.deleteSection(
+                    tutorialId,
+                    sectionId,
+                );
 
                 // Check if backend created a draft copy
                 if (response?.newTutorialId) {
@@ -392,33 +424,33 @@ export const StructuredTutorialEditor: React.FC = () => {
                 }
             } catch (error) {
                 notifications.show({
-                    title: 'Error',
-                    message: 'Failed to delete section',
-                    color: 'red',
+                    title: "Error",
+                    message: "Failed to delete section",
+                    color: "red",
                 });
                 return;
             }
         }
 
-        setSections(prev => prev.filter(s => s.id !== sectionId));
-        setSelectedNode({ type: 'tutorial', id: null });
+        setSections((prev) => prev.filter((s) => s.id !== sectionId));
+        setSelectedNode({ type: "tutorial", id: null });
         notifications.show({
-            title: 'Success',
-            message: 'Section deleted',
-            color: 'green',
+            title: "Success",
+            message: "Section deleted",
+            color: "green",
         });
     };
 
     const handleAddPost = async (sectionId: string) => {
         // Auto-save section if it has a temp ID
         let resolvedSectionId = sectionId;
-        if (sectionId.startsWith('temp-')) {
+        if (sectionId.startsWith("temp-")) {
             const realId = await ensureSectionSaved(sectionId);
             if (!realId) {
                 notifications.show({
-                    title: 'Info',
-                    message: 'Please save the tutorial info first',
-                    color: 'orange',
+                    title: "Info",
+                    message: "Please save the tutorial info first",
+                    color: "orange",
                 });
                 return;
             }
@@ -427,31 +459,35 @@ export const StructuredTutorialEditor: React.FC = () => {
 
         const newPost: LocalPost = {
             id: `temp-${Date.now()}`,
-            title: 'New Post',
-            description: '',
-            contentFormat: 'HTML',
+            title: "New Post",
+            description: "",
+            contentFormat: "HTML",
         };
 
-        setSections(prev =>
-            prev.map(s =>
-                s.id === resolvedSectionId ? { ...s, posts: [...s.posts, newPost] } : s
-            )
+        setSections((prev) =>
+            prev.map((s) =>
+                s.id === resolvedSectionId ? { ...s, posts: [...s.posts, newPost] } : s,
+            ),
         );
 
-        setSelectedNode({ type: 'post', id: newPost.id, sectionId: resolvedSectionId });
-        setExpandedNodes(prev => new Set([...prev, resolvedSectionId]));
+        setSelectedNode({
+            type: "post",
+            id: newPost.id,
+            sectionId: resolvedSectionId,
+        });
+        setExpandedNodes((prev) => new Set([...prev, resolvedSectionId]));
     };
 
     const handleAddMCQ = async (sectionId: string) => {
         // Auto-save section if it has a temp ID
         let resolvedSectionId = sectionId;
-        if (sectionId.startsWith('temp-')) {
+        if (sectionId.startsWith("temp-")) {
             const realId = await ensureSectionSaved(sectionId);
             if (!realId) {
                 notifications.show({
-                    title: 'Info',
-                    message: 'Please save the tutorial info first',
-                    color: 'orange',
+                    title: "Info",
+                    message: "Please save the tutorial info first",
+                    color: "orange",
                 });
                 return;
             }
@@ -460,45 +496,58 @@ export const StructuredTutorialEditor: React.FC = () => {
 
         const newMCQ: LocalPost = {
             id: `temp-mcq-${Date.now()}`,
-            title: 'New MCQ Quiz',
-            description: '',
-            contentFormat: 'HTML',
-            postType: 'MCQ',
+            title: "New MCQ Quiz",
+            description: "",
+            contentFormat: "HTML",
+            postType: "MCQ",
             mcqData: {
-                question: '',
+                question: "",
                 options: [
-                    { id: 'a', label: 'A', text: '', isCorrect: false },
-                    { id: 'b', label: 'B', text: '', isCorrect: false },
-                    { id: 'c', label: 'C', text: '', isCorrect: false },
-                    { id: 'd', label: 'D', text: '', isCorrect: false },
+                    { id: "a", label: "A", text: "", isCorrect: false },
+                    { id: "b", label: "B", text: "", isCorrect: false },
+                    { id: "c", label: "C", text: "", isCorrect: false },
+                    { id: "d", label: "D", text: "", isCorrect: false },
                 ],
-                explanation: '',
-                difficulty: 'MEDIUM',
+                explanation: "",
+                difficulty: "MEDIUM",
             },
         };
 
-        setSections(prev =>
-            prev.map(s =>
-                s.id === resolvedSectionId ? { ...s, posts: [...s.posts, newMCQ] } : s
-            )
+        setSections((prev) =>
+            prev.map((s) =>
+                s.id === resolvedSectionId ? { ...s, posts: [...s.posts, newMCQ] } : s,
+            ),
         );
 
-        setSelectedNode({ type: 'mcq', id: newMCQ.id, sectionId: resolvedSectionId });
-        setExpandedNodes(prev => new Set([...prev, resolvedSectionId]));
+        setSelectedNode({
+            type: "mcq",
+            id: newMCQ.id,
+            sectionId: resolvedSectionId,
+        });
+        setExpandedNodes((prev) => new Set([...prev, resolvedSectionId]));
     };
 
     // Auto-save a temp section and return the real MongoDB ID
-    const ensureSectionSaved = async (tempSectionId: string): Promise<string | null> => {
-        if (!tempSectionId.startsWith('temp-')) return tempSectionId;
+    const ensureSectionSaved = async (
+        tempSectionId: string,
+    ): Promise<string | null> => {
+        if (!tempSectionId.startsWith("temp-")) return tempSectionId;
 
         const tutorialId = editTutorialId || tutorialData?._id;
         if (!tutorialId) return null;
 
-        const section = sections.find(s => s.id === tempSectionId);
+        const section = sections.find((s) => s.id === tempSectionId);
         if (!section) return null;
 
-        const sectionData = { title: section.title, description: section.description, icon: section.icon };
-        const response = await StructuredTutorialAPI.createSection(tutorialId, sectionData);
+        const sectionData = {
+            title: section.title,
+            description: section.description,
+            icon: section.icon,
+        };
+        const response = await StructuredTutorialAPI.createSection(
+            tutorialId,
+            sectionData,
+        );
 
         if (response?.newTutorialId) {
             router.push(`/form/structured-tutorial?id=${response.newTutorialId}`);
@@ -508,8 +557,8 @@ export const StructuredTutorialEditor: React.FC = () => {
         if (!response?.success) return null;
 
         const realId = response.data._id;
-        setSections(prev =>
-            prev.map(s => (s.id === tempSectionId ? { ...s, id: realId } : s))
+        setSections((prev) =>
+            prev.map((s) => (s.id === tempSectionId ? { ...s, id: realId } : s)),
         );
         return realId;
     };
@@ -519,48 +568,52 @@ export const StructuredTutorialEditor: React.FC = () => {
 
         let sectionId = selectedNode.sectionId;
         const postId = selectedNode.id;
-        const isNew = !postId || postId.startsWith('temp-');
+        const isNew = !postId || postId.startsWith("temp-");
 
         setIsSaving(true);
 
         try {
             // Auto-save section first if it has a temp ID
-            if (sectionId.startsWith('temp-')) {
+            if (sectionId.startsWith("temp-")) {
                 const realSectionId = await ensureSectionSaved(sectionId);
                 if (!realSectionId) {
                     notifications.show({
-                        title: 'Error',
-                        message: 'Please save the section before adding posts',
-                        color: 'orange',
+                        title: "Error",
+                        message: "Please save the section before adding posts",
+                        color: "orange",
                     });
                     return;
                 }
                 sectionId = realSectionId;
-                setSelectedNode(prev => ({ ...prev, sectionId: realSectionId }));
+                setSelectedNode((prev) => ({ ...prev, sectionId: realSectionId }));
             }
 
             let response;
             if (isNew) {
                 response = await StructuredTutorialAPI.createPost(sectionId, data);
                 if (response?.success) {
-                    setSections(prev =>
-                        prev.map(s =>
+                    setSections((prev) =>
+                        prev.map((s) =>
                             s.id === sectionId
                                 ? {
                                     ...s,
-                                    posts: s.posts.map(p =>
+                                    posts: s.posts.map((p) =>
                                         p.id === postId
                                             ? { ...p, ...data, id: response.data._id }
-                                            : p
+                                            : p,
                                     ),
                                 }
-                                : s
-                        )
+                                : s,
+                        ),
                     );
-                    setSelectedNode({ type: 'post', id: response.data._id, sectionId });
+                    setSelectedNode({ type: "post", id: response.data._id, sectionId });
                 }
             } else {
-                response = await StructuredTutorialAPI.updatePost(sectionId, postId!, data);
+                response = await StructuredTutorialAPI.updatePost(
+                    sectionId,
+                    postId!,
+                    data,
+                );
 
                 // Check if backend created a draft copy
                 if (response?.newTutorialId) {
@@ -570,15 +623,17 @@ export const StructuredTutorialEditor: React.FC = () => {
                 }
 
                 if (response?.success) {
-                    setSections(prev =>
-                        prev.map(s =>
+                    setSections((prev) =>
+                        prev.map((s) =>
                             s.id === sectionId
                                 ? {
                                     ...s,
-                                    posts: s.posts.map(p => (p.id === postId ? { ...p, ...data } : p)),
+                                    posts: s.posts.map((p) =>
+                                        p.id === postId ? { ...p, ...data } : p,
+                                    ),
                                 }
-                                : s
-                        )
+                                : s,
+                        ),
                     );
                 }
             }
@@ -586,9 +641,9 @@ export const StructuredTutorialEditor: React.FC = () => {
             // Don't show success notification for auto-save (too noisy)
         } catch (error: any) {
             notifications.show({
-                title: 'Error',
-                message: error?.message || 'Failed to save post',
-                color: 'red',
+                title: "Error",
+                message: error?.message || "Failed to save post",
+                color: "red",
             });
         } finally {
             setIsSaving(false);
@@ -596,13 +651,16 @@ export const StructuredTutorialEditor: React.FC = () => {
     };
 
     const handleDeletePost = async (sectionId: string, postId: string) => {
-        if (!window.confirm('Are you sure you want to delete this post?')) {
+        if (!window.confirm("Are you sure you want to delete this post?")) {
             return;
         }
 
-        if (!postId.startsWith('temp-')) {
+        if (!postId.startsWith("temp-")) {
             try {
-                const response = await StructuredTutorialAPI.deletePost(sectionId, postId);
+                const response = await StructuredTutorialAPI.deletePost(
+                    sectionId,
+                    postId,
+                );
 
                 // Check if backend created a draft copy
                 if (response?.newTutorialId) {
@@ -612,25 +670,27 @@ export const StructuredTutorialEditor: React.FC = () => {
                 }
             } catch (error) {
                 notifications.show({
-                    title: 'Error',
-                    message: 'Failed to delete post',
-                    color: 'red',
+                    title: "Error",
+                    message: "Failed to delete post",
+                    color: "red",
                 });
                 return;
             }
         }
 
-        setSections(prev =>
-            prev.map(s =>
-                s.id === sectionId ? { ...s, posts: s.posts.filter(p => p.id !== postId) } : s
-            )
+        setSections((prev) =>
+            prev.map((s) =>
+                s.id === sectionId
+                    ? { ...s, posts: s.posts.filter((p) => p.id !== postId) }
+                    : s,
+            ),
         );
 
-        setSelectedNode({ type: 'section', id: sectionId });
+        setSelectedNode({ type: "section", id: sectionId });
         notifications.show({
-            title: 'Success',
-            message: 'Post deleted',
-            color: 'green',
+            title: "Success",
+            message: "Post deleted",
+            color: "green",
         });
     };
 
@@ -638,37 +698,47 @@ export const StructuredTutorialEditor: React.FC = () => {
         const tutorialId = editTutorialId || tutorialData._id;
         if (!tutorialId) {
             notifications.show({
-                title: 'Error',
-                message: 'Please save tutorial info first',
-                color: 'orange',
+                title: "Error",
+                message: "Please save tutorial info first",
+                color: "orange",
             });
             return;
         }
 
         try {
-            const response = await StructuredTutorialAPI.reuseSection(tutorialId, sourceSectionId);
+            const response = await StructuredTutorialAPI.reuseSection(
+                tutorialId,
+                sourceSectionId,
+            );
             if (response?.success) {
                 // Reload sections
                 const sectionsRes = await StructuredTutorialAPI.getSections(tutorialId);
                 if (sectionsRes.success) {
-                    const mappedSections: LocalSection[] = sectionsRes.data.map((s: TutorialSection) => ({
-                        id: s._id,
-                        title: s.title,
-                        description: s.description || '',
-                        icon: s.icon || 'IconFolder',
-                        order: s.order,
-                        isReused: s.isReused,
-                        posts: (s.postIds || []).map((p: any) => ({
-                            id: p._id,
-                            title: p.title,
-                            description: p.lexicalState || p.content?.lexicalState || p.description || '',
-                            contentFormat: p.contentFormat || 'HTML',
-                            postType: p.postType || 'CONTENT',
-                            mcqData: p.mcqData,
-                            order: p.order,
-                            isReused: p.isReused,
-                        })),
-                    }));
+                    const mappedSections: LocalSection[] = sectionsRes.data.map(
+                        (s: TutorialSection) => ({
+                            id: s._id,
+                            title: s.title,
+                            description: s.description || "",
+                            icon: s.icon || "IconFolder",
+                            order: s.order,
+                            isFreePreview: s.isFreePreview || false,
+                            isReused: s.isReused,
+                            posts: (s.postIds || []).map((p: any) => ({
+                                id: p._id,
+                                title: p.title,
+                                description:
+                                    p.lexicalState ||
+                                    p.content?.lexicalState ||
+                                    p.description ||
+                                    "",
+                                contentFormat: p.contentFormat || "HTML",
+                                postType: p.postType || "CONTENT",
+                                mcqData: p.mcqData,
+                                order: p.order,
+                                isReused: p.isReused,
+                            })),
+                        }),
+                    );
                     setSections(mappedSections);
                 }
             }
@@ -683,12 +753,12 @@ export const StructuredTutorialEditor: React.FC = () => {
         try {
             const response: any = await StructuredTutorialAPI.reusePost(
                 currentSectionIdForPost,
-                sourcePostId
+                sourcePostId,
             );
             if (response?.success) {
                 // Reload section's posts
-                setSections(prev =>
-                    prev.map(s =>
+                setSections((prev) =>
+                    prev.map((s) =>
                         s.id === currentSectionIdForPost
                             ? {
                                 ...s,
@@ -697,15 +767,19 @@ export const StructuredTutorialEditor: React.FC = () => {
                                     {
                                         id: response.data._id,
                                         title: response.data.title,
-                                        description: response.data.lexicalState || response.data.content?.lexicalState || response.data.description || '',
-                                        contentFormat: response.data.contentFormat || 'HTML',
+                                        description:
+                                            response.data.lexicalState ||
+                                            response.data.content?.lexicalState ||
+                                            response.data.description ||
+                                            "",
+                                        contentFormat: response.data.contentFormat || "HTML",
                                         order: response.data.order,
                                         isReused: true,
                                     },
                                 ],
                             }
-                            : s
-                    )
+                            : s,
+                    ),
                 );
             }
         } catch (error) {
@@ -720,42 +794,51 @@ export const StructuredTutorialEditor: React.FC = () => {
         const newPublishedState = !tutorialData?.published;
 
         try {
-            const response = await StructuredTutorialAPI.publish(tutorialId, newPublishedState);
+            const response = await StructuredTutorialAPI.publish(
+                tutorialId,
+                newPublishedState,
+            );
             if (response?.success) {
                 setTutorialData(response.data);
                 notifications.show({
-                    title: 'Success',
-                    message: newPublishedState ? 'Tutorial published' : 'Tutorial unpublished',
-                    color: 'green',
+                    title: "Success",
+                    message: newPublishedState
+                        ? "Tutorial published"
+                        : "Tutorial unpublished",
+                    color: "green",
                 });
-                router.push('/history/table')
+                router.push("/history/table");
             }
         } catch (error) {
             notifications.show({
-                title: 'Error',
-                message: 'Failed to update publish status',
-                color: 'red',
+                title: "Error",
+                message: "Failed to update publish status",
+                color: "red",
             });
         }
     };
 
     // Get current section/post data for forms
     const getCurrentSectionData = () => {
-        if (selectedNode.type !== 'section' || !selectedNode.id) return undefined;
-        return sections.find(s => s.id === selectedNode.id);
+        if (selectedNode.type !== "section" || !selectedNode.id) return undefined;
+        return sections.find((s) => s.id === selectedNode.id);
     };
 
     const getCurrentPostData = () => {
-        if (selectedNode.type !== 'post' || !selectedNode.id || !selectedNode.sectionId) return undefined;
-        const section = sections.find(s => s.id === selectedNode.sectionId);
-        return section?.posts.find(p => p.id === selectedNode.id);
+        if (
+            selectedNode.type !== "post" ||
+            !selectedNode.id ||
+            !selectedNode.sectionId
+        )
+            return undefined;
+        const section = sections.find((s) => s.id === selectedNode.sectionId);
+        return section?.posts.find((p) => p.id === selectedNode.id);
     };
 
     return (
         <Suspense fallback={<MantineLoader />}>
             <FullPageOverlay visible={isVisible} />
             <Box pos="relative" h="calc(100vh - 80px)">
-
                 {/* Header */}
                 <Paper p="md" withBorder>
                     <Group justify="space-between">
@@ -763,29 +846,30 @@ export const StructuredTutorialEditor: React.FC = () => {
                             <Button
                                 variant="subtle"
                                 leftSection={<IconArrowLeft size={18} />}
-                                onClick={() => router.push('/history/table')}
+                                onClick={() => router.push("/history/table")}
                             >
                                 Back to History
                             </Button>
                             <Divider orientation="vertical" />
                             <Title order={4}>
-                                {editTutorialId ? 'Edit' : 'Create'} Structured Tutorial
+                                {editTutorialId ? "Edit" : "Create"} Structured Tutorial
                             </Title>
                         </Group>
                         {tutorialData && (
                             <Tooltip
-                                label={tutorialData.published
-                                    ? "Move tutorial to drafts (unpublish)"
-                                    : "Publish tutorial to make it public"
+                                label={
+                                    tutorialData.published
+                                        ? "Move tutorial to drafts (unpublish)"
+                                        : "Publish tutorial to make it public"
                                 }
                                 position="bottom"
                             >
                                 <Button
                                     leftSection={<IconCheck size={18} />}
-                                    color={tutorialData.published ? 'orange' : 'green'}
+                                    color={tutorialData.published ? "orange" : "green"}
                                     onClick={handlePublish}
                                 >
-                                    {tutorialData.published ? 'Draft' : 'Publish'}
+                                    {tutorialData.published ? "Draft" : "Publish"}
                                 </Button>
                             </Tooltip>
                         )}
@@ -796,9 +880,12 @@ export const StructuredTutorialEditor: React.FC = () => {
                 <Grid gutter={0} h="calc(100% - 73px)">
                     {/* Left: Tree Navigator - Only show if tutorial is saved */}
                     {tutorialData?._id && (
-                        <Grid.Col span={{ base: 12, md: 3 }} style={{ borderRight: '1px solid var(--mantine-color-gray-3)' }}>
+                        <Grid.Col
+                            span={{ base: 12, md: 3 }}
+                            style={{ borderRight: "1px solid var(--mantine-color-gray-3)" }}
+                        >
                             <TreeNavigator
-                                tutorialTitle={tutorialData?.title || 'New Tutorial'}
+                                tutorialTitle={tutorialData?.title || "New Tutorial"}
                                 sections={buildTreeNodes()}
                                 selectedNode={selectedNode}
                                 expandedNodes={expandedNodes}
@@ -820,15 +907,19 @@ export const StructuredTutorialEditor: React.FC = () => {
                     )}
 
                     <Grid.Col span={{ base: 12, md: tutorialData?._id ? 9 : 12 }}>
-                        <Box p={{ base: 'md', md: 'xl' }} style={{ overflowY: 'auto', height: '100%' }}>
-                            {selectedNode.type === 'tutorial' && (
+                        <Box
+                            p={{ base: "md", md: "xl" }}
+                            style={{ overflowY: "auto", height: "100%" }}
+                        >
+                            {selectedNode.type === "tutorial" && (
                                 <>
                                     <Title order={4} mb="md">
                                         Tutorial Information
                                     </Title>
                                     {!tutorialData?._id && (
                                         <Text c="dimmed" mb="md" size="sm">
-                                            💡 Please save the tutorial information below to start adding sections and posts.
+                                            💡 Please save the tutorial information below to start
+                                            adding sections and posts.
                                         </Text>
                                     )}
                                     <TutorialMetadataForm
@@ -841,27 +932,27 @@ export const StructuredTutorialEditor: React.FC = () => {
                                 </>
                             )}
 
-                            {selectedNode.type === 'section' && (
+                            {selectedNode.type === "section" && (
                                 <SectionForm
                                     initialData={getCurrentSectionData()}
                                     onSave={handleSaveSection}
                                     onChange={handleSectionChange}
                                     isSaving={isSaving}
-                                    isNew={selectedNode.id?.startsWith('temp-')}
+                                    isNew={selectedNode.id?.startsWith("temp-")}
                                 />
                             )}
 
-                            {selectedNode.type === 'post' && (
+                            {selectedNode.type === "post" && (
                                 <PostForm
                                     initialData={getCurrentPostData()}
                                     onSave={handleSavePost}
                                     onChange={handlePostChange}
                                     isSaving={isSaving}
-                                    isNew={selectedNode.id?.startsWith('temp-')}
+                                    isNew={selectedNode.id?.startsWith("temp-")}
                                 />
                             )}
 
-                            {selectedNode.type === 'mcq' && selectedNode.sectionId && (
+                            {selectedNode.type === "mcq" && selectedNode.sectionId && (
                                 <>
                                     <Title order={4} mb="md">
                                         Create MCQ Quiz
@@ -870,42 +961,51 @@ export const StructuredTutorialEditor: React.FC = () => {
                                         sectionId={selectedNode.sectionId}
                                         onSave={(postId) => {
                                             // Update the local state with the saved post ID
-                                            setSections(prev =>
-                                                prev.map(s =>
+                                            setSections((prev) =>
+                                                prev.map((s) =>
                                                     s.id === selectedNode.sectionId
                                                         ? {
                                                             ...s,
-                                                            posts: s.posts.map(p =>
+                                                            posts: s.posts.map((p) =>
                                                                 p.id === selectedNode.id
                                                                     ? { ...p, id: postId }
-                                                                    : p
+                                                                    : p,
                                                             ),
                                                         }
-                                                        : s
-                                                )
+                                                        : s,
+                                                ),
                                             );
-                                            setSelectedNode({ type: 'mcq', id: postId, sectionId: selectedNode.sectionId });
+                                            setSelectedNode({
+                                                type: "mcq",
+                                                id: postId,
+                                                sectionId: selectedNode.sectionId,
+                                            });
                                             notifications.show({
-                                                title: 'Success',
-                                                message: 'MCQ quiz created successfully!',
-                                                color: 'green',
+                                                title: "Success",
+                                                message: "MCQ quiz created successfully!",
+                                                color: "green",
                                             });
                                         }}
                                         onCancel={() => {
                                             // Remove the temp MCQ and go back to section
-                                            if (selectedNode.id?.startsWith('temp-mcq-')) {
-                                                setSections(prev =>
-                                                    prev.map(s =>
+                                            if (selectedNode.id?.startsWith("temp-mcq-")) {
+                                                setSections((prev) =>
+                                                    prev.map((s) =>
                                                         s.id === selectedNode.sectionId
                                                             ? {
                                                                 ...s,
-                                                                posts: s.posts.filter(p => p.id !== selectedNode.id),
+                                                                posts: s.posts.filter(
+                                                                    (p) => p.id !== selectedNode.id,
+                                                                ),
                                                             }
-                                                            : s
-                                                    )
+                                                            : s,
+                                                    ),
                                                 );
                                             }
-                                            setSelectedNode({ type: 'section', id: selectedNode.sectionId });
+                                            setSelectedNode({
+                                                type: "section",
+                                                id: selectedNode.sectionId,
+                                            });
                                         }}
                                     />
                                 </>

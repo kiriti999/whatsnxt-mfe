@@ -1,0 +1,130 @@
+.container {
+    height: 100%;
+    overflow-y: auto;
+}
+
+/* Tutorial root card */
+.tutorialCard {
+    cursor: pointer;
+    background-color: light-dark(var(--mantine-color-white),
+            var(--mantine-color-dark-6));
+}
+
+.tutorialCard:hover {
+    background-color: light-dark(var(--mantine-color-gray-0),
+            var(--mantine-color-dark-5));
+}
+
+.tutorialCardSelected {
+    background-color: light-dark(var(--mantine-color-blue-0),
+            var(--mantine-color-blue-9));
+    border-color: light-dark(var(--mantine-color-blue-3),
+            var(--mantine-color-blue-7));
+}
+
+.tutorialCardSelected:hover {
+    background-color: light-dark(var(--mantine-color-blue-1),
+            var(--mantine-color-blue-8));
+}
+
+.tutorialTitle {
+    color: light-dark(var(--mantine-color-dark-8),
+            var(--mantine-color-gray-0));
+}
+
+/* Published badge */
+.publishedBadge {
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    color: light-dark(var(--mantine-color-green-8),
+            var(--mantine-color-green-3));
+    background-color: light-dark(var(--mantine-color-green-0),
+            rgba(47, 158, 68, 0.2));
+}
+
+/* Section card */
+.sectionCard {
+    background-color: light-dark(var(--mantine-color-white),
+            var(--mantine-color-dark-6));
+}
+
+.sectionCard:hover {
+    background-color: light-dark(var(--mantine-color-gray-0),
+            var(--mantine-color-dark-5));
+}
+
+.sectionCardSelected {
+    background-color: light-dark(var(--mantine-color-blue-0),
+            var(--mantine-color-blue-9));
+    border-color: light-dark(var(--mantine-color-blue-3),
+            var(--mantine-color-blue-7));
+}
+
+.sectionCardSelected:hover {
+    background-color: light-dark(var(--mantine-color-blue-1),
+            var(--mantine-color-blue-8));
+}
+
+.sectionTitle {
+    color: light-dark(var(--mantine-color-dark-7),
+            var(--mantine-color-gray-1));
+}
+
+.sectionIcon {
+    color: light-dark(var(--mantine-color-dark-4),
+            var(--mantine-color-gray-4));
+}
+
+/* Post count badge */
+.postCountBadge {
+    color: light-dark(var(--mantine-color-blue-7),
+            var(--mantine-color-blue-3));
+    background-color: light-dark(var(--mantine-color-blue-0),
+            rgba(34, 139, 230, 0.15));
+}
+
+/* Post card */
+.postCard {
+    cursor: pointer;
+    background-color: light-dark(var(--mantine-color-white),
+            var(--mantine-color-dark-6));
+}
+
+.postCard:hover {
+    background-color: light-dark(var(--mantine-color-gray-0),
+            var(--mantine-color-dark-5));
+}
+
+.postCardSelected {
+    background-color: light-dark(var(--mantine-color-blue-0),
+            var(--mantine-color-blue-9));
+    border-color: light-dark(var(--mantine-color-blue-3),
+            var(--mantine-color-blue-7));
+}
+
+.postCardSelected:hover {
+    background-color: light-dark(var(--mantine-color-blue-1),
+            var(--mantine-color-blue-8));
+}
+
+.postTitle {
+    color: light-dark(var(--mantine-color-dark-6),
+            var(--mantine-color-gray-2));
+}
+
+.postIcon {
+    color: light-dark(var(--mantine-color-dark-3),
+            var(--mantine-color-gray-5));
+}
+
+/* "Add Section" text */
+.addSectionText {
+    color: light-dark(var(--mantine-color-dark-3),
+            var(--mantine-color-gray-5));
+}
+
+/* Reused link icon */
+.reusedIcon {
+    color: light-dark(var(--mantine-color-gray-6),
+            var(--mantine-color-gray-4));
+}

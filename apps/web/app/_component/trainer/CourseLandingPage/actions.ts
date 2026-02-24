@@ -66,7 +66,7 @@ export const handleLandingPageSubmit: HandleLandingPageSubmit = async (
     open,
     close
 ) => {
-    const bffApiUrl = process.env.NEXT_PUBLIC_BFF_HOST_IMAGEKIT_API;
+    const bffApiUrl = process.env.NEXT_PUBLIC_BFF_HOST_CLOUDINARY_API;
     try {
         open()
         let imageUrl = '';

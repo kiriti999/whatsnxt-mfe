@@ -267,7 +267,7 @@ const BlogForm: React.FC<BlogFormProps> = ({ categories, edit }) => {
 
   const handleFormSubmit = async (formData: any, e: any) => {
     e.preventDefault();
-    const bffApiUrl = process.env.NEXT_PUBLIC_BFF_HOST_IMAGEKIT_API;
+    const bffApiUrl = process.env.NEXT_PUBLIC_BFF_HOST_CLOUDINARY_API;
     try {
       open();
       // Get categoryId for the selected category

@@ -1,8 +1,13 @@
-import React from 'react';
-import { Box, Group, Text, Button, useMantineColorScheme } from '@mantine/core';
-import { IconChevronLeft, IconChevronRight, IconHome, IconCheck, IconCrown } from '@tabler/icons-react';
-import { useMediaQuery } from '@mantine/hooks';
-import Link from 'next/link';
+import { Box, Button, Group, useMantineColorScheme } from "@mantine/core";
+import { useMediaQuery } from "@mantine/hooks";
+import {
+    IconCheck,
+    IconChevronLeft,
+    IconChevronRight,
+    IconCrown,
+    IconHome,
+} from "@tabler/icons-react";
+import Link from "next/link";
 
 interface NavItem {
     label: string;
@@ -15,16 +20,22 @@ interface NavItem {
 interface StickyTutorialFooterProps {
     prev?: NavItem | null;
     next?: NavItem | null;
+    onPurchaseClick?: () => void;
 }
 
-export const StickyTutorialFooter = ({ prev, next }: StickyTutorialFooterProps) => {
+export const StickyTutorialFooter = ({
+    prev,
+    next,
+    onPurchaseClick,
+}: StickyTutorialFooterProps) => {
     const { colorScheme } = useMantineColorScheme();
-    const isMobile = useMediaQuery('(max-width: 768px)');
+    const isMobile = useMediaQuery("(max-width: 768px)");
 
     const renderButton = (item: NavItem, isNext: boolean) => {
         if (item.href) {
             return (
                 <Button
+                    size='md'
                     component={Link}
                     href={item.href}
                     variant="default"
@@ -32,14 +43,14 @@ export const StickyTutorialFooter = ({ prev, next }: StickyTutorialFooterProps) 
                     rightSection={isNext ? <IconChevronRight size={20} /> : undefined}
                     styles={{
                         root: {
-                            padding: '12px 16px',
+                            padding: "12px 16px",
                         },
                         label: {
-                            maxWidth: '200px',
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            whiteSpace: 'nowrap',
-                        }
+                            maxWidth: "200px",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            whiteSpace: "nowrap",
+                        },
                     }}
                 >
                     {item.label}
@@ -48,21 +59,21 @@ export const StickyTutorialFooter = ({ prev, next }: StickyTutorialFooterProps) 
         }
 
         return (
-            <Button
+            <Button size='md'
                 onClick={item.onClick}
                 variant="default"
                 leftSection={!isNext ? <IconChevronLeft size={20} /> : undefined}
                 rightSection={isNext ? <IconChevronRight size={20} /> : undefined}
                 styles={{
                     root: {
-                        padding: '12px 16px',
+                        padding: "12px 16px",
                     },
                     label: {
-                        maxWidth: '200px',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap',
-                    }
+                        maxWidth: "200px",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                    },
                 }}
             >
                 {item.label}
@@ -80,14 +91,16 @@ export const StickyTutorialFooter = ({ prev, next }: StickyTutorialFooterProps) 
             px="xl"
             style={{
                 zIndex: 1200,
-                borderTop: colorScheme === 'dark'
-                    ? '1px solid #373a40'
-                    : '1px solid #dee2e6',
-                backgroundColor: colorScheme === 'dark' ? '#1a1b1e' : '#ffffff',
+                borderTop:
+                    colorScheme === "dark" ? "1px solid #373a40" : "1px solid #dee2e6",
+                backgroundColor: colorScheme === "dark" ? "#1a1b1e" : "#ffffff",
             }}
         >
-            <Group justify="space-between" mx="auto" px="md"
-                style={{ maxWidth: isMobile ? '100%' : '62.5%' }}
+            <Group
+                justify="space-between"
+                mx="auto"
+                px="md"
+                style={{ maxWidth: isMobile ? "100%" : "62.5%" }}
             >
                 {prev ? (
                     renderButton(prev, false)
@@ -99,7 +112,7 @@ export const StickyTutorialFooter = ({ prev, next }: StickyTutorialFooterProps) 
                         leftSection={<IconHome size={20} />}
                         styles={{
                             root: {
-                                padding: '12px 16px',
+                                padding: "12px 16px",
                             },
                         }}
                     >
@@ -109,23 +122,22 @@ export const StickyTutorialFooter = ({ prev, next }: StickyTutorialFooterProps) 
 
                 {next ? (
                     next.isLocked ? (
-                        <Button
-                            component={Link}
-                            href="/premium"
+                        <Button size='md'
+                            onClick={onPurchaseClick}
                             variant="filled"
-                            color="green"
+                            color="teal"
                             leftSection={<IconCrown size={18} />}
                             rightSection={<IconChevronRight size={20} />}
                             styles={{
                                 root: {
-                                    padding: '12px 16px',
+                                    padding: "12px 16px",
                                 },
                                 label: {
-                                    maxWidth: '200px',
-                                    overflow: 'hidden',
-                                    textOverflow: 'ellipsis',
-                                    whiteSpace: 'nowrap',
-                                }
+                                    maxWidth: "200px",
+                                    overflow: "hidden",
+                                    textOverflow: "ellipsis",
+                                    whiteSpace: "nowrap",
+                                },
                             }}
                         >
                             Purchase to Continue
@@ -134,14 +146,14 @@ export const StickyTutorialFooter = ({ prev, next }: StickyTutorialFooterProps) 
                         renderButton(next, true)
                     )
                 ) : (
-                    <Button
+                    <Button size='md'
                         variant="filled"
                         color="cyan"
                         rightSection={<IconCheck size={20} />}
                         styles={{
                             root: {
-                                padding: '12px 16px',
-                                cursor: 'default',
+                                padding: "12px 16px",
+                                cursor: "default",
                             },
                         }}
                     >

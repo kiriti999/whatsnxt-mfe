@@ -221,7 +221,7 @@ const RegisterForm = ({ user }: { user: any }) => {
       // Handle profile image upload using the new uploadImage function
       if (profileImage) {
         try {
-          const bffApiUrl = process.env.NEXT_PUBLIC_BFF_HOST_IMAGEKIT_API;
+          const bffApiUrl = process.env.NEXT_PUBLIC_BFF_HOST_CLOUDINARY_API;
           const { secure_url, asset } = await uploadImage(
             profileImage,
             `users/${user?.email}/profile`, // folder path

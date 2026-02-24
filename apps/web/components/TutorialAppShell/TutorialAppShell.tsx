@@ -10,7 +10,8 @@ import {
     type SidebarTree,
     StructuredTutorialAPI,
 } from "../../apis/v1/blog/structuredTutorialApi";
-import { setSidebarCache } from "../../store/slices/tutorialSidebarSlice";
+import { premiumAPI } from "../../apis/v1/premium";
+import { setSidebarCache, setUserAccess } from "../../store/slices/tutorialSidebarSlice";
 import type { RootState } from "../../store/store";
 import { TutorialSidebar } from "../StructuredTutorial/Sidebar";
 
@@ -34,6 +35,11 @@ export default function TutorialAppShell({ children }: TutorialAppShellProps) {
     // Get cached sidebar data
     const sidebarCache = useSelector(
         (state: RootState) => (state as any).tutorialSidebar?.cache || {},
+    );
+
+    // Get user access state from Redux
+    const userAccess = useSelector(
+        (state: RootState) => (state as any).tutorialSidebar?.userAccess || {},
     );
 
     const [sidebarData, setSidebarData] = useState<SidebarTree | null>(null);
@@ -101,6 +107,31 @@ export default function TutorialAppShell({ children }: TutorialAppShellProps) {
     // Sidebar stores: just 'post-slug' (without tutorial prefix)
     const currentPostSlug = pathSegments[2] || tutorialSlug;
 
+    // Derive tutorialId from cache to look up user access
+    const tutorialId = Object.keys(sidebarCache).find(
+        (id) => sidebarCache[id]?.tutorialSlug === tutorialSlug,
+    );
+    const hasUserAccess = tutorialId ? userAccess[tutorialId] === true : false;
+    const accessChecked = tutorialId ? userAccess[tutorialId] !== undefined : false;
+
+    // Check user access when tutorialId becomes available (e.g. after sidebar loads on refresh)
+    useEffect(() => {
+        if (!tutorialId || hasUserAccess) return;
+        let cancelled = false;
+        const checkAccess = async () => {
+            try {
+                const response = await premiumAPI.checkAccess(tutorialId);
+                if (cancelled) return;
+                const granted = response?.data?.hasAccess === true;
+                dispatch(setUserAccess({ tutorialId, hasAccess: granted }));
+            } catch {
+                if (!cancelled) dispatch(setUserAccess({ tutorialId, hasAccess: false }));
+            }
+        };
+        checkAccess();
+        return () => { cancelled = true; };
+    }, [tutorialId, hasUserAccess, dispatch]);
+
     // Show sidebar only if we have data and it's a tutorial page
     const showSidebar = isTutorialPage && sidebarData;
 
@@ -154,6 +185,8 @@ export default function TutorialAppShell({ children }: TutorialAppShellProps) {
                         currentPostSlug={currentPostSlug}
                         onCollapse={close}
                         isMobile={isMobile}
+                        hasUserAccess={hasUserAccess}
+                        accessChecked={accessChecked}
                     />
                 )}
             </AppShell.Navbar>

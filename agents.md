@@ -11,6 +11,23 @@ WhatsNxt is a Turbo monorepo with:
 
 ## Critical Rules
 
+- Always follow solid priniciples, cyclomatic code complexity of 6
+- Always follow DRY principle
+- Always follow KISS principle
+- Always follow YAGNI principle
+- Always follow Fail Fast principle
+- Always follow Open/Closed principle
+- Always follow Liskov Substitution principle
+- Always follow Interface Segregation principle
+- Always follow Dependency Inversion principle
+- Always follow Single Responsibility principle
+- Always follow Composition over Inheritance
+- Always follow Single Source of Truth
+- Always follow Keep It Simple, Stupid principle
+- Always follow You Ain't Gonna Need This principle
+- Always follow best design patterns
+- App should be performant and scalable and should load in less than 2 seconds
+
 ### 1. Package Reuse is Mandatory
 
 **ALWAYS check existing packages before writing new code.**
@@ -29,6 +46,7 @@ WhatsNxt is a Turbo monorepo with:
 ### 2. Code Quality Standards
 
 - **Cyclomatic complexity**: Max 5 per function, max 10 for `.tsx` and `.ts` files
+- **Max lines per file**: 500
 - **SOLID principles**: Mandatory
 - **UI Standards**: Always use mantine elements and styles unless not possible. Always use css modules instead of inline styles.
 - **TypeScript**: Strict mode, interfaces in `types/` folders

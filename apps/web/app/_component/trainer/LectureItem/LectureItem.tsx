@@ -405,7 +405,7 @@ export const LectureItem: FC<LectureItemProps> = ({
           setLoading(true);
           const resourceType = e.target.dataset.resourceType;
 
-          const bffApiUrl = process.env.NEXT_PUBLIC_BFF_HOST_IMAGEKIT_API;
+          const bffApiUrl = process.env.NEXT_PUBLIC_BFF_HOST_CLOUDINARY_API;
           const { success } = await unifiedDeleteWebWorker({
             assetsList: [{ public_id: e.target.id, resource_type: resourceType }],
             clearLocalStorage: true,

@@ -153,7 +153,7 @@ const HistoryTable = ({ open, close }: HistoryTableProps) => {
 
     if (deleteResult) {
       if (assetsList.length > 0) {
-        const bffApiUrl = process.env.NEXT_PUBLIC_BFF_HOST_IMAGEKIT_API;
+        const bffApiUrl = process.env.NEXT_PUBLIC_BFF_HOST_CLOUDINARY_API;
         unifiedDeleteWebWorker({ assetsList, bffApiUrl });
       }
       await deleteIndex(rowData._id, rowData.tutorial ? "tutorial" : "blog");
