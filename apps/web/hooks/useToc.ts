@@ -189,6 +189,15 @@ export const useAddIdsToHeadings = (desc: string) => {
                 }
               }
             });
+
+            // Enhance code blocks with action buttons after highlight.js finishes
+            import('../components/StructuredTutorial/Editor/plugins/CodeBlockEnhancer')
+              .then((mod) => {
+                mod.enhanceCodeBlocks(contentEl);
+              })
+              .catch((err) => {
+                console.warn('CodeBlockEnhancer import failed:', err);
+              });
           })
           .catch((err) => {
             console.warn('highlight.js import failed:', err);
