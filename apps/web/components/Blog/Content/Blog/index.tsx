@@ -178,9 +178,13 @@ const BlogContent = ({
   // Handle different content formats
   const lexicalContainerRef = useRef<HTMLDivElement>(null);
 
-  // For HTML content, use existing hooks
+  // For HTML content (or LEXICAL without lexicalState), use existing hooks
+  const shouldRenderHtml =
+    contentFormat === "HTML" ||
+    contentFormat === "JSON" ||
+    (contentFormat === "LEXICAL" && !lexicalState);
   const { containerRef } = useAddIdsToHeadings(
-    contentFormat === "HTML" || contentFormat === "JSON" ? description : "",
+    shouldRenderHtml ? description : "",
   );
 
   const onHeadingsExtractedCallback = useCallback(

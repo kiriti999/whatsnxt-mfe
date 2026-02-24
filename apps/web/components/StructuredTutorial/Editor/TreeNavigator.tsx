@@ -1,30 +1,31 @@
-'use client';
+"use client";
 
-import React from 'react';
 import {
-    Box,
-    Stack,
-    Group,
-    Text,
     ActionIcon,
-    Tooltip,
     Badge,
+    Box,
+    Group,
     Paper,
+    Stack,
+    Text,
+    Tooltip,
     UnstyledButton,
-} from '@mantine/core';
+} from "@mantine/core";
 import {
     IconBook,
-    IconFolder,
-    IconFile,
-    IconPlus,
-    IconTrash,
-    IconCopy,
     IconChevronDown,
     IconChevronRight,
-    IconLink,
     IconCircleDot,
-} from '@tabler/icons-react';
-import { TreeNode, SelectedNode } from './types';
+    IconCopy,
+    IconFile,
+    IconFolder,
+    IconLink,
+    IconPlus,
+    IconTrash,
+} from "@tabler/icons-react";
+import type React from "react";
+import styles from "./TreeNavigator.module.css";
+import type { SelectedNode, TreeNode } from "./types";
 
 interface TreeNavigatorProps {
     tutorialTitle: string;
@@ -64,24 +65,27 @@ export const TreeNavigator: React.FC<TreeNavigatorProps> = ({
     };
 
     return (
-        <Box h="100%" style={{ overflowY: 'auto' }}>
+        <Box className={styles.container}>
             <Stack gap="xs" p="md">
                 {/* Tutorial Root Node */}
                 <Paper
                     p="sm"
                     withBorder
-                    style={{
-                        cursor: 'pointer',
-                        backgroundColor: isSelected('tutorial', null) ? 'var(--mantine-color-blue-0)' : undefined,
-                    }}
-                    onClick={() => onSelectNode({ type: 'tutorial', id: null })}
+                    className={`${styles.tutorialCard} ${isSelected("tutorial", null) ? styles.tutorialCardSelected : ""}`}
+                    onClick={() => onSelectNode({ type: "tutorial", id: null })}
                 >
                     <Group justify="space-between">
                         <Group gap="xs">
                             <IconBook size={20} />
-                            <Text fw={600}>{tutorialTitle || 'New Tutorial'}</Text>
+                            <Text fw={600} className={styles.tutorialTitle}>
+                                {tutorialTitle || "New Tutorial"}
+                            </Text>
                             {isPublished && (
-                                <Badge size="sm" color="green" variant="light">
+                                <Badge
+                                    size="sm"
+                                    variant="light"
+                                    className={styles.publishedBadge}
+                                >
                                     Published
                                 </Badge>
                             )}
@@ -97,11 +101,7 @@ export const TreeNavigator: React.FC<TreeNavigatorProps> = ({
                             <Paper
                                 p="sm"
                                 withBorder
-                                style={{
-                                    backgroundColor: isSelected('section', section.id)
-                                        ? 'var(--mantine-color-blue-0)'
-                                        : undefined,
-                                }}
+                                className={`${styles.sectionCard} ${isSelected("section", section.id) ? styles.sectionCardSelected : ""}`}
                             >
                                 <Group justify="space-between" wrap="nowrap">
                                     <Group gap="xs" style={{ flex: 1, minWidth: 0 }}>
@@ -120,20 +120,26 @@ export const TreeNavigator: React.FC<TreeNavigatorProps> = ({
                                             )}
                                         </ActionIcon>
                                         <UnstyledButton
-                                            onClick={() => onSelectNode({ type: 'section', id: section.id })}
+                                            onClick={() =>
+                                                onSelectNode({ type: "section", id: section.id })
+                                            }
                                             style={{ flex: 1, minWidth: 0 }}
                                         >
                                             <Group gap="xs" wrap="nowrap">
-                                                <IconFolder size={18} />
-                                                <Text fw={500} truncate>
+                                                <IconFolder size={18} className={styles.sectionIcon} />
+                                                <Text fw={500} truncate className={styles.sectionTitle}>
                                                     {section.title}
                                                 </Text>
-                                                <Badge size="sm" variant="light">
+                                                <Badge
+                                                    size="sm"
+                                                    variant="light"
+                                                    className={styles.postCountBadge}
+                                                >
                                                     {section.children?.length || 0} posts
                                                 </Badge>
                                                 {section.isReused && (
                                                     <Tooltip label="Reused section">
-                                                        <IconLink size={14} />
+                                                        <IconLink size={14} className={styles.reusedIcon} />
                                                     </Tooltip>
                                                 )}
                                             </Group>
@@ -204,15 +210,10 @@ export const TreeNavigator: React.FC<TreeNavigatorProps> = ({
                                             key={post.id || postIndex}
                                             p="sm"
                                             withBorder
-                                            style={{
-                                                cursor: 'pointer',
-                                                backgroundColor: isSelected('post', post.id)
-                                                    ? 'var(--mantine-color-blue-0)'
-                                                    : undefined,
-                                            }}
+                                            className={`${styles.postCard} ${isSelected("post", post.id) ? styles.postCardSelected : ""}`}
                                             onClick={() =>
                                                 onSelectNode({
-                                                    type: 'post',
+                                                    type: "post",
                                                     id: post.id,
                                                     sectionId: section.id,
                                                 })
@@ -220,13 +221,16 @@ export const TreeNavigator: React.FC<TreeNavigatorProps> = ({
                                         >
                                             <Group justify="space-between" wrap="nowrap">
                                                 <Group gap="xs" style={{ flex: 1, minWidth: 0 }}>
-                                                    <IconFile size={16} />
-                                                    <Text size="sm" truncate>
+                                                    <IconFile size={16} className={styles.postIcon} />
+                                                    <Text size="sm" truncate className={styles.postTitle}>
                                                         {post.title}
                                                     </Text>
                                                     {post.isReused && (
                                                         <Tooltip label="Reused post">
-                                                            <IconLink size={12} />
+                                                            <IconLink
+                                                                size={12}
+                                                                className={styles.reusedIcon}
+                                                            />
                                                         </Tooltip>
                                                     )}
                                                 </Group>
@@ -258,7 +262,7 @@ export const TreeNavigator: React.FC<TreeNavigatorProps> = ({
                                 <IconPlus size={18} />
                             </ActionIcon>
                         </Tooltip>
-                        <Text size="sm" c="dimmed">
+                        <Text size="sm" className={styles.addSectionText}>
                             Add Section
                         </Text>
                         <Tooltip label="Reuse Section from Another Tutorial">

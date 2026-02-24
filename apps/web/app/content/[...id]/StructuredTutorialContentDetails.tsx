@@ -2,35 +2,37 @@
 
 import {
     Box,
-    Button,
-    Center,
     Container,
     Grid,
     GridCol,
     Paper,
     Stack,
-    Text,
     Title,
 } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
-import { IconLock } from "@tabler/icons-react";
 
 import BlogComment from "@whatsnxt/blogcomments/src";
 import { CommentContextProvider } from "@whatsnxt/blogcomments/src/contexts/comment-context";
 import { CommentReplyContextProvider } from "@whatsnxt/blogcomments/src/contexts/comment-reply-context";
 import useCommentHandlers from "@whatsnxt/blogcomments/src/hooks/useCommentHandlers";
 import { SkeletonBlogContent } from "@whatsnxt/core-ui";
-import Link from "next/link";
+import { articleApiClient } from "@whatsnxt/core-util";
+import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import type { SidebarPost as SidebarPostType } from "../../../apis/v1/blog/structuredTutorialApi";
+import { premiumAPI } from "../../../apis/v1/premium";
 import BlogContent from "../../../components/Blog/Content/Blog";
 import { StickyTutorialFooter } from "../../../components/Blog/Content/Tutorial/StickyTutorialFooter";
 import SidebarPost from "../../../components/Blog/sidebar";
 import SidebarHeadings from "../../../components/Blog/sidebar-headings";
+import { PremiumPaywall } from "../../../components/Premium/PremiumPaywall";
 import { MCQPost } from "../../../components/Quiz/MCQPost";
 import useAuth from "../../../hooks/Authentication/useAuth";
-import type { TutorialSidebarState } from "../../../store/slices/tutorialSidebarSlice";
+import {
+    setUserAccess,
+    type TutorialSidebarState,
+} from "../../../store/slices/tutorialSidebarSlice";
 import type { RootState } from "../../../store/store";
 
 interface StructuredTutorialContentDetailsProps {
@@ -41,7 +43,7 @@ interface StructuredTutorialContentDetailsProps {
         description: string;
         imageUrl?: string;
         contentFormat?: "HTML" | "MARKDOWN" | "LEXICAL";
-        lexicalState?: Record<string, any> | null;
+        lexicalState?: Record<string, unknown> | null;
         timeToRead?: string;
         updatedAt?: string;
         postType?: "CONTENT" | "MCQ";
@@ -80,6 +82,8 @@ export default function StructuredTutorialContentDetails({
     details,
     tutorialId,
 }: StructuredTutorialContentDetailsProps) {
+    const router = useRouter();
+    const dispatch = useDispatch();
     const isMobile = useMediaQuery("(max-width: 768px)");
     const [loading, setLoading] = useState(true);
     const [contentId, setContentId] = useState("");
@@ -95,6 +99,13 @@ export default function StructuredTutorialContentDetails({
     const sidebarCache = useSelector(
         (state: RootState) =>
             (state.tutorialSidebar as unknown as TutorialSidebarState).cache,
+    );
+    const reduxUserAccess = useSelector(
+        (state: RootState) =>
+            (state.tutorialSidebar as unknown as TutorialSidebarState).userAccess,
+    );
+    const [hasUserAccess, setHasUserAccess] = useState(
+        () => reduxUserAccess[tutorialId] === true,
     );
 
     const [itemHeadings, setItemHeadings] = useState<
@@ -112,8 +123,80 @@ export default function StructuredTutorialContentDetails({
         href: string;
     } | null>(null);
 
+    /** Whether the backend access check has completed (prevents false lock flash on refresh) */
+    const [accessChecked, setAccessChecked] = useState(
+        () => reduxUserAccess[tutorialId] !== undefined,
+    );
+
+    /** Fetch user's premium access for this tutorial — runs immediately on mount */
+    useEffect(() => {
+        if (hasUserAccess) {
+            setAccessChecked(true);
+            return;
+        }
+        let cancelled = false;
+        const check = async () => {
+            try {
+                const response = await premiumAPI.checkAccess(tutorialId);
+                if (cancelled) return;
+                const granted = response?.data?.hasAccess === true;
+                if (granted) setHasUserAccess(true);
+                dispatch(setUserAccess({ tutorialId, hasAccess: granted }));
+            } catch {
+                if (!cancelled)
+                    dispatch(setUserAccess({ tutorialId, hasAccess: false }));
+            } finally {
+                if (!cancelled) setAccessChecked(true);
+            }
+        };
+        check();
+        return () => {
+            cancelled = true;
+        };
+    }, [tutorialId, dispatch, hasUserAccess]);
+
+    /** Keep local state in sync when Redux access changes (e.g. purchase on another post) */
+    useEffect(() => {
+        if (reduxUserAccess[tutorialId]) {
+            setHasUserAccess(true);
+        }
+    }, [reduxUserAccess, tutorialId]);
+
+    /** Re-fetch content client-side when SSR returned redacted premium content */
+    useEffect(() => {
+        if (!hasUserAccess) return;
+        const contentIsRedacted =
+            (details as Record<string, unknown>).isLocked === true ||
+            (!details.lexicalState && !details.description);
+        if (!contentIsRedacted) return;
+
+        let cancelled = false;
+        const refetchContent = async () => {
+            try {
+                const pathParts = window.location.pathname
+                    .replace(/^\/content\//, "")
+                    .split("/");
+                if (pathParts.length < 2) return;
+                const [tutorialSlug, postSlug] = pathParts;
+                const { data: res } = await articleApiClient.get(
+                    `/content/${tutorialSlug}/${postSlug}`,
+                );
+                if (cancelled || !res?.success || !res.data) return;
+                setItem((prev) => ({ ...prev, ...res.data }));
+            } catch {
+                // Content stays as-is; paywall will handle
+            }
+        };
+        refetchContent();
+        return () => {
+            cancelled = true;
+        };
+    }, [hasUserAccess, details]);
+
     /** Check if the current post is in a locked (non-preview) section of a premium tutorial */
     const isContentLocked = useMemo(() => {
+        if (hasUserAccess) return false;
+        if (!accessChecked) return false; // Don't show paywall until access check completes
         const sidebarData = sidebarCache[tutorialId];
         if (!sidebarData?.isPremium) return false;
 
@@ -123,10 +206,12 @@ export default function StructuredTutorialContentDetails({
 
         if (!currentSection) return false;
         return !currentSection.isFreePreview;
-    }, [sidebarCache, tutorialId, details.slug]);
+    }, [hasUserAccess, accessChecked, sidebarCache, tutorialId, details.slug]);
 
     /** Check if the next post is in a locked section */
     const isNextPostLocked = useMemo(() => {
+        if (hasUserAccess) return false;
+        if (!accessChecked) return false;
         const sidebarData = sidebarCache[tutorialId];
         if (!sidebarData?.isPremium) return false;
         if (!nextPost) return false;
@@ -141,7 +226,18 @@ export default function StructuredTutorialContentDetails({
 
         if (!nextSection) return false;
         return !nextSection.isFreePreview;
-    }, [sidebarCache, tutorialId, nextPost]);
+    }, [hasUserAccess, accessChecked, sidebarCache, tutorialId, nextPost]);
+
+    /** Show inline paywall when user clicks "Purchase to Continue" in footer */
+    const [showPaywall, setShowPaywall] = useState(false);
+
+    const handlePurchaseClick = useCallback(() => {
+        setShowPaywall(true);
+        // Scroll to bottom where the paywall will render
+        setTimeout(() => {
+            window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+        }, 100);
+    }, []);
 
     const { user } = useAuth();
     const email = user?.email;
@@ -180,7 +276,7 @@ export default function StructuredTutorialContentDetails({
             setContentId(details._id);
             setLoading(false);
         }
-    }, [details._id]);
+    }, [details]);
 
     useEffect(() => {
         const fetchNavigation = async () => {
@@ -251,31 +347,17 @@ export default function StructuredTutorialContentDetails({
                                     {/* Content Paper */}
                                     <Box px={isMobile ? "0" : "xl"}>
                                         {isContentLocked ? (
-                                            <Center py={80}>
-                                                <Stack align="center" gap="md" maw={420}>
-                                                    <IconLock
-                                                        size={48}
-                                                        color="var(--mantine-color-yellow-6)"
-                                                    />
-                                                    <Title order={3} ta="center">
-                                                        Premium Content
-                                                    </Title>
-                                                    <Text c="dimmed" ta="center">
-                                                        This section is part of our premium content. Upgrade
-                                                        your plan to unlock all tutorials and guided
-                                                        practice.
-                                                    </Text>
-                                                    <Button
-                                                        component={Link}
-                                                        href="/premium"
-                                                        color="green"
-                                                        radius="md"
-                                                        size="md"
-                                                    >
-                                                        Upgrade to Premium
-                                                    </Button>
-                                                </Stack>
-                                            </Center>
+                                            <PremiumPaywall
+                                                tutorialId={tutorialId}
+                                                tutorialTitle={sidebarCache[tutorialId]?.tutorialTitle}
+                                                onAccessGranted={() => {
+                                                    setHasUserAccess(true);
+                                                    dispatch(
+                                                        setUserAccess({ tutorialId, hasAccess: true }),
+                                                    );
+                                                    router.refresh();
+                                                }}
+                                            />
                                         ) : item.postType === "MCQ" && item.mcqData ? (
                                             <MCQPost
                                                 postId={item._id}
@@ -309,7 +391,24 @@ export default function StructuredTutorialContentDetails({
                                                 ? { ...nextPost, isLocked: isNextPostLocked }
                                                 : null
                                         }
+                                        onPurchaseClick={handlePurchaseClick}
                                     />
+
+                                    {/* Inline paywall when next section is locked */}
+                                    {showPaywall && isNextPostLocked && (
+                                        <PremiumPaywall
+                                            tutorialId={tutorialId}
+                                            tutorialTitle={sidebarCache[tutorialId]?.tutorialTitle}
+                                            onAccessGranted={() => {
+                                                setHasUserAccess(true);
+                                                dispatch(
+                                                    setUserAccess({ tutorialId, hasAccess: true }),
+                                                );
+                                                setShowPaywall(false);
+                                                router.refresh();
+                                            }}
+                                        />
+                                    )}
 
                                     {/* Comments Paper */}
                                     <Paper withBorder p="xl" radius="xs">

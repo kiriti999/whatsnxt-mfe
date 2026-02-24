@@ -30,6 +30,7 @@ export interface LocalSection {
     description: string;
     icon: string;
     order?: number;
+    isFreePreview?: boolean;
     posts: LocalPost[];
     isReused?: boolean;
     sourceId?: string;
