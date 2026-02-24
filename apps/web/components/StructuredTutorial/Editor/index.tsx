@@ -214,7 +214,7 @@ export const StructuredTutorialEditor: React.FC = () => {
             let cloudinaryAssets: any[] = tutorialData?.cloudinaryAssets || [];
 
             if (imageFile) {
-                const bffApiUrl = process.env.NEXT_PUBLIC_BFF_HOST_IMAGEKIT_API;
+                const bffApiUrl = process.env.NEXT_PUBLIC_BFF_HOST_CLOUDINARY_API;
                 const { secure_url, asset } = await uploadImage(
                     imageFile,
                     "whatsnxt",

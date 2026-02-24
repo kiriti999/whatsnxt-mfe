@@ -1,29 +1,59 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import { useForm, Controller } from 'react-hook-form';
-import { notifications } from '@mantine/notifications';
-import { modals } from '@mantine/modals';
-import { CategoryData } from '../../../types/form';
-import { useSaved } from '../../../hooks/saved';
-import { getCategoryId } from '../../../utils/form';
-import type { Category, Detail, Tutorial } from '../../../types/form';
-import { FormAPI, HistoryAPI } from '../../../apis/v1/blog';
-import Pagination from '../../Common/Pagination';
-import { LexicalEditor } from '../../StructuredTutorial/Editor/LexicalEditor';
-import { lexicalToHtml } from '../../../utils/lexicalToHtml';
-import { useRouter } from 'next/navigation';
-import { Alert, Box, Button, Container, FileInput, Flex, Grid, Group, Input, Select, Stack, Text, Title, Loader } from '@mantine/core';
-import { useDisclosure } from '@mantine/hooks';
-import { LoadingOverlay as CustomLoadingOverlay, CategorySearch } from '@whatsnxt/core-ui';
-import type { CategoryPath } from '@whatsnxt/core-ui';
-import { FullPageOverlay } from '@/components/Common/FullPageOverlay';
-import { IconUpload, IconAlertCircle, IconCheck } from '@tabler/icons-react';
-import { default as NextImage } from 'next/image';
-import { uploadImage } from './util';
-import { useImageSafety } from '../../../hooks/useImageSafety';
-import { validateFile, formatFileSize, DEFAULT_VALIDATION_OPTIONS } from '../../../utils/imageValidation';
-import { ImageRequirements } from './ImageRequirements';
-import { cloudinaryAssetsUploadCleanup, cloudinaryAssetsUploadCleanupForUpdate } from '@/components/RichTextEditor/common';
-import { AISuggestionButton } from '../../Common/AISuggestionButton';
+import {
+  Alert,
+  Box,
+  Button,
+  Container,
+  FileInput,
+  Flex,
+  Grid,
+  Group,
+  Input,
+  Loader,
+  Select,
+  Stack,
+  Text,
+  Title,
+} from "@mantine/core";
+import { useDisclosure } from "@mantine/hooks";
+import { modals } from "@mantine/modals";
+import { notifications } from "@mantine/notifications";
+import { IconAlertCircle, IconCheck, IconUpload } from "@tabler/icons-react";
+import type { CategoryPath } from "@whatsnxt/core-ui";
+import {
+  CategorySearch,
+  LoadingOverlay as CustomLoadingOverlay,
+} from "@whatsnxt/core-ui";
+import { default as NextImage } from "next/image";
+import { useRouter } from "next/navigation";
+import type React from "react";
+import { useCallback, useEffect, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+import { FullPageOverlay } from "@/components/Common/FullPageOverlay";
+import {
+  cloudinaryAssetsUploadCleanup,
+  cloudinaryAssetsUploadCleanupForUpdate,
+} from "@/components/RichTextEditor/common";
+import { FormAPI, HistoryAPI } from "../../../apis/v1/blog";
+import { useSaved } from "../../../hooks/saved";
+import { useImageSafety } from "../../../hooks/useImageSafety";
+import type {
+  Category,
+  CategoryData,
+  Detail,
+  Tutorial,
+} from "../../../types/form";
+import { getCategoryId } from "../../../utils/form";
+import {
+  DEFAULT_VALIDATION_OPTIONS,
+  formatFileSize,
+  validateFile,
+} from "../../../utils/imageValidation";
+import { lexicalToHtml } from "../../../utils/lexicalToHtml";
+import { AISuggestionButton } from "../../Common/AISuggestionButton";
+import Pagination from "../../Common/Pagination";
+import { LexicalEditor } from "../../StructuredTutorial/Editor/LexicalEditor";
+import { ImageRequirements } from "./ImageRequirements";
+import { uploadImage } from "./util";
 
 interface TutorialFormProps {
   categories: Category[];
@@ -36,13 +66,15 @@ interface TutorialFormProps {
     nestedSubCategory: string;
     tutorials: Tutorial[];
     imageUrl?: string;
-    cloudinaryAssets: {
+    cloudinaryAssets:
+    | {
       public_id: string;
       url: string;
       secure_url: string;
       format: string;
       resource_type: string;
-    }[] | null
+    }[]
+    | null;
     lexicalState?: Record<string, any> | null;
   };
 }
@@ -51,8 +83,8 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
   const { categories, edit } = props;
   const [visible, { open, close }] = useDisclosure(false);
   const [categoryData, setCategoryData] = useState<CategoryData>({
-    imageUrl: '',
-    text: '',
+    imageUrl: "",
+    text: "",
   });
 
   const [isAlert, setIsAlert] = useState(false);
@@ -60,9 +92,9 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
   const [details, setDetails] = useState<Detail | null>(null);
 
   const [detailed, setDetailed] = useState<boolean>(true);
-  const [description, setDescription] = useState<string>('');
+  const [description, setDescription] = useState<string>("");
   const [tutorials, setTutorials] = useState<Tutorial[]>([
-    { title: '', description: '' },
+    { title: "", description: "" },
   ]);
   const [active, setActive] = useState<number>(1);
   const [unsaved, setUnsaved] = useState<boolean>(true);
@@ -74,7 +106,9 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
   const [tutorialImage, setTutorialImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [validationError, setValidationError] = useState<string | null>(null);
-  const [validationSuccess, setValidationSuccess] = useState<string | null>(null);
+  const [validationSuccess, setValidationSuccess] = useState<string | null>(
+    null,
+  );
 
   // Image safety hook
   const {
@@ -83,7 +117,7 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
     isScanning,
     isModelLoading,
     error: scanError,
-    clearError
+    clearError,
   } = useImageSafety();
 
   const {
@@ -95,14 +129,14 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
     control,
     formState: { errors },
   } = useForm({
-    mode: 'onChange',
+    mode: "onChange",
     defaultValues: {
-      tutorialName: '',
-      title: details ? details.title : '',
-      categoryName: details?.categoryName || '',
-      subCategory: details?.subCategory || '',
-      nestedSubCategory: details?.nestedSubCategory || '',
-      tutorialImagePreview: ''
+      tutorialName: "",
+      title: details ? details.title : "",
+      categoryName: details?.categoryName || "",
+      subCategory: details?.subCategory || "",
+      nestedSubCategory: details?.nestedSubCategory || "",
+      tutorialImagePreview: "",
     },
     resetOptions: {
       keepDirtyValues: true,
@@ -124,41 +158,48 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
         title: edit.title,
         categoryId: getCategoryId(categories, edit.categoryName),
         categoryName: edit.categoryName,
-        subCategory: edit?.subCategory || '',
-        nestedSubCategory: edit?.nestedSubCategory || '',
+        subCategory: edit?.subCategory || "",
+        nestedSubCategory: edit?.nestedSubCategory || "",
         published: false,
       });
       setTutorials(edit.tutorials);
-      setValue('tutorialName', edit.title);
-      setValue('categoryName', edit.categoryName);
-      setValue('subCategory', edit.subCategory);
-      setValue('nestedSubCategory', edit.nestedSubCategory);
+      setValue("tutorialName", edit.title);
+      setValue("categoryName", edit.categoryName);
+      setValue("subCategory", edit.subCategory);
+      setValue("nestedSubCategory", edit.nestedSubCategory);
 
-      const selectedCategory = categories.find((cat) => cat.categoryName === edit.categoryName);
+      const selectedCategory = categories.find(
+        (cat) => cat.categoryName === edit.categoryName,
+      );
       if (selectedCategory?.subcategories) {
-        const mappedSubCategories = selectedCategory.subcategories.map((sub) => ({
-          value: sub.name,
-          label: sub.name,
-          subcategories: sub.subcategories,
-        }));
+        const mappedSubCategories = selectedCategory.subcategories.map(
+          (sub) => ({
+            value: sub.name,
+            label: sub.name,
+            subcategories: sub.subcategories,
+          }),
+        );
         setSubCategories(mappedSubCategories);
 
-        const selectedSubCategory = mappedSubCategories.find((sub) => sub.value === edit.subCategory);
+        const selectedSubCategory = mappedSubCategories.find(
+          (sub) => sub.value === edit.subCategory,
+        );
         if (selectedSubCategory?.subcategories) {
-          const mappedNestedSubCategories = selectedSubCategory.subcategories.map((nested) => ({
-            value: nested.name,
-            label: nested.name,
-          }));
+          const mappedNestedSubCategories =
+            selectedSubCategory.subcategories.map((nested) => ({
+              value: nested.name,
+              label: nested.name,
+            }));
           setNestedSubCategories(mappedNestedSubCategories);
         }
       }
 
       if (edit.subCategory) {
-        setValue('subCategory', edit.subCategory)
+        setValue("subCategory", edit.subCategory);
       }
 
       if (edit.nestedSubCategory) {
-        setValue('nestedSubCategory', edit.nestedSubCategory)
+        setValue("nestedSubCategory", edit.nestedSubCategory);
       }
 
       // Set existing image preview if editing
@@ -175,7 +216,7 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
     }
   }, [edit]);
 
-  const categoryValue = watch('categoryName');
+  const categoryValue = watch("categoryName");
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -187,37 +228,44 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
   useEffect(() => {
     if (active > 0) {
       const activeTutorial = tutorials[active - 1];
-      setValue('title', activeTutorial?.title || '');
+      setValue("title", activeTutorial?.title || "");
 
       // Initialize with lexicalState if available, otherwise use description HTML
-      let descriptionValue = '';
+      let descriptionValue = "";
       if (activeTutorial?.lexicalState) {
         // lexicalState already exists as object
         try {
           descriptionValue = JSON.stringify(activeTutorial.lexicalState);
-          console.log('✅ Using lexicalState');
+          console.log("✅ Using lexicalState");
         } catch (e) {
-          console.warn('Failed to stringify lexicalState:', e);
-          descriptionValue = activeTutorial?.description || '';
+          console.warn("Failed to stringify lexicalState:", e);
+          descriptionValue = activeTutorial?.description || "";
         }
-      } else if (activeTutorial?.description && typeof activeTutorial.description === 'string' && activeTutorial.description.trim().startsWith('{')) {
+      } else if (
+        activeTutorial?.description &&
+        typeof activeTutorial.description === "string" &&
+        activeTutorial.description.trim().startsWith("{")
+      ) {
         // description is JSON string (from previous saves), use it as-is for editor
-        console.log('✅ Using description as JSON string');
+        console.log("✅ Using description as JSON string");
         descriptionValue = activeTutorial.description;
       } else {
         // description is HTML, use as fallback
-        console.log('⚠️ Using description as HTML');
-        descriptionValue = activeTutorial?.description || '';
+        console.log("⚠️ Using description as HTML");
+        descriptionValue = activeTutorial?.description || "";
       }
-      console.log('Description value (first 100 chars):', descriptionValue.substring(0, 100));
+      console.log(
+        "Description value (first 100 chars):",
+        descriptionValue.substring(0, 100),
+      );
       setDescription(descriptionValue);
     }
   }, [tutorials, active, setValue]);
 
   const validationOptions = {
-    tutorialName: { required: 'Tutorial name is required', maxLength: 250 },
-    title: { required: 'Title is required', maxLength: 250 },
-    description: { required: 'Description is required' },
+    tutorialName: { required: "Tutorial name is required", maxLength: 250 },
+    title: { required: "Title is required", maxLength: 250 },
+    description: { required: "Description is required" },
   };
 
   const handleImageChange = async (file: File | null) => {
@@ -233,12 +281,12 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
     }
 
     try {
-      console.log('🔍 Starting validation and safety scan for:', file.name);
+      console.log("🔍 Starting validation and safety scan for:", file.name);
 
       // Step 1: Basic file validation using the shared utility
       const validationOptions = {
         ...DEFAULT_VALIDATION_OPTIONS.BLOG_TUTORIAL,
-        setValidationError // Add the setValidationError function to options
+        setValidationError, // Add the setValidationError function to options
       };
 
       const isValid = await validateFile(file, validationOptions);
@@ -247,21 +295,23 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
       }
 
       // Step 2: Safety scanning
-      console.log('🔍 Running AI safety scan...');
+      console.log("🔍 Running AI safety scan...");
       const safetyResult = await scanImageClientSide(file);
 
       if (!safetyResult.safe) {
         setValidationError(
-          `Image blocked by AI safety scan: ${safetyResult.blockedReasons.join(', ')}`
+          `Image blocked by AI safety scan: ${safetyResult.blockedReasons.join(", ")}`,
         );
-        console.error('❌ Image failed safety check:', safetyResult);
+        console.error("❌ Image failed safety check:", safetyResult);
         return;
       }
 
       // Step 3: All checks passed - set the image
-      console.log('✅ Image passed all validation checks');
+      console.log("✅ Image passed all validation checks");
       setTutorialImage(file);
-      setValidationSuccess(`Image validated successfully (${formatFileSize(file.size)})`);
+      setValidationSuccess(
+        `Image validated successfully (${formatFileSize(file.size)})`,
+      );
 
       // Step 4: Create preview
       const fileReader = new FileReader();
@@ -269,11 +319,10 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
         setImagePreview(e.target?.result as string);
       };
       fileReader.readAsDataURL(file);
-
     } catch (error) {
-      console.error('❌ Image validation failed:', error);
+      console.error("❌ Image validation failed:", error);
       setValidationError(
-        `Validation failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+        `Validation failed: ${error instanceof Error ? error.message : "Unknown error"}`,
       );
     }
   };
@@ -291,26 +340,26 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
           lexicalJson = null;
         }
         copy[active - 1] = {
-          title: getValues('title'),
+          title: getValues("title"),
           description,
-          lexicalState: lexicalJson
+          lexicalState: lexicalJson,
         };
       }
-      copy.push({ title: '', description: '' });
+      copy.push({ title: "", description: "" });
       setActive(copy.length);
       setTutorials(copy);
     }),
-    [tutorials, description, active, getValues]
+    [tutorials, description, active, getValues],
   );
 
   const submitDetails = useCallback(() => {
-    const categoryName: any = getValues('categoryName');
+    const categoryName: any = getValues("categoryName");
     setDetails({
-      title: getValues('title'),
+      title: getValues("title"),
       categoryId: getCategoryId(categories, categoryName),
       categoryName: categoryName,
-      subCategory: getValues('subCategory') || '',
-      nestedSubCategory: getValues('nestedSubCategory') || '',
+      subCategory: getValues("subCategory") || "",
+      nestedSubCategory: getValues("nestedSubCategory") || "",
       published: false,
     });
 
@@ -338,9 +387,9 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
           lexicalJson = null;
         }
         copy[active - 1] = {
-          title: getValues('title'),
+          title: getValues("title"),
           description,
-          lexicalState: lexicalJson
+          lexicalState: lexicalJson,
         };
         setTutorials(copy);
       } else {
@@ -348,7 +397,7 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
       }
       setActive(page);
     },
-    [tutorials, description, active, getValues, submitDetails]
+    [tutorials, description, active, getValues, submitDetails],
   );
 
   const checkValidationEachPage = (tutorials: Tutorial[]) => {
@@ -384,7 +433,6 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
             cloudinaryAssets: getList,
           });
         }
-
       }
 
       return updatedTutorials;
@@ -397,7 +445,7 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
       return {
         ...tutorial,
         cloudinaryAssets: getList,
-      }
+      };
     });
 
     return updatedTutorials;
@@ -415,9 +463,9 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
         lexicalJson = null;
       }
       copyTutorial[active - 1] = {
-        title: getValues('title'),
+        title: getValues("title"),
         description: htmlDescription,
-        lexicalState: lexicalJson
+        lexicalState: lexicalJson,
       };
       setTutorials(copyTutorial);
 
@@ -428,11 +476,14 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
 
       // Normalize all tutorial descriptions: ensure each has HTML in description and lexicalState as object
       const normalizedTutorialsList = updatedTutorialsList.map((tutorial) => {
-        let normalizedDescription = tutorial.description || '';
+        let normalizedDescription = tutorial.description || "";
         let normalizedLexicalState = tutorial.lexicalState || null;
 
         // If description looks like JSON (starts with {), parse it as lexicalState and convert to HTML
-        if (typeof normalizedDescription === 'string' && normalizedDescription.trim().startsWith('{')) {
+        if (
+          typeof normalizedDescription === "string" &&
+          normalizedDescription.trim().startsWith("{")
+        ) {
           try {
             const parsedState = JSON.parse(normalizedDescription);
             normalizedLexicalState = parsedState;
@@ -449,17 +500,22 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
         };
       });
 
-      const categoryName: any = getValues('categoryName');
+      const categoryName: any = getValues("categoryName");
 
-      let imageUrl = edit?.imageUrl || '';
+      let imageUrl = edit?.imageUrl || "";
       let cloudinaryAssets = edit?.cloudinaryAssets || [];
 
       // Only upload new image if one was selected
       if (tutorialImage) {
         // Upload image via worker
         const addToLocalStorage = false;
-        const bffApiUrl = process.env.NEXT_PUBLIC_BFF_HOST_IMAGEKIT_API;
-        const { secure_url, asset } = await uploadImage(tutorialImage, 'whatsnxt-tutorial', addToLocalStorage, bffApiUrl);
+        const bffApiUrl = process.env.NEXT_PUBLIC_BFF_HOST_CLOUDINARY_API;
+        const { secure_url, asset } = await uploadImage(
+          tutorialImage,
+          "whatsnxt-tutorial",
+          addToLocalStorage,
+          bffApiUrl,
+        );
         if (secure_url && asset) {
           imageUrl = secure_url;
           cloudinaryAssets = [asset];
@@ -467,9 +523,9 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
       }
 
       const details = {
-        title: getValues('tutorialName'),
+        title: getValues("tutorialName"),
         description: htmlDescription,
-        contentFormat: 'LEXICAL',
+        contentFormat: "LEXICAL",
         lexicalState: lexicalJson,
         categoryId: getCategoryId(categories, categoryName),
         categoryName,
@@ -477,7 +533,7 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
         nestedSubCategory: formData.nestedSubCategory,
         imageUrl: imageUrl,
         published: false,
-        cloudinaryAssets
+        cloudinaryAssets,
       };
 
       setUnsaved(false);
@@ -486,12 +542,11 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
       try {
         const payload = { ...details, tutorials: normalizedTutorialsList };
 
-        console.log('TutorialForm:: payload:', payload)
+        console.log("TutorialForm:: payload:", payload);
 
         const response = edit
           ? await FormAPI.updateTutorial(edit.id, payload)
           : await FormAPI.createTutorial(payload);
-
 
         if (response.success) {
           if (edit) {
@@ -499,33 +554,38 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
           }
 
           notifications.show({
-            title: `Tutorial ${edit ? 'Updated' : 'Created'}`,
-            message: `Tutorial successfully ${edit ? 'updated' : 'created'}`,
-            color: 'green',
+            title: `Tutorial ${edit ? "Updated" : "Created"}`,
+            message: `Tutorial successfully ${edit ? "updated" : "created"}`,
+            color: "green",
           });
 
-          router.push('/history/table');
-
+          router.push("/history/table");
         }
         if (!response.success) {
           notifications.show({
-            title: `Tutorial ${edit ? 'Update' : 'Create'} Error`,
+            title: `Tutorial ${edit ? "Update" : "Create"} Error`,
             message: response[0]
               ? response[0].message
-              : `Tutorial failed to ${edit ? 'update' : 'create'}`,
-            color: 'red',
+              : `Tutorial failed to ${edit ? "update" : "create"}`,
+            color: "red",
           });
         }
       } catch (error) {
-        const isConflict = error?.status === 409 || error?.response?.status === 409;
+        const isConflict =
+          error?.status === 409 || error?.response?.status === 409;
         if (isConflict) {
           modals.open({
-            title: 'Duplicate Title Detected',
+            title: "Duplicate Title Detected",
             centered: true,
             children: (
               <Box>
-                <Text size="sm" mb="md">{error?.message || 'A tutorial with a similar title already exists.'}</Text>
-                <Text size="xs" c="dimmed">Please change your title and try again.</Text>
+                <Text size="sm" mb="md">
+                  {error?.message ||
+                    "A tutorial with a similar title already exists."}
+                </Text>
+                <Text size="xs" c="dimmed">
+                  Please change your title and try again.
+                </Text>
                 <Group justify="flex-end" mt="md">
                   <Button onClick={() => modals.closeAll()}>OK</Button>
                 </Group>
@@ -534,12 +594,11 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
           });
         } else {
           notifications.show({
-            title: `Tutorial ${edit ? 'Update' : 'Create'} Error`,
+            title: `Tutorial ${edit ? "Update" : "Create"} Error`,
             message: `${error.message}`,
-            color: 'red',
+            color: "red",
           });
         }
-
       } finally {
         close();
       }
@@ -553,55 +612,62 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
       edit,
       getValues,
       submitDetails,
-      tutorialImage
-    ]
+      tutorialImage,
+    ],
   );
 
   // Update subcategories when a category is selected
   const handleCategoryChange = useCallback(
     (value: string) => {
-      const selectedCategory = categories.find((cat) => cat.categoryName === value);
-      const selectedCategoriesToUpdate = selectedCategory?.subcategories?.map((sub) => ({
-        value: sub.name,
-        label: sub.name,
-        subcategories: sub.subcategories,
-      })) || [];
+      const selectedCategory = categories.find(
+        (cat) => cat.categoryName === value,
+      );
+      const selectedCategoriesToUpdate =
+        selectedCategory?.subcategories?.map((sub) => ({
+          value: sub.name,
+          label: sub.name,
+          subcategories: sub.subcategories,
+        })) || [];
 
       selectedCategoriesToUpdate.push({
-        value: '',
-        label: '',
-        subcategories: []
-      })
+        value: "",
+        label: "",
+        subcategories: [],
+      });
 
-      setSubCategories(selectedCategoriesToUpdate)
+      setSubCategories(selectedCategoriesToUpdate);
       setNestedSubCategories([]); // Reset nested subcategories
     },
-    [categories]
+    [categories],
   );
 
   // Update nested subcategories when a subcategory is selected
   const handleSubCategoryChange = useCallback(
     (value: string) => {
-      const selectedSubCategory = subCategories.find((sub) => sub.value === value);
+      const selectedSubCategory = subCategories.find(
+        (sub) => sub.value === value,
+      );
       setNestedSubCategories(
         selectedSubCategory?.subcategories?.map((nested) => ({
           value: nested.name,
           label: nested.name,
-        })) || []
+        })) || [],
       );
     },
-    [subCategories]
+    [subCategories],
   );
 
   return (
     <Container size="xl" py="xl">
       <FullPageOverlay visible={visible} />
       <Box>
-        <Title order={2} mb="xl" fw={600}>{edit ? 'Edit tutorial details' : 'Post a tutorial'}</Title>
+        <Title order={2} mb="xl" fw={600}>
+          {edit ? "Edit tutorial details" : "Post a tutorial"}
+        </Title>
 
         {isAlert && <Alert withCloseButton>{showAlertMessage.message}</Alert>}
         {validationErrors.length > 0 && (
-          <Alert mb={'1em'} mt={'2px'} title="Validation Errors" color="red">
+          <Alert mb={"1em"} mt={"2px"} title="Validation Errors" color="red">
             {validationErrors.map((error, index) => (
               <div key={index}>{error}</div>
             ))}
@@ -612,31 +678,42 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
           <form onSubmit={handleSubmit(handleFormSubmit)}>
             <Stack gap="lg">
               <Stack gap="xs">
-                <Text fw={500} size="sm">Tutorial name <Text component="span" c="red" fw={600}>*</Text></Text>
+                <Text fw={500} size="sm">
+                  Tutorial name{" "}
+                  <Text component="span" c="red" fw={600}>
+                    *
+                  </Text>
+                </Text>
                 <Input
                   tabIndex={1}
                   placeholder="Enter tutorial name"
                   size="md"
-                  {...register('tutorialName', validationOptions.tutorialName)}
+                  {...register("tutorialName", validationOptions.tutorialName)}
                 />
-                {(errors?.tutorialName) && (
+                {errors?.tutorialName && (
                   <Text c="red" size="sm">
-                    {errors.tutorialName?.message?.toString() || 'Max length exceeded'}
+                    {errors.tutorialName?.message?.toString() ||
+                      "Max length exceeded"}
                   </Text>
                 )}
               </Stack>
 
               <Stack gap="xs">
-                <Text fw={500} size="sm">Page name <Text component="span" c="red" fw={600}>*</Text></Text>
+                <Text fw={500} size="sm">
+                  Page name{" "}
+                  <Text component="span" c="red" fw={600}>
+                    *
+                  </Text>
+                </Text>
                 <Input
                   tabIndex={2}
                   placeholder="Page name"
                   size="md"
-                  {...register('title', validationOptions.title)}
+                  {...register("title", validationOptions.title)}
                 />
-                {(errors?.title) && (
+                {errors?.title && (
                   <Text c="red" size="sm">
-                    {errors.title?.message?.toString() || 'Max length exceeded'}
+                    {errors.title?.message?.toString() || "Max length exceeded"}
                   </Text>
                 )}
               </Stack>
@@ -644,9 +721,11 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
               {detailed && (
                 <Stack gap="xs">
                   <Flex align="center" gap={4}>
-                    <Text fw={500} size="sm">Description</Text>
+                    <Text fw={500} size="sm">
+                      Description
+                    </Text>
                     <AISuggestionButton
-                      prompt={() => getValues('title') || ''}
+                      prompt={() => getValues("title") || ""}
                       onSuggestion={(text) => setDescription(text)}
                     />
                   </Flex>
@@ -665,9 +744,9 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
                     <CategorySearch
                       categories={categories}
                       onSelect={(path: CategoryPath) => {
-                        setValue('categoryName', path.category);
-                        setValue('subCategory', path.subCategory);
-                        setValue('nestedSubCategory', path.nestedSubCategory);
+                        setValue("categoryName", path.category);
+                        setValue("subCategory", path.subCategory);
+                        setValue("nestedSubCategory", path.nestedSubCategory);
                         handleCategoryChange(path.category);
                         if (path.subCategory) {
                           handleSubCategoryChange(path.subCategory);
@@ -681,17 +760,27 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
                     <Controller
                       name="categoryName"
                       control={control}
-                      rules={{ required: 'Category is required' }}
+                      rules={{ required: "Category is required" }}
                       render={({ field }) => (
                         <Select
-                          label={<Text fw={500} size="sm">Category <Text component="span" c="red" fw={600}>*</Text></Text>}
+                          label={
+                            <Text fw={500} size="sm">
+                              Category{" "}
+                              <Text component="span" c="red" fw={600}>
+                                *
+                              </Text>
+                            </Text>
+                          }
                           placeholder="Select a category"
                           size="md"
-                          data={categories.map((cat) => ({ value: cat.categoryName, label: cat.categoryName }))}
+                          data={categories.map((cat) => ({
+                            value: cat.categoryName,
+                            label: cat.categoryName,
+                          }))}
                           value={field.value}
                           onChange={(value) => {
-                            setValue('subCategory', '')
-                            setValue('nestedSubCategory', '')
+                            setValue("subCategory", "");
+                            setValue("nestedSubCategory", "");
                             field.onChange(value);
                             handleCategoryChange(value);
                           }}
@@ -699,7 +788,11 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
                         />
                       )}
                     />
-                    {errors.categoryName && <Text c="red" size="sm" mt="xs">{errors.categoryName?.message}</Text>}
+                    {errors.categoryName && (
+                      <Text c="red" size="sm" mt="xs">
+                        {errors.categoryName?.message}
+                      </Text>
+                    )}
                   </Grid.Col>
 
                   {/* Subcategories */}
@@ -708,24 +801,35 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
                       <Controller
                         name="subCategory"
                         control={control}
-                        rules={{ required: 'SubCategory is required' }}
+                        rules={{ required: "SubCategory is required" }}
                         render={({ field }) => (
                           <Select
-                            label={<Text fw={500} size="sm">Subcategory <Text component="span" c="red" fw={600}>*</Text></Text>}
+                            label={
+                              <Text fw={500} size="sm">
+                                Subcategory{" "}
+                                <Text component="span" c="red" fw={600}>
+                                  *
+                                </Text>
+                              </Text>
+                            }
                             placeholder="Select a subcategory"
                             size="md"
                             data={subCategories}
                             value={field.value}
                             onChange={(value) => {
                               field.onChange(value);
-                              setValue('nestedSubCategory', '');
+                              setValue("nestedSubCategory", "");
                               handleSubCategoryChange(value);
                             }}
                             searchable
                           />
                         )}
                       />
-                      {errors.subCategory && <Text c="red" size="sm" mt="xs">{errors.subCategory.message}</Text>}
+                      {errors.subCategory && (
+                        <Text c="red" size="sm" mt="xs">
+                          {errors.subCategory.message}
+                        </Text>
+                      )}
                     </Grid.Col>
                   )}
 
@@ -737,7 +841,14 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
                         control={control}
                         render={({ field }) => (
                           <Select
-                            label={<Text fw={500} size="sm">Nested Subcategory <Text component="span" c="red" fw={600}>*</Text></Text>}
+                            label={
+                              <Text fw={500} size="sm">
+                                Nested Subcategory{" "}
+                                <Text component="span" c="red" fw={600}>
+                                  *
+                                </Text>
+                              </Text>
+                            }
                             placeholder="Select a nested subcategory"
                             size="md"
                             data={nestedSubCategories}
@@ -757,16 +868,27 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
                 <Controller
                   name="tutorialImagePreview"
                   control={control}
-                  rules={{ required: edit ? false : 'Tutorial Image is required' }}
+                  rules={{
+                    required: edit ? false : "Tutorial Image is required",
+                  }}
                   render={({ field }) => (
                     <Box>
                       <FileInput
                         clearable
-                        label={<Text fw={500} size="sm">Tutorial Image <Text component="span" c="red" fw={600}>*</Text></Text>}
+                        label={
+                          <Text fw={500} size="sm">
+                            Tutorial Image{" "}
+                            <Text component="span" c="red" fw={600}>
+                              *
+                            </Text>
+                          </Text>
+                        }
                         placeholder={
-                          isScanning ? "🔍 Scanning image..." :
-                            isModelLoading ? "🤖 Loading AI model..." :
-                              "Select tutorial image"
+                          isScanning
+                            ? "🔍 Scanning image..."
+                            : isModelLoading
+                              ? "🤖 Loading AI model..."
+                              : "Select tutorial image"
                         }
                         size="md"
                         leftSection={
@@ -830,7 +952,11 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
                     </Box>
                   )}
                 />
-                {errors.tutorialImagePreview && <Text c="red" size="sm">{errors.tutorialImagePreview.message}</Text>}
+                {errors.tutorialImagePreview && (
+                  <Text c="red" size="sm">
+                    {errors.tutorialImagePreview.message}
+                  </Text>
+                )}
               </Stack>
 
               {/* Tutorial Image Technical Requirements */}
@@ -839,13 +965,15 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
               {/* Image Preview */}
               {imagePreview && !validationError && !scanError && (
                 <Box>
-                  <Text fw={500} size="sm" mb="xs">Image Preview:</Text>
+                  <Text fw={500} size="sm" mb="xs">
+                    Image Preview:
+                  </Text>
                   <Box
                     style={{
-                      borderRadius: '8px',
-                      border: '1px solid #e9ecef',
-                      overflow: 'hidden',
-                      display: 'inline-block'
+                      borderRadius: "8px",
+                      border: "1px solid #e9ecef",
+                      overflow: "hidden",
+                      display: "inline-block",
                     }}
                   >
                     <NextImage
@@ -855,7 +983,7 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
                       sizes="(max-width: 480px) 300px, (max-width: 768px) 320px, 340px"
                       src={imagePreview}
                       style={{
-                        display: 'block'
+                        display: "block",
                       }}
                     />
                   </Box>
@@ -904,7 +1032,9 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
                     </>
                   )}
 
-                  <Grid.Col span={{ base: 12, sm: tutorials.length > 0 ? 4 : 12 }}>
+                  <Grid.Col
+                    span={{ base: 12, sm: tutorials.length > 0 ? 4 : 12 }}
+                  >
                     <Button
                       fullWidth
                       size="md"
@@ -912,18 +1042,17 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
                         isAssetsUploading ||
                         isScanning ||
                         isModelLoading ||
-                        (validationError !== null) ||
-                        (scanError !== null)
+                        validationError !== null ||
+                        scanError !== null
                       }
                       type="submit"
                     >
-                      {edit ? 'Update' : 'Create'}
+                      {edit ? "Update" : "Create"}
                     </Button>
                   </Grid.Col>
                 </Grid>
               </Box>
             </Stack>
-
           </form>
         </CustomLoadingOverlay>
       </Box>

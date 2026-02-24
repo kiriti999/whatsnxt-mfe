@@ -39,6 +39,20 @@ export interface PremiumStatusData {
     purchasedTutorialIds: string[];
 }
 
+export interface TutorialPurchaseItem {
+    _id: string;
+    tutorialId: {
+        _id: string;
+        title: string;
+        slug: string;
+    } | string;
+    amountPaid: number;
+    currency: string;
+    status: string;
+    transactionId: string;
+    createdAt: string;
+}
+
 export interface PurchaseHistoryData {
     subscriptions: Array<{
         plan: string;
@@ -47,12 +61,7 @@ export interface PurchaseHistoryData {
         startDate: string;
         expiresAt: string | null;
     }>;
-    tutorialPurchases: Array<{
-        tutorialId: string;
-        amountPaid: number;
-        status: string;
-        createdAt: string;
-    }>;
+    tutorialPurchases: TutorialPurchaseItem[];
 }
 
 interface ApiResponse<T> {
