@@ -46,7 +46,7 @@ export function FullScreenCodeModal({
                 position: "fixed",
                 inset: 0,
                 backgroundColor: "#0d1117",
-                zIndex: 10000,
+                zIndex: 1000000,
                 display: "flex",
                 flexDirection: "column",
             }}

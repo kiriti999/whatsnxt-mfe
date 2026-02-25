@@ -8,6 +8,8 @@ import {
     Menu,
     Tooltip,
 } from "@mantine/core";
+import { useDisclosure } from "@mantine/hooks";
+import { notifications } from "@mantine/notifications";
 import {
     IconCheck,
     IconChevronDown,
@@ -19,8 +21,11 @@ import {
 import { $getSelection, $isRangeSelection } from "lexical";
 import type React from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { CodeAIMenu } from "./CodeAIMenu";
+import { useAIConfig } from "../../../../context/AIConfigContext";
+import { AIConfigModal } from "../../../Common/AIConfigModal";
+import { CodeAIResultModal } from "./CodeAIResultModal";
 import { FullScreenCodeModal } from "./FullScreenCodeModal";
+import { useCodeAI } from "./useCodeAI";
 
 const CODE_LANGUAGE_MAP = {
     javascript: "JavaScript",
@@ -46,6 +51,15 @@ const CODE_LANGUAGE_MAP = {
     bash: "Bash",
     shell: "Shell",
     plaintext: "Plain Text",
+};
+
+const AI_ACTION_TITLES: Record<string, string> = {
+    explain: "Code Explanation",
+    improve: "Improvement Suggestions",
+    refactor: "Refactored Code",
+    translate: "Translated Code",
+    document: "Documentation",
+    debug: "Bug Analysis",
 };
 
 function getCodeLanguageOptions(): [string, string][] {
@@ -79,8 +93,26 @@ function CodeActionMenuContainer({
     const [fullScreenOpen, setFullScreenOpen] = useState(false);
     const [codeContent, setCodeContent] = useState("");
     const [isCollapsed, setIsCollapsed] = useState(false);
+    const [aiResultModalOpen, setAiResultModalOpen] = useState(false);
+    const [currentActionType, setCurrentActionType] = useState<string>("");
     const codeSetRef = useRef<Set<string>>(new Set());
     const codeDOMNodeRef = useRef<HTMLElement | null>(null);
+    const [
+        configModalOpened,
+        { open: openConfigModal, close: closeConfigModal },
+    ] = useDisclosure(false);
+    const [apiKeyError, setApiKeyError] = useState("");
+    const hasUserInteractedRef = useRef(false); // Track if user has clicked AI button
+
+    // AI hook
+    const aiConfig = useAIConfig();
+    const {
+        loading: aiLoading,
+        result: aiResult,
+        error: aiError,
+        executeAction,
+        clearResult,
+    } = useCodeAI();
 
     const getCodeDOMNode = useCallback((): HTMLElement | null => {
         return codeDOMNodeRef.current;
@@ -218,11 +250,97 @@ function CodeActionMenuContainer({
         }
     };
 
+    const handleAIAction = useCallback(
+        (actionType: string) => {
+            const codeDOM = getCodeDOMNode();
+            if (codeDOM) {
+                hasUserInteractedRef.current = true; // Mark that user has clicked AI button
+                const code = codeDOM.textContent || "";
+                setCurrentActionType(actionType);
+                executeAction({
+                    action: actionType as
+                        | "explain"
+                        | "improve"
+                        | "refactor"
+                        | "translate"
+                        | "document"
+                        | "debug",
+                    code,
+                    language: lang,
+                });
+            }
+        },
+        [executeAction, getCodeDOMNode, lang],
+    );
+
+    // Show result modal when AI result is ready
+    useEffect(() => {
+        if (aiResult) {
+            setAiResultModalOpen(true);
+        }
+    }, [aiResult]);
+
+    // Open config modal when there's an auth error (only after user interaction)
+    useEffect(() => {
+        if (aiError && aiConfig.loaded && hasUserInteractedRef.current) {
+            console.log("[CodeActionMenu] Error detected:", {
+                error: aiError,
+                loaded: aiConfig.loaded,
+                selectedAI: aiConfig.selectedAI,
+                hasApiKey: aiConfig.hasApiKey(aiConfig.selectedAI),
+                savedProviders: Array.from(aiConfig.savedProviders),
+                hasUserInteracted: hasUserInteractedRef.current,
+            });
+
+            // Check if it's an authentication/API key error
+            const isAuthError =
+                aiError.includes("API key") ||
+                aiError.includes("Authentication") ||
+                aiError.includes("401");
+
+            // Check if it's specifically an incorrect/invalid key error
+            const isInvalidKey =
+                aiError.includes("Incorrect API key") ||
+                aiError.includes("Invalid API key");
+
+            // Check if it's a rate limit error (temporary issue, don't show modal)
+            const isRateLimit =
+                aiError.includes("rate limit") || aiError.includes("429");
+
+            console.log("[CodeActionMenu] Error analysis:", {
+                isAuthError,
+                isInvalidKey,
+                isRateLimit,
+            });
+
+            // Show modal if:
+            // 1. It's an auth error AND
+            // 2. Either the key is invalid OR user doesn't have a key saved AND
+            // 3. It's NOT a rate limit error (temporary issue)
+            if (
+                isAuthError &&
+                !isRateLimit &&
+                (isInvalidKey || !aiConfig.hasApiKey(aiConfig.selectedAI))
+            ) {
+                console.log("[CodeActionMenu] Opening config modal");
+                setApiKeyError(aiError);
+                openConfigModal();
+            } else {
+                console.log("[CodeActionMenu] Not showing modal - criteria not met");
+            }
+        }
+    }, [aiError, openConfigModal, aiConfig]);
+
+    const handleCloseResultModal = () => {
+        setAiResultModalOpen(false);
+        clearResult();
+    };
+
     const OPTIONS = getCodeLanguageOptions();
 
     return (
         <>
-            {isShown && (
+            {isShown && !aiResultModalOpen && (
                 <div
                     style={{
                         position: "fixed",
@@ -231,29 +349,23 @@ function CodeActionMenuContainer({
                     }}
                 >
                     <Group gap={4}>
-                        {/* AI Sparkle Menu */}
-                        <Menu shadow="md" width={200} position="bottom-end">
-                            <Menu.Target>
-                                <Tooltip label="AI Actions" withArrow>
-                                    <ActionIcon
-                                        variant="subtle"
-                                        size="sm"
-                                        style={{
-                                            backgroundColor: "rgba(0, 0, 0, 0.6)",
-                                            color: "white",
-                                        }}
-                                    >
-                                        <IconSparkles size={14} />
-                                    </ActionIcon>
-                                </Tooltip>
-                            </Menu.Target>
-                            <Menu.Dropdown>
-                                <CodeAIMenu
-                                    code={codeContent || getCodeDOMNode()?.textContent || ""}
-                                    language={lang}
-                                />
-                            </Menu.Dropdown>
-                        </Menu>
+                        {/* AI Sparkle - Direct Explain */}
+                        <Tooltip label="Explain Code" withArrow>
+                            <ActionIcon
+                                variant="filled"
+                                size="md"
+                                color="violet"
+                                onClick={() => handleAIAction("explain")}
+                                loading={aiLoading}
+                                style={{
+                                    backgroundColor: "#7c3aed",
+                                    border: "1px solid rgba(255, 255, 255, 0.3)",
+                                    boxShadow: "0 2px 4px rgba(0, 0, 0, 0.2)",
+                                }}
+                            >
+                                <IconSparkles size={16} />
+                            </ActionIcon>
+                        </Tooltip>
 
                         {/* Copy Button */}
                         <CopyButton
@@ -263,15 +375,17 @@ function CodeActionMenuContainer({
                             {({ copied, copy }) => (
                                 <Tooltip label={copied ? "Copied!" : "Copy code"} withArrow>
                                     <ActionIcon
-                                        variant="subtle"
-                                        size="sm"
+                                        variant="filled"
+                                        size="md"
                                         onClick={copy}
+                                        color={copied ? "green" : "gray"}
                                         style={{
-                                            backgroundColor: "rgba(0, 0, 0, 0.6)",
-                                            color: copied ? "#51cf66" : "white",
+                                            backgroundColor: copied ? "#51cf66" : "#374151",
+                                            border: "1px solid rgba(255, 255, 255, 0.3)",
+                                            boxShadow: "0 2px 4px rgba(0, 0, 0, 0.2)",
                                         }}
                                     >
-                                        {copied ? <IconCheck size={14} /> : <IconCopy size={14} />}
+                                        {copied ? <IconCheck size={16} /> : <IconCopy size={16} />}
                                     </ActionIcon>
                                 </Tooltip>
                             )}
@@ -280,31 +394,35 @@ function CodeActionMenuContainer({
                         {/* Full Screen Button */}
                         <Tooltip label="Full screen" withArrow>
                             <ActionIcon
-                                variant="subtle"
-                                size="sm"
+                                variant="filled"
+                                size="md"
+                                color="gray"
                                 onClick={handleFullScreen}
                                 style={{
-                                    backgroundColor: "rgba(0, 0, 0, 0.6)",
-                                    color: "white",
+                                    backgroundColor: "#374151",
+                                    border: "1px solid rgba(255, 255, 255, 0.3)",
+                                    boxShadow: "0 2px 4px rgba(0, 0, 0, 0.2)",
                                 }}
                             >
-                                <IconMaximize size={14} />
+                                <IconMaximize size={16} />
                             </ActionIcon>
                         </Tooltip>
 
                         {/* Collapse/Expand Button */}
                         <Tooltip label={isCollapsed ? "Expand" : "Collapse"} withArrow>
                             <ActionIcon
-                                variant="subtle"
-                                size="sm"
+                                variant="filled"
+                                size="md"
+                                color="gray"
                                 onClick={handleToggleCollapse}
                                 style={{
-                                    backgroundColor: "rgba(0, 0, 0, 0.6)",
-                                    color: "white",
+                                    backgroundColor: "#374151",
+                                    border: "1px solid rgba(255, 255, 255, 0.3)",
+                                    boxShadow: "0 2px 4px rgba(0, 0, 0, 0.2)",
                                 }}
                             >
                                 <IconChevronUp
-                                    size={14}
+                                    size={16}
                                     style={{
                                         transform: isCollapsed ? "rotate(180deg)" : "rotate(0deg)",
                                         transition: "transform 0.2s",
@@ -349,6 +467,45 @@ function CodeActionMenuContainer({
                 </div>
             )}
 
+            {/* AI Config Modal */}
+            <AIConfigModal
+                opened={configModalOpened}
+                onClose={closeConfigModal}
+                selectedAI={aiConfig.selectedAI}
+                selectedModel={aiConfig.selectedModel}
+                onProviderChange={aiConfig.setSelectedAI}
+                onModelChange={aiConfig.setSelectedModel}
+                onGenerate={() => {
+                    setApiKeyError("");
+                    clearResult(); // Clear any previous errors
+                    closeConfigModal();
+                }}
+                onSaveKeyAndGenerate={() => {
+                    console.log(
+                        "[CodeActionMenu] onSaveKeyAndGenerate called with context state:",
+                        {
+                            selectedAI: aiConfig.selectedAI,
+                            selectedModel: aiConfig.selectedModel,
+                            savedProviders: Array.from(aiConfig.savedProviders),
+                        },
+                    );
+                    setApiKeyError("");
+                    clearResult(); // Clear any previous errors
+                    // Update context to reflect the newly saved API key
+                    aiConfig.updateConfig(aiConfig.selectedAI, aiConfig.selectedModel);
+                    closeConfigModal();
+                }}
+                onNotification={(n) => {
+                    notifications.show({
+                        position: "top-right",
+                        color: n.color,
+                        title: "API Key Saved",
+                        message: n.message,
+                    });
+                }}
+                error={apiKeyError}
+            />
+
             {/* Full Screen Modal */}
             <FullScreenCodeModal
                 opened={fullScreenOpen}
@@ -356,6 +513,21 @@ function CodeActionMenuContainer({
                 code={codeContent}
                 language={CODE_LANGUAGE_MAP[lang] || "Plain Text"}
             />
+
+            {/* AI Result Modal */}
+            {aiResult && (
+                <CodeAIResultModal
+                    opened={aiResultModalOpen}
+                    onClose={handleCloseResultModal}
+                    title={AI_ACTION_TITLES[currentActionType] || "AI Result"}
+                    result={aiResult}
+                    isCodeResult={
+                        currentActionType === "refactor" ||
+                        currentActionType === "translate" ||
+                        currentActionType === "document"
+                    }
+                />
+            )}
         </>
     );
 }

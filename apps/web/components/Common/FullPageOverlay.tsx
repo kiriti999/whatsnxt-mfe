@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { Box, LoadingOverlay, type LoadingOverlayProps } from '@mantine/core';
+import { Box, LoadingOverlay, type LoadingOverlayProps } from "@mantine/core";
+import React from "react";
 
 interface FullPageOverlayProps {
     visible: boolean;
-    loaderProps?: LoadingOverlayProps['loaderProps'];
+    loaderProps?: LoadingOverlayProps["loaderProps"];
     overlayOpacity?: number;
 }
 
@@ -15,29 +15,29 @@ interface FullPageOverlayProps {
  */
 export function FullPageOverlay({
     visible,
-    loaderProps = { color: 'blue', type: 'bars', size: 'xl' },
-    overlayOpacity = 0.5
+    loaderProps = { color: "blue", type: "bars", size: "xl" },
+    overlayOpacity = 0.5,
 }: FullPageOverlayProps) {
     if (!visible) return null;
 
     return (
         <Box
             style={{
-                position: 'fixed',
+                position: "fixed",
                 top: 0,
                 left: 0,
                 right: 0,
                 bottom: 0,
-                zIndex: 9999,
+                zIndex: 1000000,
                 backgroundColor: `rgba(0, 0, 0, ${overlayOpacity})`,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
             }}
         >
             <LoadingOverlay
                 visible={true}
-                zIndex={10000}
+                zIndex={1000001}
                 overlayProps={{ radius: "sm", blur: 2, backgroundOpacity: 0 }}
                 loaderProps={loaderProps}
             />

@@ -17,7 +17,6 @@ import { CommentReplyContextProvider } from "@whatsnxt/blogcomments/src/contexts
 import useCommentHandlers from "@whatsnxt/blogcomments/src/hooks/useCommentHandlers";
 import { ShareOptions, SkeletonBlogContent } from "@whatsnxt/core-ui";
 import { useCallback, useEffect, useState } from "react";
-import GooglePageViews from "../../../components/Blog/Content/GooglePageViews";
 import StickyHeader from "../../../components/Blog/Content/StickyHeader";
 import { StickyTutorialFooter } from "../../../components/Blog/Content/Tutorial/StickyTutorialFooter";
 import TutorialContent from "../../../components/Blog/Content/Tutorial/TutorialContent";
@@ -45,7 +44,6 @@ function TutorialContentDetails({ details }: any) {
     id: 1,
     items: [],
   });
-  const [views, setViews] = useState(0);
   const { user } = useAuth();
   const email = user?.email || "";
   const userId = user?._id;
@@ -168,7 +166,6 @@ function TutorialContentDetails({ details }: any) {
                     <Stack m={0}>
                       <ShareOptionsWithViews
                         url={url}
-                        views={views}
                         title={item.title}
                         thumbnailUrn={item.imageUrl}
                         description={item.description}
@@ -238,7 +235,6 @@ function TutorialContentDetails({ details }: any) {
 
 interface ShareOptionsWithViewsProps {
   url: string;
-  views: number;
   title?: string;
   thumbnailUrn?: string;
   description?: string;
@@ -247,7 +243,6 @@ interface ShareOptionsWithViewsProps {
 
 const ShareOptionsWithViews: React.FC<ShareOptionsWithViewsProps> = ({
   url,
-  views,
   title,
   thumbnailUrn,
   description,
@@ -268,7 +263,6 @@ const ShareOptionsWithViews: React.FC<ShareOptionsWithViewsProps> = ({
             email={email}
           />
         </Group>
-        <GooglePageViews views={views} />
       </Group>
     </Box>
   );

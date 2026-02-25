@@ -1,49 +1,36 @@
 import { Group, Loader, Menu, Text } from "@mantine/core";
 import {
+    IconBug,
     IconBulb,
+    IconFileText,
     IconLanguage,
     IconMessageCircle,
     IconRefresh,
     IconSparkles,
 } from "@tabler/icons-react";
 import type React from "react";
-import { useState } from "react";
 
 interface CodeAIMenuProps {
     code: string;
     language: string;
-    onResult?: (result: string) => void;
+    loading: boolean;
+    onActionSelect: (
+        action:
+            | "explain"
+            | "improve"
+            | "refactor"
+            | "translate"
+            | "document"
+            | "debug",
+    ) => void;
 }
 
 export function CodeAIMenu({
-    code,
-    language,
-    onResult,
+    code: _code,
+    language: _language,
+    loading,
+    onActionSelect,
 }: CodeAIMenuProps): React.JSX.Element {
-    const [loading, setLoading] = useState(false);
-
-    const handleAIAction = async (action: string) => {
-        setLoading(true);
-        try {
-            // TODO: Integrate with backend AI service
-            // Example endpoint: POST /api/ai/code
-            const response = await fetch("/api/ai/code", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ code, language, action }),
-            });
-
-            if (response.ok) {
-                const data = await response.json();
-                onResult?.(data.result);
-            }
-        } catch (error) {
-            console.error("AI action failed:", error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
     return (
         <>
             <Menu.Label>
@@ -56,39 +43,56 @@ export function CodeAIMenu({
             </Menu.Label>
             <Menu.Item
                 leftSection={<IconMessageCircle size={14} />}
-                onClick={() => handleAIAction("explain")}
+                onClick={() => onActionSelect("explain")}
                 disabled={loading}
             >
                 Explain Code
             </Menu.Item>
             <Menu.Item
                 leftSection={<IconBulb size={14} />}
-                onClick={() => handleAIAction("improve")}
+                onClick={() => onActionSelect("improve")}
                 disabled={loading}
             >
                 Suggest Improvements
             </Menu.Item>
             <Menu.Item
                 leftSection={<IconRefresh size={14} />}
-                onClick={() => handleAIAction("refactor")}
+                onClick={() => onActionSelect("refactor")}
                 disabled={loading}
             >
                 Refactor Code
             </Menu.Item>
             <Menu.Item
                 leftSection={<IconLanguage size={14} />}
-                onClick={() => handleAIAction("translate")}
+                onClick={() => onActionSelect("translate")}
                 disabled={loading}
             >
-                Translate Language
+                Translate to TypeScript
+            </Menu.Item>
+            <Menu.Item
+                leftSection={<IconFileText size={14} />}
+                onClick={() => onActionSelect("document")}
+                disabled={loading}
+            >
+                Add Documentation
+            </Menu.Item>
+            <Menu.Item
+                leftSection={<IconBug size={14} />}
+                onClick={() => onActionSelect("debug")}
+                disabled={loading}
+            >
+                Find Bugs & Issues
             </Menu.Item>
             {loading && (
-                <Menu.Item disabled>
-                    <Group gap={8}>
-                        <Loader size="xs" />
-                        <Text size="xs">Processing...</Text>
-                    </Group>
-                </Menu.Item>
+                <>
+                    <Menu.Divider />
+                    <Menu.Item disabled>
+                        <Group gap={8}>
+                            <Loader size="xs" />
+                            <Text size="xs">Processing with AI...</Text>
+                        </Group>
+                    </Menu.Item>
+                </>
             )}
         </>
     );

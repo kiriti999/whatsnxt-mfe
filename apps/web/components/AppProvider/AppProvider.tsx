@@ -1,21 +1,31 @@
-"use client"
+"use client";
 
-import { JSX, ReactNode, useState, useEffect } from 'react';
-import { Provider, useDispatch } from 'react-redux';
-import NextTopLoader from 'nextjs-toploader';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { MantineProvider, createTheme, Modal } from '@mantine/core';
-import { Notifications } from '@mantine/notifications';
-import Layout from '../Layout';
-import FilterStore from '../../context/filterStore';
-import { store } from '../../store/store';
-import { IconAddressBook, IconBell, IconCertificate, IconFlask, IconHistoryToggle, IconPalette, IconPasswordUser, IconPencil, IconRocket, IconUserEdit } from '@tabler/icons-react';
-import { AuthProvider } from '../../context/Authentication/AuthContext';
-import React from 'react';
-import { User } from '../Navbar/types';
-import { ModalsProvider } from '@mantine/modals';
-import SearchProvider from '../../context/SearchContext';
-import { AIConfigProvider } from '../../context/AIConfigContext';
+import { createTheme, MantineProvider, Modal } from "@mantine/core";
+import { ModalsProvider } from "@mantine/modals";
+import { Notifications } from "@mantine/notifications";
+import {
+  IconAddressBook,
+  IconBell,
+  IconCertificate,
+  IconFlask,
+  IconHistoryToggle,
+  IconPalette,
+  IconPasswordUser,
+  IconPencil,
+  IconRocket,
+  IconUserEdit,
+} from "@tabler/icons-react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import NextTopLoader from "nextjs-toploader";
+import React, { type JSX, type ReactNode, useEffect, useState } from "react";
+import { Provider, useDispatch } from "react-redux";
+import { AIConfigProvider } from "../../context/AIConfigContext";
+import { AuthProvider } from "../../context/Authentication/AuthContext";
+import FilterStore from "../../context/filterStore";
+import SearchProvider from "../../context/SearchContext";
+import { store } from "../../store/store";
+import Layout from "../Layout";
+import type { User } from "../Navbar/types";
 
 // Component to initialize cart on client side
 const CartInitializer = () => {
@@ -23,18 +33,26 @@ const CartInitializer = () => {
 
   useEffect(() => {
     // Only run on client side
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       // Dynamic import to avoid circular dependencies
-      import('../../store/slices/cartSlice').then(({ loadCart }) => {
-        dispatch(loadCart());
-      }).catch(console.error);
+      import("../../store/slices/cartSlice")
+        .then(({ loadCart }) => {
+          dispatch(loadCart());
+        })
+        .catch(console.error);
     }
   }, [dispatch]);
 
   return null;
 };
 
-export default function AppProvider({ children, user }: { children: ReactNode, user: User }): JSX.Element {
+export default function AppProvider({
+  children,
+  user,
+}: {
+  children: ReactNode;
+  user: User;
+}): JSX.Element {
   const [queryClient] = useState(
     () =>
       new QueryClient({
@@ -49,44 +67,44 @@ export default function AppProvider({ children, user }: { children: ReactNode, u
 
   const domain = process.env.NEXT_PUBLIC_MFE_HOST;
 
-  const isStudent = user?.role === 'student';
+  const isStudent = user?.role === "student";
 
   const theme = createTheme({
     // Use system fonts - remove custom font family from theme
-    primaryColor: 'cyan',
+    primaryColor: "cyan",
     colors: {
       // Custom cyan/teal palette for brand identity - modern, energetic, professional
       cyan: [
-        '#ecfeff',  // 0 - lightest
-        '#cffafe',  // 1
-        '#a5f3fc',  // 2
-        '#67e8f9',  // 3
-        '#22d3ee',  // 4
-        '#06b6d4',  // 5 - base
-        '#0891b2',  // 6
-        '#0e7490',  // 7
-        '#155e75',  // 8
-        '#164e63',  // 9 - darkest
+        "#ecfeff", // 0 - lightest
+        "#cffafe", // 1
+        "#a5f3fc", // 2
+        "#67e8f9", // 3
+        "#22d3ee", // 4
+        "#06b6d4", // 5 - base
+        "#0891b2", // 6
+        "#0e7490", // 7
+        "#155e75", // 8
+        "#164e63", // 9 - darkest
       ],
     },
     fontSizes: {
-      xs: '0.75rem',    // 12px (was 14px)
-      sm: '0.875rem',   // 14px (was 16px)
-      md: '1rem',       // 16px (was 18px)
-      lg: '1.125rem',   // 18px (was 20px)
-      xl: '1.25rem',    // 20px (was 24px)
+      xs: "0.75rem", // 12px (was 14px)
+      sm: "0.875rem", // 14px (was 16px)
+      md: "1rem", // 16px (was 18px)
+      lg: "1.125rem", // 18px (was 20px)
+      xl: "1.25rem", // 20px (was 24px)
     },
     breakpoints: {
-      xs: '36em',    // 576px
-      sm: '48em',    // 768px
-      md: '62em',    // 992px
-      lg: '75em',    // 1200px
-      xl: '88em',    // 1408px
+      xs: "36em", // 576px
+      sm: "48em", // 768px
+      md: "62em", // 992px
+      lg: "75em", // 1200px
+      xl: "88em", // 1408px
     },
     components: {
       Modal: Modal.extend({
         defaultProps: {
-          zIndex: 1100,
+          zIndex: 1000000,
         },
       }),
     },
@@ -94,40 +112,92 @@ export default function AppProvider({ children, user }: { children: ReactNode, u
 
   const headerProps = {
     links: [
-      { title: 'Home', url: `${domain}/`, linkType: '_self' },
-      { title: 'Blogs', url: `${domain}/blogs`, linkType: '_self' },
-      { title: 'Learn AI', url: `${domain}/learn-ai`, linkType: '_self' },
-      { title: 'Courses', url: `${domain}/courses`, linkType: '_self' },
+      { title: "Home", url: `${domain}/`, linkType: "_self" },
+      { title: "Blogs", url: `${domain}/blogs`, linkType: "_self" },
+      { title: "Learn AI", url: `${domain}/learn-ai`, linkType: "_self" },
+      { title: "Courses", url: `${domain}/courses`, linkType: "_self" },
     ],
     loginMenuLinks: [
-      { title: 'My Courses', url: `${domain}/my-courses`, icon: IconCertificate },
-      { title: 'Write', url: `${domain}/form`, icon: IconPencil },
-      // Hide Create Lab for students
-      ...(!isStudent ? [{ title: 'Create Lab', url: `${domain}/lab/create`, icon: IconFlask }] : []),
-      // Show Become a Trainer for non-admin and non-trainer users
-      ...((user?.role !== 'admin' && user?.role !== 'trainer') ? [{ title: 'Become a Trainer', url: `${domain}/become-a-trainer`, icon: IconUserEdit }] : []),
       {
-        title: 'Profile',
+        title: "My Courses",
+        url: `${domain}/my-courses`,
+        icon: IconCertificate,
+      },
+      { title: "Write", url: `${domain}/form`, icon: IconPencil },
+      // Hide Create Lab for students
+      ...(!isStudent
+        ? [
+          {
+            title: "Create Lab",
+            url: `${domain}/lab/create`,
+            icon: IconFlask,
+          },
+        ]
+        : []),
+      // Show Become a Trainer for non-admin and non-trainer users
+      ...(user?.role !== "admin" && user?.role !== "trainer"
+        ? [
+          {
+            title: "Become a Trainer",
+            url: `${domain}/become-a-trainer`,
+            icon: IconUserEdit,
+          },
+        ]
+        : []),
+      {
+        title: "Profile",
         url: ``,
         children: [
-          { title: 'Profile Info', url: `${domain}/user/my-profile`, icon: IconAddressBook },
-          { title: 'Edit Password', url: `${domain}/user/edit-password`, icon: IconPasswordUser },
-        ]
+          {
+            title: "Profile Info",
+            url: `${domain}/user/my-profile`,
+            icon: IconAddressBook,
+          },
+          {
+            title: "Edit Password",
+            url: `${domain}/user/edit-password`,
+            icon: IconPasswordUser,
+          },
+        ],
       },
       {
-        title: 'Blogs',
-        url: '',
+        title: "Blogs",
+        url: "",
         children: [
-          { title: 'History', url: `${domain}/history/table`, icon: IconHistoryToggle },
-          ...((user?.role === 'admin' || user?.email === 'kiriti.k999@gmail.com') ? [{ title: 'Programmatic SEO', url: `${domain}/form/auto-create/dashboard`, icon: IconRocket }] : []),
-          { title: 'My Diagrams', url: `${domain}/form/diagrams`, icon: IconPalette },
-        ]
+          {
+            title: "History",
+            url: `${domain}/history/table`,
+            icon: IconHistoryToggle,
+          },
+          ...(user?.role === "admin" || user?.email === "kiriti.k999@gmail.com"
+            ? [
+              {
+                title: "Programmatic SEO",
+                url: `${domain}/form/auto-create/dashboard`,
+                icon: IconRocket,
+              },
+            ]
+            : []),
+          {
+            title: "My Diagrams",
+            url: `${domain}/form/diagrams`,
+            icon: IconPalette,
+          },
+        ],
       },
       // { title: 'My Bookings', url: `${domain}/my-bookings`, icon: IconBook2 },
-      { title: 'Notifications', url: `${domain}/notifications`, icon: IconBell },
-      { title: 'Purchase History', url: `${domain}/purchase-history`, icon: IconHistoryToggle },
+      {
+        title: "Notifications",
+        url: `${domain}/notifications`,
+        icon: IconBell,
+      },
+      {
+        title: "Purchase History",
+        url: `${domain}/purchase-history`,
+        icon: IconHistoryToggle,
+      },
     ],
-    copyRight: 'whatsnxt 2024. All rights reserved'
+    copyRight: "whatsnxt 2024. All rights reserved",
   };
 
   return (
@@ -141,9 +211,7 @@ export default function AppProvider({ children, user }: { children: ReactNode, u
                 <Notifications position="top-left" zIndex={1000} />
                 <ModalsProvider>
                   <SearchProvider>
-                    <Layout {...headerProps}>
-                      {children}
-                    </Layout>
+                    <Layout {...headerProps}>{children}</Layout>
                   </SearchProvider>
                 </ModalsProvider>
                 <NextTopLoader
@@ -158,5 +226,5 @@ export default function AppProvider({ children, user }: { children: ReactNode, u
         </QueryClientProvider>
       </MantineProvider>
     </Provider>
-  )
+  );
 }
