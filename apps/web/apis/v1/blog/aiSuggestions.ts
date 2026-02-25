@@ -1,7 +1,12 @@
 import { articleApiClient, commonApiClient } from '@whatsnxt/core-util';
 
 export const AISuggestions = {
-    getSuggestionByAI: async (params: { question: string; aiModel?: string; modelVersion?: string }) => {
+    getSuggestionByAI: async (params: {
+        question?: string;
+        aiModel?: string;
+        modelVersion?: string;
+        messages?: Array<{ role: 'user' | 'assistant'; content: string }>;
+    }) => {
         const response = await articleApiClient.post('/post/suggestionByAI', params);
         return response;
     },

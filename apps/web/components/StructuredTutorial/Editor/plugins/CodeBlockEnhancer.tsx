@@ -18,6 +18,7 @@ import {
 } from "@tabler/icons-react";
 import { useEffect, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
+import { AISuggestions } from "../../../../apis/v1/blog/aiSuggestions";
 import {
     AIConfigProvider,
     useAIConfig,
@@ -48,6 +49,7 @@ function CodeBlockActions({
 }: CodeBlockActionsProps) {
     const [currentActionType, setCurrentActionType] = useState<string>("");
     const [aiResultModalOpen, setAiResultModalOpen] = useState(false);
+    const [modalResult, setModalResult] = useState<string | null>(null);
     const [
         configModalOpened,
         { open: openConfigModal, close: closeConfigModal },
@@ -68,6 +70,7 @@ function CodeBlockActions({
     // Show result modal when AI result is ready
     useEffect(() => {
         if (aiResult) {
+            setModalResult(aiResult); // Update modal content
             setAiResultModalOpen(true);
         }
     }, [aiResult]);
@@ -107,7 +110,36 @@ function CodeBlockActions({
 
     const handleCloseResultModal = () => {
         setAiResultModalOpen(false);
+        setModalResult(null);
         clearResult();
+    };
+
+    const handleReply = async (
+        _replyText: string,
+        conversationHistory: Array<{ role: "user" | "assistant"; content: string }>,
+    ): Promise<string> => {
+        try {
+            // Send full conversation history to API
+            const response = await AISuggestions.getSuggestionByAI({
+                aiModel: aiConfig.selectedAI,
+                modelVersion: aiConfig.selectedModel,
+                messages: conversationHistory, // Full conversation context
+            });
+
+            if (response.status === 200 && response.data?.suggestion) {
+                return response.data.suggestion;
+            }
+            throw new Error("Failed to get AI response");
+        } catch (error) {
+            console.error("Error handling reply:", error);
+            notifications.show({
+                position: "top-right",
+                color: "red",
+                title: "Error",
+                message: "Failed to get AI response for follow-up question",
+            });
+            throw error;
+        }
     };
 
     const handleAIAction = (actionType: string) => {
@@ -353,17 +385,18 @@ function CodeBlockActions({
             />
 
             {/* AI Result Modal */}
-            {aiResult && (
+            {modalResult && (
                 <CodeAIResultModal
                     opened={aiResultModalOpen}
                     onClose={handleCloseResultModal}
                     title={AI_ACTION_TITLES[currentActionType] || "AI Result"}
-                    result={aiResult}
+                    result={modalResult}
                     isCodeResult={
                         currentActionType === "refactor" ||
                         currentActionType === "translate" ||
                         currentActionType === "document"
                     }
+                    onReply={handleReply}
                 />
             )}
         </>

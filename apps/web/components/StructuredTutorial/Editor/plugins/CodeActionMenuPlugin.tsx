@@ -21,6 +21,7 @@ import {
 import { $getSelection, $isRangeSelection } from "lexical";
 import type React from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { AISuggestions } from "../../../../apis/v1/blog/aiSuggestions";
 import { useAIConfig } from "../../../../context/AIConfigContext";
 import { AIConfigModal } from "../../../Common/AIConfigModal";
 import { CodeAIResultModal } from "./CodeAIResultModal";
@@ -95,6 +96,7 @@ function CodeActionMenuContainer({
     const [isCollapsed, setIsCollapsed] = useState(false);
     const [aiResultModalOpen, setAiResultModalOpen] = useState(false);
     const [currentActionType, setCurrentActionType] = useState<string>("");
+    const [modalResult, setModalResult] = useState<string | null>(null); // Local state for modal content
     const codeSetRef = useRef<Set<string>>(new Set());
     const codeDOMNodeRef = useRef<HTMLElement | null>(null);
     const [
@@ -276,6 +278,7 @@ function CodeActionMenuContainer({
     // Show result modal when AI result is ready
     useEffect(() => {
         if (aiResult) {
+            setModalResult(aiResult); // Update modal content
             setAiResultModalOpen(true);
         }
     }, [aiResult]);
@@ -333,8 +336,40 @@ function CodeActionMenuContainer({
 
     const handleCloseResultModal = () => {
         setAiResultModalOpen(false);
+        setModalResult(null);
         clearResult();
     };
+
+    const handleReply = useCallback(
+        async (
+            _replyText: string,
+            conversationHistory: Array<{ role: "user" | "assistant"; content: string }>,
+        ): Promise<string> => {
+            try {
+                // Send full conversation history to API
+                const response = await AISuggestions.getSuggestionByAI({
+                    aiModel: aiConfig.selectedAI,
+                    modelVersion: aiConfig.selectedModel,
+                    messages: conversationHistory, // Full conversation context
+                });
+
+                if (response.status === 200 && response.data?.suggestion) {
+                    return response.data.suggestion;
+                }
+                throw new Error("Failed to get AI response");
+            } catch (error) {
+                console.error("Error handling reply:", error);
+                notifications.show({
+                    position: "top-right",
+                    color: "red",
+                    title: "Error",
+                    message: "Failed to get AI response for follow-up question",
+                });
+                throw error;
+            }
+        },
+        [aiConfig.selectedAI, aiConfig.selectedModel],
+    );
 
     const OPTIONS = getCodeLanguageOptions();
 
@@ -515,17 +550,18 @@ function CodeActionMenuContainer({
             />
 
             {/* AI Result Modal */}
-            {aiResult && (
+            {modalResult && (
                 <CodeAIResultModal
                     opened={aiResultModalOpen}
                     onClose={handleCloseResultModal}
                     title={AI_ACTION_TITLES[currentActionType] || "AI Result"}
-                    result={aiResult}
+                    result={modalResult}
                     isCodeResult={
                         currentActionType === "refactor" ||
                         currentActionType === "translate" ||
                         currentActionType === "document"
                     }
+                    onReply={handleReply}
                 />
             )}
         </>
