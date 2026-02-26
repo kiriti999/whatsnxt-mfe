@@ -54,7 +54,7 @@
   outline: none;
   resize: vertical;
   min-height: 280px;
-  color: light-dark(inherit, #ffffff);
+  color: light-dark(#1a1a1a, #ffffff);
 }
 
 /* Edit mode padding */

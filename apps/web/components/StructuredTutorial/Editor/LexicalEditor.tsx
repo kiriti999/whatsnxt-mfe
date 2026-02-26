@@ -1293,7 +1293,6 @@ export const LexicalEditor: React.FC<LexicalEditorProps> = ({
           <YouTubePlugin />
           <ExcalidrawPlugin />
           <HorizontalRulePlugin />
-          {/* <CodeActionMenuPlugin /> */}
           <InitialStatePlugin value={value} />
         </Paper>
       </Stack>

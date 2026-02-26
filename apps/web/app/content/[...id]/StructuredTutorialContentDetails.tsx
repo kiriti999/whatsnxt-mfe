@@ -378,7 +378,6 @@ export default function StructuredTutorialContentDetails({
                                                     (item.contentFormat || "HTML") as "HTML" | "LEXICAL"
                                                 }
                                                 description={item.description}
-                                                lexicalState={item.lexicalState}
                                                 onHeadingsExtracted={onHeadingsExtracted}
                                                 setActiveHeading={setActiveHeading}
                                             />

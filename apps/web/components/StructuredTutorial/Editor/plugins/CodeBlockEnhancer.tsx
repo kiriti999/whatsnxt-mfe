@@ -24,6 +24,7 @@ import {
     useAIConfig,
 } from "../../../../context/AIConfigContext";
 import { AIConfigModal } from "../../../Common/AIConfigModal";
+import type { AIUsageStats, LimitError } from "./CodeAIResultModal";
 import { CodeAIResultModal } from "./CodeAIResultModal";
 import { useCodeAI } from "./useCodeAI";
 
@@ -50,6 +51,8 @@ function CodeBlockActions({
     const [currentActionType, setCurrentActionType] = useState<string>("");
     const [aiResultModalOpen, setAiResultModalOpen] = useState(false);
     const [modalResult, setModalResult] = useState<string | null>(null);
+    const [usageStats, setUsageStats] = useState<AIUsageStats | null>(null);
+    const [limitError, setLimitError] = useState<LimitError | null>(null);
     const [
         configModalOpened,
         { open: openConfigModal, close: closeConfigModal },
@@ -72,6 +75,7 @@ function CodeBlockActions({
         if (aiResult) {
             setModalResult(aiResult); // Update modal content
             setAiResultModalOpen(true);
+            setLimitError(null); // Clear any previous limit errors
         }
     }, [aiResult]);
 
@@ -111,13 +115,19 @@ function CodeBlockActions({
     const handleCloseResultModal = () => {
         setAiResultModalOpen(false);
         setModalResult(null);
+        setUsageStats(null);
+        setLimitError(null);
         clearResult();
     };
 
     const handleReply = async (
         _replyText: string,
         conversationHistory: Array<{ role: "user" | "assistant"; content: string }>,
-    ): Promise<string> => {
+    ): Promise<{
+        response: string;
+        usageStats?: AIUsageStats;
+        limitError?: LimitError;
+    }> => {
         try {
             // Send full conversation history to API
             const response = await AISuggestions.getSuggestionByAI({
@@ -127,11 +137,64 @@ function CodeBlockActions({
             });
 
             if (response.status === 200 && response.data?.suggestion) {
-                return response.data.suggestion;
+                // Update usage stats if provided
+                if (response.data.usageStats) {
+                    setUsageStats(response.data.usageStats);
+                }
+
+                return {
+                    response: response.data.suggestion,
+                    usageStats: response.data.usageStats,
+                };
             }
             throw new Error("Failed to get AI response");
-        } catch (error) {
+        } catch (error: unknown) {
             console.error("Error handling reply:", error);
+
+            // Handle rate limit error (429)
+            if (error && typeof error === "object" && "response" in error) {
+                const axiosError = error as {
+                    response?: {
+                        status?: number;
+                        data?: {
+                            limitInfo?: {
+                                reason?: string;
+                                resetDate?: string;
+                                isPremium?: boolean;
+                            };
+                            usageStats?: AIUsageStats;
+                            message?: string;
+                        };
+                    };
+                };
+
+                if (axiosError.response?.status === 429 && axiosError.response?.data) {
+                    const limitInfo = axiosError.response.data.limitInfo;
+                    const usageStats = axiosError.response.data.usageStats;
+
+                    if (usageStats) {
+                        setUsageStats(usageStats);
+                    }
+
+                    const limitError: LimitError = {
+                        reason:
+                            (limitInfo?.reason as LimitError["reason"]) ||
+                            "monthly_limit_exceeded",
+                        message: axiosError.response.data.message || "Rate limit exceeded",
+                        resetDate: limitInfo?.resetDate || new Date().toISOString(),
+                        isPremium: limitInfo?.isPremium || false,
+                    };
+
+                    setLimitError(limitError);
+
+                    return {
+                        response: "",
+                        usageStats,
+                        limitError,
+                    };
+                }
+            }
+
             notifications.show({
                 position: "top-right",
                 color: "red",
@@ -143,6 +206,15 @@ function CodeBlockActions({
     };
 
     const handleAIAction = (actionType: string) => {
+
+        // Check authentication first - redirect to login if not authenticated
+        console.log('🚀 :: handleAIAction :: aiConfig:', aiConfig)
+        if (!aiConfig.isAuthenticated) {
+            const returnUrl = encodeURIComponent(window.location.pathname);
+            window.location.href = `/authentication?returnUrl=${returnUrl}`;
+            return;
+        }
+
         hasUserInteractedRef.current = true; // Mark that user has clicked AI button
         setCurrentActionType(actionType);
         executeAction({
@@ -396,6 +468,8 @@ function CodeBlockActions({
                         currentActionType === "translate" ||
                         currentActionType === "document"
                     }
+                    usageStats={usageStats}
+                    limitError={limitError}
                     onReply={handleReply}
                 />
             )}
@@ -407,13 +481,17 @@ function CodeBlockActions({
  * Enhanced code block display for blog/tutorial content
  * Adds AI, copy, fullscreen, and toggle buttons to all <pre><code> blocks
  * @param containerElement - The container element with code blocks
- * @param isAuthenticated - Whether the user is authenticated (from AuthContext)
+ * @param isAuthenticatedContext - Auth status from parent context (optional, will read from DOM if not provided)
  */
 export function enhanceCodeBlocks(
     containerElement: HTMLElement | null,
-    isAuthenticated: boolean = false,
+    isAuthenticatedContext?: boolean,
 ) {
     if (!containerElement || typeof window === "undefined") return;
+
+    // Read auth status from container's data attribute (set by parent component with context)
+    const isAuthenticated = isAuthenticatedContext ??
+        containerElement.dataset?.authenticated === "true";
 
     const codeBlocks = containerElement.querySelectorAll("pre code");
 
@@ -441,12 +519,8 @@ export function enhanceCodeBlocks(
         preElement.style.paddingTop = "3.5rem"; // Make room for actions
         preElement.insertBefore(actionsWrapper, preElement.firstChild);
 
-        console.log(
-            "[CodeBlockEnhancer] Creating AIConfigProvider with isAuthenticated:",
-            isAuthenticated,
-        );
-
         // Render React component
+        // Note: Use auth status from parent context (via data attribute bridge)
         const root = createRoot(actionsWrapper);
         root.render(
             <MantineProvider>
@@ -465,7 +539,7 @@ export function enhanceCodeBlocks(
 /**
  * Hook to enhance code blocks in a container
  * @param containerRef - Reference to the container element
- * @param isAuthenticated - Whether the user is authenticated (from AuthContext)
+ * @param isAuthenticated - Auth status from parent context
  * @param dependencies - Additional dependencies for the effect
  */
 export function useEnhancedCodeBlocks(
@@ -475,6 +549,8 @@ export function useEnhancedCodeBlocks(
 ) {
     useEffect(() => {
         if (containerRef.current) {
+            // Set auth status as data attribute for code enhancement
+            containerRef.current.dataset.authenticated = String(isAuthenticated);
             // Wait for highlight.js to finish
             const timer = setTimeout(() => {
                 enhanceCodeBlocks(containerRef.current, isAuthenticated);

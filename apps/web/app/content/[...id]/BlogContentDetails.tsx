@@ -1,21 +1,29 @@
-'use client';
-import { useEffect, useState, useCallback } from 'react';
-import SidebarPost from '../../../components/Blog/sidebar';
-import BlogComment from '@whatsnxt/blogcomments/src';
-import { CommentContextProvider } from '@whatsnxt/blogcomments/src/contexts/comment-context';
-import { CommentReplyContextProvider } from '@whatsnxt/blogcomments/src/contexts/comment-reply-context';
-import BlogContent from '../../../components/Blog/Content/Blog';
-import SidebarHeadings from '../../../components/Blog/sidebar-headings';
-import StickyHeader from '../../../components/Blog/Content/StickyHeader';
-import { SkeletonBlogContent } from '@whatsnxt/core-ui';
-import useAuth from '../../../hooks/Authentication/useAuth';
-import { Box, Container, Grid, GridCol, Paper, Stack, Title } from '@mantine/core';
-import { useMediaQuery } from '@mantine/hooks';
-import useCommentHandlers from '@whatsnxt/blogcomments/src/hooks/useCommentHandlers';
+"use client";
+import {
+  Box,
+  Container,
+  Grid,
+  GridCol,
+  Paper,
+  Stack,
+  Title,
+} from "@mantine/core";
+import { useMediaQuery } from "@mantine/hooks";
+import BlogComment from "@whatsnxt/blogcomments/src";
+import { CommentContextProvider } from "@whatsnxt/blogcomments/src/contexts/comment-context";
+import { CommentReplyContextProvider } from "@whatsnxt/blogcomments/src/contexts/comment-reply-context";
+import useCommentHandlers from "@whatsnxt/blogcomments/src/hooks/useCommentHandlers";
+import { SkeletonBlogContent } from "@whatsnxt/core-ui";
+import { useCallback, useEffect, useState } from "react";
+import BlogContent from "../../../components/Blog/Content/Blog";
+import StickyHeader from "../../../components/Blog/Content/StickyHeader";
+import SidebarPost from "../../../components/Blog/sidebar";
+import SidebarHeadings from "../../../components/Blog/sidebar-headings";
+import useAuth from "../../../hooks/Authentication/useAuth";
 
 const initialProps = {
-  title: '',
-  description: '',
+  title: "",
+  description: "",
   categoryName: [],
   tutorial: false,
 };
@@ -41,7 +49,7 @@ export interface PostSlugResponse {
   title: string;
   slug: string;
   description: string;
-  contentFormat?: 'HTML' | 'MARKDOWN' | 'LEXICAL';
+  contentFormat?: "HTML" | "MARKDOWN" | "LEXICAL";
   lexicalState?: Record<string, any> | null;
   categoryId: string;
   categoryName: string;
@@ -52,7 +60,7 @@ export interface PostSlugResponse {
   published: boolean;
   listed: boolean;
   tutorial?: any;
-  postType?: 'CONTENT' | 'MCQ';
+  postType?: "CONTENT" | "MCQ";
   mcqData?: {
     question: string;
     options: Array<{
@@ -62,7 +70,7 @@ export interface PostSlugResponse {
       isCorrect: boolean;
     }>;
     explanation: string;
-    difficulty: 'EASY' | 'MEDIUM' | 'HARD';
+    difficulty: "EASY" | "MEDIUM" | "HARD";
   };
 }
 
@@ -71,18 +79,21 @@ interface BlogContentDetailsProps {
 }
 
 function BlogContentDetails({ details }: BlogContentDetailsProps) {
-  const isMobile = useMediaQuery('(max-width: 768px)');
-  const [contentId, setContentId] = useState('');
+  const isMobile = useMediaQuery("(max-width: 768px)");
+  const [contentId, setContentId] = useState("");
   const [item, setItem] = useState(initialProps) as any;
-  console.log('🚀 :: BlogContentDetails :: item:', item)
+  console.log("🚀 :: BlogContentDetails :: item:", item);
   const [itemHeadings, setItemHeadings] = useState<
     { ref: HTMLElement; text: string; id: string }[]
   >([]);
   const [activeHeadingRef, setActiveHeadingRef] = useState<HTMLElement | null>(
-    null
+    null,
   );
   const [loading, setLoading] = useState(true);
-  const [comments, setComments] = useState<{ id: number; items: CommentNode[] }>({
+  const [comments, setComments] = useState<{
+    id: number;
+    items: CommentNode[];
+  }>({
     id: 1,
     items: [],
   });
@@ -95,7 +106,7 @@ function BlogContentDetails({ details }: BlogContentDetailsProps) {
     (headings: { ref: HTMLElement; text: string; id: string }[]) => {
       setItemHeadings(headings);
     },
-    []
+    [],
   );
 
   const setActiveHeading = useCallback((headingRef: HTMLElement) => {
@@ -107,14 +118,14 @@ function BlogContentDetails({ details }: BlogContentDetailsProps) {
     handleEditNode,
     handleDeleteNode,
     handleComments,
-    handleSubComment
+    handleSubComment,
   } = useCommentHandlers({
     contentId,
     comments,
-    setComments
+    setComments,
   });
 
-  const [url, setUrl] = useState<string>('');
+  const [url, setUrl] = useState<string>("");
 
   useEffect(() => {
     setUrl(window.location.href);
@@ -128,8 +139,6 @@ function BlogContentDetails({ details }: BlogContentDetailsProps) {
     }
   }, [details._id]);
 
-
-
   return (
     <Container fluid>
       <Box>
@@ -137,10 +146,12 @@ function BlogContentDetails({ details }: BlogContentDetailsProps) {
           <SkeletonBlogContent />
         ) : (
           <>
-            {itemHeadings.length > 0 && isMobile && <StickyHeader titles={itemHeadings} />}
+            {itemHeadings.length > 0 && isMobile && (
+              <StickyHeader titles={itemHeadings} />
+            )}
             <Box>
-              <Grid gutter={'xl'}>
-                <GridCol span={{ base: 12, md: 9 }} >
+              <Grid gutter={"xl"}>
+                <GridCol span={{ base: 12, md: 9 }}>
                   <Stack gap="md">
                     <BlogContent
                       url={url}
@@ -152,7 +163,6 @@ function BlogContentDetails({ details }: BlogContentDetailsProps) {
                       loading={loading}
                       contentFormat={item.contentFormat}
                       description={item.description}
-                      lexicalState={item.lexicalState}
                       onHeadingsExtracted={onHeadingsExtracted}
                       setActiveHeading={setActiveHeading}
                     />
@@ -205,7 +215,6 @@ function BlogContentDetails({ details }: BlogContentDetailsProps) {
                   </Box>
                 </GridCol>
               </Grid>
-
             </Box>
           </>
         )}

@@ -2,22 +2,15 @@
 
 import { Box, Flex, Paper, Text, Title } from "@mantine/core";
 import { ShareOptions } from "@whatsnxt/core-ui";
-import React, { lazy, Suspense, useCallback, useRef } from "react";
+import React, { useCallback } from "react";
 import Skeleton from "react-loading-skeleton";
 import useAuth from "../../../../hooks/Authentication/useAuth";
 import {
   useAddIdsToHeadings,
   useContentRefAndHeadings,
   useHandleScroll,
-  useLexicalHeadings,
 } from "../../../../hooks/useToc";
 import { syntaxHighlightingTheme } from "../../../RichTextEditor/extensions/CodeHighlight/syntaxHighlightingTheme";
-
-const LexicalEditor = lazy(() =>
-  import("../../../StructuredTutorial/Editor/LexicalEditor").then((mod) => ({
-    default: mod.LexicalEditor,
-  })),
-);
 
 interface BlogContentProps {
   url: string;
@@ -29,7 +22,6 @@ interface BlogContentProps {
   loading: boolean;
   description: string;
   contentFormat?: "HTML" | "LEXICAL" | "JSON";
-  lexicalState?: Record<string, any> | null;
   onHeadingsExtracted: (
     headings: { ref: Element; text: string; id: string }[],
   ) => void;
@@ -169,22 +161,15 @@ const BlogContent = ({
   loading,
   description,
   contentFormat = "HTML",
-  lexicalState,
   onHeadingsExtracted,
   setActiveHeading,
 }: BlogContentProps) => {
   const { user } = useAuth();
 
-  // Handle different content formats
-  const lexicalContainerRef = useRef<HTMLDivElement>(null);
-
-  // For HTML content (or LEXICAL without lexicalState), use existing hooks
-  const shouldRenderHtml =
-    contentFormat === "HTML" ||
-    contentFormat === "JSON" ||
-    (contentFormat === "LEXICAL" && !lexicalState);
+  // Always use HTML description (backend converts Lexical to HTML)
   const { containerRef } = useAddIdsToHeadings(
-    shouldRenderHtml ? description : "",
+    description,
+    !!user?.isAuthenticated,
   );
 
   const onHeadingsExtractedCallback = useCallback(
@@ -202,13 +187,6 @@ const BlogContent = ({
   );
 
   useHandleScroll(contentRef, setActiveHeading);
-
-  // Extract headings from Lexical editor after it renders (async/lazy-loaded)
-  useLexicalHeadings(
-    lexicalContainerRef,
-    contentFormat === "LEXICAL" && !!lexicalState,
-    onHeadingsExtractedCallback,
-  );
 
   return (
     <div>
@@ -261,27 +239,11 @@ const BlogContent = ({
             radius="xs"
             className="blog-content-paper"
           >
-            {/* Conditionally render content based on format */}
-            {contentFormat === "LEXICAL" && lexicalState ? (
-              <div className="rte text-wrap" ref={lexicalContainerRef}>
-                <Suspense fallback={<div>Loading editor...</div>}>
-                  <LexicalEditor
-                    value={
-                      typeof lexicalState === "string"
-                        ? lexicalState
-                        : JSON.stringify(lexicalState)
-                    }
-                    readOnly={true}
-                  />
-                </Suspense>
-              </div>
-            ) : (
-              <div
-                className="rte text-wrap"
-                ref={containerRef}
-              /* HTML content is injected by useAddIdsToHeadings */
-              />
-            )}
+            <div
+              className="rte text-wrap"
+              ref={containerRef}
+            /* HTML content is injected by useAddIdsToHeadings */
+            />
           </Paper>
         </Box>
       )}

@@ -146,7 +146,7 @@
     font-weight: 700;
     margin: 0.67em 0;
     line-height: 1.2;
-    color: #1a1a1a;
+    color: light-dark(#1a1a1a, #ffffff);
 }
 
 .lexical-heading-h2 {
@@ -154,7 +154,7 @@
     font-weight: 700;
     margin: 0.75em 0;
     line-height: 1.3;
-    color: #1a1a1a;
+    color: light-dark(#1a1a1a, #ffffff);
 }
 
 .lexical-heading-h3 {
@@ -162,7 +162,7 @@
     font-weight: 700;
     margin: 0.83em 0;
     line-height: 1.4;
-    color: #1a1a1a;
+    color: light-dark(#1a1a1a, #ffffff);
 }
 
 .lexical-heading-h4 {
@@ -170,7 +170,7 @@
     font-weight: 700;
     margin: 1em 0;
     line-height: 1.5;
-    color: #1a1a1a;
+    color: light-dark(#1a1a1a, #ffffff);
 }
 
 .lexical-heading-h5 {
@@ -178,7 +178,7 @@
     font-weight: 700;
     margin: 1.17em 0;
     line-height: 1.5;
-    color: #1a1a1a;
+    color: light-dark(#1a1a1a, #ffffff);
 }
 
 .lexical-heading-h6 {
@@ -186,7 +186,7 @@
     font-weight: 700;
     margin: 1.33em 0;
     line-height: 1.5;
-    color: #1a1a1a;
+    color: light-dark(#1a1a1a, #ffffff);
 }
 
 /* ========== Lists ========== */
@@ -208,6 +208,7 @@
 
 .lexical-listitem {
     margin: 0.25rem 0;
+    color: light-dark(#1a1a1a, #e5e7eb);
 }
 
 .lexical-listitem-checked,
@@ -271,28 +272,28 @@
 
 /* ========== Links ========== */
 .lexical-link {
-    color: #3b82f6;
+    color: light-dark(#3b82f6, #60a5fa);
     text-decoration: underline;
     cursor: pointer;
     transition: color 0.2s;
 }
 
 .lexical-link:hover {
-    color: #2563eb;
+    color: light-dark(#2563eb, #93c5fd);
     text-decoration: underline;
 }
 
 .lexical-link:visited {
-    color: #7c3aed;
+    color: light-dark(#7c3aed, #a78bfa);
 }
 
 /* ========== Quote ========== */
 .lexical-quote {
-    border-left: 4px solid #e5e7eb;
+    border-left: 4px solid light-dark(#e5e7eb, #4b5563);
     padding-left: 1rem;
     margin: 1rem 0;
     font-style: italic;
-    color: #6b7280;
+    color: light-dark(#6b7280, #9ca3af);
 }
 
 /* ========== Image ========== */
@@ -314,6 +315,7 @@
 .lexical-paragraph {
     margin: 0.5rem 0;
     position: relative;
+    color: light-dark(#1a1a1a, #e5e7eb);
 }
 
 /* ========== Table ========== */
@@ -327,11 +329,11 @@
 }
 
 .lexical-table-row {
-    border-bottom: 1px solid #e5e7eb;
+    border-bottom: 1px solid light-dark(#e5e7eb, #374151);
 }
 
 .lexical-table-cell {
-    border: 1px solid #e5e7eb;
+    border: 1px solid light-dark(#e5e7eb, #374151);
     padding: 0.5rem 0.75rem;
     min-width: 75px;
     vertical-align: top;
@@ -340,20 +342,20 @@
 }
 
 .lexical-table-cell-header {
-    background-color: #f9fafb;
+    background-color: light-dark(#f9fafb, #374151);
     font-weight: 600;
     text-align: left;
-    border: 1px solid #e5e7eb;
+    border: 1px solid light-dark(#e5e7eb, #374151);
     padding: 0.5rem 0.75rem;
 }
 
 .lexical-table-cell-editing {
-    background-color: #eff6ff;
+    background-color: light-dark(#eff6ff, #1e3a5f);
     outline: 2px solid #3b82f6;
 }
 
 .lexical-table-selection {
-    background-color: #dbeafe;
+    background-color: light-dark(#dbeafe, #1e3a5f);
 }
 
 .lexical-table-cell-action-button-container {
@@ -368,8 +370,8 @@
 }
 
 .lexical-table-cell-action-button {
-    background-color: #f3f4f6;
-    border: 1px solid #d1d5db;
+    background-color: light-dark(#f3f4f6, #374151);
+    border: 1px solid light-dark(#d1d5db, #4b5563);
     border-radius: 4px;
     padding: 0.25rem;
     cursor: pointer;
@@ -377,7 +379,7 @@
 }
 
 .lexical-table-cell-action-button:hover {
-    background-color: #e5e7eb;
+    background-color: light-dark(#e5e7eb, #4b5563);
 }
 
 .lexical-table-add-rows,
@@ -397,74 +399,7 @@
     background-color: #2563eb;
 }
 
-/* ========== Dark Mode Support ========== */
-@media (prefers-color-scheme: dark) {
-
-    .lexical-heading-h1,
-    .lexical-heading-h2,
-    .lexical-heading-h3,
-    .lexical-heading-h4,
-    .lexical-heading-h5,
-    .lexical-heading-h6 {
-        color: #f9fafb;
-    }
-
-    .lexical-quote {
-        border-left-color: #4b5563;
-        color: #ced4da;
-    }
-
-    .lexical-table-cell,
-    .lexical-table-cell-header {
-        border-color: #374151;
-    }
-
-    .lexical-table-cell-header {
-        background-color: #374151;
-    }
-
-    .lexical-table-cell-editing {
-        background-color: #1e3a5f;
-        outline-color: #3b82f6;
-    }
-
-    .lexical-table-selection {
-        background-color: #1e3a5f;
-    }
-}
-
-[data-mantine-color-scheme='dark'] .lexical-heading-h1,
-[data-mantine-color-scheme='dark'] .lexical-heading-h2,
-[data-mantine-color-scheme='dark'] .lexical-heading-h3,
-[data-mantine-color-scheme='dark'] .lexical-heading-h4,
-[data-mantine-color-scheme='dark'] .lexical-heading-h5,
-[data-mantine-color-scheme='dark'] .lexical-heading-h6 {
-    color: #f9fafb;
-}
-
-[data-mantine-color-scheme='dark'] .lexical-quote {
-    border-left-color: #4b5563;
-    color: #ced4da;
-}
-
-[data-mantine-color-scheme='dark'] .lexical-table-cell,
-[data-mantine-color-scheme='dark'] .lexical-table-cell-header {
-    border-color: #374151;
-}
-
-[data-mantine-color-scheme='dark'] .lexical-table-cell-header {
-    background-color: #374151;
-}
-
-[data-mantine-color-scheme='dark'] .lexical-table-cell-editing {
-    background-color: #1e3a5f;
-    outline-color: #3b82f6;
-}
-
-[data-mantine-color-scheme='dark'] .lexical-table-selection {
-    background-color: #1e3a5f;
-}
-
+/* ========== Dark Mode Support (Mantine-specific overrides) ========== */
 [data-mantine-color-scheme='dark'] .lexical-collapsible-container {
     border-color: #495057;
 }

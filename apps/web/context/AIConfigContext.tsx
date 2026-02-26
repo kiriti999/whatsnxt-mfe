@@ -25,6 +25,8 @@ interface AIConfigContextType extends AIConfigState {
   updateConfig: (provider: string, model: string) => void;
   /** Check if user has saved API key for the given provider */
   hasApiKey: (provider: string) => boolean;
+  /** Whether the user is authenticated (from AuthContext) */
+  isAuthenticated: boolean;
 }
 
 const AIConfigContext = createContext<AIConfigContextType | null>(null);
@@ -210,8 +212,9 @@ export function AIConfigProvider({
       setSelectedModel,
       updateConfig,
       hasApiKey,
+      isAuthenticated,
     }),
-    [state, setSelectedAI, setSelectedModel, updateConfig, hasApiKey],
+    [state, setSelectedAI, setSelectedModel, updateConfig, hasApiKey, isAuthenticated],
   );
 
   return (

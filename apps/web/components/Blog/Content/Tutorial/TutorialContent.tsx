@@ -2,21 +2,13 @@
 
 import { Box, Title } from "@mantine/core";
 import type { Dispatch, SetStateAction } from "react";
-import { lazy, Suspense, useRef } from "react";
+import useAuth from "../../../../hooks/Authentication/useAuth";
 import {
   useAddIdsToHeadings,
   useContentRefAndHeadings,
   useHandleScroll,
-  useLexicalHeadings,
 } from "../../../../hooks/useToc";
 import { syntaxHighlightingTheme } from "../../../RichTextEditor/extensions/CodeHighlight/syntaxHighlightingTheme";
-
-// Lazy load LexicalEditor only on client
-const LexicalEditor = lazy(() =>
-  import("../../../StructuredTutorial/Editor/LexicalEditor").then((mod) => ({
-    default: mod.LexicalEditor,
-  })),
-);
 
 type PROPS = {
   isTutorial: boolean;
@@ -82,17 +74,20 @@ const TutorialContent = (props: PROPS) => {
   const {
     isTutorial,
     active,
-    setActive,
     tutorials,
     onHeadingsExtracted,
     setActiveHeading,
     loading,
   } = props;
   const tutorial = tutorials[active];
-  const { description, title, lexicalState } = tutorial || {};
+  const { description, title } = tutorial || {};
+  const { user } = useAuth();
 
-  const lexicalContainerRef = useRef<HTMLDivElement>(null);
-  const { containerRef } = useAddIdsToHeadings(description);
+  // Always use HTML description (backend converts Lexical to HTML)
+  const { containerRef } = useAddIdsToHeadings(
+    description,
+    !!user?.isAuthenticated,
+  );
   const contentRef = useContentRefAndHeadings(
     loading,
     description,
@@ -101,37 +96,19 @@ const TutorialContent = (props: PROPS) => {
 
   useHandleScroll(contentRef, setActiveHeading);
 
-  // Extract headings from Lexical editor after it renders (async/lazy-loaded)
-  useLexicalHeadings(lexicalContainerRef, !!lexicalState, onHeadingsExtracted);
-
   return (
     <>
       {/* Include the content styles */}
       <style>{codeBlockStyles}</style>
 
-      <Box mb="md" ref={!lexicalState ? contentRef : undefined}>
+      <Box mb="md" ref={contentRef}>
         <Title order={4} mt={"0.33rem"} mb={"xl"}>
           {isTutorial ? title : ""}
         </Title>
 
         {tutorial && (
           <div className="rte text-wrap">
-            {lexicalState ? (
-              <div ref={lexicalContainerRef}>
-                <Suspense fallback={<div>Loading editor...</div>}>
-                  <LexicalEditor
-                    value={
-                      typeof lexicalState === "string"
-                        ? lexicalState
-                        : JSON.stringify(lexicalState)
-                    }
-                    readOnly={true}
-                  />
-                </Suspense>
-              </div>
-            ) : (
-              <div ref={containerRef} />
-            )}
+            <div ref={containerRef} />
           </div>
         )}
       </Box>
