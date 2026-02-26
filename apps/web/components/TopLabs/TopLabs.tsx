@@ -135,11 +135,21 @@ const TopLabs = ({ labs }: TopLabsProps) => {
                                     </Text>
                                 </Group>
 
-                                {/* Lab name */}
+                                {/* Lab name + description */}
                                 <Box className={styles.cardBody}>
                                     <Text className={styles.cardName}>
                                         {lab.name}
                                     </Text>
+                                    {lab.description && (
+                                        <Text size="xs" c="dimmed" lineClamp={2} mt={4}>
+                                            {lab.description}
+                                        </Text>
+                                    )}
+                                    {lab.subCategory && (
+                                        <Text size="xs" c={color} fw={600} mt={6}>
+                                            {lab.subCategory}
+                                        </Text>
+                                    )}
                                 </Box>
 
                                 {/* Footer */}
@@ -167,19 +177,6 @@ const TopLabs = ({ labs }: TopLabsProps) => {
                                         )}
                                     </Group>
 
-                                    <Button
-                                        size="sm"
-                                        color="orange"
-                                        variant="filled"
-                                        fullWidth
-                                        rightSection={<IconArrowRight size={14} />}
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            router.push(`/labs/${lab.id}`);
-                                        }}
-                                    >
-                                        Start Lab
-                                    </Button>
                                 </Stack>
                             </UnstyledButton>
                         );

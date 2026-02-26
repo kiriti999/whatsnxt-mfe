@@ -1,14 +1,34 @@
-'use client';
+/** biome-ignore-all lint/a11y/noSvgWithoutTitle: <explanation> */
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import { Container, Title, Button, Group, Box, Paper, Text, Pagination, ActionIcon, Badge, Stack, ThemeIcon, Collapse } from '@mantine/core';
-import { useMediaQuery } from '@mantine/hooks';
-import { notifications } from '@mantine/notifications';
-import { useRouter } from 'next/navigation';
-import { IconEdit, IconTrophy, IconListCheck, IconSchema, IconCloud, IconBrandDocker, IconSchool, IconChevronDown, IconChevronUp } from '@tabler/icons-react';
-import { Lab } from '@whatsnxt/core-types';
-import labApi from '@/apis/lab.api';
-import useAuth from '@/hooks/Authentication/useAuth';
+import {
+  ActionIcon,
+  Badge,
+  Box,
+  Button,
+  Container,
+  Group,
+  Pagination,
+  Paper,
+  Stack,
+  Text,
+  Title,
+} from "@mantine/core";
+import { notifications } from "@mantine/notifications";
+import {
+  IconEdit,
+  IconListCheck,
+  IconLock,
+  IconPlayerPlay,
+  IconSchema,
+  IconTrophy,
+} from "@tabler/icons-react";
+import type { Lab } from "@whatsnxt/core-types";
+import { useRouter } from "next/navigation";
+import type React from "react";
+import { useEffect, useState } from "react";
+import labApi from "@/apis/lab.api";
+import useAuth from "@/hooks/Authentication/useAuth";
 
 interface LabWithProgress extends Lab {
   progress?: {
@@ -18,47 +38,9 @@ interface LabWithProgress extends Lab {
   };
   questionCount?: number;
   diagramTestCount?: number;
+  previewCount?: number;
 }
 
-const FeatureCard = ({ icon, color, title, description, badges }: { icon: React.ReactNode, color: string, title: string, description: string, badges: React.ReactNode }) => {
-  const isMobile = useMediaQuery('(max-width: 768px)');
-  const [opened, setOpened] = useState(false);
-
-  // Desktop view: Standard Card
-  if (!isMobile) {
-    return (
-      <Paper p="lg" radius="md" withBorder shadow="sm" className="card-hover">
-        <ThemeIcon size={48} radius="md" variant="light" color={color} mb="md">
-          {icon}
-        </ThemeIcon>
-        <Title order={4} mb="xs">{title}</Title>
-        <Text size="sm" c="dimmed" mb="md">{description}</Text>
-        <Group gap="xs">{badges}</Group>
-      </Paper>
-    );
-  }
-
-  // Mobile view: Collapsible
-  return (
-    <Paper p="md" radius="md" withBorder shadow="sm" className="card-hover">
-      <Group justify="space-between" onClick={() => setOpened(!opened)} style={{ cursor: 'pointer' }}>
-        <Group>
-          <ThemeIcon size={40} radius="md" variant="light" color={color}>
-            {icon}
-          </ThemeIcon>
-          <Title order={5}>{title}</Title>
-        </Group>
-        {opened ? <IconChevronUp size={20} /> : <IconChevronDown size={20} />}
-      </Group>
-      <Collapse in={opened}>
-        <Box mt="md">
-          <Text size="sm" c="dimmed" mb="md">{description}</Text>
-          <Group gap="xs">{badges}</Group>
-        </Box>
-      </Collapse>
-    </Paper>
-  );
-};
 
 const LabsPage = () => {
   const [publishedLabs, setPublishedLabs] = useState<LabWithProgress[]>([]);
@@ -71,10 +53,10 @@ const LabsPage = () => {
   const router = useRouter();
   const { user, isAuthenticated } = useAuth();
 
-  const isTrainer = isAuthenticated && user?.role === 'trainer';
-  const isStudent = isAuthenticated && user?.role !== 'trainer';
-  const studentId = user?._id || '';
-  const instructorId = user?._id || '';
+  const isTrainer = isAuthenticated && user?.role === "trainer";
+  const isStudent = isAuthenticated && user?.role !== "trainer";
+  const studentId = user?._id || "";
+  const instructorId = user?._id || "";
   const pageSize = 6;
 
   const fetchPublishedLabs = async (page: number) => {
@@ -87,7 +69,10 @@ const LabsPage = () => {
         const labsWithProgress = await Promise.all(
           labs.map(async (lab: Lab) => {
             try {
-              const progressResponse = await labApi.getStudentProgress(lab.id, studentId);
+              const progressResponse = await labApi.getStudentProgress(
+                lab.id,
+                studentId,
+              );
               return {
                 ...lab,
                 progress: progressResponse.data,
@@ -96,7 +81,7 @@ const LabsPage = () => {
               // If no progress found, continue without progress data
               return lab;
             }
-          })
+          }),
         );
         setPublishedLabs(labsWithProgress);
       } else {
@@ -105,13 +90,16 @@ const LabsPage = () => {
 
       setPublishedTotal(response.total || 0);
     } catch (error: any) {
-      const errorMessage = error?.response?.data?.message || error?.message || 'Failed to load published labs.';
+      const errorMessage =
+        error?.response?.data?.message ||
+        error?.message ||
+        "Failed to load published labs.";
       notifications.show({
-        title: 'Error',
+        title: "Error",
         message: errorMessage,
-        color: 'red',
+        color: "red",
       });
-      console.error('Failed to load published labs:', error);
+      console.error("Failed to load published labs:", error);
     }
   };
 
@@ -127,13 +115,16 @@ const LabsPage = () => {
       setDraftLabs(response.data);
       setDraftTotal(response.total || 0);
     } catch (error: any) {
-      const errorMessage = error?.response?.data?.message || error?.message || 'Failed to load draft labs.';
+      const errorMessage =
+        error?.response?.data?.message ||
+        error?.message ||
+        "Failed to load draft labs.";
       notifications.show({
-        title: 'Error',
+        title: "Error",
         message: errorMessage,
-        color: 'red',
+        color: "red",
       });
-      console.error('Failed to load draft labs:', error);
+      console.error("Failed to load draft labs:", error);
     }
   };
 
@@ -154,7 +145,15 @@ const LabsPage = () => {
     };
 
     loadLabs();
-  }, [isAuthenticated, instructorId, isTrainer, isStudent, studentId, publishedPage, draftPage]);
+  }, [
+    isAuthenticated,
+    instructorId,
+    isTrainer,
+    isStudent,
+    studentId,
+    publishedPage,
+    draftPage,
+  ]);
 
   if (loading) {
     return (
@@ -224,52 +223,164 @@ const LabsPage = () => {
         mb={50}
         radius="lg"
         className="bg-default-hover"
-        style={{ border: '1px solid var(--mantine-color-default-border)', position: 'relative', overflow: 'hidden' }}
+        style={{
+          border: "1px solid var(--mantine-color-default-border)",
+          position: "relative",
+          overflow: "hidden",
+        }}
       >
         {/* Animated Background Elements */}
-        <Box style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 0, pointerEvents: 'none' }}>
-          <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" style={{ opacity: 0.6 }}>
+        <Box
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            zIndex: 0,
+            pointerEvents: "none",
+          }}
+        >
+          <svg
+            width="100%"
+            height="100%"
+            xmlns="http://www.w3.org/2000/svg"
+            style={{ opacity: 0.6 }}
+          >
             <defs>
               <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" style={{ stopColor: 'var(--mantine-color-blue-2)', stopOpacity: 0.4 }} />
-                <stop offset="100%" style={{ stopColor: 'var(--mantine-color-cyan-2)', stopOpacity: 0.1 }} />
+                <stop
+                  offset="0%"
+                  style={{
+                    stopColor: "var(--mantine-color-blue-2)",
+                    stopOpacity: 0.4,
+                  }}
+                />
+                <stop
+                  offset="100%"
+                  style={{
+                    stopColor: "var(--mantine-color-cyan-2)",
+                    stopOpacity: 0.1,
+                  }}
+                />
               </linearGradient>
-              <radialGradient id="grad2" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
-                <stop offset="0%" style={{ stopColor: 'var(--mantine-color-blue-4)', stopOpacity: 0.1 }} />
-                <stop offset="100%" style={{ stopColor: 'var(--mantine-color-blue-4)', stopOpacity: 0 }} />
+              <radialGradient
+                id="grad2"
+                cx="50%"
+                cy="50%"
+                r="50%"
+                fx="50%"
+                fy="50%"
+              >
+                <stop
+                  offset="0%"
+                  style={{
+                    stopColor: "var(--mantine-color-blue-4)",
+                    stopOpacity: 0.1,
+                  }}
+                />
+                <stop
+                  offset="100%"
+                  style={{
+                    stopColor: "var(--mantine-color-blue-4)",
+                    stopOpacity: 0,
+                  }}
+                />
               </radialGradient>
             </defs>
 
             {/* Abstract Grid/Circuit Lines */}
-            <path d="M50,50 Q200,100 300,50 T600,100" fill="none" stroke="var(--mantine-color-blue-2)" strokeWidth="1" className="animate-draw" style={{ opacity: 0.3 }} />
-            <path d="M-50,150 Q200,200 400,100 T900,200" fill="none" stroke="var(--mantine-color-cyan-2)" strokeWidth="1" className="animate-draw" style={{ animationDelay: '2s', opacity: 0.3 }} />
+            <path
+              d="M50,50 Q200,100 300,50 T600,100"
+              fill="none"
+              stroke="var(--mantine-color-blue-2)"
+              strokeWidth="1"
+              className="animate-draw"
+              style={{ opacity: 0.3 }}
+            />
+            <path
+              d="M-50,150 Q200,200 400,100 T900,200"
+              fill="none"
+              stroke="var(--mantine-color-cyan-2)"
+              strokeWidth="1"
+              className="animate-draw"
+              style={{ animationDelay: "2s", opacity: 0.3 }}
+            />
 
             {/* Floating Shapes */}
-            <circle cx="10%" cy="20%" r="60" fill="url(#grad1)" className="animate-float" />
-            <circle cx="90%" cy="80%" r="80" fill="var(--mantine-color-grape-1)" className="animate-float-delayed" style={{ opacity: 0.3 }} />
+            <circle
+              cx="10%"
+              cy="20%"
+              r="60"
+              fill="url(#grad1)"
+              className="animate-float"
+            />
+            <circle
+              cx="90%"
+              cy="80%"
+              r="80"
+              fill="var(--mantine-color-grape-1)"
+              className="animate-float-delayed"
+              style={{ opacity: 0.3 }}
+            />
 
             {/* Rotating Elements */}
-            <g className="animate-rotate" style={{ transformBox: 'fill-box' }}>
-              <rect x="80%" y="15%" width="50" height="50" rx="10" stroke="var(--mantine-color-indigo-2)" strokeWidth="2" fill="none" style={{ opacity: 0.4 }} />
+            <g className="animate-rotate" style={{ transformBox: "fill-box" }}>
+              <rect
+                x="80%"
+                y="15%"
+                width="50"
+                height="50"
+                rx="10"
+                stroke="var(--mantine-color-indigo-2)"
+                strokeWidth="2"
+                fill="none"
+                style={{ opacity: 0.4 }}
+              />
             </g>
 
             {/* Pulsing Dots */}
-            <circle cx="15%" cy="85%" r="8" fill="var(--mantine-color-orange-3)" className="animate-pulse" />
-            <circle cx="85%" cy="15%" r="12" fill="var(--mantine-color-teal-3)" className="animate-pulse" style={{ animationDelay: '1s' }} />
+            <circle
+              cx="15%"
+              cy="85%"
+              r="8"
+              fill="var(--mantine-color-orange-3)"
+              className="animate-pulse"
+            />
+            <circle
+              cx="85%"
+              cy="15%"
+              r="12"
+              fill="var(--mantine-color-teal-3)"
+              className="animate-pulse"
+              style={{ animationDelay: "1s" }}
+            />
 
             {/* Background glow (fixed gradient) */}
             <circle cx="50%" cy="50%" r="150" fill="url(#grad2)" />
           </svg>
         </Box>
 
-        <Stack align="center" ta="center" mb="xl" style={{ position: 'relative', zIndex: 1 }}>
-          <Badge size="lg" variant="gradient" gradient={{ from: 'blue', to: 'cyan' }}>PRACTICAL LEARNING</Badge>
-          <Title order={1} style={{ fontSize: '1.8rem' }}>
-            Master Tech & Creative Diagrams
+        <Stack
+          align="center"
+          ta="center"
+          mb="xl"
+          style={{ position: "relative", zIndex: 1 }}
+        >
+          <Badge
+            size="lg"
+            variant="gradient"
+            gradient={{ from: "blue", to: "cyan" }}
+          >
+            PRACTICAL LEARNING
+          </Badge>
+          <Title order={1} style={{ fontSize: "1.8rem" }}>
+            Master Tech & Architectural Diagrams
           </Title>
-          <Text size={'1.2em'} c="dimmed" maw={700}>
-            Explore our comprehensive labs designed for both technical professionals and students.
-            From certification prep to creative learning.
+          <Text size={"1.2em"} c="dimmed" maw={700}>
+            Explore our comprehensive labs designed for both technical
+            professionals and students. From certification prep to creative
+            learning.
           </Text>
         </Stack>
 
@@ -280,8 +391,8 @@ const LabsPage = () => {
           position: 'relative',
           zIndex: 1
         }}> */}
-          {/* Card 1: Cloud Architecture */}
-          {/* <FeatureCard
+        {/* Card 1: Cloud Architecture */}
+        {/* <FeatureCard
             icon={<IconCloud size={28} />}
             color="blue"
             title="Cloud Architecture"
@@ -295,8 +406,8 @@ const LabsPage = () => {
             }
           /> */}
 
-          {/* Card 2: DevOps & Containers */}
-          {/* <FeatureCard
+        {/* Card 2: DevOps & Containers */}
+        {/* <FeatureCard
             icon={<IconBrandDocker size={28} />}
             color="cyan"
             title="DevOps & Containers"
@@ -309,8 +420,8 @@ const LabsPage = () => {
             }
           /> */}
 
-          {/* Card 3: Education & Creativity */}
-          {/* <FeatureCard
+        {/* Card 3: Education & Creativity */}
+        {/* <FeatureCard
             icon={<IconSchool size={28} />}
             color="green"
             title="Interactive Education"
@@ -329,7 +440,7 @@ const LabsPage = () => {
         <Title order={3}>All Available Labs</Title>
         {isTrainer && (
           <Button
-            onClick={() => router.push('/lab/create')}
+            onClick={() => router.push("/lab/create")}
             leftSection={<IconEdit size={16} />}
           >
             Create New Lab
@@ -344,43 +455,138 @@ const LabsPage = () => {
         ) : (
           <>
             <div className="labs-grid">
-              {publishedLabs.map((lab) => (
-                  <Paper key={lab.id} shadow="xs" p="md" withBorder className="card-hover">
-                    <Group justify="space-between" align="center" wrap="nowrap">
-                      <Box style={{ flex: 1, minWidth: 0 }}>
-                        <Group gap="xs" mb="xs">
-                          <Text fw={600} lineClamp={1}>{lab.name}</Text>
+              {publishedLabs.map((lab) => {
+                const isPaid = lab.pricing?.purchaseType === "paid";
+                const hasPreview = (lab.previewCount ?? 0) > 0;
+
+                return (
+                  <Paper
+                    key={lab.id}
+                    shadow="xs"
+                    p="md"
+                    withBorder
+                    className="card-hover"
+                  >
+                    <Stack gap="xs">
+                      {/* Title row */}
+                      <Group
+                        justify="space-between"
+                        align="flex-start"
+                        wrap="nowrap"
+                      >
+                        <Group gap="xs" style={{ flex: 1, minWidth: 0 }}>
+                          <Text fw={700} lineClamp={1}>
+                            {lab.name}
+                          </Text>
+                          {isPaid ? (
+                            <Badge color="orange" size="lg" variant="filled">
+                              {lab.pricing?.price ? `₹${lab.pricing.price}` : "Paid"}
+                            </Badge>
+                          ) : (
+                            <Badge color="teal" size="lg" variant="filled">
+                              Free
+                            </Badge>
+                          )}
                           {lab.progress && lab.progress.percentage === 100 && (
-                            <Badge color="teal" size="sm" leftSection={<IconTrophy size={12} />}>
+                            <Badge
+                              color="teal"
+                              size="sm"
+                              leftSection={<IconTrophy size={12} />}
+                            >
                               Done
                             </Badge>
                           )}
                         </Group>
-                        <Group gap="xs">
-                          <Badge variant="light" color="blue" size="sm" leftSection={<IconListCheck size={12} />}>
-                            {lab.questionCount || 0} Questions
-                          </Badge>
-                          <Badge variant="light" color="violet" size="sm" leftSection={<IconSchema size={12} />}>
-                            {lab.diagramTestCount || 0} Diagrams
-                          </Badge>
-                          {isStudent && lab.progress && lab.progress.totalPages > 0 && (
-                            <Badge color={lab.progress.percentage === 100 ? 'teal' : 'blue'} size="sm">
+                        {hasPreview ? (
+                          <Button
+                            variant="filled"
+                            color="teal"
+                            size="sm"
+                            style={{ flexShrink: 0 }}
+                            leftSection={<IconPlayerPlay size={14} />}
+                            onClick={() => router.push(`/labs/${lab.id}?tab=tests`)}
+                          >
+                            Try Now
+                          </Button>
+                        ) : (
+                          <Button
+                            variant="filled"
+                            color="orange"
+                            size="sm"
+                            style={{ flexShrink: 0 }}
+                            leftSection={isPaid ? <IconLock size={14} /> : undefined}
+                            onClick={() => router.push(`/labs/${lab.id}?tab=tests`)}
+                          >
+                            Access
+                          </Button>
+                        )}
+                      </Group>
+
+                      {/* Description */}
+                      {lab.description && (
+                        <Text size="sm" c="dimmed" lineClamp={2}>
+                          {lab.description}
+                        </Text>
+                      )}
+
+                      {/* Category breadcrumb */}
+                      {(lab.labType ||
+                        lab.subCategory ||
+                        lab.nestedSubCategory) && (
+                          <Group gap="xs">
+                            {lab.labType && (
+                              <Badge variant="light" color="teal" size="md">
+                                {lab.labType}
+                              </Badge>
+                            )}
+                            {lab.subCategory && (
+                              <Badge variant="light" color="grape" size="md">
+                                {lab.subCategory}
+                              </Badge>
+                            )}
+                            {lab.nestedSubCategory && (
+                              <Badge variant="light" color="indigo" size="md">
+                                {lab.nestedSubCategory}
+                              </Badge>
+                            )}
+                          </Group>
+                        )}
+
+                      {/* Stats row */}
+                      <Group gap="xs">
+                        <Badge
+                          variant="light"
+                          color="blue"
+                          size="md"
+                          leftSection={<IconListCheck size={14} />}
+                        >
+                          {lab.questionCount || 0} Questions
+                        </Badge>
+                        <Badge
+                          variant="light"
+                          color="violet"
+                          size="md"
+                          leftSection={<IconSchema size={14} />}
+                        >
+                          {lab.diagramTestCount || 0} Diagrams
+                        </Badge>
+                        {isStudent &&
+                          lab.progress &&
+                          lab.progress.totalPages > 0 && (
+                            <Badge
+                              color={
+                                lab.progress.percentage === 100 ? "teal" : "blue"
+                              }
+                              size="md"
+                            >
                               {lab.progress.percentage}%
                             </Badge>
                           )}
-                        </Group>
-                      </Box>
-                      <Button
-                        variant="filled"
-                        color="orange"
-                        size="sm"
-                        onClick={() => router.push(`/labs/${lab.id}`)}
-                      >
-                        Access
-                      </Button>
-                    </Group>
+                      </Group>
+                    </Stack>
                   </Paper>
-              ))}
+                );
+              })}
             </div>
             {Math.ceil(publishedTotal / pageSize) > 1 && (
               <Group justify="center" mt="xl">
@@ -398,25 +604,47 @@ const LabsPage = () => {
       {/* Draft Labs Section - Only for trainers */}
       {isTrainer && (
         <Box>
-          <Title order={4} mb="md">My Draft Labs</Title>
+          <Title order={4} mb="md">
+            My Draft Labs
+          </Title>
           {draftLabs.length === 0 ? (
             <Text c="dimmed">No draft labs. Create one to get started!</Text>
           ) : (
             <>
               <div className="labs-grid">
                 {draftLabs.map((lab) => (
-                  <Paper key={lab.id} shadow="xs" p="md" withBorder className="card-hover">
+                  <Paper
+                    key={lab.id}
+                    shadow="xs"
+                    p="md"
+                    withBorder
+                    className="card-hover"
+                  >
                     <Group justify="space-between" align="center" wrap="nowrap">
                       <Box style={{ flex: 1, minWidth: 0 }}>
                         <Group gap="xs" mb="xs">
-                          <Text fw={600} lineClamp={1}>{lab.name}</Text>
-                          <Badge color="orange" size="sm">{lab.status.toUpperCase()}</Badge>
+                          <Text fw={600} lineClamp={1}>
+                            {lab.name}
+                          </Text>
+                          <Badge color="orange" size="sm">
+                            {lab.status.toUpperCase()}
+                          </Badge>
                         </Group>
                         <Group gap="xs">
-                          <Badge variant="light" color="blue" size="sm" leftSection={<IconListCheck size={12} />}>
+                          <Badge
+                            variant="light"
+                            color="blue"
+                            size="sm"
+                            leftSection={<IconListCheck size={12} />}
+                          >
                             {(lab as any).questionCount || 0} Questions
                           </Badge>
-                          <Badge variant="light" color="violet" size="sm" leftSection={<IconSchema size={12} />}>
+                          <Badge
+                            variant="light"
+                            color="violet"
+                            size="sm"
+                            leftSection={<IconSchema size={12} />}
+                          >
                             {(lab as any).diagramTestCount || 0} Diagrams
                           </Badge>
                         </Group>

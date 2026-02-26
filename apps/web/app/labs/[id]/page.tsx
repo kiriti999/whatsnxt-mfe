@@ -1,37 +1,49 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect, useCallback } from 'react';
-import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import {
-  Container,
-  Title,
-  Button,
-  Group,
-  Box,
-  Paper,
-  Text,
-  Tabs,
-  Badge,
-  Stack,
-  TextInput,
-  Textarea,
-  Select,
-  Pagination,
   ActionIcon,
+  Badge,
+  Box,
+  Button,
+  Collapse,
+  Container,
+  Divider,
+  Group,
   Modal,
-} from '@mantine/core';
-import { FullPageOverlay } from '@/components/Common/FullPageOverlay';
-import { useForm } from '@mantine/form';
-import { useDisclosure } from '@mantine/hooks';
-import { notifications } from '@mantine/notifications';
-import { useQuery } from '@tanstack/react-query';
-import { IconSearch, IconX, IconTrash } from '@tabler/icons-react';
-import { Lab, LabPage } from '@whatsnxt/core-types';
-import labApi from '@/apis/lab.api';
-import { LabAccessButton } from '@/components/Lab/LabAccessButton';
-import CloneLabButton from '@/components/Lab/CloneLabButton';
-import RepublishModal from '@/components/Lab/RepublishModal';
-import useAuth from '@/hooks/Authentication/useAuth';
+  Pagination,
+  Paper,
+  Select,
+  SimpleGrid,
+  Stack,
+  Text,
+  Textarea,
+  TextInput,
+  ThemeIcon,
+  Title,
+} from "@mantine/core";
+import { useForm } from "@mantine/form";
+import { useDisclosure } from "@mantine/hooks";
+import { notifications } from "@mantine/notifications";
+import {
+  IconBrain,
+  IconChevronRight,
+  IconEye,
+  IconLock,
+  IconSearch,
+  IconTopologyStarRing3,
+  IconTrash,
+  IconX,
+} from "@tabler/icons-react";
+import { useQuery } from "@tanstack/react-query";
+import type { Lab, LabPage } from "@whatsnxt/core-types";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
+import React, { useCallback, useEffect, useState } from "react";
+import labApi from "@/apis/lab.api";
+import { FullPageOverlay } from "@/components/Common/FullPageOverlay";
+import CloneLabButton from "@/components/Lab/CloneLabButton";
+import { LabAccessButton } from "@/components/Lab/LabAccessButton";
+import RepublishModal from "@/components/Lab/RepublishModal";
+import useAuth from "@/hooks/Authentication/useAuth";
 
 const LabDetailPage = () => {
   const params = useParams();
@@ -40,39 +52,56 @@ const LabDetailPage = () => {
   const labId = params.id as string;
   const { user, isAuthenticated } = useAuth();
 
-  // Get URL params for tab and page
-  const urlTab = searchParams.get('tab');
-  const urlPage = searchParams.get('page');
+  // Get URL params for page
+  const urlPage = searchParams.get("page");
 
   const [lab, setLab] = useState<Lab | null>(null);
   const [pages, setPages] = useState<LabPage[]>([]);
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [activeTab, setActiveTab] = useState<string | null>('details');
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [requiresAccess, setRequiresAccess] = useState(false);
-  const [deleteModalOpened, { open: openDeleteModal, close: closeDeleteModal }] = useDisclosure(false);
-  const [deletePageModalOpened, { open: openDeletePageModal, close: closeDeletePageModal }] = useDisclosure(false);
-  const [republishModalOpened, { open: openRepublishModal, close: closeRepublishModal }] = useDisclosure(false);
-  const [subCategories, setSubCategories] = useState<Array<{ name: string; subcategories?: Array<{ name: string }> }>>([]);
-  const [nestedSubCategories, setNestedSubCategories] = useState<Array<{ name: string }>>([]);
-  const [pageToDelete, setPageToDelete] = useState<{ id: string; pageNumber: number } | null>(null);
+  const [
+    deleteModalOpened,
+    { open: openDeleteModal, close: closeDeleteModal },
+  ] = useDisclosure(false);
+  const [
+    deletePageModalOpened,
+    { open: openDeletePageModal, close: closeDeletePageModal },
+  ] = useDisclosure(false);
+  const [
+    republishModalOpened,
+    { open: openRepublishModal, close: closeRepublishModal },
+  ] = useDisclosure(false);
+  const [labDetailsOpened, { toggle: toggleLabDetails }] = useDisclosure(true);
+  const [subCategories, setSubCategories] = useState<
+    Array<{ name: string; subcategories?: Array<{ name: string }> }>
+  >([]);
+  const [nestedSubCategories, setNestedSubCategories] = useState<
+    Array<{ name: string }>
+  >([]);
+  const [pageToDelete, setPageToDelete] = useState<{
+    id: string;
+    pageNumber: number;
+  } | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
   const { data: categories = [] } = useQuery({
-    queryKey: ['labCategories'],
+    queryKey: ["labCategories"],
     queryFn: async () => {
       const response = await labApi.getCategories();
       return response?.categories || [];
     },
   });
 
-  const categoryOptions = categories.map((cat: { categoryName: string; subcategories?: any[] }) => ({
-    value: cat.categoryName,
-    label: cat.categoryName,
-    subcategories: cat.subcategories || [],
-  }));
+  const categoryOptions = categories.map(
+    (cat: { categoryName: string; subcategories?: any[] }) => ({
+      value: cat.categoryName,
+      label: cat.categoryName,
+      subcategories: cat.subcategories || [],
+    }),
+  );
 
   const subCategoryOptions = subCategories.map((sub) => ({
     value: sub.name,
@@ -86,21 +115,18 @@ const LabDetailPage = () => {
   }));
 
   // Derived values (must come after state declarations)
-  const isTrainer = isAuthenticated && user?.role === 'trainer';
-  const isAdmin = isAuthenticated && user?.role === 'admin';
+  const isTrainer = isAuthenticated && user?.role === "trainer";
+  const isAdmin = isAuthenticated && user?.role === "admin";
   const isOwner = isTrainer && lab?.instructorId === user?._id;
 
   const PAGES_PER_PAGE = 3;
 
-  // Update state when URL params change
+  // Update page from URL param
   useEffect(() => {
-    if (urlTab) {
-      setActiveTab(urlTab);
-    }
     if (urlPage) {
       setCurrentPage(parseInt(urlPage, 10));
     }
-  }, [urlTab, urlPage]);
+  }, [urlPage]);
 
   // Reset to page 1 when search query changes
   useEffect(() => {
@@ -109,38 +135,42 @@ const LabDetailPage = () => {
 
   const form = useForm({
     initialValues: {
-      name: '',
-      description: '',
-      labType: '',
-      subCategory: '',
-      nestedSubCategory: '',
+      name: "",
+      description: "",
+      labType: "",
+      subCategory: "",
+      nestedSubCategory: "",
     },
     validate: {
-      name: (value) => (value ? null : 'Lab name is required'),
-      labType: (value) => (value ? null : 'Category is required'),
+      name: (value) => (value ? null : "Lab name is required"),
+      labType: (value) => (value ? null : "Category is required"),
     },
   });
 
   const handleCategoryChange = (value: string | null) => {
-    form.setFieldValue('labType', value || '');
-    form.setFieldValue('subCategory', '');
-    form.setFieldValue('nestedSubCategory', '');
+    form.setFieldValue("labType", value || "");
+    form.setFieldValue("subCategory", "");
+    form.setFieldValue("nestedSubCategory", "");
     setNestedSubCategories([]);
 
-    const selected = categoryOptions.find((opt: { value: string }) => opt.value === value);
+    const selected = categoryOptions.find(
+      (opt: { value: string }) => opt.value === value,
+    );
     setSubCategories(selected?.subcategories || []);
   };
 
   const handleSubCategoryChange = (value: string | null) => {
-    form.setFieldValue('subCategory', value || '');
-    form.setFieldValue('nestedSubCategory', '');
+    form.setFieldValue("subCategory", value || "");
+    form.setFieldValue("nestedSubCategory", "");
 
-    const selected = subCategoryOptions.find((opt: { value: string }) => opt.value === value);
+    const selected = subCategoryOptions.find(
+      (opt: { value: string }) => opt.value === value,
+    );
     setNestedSubCategories(selected?.subcategories || []);
   };
 
   const fetchLabData = useCallback(async () => {
-    console.log('[fetchLabData] Starting fetch for labId:', labId);
+    console.log("[fetchLabData] Starting fetch for labId:", labId);
     setLoading(true);
     try {
       const response = await labApi.getLabById(labId);
@@ -152,7 +182,7 @@ const LabDetailPage = () => {
       setRequiresAccess(accessRequired);
 
       // Debug logging
-      console.log('[Lab Access Debug]', {
+      console.log("[Lab Access Debug]", {
         labId,
         labStatus: labData.status,
         requiresAccess: accessRequired,
@@ -168,38 +198,46 @@ const LabDetailPage = () => {
       // Populate form with lab data including associated courses
       form.setValues({
         name: labData.name,
-        description: labData.description || '',
+        description: labData.description || "",
         labType: labData.labType,
-        subCategory: labData.subCategory || '',
-        nestedSubCategory: labData.nestedSubCategory || '',
+        subCategory: labData.subCategory || "",
+        nestedSubCategory: labData.nestedSubCategory || "",
       });
 
       // Populate cascading category state from existing lab data
       if (labData.labType && categories.length > 0) {
-        const selectedCat = categories.find((cat: { categoryName: string }) => cat.categoryName === labData.labType);
+        const selectedCat = categories.find(
+          (cat: { categoryName: string }) =>
+            cat.categoryName === labData.labType,
+        );
         const subs = selectedCat?.subcategories || [];
         setSubCategories(subs);
         if (labData.subCategory) {
-          const selectedSub = subs.find((sub: { name: string }) => sub.name === labData.subCategory);
+          const selectedSub = subs.find(
+            (sub: { name: string }) => sub.name === labData.subCategory,
+          );
           setNestedSubCategories(selectedSub?.subcategories || []);
         }
       }
-      console.log('[fetchLabData] Fetch completed successfully');
+      console.log("[fetchLabData] Fetch completed successfully");
     } catch (error: any) {
-      const errorMessage = error?.response?.data?.message || error?.message || 'Failed to load lab.';
+      const errorMessage =
+        error?.response?.data?.message ||
+        error?.message ||
+        "Failed to load lab.";
       notifications.show({
-        title: 'Error',
+        title: "Error",
         message: errorMessage,
-        color: 'red',
+        color: "red",
       });
-      console.error('Failed to load lab:', error);
+      console.error("Failed to load lab:", error);
     } finally {
       setLoading(false);
     }
   }, [labId]); // Only depend on labId, not form or other values
 
   useEffect(() => {
-    console.log('[useEffect] labId changed:', labId);
+    console.log("[useEffect] labId changed:", labId);
     if (labId) {
       fetchLabData();
     }
@@ -208,11 +246,15 @@ const LabDetailPage = () => {
   // Populate cascading category state when categories load after lab data
   useEffect(() => {
     if (lab && categories.length > 0) {
-      const selectedCat = categories.find((cat: { categoryName: string }) => cat.categoryName === lab.labType);
+      const selectedCat = categories.find(
+        (cat: { categoryName: string }) => cat.categoryName === lab.labType,
+      );
       const subs = selectedCat?.subcategories || [];
       setSubCategories(subs);
       if (lab.subCategory) {
-        const selectedSub = subs.find((sub: { name: string }) => sub.name === lab.subCategory);
+        const selectedSub = subs.find(
+          (sub: { name: string }) => sub.name === lab.subCategory,
+        );
         setNestedSubCategories(selectedSub?.subcategories || []);
       }
     }
@@ -228,11 +270,16 @@ const LabDetailPage = () => {
       // Sync cascading state after update
       const updated = response.data;
       if (updated.labType && categories.length > 0) {
-        const selectedCat = categories.find((cat: { categoryName: string }) => cat.categoryName === updated.labType);
+        const selectedCat = categories.find(
+          (cat: { categoryName: string }) =>
+            cat.categoryName === updated.labType,
+        );
         const subs = selectedCat?.subcategories || [];
         setSubCategories(subs);
         if (updated.subCategory) {
-          const selectedSub = subs.find((sub: { name: string }) => sub.name === updated.subCategory);
+          const selectedSub = subs.find(
+            (sub: { name: string }) => sub.name === updated.subCategory,
+          );
           setNestedSubCategories(selectedSub?.subcategories || []);
         } else {
           setNestedSubCategories([]);
@@ -241,18 +288,21 @@ const LabDetailPage = () => {
       setLab(response.data);
       setIsEditing(false);
       notifications.show({
-        title: 'Success',
-        message: 'Lab updated successfully!',
-        color: 'green',
+        title: "Success",
+        message: "Lab updated successfully!",
+        color: "green",
       });
     } catch (error: any) {
-      const errorMessage = error?.response?.data?.message || error?.message || 'Failed to update lab.';
+      const errorMessage =
+        error?.response?.data?.message ||
+        error?.message ||
+        "Failed to update lab.";
       notifications.show({
-        title: 'Error',
+        title: "Error",
         message: errorMessage,
-        color: 'red',
+        color: "red",
       });
-      console.error('Failed to update lab:', error);
+      console.error("Failed to update lab:", error);
     }
   };
 
@@ -265,18 +315,21 @@ const LabDetailPage = () => {
       });
       setPages([...pages, response.data]);
       notifications.show({
-        title: 'Success',
-        message: 'Page created successfully!',
-        color: 'green',
+        title: "Success",
+        message: "Page created successfully!",
+        color: "green",
       });
     } catch (error: any) {
-      const errorMessage = error?.response?.data?.message || error?.message || 'Failed to create page.';
+      const errorMessage =
+        error?.response?.data?.message ||
+        error?.message ||
+        "Failed to create page.";
       notifications.show({
-        title: 'Error',
+        title: "Error",
         message: errorMessage,
-        color: 'red',
+        color: "red",
       });
-      console.error('Failed to create page:', error);
+      console.error("Failed to create page:", error);
     }
   };
 
@@ -292,18 +345,21 @@ const LabDetailPage = () => {
       const response = await labApi.publishLab(labId);
       setLab(response.data);
       notifications.show({
-        title: 'Success',
-        message: 'Lab published successfully!',
-        color: 'green',
+        title: "Success",
+        message: "Lab published successfully!",
+        color: "green",
       });
     } catch (error: any) {
-      const errorMessage = error?.response?.data?.message || error?.message || 'Failed to publish lab.';
+      const errorMessage =
+        error?.response?.data?.message ||
+        error?.message ||
+        "Failed to publish lab.";
       notifications.show({
-        title: 'Error',
+        title: "Error",
         message: errorMessage,
-        color: 'red',
+        color: "red",
       });
-      console.error('Failed to publish lab:', error);
+      console.error("Failed to publish lab:", error);
     }
   };
 
@@ -312,20 +368,23 @@ const LabDetailPage = () => {
     try {
       await labApi.deleteLab(labId);
       notifications.show({
-        title: 'Success',
-        message: 'Lab deleted successfully!',
-        color: 'green',
+        title: "Success",
+        message: "Lab deleted successfully!",
+        color: "green",
       });
       closeDeleteModal();
-      router.push('/labs');
+      router.push("/labs");
     } catch (error: any) {
-      const errorMessage = error?.response?.data?.message || error?.message || 'Failed to delete lab.';
+      const errorMessage =
+        error?.response?.data?.message ||
+        error?.message ||
+        "Failed to delete lab.";
       notifications.show({
-        title: 'Error',
+        title: "Error",
         message: errorMessage,
-        color: 'red',
+        color: "red",
       });
-      console.error('Failed to delete lab:', error);
+      console.error("Failed to delete lab:", error);
     } finally {
       setIsDeleting(false);
     }
@@ -342,22 +401,25 @@ const LabDetailPage = () => {
     setIsDeleting(true);
     try {
       await labApi.deleteLabPage(labId, pageToDelete.id);
-      setPages(pages.filter(p => p.id !== pageToDelete.id));
+      setPages(pages.filter((p) => p.id !== pageToDelete.id));
       notifications.show({
-        title: 'Success',
-        message: 'Page deleted successfully!',
-        color: 'green',
+        title: "Success",
+        message: "Page deleted successfully!",
+        color: "green",
       });
       closeDeletePageModal();
       setPageToDelete(null);
     } catch (error: any) {
-      const errorMessage = error?.response?.data?.message || error?.message || 'Failed to delete page.';
+      const errorMessage =
+        error?.response?.data?.message ||
+        error?.message ||
+        "Failed to delete page.";
       notifications.show({
-        title: 'Error',
+        title: "Error",
         message: errorMessage,
-        color: 'red',
+        color: "red",
       });
-      console.error('Failed to delete page:', error);
+      console.error("Failed to delete page:", error);
     } finally {
       setIsDeleting(false);
     }
@@ -380,26 +442,12 @@ const LabDetailPage = () => {
   }
 
   // Derived values after lab is loaded
-  const isPublished = lab.status === 'published';
-  const canEdit = lab.status === 'draft'; // Only draft labs can be edited
-  const canDelete = isAdmin || (isOwner && lab.status === 'draft'); // Admin can delete any, owner can delete drafts
-  const isStudent = isAuthenticated && user?.role === 'student';
-  // Show purchase button when: published + student + requires access
-  const canViewAccess = isPublished && isStudent && requiresAccess;
+  const isPublished = lab.status === "published";
+  const canEdit = lab.status === "draft"; // Only draft labs can be edited
+  const canDelete = isAdmin || (isOwner && lab.status === "draft"); // Admin can delete any, owner can delete drafts
+  const isStudent = isAuthenticated && user?.role === "student";
   // Can view tests when: trainer owner OR (student AND has access = not requiring access)
   const canViewTests = isOwner || (isStudent && !requiresAccess);
-
-  // Debug logging for access control
-  console.log('[Access Control Debug]', {
-    isPublished,
-    isStudent,
-    isOwner,
-    isTrainer,
-    requiresAccess,
-    canViewAccess,
-    canViewTests,
-    userRole: user?.role,
-  });
 
   // Search and filter pages based on questions
   const filteredPages = pages.filter((page: any) => {
@@ -411,19 +459,19 @@ const LabDetailPage = () => {
 
     // Search in questions
     if (page.questions && page.questions.length > 0) {
-      return page.questions.some((question: any) =>
-        question.questionText?.toLowerCase().includes(query) ||
-        question.type?.toLowerCase().includes(query) ||
-        question.correctAnswer?.toLowerCase().includes(query) ||
-        (question.options && JSON.stringify(question.options).toLowerCase().includes(query))
+      return page.questions.some(
+        (question: any) =>
+          question.questionText?.toLowerCase().includes(query) ||
+          question.type?.toLowerCase().includes(query) ||
+          question.correctAnswer?.toLowerCase().includes(query) ||
+          (question.options &&
+            JSON.stringify(question.options).toLowerCase().includes(query)),
       );
     }
 
     // Search in diagram test
     if (page.diagramTest) {
-      return (
-        page.diagramTest.prompt?.toLowerCase().includes(query)
-      );
+      return page.diagramTest.prompt?.toLowerCase().includes(query);
     }
 
     return false;
@@ -439,12 +487,14 @@ const LabDetailPage = () => {
     <Container size="lg" py="xl">
       <Group justify="space-between" mb="xl">
         <Group>
-          <Button variant="subtle" onClick={() => router.push('/labs')}>
+          <Button variant="subtle" onClick={() => router.push("/labs")}>
             ← Back to Labs
           </Button>
-          <Badge color={isPublished ? 'green' : 'gray'} size="lg">
-            {lab.status.toUpperCase()}
-          </Badge>
+          {(isOwner || isTrainer || isAdmin) && (
+            <Badge color={isPublished ? "green" : "gray"} size="lg">
+              {lab.status.toUpperCase()}
+            </Badge>
+          )}
         </Group>
         <Group>
           {canDelete && (
@@ -462,7 +512,10 @@ const LabDetailPage = () => {
             <CloneLabButton
               labId={labId}
               onSuccess={(clonedLabId) => {
-                console.log('[LabDetailPage] Clone successful, redirecting to:', clonedLabId);
+                console.log(
+                  "[LabDetailPage] Clone successful, redirecting to:",
+                  clonedLabId,
+                );
               }}
             />
           )}
@@ -470,10 +523,18 @@ const LabDetailPage = () => {
       </Group>
 
       {/* Delete Confirmation Modal */}
-      <Modal opened={deleteModalOpened} onClose={closeDeleteModal} title="Delete Lab" centered>
+      <Modal
+        opened={deleteModalOpened}
+        onClose={closeDeleteModal}
+        title="Delete Lab"
+        centered
+      >
         <Stack>
           <Text>Are you sure you want to delete this lab?</Text>
-          <Text size="sm" c="dimmed">This action cannot be undone. All pages, questions, and diagram tests will be permanently deleted.</Text>
+          <Text size="sm" c="dimmed">
+            This action cannot be undone. All pages, questions, and diagram
+            tests will be permanently deleted.
+          </Text>
           <Group justify="flex-end" mt="md">
             <Button variant="default" onClick={closeDeleteModal}>
               Cancel
@@ -486,10 +547,20 @@ const LabDetailPage = () => {
       </Modal>
 
       {/* Delete Page Confirmation Modal */}
-      <Modal opened={deletePageModalOpened} onClose={closeDeletePageModal} title="Delete Page" centered>
+      <Modal
+        opened={deletePageModalOpened}
+        onClose={closeDeletePageModal}
+        title="Delete Page"
+        centered
+      >
         <Stack>
-          <Text>Are you sure you want to delete Page {pageToDelete?.pageNumber}?</Text>
-          <Text size="sm" c="dimmed">This action cannot be undone. All questions and diagram tests on this page will be permanently deleted.</Text>
+          <Text>
+            Are you sure you want to delete Page {pageToDelete?.pageNumber}?
+          </Text>
+          <Text size="sm" c="dimmed">
+            This action cannot be undone. All questions and diagram tests on
+            this page will be permanently deleted.
+          </Text>
           <Group justify="flex-end" mt="md">
             <Button variant="default" onClick={closeDeletePageModal}>
               Cancel
@@ -507,41 +578,31 @@ const LabDetailPage = () => {
         opened={republishModalOpened}
         onClose={closeRepublishModal}
         onSuccess={(updatedLabId) => {
-          console.log('[LabDetailPage] Republish successful, redirecting to:', updatedLabId);
+          console.log(
+            "[LabDetailPage] Republish successful, redirecting to:",
+            updatedLabId,
+          );
         }}
       />
 
-      {/* Access/Purchase Section for Students */}
-      {canViewAccess && (
-        <Paper shadow="sm" p="xl" withBorder mb="xl" className="bg-blue-light">
-          <Stack align="center" gap="md">
-            <Title order={3}>Access This Lab</Title>
-            <LabAccessButton
-              labId={labId}
-              labTitle={lab.name}
-              pricing={lab.pricing}
-              onAccessGranted={() => {
-                // Refresh lab data first to get updated access status
-                fetchLabData();
-
-                // Navigate to first page if lab has pages
-                if (pages.length > 0) {
-                  const firstPage = pages[0];
-                  router.push(`/labs/${labId}/pages/${firstPage.id}`);
-                }
-              }}
-            />
-          </Stack>
-        </Paper>
-      )}
-
-      <Tabs value={activeTab} onChange={setActiveTab}>
-        <Tabs.List>
-          <Tabs.Tab value="details">Lab Details</Tabs.Tab>
-          <Tabs.Tab value="tests">Tests & Questions ({pages.length})</Tabs.Tab>
-        </Tabs.List>
-
-        <Tabs.Panel value="details" pt="md">
+      <Box pt="md">
+        <Group
+          justify="space-between"
+          align="center"
+          mb="xl"
+          onClick={toggleLabDetails}
+          style={{ cursor: "pointer" }}
+        >
+          <Title order={4}>Lab Details</Title>
+          <IconChevronRight
+            size={18}
+            style={{
+              transform: labDetailsOpened ? "rotate(90deg)" : "rotate(0deg)",
+              transition: "transform 200ms ease",
+            }}
+          />
+        </Group>
+        <Collapse in={labDetailsOpened}>
           <Paper shadow="sm" p="xl" withBorder>
             {isEditing ? (
               <form onSubmit={form.onSubmit(handleUpdateLab)}>
@@ -549,13 +610,13 @@ const LabDetailPage = () => {
                   <TextInput
                     label="Lab Name"
                     placeholder="e.g., AWS Cloud Fundamentals"
-                    {...form.getInputProps('name')}
+                    {...form.getInputProps("name")}
                     required
                   />
                   <Textarea
                     label="Description"
                     placeholder="Brief description of the lab"
-                    {...form.getInputProps('description')}
+                    {...form.getInputProps("description")}
                   />
                   <Select
                     label="Category"
@@ -585,13 +646,18 @@ const LabDetailPage = () => {
                       data={nestedSubCategoryOptions}
                       searchable
                       value={form.values.nestedSubCategory}
-                      onChange={(value) => form.setFieldValue('nestedSubCategory', value || '')}
+                      onChange={(value) =>
+                        form.setFieldValue("nestedSubCategory", value || "")
+                      }
                       error={form.errors.nestedSubCategory as string}
                     />
                   )}
 
                   <Group justify="flex-end" mt="md">
-                    <Button variant="subtle" onClick={() => setIsEditing(false)}>
+                    <Button
+                      variant="subtle"
+                      onClick={() => setIsEditing(false)}
+                    >
                       Cancel
                     </Button>
                     <Button type="submit">Save Changes</Button>
@@ -601,28 +667,42 @@ const LabDetailPage = () => {
             ) : (
               <Stack>
                 <Box>
-                  <Text size="sm" c="dimmed">Name</Text>
+                  <Text size="sm" c="dimmed">
+                    Name
+                  </Text>
                   <Title order={5}>{lab.name}</Title>
                 </Box>
                 <Box>
-                  <Text size="sm" c="dimmed">Description</Text>
-                  <Text>{lab.description || 'No description'}</Text>
+                  <Text size="sm" c="dimmed">
+                    Description
+                  </Text>
+                  <Text>{lab.description || "No description"}</Text>
                 </Box>
                 <Group>
                   <Box>
-                    <Text size="sm" c="dimmed">Category</Text>
+                    <Text size="sm" c="dimmed">
+                      Category
+                    </Text>
                     <Badge size="lg">{lab.labType}</Badge>
                   </Box>
                   {lab.subCategory && (
                     <Box>
-                      <Text size="sm" c="dimmed">Sub Category</Text>
-                      <Badge size="lg" color="grape">{lab.subCategory}</Badge>
+                      <Text size="sm" c="dimmed">
+                        Sub Category
+                      </Text>
+                      <Badge size="lg" color="grape">
+                        {lab.subCategory}
+                      </Badge>
                     </Box>
                   )}
                   {lab.nestedSubCategory && (
                     <Box>
-                      <Text size="sm" c="dimmed">Topic</Text>
-                      <Badge size="lg" color="violet">{lab.nestedSubCategory}</Badge>
+                      <Text size="sm" c="dimmed">
+                        Topic
+                      </Text>
+                      <Badge size="lg" color="violet">
+                        {lab.nestedSubCategory}
+                      </Badge>
                     </Box>
                   )}
                 </Group>
@@ -630,19 +710,34 @@ const LabDetailPage = () => {
                 {/* Associated Courses */}
                 {lab.associatedCourses && lab.associatedCourses.length > 0 && (
                   <Box>
-                    <Text size="sm" c="dimmed" mb="xs">Associated Courses</Text>
+                    <Text size="sm" c="dimmed" mb="xs">
+                      Associated Courses
+                    </Text>
                     <Stack gap="xs">
                       {lab.associatedCourses.map((course: any) => (
-                        <Paper key={course._id} p="sm" withBorder radius="sm" className="bg-blue-light">
+                        <Paper
+                          key={course._id}
+                          p="sm"
+                          withBorder
+                          radius="sm"
+                          className="bg-blue-light"
+                        >
                           <Group justify="space-between">
                             <Box>
-                              <Text size="sm" fw={600} c="blue">{course.courseName}</Text>
-                              <Text size="xs" c="dimmed">Students enrolled in this course can access this lab</Text>
+                              <Text size="sm" fw={600} c="blue">
+                                {course.courseName}
+                              </Text>
+                              <Text size="xs" c="dimmed">
+                                Students enrolled in this course can access this
+                                lab
+                              </Text>
                             </Box>
                             <Button
                               size="xs"
                               variant="subtle"
-                              onClick={() => router.push(`/courses/${course.slug}`)}
+                              onClick={() =>
+                                router.push(`/courses/${course.slug}`)
+                              }
                             >
                               View Course
                             </Button>
@@ -655,286 +750,509 @@ const LabDetailPage = () => {
 
                 {canEdit && (
                   <Group justify="flex-end" mt="md">
-                    <Button size='xs' onClick={() => setIsEditing(true)}>Edit Details</Button>
+                    <Button size="xs" onClick={() => setIsEditing(true)}>
+                      Edit Details
+                    </Button>
                   </Group>
                 )}
               </Stack>
             )}
           </Paper>
-        </Tabs.Panel>
+        </Collapse>
+      </Box>
 
-        <Tabs.Panel value="tests" pt="md">
-          {!canViewTests && isPublished && isStudent && requiresAccess ? (
-            <Stack gap="lg">
-              <Paper shadow="sm" p="xl" withBorder className="bg-yellow-light">
-                <Stack align="center" gap="md">
-                  <Text size="xl" fw={600}>🔒 Access Required</Text>
-                  <Text c="dimmed" ta="center" size="lg">
-                    You need to purchase this lab or enroll in a course to view all tests and questions.
-                  </Text>
-                  <LabAccessButton
-                    labId={labId}
-                    labTitle={lab.name}
-                    pricing={lab.pricing}
-                    onAccessGranted={() => {
-                      fetchLabData();
-                    }}
-                  />
-                </Stack>
-              </Paper>
+      <Box pt="xl">
+        <Divider
+          mb="xl"
+          label={<Title order={4}>Tests & Questions ({pages.length})</Title>}
+          labelPosition="left"
+        />
+        {!canViewTests && isPublished && isStudent && requiresAccess ? (
+          <Stack gap="lg">
+            <Paper shadow="sm" p="xl" withBorder className="bg-yellow-light">
+              <Stack align="center" gap="md">
+                <Text size="xl" fw={600}>
+                  🔒 Access Required
+                </Text>
+                <Text c="dimmed" ta="center" size="lg">
+                  You need to purchase this lab or enroll in a course to view
+                  all tests and questions.
+                </Text>
+                <LabAccessButton
+                  labId={labId}
+                  labTitle={lab.name}
+                  pricing={lab.pricing}
+                  onAccessGranted={() => {
+                    fetchLabData();
+                  }}
+                />
+              </Stack>
+            </Paper>
 
-              {/* Preview Pages Section */}
-              {pages.some((p: any) =>
+            {/* Preview Pages Section — Phase 1: Visual Thumbnails */}
+            {pages.some(
+              (p: any) =>
                 (p.hasQuestion && p.question?.isPreview) ||
-                (p.hasDiagramTest && p.diagramTest?.isPreview)
-              ) && (
-                  <Paper shadow="sm" p="lg" withBorder>
-                    <Stack gap="md">
-                      <Group gap="sm">
-                        <Text size="lg" fw={600}>👁 Free Preview Available</Text>
-                        <Badge color="orange" variant="light">Try before you buy</Badge>
+                (p.hasDiagramTest && p.diagramTest?.isPreview),
+            ) &&
+              (() => {
+                const previewPages = pages.filter(
+                  (p: any) =>
+                    (p.hasQuestion && p.question?.isPreview) ||
+                    (p.hasDiagramTest && p.diagramTest?.isPreview),
+                );
+                return (
+                  <Paper
+                    shadow="sm"
+                    p="lg"
+                    withBorder
+                    style={{
+                      borderLeft:
+                        "4px solid var(--mantine-color-orange-outline)",
+                    }}
+                  >
+                    <Stack gap="lg">
+                      <Group justify="space-between" align="flex-start">
+                        <Box>
+                          <Group gap="sm" mb={4}>
+                            <ThemeIcon
+                              color="orange"
+                              variant="light"
+                              size="lg"
+                              radius="md"
+                            >
+                              <IconEye size={20} />
+                            </ThemeIcon>
+                            <Text size="lg" fw={700}>
+                              Free Preview Available
+                            </Text>
+                            <Badge color="orange" variant="filled" size="sm">
+                              {previewPages.length} test
+                              {previewPages.length !== 1 ? "s" : ""}
+                            </Badge>
+                          </Group>
+                          <Text size="sm" c="dimmed" ml={46}>
+                            Try these tests before purchasing — no account
+                            upgrade needed.
+                          </Text>
+                        </Box>
+                        <Badge
+                          color="orange"
+                          variant="light"
+                          size="lg"
+                          leftSection={<IconLock size={12} />}
+                        >
+                          Try before you buy
+                        </Badge>
                       </Group>
-                      <Text size="sm" c="dimmed">
-                        The instructor has made some tests available for free preview. Try them to see what this lab offers!
-                      </Text>
-                      <Stack gap="sm">
-                        {pages.filter((p: any) =>
-                          (p.hasQuestion && p.question?.isPreview) ||
-                          (p.hasDiagramTest && p.diagramTest?.isPreview)
-                        ).map((page: any) => (
-                          <Paper key={page.id} p="md" withBorder radius="sm">
-                            <Group justify="space-between" align="center">
-                              <Group gap="sm">
-                                <Text fw={600} size="sm">Page {page.pageNumber}</Text>
-                                {page.hasQuestion && page.question?.isPreview && (
-                                  <Badge size="sm" color="green" variant="light">Question Preview</Badge>
+
+                      <Divider />
+
+                      <SimpleGrid cols={{ base: 1, sm: 2, md: 3 }} spacing="md">
+                        {previewPages.map((page: any) => {
+                          const hasQ =
+                            page.hasQuestion && page.question?.isPreview;
+                          const hasDiag =
+                            page.hasDiagramTest && page.diagramTest?.isPreview;
+                          const questionPreview = hasQ
+                            ? (page.question.questionText || "").slice(0, 80) +
+                            ((page.question.questionText || "").length > 80
+                              ? "…"
+                              : "")
+                            : null;
+                          const diagramPreview = hasDiag
+                            ? (page.diagramTest.prompt || "").slice(0, 80) +
+                            ((page.diagramTest.prompt || "").length > 80
+                              ? "…"
+                              : "")
+                            : null;
+                          return (
+                            <Paper
+                              key={page.id}
+                              p="md"
+                              withBorder
+                              radius="md"
+                              style={{
+                                cursor: "pointer",
+                                transition: "box-shadow 0.15s ease",
+                                borderTop:
+                                  "3px solid var(--mantine-color-orange-outline)",
+                              }}
+                              onClick={() => {
+                                // Phase 3: track preview thumbnail click
+                                const gtagFn =
+                                  typeof window !== "undefined"
+                                    ? ((window as Record<string, unknown>)
+                                      .gtag as
+                                      | ((...args: unknown[]) => void)
+                                      | undefined)
+                                    : undefined;
+                                if (gtagFn) {
+                                  gtagFn("event", "preview_test_clicked", {
+                                    lab_id: labId,
+                                    page_id: page.id,
+                                    page_number: page.pageNumber,
+                                    has_question: hasQ,
+                                    has_diagram: hasDiag,
+                                  });
+                                }
+                                router.push(
+                                  `/labs/${labId}/pages/${page.id}?preview=true&returnPage=${currentPage}`,
+                                );
+                              }}
+                            >
+                              <Stack gap="sm">
+                                <Group justify="space-between">
+                                  <Badge variant="dot" color="orange" size="sm">
+                                    Page {page.pageNumber}
+                                  </Badge>
+                                  <Group gap={4}>
+                                    {hasQ && (
+                                      <ThemeIcon
+                                        color="green"
+                                        variant="light"
+                                        size="sm"
+                                        radius="xl"
+                                      >
+                                        <IconBrain size={10} />
+                                      </ThemeIcon>
+                                    )}
+                                    {hasDiag && (
+                                      <ThemeIcon
+                                        color="blue"
+                                        variant="light"
+                                        size="sm"
+                                        radius="xl"
+                                      >
+                                        <IconTopologyStarRing3 size={10} />
+                                      </ThemeIcon>
+                                    )}
+                                  </Group>
+                                </Group>
+
+                                {hasQ && (
+                                  <Box>
+                                    <Group gap={6} mb={4}>
+                                      <IconBrain
+                                        size={13}
+                                        style={{
+                                          color:
+                                            "var(--mantine-color-green-light-color)",
+                                        }}
+                                      />
+                                      <Text size="xs" fw={600} c="green">
+                                        Question — {page.question.type}
+                                      </Text>
+                                    </Group>
+                                    <Text
+                                      size="sm"
+                                      c="dimmed"
+                                      lineClamp={2}
+                                      style={{ fontStyle: "italic" }}
+                                    >
+                                      {questionPreview || "Question preview"}
+                                    </Text>
+                                  </Box>
                                 )}
-                                {page.hasDiagramTest && page.diagramTest?.isPreview && (
-                                  <Badge size="sm" color="blue" variant="light">Diagram Preview</Badge>
+
+                                {hasDiag && (
+                                  <Box>
+                                    <Group gap={6} mb={4}>
+                                      <IconTopologyStarRing3
+                                        size={13}
+                                        style={{
+                                          color:
+                                            "var(--mantine-color-blue-light-color)",
+                                        }}
+                                      />
+                                      <Text size="xs" fw={600} c="blue">
+                                        Diagram Test
+                                      </Text>
+                                    </Group>
+                                    <Text
+                                      size="sm"
+                                      c="dimmed"
+                                      lineClamp={2}
+                                      style={{ fontStyle: "italic" }}
+                                    >
+                                      {diagramPreview ||
+                                        "Reconstruct the architecture diagram"}
+                                    </Text>
+                                  </Box>
                                 )}
-                              </Group>
-                              <Button
-                                size="xs"
-                                variant="light"
-                                color="orange"
-                                onClick={() => router.push(`/labs/${labId}/pages/${page.id}?preview=true&returnPage=${currentPage}`)}
-                              >
-                                Try Preview
-                              </Button>
-                            </Group>
-                          </Paper>
-                        ))}
-                      </Stack>
+
+                                <Divider />
+                                <Group justify="flex-end">
+                                  <Button
+                                    size="xs"
+                                    variant="light"
+                                    color="orange"
+                                    rightSection={
+                                      <IconChevronRight size={12} />
+                                    }
+                                  >
+                                    Try Free
+                                  </Button>
+                                </Group>
+                              </Stack>
+                            </Paper>
+                          );
+                        })}
+                      </SimpleGrid>
                     </Stack>
                   </Paper>
-                )}
-            </Stack>
-          ) : (
-            <Stack>
-              {canEdit && (
-                <Group justify="space-between" mb="md">
-                  <Box>
-                    <Title order={4}>Tests & Questions</Title>
-                    <Text size="sm" c="dimmed">
-                      {searchQuery
-                        ? `Showing ${filteredPages.length} of ${pages.length} pages`
-                        : 'Each page can have a question test (MCQ, True/False, Fill in blank) and/or a diagram test'
-                      }
-                    </Text>
-                  </Box>
-                  <Button onClick={handleCreatePage} leftSection="+" size="sm">
-                    Add New Page
-                  </Button>
-                </Group>
-              )}
+                );
+              })()}
+          </Stack>
+        ) : (
+          <Stack>
+            {canEdit && (
+              <Group justify="space-between" mb="md">
+                <Box>
+                  <Title order={4}>Tests & Questions</Title>
+                  <Text size="sm" c="dimmed">
+                    {searchQuery
+                      ? `Showing ${filteredPages.length} of ${pages.length} pages`
+                      : "Each page can have a question test (MCQ, True/False, Fill in blank) and/or a diagram test"}
+                  </Text>
+                </Box>
+                <Button onClick={handleCreatePage} leftSection="+" size="sm">
+                  Add New Page
+                </Button>
+              </Group>
+            )}
 
-              {/* Search Bar */}
-              {pages.length > 0 && (
-                <TextInput
-                  placeholder="Search questions and tests across all pages..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  leftSection={<IconSearch size={16} />}
-                  rightSection={
-                    searchQuery && (
-                      <ActionIcon
-                        variant="subtle"
-                        onClick={() => setSearchQuery('')}
-                        size="sm"
-                      >
-                        <IconX size={16} />
-                      </ActionIcon>
-                    )
-                  }
-                  size="md"
-                  mb="md"
-                />
-              )}
+            {/* Search Bar */}
+            {pages.length > 0 && (
+              <TextInput
+                placeholder="Search questions and tests across all pages..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                leftSection={<IconSearch size={16} />}
+                rightSection={
+                  searchQuery && (
+                    <ActionIcon
+                      variant="subtle"
+                      onClick={() => setSearchQuery("")}
+                      size="sm"
+                    >
+                      <IconX size={16} />
+                    </ActionIcon>
+                  )
+                }
+                size="md"
+                mb="md"
+              />
+            )}
 
-              {pages.length === 0 ? (
-                <Paper shadow="sm" p="xl" withBorder>
-                  <Stack align="center" gap="md">
-                    <Text size="xl" c="dimmed">No pages yet</Text>
-                    <Text c="dimmed" ta="center">
-                      Create your first page to start adding questions and diagram tests
-                    </Text>
-                    {canEdit && (
-                      <Button onClick={handleCreatePage} size="xs">
-                        Create First Page
-                      </Button>
-                    )}
-                  </Stack>
-                </Paper>
-              ) : filteredPages.length === 0 ? (
-                <Paper shadow="sm" p="xl" withBorder>
-                  <Stack align="center" gap="md">
-                    <IconSearch size={48} color="gray" />
-                    <Text size="xl" c="dimmed">No results found</Text>
-                    <Text c="dimmed" ta="center">
-                      No pages match your search "{searchQuery}"
-                    </Text>
-                    <Button variant="subtle" onClick={() => setSearchQuery('')}>
-                      Clear Search
+            {pages.length === 0 ? (
+              <Paper shadow="sm" p="xl" withBorder>
+                <Stack align="center" gap="md">
+                  <Text size="xl" c="dimmed">
+                    No pages yet
+                  </Text>
+                  <Text c="dimmed" ta="center">
+                    Create your first page to start adding questions and diagram
+                    tests
+                  </Text>
+                  {canEdit && (
+                    <Button onClick={handleCreatePage} size="xs">
+                      Create First Page
                     </Button>
-                  </Stack>
-                </Paper>
-              ) : (
-                <Stack gap="md">
-                  {paginatedPages.map((page) => (
-                    <Paper key={page.id} shadow="sm" p="lg" withBorder>
-                      <Group justify="space-between" align="flex-start" mb="md">
-                        <Box>
-                          <Group gap="sm" mb="xs">
-                            <Text fw={700} size="md">Page {page.pageNumber}</Text>
-                            {page.hasQuestion && (
-                              <Badge size="md" color="green" variant="light">
-                                Question Test
-                              </Badge>
-                            )}
-                            {page.hasQuestion && page.question?.isPreview && (
+                  )}
+                </Stack>
+              </Paper>
+            ) : filteredPages.length === 0 ? (
+              <Paper shadow="sm" p="xl" withBorder>
+                <Stack align="center" gap="md">
+                  <IconSearch size={48} color="gray" />
+                  <Text size="xl" c="dimmed">
+                    No results found
+                  </Text>
+                  <Text c="dimmed" ta="center">
+                    No pages match your search "{searchQuery}"
+                  </Text>
+                  <Button variant="subtle" onClick={() => setSearchQuery("")}>
+                    Clear Search
+                  </Button>
+                </Stack>
+              </Paper>
+            ) : (
+              <Stack gap="md">
+                {paginatedPages.map((page) => (
+                  <Paper key={page.id} shadow="sm" p="lg" withBorder>
+                    <Group justify="space-between" align="flex-start" mb="md">
+                      <Box>
+                        <Group gap="sm" mb="xs">
+                          <Text fw={700} size="md">
+                            Page {page.pageNumber}
+                          </Text>
+                          {page.hasQuestion && (
+                            <Badge size="md" color="green" variant="light">
+                              Question Test
+                            </Badge>
+                          )}
+                          {page.hasQuestion && page.question?.isPreview && (
+                            <Badge size="sm" color="orange" variant="light">
+                              👁 Preview
+                            </Badge>
+                          )}
+                          {page.hasDiagramTest && (
+                            <Badge size="md" color="blue" variant="light">
+                              Diagram Test
+                            </Badge>
+                          )}
+                          {page.hasDiagramTest &&
+                            page.diagramTest?.isPreview && (
                               <Badge size="sm" color="orange" variant="light">
                                 👁 Preview
                               </Badge>
                             )}
-                            {page.hasDiagramTest && (
-                              <Badge size="md" color="blue" variant="light">
-                                Diagram Test
-                              </Badge>
-                            )}
-                            {page.hasDiagramTest && page.diagramTest?.isPreview && (
-                              <Badge size="sm" color="orange" variant="light">
-                                👁 Preview
-                              </Badge>
-                            )}
-                            {!page.hasQuestion && !page.hasDiagramTest && (
-                              <Badge size="md" color="gray" variant="light">
-                                No Tests
-                              </Badge>
-                            )}
-                          </Group>
-                        </Box>
-                        <Group gap="sm">
-                          {lab?.status === 'published' && (page.hasQuestion || page.hasDiagramTest) && !isOwner && (
+                          {!page.hasQuestion && !page.hasDiagramTest && (
+                            <Badge size="md" color="gray" variant="light">
+                              No Tests
+                            </Badge>
+                          )}
+                        </Group>
+                      </Box>
+                      <Group gap="sm">
+                        {lab?.status === "published" &&
+                          (page.hasQuestion || page.hasDiagramTest) &&
+                          !isOwner && (
                             <Button
                               variant="filled"
                               size="sm"
-                              onClick={() => router.push(`/labs/${labId}/pages/${page.id}?returnPage=${currentPage}`)}
+                              onClick={() =>
+                                router.push(
+                                  `/labs/${labId}/pages/${page.id}?returnPage=${currentPage}`,
+                                )
+                              }
                             >
                               View Tests
                             </Button>
                           )}
-                          {(lab?.status !== 'published' || isOwner) && (
-                            <Button
-                              variant="filled"
-                              size="xs"
-                              onClick={() => router.push(`/labs/${labId}/pages/${page.id}?returnPage=${currentPage}`)}
-                            >
-                              {page.hasQuestion || page.hasDiagramTest ? 'Edit Tests' : 'Add Tests'}
-                            </Button>
-                          )}
-                          {canEdit && !page.hasQuestion && !page.hasDiagramTest && (
+                        {(lab?.status !== "published" || isOwner) && (
+                          <Button
+                            variant="filled"
+                            size="xs"
+                            onClick={() =>
+                              router.push(
+                                `/labs/${labId}/pages/${page.id}?returnPage=${currentPage}`,
+                              )
+                            }
+                          >
+                            {page.hasQuestion || page.hasDiagramTest
+                              ? "Edit Tests"
+                              : "Add Tests"}
+                          </Button>
+                        )}
+                        {canEdit &&
+                          !page.hasQuestion &&
+                          !page.hasDiagramTest && (
                             <ActionIcon
                               color="red"
                               variant="subtle"
                               size="lg"
-                              onClick={() => confirmDeletePage(page.id, page.pageNumber)}
+                              onClick={() =>
+                                confirmDeletePage(page.id, page.pageNumber)
+                              }
                               title={`Delete Page ${page.pageNumber}`}
                             >
                               <IconTrash size={18} />
                             </ActionIcon>
                           )}
-                        </Group>
                       </Group>
-
-                      <Stack gap="sm">
-                        {page.hasQuestion ? (
-                          <Paper p="md" radius="sm" className="bg-green-light">
-                            <Stack gap="sm">
-                              <Text size="sm" fw={600} c="green.9" mb={0}>✓ Question Test</Text>
-                              {page.question?.questionText && (
-                                <Text size="sm" c="green.8" lineClamp={2} pl="md">
-                                  {page.question.questionText}
-                                </Text>
-                              )}
-                            </Stack>
-                          </Paper>
-                        ) : (
-                          <Paper p="md" radius="sm" className="border-dashed">
-                            <Stack gap="sm">
-                              <Text size="sm" c="dimmed" mb={0}>○ Question Test</Text>
-                              <Text size="sm" c="dimmed" pl="md">not configured</Text>
-                            </Stack>
-                          </Paper>
-                        )}
-
-                        {page.hasDiagramTest ? (
-                          <Paper p="md" radius="sm" className="bg-blue-light">
-                            <Stack gap="sm">
-                              <Text size="sm" fw={600} c="blue.9" mb={0}>✓ Diagram Test</Text>
-                            </Stack>
-                          </Paper>
-                        ) : (
-                          <Paper p="md" radius="sm" className="border-dashed">
-                            <Stack gap="sm">
-                              <Text size="sm" c="dimmed" mb={0}>○ Diagram Test</Text>
-                              <Text size="sm" c="dimmed" pl="md">not configured</Text>
-                            </Stack>
-                          </Paper>
-                        )}
-                      </Stack>
-                    </Paper>
-                  ))}
-
-                  {totalPages > 1 && (
-                    <Group justify="center" mt="lg">
-                      <Pagination
-                        total={totalPages}
-                        value={currentPage}
-                        onChange={setCurrentPage}
-                        size="md"
-                      />
                     </Group>
-                  )}
-                </Stack>
-              )}
 
-              {canEdit && pages.length > 0 && (
-                <Paper shadow="sm" p="lg" withBorder mt="md" className="bg-blue-light">
-                  <Group gap="sm">
-                    <Text size="lg">💡</Text>
-                    <Box style={{ flex: 1 }}>
-                      <Text fw={600} mb={4}>Publishing Requirement</Text>
-                      <Text size="sm" c="dimmed">
-                        At least one page must have a question test or diagram test before you can publish this lab.
-                      </Text>
-                    </Box>
+                    <Stack gap="sm">
+                      {page.hasQuestion ? (
+                        <Paper p="md" radius="sm" className="bg-green-light">
+                          <Stack gap="sm">
+                            <Text size="sm" fw={600} c="green.9" mb={0}>
+                              ✓ Question Test
+                            </Text>
+                            {page.question?.questionText && (
+                              <Text size="sm" c="green.8" lineClamp={2} pl="md">
+                                {page.question.questionText}
+                              </Text>
+                            )}
+                          </Stack>
+                        </Paper>
+                      ) : (
+                        <Paper p="md" radius="sm" className="border-dashed">
+                          <Stack gap="sm">
+                            <Text size="sm" c="dimmed" mb={0}>
+                              ○ Question Test
+                            </Text>
+                            <Text size="sm" c="dimmed" pl="md">
+                              not configured
+                            </Text>
+                          </Stack>
+                        </Paper>
+                      )}
+
+                      {page.hasDiagramTest ? (
+                        <Paper p="md" radius="sm" className="bg-blue-light">
+                          <Stack gap="sm">
+                            <Text size="sm" fw={600} c="blue.9" mb={0}>
+                              ✓ Diagram Test
+                            </Text>
+                          </Stack>
+                        </Paper>
+                      ) : (
+                        <Paper p="md" radius="sm" className="border-dashed">
+                          <Stack gap="sm">
+                            <Text size="sm" c="dimmed" mb={0}>
+                              ○ Diagram Test
+                            </Text>
+                            <Text size="sm" c="dimmed" pl="md">
+                              not configured
+                            </Text>
+                          </Stack>
+                        </Paper>
+                      )}
+                    </Stack>
+                  </Paper>
+                ))}
+
+                {totalPages > 1 && (
+                  <Group justify="center" mt="lg">
+                    <Pagination
+                      total={totalPages}
+                      value={currentPage}
+                      onChange={setCurrentPage}
+                      size="md"
+                    />
                   </Group>
-                </Paper>
-              )}
-            </Stack>
-          )}
-        </Tabs.Panel>
-      </Tabs>
+                )}
+              </Stack>
+            )}
+
+            {canEdit && pages.length > 0 && (
+              <Paper
+                shadow="sm"
+                p="lg"
+                withBorder
+                mt="md"
+                className="bg-blue-light"
+              >
+                <Group gap="sm">
+                  <Text size="lg">💡</Text>
+                  <Box style={{ flex: 1 }}>
+                    <Text fw={600} mb={4}>
+                      Publishing Requirement
+                    </Text>
+                    <Text size="sm" c="dimmed">
+                      At least one page must have a question test or diagram
+                      test before you can publish this lab.
+                    </Text>
+                  </Box>
+                </Group>
+              </Paper>
+            )}
+          </Stack>
+        )}
+      </Box>
     </Container>
   );
 };
