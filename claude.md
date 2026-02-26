@@ -194,6 +194,66 @@ app/
 | Phase 4 | Terraform deployment (Lambda + EventBridge) |
 | Phase 5 | Dashboard/progress tracking UI |
 
+### 7. AI Diagram Generation Best Practices
+
+**Universal Rules for ALL Diagram Types** (Architecture, Flow, Mind Map, Comparison, etc.):
+
+These rules apply to any AI-generated diagram in the Visualizer Builder, whether generated via frontend prompts or backend services.
+
+#### Spacing and Layout Rules
+
+1. **Minimum Node Spacing**: Keep nodes at least **120-150px apart** (center to center) to ensure arrows are clearly visible
+2. **No Direct Adjacency**: Never place shapes directly next to each other - always maintain visible spacing
+3. **Organized Layout**: Position nodes in organized rows/columns/grids based on diagram type
+4. **Container Sizing**: Containers/groups should be large (width: 400+, height: 300+) to accommodate nested content
+
+#### Connection and Arrow Rules
+
+5. **Limit Connections**: Each node should have **1-3 connections maximum** for clarity (architecture/flow), or 2-4 for hub patterns
+6. **Avoid Mesh Networks**: Create LINEAR or TREE-LIKE flows (A→B→C→D), NOT mesh networks where everything connects to everything
+7. **Single Flow per Arrow**: Each arrow should represent a clear, single flow - avoid multiple overlapping connections between the same components
+8. **Specify Edge Connections**: Always specify `sourceEdge` and `targetEdge` ("top"|"right"|"bottom"|"left") for clean routing
+9. **Edge Selection Logic**:
+   - Left-to-right flows: `sourceEdge="right"` and `targetEdge="left"`
+   - Top-to-bottom flows: `sourceEdge="bottom"` and `targetEdge="top"`
+   - Choose edges that create shortest, clearest path without crossing other shapes
+
+#### Container Boundary Rules (CRITICAL)
+
+10. **Never Cross Borders**: Arrows should **NEVER** route through container/group borders
+11. **All-In or All-Out**: Either place ALL connecting nodes inside the container OR all outside - no partial containers
+12. **Flat Layout Preferred**: For complex architectures (like Kubernetes), prefer flat layouts with spatial grouping over nested containers
+13. **Two-Container Pattern**: If containers are necessary, use TWO separate independent containers with no cross-boundary arrows
+
+#### Architecture-Specific Patterns
+
+14. **Hub-and-Spoke**: For architectures with central components (API Gateway, API Server, Message Bus), use the central node as intermediary
+15. **Layered Pattern**: For web apps and traditional architectures, use clear layers (Client → LB → App → DB)
+16. **Sequential Pattern**: For pipelines (CI/CD, ETL), show clear progression stages
+17. **Domain Examples**:
+    - **Kubernetes**: Flat layout with API Server at center, or TWO containers (Control Plane + Worker Nodes)
+    - **Web Apps**: Layered (Client → Load Balancer → App Servers → Database)
+    - **Microservices**: Hub-and-spoke via API Gateway or Message Bus
+    - **CI/CD**: Sequential pipeline stages
+
+#### Implementation Locations
+
+- **Frontend AI Prompts**: `apps/web/app/labs/[id]/pages/[pageId]/page.tsx` - `buildDiagramAIPrompt()`
+- **Backend AI Prompts**: `apps/whatsnxt-bff/app/utils/visualizerPrompts.ts` - diagram type-specific templates
+- **Arrow Rendering**: `apps/web/utils/d3-link-renderers.ts` - connection point calculations
+- **Diagram Editor**: `apps/web/components/visualizer/DiagramEditor.tsx` - canvas and interactions
+
+#### Quality Checklist
+
+Before finalizing any AI diagram generation feature:
+- ✅ Nodes spaced 120-150px apart minimum
+- ✅ Each node has 1-3 connections (or 2-4 for hubs)
+- ✅ No mesh networks - clear flow patterns
+- ✅ sourceEdge/targetEdge specified for all arrows
+- ✅ No arrows crossing container borders
+- ✅ Follows domain-appropriate pattern (hub, layered, sequential)
+- ✅ All arrows visible and properly routed
+
 ## Quick Reference
 
 <!--

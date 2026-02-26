@@ -1,32 +1,45 @@
-'use client';
+"use client";
 
-import React, { useEffect, useRef, useState, useCallback } from 'react';
-import * as d3 from 'd3';
-import { architecturalShapes, NodeType } from '../../utils/lab-utils';
-import { renderShape } from '../../utils/d3-shape-renderers';
 import {
-    renderSelectionOutline,
-    renderResizeHandles,
-    renderShapeLabel,
-    renderLinkHandle,
-    renderDeleteIcon
-} from './d3-diagram-utils';
+    ActionIcon,
+    Box,
+    Button,
+    Divider,
+    Group,
+    Paper as MantinePaper,
+    Modal,
+    ScrollArea,
+    Stack,
+    Text,
+    Tooltip,
+    useComputedColorScheme,
+} from "@mantine/core";
+import { useDisclosure } from "@mantine/hooks";
+import { IconZoomReset } from "@tabler/icons-react";
+import * as d3 from "d3";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
+    calculateConnectionPoints,
     createArrowMarkers,
+    type EdgeSide,
     renderLink,
     renderWaypointHandles,
-    calculateConnectionPoints,
-    EdgeSide,
-} from '../../utils/d3-link-renderers';
-import { Button, Group, Paper as MantinePaper, Text, Divider, useComputedColorScheme, ActionIcon, Tooltip, Stack, ScrollArea, Box, Modal } from '@mantine/core';
-import { IconZoomReset } from '@tabler/icons-react';
-import { useDisclosure } from '@mantine/hooks';
-import ShapePreview from './ShapePreview';
-import { genericD3Shapes } from '../../utils/shape-libraries/generic-d3-shapes';
-import { getArchitectureShapes, getArchitectureMetadata } from '../../utils/shape-libraries';
-
-
-
+} from "../../utils/d3-link-renderers";
+import { renderShape } from "../../utils/d3-shape-renderers";
+import { architecturalShapes, type NodeType } from "../../utils/lab-utils";
+import {
+    getArchitectureMetadata,
+    getArchitectureShapes,
+} from "../../utils/shape-libraries";
+import { genericD3Shapes } from "../../utils/shape-libraries/generic-d3-shapes";
+import {
+    renderDeleteIcon,
+    renderLinkHandle,
+    renderResizeHandles,
+    renderSelectionOutline,
+    renderShapeLabel,
+} from "./d3-diagram-utils";
+import ShapePreview from "./ShapePreview";
 
 interface LinkType {
     source: string; // ID
@@ -38,7 +51,7 @@ interface LinkType {
 
 interface DiagramEditorProps {
     initialGraph?: any;
-    mode: 'instructor' | 'student';
+    mode: "instructor" | "student";
     onGraphChange?: (json: any) => void;
     className?: string;
     architectureType?: string; // Deprecated: kept for backward compatibility
@@ -54,9 +67,10 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
     architectureTypes,
 }) => {
     // Normalize architecture types: handle both single type and array for backward compatibility
-    const normalizedArchitectureTypes = architectureTypes || (architectureType ? [architectureType] : []);
+    const normalizedArchitectureTypes =
+        architectureTypes || (architectureType ? [architectureType] : []);
 
-    const computedColorScheme = useComputedColorScheme('light');
+    const computedColorScheme = useComputedColorScheme("light");
     const svgRef = useRef<SVGSVGElement>(null);
     const wrapperRef = useRef<HTMLDivElement>(null);
     const zoomRef = useRef<d3.ZoomBehavior<SVGSVGElement, unknown> | null>(null);
@@ -72,17 +86,33 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
 
     // Interaction State
     const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
-    const [selectedLinkIndex, setSelectedLinkIndex] = useState<number | null>(null);
+    const [selectedLinkIndex, setSelectedLinkIndex] = useState<number | null>(
+        null,
+    );
 
     // Drag performance optimization refs
     const dragRAFRef = useRef<number | null>(null);
-    const pendingDragRef = useRef<{ nodeId: string; x: number; y: number; containedUpdates: { id: string; x: number; y: number }[] } | null>(null);
+    const pendingDragRef = useRef<{
+        nodeId: string;
+        x: number;
+        y: number;
+        containedUpdates: { id: string; x: number; y: number }[];
+    } | null>(null);
 
-    const [history, setHistory] = useState<{ nodes: NodeType[], links: LinkType[] }[]>([]);
+    const [history, setHistory] = useState<
+        { nodes: NodeType[]; links: LinkType[] }[]
+    >([]);
     const [historyIndex, setHistoryIndex] = useState(-1);
 
     // Text Editing State
-    const [editingNode, setEditingNode] = useState<{ id: string, label: string, x: number, y: number, width: number, height: number } | null>(null);
+    const [editingNode, setEditingNode] = useState<{
+        id: string;
+        label: string;
+        x: number;
+        y: number;
+        width: number;
+        height: number;
+    } | null>(null);
 
     // Drag and Drop State
     const [draggingShapeId, setDraggingShapeId] = useState<string | null>(null);
@@ -94,16 +124,23 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
     const CANVAS_PADDING = 200; // Extra space to add when extending
 
     // Clear canvas modal
-    const [clearModalOpened, { open: openClearModal, close: closeClearModal }] = useDisclosure(false);
+    const [clearModalOpened, { open: openClearModal, close: closeClearModal }] =
+        useDisclosure(false);
 
     // Save history
-    const saveToHistory = useCallback((newNodes: NodeType[], newLinks: LinkType[]) => {
-        const entry = { nodes: JSON.parse(JSON.stringify(newNodes)), links: JSON.parse(JSON.stringify(newLinks)) };
-        const newHistory = history.slice(0, historyIndex + 1);
-        newHistory.push(entry);
-        setHistory(newHistory);
-        setHistoryIndex(newHistory.length - 1);
-    }, [history, historyIndex]);
+    const saveToHistory = useCallback(
+        (newNodes: NodeType[], newLinks: LinkType[]) => {
+            const entry = {
+                nodes: JSON.parse(JSON.stringify(newNodes)),
+                links: JSON.parse(JSON.stringify(newLinks)),
+            };
+            const newHistory = history.slice(0, historyIndex + 1);
+            newHistory.push(entry);
+            setHistory(newHistory);
+            setHistoryIndex(newHistory.length - 1);
+        },
+        [history, historyIndex],
+    );
 
     // Better approach:
     // 1. Ref to track the stringified version of what we have currently.
@@ -137,21 +174,21 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
 
     // Handle keyboard events for delete
 
-
-
     // D3 Render Logic
     useEffect(() => {
-        console.log('D3 useEffect running, nodes:', nodes.length);
-        nodes.forEach((n, i) => console.log(`  Node[${i}]`, n.id, 'dimensions:', n.width, 'x', n.height));
+        console.log("D3 useEffect running, nodes:", nodes.length);
+        nodes.forEach((n, i) =>
+            console.log(`  Node[${i}]`, n.id, "dimensions:", n.width, "x", n.height),
+        );
         if (!svgRef.current) return;
         const svg = d3.select(svgRef.current);
 
         // IMPORTANT: Save current zoom transform before clearing
-        const currentTransform = zoomRef.current ?
-            d3.zoomTransform(svgRef.current) :
-            d3.zoomIdentity;
+        const currentTransform = zoomRef.current
+            ? d3.zoomTransform(svgRef.current)
+            : d3.zoomIdentity;
 
-        svg.selectAll('*').remove(); // Clear canvas
+        svg.selectAll("*").remove(); // Clear canvas
 
         const width = 800; // Fixed inner width or dynamic
         const height = 600;
@@ -161,86 +198,102 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
         createArrowMarkers(svg, computedColorScheme);
 
         // Main Group for Zoom
-        const g = svg.append('g');
+        const g = svg.append("g");
 
         // Layers
-        const containerLayer = g.append('g').attr('class', 'layer-containers');
-        const linkLayer = g.append('g').attr('class', 'layer-links');
-        const nodeLayer = g.append('g').attr('class', 'layer-nodes');
+        const containerLayer = g.append("g").attr("class", "layer-containers");
+        const linkLayer = g.append("g").attr("class", "layer-links");
+        const nodeLayer = g.append("g").attr("class", "layer-nodes");
 
         // Zoom Behavior - Only zoom with Ctrl+wheel or pinch, disable pan on drag
-        const zoom = d3.zoom<SVGSVGElement, unknown>()
+        const zoom = d3
+            .zoom<SVGSVGElement, unknown>()
             .scaleExtent([0.1, 4])
             .filter((event) => {
                 // Block all mouse/pointer drag events (mousedown, mousemove)
                 // We handle node dragging separately, so zoom should not pan
-                if (event.type === 'mousedown' || event.type === 'mousemove' ||
-                    event.type === 'pointermove' || event.type === 'pointerdown') {
+                if (
+                    event.type === "mousedown" ||
+                    event.type === "mousemove" ||
+                    event.type === "pointermove" ||
+                    event.type === "pointerdown"
+                ) {
                     return false; // Block all drag-based pan/zoom
                 }
 
                 // Allow zoom only on wheel if Ctrl/Cmd is pressed
-                if (event.type === 'wheel') {
+                if (event.type === "wheel") {
                     return event.ctrlKey || event.metaKey;
                 }
 
                 // Allow touch events for pinch zoom (multi-touch only)
-                if (event.type === 'touchstart' || event.type === 'touchmove') {
+                if (event.type === "touchstart" || event.type === "touchmove") {
                     return event.touches && event.touches.length > 1;
                 }
 
                 // Block everything else
                 return false;
             })
-            .on('zoom', (event) => {
-                g.attr('transform', event.transform);
+            .on("zoom", (event) => {
+                g.attr("transform", event.transform);
             });
 
         zoomRef.current = zoom;
 
-        svg.call(zoom).on('dblclick.zoom', null);
+        svg.call(zoom).on("dblclick.zoom", null);
 
         // IMPORTANT: Restore the saved transform after setting up zoom
         svg.call(zoom.transform, currentTransform);
-        g.attr('transform', currentTransform.toString());
+        g.attr("transform", currentTransform.toString());
 
         // State for drag
         let dragStartPos = { x: 0, y: 0 };
         let hasDragged = false;
-        let containedNodesState: { id: string; startX: number; startY: number }[] = [];
+        let containedNodesState: { id: string; startX: number; startY: number }[] =
+            [];
 
         // 1. Node Drag Definition
-        const nodeDrag = d3.drag<SVGGElement, NodeType>()
-            .filter(event => !event.ctrlKey && !event.button)
-            .on('start', (event, d) => {
+        const nodeDrag = d3
+            .drag<SVGGElement, NodeType>()
+            .filter((event) => !event.ctrlKey && !event.button)
+            .on("start", (event, d) => {
                 event.sourceEvent.stopPropagation();
                 event.sourceEvent.preventDefault();
                 dragStartPos = { x: event.x, y: event.y };
                 hasDragged = false;
-                d3.select(event.sourceEvent.target).attr('cursor', 'grabbing');
+                d3.select(event.sourceEvent.target).attr("cursor", "grabbing");
 
                 // If container, identify contained nodes
                 const currentNodes = nodesRef.current;
                 containedNodesState = [];
 
-                if (['pool', 'group', 'zone', 'container'].includes(d.type || '')) {
-                    const containerRect = { x: d.x || 0, y: d.y || 0, w: d.width, h: d.height };
-                    currentNodes.forEach(n => {
+                if (["pool", "group", "zone", "container"].includes(d.type || "")) {
+                    const containerRect = {
+                        x: d.x || 0,
+                        y: d.y || 0,
+                        w: d.width,
+                        h: d.height,
+                    };
+                    currentNodes.forEach((n) => {
                         if (n.id !== d.id && n.x && n.y) {
                             const isInside =
                                 n.x >= containerRect.x &&
                                 n.y >= containerRect.y &&
-                                (n.x + n.width) <= (containerRect.x + containerRect.w) &&
-                                (n.y + n.height) <= (containerRect.y + containerRect.h);
+                                n.x + n.width <= containerRect.x + containerRect.w &&
+                                n.y + n.height <= containerRect.y + containerRect.h;
 
                             if (isInside) {
-                                containedNodesState.push({ id: n.id!, startX: n.x, startY: n.y });
+                                containedNodesState.push({
+                                    id: n.id!,
+                                    startX: n.x,
+                                    startY: n.y,
+                                });
                             }
                         }
                     });
                 }
             })
-            .on('drag', (event, d) => {
+            .on("drag", (event, d) => {
                 event.sourceEvent.stopPropagation();
                 event.sourceEvent.preventDefault();
 
@@ -258,18 +311,27 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
                 // Collect contained node updates
                 const containedUpdates: { id: string; x: number; y: number }[] = [];
                 if (containedNodesState.length > 0) {
-                    containedNodesState.forEach(item => {
-                        const childNode = nodesRef.current.find(n => n.id === item.id);
+                    containedNodesState.forEach((item) => {
+                        const childNode = nodesRef.current.find((n) => n.id === item.id);
                         if (childNode) {
                             childNode.x = (childNode.x || 0) + moveDx;
                             childNode.y = (childNode.y || 0) + moveDy;
-                            containedUpdates.push({ id: childNode.id!, x: childNode.x, y: childNode.y });
+                            containedUpdates.push({
+                                id: childNode.id!,
+                                x: childNode.x,
+                                y: childNode.y,
+                            });
                         }
                     });
                 }
 
                 // Store pending drag update
-                pendingDragRef.current = { nodeId: d.id!, x: d.x, y: d.y, containedUpdates };
+                pendingDragRef.current = {
+                    nodeId: d.id!,
+                    x: d.x,
+                    y: d.y,
+                    containedUpdates,
+                };
 
                 // Use RAF to batch DOM updates for smooth 60fps
                 if (!dragRAFRef.current) {
@@ -278,11 +340,17 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
                             const { nodeId, x, y, containedUpdates } = pendingDragRef.current;
 
                             // Update main node transform
-                            d3.select(`#node-${nodeId}`).attr('transform', `translate(${x},${y})`);
+                            d3.select(`#node-${nodeId}`).attr(
+                                "transform",
+                                `translate(${x},${y})`,
+                            );
 
                             // Update contained nodes transforms
-                            containedUpdates.forEach(update => {
-                                d3.select(`#node-${update.id}`).attr('transform', `translate(${update.x},${update.y})`);
+                            containedUpdates.forEach((update) => {
+                                d3.select(`#node-${update.id}`).attr(
+                                    "transform",
+                                    `translate(${update.x},${update.y})`,
+                                );
                             });
 
                             // Check if we need to extend canvas bounds
@@ -294,11 +362,17 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
                             let newHeight = canvasSizeRef.current.height;
 
                             if (nodeRight > canvasSizeRef.current.width) {
-                                newWidth = Math.max(nodeRight, canvasSizeRef.current.width + CANVAS_PADDING);
+                                newWidth = Math.max(
+                                    nodeRight,
+                                    canvasSizeRef.current.width + CANVAS_PADDING,
+                                );
                                 needsUpdate = true;
                             }
                             if (nodeBottom > canvasSizeRef.current.height) {
-                                newHeight = Math.max(nodeBottom, canvasSizeRef.current.height + CANVAS_PADDING);
+                                newHeight = Math.max(
+                                    nodeBottom,
+                                    canvasSizeRef.current.height + CANVAS_PADDING,
+                                );
                                 needsUpdate = true;
                             }
 
@@ -310,11 +384,15 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
                             // Auto-scroll to keep dragged node visible
                             if (wrapperRef.current) {
                                 const wrapper = wrapperRef.current;
-                                const transform = zoomRef.current ? d3.zoomTransform(svgRef.current!) : d3.zoomIdentity;
+                                const transform = zoomRef.current
+                                    ? d3.zoomTransform(svgRef.current!)
+                                    : d3.zoomIdentity;
 
                                 // Calculate node position in screen coordinates relative to wrapper
-                                const nodeScreenX = x * transform.k + transform.x - wrapper.scrollLeft;
-                                const nodeScreenY = y * transform.k + transform.y - wrapper.scrollTop;
+                                const nodeScreenX =
+                                    x * transform.k + transform.x - wrapper.scrollLeft;
+                                const nodeScreenY =
+                                    y * transform.k + transform.y - wrapper.scrollTop;
                                 const nodeScreenRight = nodeScreenX + d.width * transform.k;
                                 const nodeScreenBottom = nodeScreenY + d.height * transform.k;
 
@@ -331,11 +409,17 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
                                 }
                                 // Scroll left if node is near or beyond left edge
                                 if (nodeScreenX < scrollMargin) {
-                                    wrapper.scrollLeft = Math.max(0, wrapper.scrollLeft - scrollSpeed);
+                                    wrapper.scrollLeft = Math.max(
+                                        0,
+                                        wrapper.scrollLeft - scrollSpeed,
+                                    );
                                 }
                                 // Scroll up if node is near or beyond top edge
                                 if (nodeScreenY < scrollMargin) {
-                                    wrapper.scrollTop = Math.max(0, wrapper.scrollTop - scrollSpeed);
+                                    wrapper.scrollTop = Math.max(
+                                        0,
+                                        wrapper.scrollTop - scrollSpeed,
+                                    );
                                 }
                             }
 
@@ -345,7 +429,7 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
                     });
                 }
             })
-            .on('end', (event, d) => {
+            .on("end", (event, d) => {
                 event.sourceEvent.stopPropagation();
                 event.sourceEvent.preventDefault();
 
@@ -356,17 +440,23 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
                 }
                 if (pendingDragRef.current) {
                     const { nodeId, x, y, containedUpdates } = pendingDragRef.current;
-                    d3.select(`#node-${nodeId}`).attr('transform', `translate(${x},${y})`);
-                    containedUpdates.forEach(update => {
-                        d3.select(`#node-${update.id}`).attr('transform', `translate(${update.x},${update.y})`);
+                    d3.select(`#node-${nodeId}`).attr(
+                        "transform",
+                        `translate(${x},${y})`,
+                    );
+                    containedUpdates.forEach((update) => {
+                        d3.select(`#node-${update.id}`).attr(
+                            "transform",
+                            `translate(${update.x},${update.y})`,
+                        );
                     });
                     pendingDragRef.current = null;
                 }
 
-                d3.select(event.sourceEvent.target).attr('cursor', 'grab');
+                d3.select(event.sourceEvent.target).attr("cursor", "grab");
                 if (!hasDragged) {
                     const now = Date.now();
-                    const isDoubleClick = (now - lastClickTimeRef.current) < 300;
+                    const isDoubleClick = now - lastClickTimeRef.current < 300;
                     lastClickTimeRef.current = now;
 
                     if (isDoubleClick) {
@@ -374,19 +464,26 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
                         const wrapperRect = wrapperRef.current?.getBoundingClientRect();
                         if (nodeGroup && wrapperRect) {
                             const nodeRect = nodeGroup.getBoundingClientRect();
-                            const screenX = nodeRect.left - wrapperRect.left + nodeRect.width / 2;
-                            const screenY = nodeRect.top - wrapperRect.top + nodeRect.height / 2;
+                            const screenX =
+                                nodeRect.left - wrapperRect.left + nodeRect.width / 2;
+                            const screenY =
+                                nodeRect.top - wrapperRect.top + nodeRect.height / 2;
                             setEditingNode({
-                                id: d.id!, label: d.label, x: screenX, y: screenY, width: d.width, height: d.height
+                                id: d.id!,
+                                label: d.label,
+                                x: screenX,
+                                y: screenY,
+                                width: d.width,
+                                height: d.height,
                             });
                         }
                     } else {
-                        setSelectedNodeId(prev => prev === d.id ? null : d.id!);
+                        setSelectedNodeId((prev) => (prev === d.id ? null : d.id!));
                     }
                 } else {
-                    const updatedNodes = nodesRef.current.map(n => {
+                    const updatedNodes = nodesRef.current.map((n) => {
                         if (n.id === d.id) return { ...n, x: d.x, y: d.y };
-                        const contained = containedNodesState.find(c => c.id === n.id);
+                        const contained = containedNodesState.find((c) => c.id === n.id);
                         if (contained && n.x && n.y) return { ...n, x: n.x, y: n.y };
                         return n;
                     });
@@ -398,46 +495,57 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
 
         // 2. Link Drag Definition
         // We use a local variable to hold the temp line, NOT React state
-        let tempLinkLine: d3.Selection<SVGLineElement, unknown, null, undefined> | null = null;
+        let tempLinkLine: d3.Selection<
+            SVGLineElement,
+            unknown,
+            null,
+            undefined
+        > | null = null;
 
-        const linkDrag = d3.drag<SVGCircleElement, NodeType>()
-            .on('start', function (event, d) {
+        const linkDrag = d3
+            .drag<SVGCircleElement, NodeType>()
+            .on("start", function (event, d) {
                 event.sourceEvent.stopPropagation();
                 event.sourceEvent.preventDefault();
 
                 // Detect which edge handle the drag started from
-                const edgeAttr = d3.select(this).attr('data-edge') as EdgeSide | null;
-                (this as any).__sourceEdge = edgeAttr || 'bottom';
+                const edgeAttr = d3.select(this).attr("data-edge") as EdgeSide | null;
+                (this as any).__sourceEdge = edgeAttr || "bottom";
 
                 // Start position is the handle's position (edge midpoint)
-                const handleCx = parseFloat(d3.select(this).attr('cx'));
-                const handleCy = parseFloat(d3.select(this).attr('cy'));
+                const handleCx = parseFloat(d3.select(this).attr("cx"));
+                const handleCy = parseFloat(d3.select(this).attr("cy"));
                 const startX = (d.x || 0) + handleCx;
                 const startY = (d.y || 0) + handleCy;
 
-                tempLinkLine = linkLayer.append('line')
-                    .attr('x1', startX)
-                    .attr('y1', startY)
-                    .attr('x2', startX)
-                    .attr('y2', startY)
-                    .attr('stroke', 'blue')
-                    .attr('stroke-width', 2)
-                    .attr('stroke-dasharray', '5,5')
-                    .attr('marker-end', 'url(#arrow-temp)')
-                    .style('pointer-events', 'none');
+                tempLinkLine = linkLayer
+                    .append("line")
+                    .attr("x1", startX)
+                    .attr("y1", startY)
+                    .attr("x2", startX)
+                    .attr("y2", startY)
+                    .attr("stroke", "blue")
+                    .attr("stroke-width", 2)
+                    .attr("stroke-dasharray", "5,5")
+                    .attr("marker-end", "url(#arrow-temp)")
+                    .style("pointer-events", "none");
             })
-            .on('drag', function (event, d) {
+            .on("drag", function (event, d) {
                 event.sourceEvent.stopPropagation();
                 event.sourceEvent.preventDefault();
                 if (!tempLinkLine) return;
                 const [mx, my] = d3.pointer(event, g.node());
-                const handleCx = parseFloat(d3.select(this).attr('cx'));
-                const handleCy = parseFloat(d3.select(this).attr('cy'));
+                const handleCx = parseFloat(d3.select(this).attr("cx"));
+                const handleCy = parseFloat(d3.select(this).attr("cy"));
                 const startX = (d.x || 0) + handleCx;
                 const startY = (d.y || 0) + handleCy;
-                tempLinkLine.attr('x1', startX).attr('y1', startY).attr('x2', mx).attr('y2', my);
+                tempLinkLine
+                    .attr("x1", startX)
+                    .attr("y1", startY)
+                    .attr("x2", mx)
+                    .attr("y2", my);
             })
-            .on('end', function (event, d) {
+            .on("end", function (event, d) {
                 event.sourceEvent.stopPropagation();
                 event.sourceEvent.preventDefault();
                 const sourceEdge = (this as any).__sourceEdge as EdgeSide;
@@ -450,15 +558,22 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
                 const [mx, my] = d3.pointer(event, g.node());
                 const PADDING = 20;
 
-                const candidates = nodes.filter(n =>
-                    n.id !== d.id &&
-                    mx >= (n.x || 0) - PADDING && mx <= (n.x || 0) + n.width + PADDING &&
-                    my >= (n.y || 0) - PADDING && my <= (n.y || 0) + n.height + PADDING
+                const candidates = nodes.filter(
+                    (n) =>
+                        n.id !== d.id &&
+                        mx >= (n.x || 0) - PADDING &&
+                        mx <= (n.x || 0) + n.width + PADDING &&
+                        my >= (n.y || 0) - PADDING &&
+                        my <= (n.y || 0) + n.height + PADDING,
                 );
 
                 candidates.sort((a, b) => {
-                    const isContainerA = ['pool', 'group', 'zone', 'container'].includes(a.type || '');
-                    const isContainerB = ['pool', 'group', 'zone', 'container'].includes(b.type || '');
+                    const isContainerA = ["pool", "group", "zone", "container"].includes(
+                        a.type || "",
+                    );
+                    const isContainerB = ["pool", "group", "zone", "container"].includes(
+                        b.type || "",
+                    );
                     if (isContainerA && !isContainerB) return 1;
                     if (!isContainerA && isContainerB) return -1;
                     const areaA = a.width * a.height;
@@ -476,13 +591,18 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
                     const distToBottom = Math.abs(my - (tny + targetNode.height));
                     const distToLeft = Math.abs(mx - tnx);
                     const distToRight = Math.abs(mx - (tnx + targetNode.width));
-                    const minDist = Math.min(distToTop, distToBottom, distToLeft, distToRight);
+                    const minDist = Math.min(
+                        distToTop,
+                        distToBottom,
+                        distToLeft,
+                        distToRight,
+                    );
 
-                    let targetEdge: EdgeSide = 'left';
-                    if (minDist === distToTop) targetEdge = 'top';
-                    else if (minDist === distToBottom) targetEdge = 'bottom';
-                    else if (minDist === distToRight) targetEdge = 'right';
-                    else targetEdge = 'left';
+                    let targetEdge: EdgeSide = "left";
+                    if (minDist === distToTop) targetEdge = "top";
+                    else if (minDist === distToBottom) targetEdge = "bottom";
+                    else if (minDist === distToRight) targetEdge = "right";
+                    else targetEdge = "left";
 
                     const newLink: LinkType = {
                         source: d.id!,
@@ -490,7 +610,11 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
                         sourceEdge,
                         targetEdge,
                     };
-                    if (!links.some(l => (l.source === newLink.source && l.target === newLink.target))) {
+                    if (
+                        !links.some(
+                            (l) => l.source === newLink.source && l.target === newLink.target,
+                        )
+                    ) {
                         const newLinks = [...links, newLink];
                         setLinks(newLinks);
                         saveToHistory(nodes, newLinks);
@@ -500,25 +624,32 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
 
         // 3. Resize Drag Definition
         let resizeStartInfo: any = null;
-        const resizeDrag = d3.drag<SVGCircleElement, unknown>()
-            .on('start', function (event) {
+        const resizeDrag = d3
+            .drag<SVGCircleElement, unknown>()
+            .on("start", function (event) {
                 event.sourceEvent.stopPropagation();
-                const corner = d3.select(this).attr('data-corner');
-                const nodeId = d3.select(this).attr('data-node-id');
-                const node = nodes.find(n => n.id === nodeId);
+                const corner = d3.select(this).attr("data-corner");
+                const nodeId = d3.select(this).attr("data-node-id");
+                const node = nodes.find((n) => n.id === nodeId);
                 if (node) {
                     const [mx, my] = d3.pointer(event, g.node());
                     resizeStartInfo = {
-                        nodeId, corner,
-                        origWidth: node.width, origHeight: node.height,
-                        origX: node.x || 0, origY: node.y || 0,
-                        startMouseX: mx, startMouseY: my,
-                        finalWidth: node.width, finalHeight: node.height,
-                        finalX: node.x || 0, finalY: node.y || 0,
+                        nodeId,
+                        corner,
+                        origWidth: node.width,
+                        origHeight: node.height,
+                        origX: node.x || 0,
+                        origY: node.y || 0,
+                        startMouseX: mx,
+                        startMouseY: my,
+                        finalWidth: node.width,
+                        finalHeight: node.height,
+                        finalX: node.x || 0,
+                        finalY: node.y || 0,
                     };
                 }
             })
-            .on('drag', function (event) {
+            .on("drag", (event) => {
                 if (!resizeStartInfo) return;
                 const [mx, my] = d3.pointer(event, g.node());
                 const dx = mx - resizeStartInfo.startMouseX;
@@ -530,32 +661,72 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
                 const minSize = 40;
 
                 switch (resizeStartInfo.corner) {
-                    case 'se': newWidth = Math.max(minSize, resizeStartInfo.origWidth + dx); newHeight = Math.max(minSize, resizeStartInfo.origHeight + dy); break;
-                    case 'sw': newWidth = Math.max(minSize, resizeStartInfo.origWidth - dx); newHeight = Math.max(minSize, resizeStartInfo.origHeight + dy); newX = resizeStartInfo.origX + (resizeStartInfo.origWidth - newWidth); break;
-                    case 'ne': newWidth = Math.max(minSize, resizeStartInfo.origWidth + dx); newHeight = Math.max(minSize, resizeStartInfo.origHeight - dy); newY = resizeStartInfo.origY + (resizeStartInfo.origHeight - newHeight); break;
-                    case 'nw': newWidth = Math.max(minSize, resizeStartInfo.origWidth - dx); newHeight = Math.max(minSize, resizeStartInfo.origHeight - dy); newX = resizeStartInfo.origX + (resizeStartInfo.origWidth - newWidth); newY = resizeStartInfo.origY + (resizeStartInfo.origHeight - newHeight); break;
+                    case "se":
+                        newWidth = Math.max(minSize, resizeStartInfo.origWidth + dx);
+                        newHeight = Math.max(minSize, resizeStartInfo.origHeight + dy);
+                        break;
+                    case "sw":
+                        newWidth = Math.max(minSize, resizeStartInfo.origWidth - dx);
+                        newHeight = Math.max(minSize, resizeStartInfo.origHeight + dy);
+                        newX =
+                            resizeStartInfo.origX + (resizeStartInfo.origWidth - newWidth);
+                        break;
+                    case "ne":
+                        newWidth = Math.max(minSize, resizeStartInfo.origWidth + dx);
+                        newHeight = Math.max(minSize, resizeStartInfo.origHeight - dy);
+                        newY =
+                            resizeStartInfo.origY + (resizeStartInfo.origHeight - newHeight);
+                        break;
+                    case "nw":
+                        newWidth = Math.max(minSize, resizeStartInfo.origWidth - dx);
+                        newHeight = Math.max(minSize, resizeStartInfo.origHeight - dy);
+                        newX =
+                            resizeStartInfo.origX + (resizeStartInfo.origWidth - newWidth);
+                        newY =
+                            resizeStartInfo.origY + (resizeStartInfo.origHeight - newHeight);
+                        break;
                 }
 
-                resizeStartInfo.finalWidth = newWidth; resizeStartInfo.finalHeight = newHeight; resizeStartInfo.finalX = newX; resizeStartInfo.finalY = newY;
+                resizeStartInfo.finalWidth = newWidth;
+                resizeStartInfo.finalHeight = newHeight;
+                resizeStartInfo.finalX = newX;
+                resizeStartInfo.finalY = newY;
                 const nodeGroup = d3.select(`#node-${resizeStartInfo.nodeId}`);
-                nodeGroup.attr('transform', `translate(${newX},${newY})`);
-                nodeGroup.select('rect[stroke="blue"]').attr('width', newWidth + 10).attr('height', newHeight + 10);
-                nodeGroup.selectAll('.resize-handle').each(function () {
+                nodeGroup.attr("transform", `translate(${newX},${newY})`);
+                nodeGroup
+                    .select('rect[stroke="blue"]')
+                    .attr("width", newWidth + 10)
+                    .attr("height", newHeight + 10);
+                nodeGroup.selectAll(".resize-handle").each(function () {
                     const handle = d3.select(this);
-                    const corner = handle.attr('data-corner');
+                    const corner = handle.attr("data-corner");
                     switch (corner) {
-                        case 'nw': handle.attr('cx', 0).attr('cy', 0); break;
-                        case 'ne': handle.attr('cx', newWidth).attr('cy', 0); break;
-                        case 'sw': handle.attr('cx', 0).attr('cy', newHeight); break;
-                        case 'se': handle.attr('cx', newWidth).attr('cy', newHeight); break;
+                        case "nw":
+                            handle.attr("cx", 0).attr("cy", 0);
+                            break;
+                        case "ne":
+                            handle.attr("cx", newWidth).attr("cy", 0);
+                            break;
+                        case "sw":
+                            handle.attr("cx", 0).attr("cy", newHeight);
+                            break;
+                        case "se":
+                            handle.attr("cx", newWidth).attr("cy", newHeight);
+                            break;
                     }
                 });
             })
-            .on('end', function () {
+            .on("end", () => {
                 if (resizeStartInfo) {
-                    const updatedNodes = nodesRef.current.map(n => {
+                    const updatedNodes = nodesRef.current.map((n) => {
                         if (n.id === resizeStartInfo.nodeId) {
-                            return { ...n, width: resizeStartInfo.finalWidth, height: resizeStartInfo.finalHeight, x: resizeStartInfo.finalX, y: resizeStartInfo.finalY };
+                            return {
+                                ...n,
+                                width: resizeStartInfo.finalWidth,
+                                height: resizeStartInfo.finalHeight,
+                                x: resizeStartInfo.finalX,
+                                y: resizeStartInfo.finalY,
+                            };
                         }
                         return n;
                     });
@@ -566,41 +737,63 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
             });
 
         // 4. Render Batch Helper
-        const renderNodeBatch = (targetLayer: d3.Selection<SVGGElement, unknown, null, undefined>, batchNodes: NodeType[]) => {
-            const selection = targetLayer.selectAll<SVGGElement, NodeType>('g')
+        const renderNodeBatch = (
+            targetLayer: d3.Selection<SVGGElement, unknown, null, undefined>,
+            batchNodes: NodeType[],
+        ) => {
+            const selection = targetLayer
+                .selectAll<SVGGElement, NodeType>("g")
                 .data(batchNodes)
-                .enter().append('g')
-                .attr('id', d => `node-${d.id}`)
-                .attr('transform', d => `translate(${d.x || 0},${d.y || 0})`)
-                .attr('cursor', 'grab')
-                .on('click', (event, d) => {
+                .enter()
+                .append("g")
+                .attr("id", (d) => `node-${d.id}`)
+                .attr("transform", (d) => `translate(${d.x || 0},${d.y || 0})`)
+                .attr("cursor", "grab")
+                .on("click", (event, d) => {
                     if (event.detail === 2) {
                         event.stopPropagation();
                         const nodeGroup = document.getElementById(`node-${d.id}`);
                         const wrapperRect = wrapperRef.current?.getBoundingClientRect();
                         if (nodeGroup && wrapperRect) {
                             const nodeRect = nodeGroup.getBoundingClientRect();
-                            const screenX = nodeRect.left - wrapperRect.left + nodeRect.width / 2;
-                            const screenY = nodeRect.top - wrapperRect.top + nodeRect.height / 2;
-                            setEditingNode({ id: d.id!, label: d.label, x: screenX, y: screenY, width: d.width, height: d.height });
+                            const screenX =
+                                nodeRect.left - wrapperRect.left + nodeRect.width / 2;
+                            const screenY =
+                                nodeRect.top - wrapperRect.top + nodeRect.height / 2;
+                            setEditingNode({
+                                id: d.id!,
+                                label: d.label,
+                                x: screenX,
+                                y: screenY,
+                                width: d.width,
+                                height: d.height,
+                            });
                         }
                     } else {
-                        setSelectedNodeId(prev => prev === d.id ? null : d.id!);
+                        setSelectedNodeId((prev) => (prev === d.id ? null : d.id!));
                     }
                 });
-
-
 
             selection.call(nodeDrag);
 
             // Render each shape using isolated renderers
             selection.each(function (d) {
                 const el = d3.select(this);
-                const color = computedColorScheme === 'dark' && d.stroke === '#333' ? '#FFF' : d.stroke;
-                const fill = d.fill === 'transparent' ? 'transparent' : d.fill;
+                const color =
+                    computedColorScheme === "dark" && d.stroke === "#333"
+                        ? "#FFF"
+                        : d.stroke;
+                const fill = d.fill === "transparent" ? "transparent" : d.fill;
 
                 // Use isolated shape renderer
-                renderShape({ element: el, shape: d, fill, color, architecture: architectureType, architectureTypes: normalizedArchitectureTypes });
+                renderShape({
+                    element: el,
+                    shape: d,
+                    fill,
+                    color,
+                    architecture: architectureType,
+                    architectureTypes: normalizedArchitectureTypes,
+                });
 
                 // Render selection outline if selected
                 if (selectedNodeId === d.id) {
@@ -612,26 +805,30 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
                 renderShapeLabel(el, d, computedColorScheme);
 
                 // Add link handle for non-containers
-                if (!['pool', 'group', 'zone'].includes(d.type || '')) {
+                if (!["pool", "group", "zone"].includes(d.type || "")) {
                     renderLinkHandle(el, d);
-                    el.on('mouseenter', () => {
-                        el.selectAll('.link-handle').attr('opacity', 1);
-                        delIcon.style('display', 'block');
-                    }).on('mouseleave', () => {
-                        el.selectAll('.link-handle').attr('opacity', 0);
-                        delIcon.style('display', 'none');
+                    el.on("mouseenter", () => {
+                        el.selectAll(".link-handle").attr("opacity", 1);
+                        delIcon.style("display", "block");
+                    }).on("mouseleave", () => {
+                        el.selectAll(".link-handle").attr("opacity", 0);
+                        delIcon.style("display", "none");
                     });
                 } else {
-                    el.on('mouseenter', () => delIcon.style('display', 'block'))
-                        .on('mouseleave', () => delIcon.style('display', 'none'));
+                    el.on("mouseenter", () => delIcon.style("display", "block")).on(
+                        "mouseleave",
+                        () => delIcon.style("display", "none"),
+                    );
                 }
 
                 // Render delete icon
                 const delIcon = renderDeleteIcon(el, d, () => {
                     const nodeId = d.id!;
-                    const newNodes = nodes.filter(n => n.id !== nodeId);
+                    const newNodes = nodes.filter((n) => n.id !== nodeId);
                     // Remove links connected to the deleted node
-                    const newLinks = links.filter(l => l.source !== nodeId && l.target !== nodeId);
+                    const newLinks = links.filter(
+                        (l) => l.source !== nodeId && l.target !== nodeId,
+                    );
                     setNodes(newNodes);
                     setLinks(newLinks);
                     saveToHistory(newNodes, newLinks);
@@ -641,22 +838,56 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
         };
 
         // 5. Execution
-        const containerNodes = nodes.filter(n => ['pool', 'group', 'zone'].includes(n.type || ''));
-        const regularNodes = nodes.filter(n => !['pool', 'group', 'zone'].includes(n.type || ''));
+        const containerNodes = nodes.filter((n) =>
+            ["pool", "group", "zone"].includes(n.type || ""),
+        );
+        const regularNodes = nodes.filter(
+            (n) => !["pool", "group", "zone"].includes(n.type || ""),
+        );
 
         renderNodeBatch(containerLayer, containerNodes);
         // Link Rendering (Reuse existing loop context? No we removed it.)
         // We need to re-implement link rendering here or copy it back.
         // Wait, I removed the link logic in Chunk 1. I need to put it back here!
 
+        // Calculate offsets for overlapping arrows
+        // Group links by source-target pairs
+        const linkOffsets = new Map<number, number>();
+        const linkGroups = new Map<string, number[]>();
+
+        links.forEach((link, i) => {
+            const key = `${link.source}-${link.target}`;
+            if (!linkGroups.has(key)) {
+                linkGroups.set(key, []);
+            }
+            linkGroups.get(key)!.push(i);
+        });
+
+        // Assign offsets to links in the same group
+        const OFFSET_SPACING = 20; // pixels between parallel arrows
+        linkGroups.forEach((indices) => {
+            if (indices.length > 1) {
+                // Multiple arrows between same nodes - spread them out
+                const totalOffset = (indices.length - 1) * OFFSET_SPACING;
+                const startOffset = -totalOffset / 2;
+                indices.forEach((linkIdx, posIdx) => {
+                    linkOffsets.set(linkIdx, startOffset + posIdx * OFFSET_SPACING);
+                });
+            } else {
+                // Single arrow - no offset needed
+                linkOffsets.set(indices[0], 0);
+            }
+        });
+
         // Link Rendering using isolated renderer
         const linkGroup = linkLayer; // Alias for consistency
         links.forEach((link, i) => {
-            const sourceNode = nodes.find(n => n.id === link.source);
-            const targetNode = nodes.find(n => n.id === link.target);
+            const sourceNode = nodes.find((n) => n.id === link.source);
+            const targetNode = nodes.find((n) => n.id === link.target);
             if (!sourceNode || !targetNode) return;
 
             const isSelected = selectedLinkIndex === i;
+            const offset = linkOffsets.get(i) || 0;
 
             // Render link using isolated renderer
             const { linkWrapper, visiblePath, pathResult } = renderLink(
@@ -668,6 +899,7 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
                 {
                     isSelected,
                     colorScheme: computedColorScheme,
+                    offset, // Pass offset to spread overlapping arrows
                     onLinkClick: () => {
                         setSelectedLinkIndex(isSelected ? null : i);
                         setSelectedNodeId(null);
@@ -677,13 +909,18 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
                         setLinks(nl);
                         setSelectedLinkIndex(null);
                         saveToHistory(nodes, nl);
-                    }
-                }
+                    },
+                },
             );
 
             // Render waypoint handles for selected link
             if (isSelected) {
-                const { x1, y1, x2, y2 } = calculateConnectionPoints(sourceNode, targetNode, link.sourceEdge, link.targetEdge);
+                const { x1, y1, x2, y2 } = calculateConnectionPoints(
+                    sourceNode,
+                    targetNode,
+                    link.sourceEdge,
+                    link.targetEdge,
+                );
                 renderWaypointHandles(
                     linkWrapper,
                     pathResult,
@@ -700,35 +937,46 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
                         setLinks(nl);
                         saveToHistory(nodes, nl);
                     },
-                    g
+                    g,
                 );
             }
         });
 
-
         renderNodeBatch(nodeLayer, regularNodes);
 
-        g.selectAll('.resize-handle').call(resizeDrag as any);
-        g.selectAll('.link-handle').call(linkDrag as any);
-    }, [nodes, links, selectedNodeId, selectedLinkIndex, computedColorScheme, setEditingNode]);
-
+        g.selectAll(".resize-handle").call(resizeDrag as any);
+        g.selectAll(".link-handle").call(linkDrag as any);
+    }, [
+        nodes,
+        links,
+        selectedNodeId,
+        selectedLinkIndex,
+        computedColorScheme,
+        setEditingNode,
+    ]);
 
     const addShape = (shapeId: string, x?: number, y?: number) => {
         // Find shape definition from common shapes, architecture-specific shapes, or architecturalShapes
         let shapeDef;
 
         // First, check if it's a common shape (from genericD3Shapes)
-        const commonShape = commonShapes.find(s => s.id === shapeId || s.type === shapeId.toLowerCase());
+        const commonShape = commonShapes.find(
+            (s) => s.id === shapeId || s.type === shapeId.toLowerCase(),
+        );
         if (commonShape) {
             shapeDef = commonShape;
         } else {
             // Check if it's an architecture-specific shape
-            const archShape = architectureSpecificShapes.find(s => s.id === shapeId || s.type === shapeId.toLowerCase());
+            const archShape = architectureSpecificShapes.find(
+                (s) => s.id === shapeId || s.type === shapeId.toLowerCase(),
+            );
             if (archShape) {
                 shapeDef = archShape;
             } else {
                 // Try to find in architecturalShapes (legacy/fallback)
-                const type = Object.keys(architecturalShapes).find(k => k.toLowerCase() === shapeId.toLowerCase());
+                const type = Object.keys(architecturalShapes).find(
+                    (k) => k.toLowerCase() === shapeId.toLowerCase(),
+                );
                 if (type) {
                     shapeDef = architecturalShapes[type];
                 }
@@ -745,18 +993,18 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
             id: Date.now().toString(),
             x: x !== undefined ? x : 50 + Math.random() * 50,
             y: y !== undefined ? y : 50 + Math.random() * 50,
-            type: shapeDef.type || 'rect',
-            label: shapeDef.name || shapeDef.label || 'Node',
+            type: shapeDef.type || "rect",
+            label: shapeDef.name || shapeDef.label || "Node",
             width: shapeDef.width || 50,
             height: shapeDef.height || 50,
-            fill: shapeDef.fill || '#fff',
-            stroke: shapeDef.stroke || '#000',
+            fill: shapeDef.fill || "#fff",
+            stroke: shapeDef.stroke || "#000",
             strokeWidth: shapeDef.strokeWidth || 1,
             rx: shapeDef.rx,
             strokeDashArray: shapeDef.strokeDashArray,
             pathData: shapeDef.pathData,
         };
-        console.log('Adding new shape:', newNode.type, 'label:', newNode.label);
+        console.log("Adding new shape:", newNode.type, "label:", newNode.label);
 
         const newNodes = [...nodes, newNode];
         setNodes(newNodes);
@@ -827,9 +1075,11 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
 
     const deleteSelectedNode = useCallback(() => {
         if (selectedNodeId) {
-            const newNodes = nodes.filter(n => n.id !== selectedNodeId);
+            const newNodes = nodes.filter((n) => n.id !== selectedNodeId);
             // Remove links connected to the deleted node
-            const newLinks = links.filter(l => l.source !== selectedNodeId && l.target !== selectedNodeId);
+            const newLinks = links.filter(
+                (l) => l.source !== selectedNodeId && l.target !== selectedNodeId,
+            );
             setNodes(newNodes);
             setLinks(newLinks);
             setSelectedNodeId(null);
@@ -841,90 +1091,134 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
             // Delete or Backspace key
-            if ((e.key === 'Delete' || e.key === 'Backspace') && selectedNodeId) {
+            if ((e.key === "Delete" || e.key === "Backspace") && selectedNodeId) {
                 // Prevent default behavior (e.g., browser back navigation)
                 e.preventDefault();
                 deleteSelectedNode();
             }
         };
 
-        window.addEventListener('keydown', handleKeyDown);
-        return () => window.removeEventListener('keydown', handleKeyDown);
+        window.addEventListener("keydown", handleKeyDown);
+        return () => window.removeEventListener("keydown", handleKeyDown);
     }, [selectedNodeId, deleteSelectedNode]);
-
 
     // Common shapes (left sidebar) - directly from genericD3Shapes metadata
     const commonShapes = Object.values(genericD3Shapes);
 
     // Architecture-specific shapes based on architectureTypes
     // Fetch shapes from all selected architecture types and group them by architecture
-    const architectureShapesGrouped = normalizedArchitectureTypes.map(archType => ({
-        architectureType: archType,
-        architectureName: getArchitectureMetadata(archType).name,
-        shapes: getArchitectureShapes(archType)
-    })).filter(group => group.shapes.length > 0);
+    const architectureShapesGrouped = normalizedArchitectureTypes
+        .map((archType) => ({
+            architectureType: archType,
+            architectureName: getArchitectureMetadata(archType).name,
+            shapes: getArchitectureShapes(archType),
+        }))
+        .filter((group) => group.shapes.length > 0);
 
     // Flat list of all architecture shapes for backward compatibility
-    const architectureSpecificShapes = architectureShapesGrouped.flatMap(group => group.shapes);
+    const architectureSpecificShapes = architectureShapesGrouped.flatMap(
+        (group) => group.shapes,
+    );
 
     return (
         <div className={className}>
-            {mode === 'instructor' && (
+            {mode === "instructor" && (
                 <>
                     {/* Architecture-specific shapes - Top Bar */}
                     <MantinePaper withBorder p="md" mb="md">
                         <Group justify="space-between" mb="sm">
                             <Group gap="xs">
-                                <Text size="sm" fw={600} mb={0}>Architecture Shapes</Text>
-                                <Text size="xs" c="dimmed">(Drag to canvas)</Text>
+                                <Text size="sm" fw={600} mb={0}>
+                                    Architecture Shapes
+                                </Text>
+                                <Text size="xs" c="dimmed">
+                                    (Drag to canvas)
+                                </Text>
                             </Group>
                             <Group gap="xs">
-                                <Button size="xs" color="red" variant="subtle" onClick={openClearModal}>Clear</Button>
+                                <Button
+                                    size="xs"
+                                    color="red"
+                                    variant="subtle"
+                                    onClick={openClearModal}
+                                >
+                                    Clear
+                                </Button>
                                 <Divider orientation="vertical" />
-                                <Button size="xs" variant="outline" onClick={undo} disabled={historyIndex <= 0}>Undo</Button>
-                                <Button size="xs" variant="outline" onClick={redo} disabled={historyIndex >= history.length - 1}>Redo</Button>
+                                <Button
+                                    size="xs"
+                                    variant="outline"
+                                    onClick={undo}
+                                    disabled={historyIndex <= 0}
+                                >
+                                    Undo
+                                </Button>
+                                <Button
+                                    size="xs"
+                                    variant="outline"
+                                    onClick={redo}
+                                    disabled={historyIndex >= history.length - 1}
+                                >
+                                    Redo
+                                </Button>
                             </Group>
                         </Group>
 
-                        <Group gap="md" style={{ flexWrap: 'wrap' }}>
+                        <Group gap="md" style={{ flexWrap: "wrap" }}>
                             {architectureShapesGrouped.map((group) => (
                                 <React.Fragment key={group.architectureType}>
                                     {/* Section header for each architecture type */}
                                     <Box w="100%">
-                                        <Text size="xs" fw={700} c="dimmed" tt="uppercase" mt="xs" mb="xs">
+                                        <Text
+                                            size="xs"
+                                            fw={700}
+                                            c="dimmed"
+                                            tt="uppercase"
+                                            mt="xs"
+                                            mb="xs"
+                                        >
                                             {group.architectureName}
                                         </Text>
                                     </Box>
 
                                     {/* Shapes for this architecture */}
                                     {group.shapes.map((shape) => (
-                                        <Tooltip key={shape.id} label={shape.name} position="bottom" withArrow>
+                                        <Tooltip
+                                            key={shape.id}
+                                            label={shape.name}
+                                            position="bottom"
+                                            withArrow
+                                        >
                                             <MantinePaper
                                                 p="xs"
                                                 withBorder
                                                 draggable
                                                 style={{
-                                                    cursor: 'grab',
-                                                    textAlign: 'center',
-                                                    backgroundColor: '#fff',
-                                                    transition: 'transform 0.2s',
+                                                    cursor: "grab",
+                                                    textAlign: "center",
+                                                    backgroundColor: "#fff",
+                                                    transition: "transform 0.2s",
                                                 }}
                                                 onDragStart={(e) => {
                                                     setDraggingShapeId(shape.id);
-                                                    e.currentTarget.style.cursor = 'grabbing';
+                                                    e.currentTarget.style.cursor = "grabbing";
                                                 }}
                                                 onDragEnd={(e) => {
-                                                    e.currentTarget.style.cursor = 'grab';
+                                                    e.currentTarget.style.cursor = "grab";
                                                 }}
                                                 onMouseEnter={(e) => {
-                                                    e.currentTarget.style.transform = 'scale(1.05)';
+                                                    e.currentTarget.style.transform = "scale(1.05)";
                                                 }}
                                                 onMouseLeave={(e) => {
-                                                    e.currentTarget.style.transform = 'scale(1)';
+                                                    e.currentTarget.style.transform = "scale(1)";
                                                 }}
                                                 onClick={() => addShape(shape.id)}
                                             >
-                                                <ShapePreview shape={shape} size={30} architecture={group.architectureType} />
+                                                <ShapePreview
+                                                    shape={shape}
+                                                    size={30}
+                                                    architecture={group.architectureType}
+                                                />
                                             </MantinePaper>
                                         </Tooltip>
                                     ))}
@@ -944,40 +1238,56 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
                                 flexShrink: 0,
                             }}
                         >
-                            <Text size="xs" fw={600} mb="xs" ta="center">Common</Text>
+                            <Text size="xs" fw={600} mb="xs" ta="center">
+                                Common
+                            </Text>
 
-                            <ScrollArea h="88.5vh" type="always" offsetScrollbars scrollbarSize={8}>
+                            <ScrollArea
+                                h="88.5vh"
+                                type="always"
+                                offsetScrollbars
+                                scrollbarSize={8}
+                            >
                                 <Stack gap="xs">
                                     {commonShapes.map((shape) => (
-                                        <Tooltip key={shape.id} label={shape.name} position="right" withArrow>
+                                        <Tooltip
+                                            key={shape.id}
+                                            label={shape.name}
+                                            position="right"
+                                            withArrow
+                                        >
                                             <MantinePaper
                                                 p={4}
                                                 withBorder
                                                 draggable
                                                 style={{
-                                                    cursor: 'grab',
-                                                    backgroundColor: '#fff',
-                                                    transition: 'transform 0.2s',
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                    justifyContent: 'center',
+                                                    cursor: "grab",
+                                                    backgroundColor: "#fff",
+                                                    transition: "transform 0.2s",
+                                                    display: "flex",
+                                                    alignItems: "center",
+                                                    justifyContent: "center",
                                                 }}
                                                 onDragStart={(e) => {
                                                     setDraggingShapeId(shape.id);
-                                                    e.currentTarget.style.cursor = 'grabbing';
+                                                    e.currentTarget.style.cursor = "grabbing";
                                                 }}
                                                 onDragEnd={(e) => {
-                                                    e.currentTarget.style.cursor = 'grab';
+                                                    e.currentTarget.style.cursor = "grab";
                                                 }}
                                                 onMouseEnter={(e) => {
-                                                    e.currentTarget.style.transform = 'scale(1.08)';
+                                                    e.currentTarget.style.transform = "scale(1.08)";
                                                 }}
                                                 onMouseLeave={(e) => {
-                                                    e.currentTarget.style.transform = 'scale(1)';
+                                                    e.currentTarget.style.transform = "scale(1)";
                                                 }}
                                                 onClick={() => addShape(shape.id)}
                                             >
-                                                <ShapePreview shape={shape} size={30} architecture={architectureType} />
+                                                <ShapePreview
+                                                    shape={shape}
+                                                    size={30}
+                                                    architecture={architectureType}
+                                                />
                                             </MantinePaper>
                                         </Tooltip>
                                     ))}
@@ -989,7 +1299,13 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
                         <div style={{ flex: 1, minWidth: 0 }}>
                             <div
                                 ref={wrapperRef}
-                                style={{ position: 'relative', width: '100%', height: '970px', border: '1px solid #ddd', overflow: 'auto' }}
+                                style={{
+                                    position: "relative",
+                                    width: "100%",
+                                    height: "970px",
+                                    border: "1px solid #ddd",
+                                    overflow: "auto",
+                                }}
                                 onDrop={handleCanvasDrop}
                                 onDragOver={handleCanvasDragOver}
                             >
@@ -997,20 +1313,52 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
                                     ref={svgRef}
                                     width={canvasSize.width}
                                     height={canvasSize.height}
-                                    style={{ background: computedColorScheme === 'dark' ? '#1A1B1E' : '#f8f9fa', minWidth: '100%', minHeight: '100%' }}
+                                    style={{
+                                        background:
+                                            computedColorScheme === "dark" ? "#1A1B1E" : "#f8f9fa",
+                                        minWidth: "100%",
+                                        minHeight: "100%",
+                                    }}
                                 >
                                     <defs>
-                                        <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
-                                            <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#e0e0e0" strokeWidth="0.5" />
+                                        <pattern
+                                            id="grid"
+                                            width="20"
+                                            height="20"
+                                            patternUnits="userSpaceOnUse"
+                                        >
+                                            <path
+                                                d="M 20 0 L 0 0 0 20"
+                                                fill="none"
+                                                stroke="#e0e0e0"
+                                                strokeWidth="0.5"
+                                            />
                                         </pattern>
                                     </defs>
-                                    <rect width={canvasSize.width} height={canvasSize.height} fill="url(#grid)" opacity={0.5} />
+                                    <rect
+                                        width={canvasSize.width}
+                                        height={canvasSize.height}
+                                        fill="url(#grid)"
+                                        opacity={0.5}
+                                    />
                                 </svg>
 
                                 {/* Floating Controls */}
-                                <div style={{ position: 'absolute', top: 10, right: 10, zIndex: 100 }}>
+                                <div
+                                    style={{
+                                        position: "absolute",
+                                        top: 10,
+                                        right: 10,
+                                        zIndex: 100,
+                                    }}
+                                >
                                     <Tooltip label="Reset Zoom">
-                                        <ActionIcon variant="default" size="lg" onClick={resetZoom} bg="var(--mantine-color-body)">
+                                        <ActionIcon
+                                            variant="default"
+                                            size="lg"
+                                            onClick={resetZoom}
+                                            bg="var(--mantine-color-body)"
+                                        >
                                             <IconZoomReset size={20} />
                                         </ActionIcon>
                                     </Tooltip>
@@ -1024,38 +1372,42 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
                                         autoFocus
                                         onFocus={(e) => e.target.select()}
                                         style={{
-                                            position: 'absolute',
+                                            position: "absolute",
                                             left: editingNode.x - 60,
                                             top: editingNode.y - 14,
-                                            width: '120px',
-                                            height: '28px',
-                                            textAlign: 'center',
-                                            fontSize: '14px',
-                                            fontWeight: 'bold',
-                                            border: '2px solid #228be6',
-                                            borderRadius: '4px',
-                                            outline: 'none',
+                                            width: "120px",
+                                            height: "28px",
+                                            textAlign: "center",
+                                            fontSize: "14px",
+                                            fontWeight: "bold",
+                                            border: "2px solid #228be6",
+                                            borderRadius: "4px",
+                                            outline: "none",
                                             zIndex: 1000,
-                                            boxShadow: '0 2px 10px rgba(0,0,0,0.1)'
+                                            boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
                                         }}
                                         onKeyDown={(e) => {
-                                            if (e.key === 'Enter') {
+                                            if (e.key === "Enter") {
                                                 const newLabel = e.currentTarget.value;
-                                                const newNodes = nodes.map(n =>
-                                                    n.id === editingNode.id ? { ...n, label: newLabel } : n
+                                                const newNodes = nodes.map((n) =>
+                                                    n.id === editingNode.id
+                                                        ? { ...n, label: newLabel }
+                                                        : n,
                                                 );
                                                 setNodes(newNodes);
                                                 saveToHistory(newNodes, links);
                                                 setEditingNode(null);
-                                            } else if (e.key === 'Escape') {
+                                            } else if (e.key === "Escape") {
                                                 setEditingNode(null);
                                             }
                                         }}
                                         onBlur={(e) => {
                                             const newLabel = e.currentTarget.value;
                                             if (newLabel !== editingNode.label) {
-                                                const newNodes = nodes.map(n =>
-                                                    n.id === editingNode.id ? { ...n, label: newLabel } : n
+                                                const newNodes = nodes.map((n) =>
+                                                    n.id === editingNode.id
+                                                        ? { ...n, label: newLabel }
+                                                        : n,
                                                 );
                                                 setNodes(newNodes);
                                                 saveToHistory(newNodes, links);
@@ -1070,26 +1422,55 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
                 </>
             )}
 
-            {mode === 'student' && (
-                <div ref={wrapperRef} style={{ position: 'relative', width: '100%', height: '600px', border: '1px solid #ddd', overflow: 'hidden' }}>
+            {mode === "student" && (
+                <div
+                    ref={wrapperRef}
+                    style={{
+                        position: "relative",
+                        width: "100%",
+                        height: "600px",
+                        border: "1px solid #ddd",
+                        overflow: "hidden",
+                    }}
+                >
                     <svg
                         ref={svgRef}
                         width="100%"
                         height="100%"
-                        style={{ background: computedColorScheme === 'dark' ? '#1A1B1E' : '#f8f9fa' }}
+                        style={{
+                            background:
+                                computedColorScheme === "dark" ? "#1A1B1E" : "#f8f9fa",
+                        }}
                     >
                         <defs>
-                            <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
-                                <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#e0e0e0" strokeWidth="0.5" />
+                            <pattern
+                                id="grid"
+                                width="20"
+                                height="20"
+                                patternUnits="userSpaceOnUse"
+                            >
+                                <path
+                                    d="M 20 0 L 0 0 0 20"
+                                    fill="none"
+                                    stroke="#e0e0e0"
+                                    strokeWidth="0.5"
+                                />
                             </pattern>
                         </defs>
                         <rect width="100%" height="100%" fill="url(#grid)" opacity={0.5} />
                     </svg>
 
                     {/* Floating Controls */}
-                    <div style={{ position: 'absolute', top: 10, right: 10, zIndex: 100 }}>
+                    <div
+                        style={{ position: "absolute", top: 10, right: 10, zIndex: 100 }}
+                    >
                         <Tooltip label="Reset Zoom">
-                            <ActionIcon variant="default" size="lg" onClick={resetZoom} bg="var(--mantine-color-body)">
+                            <ActionIcon
+                                variant="default"
+                                size="lg"
+                                onClick={resetZoom}
+                                bg="var(--mantine-color-body)"
+                            >
                                 <IconZoomReset size={20} />
                             </ActionIcon>
                         </Tooltip>
@@ -1103,38 +1484,38 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
                             autoFocus
                             onFocus={(e) => e.target.select()}
                             style={{
-                                position: 'absolute',
+                                position: "absolute",
                                 left: editingNode.x - 60,
                                 top: editingNode.y - 14,
-                                width: '120px',
-                                height: '28px',
-                                textAlign: 'center',
-                                fontSize: '14px',
-                                fontWeight: 'bold',
-                                border: '2px solid #228be6',
-                                borderRadius: '4px',
-                                outline: 'none',
+                                width: "120px",
+                                height: "28px",
+                                textAlign: "center",
+                                fontSize: "14px",
+                                fontWeight: "bold",
+                                border: "2px solid #228be6",
+                                borderRadius: "4px",
+                                outline: "none",
                                 zIndex: 1000,
-                                boxShadow: '0 2px 10px rgba(0,0,0,0.1)'
+                                boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
                             }}
                             onKeyDown={(e) => {
-                                if (e.key === 'Enter') {
+                                if (e.key === "Enter") {
                                     const newLabel = e.currentTarget.value;
-                                    const newNodes = nodes.map(n =>
-                                        n.id === editingNode.id ? { ...n, label: newLabel } : n
+                                    const newNodes = nodes.map((n) =>
+                                        n.id === editingNode.id ? { ...n, label: newLabel } : n,
                                     );
                                     setNodes(newNodes);
                                     saveToHistory(newNodes, links);
                                     setEditingNode(null);
-                                } else if (e.key === 'Escape') {
+                                } else if (e.key === "Escape") {
                                     setEditingNode(null);
                                 }
                             }}
                             onBlur={(e) => {
                                 const newLabel = e.currentTarget.value;
                                 if (newLabel !== editingNode.label) {
-                                    const newNodes = nodes.map(n =>
-                                        n.id === editingNode.id ? { ...n, label: newLabel } : n
+                                    const newNodes = nodes.map((n) =>
+                                        n.id === editingNode.id ? { ...n, label: newLabel } : n,
                                     );
                                     setNodes(newNodes);
                                     saveToHistory(newNodes, links);
@@ -1146,17 +1527,26 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
                 </div>
             )}
 
-            {mode === 'student' && (
+            {mode === "student" && (
                 <Text size="xs" c="dimmed" mt="xs">
-                    Click a node to select (blue outline), then click another node to link them. Drag to move.
+                    Click a node to select (blue outline), then click another node to link
+                    them. Drag to move.
                 </Text>
             )}
 
             {/* Clear Canvas Confirmation Modal */}
-            <Modal opened={clearModalOpened} onClose={closeClearModal} title="Clear Canvas" centered>
+            <Modal
+                opened={clearModalOpened}
+                onClose={closeClearModal}
+                title="Clear Canvas"
+                centered
+            >
                 <Stack>
                     <Text>Are you sure you want to clear the canvas?</Text>
-                    <Text size="sm" c="dimmed">This will remove all shapes and connections. This action cannot be undone.</Text>
+                    <Text size="sm" c="dimmed">
+                        This will remove all shapes and connections. This action cannot be
+                        undone.
+                    </Text>
                     <Group justify="flex-end" mt="md">
                         <Button variant="default" onClick={closeClearModal}>
                             Cancel
