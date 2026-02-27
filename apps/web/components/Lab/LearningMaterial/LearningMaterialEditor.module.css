@@ -53,6 +53,20 @@
     gap: 6px;
 }
 
+.diagramAccordionRow {
+    display: flex;
+    align-items: center;
+}
+
+.diagramAccordionControl {
+    flex: 1;
+}
+
+.diagramAccordionActions {
+    padding-right: 8px;
+    flex-shrink: 0;
+}
+
 .linkRow {
     display: grid;
     grid-template-columns: 1fr 1fr 110px 32px;
@@ -71,7 +85,7 @@
     border: 1px solid light-dark(var(--mantine-color-gray-3), var(--mantine-color-dark-4));
     border-radius: var(--mantine-radius-sm);
     overflow: hidden;
-    height: 400px;
+    height: 950px;
     position: relative;
 }
 

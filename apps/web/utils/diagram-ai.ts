@@ -74,6 +74,21 @@ export interface DiagramState {
     links: DiagramLink[];
 }
 
+/** Single validation issue found during diagram review. */
+export interface DiagramValidationIssue {
+    severity: "error" | "warning" | "info";
+    category: string;
+    message: string;
+    affectedNodes?: string[];
+}
+
+/** Result of diagram validation including corrected diagram and issues found. */
+export interface DiagramValidationResult {
+    diagram: DiagramState;
+    issues: DiagramValidationIssue[];
+    summary: string;
+}
+
 /**
  * Build a prompt for the AI to generate architecture diagram JSON.
  * The prompt includes available shape types so the AI uses valid shape IDs.
@@ -114,15 +129,20 @@ CRITICAL RULES FOR CLARITY:
    - For lifecycle/flow diagrams: Create a linear or tree-like flow (A→B→C→D)
    - For architecture diagrams: Use hub-and-spoke or layered patterns
    - For process diagrams: Show clear sequential steps
-6. Use containers (common-container/common-group) to group related components logically.
-7. Position nodes in organized rows/columns - containers should be large (width: 400+, height: 300+).
-8. SPACING: Keep nodes at least 120-150px apart (center to center) to ensure arrows are clearly visible.
+6. CONTAINERS - ONLY use these shape IDs for grouping: common-container, common-group, common-pool
+   - NEVER use common-cloud or any other shape as a container - clouds are for decoration only (max 100x70)
+   - Child nodes MUST have x/y coordinates that place them INSIDE the container's bounds.
+   - e.g. if container is at x:100 y:100 with width:400 height:300, a child should be at x:150 y:160 etc.
+7. Position nodes in organized rows/columns - only containers (common-container/common-group/common-pool) should be large (width: 400+, height: 300+).
+8. SPACING: Regular (non-container) sibling nodes should be at least 120-150px apart (center to center).
+   - Nodes inside the SAME container can be closer, but should not overlap each other.
 9. AVOID creating bidirectional arrows or multiple arrows between same nodes unless absolutely necessary.
 10. Think about the domain - for example:
-   - Kubernetes: API Server is the hub, other components connect through it
-   - Web apps: Client → Load Balancer → App Servers → Database (layers)
+   - Kubernetes: Use common-container for namespaces, API Server is the hub
+   - Web apps: Client → Load Balancer → App Servers → Database (layers), group servers in a container
    - CI/CD: Sequential pipeline stages
 11. Each link should have a clear purpose - don't connect everything to everything.
+12. EVERY node MUST have a connection - no orphan/isolated nodes. If a node isn't connected, remove it.
 
 JSON format:
 {
@@ -155,16 +175,91 @@ ARROW ROUTING RULES (CRITICAL for clean diagrams):
 16. When a node is above another, connect from bottom to top. When beside, connect from side to side.
 
 CONTAINER BOUNDARY RULES:
-17. Arrows should NEVER route through container borders.
-18. If connecting to a node inside a container from outside: position the source node near the container's entry point.
-19. Avoid horizontal/diagonal arrows that cut through container borders.
+17. Child nodes INSIDE a container should stay within the container's x/y/width/height bounds.
+18. Arrows between two nodes that are BOTH inside the same container stay inside — do not route them outside the container.
+19. Arrows from a node INSIDE a container to a node OUTSIDE: exit through the nearest container edge and route cleanly outside.
+20. Never route an arrow diagonally through the middle of a container that it has no relationship with.
 
 Generate a professional, well-organized architecture diagram with 6-12 nodes and MINIMAL, LOGICAL connections that tell a clear story.`;
 };
 
 /**
+ * Build the messages array for a second-pass validation call.
+ * Pass `builtPrompt` — the already-built string from buildDiagramAIPrompt — as the
+ * simulated first user turn, then the AI's JSON response, then the review request.
+ */
+export const buildDiagramValidationPrompt = (
+    builtPrompt: string,
+    generatedJSON: string,
+): Array<{ role: "user" | "assistant"; content: string }> => [
+        {
+            role: "user",
+            content: builtPrompt,
+        },
+        {
+            role: "assistant",
+            content: generatedJSON,
+        },
+        {
+            role: "user",
+            content: `You are now a senior solutions architect reviewing the diagram you just generated. Validate it against every item below and return BOTH the corrected JSON AND a list of issues found.
+
+VALIDATION CHECKLIST:
+1. ARCHITECTURAL ACCURACY — Does the diagram accurately and completely represent the architecture from the original prompt? Are all critical components present? Is any component that would confuse a student missing or misrepresented?
+2. CONTAINER INTEGRITY — For each node with type "container", "group", or "pool": every node logically belonging inside it MUST have x/y coordinates within the container's bounding box (x, y, x+width, y+height). Fix any child node positioned outside its parent container.
+3. DEAD REFERENCES — Every link "source" and "target" must match an existing node id. Remove any link with a missing reference.
+4. ARROW DIRECTION — Do arrows flow in the direction of actual data/control flow for this architecture? Reverse any that are backwards.
+5. REDUNDANT NODES — Remove any duplicate or redundant component that would confuse learners.
+6. COMPLETENESS — Add any obviously missing component that is essential for understanding this architecture.
+7. NO ORPHAN NODES — Every node MUST have at least one connection (link). Remove any isolated nodes with no incoming or outgoing links.
+8. SHAPE SIZE LIMITS — Only "container", "group", or "pool" type nodes can have width > 150 or height > 150. Any other shape type (especially "cloud") MUST be resized to max 100x70. If a cloud was used as a container, replace it with shapeId "common-container".
+9. CONTAINER TYPES ONLY — If you see a "cloud" type shape being used to contain other nodes, replace its shapeId with "common-container" and set type to "container".
+10. ARROW BOUNDARY RULES — Arrows should NEVER route through container borders. Verify each link connecting nodes inside vs outside containers uses proper edge routing.
+
+Return ONLY valid JSON in this exact format (no markdown, no code fences):
+{
+  "nodes": [...],
+  "links": [...],
+  "validationReport": {
+    "summary": "Brief 1-2 sentence summary of diagram quality",
+    "issues": [
+      {
+        "severity": "error|warning|info",
+        "category": "Category name (e.g., 'Container Integrity', 'Missing Component', 'Arrow Routing')",
+        "message": "Description of the issue and what was fixed or still needs attention",
+        "affectedNodes": ["node-id-1", "node-id-2"]
+      }
+    ]
+  }
+}
+
+- Use "error" severity for issues that would break understanding (missing critical component, broken references)
+- Use "warning" severity for layout/routing issues that were auto-fixed
+- Use "info" severity for suggestions to improve the diagram
+- If no issues found, return empty issues array with summary "Diagram validated successfully"`,
+        },
+    ];
+
+/** Container-type node types that are meant to hold other nodes inside them. */
+const CONTAINER_TYPES = new Set(["container", "group", "pool"]);
+
+/** Returns true if node `child` is spatially inside container `parent` (with tolerance). */
+const isInsideContainer = (child: DiagramNode, parent: DiagramNode): boolean => {
+    if (!CONTAINER_TYPES.has(parent.type)) return false;
+    const TOLERANCE = 20;
+    return (
+        child.x >= parent.x - TOLERANCE &&
+        child.y >= parent.y - TOLERANCE &&
+        child.x + child.width <= parent.x + parent.width + TOLERANCE &&
+        child.y + child.height <= parent.y + parent.height + TOLERANCE
+    );
+};
+
+/**
  * Spread nodes apart so no two bounding boxes are closer than MIN_NODE_GAP pixels.
- * Runs iteratively until stable or max iterations reached.
+ * Container nodes (group/pool/container) are exempt — child nodes inside them are
+ * allowed to overlap with the container bounds (they're intentionally nested).
+ * Only regular sibling nodes at the same level are pushed apart.
  */
 export const enforceMinimumSpacing = (nodes: DiagramNode[]): DiagramNode[] => {
     const MIN_NODE_GAP = 30;
@@ -177,6 +272,14 @@ export const enforceMinimumSpacing = (nodes: DiagramNode[]): DiagramNode[] => {
             for (let j = i + 1; j < result.length; j++) {
                 const a = result[i];
                 const b = result[j];
+
+                // Skip: one is a container and the other is nested inside it
+                if (isInsideContainer(b, a) || isInsideContainer(a, b)) continue;
+                // Skip: both are container-type nodes (containers can overlap in layout)
+                if (CONTAINER_TYPES.has(a.type) && CONTAINER_TYPES.has(b.type)) continue;
+                // Skip: either is a container-type node (don't push containers relative to regular nodes)
+                if (CONTAINER_TYPES.has(a.type) || CONTAINER_TYPES.has(b.type)) continue;
+
                 const aRight = a.x + a.width;
                 const aBottom = a.y + a.height;
                 const bRight = b.x + b.width;
@@ -283,6 +386,84 @@ export const parseAIDiagramResponse = (
             : [];
 
         return { nodes: enforceMinimumSpacing(nodes), links };
+    } catch {
+        return null;
+    }
+};
+
+/**
+ * Parse raw AI validation response into diagram state and validation issues.
+ * The validation response includes both corrected diagram and a validationReport object.
+ */
+export const parseAIValidationResponse = (
+    rawResponse: string,
+    archType: string,
+): DiagramValidationResult | null => {
+    try {
+        let jsonStr = rawResponse.trim();
+        if (jsonStr.startsWith("```")) {
+            jsonStr = jsonStr.replace(/^```(?:json)?\n?/, "").replace(/\n?```$/, "");
+        }
+
+        const parsed = JSON.parse(jsonStr) as Record<string, unknown>;
+        if (!parsed.nodes || !Array.isArray(parsed.nodes)) return null;
+
+        const archShapes = getArchitectureShapes(archType) as ShapeEntry[];
+        const commonShapes = Object.values(genericD3Shapes) as ShapeEntry[];
+        const allShapes = [...archShapes, ...commonShapes];
+
+        const nodes: DiagramNode[] = (parsed.nodes as AIParsedNode[]).map(
+            (aiNode) => {
+                const shapeDef = allShapes.find(
+                    (s) =>
+                        s.id === aiNode.shapeId || s.type === aiNode.shapeId?.toLowerCase(),
+                );
+
+                return {
+                    id:
+                        aiNode.id ??
+                        `${Date.now()}${Math.random().toString(36).substr(2, 5)}`,
+                    x: aiNode.x ?? 50 + Math.random() * 400,
+                    y: aiNode.y ?? 50 + Math.random() * 400,
+                    type: shapeDef?.type ?? "rect",
+                    label: aiNode.label ?? shapeDef?.name ?? "Node",
+                    width: aiNode.width ?? shapeDef?.width ?? 60,
+                    height: aiNode.height ?? shapeDef?.height ?? 60,
+                    fill: shapeDef?.fill,
+                    stroke: shapeDef?.stroke,
+                    strokeWidth: shapeDef?.strokeWidth,
+                    rx: shapeDef?.rx,
+                    strokeDashArray: shapeDef?.strokeDashArray,
+                    pathData: shapeDef?.pathData,
+                    shapeId: aiNode.shapeId,
+                };
+            },
+        );
+
+        const links: DiagramLink[] = Array.isArray(parsed.links)
+            ? (parsed.links as AIParsedLink[]).map((aiLink) => ({
+                source: aiLink.source,
+                target: aiLink.target,
+                sourceEdge: aiLink.sourceEdge,
+                targetEdge: aiLink.targetEdge,
+                waypoints: aiLink.waypoints ?? [],
+            }))
+            : [];
+
+        // Extract validation report
+        const validationReport = parsed.validationReport as {
+            summary?: string;
+            issues?: DiagramValidationIssue[];
+        } | undefined;
+
+        const issues: DiagramValidationIssue[] = validationReport?.issues ?? [];
+        const summary = validationReport?.summary ?? "Validation completed";
+
+        return {
+            diagram: { nodes: enforceMinimumSpacing(nodes), links },
+            issues,
+            summary,
+        };
     } catch {
         return null;
     }

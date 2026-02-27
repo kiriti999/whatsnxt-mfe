@@ -128,10 +128,8 @@ export function getWaypointPath(
   return { path: pathD, waypoints: validWaypoints };
 }
 
-// How far inside the bounding box edge to place connection points.
-// Most shape icons render with ~10% padding (e.g. 8px inside an 80px node).
-// Increased to ensure arrows stop at shape edges, not inside them.
-const EDGE_INSET = 2;
+// Connection point is placed exactly on the shape edge.
+// The SVG arrowhead marker (refX=10) puts the tip precisely at the path endpoint.
 
 /**
  * Find the closest link handle position for auto-detected connections.
@@ -144,14 +142,10 @@ function getRectEdgePoint(
   nodeH: number,
   targetX: number,
   targetY: number,
-  isTargetNode = false, // If true, apply arrow marker offset
-  shouldApplyLabelClearance = true, // If true, add clearance for bottom edge labels
+  isTargetNode = false,
 ): { x: number; y: number } {
-  // Calculate from node center
   const cx = nodeX + nodeW / 2;
   const cy = nodeY + nodeH / 2;
-  const hw = nodeW / 2;
-  const hh = nodeH / 2;
 
   const dx = targetX - cx;
   const dy = targetY - cy;
@@ -182,23 +176,13 @@ function getRectEdgePoint(
     }
   }
 
-  // For SOURCE nodes exiting from bottom edge, add label clearance (if enabled)
-  const LABEL_CLEARANCE = 20;
-  if (!isTargetNode && shouldApplyLabelClearance && dy > 0 && absDy >= absDx) {
-    // Source node, going downward (bottom edge), add clearance
-    handlePos.y += LABEL_CLEARANCE;
-  }
-
-  // For target nodes, offset slightly to prevent arrow overlap
-  // But only if shapes are far enough apart (> 50px) to avoid making short arrows invisible
   if (isTargetNode) {
     const dist = Math.sqrt(dx * dx + dy * dy);
-    const minDistanceForOffset = 50; // Don't offset if shapes are too close
-
-    if (dist > minDistanceForOffset) {
-      const offsetAmount = 1; // Offset to keep arrowhead visible outside shape
-      handlePos.x -= (dx / dist) * offsetAmount;
-      handlePos.y -= (dy / dist) * offsetAmount;
+    if (dist > 0) {
+      // Move endpoint 2px inside the shape edge so the arrowhead tip sits right on the border
+      const nudge = 2;
+      handlePos.x -= (dx / dist) * nudge;
+      handlePos.y -= (dy / dist) * nudge;
     }
   }
 
@@ -216,20 +200,13 @@ function getEdgeMidpoint(
   nodeW: number,
   nodeH: number,
   edge: EdgeSide,
-  isSourceNode = false, // If true and bottom edge, add label clearance
+  _isSourceNode = false, // retained for API compat, no longer used
 ): { x: number; y: number } {
-  const LABEL_CLEARANCE = 20; // Extra offset for bottom edge to avoid label overlap
-
   switch (edge) {
     case "top":
       return { x: nodeX + nodeW / 2, y: nodeY };
-    case "bottom": {
-      // If this is the source node's bottom edge, add extra offset to clear the label
-      const bottomY = isSourceNode
-        ? nodeY + nodeH + LABEL_CLEARANCE
-        : nodeY + nodeH;
-      return { x: nodeX + nodeW / 2, y: bottomY };
-    }
+    case "bottom":
+      return { x: nodeX + nodeW / 2, y: nodeY + nodeH };
     case "left":
       return { x: nodeX, y: nodeY + nodeH / 2 };
     case "right":
@@ -253,30 +230,20 @@ export function calculateConnectionPoints(
   const tx = targetNode.x || 0;
   const ty = targetNode.y || 0;
 
-  // Calculate distance between node centers to determine if we need label clearance
-  const sCx = sx + sourceNode.width / 2;
-  const sCy = sy + sourceNode.height / 2;
+  // Node center coordinates for auto-detecting connection edges
   const tCx = tx + targetNode.width / 2;
   const tCy = ty + targetNode.height / 2;
-  const centerDistance = Math.sqrt((tCx - sCx) ** 2 + (tCy - sCy) ** 2);
-
-  // Only apply label clearance if nodes are far enough apart (prevents very short arrows)
-  const MIN_DISTANCE_FOR_LABEL_CLEARANCE = 80;
-  const shouldApplyLabelClearance =
-    centerDistance > MIN_DISTANCE_FOR_LABEL_CLEARANCE;
 
   let srcPt: { x: number; y: number };
   let tgtPt: { x: number; y: number };
 
   if (sourceEdge) {
-    // Use the user-specified edge
     srcPt = getEdgeMidpoint(
       sx,
       sy,
       sourceNode.width,
       sourceNode.height,
       sourceEdge,
-      shouldApplyLabelClearance, // Only add clearance if shapes are far enough apart
     );
   } else {
     // Auto-detect via ray intersection toward target center
@@ -288,35 +255,19 @@ export function calculateConnectionPoints(
       tCx,
       tCy,
       false,
-      shouldApplyLabelClearance, // Pass label clearance flag
     );
   }
 
   if (targetEdge) {
-    // Use the user-specified edge (with arrow offset for edge connections too)
-    const basePt = getEdgeMidpoint(
+    // Use the specified edge midpoint directly — refX=10 on the marker places the arrowhead
+    // tip exactly at the endpoint, so no pullback is needed.
+    tgtPt = getEdgeMidpoint(
       tx,
       ty,
       targetNode.width,
       targetNode.height,
       targetEdge,
-      false, // isSourceNode = false, target node
     );
-    // Apply arrow offset along the direction from source to target
-    const sCx = sx + sourceNode.width / 2;
-    const sCy = sy + sourceNode.height / 2;
-    const dx = basePt.x - sCx;
-    const dy = basePt.y - sCy;
-    const dist = Math.sqrt(dx * dx + dy * dy);
-    if (dist > 0) {
-      // Move point 18px closer to source (away from shape edge) to keep arrowhead visible
-      tgtPt = {
-        x: basePt.x - (dx / dist) * 18,
-        y: basePt.y - (dy / dist) * 18,
-      };
-    } else {
-      tgtPt = basePt;
-    }
   } else {
     // Auto-detect via ray intersection toward source center
     const sCx = sx + sourceNode.width / 2;
@@ -341,7 +292,7 @@ export function calculateConnectionPoints(
 export function renderLink(
   linkGroup: d3.Selection<SVGGElement, unknown, null, undefined>,
   link: LinkType,
-  linkIndex: number,
+  _linkIndex: number,
   sourceNode: NodeType,
   targetNode: NodeType,
   options: {
@@ -490,7 +441,7 @@ export function renderWaypointHandles(
 
         // Reconstruct path locally for drag visualization
         let np = `M ${x1} ${y1}`;
-        pathResult.waypoints!.forEach((w, wi) => {
+        pathResult.waypoints?.forEach((w, wi) => {
           if (!w) return; // Skip undefined waypoints
           if (wi === wpi) {
             np += ` L ${mx} ${my}`;

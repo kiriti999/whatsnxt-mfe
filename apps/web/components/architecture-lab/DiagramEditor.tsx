@@ -9,6 +9,7 @@ import {
     Group,
     Paper as MantinePaper,
     Modal,
+    MultiSelect,
     ScrollArea,
     Stack,
     Text,
@@ -30,7 +31,11 @@ import { renderShape } from "../../utils/d3-shape-renderers";
 import { architecturalShapes, type NodeType } from "../../utils/lab-utils";
 import {
     getArchitectureMetadata,
+    getArchitectureSelectOptions,
     getArchitectureShapes,
+    L2_ARCHITECTURE_TYPES,
+    L3_ARCHITECTURE_TYPES,
+    MAX_ADDITIONAL_SELECTIONS,
 } from "../../utils/shape-libraries";
 import { genericD3Shapes } from "../../utils/shape-libraries/generic-d3-shapes";
 import {
@@ -57,6 +62,8 @@ interface DiagramEditorProps {
     className?: string;
     architectureType?: string; // Deprecated: kept for backward compatibility
     architectureTypes?: string[]; // New: array of architecture types for multi-select
+    viewOnly?: boolean; // Read-only mode for students: hides sidebar/toolbar, shows only diagram
+    canvasPan?: boolean; // Allow pan by dragging background + free wheel zoom (no Ctrl required)
 }
 
 const DiagramEditor: React.FC<DiagramEditorProps> = ({
@@ -66,10 +73,23 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
     className,
     architectureType,
     architectureTypes,
+    viewOnly = false,
+    canvasPan = false,
 }) => {
     // Normalize architecture types: handle both single type and array for backward compatibility
     const normalizedArchitectureTypes =
         architectureTypes || (architectureType ? [architectureType] : []);
+
+    // Stable key for architecture types — used as a D3 effect dependency
+    const archTypesKey = normalizedArchitectureTypes.join(",");
+
+    // Additional architecture types selected by trainer via dropdown
+    const [additionalArchTypes, setAdditionalArchTypes] = useState<string[]>([]);
+
+    // Combined architecture types: prop-provided + user-selected
+    const allActiveArchTypes = [
+        ...new Set([...normalizedArchitectureTypes, ...additionalArchTypes]),
+    ];
 
     const computedColorScheme = useComputedColorScheme("light");
     const svgRef = useRef<SVGSVGElement>(null);
@@ -211,7 +231,37 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
             .zoom<SVGSVGElement, unknown>()
             .scaleExtent([0.1, 4])
             .filter((event) => {
-                // Block all mouse/pointer drag events (mousedown, mousemove)
+                // In viewOnly mode, allow pan on drag but not zoom on drag
+                if (viewOnly) {
+                    // Allow all drag events for panning in viewOnly mode
+                    if (
+                        event.type === "mousedown" ||
+                        event.type === "mousemove" ||
+                        event.type === "pointermove" ||
+                        event.type === "pointerdown"
+                    ) {
+                        return true; // Allow drag-based panning in viewOnly
+                    }
+                }
+
+                // In canvasPan mode, allow drag panning on background (not on nodes)
+                if (canvasPan) {
+                    if (
+                        event.type === "mousedown" ||
+                        event.type === "mousemove" ||
+                        event.type === "pointermove" ||
+                        event.type === "pointerdown"
+                    ) {
+                        // Only pan if the click is on empty canvas (not on a node or its children)
+                        const isOnNode =
+                            (event.target as Element)?.closest?.('[id^="node-"]') !== null;
+                        return !isOnNode;
+                    }
+                    // Allow wheel zoom without Ctrl in canvasPan mode
+                    if (event.type === "wheel") return true;
+                }
+
+                // In edit mode, block all mouse/pointer drag events
                 // We handle node dragging separately, so zoom should not pan
                 if (
                     event.type === "mousedown" ||
@@ -219,7 +269,7 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
                     event.type === "pointermove" ||
                     event.type === "pointerdown"
                 ) {
-                    return false; // Block all drag-based pan/zoom
+                    return false; // Block all drag-based pan/zoom in edit mode
                 }
 
                 // Allow zoom only on wheel if Ctrl/Cmd is pressed
@@ -242,6 +292,13 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
         zoomRef.current = zoom;
 
         svg.call(zoom).on("dblclick.zoom", null);
+
+        // Show grab cursor on background when canvasPan is enabled
+        if (canvasPan) {
+            svg.style("cursor", "grab");
+            svg.on("mousedown.cursor", () => svg.style("cursor", "grabbing"));
+            svg.on("mouseup.cursor", () => svg.style("cursor", "grab"));
+        }
 
         // IMPORTANT: Restore the saved transform after setting up zoom
         svg.call(zoom.transform, currentTransform);
@@ -748,34 +805,38 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
                 .enter()
                 .append("g")
                 .attr("id", (d) => `node-${d.id}`)
-                .attr("transform", (d) => `translate(${d.x || 0},${d.y || 0})`)
-                .attr("cursor", "grab")
-                .on("click", (event, d) => {
-                    if (event.detail === 2) {
-                        event.stopPropagation();
-                        const nodeGroup = document.getElementById(`node-${d.id}`);
-                        const wrapperRect = wrapperRef.current?.getBoundingClientRect();
-                        if (nodeGroup && wrapperRect) {
-                            const nodeRect = nodeGroup.getBoundingClientRect();
-                            const screenX =
-                                nodeRect.left - wrapperRect.left + nodeRect.width / 2;
-                            const screenY =
-                                nodeRect.top - wrapperRect.top + nodeRect.height / 2;
-                            setEditingNode({
-                                id: d.id!,
-                                label: d.label,
-                                x: screenX,
-                                y: screenY,
-                                width: d.width,
-                                height: d.height,
-                            });
-                        }
-                    } else {
-                        setSelectedNodeId((prev) => (prev === d.id ? null : d.id!));
-                    }
-                });
+                .attr("transform", (d) => `translate(${d.x || 0},${d.y || 0})`);
 
-            selection.call(nodeDrag);
+            // Only add interactions if NOT in viewOnly mode
+            if (!viewOnly) {
+                selection
+                    .attr("cursor", "grab")
+                    .on("click", (event, d) => {
+                        if (event.detail === 2) {
+                            event.stopPropagation();
+                            const nodeGroup = document.getElementById(`node-${d.id}`);
+                            const wrapperRect = wrapperRef.current?.getBoundingClientRect();
+                            if (nodeGroup && wrapperRect) {
+                                const nodeRect = nodeGroup.getBoundingClientRect();
+                                const screenX =
+                                    nodeRect.left - wrapperRect.left + nodeRect.width / 2;
+                                const screenY =
+                                    nodeRect.top - wrapperRect.top + nodeRect.height / 2;
+                                setEditingNode({
+                                    id: d.id!,
+                                    label: d.label,
+                                    x: screenX,
+                                    y: screenY,
+                                    width: d.width,
+                                    height: d.height,
+                                });
+                            }
+                        } else {
+                            setSelectedNodeId((prev) => (prev === d.id ? null : d.id!));
+                        }
+                    })
+                    .call(nodeDrag);
+            }
 
             // Render each shape using isolated renderers
             selection.each(function (d) {
@@ -796,45 +857,48 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
                     architectureTypes: normalizedArchitectureTypes,
                 });
 
-                // Render selection outline if selected
-                if (selectedNodeId === d.id) {
-                    renderSelectionOutline(el, d);
-                    renderResizeHandles(el, d);
-                }
+                // Only render interactive elements if NOT in viewOnly mode
+                if (!viewOnly) {
+                    // Render selection outline if selected
+                    if (selectedNodeId === d.id) {
+                        renderSelectionOutline(el, d);
+                        renderResizeHandles(el, d);
+                    }
 
-                // Render shape label
-                renderShapeLabel(el, d, computedColorScheme);
+                    // Add link handle for non-containers
+                    if (!["pool", "group", "zone"].includes(d.type || "")) {
+                        renderLinkHandle(el, d);
+                        el.on("mouseenter", () => {
+                            el.selectAll(".link-handle").attr("opacity", 1);
+                            delIcon.style("display", "block");
+                        }).on("mouseleave", () => {
+                            el.selectAll(".link-handle").attr("opacity", 0);
+                            delIcon.style("display", "none");
+                        });
+                    } else {
+                        el.on("mouseenter", () => delIcon.style("display", "block")).on(
+                            "mouseleave",
+                            () => delIcon.style("display", "none"),
+                        );
+                    }
 
-                // Add link handle for non-containers
-                if (!["pool", "group", "zone"].includes(d.type || "")) {
-                    renderLinkHandle(el, d);
-                    el.on("mouseenter", () => {
-                        el.selectAll(".link-handle").attr("opacity", 1);
-                        delIcon.style("display", "block");
-                    }).on("mouseleave", () => {
-                        el.selectAll(".link-handle").attr("opacity", 0);
-                        delIcon.style("display", "none");
+                    // Render delete icon
+                    const delIcon = renderDeleteIcon(el, d, () => {
+                        const nodeId = d.id!;
+                        const newNodes = nodes.filter((n) => n.id !== nodeId);
+                        // Remove links connected to the deleted node
+                        const newLinks = links.filter(
+                            (l) => l.source !== nodeId && l.target !== nodeId,
+                        );
+                        setNodes(newNodes);
+                        setLinks(newLinks);
+                        saveToHistory(newNodes, newLinks);
+                        setSelectedNodeId(null);
                     });
-                } else {
-                    el.on("mouseenter", () => delIcon.style("display", "block")).on(
-                        "mouseleave",
-                        () => delIcon.style("display", "none"),
-                    );
                 }
 
-                // Render delete icon
-                const delIcon = renderDeleteIcon(el, d, () => {
-                    const nodeId = d.id!;
-                    const newNodes = nodes.filter((n) => n.id !== nodeId);
-                    // Remove links connected to the deleted node
-                    const newLinks = links.filter(
-                        (l) => l.source !== nodeId && l.target !== nodeId,
-                    );
-                    setNodes(newNodes);
-                    setLinks(newLinks);
-                    saveToHistory(newNodes, newLinks);
-                    setSelectedNodeId(null);
-                });
+                // Render shape label (always show, even in viewOnly)
+                renderShapeLabel(el, d, computedColorScheme);
             });
         };
 
@@ -887,7 +951,7 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
             const targetNode = nodes.find((n) => n.id === link.target);
             if (!sourceNode || !targetNode) return;
 
-            const isSelected = selectedLinkIndex === i;
+            const isSelected = !viewOnly && selectedLinkIndex === i;
             const offset = linkOffsets.get(i) || 0;
 
             // Render link using isolated renderer
@@ -901,21 +965,25 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
                     isSelected,
                     colorScheme: computedColorScheme,
                     offset, // Pass offset to spread overlapping arrows
-                    onLinkClick: () => {
-                        setSelectedLinkIndex(isSelected ? null : i);
-                        setSelectedNodeId(null);
-                    },
-                    onDeleteClick: () => {
-                        const nl = links.filter((_, idx) => idx !== i);
-                        setLinks(nl);
-                        setSelectedLinkIndex(null);
-                        saveToHistory(nodes, nl);
-                    },
+                    onLinkClick: viewOnly
+                        ? undefined
+                        : () => {
+                            setSelectedLinkIndex(isSelected ? null : i);
+                            setSelectedNodeId(null);
+                        },
+                    onDeleteClick: viewOnly
+                        ? undefined
+                        : () => {
+                            const nl = links.filter((_, idx) => idx !== i);
+                            setLinks(nl);
+                            setSelectedLinkIndex(null);
+                            saveToHistory(nodes, nl);
+                        },
                 },
             );
 
-            // Render waypoint handles for selected link
-            if (isSelected) {
+            // Render waypoint handles for selected link (only if NOT viewOnly)
+            if (isSelected && !viewOnly) {
                 const { x1, y1, x2, y2 } = calculateConnectionPoints(
                     sourceNode,
                     targetNode,
@@ -945,8 +1013,11 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
 
         renderNodeBatch(nodeLayer, regularNodes);
 
-        g.selectAll(".resize-handle").call(resizeDrag as any);
-        g.selectAll(".link-handle").call(linkDrag as any);
+        // Only apply drag behaviors if NOT in viewOnly mode
+        if (!viewOnly) {
+            g.selectAll(".resize-handle").call(resizeDrag as any);
+            g.selectAll(".link-handle").call(linkDrag as any);
+        }
     }, [
         nodes,
         links,
@@ -954,11 +1025,18 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
         selectedLinkIndex,
         computedColorScheme,
         setEditingNode,
+        viewOnly,
+        canvasPan,
+        archTypesKey,
     ]);
 
     const addShape = (shapeId: string, x?: number, y?: number) => {
         // Find shape definition from common shapes, architecture-specific shapes, or architecturalShapes
-        let shapeDef;
+        let shapeDef:
+            | (typeof commonShapes)[number]
+            | (typeof architectureSpecificShapes)[number]
+            | (typeof architecturalShapes)[keyof typeof architecturalShapes]
+            | undefined;
 
         // First, check if it's a common shape (from genericD3Shapes)
         const commonShape = commonShapes.find(
@@ -1106,9 +1184,9 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
     // Common shapes (left sidebar) - directly from genericD3Shapes metadata
     const commonShapes = Object.values(genericD3Shapes);
 
-    // Architecture-specific shapes based on architectureTypes
-    // Fetch shapes from all selected architecture types and group them by architecture
-    const architectureShapesGrouped = normalizedArchitectureTypes
+    // Architecture-specific shapes based on architectureTypes + additional user-selected types
+    // Fetch shapes from all active architecture types and group them by architecture
+    const architectureShapesGrouped = allActiveArchTypes
         .map((archType) => ({
             architectureType: archType,
             architectureName: getArchitectureMetadata(archType).name,
@@ -1123,7 +1201,7 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
 
     return (
         <div className={className}>
-            {mode === "instructor" && (
+            {mode === "instructor" && !viewOnly && (
                 <>
                     {/* Architecture-specific shapes - Top Bar */}
                     <MantinePaper withBorder p="md" mb="md">
@@ -1165,19 +1243,36 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
                             </Group>
                         </Group>
 
+                        {/* Additional shape categories dropdown */}
+                        <MultiSelect
+                            size="xs"
+                            placeholder="Add more shape categories..."
+                            label="Additional Shape Categories"
+                            data={[
+                                ...getArchitectureSelectOptions(
+                                    L2_ARCHITECTURE_TYPES,
+                                    normalizedArchitectureTypes,
+                                ),
+                                ...getArchitectureSelectOptions(
+                                    L3_ARCHITECTURE_TYPES,
+                                    normalizedArchitectureTypes,
+                                ),
+                            ]}
+                            value={additionalArchTypes}
+                            onChange={setAdditionalArchTypes}
+                            maxValues={MAX_ADDITIONAL_SELECTIONS}
+                            searchable
+                            clearable
+                            mb="md"
+                            style={{ maxWidth: 500 }}
+                        />
+
                         <Group gap="md" style={{ flexWrap: "wrap" }}>
                             {architectureShapesGrouped.map((group) => (
                                 <React.Fragment key={group.architectureType}>
                                     {/* Section header for each architecture type */}
                                     <Box w="100%">
-                                        <Text
-                                            size="xs"
-                                            fw={700}
-                                            c="dimmed"
-                                            tt="uppercase"
-                                            mt="xs"
-                                            mb="xs"
-                                        >
+                                        <Text size="xs" fw={700} c="dimmed" tt="uppercase" mt="xs">
                                             {group.architectureName}
                                         </Text>
                                     </Box>
@@ -1239,7 +1334,7 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
                                 flexShrink: 0,
                             }}
                         >
-                            <Text size="xs" fw={600} mb="xs" ta="center">
+                            <Text size="xs" fw={400} mb="xs" ta="center">
                                 Common
                             </Text>
 
@@ -1421,6 +1516,65 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
                         </div>
                     </Group>
                 </>
+            )}
+
+            {/* viewOnly canvas — no sidebar, no toolbar, with zoom controls */}
+            {viewOnly && (
+                <div
+                    ref={wrapperRef}
+                    style={{
+                        position: "relative",
+                        width: "100%",
+                        height: "600px",
+                        overflow: "auto",
+                    }}
+                >
+                    <svg
+                        ref={svgRef}
+                        width="100%"
+                        height="100%"
+                        style={{
+                            background:
+                                computedColorScheme === "dark" ? "#1A1B1E" : "#f8f9fa",
+                            minWidth: "100%",
+                            minHeight: "100%",
+                        }}
+                    >
+                        <defs>
+                            <pattern
+                                id="grid"
+                                width="20"
+                                height="20"
+                                patternUnits="userSpaceOnUse"
+                            >
+                                <path
+                                    d="M 20 0 L 0 0 0 20"
+                                    fill="none"
+                                    stroke="#e0e0e0"
+                                    strokeWidth="0.5"
+                                />
+                            </pattern>
+                        </defs>
+                        <rect width="100%" height="100%" fill="url(#grid)" opacity={0.5} />
+                    </svg>
+
+                    {/* Floating zoom controls for viewOnly mode */}
+                    <div
+                        style={{ position: "absolute", top: 10, right: 10, zIndex: 100 }}
+                    >
+                        <Tooltip label="Reset Zoom">
+                            <ActionIcon
+                                variant="default"
+                                size="lg"
+                                onClick={resetZoom}
+                                bg="var(--mantine-color-body)"
+                                style={{ boxShadow: "0 2px 8px rgba(0,0,0,0.15)" }}
+                            >
+                                <IconZoomReset size={18} />
+                            </ActionIcon>
+                        </Tooltip>
+                    </div>
+                </div>
             )}
 
             {mode === "student" && (

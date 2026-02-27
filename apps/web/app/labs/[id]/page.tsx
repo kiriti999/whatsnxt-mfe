@@ -19,6 +19,7 @@ import {
   TextInput,
   ThemeIcon,
   Title,
+  Tooltip,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useDisclosure } from "@mantine/hooks";
@@ -26,6 +27,7 @@ import { notifications } from "@mantine/notifications";
 import {
   IconBrain,
   IconChevronRight,
+  IconEdit,
   IconEye,
   IconLock,
   IconSearch,
@@ -78,6 +80,7 @@ const LabDetailPage = () => {
     { open: openRepublishModal, close: closeRepublishModal },
   ] = useDisclosure(false);
   const [labDetailsOpened, { toggle: toggleLabDetails }] = useDisclosure(true);
+  const [descriptionExpanded, setDescriptionExpanded] = useState(false);
   const [subCategories, setSubCategories] = useState<
     Array<{ name: string; subcategories?: Array<{ name: string }> }>
   >([]);
@@ -487,7 +490,7 @@ const LabDetailPage = () => {
   const paginatedPages = filteredPages.slice(startIndex, endIndex);
 
   return (
-    <Container size="lg" py="xl">
+    <Container size="xl" py="xl">
       <Group justify="space-between" mb="xl">
         <Group>
           <Button variant="subtle" onClick={() => router.push("/labs")}>
@@ -606,7 +609,24 @@ const LabDetailPage = () => {
           />
         </Group>
         <Collapse in={labDetailsOpened}>
-          <Paper shadow="sm" p="xl" withBorder>
+          <Paper shadow="sm" p="xl" withBorder style={{ position: "relative" }}>
+            {canEdit && !isEditing && (
+              <Tooltip label="Edit Details">
+                <ActionIcon
+                  onClick={() => setIsEditing(true)}
+                  variant="subtle"
+                  color="blue"
+                  size="lg"
+                  style={{
+                    position: "absolute",
+                    top: 16,
+                    right: 16,
+                  }}
+                >
+                  <IconEdit size={20} />
+                </ActionIcon>
+              </Tooltip>
+            )}
             {isEditing ? (
               <form onSubmit={form.onSubmit(handleUpdateLab)}>
                 <Stack>
@@ -695,11 +715,42 @@ const LabDetailPage = () => {
                   <Title order={5}>{lab.name}</Title>
                 </Box>
                 <Box>
-                  <Text size="sm" c="dimmed">
+                  <Text size="sm" c="dimmed" mb={4}>
                     Description
                   </Text>
                   {lab.description ? (
-                    <LexicalEditor value={lab.description} readOnly />
+                    <Box>
+                      <Box
+                        style={{
+                          maxHeight: descriptionExpanded ? "none" : "7.5em",
+                          minHeight: 0,
+                          overflow: "hidden",
+                          position: "relative",
+                        }}
+                      >
+                        <LexicalEditor value={lab.description} readOnly />
+                        {!descriptionExpanded && (
+                          <Box
+                            style={{
+                              position: "absolute",
+                              bottom: 0,
+                              right: 0,
+                              left: 0,
+                              height: "1.5em",
+                              background: "linear-gradient(to bottom, transparent, var(--mantine-color-body))",
+                            }}
+                          />
+                        )}
+                      </Box>
+                      <Button
+                        variant="subtle"
+                        size="xs"
+                        onClick={() => setDescriptionExpanded(!descriptionExpanded)}
+                        mt={4}
+                      >
+                        {descriptionExpanded ? "Show less" : "Show more"}
+                      </Button>
+                    </Box>
                   ) : (
                     <Text c="dimmed" fs="italic">
                       No description
@@ -774,14 +825,6 @@ const LabDetailPage = () => {
                       ))}
                     </Stack>
                   </Box>
-                )}
-
-                {canEdit && (
-                  <Group justify="flex-end" mt="md">
-                    <Button size="xs" onClick={() => setIsEditing(true)}>
-                      Edit Details
-                    </Button>
-                  </Group>
                 )}
               </Stack>
             )}

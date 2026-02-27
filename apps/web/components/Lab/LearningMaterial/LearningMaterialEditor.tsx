@@ -1,15 +1,18 @@
 "use client";
 
 import {
+    Accordion,
     ActionIcon,
     Badge,
     Box,
     Button,
     Group,
+    Loader,
     Select,
     Stack,
     Text,
     TextInput,
+    Tooltip,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
@@ -27,11 +30,14 @@ import dynamic from "next/dynamic";
 import { useCallback, useState } from "react";
 import {
     buildDiagramAIPrompt,
+    buildDiagramValidationPrompt,
     type DiagramState,
     parseAIDiagramResponse,
 } from "@/utils/diagram-ai";
 import { mapSubCategoryToArchitecture } from "@/utils/shape-libraries";
 import labApi, { type LearningLinkRequest } from "../../../apis/lab.api";
+import { AISuggestions } from "../../../apis/v1/blog/aiSuggestions";
+import { useAIConfig } from "../../../context/AIConfigContext";
 import { AISuggestionButton } from "../../Common/AISuggestionButton";
 import { LexicalEditor } from "../../StructuredTutorial/Editor/LexicalEditor";
 import styles from "./LearningMaterialEditor.module.css";
@@ -63,27 +69,16 @@ export interface LearningMaterialEditorProps {
     onSaved?: (updated: LabPage) => void;
 }
 
-function buildAIPrompt(
-    labType: string,
-    subCategory?: string,
-    nestedSubCategory?: string,
-    diagramTestPrompt?: string,
-): string {
-    const topic = [nestedSubCategory, subCategory, labType]
-        .filter(Boolean)
-        .join(" > ");
-    const testHint = diagramTestPrompt
-        ? `\n\nDiagram test context: "${diagramTestPrompt}"`
-        : "";
+function buildAIPrompt(topic: string): string {
     return (
-        `Generate comprehensive educational content for a lab on: ${topic}.${testHint}\n\n` +
+        `Generate comprehensive educational content for a lab on: ${topic}\n\n` +
         "Structure the content with:\n" +
         "1. A brief overview of the topic\n" +
-        "2. Key architectural components and their roles\n" +
-        "3. How the components interconnect\n" +
+        "2. Key concepts and fundamentals\n" +
+        "3. Important details and examples\n" +
         "4. Best practices to remember\n" +
         "5. Common pitfalls to avoid\n\n" +
-        "Use clear headings and bullet points. Keep it practical and focused on the diagram test."
+        "Use clear headings and bullet points."
     );
 }
 
@@ -128,6 +123,7 @@ export function LearningMaterialEditor({
     onSaved,
 }: LearningMaterialEditorProps) {
     const [opened, { toggle }] = useDisclosure(false);
+    const aiConfig = useAIConfig();
     const [editorKey, setEditorKey] = useState(0);
     const [editorInitialValue, setEditorInitialValue] = useState(
         initialData?.learningContent,
@@ -145,6 +141,10 @@ export function LearningMaterialEditor({
             return null;
         }
     });
+    const [contentAITopic, setContentAITopic] = useState("");
+    const [diagramCustomPrompt, setDiagramCustomPrompt] = useState("");
+    const [isDiagramValidating, setIsDiagramValidating] = useState(false);
+    const [diagramKey, setDiagramKey] = useState(0);
     const [isSaving, setIsSaving] = useState(false);
     const [justSaved, setJustSaved] = useState(false);
     const { links, addLink, removeLink, updateLink } = useLinks(
@@ -164,17 +164,89 @@ export function LearningMaterialEditor({
     const architectureType =
         mapSubCategoryToArchitecture(subCategory, nestedSubCategory) || labType;
 
-    const diagramAIPrompt = buildDiagramAIPrompt(
-        `${diagramTestPrompt || [nestedSubCategory, subCategory, labType].filter(Boolean).join(" > ")}`,
+    // Custom prompt takes priority; falls back to stripped lexical content then test prompt
+    const getDiagramAIPrompt = useCallback(() => {
+        if (diagramCustomPrompt.trim()) {
+            return buildDiagramAIPrompt(diagramCustomPrompt.trim(), architectureType);
+        }
+        const plain = (learningContent ?? "")
+            .replace(/<[^>]+>/g, " ")
+            .replace(/\s+/g, " ")
+            .trim();
+        return buildDiagramAIPrompt(
+            plain ||
+            diagramTestPrompt ||
+            [nestedSubCategory, subCategory, labType].filter(Boolean).join(" > "),
+            architectureType,
+        );
+    }, [
+        diagramCustomPrompt,
+        learningContent,
+        diagramTestPrompt,
+        nestedSubCategory,
+        subCategory,
+        labType,
         architectureType,
-    );
+    ]);
 
     const handleDiagramAISuggestion = useCallback(
-        (suggestion: string) => {
-            const parsed = parseAIDiagramResponse(suggestion, architectureType);
-            if (parsed) setDiagramState(parsed);
+        async (suggestion: string) => {
+            // Pass 1 — parse and render immediately so user sees progress
+            const pass1 = parseAIDiagramResponse(suggestion, architectureType);
+            if (!pass1) {
+                notifications.show({
+                    position: "bottom-right",
+                    color: "orange",
+                    title: "Diagram parse failed",
+                    message: "AI response could not be parsed as a diagram. Try again.",
+                });
+                return;
+            }
+            setDiagramState(pass1);
+            setDiagramKey((k) => k + 1);
+
+            // Pass 2 — validate and auto-correct via AI
+            setIsDiagramValidating(true);
+            try {
+                const originalPrompt = getDiagramAIPrompt();
+                const messages = buildDiagramValidationPrompt(
+                    originalPrompt,
+                    suggestion,
+                );
+                const response = await AISuggestions.getSuggestionByAI({
+                    messages,
+                    aiModel: aiConfig.selectedAI,
+                    modelVersion: aiConfig.selectedModel,
+                });
+                if (response.status === 200 && response.data?.suggestion) {
+                    const pass2 = parseAIDiagramResponse(
+                        response.data.suggestion,
+                        architectureType,
+                    );
+                    if (pass2) {
+                        setDiagramState(pass2);
+                        setDiagramKey((k) => k + 1);
+                        notifications.show({
+                            position: "bottom-right",
+                            color: "teal",
+                            title: "Diagram validated",
+                            message: "AI reviewed and corrected the diagram for accuracy.",
+                        });
+                    }
+                }
+            } catch (err: unknown) {
+                const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message;
+                notifications.show({
+                    position: "bottom-right",
+                    color: "yellow",
+                    title: "Validation skipped",
+                    message: msg ?? "Could not run validation pass — diagram may have minor issues.",
+                });
+            } finally {
+                setIsDiagramValidating(false);
+            }
         },
-        [architectureType],
+        [architectureType, getDiagramAIPrompt, aiConfig],
     );
 
     const handleGraphChange = useCallback((json: DiagramState) => {
@@ -226,13 +298,6 @@ export function LearningMaterialEditor({
         }
     }, [labId, pageId, learningContent, videoUrl, links, diagramState, onSaved]);
 
-    const aiPrompt = buildAIPrompt(
-        labType,
-        subCategory,
-        nestedSubCategory,
-        diagramTestPrompt,
-    );
-
     return (
         <Box mt="sm">
             {/* Collapsible header */}
@@ -263,156 +328,222 @@ export function LearningMaterialEditor({
             {opened && (
                 <Box pt="sm">
                     <Stack gap="md">
-                        {/* Rich text section */}
-                        <Box>
-                            <Group mb={6} className={styles.sectionLabel}>
-                                <Text size="xs" c="dimmed" fw={600} tt="uppercase">
-                                    Content
-                                </Text>
-                                <AISuggestionButton
-                                    prompt={aiPrompt}
-                                    onSuggestion={handleAISuggestion}
-                                    label="Generate explanation with AI"
-                                    iconSize={14}
-                                />
-                            </Group>
-                            <div className={styles.editorWrap}>
-                                <LexicalEditor
-                                    key={editorKey}
-                                    value={editorInitialValue}
-                                    onChange={setLearningContent}
-                                    placeholder="Add an explanation, key concepts, or architectural overview for this test…"
-                                />
-                            </div>
-                        </Box>
-
-                        {/* Architectural Diagram section */}
-                        <Box>
-                            <Group mb={6} className={styles.sectionLabel}>
-                                <Text size="xs" c="dimmed" fw={600} tt="uppercase">
-                                    Architectural Diagram
-                                </Text>
-                                <AISuggestionButton
-                                    prompt={diagramAIPrompt}
-                                    onSuggestion={handleDiagramAISuggestion}
-                                    label="Generate diagram with AI"
-                                    iconSize={14}
-                                />
-                                {diagramState && (
-                                    <ActionIcon
-                                        size="xs"
-                                        variant="subtle"
-                                        color="red"
-                                        title="Clear diagram"
-                                        onClick={() => setDiagramState(null)}
-                                    >
-                                        <IconTrash size={12} />
-                                    </ActionIcon>
-                                )}
-                            </Group>
-                            {diagramState ? (
-                                <div className={styles.diagramWrap}>
-                                    <DiagramEditor
-                                        initialGraph={diagramState}
-                                        mode="instructor"
-                                        onGraphChange={handleGraphChange}
-                                        architectureTypes={[architectureType]}
-                                    />
-                                </div>
-                            ) : (
-                                <Box className={styles.diagramEmpty} onClick={() => { }}>
-                                    <IconHierarchy2
-                                        size={24}
-                                        color="var(--mantine-color-violet-4)"
-                                    />
-                                    <Text size="xs" c="dimmed" ta="center" mt={6}>
-                                        Click ✨ to generate an architectural diagram with AI, or it
-                                        will appear here after generation.
+                        {/* Collapsible sub-sections */}
+                        <Accordion multiple defaultValue={[]} variant="contained">
+                            {/* Rich text section */}
+                            <Accordion.Item value="content">
+                                <Accordion.Control>
+                                    <Text size="xs" fw={600} tt="uppercase" c="dimmed">
+                                        Content
                                     </Text>
-                                </Box>
-                            )}
-                        </Box>
-
-                        {/* Video URL section */}
-                        <Box>
-                            <Text size="xs" c="dimmed" fw={600} tt="uppercase" mb={6}>
-                                Video Link
-                            </Text>
-                            <TextInput
-                                placeholder="YouTube or Cloudinary video URL (optional)"
-                                value={videoUrl}
-                                onChange={(e) => setVideoUrl(e.currentTarget.value)}
-                                leftSection={<IconVideo size={14} />}
-                            />
-                        </Box>
-
-                        {/* Links section */}
-                        <Box>
-                            <Group justify="space-between" mb={6}>
-                                <Text size="xs" c="dimmed" fw={600} tt="uppercase">
-                                    Links
-                                </Text>
-                                <Button
-                                    size="compact-xs"
-                                    variant="subtle"
-                                    color="violet"
-                                    leftSection={<IconPlus size={12} />}
-                                    onClick={addLink}
-                                >
-                                    Add Link
-                                </Button>
-                            </Group>
-
-                            {links.length === 0 && (
-                                <Text size="xs" c="dimmed" pl={2}>
-                                    No links — click "Add Link" to attach a blog post or tutorial.
-                                </Text>
-                            )}
-
-                            <Stack gap="xs">
-                                {links.map((link) => (
-                                    <div key={link._id} className={styles.linkRow}>
+                                </Accordion.Control>
+                                <Accordion.Panel>
+                                    <Group mb={8} gap="xs" align="center">
                                         <TextInput
-                                            placeholder="Title"
+                                            style={{ flex: 1 }}
                                             size="xs"
-                                            value={link.title}
-                                            leftSection={<IconLink size={12} />}
-                                            onChange={(e) =>
-                                                updateLink(link._id, "title", e.currentTarget.value)
+                                            placeholder="Enter a topic to generate content (e.g. Kubernetes Pod scheduling)"
+                                            value={contentAITopic}
+                                            onChange={(e) => setContentAITopic(e.currentTarget.value)}
+                                        />
+                                        <AISuggestionButton
+                                            prompt={() => buildAIPrompt(contentAITopic)}
+                                            onSuggestion={handleAISuggestion}
+                                            label="Generate explanation with AI"
+                                            iconSize={14}
+                                            disabled={!contentAITopic.trim()}
+                                            onEmptyPrompt={() =>
+                                                notifications.show({
+                                                    position: "bottom-right",
+                                                    color: "orange",
+                                                    title: "Topic required",
+                                                    message:
+                                                        "Please enter a topic before generating content",
+                                                })
                                             }
                                         />
-                                        <TextInput
-                                            placeholder="URL"
-                                            size="xs"
-                                            value={link.url}
-                                            onChange={(e) =>
-                                                updateLink(link._id, "url", e.currentTarget.value)
-                                            }
+                                    </Group>
+                                    <div className={styles.editorWrap}>
+                                        <LexicalEditor
+                                            key={editorKey}
+                                            value={editorInitialValue}
+                                            onChange={setLearningContent}
+                                            placeholder="Add an explanation, key concepts, or architectural overview for this test…"
                                         />
-                                        <Select
-                                            size="xs"
-                                            value={link.type}
-                                            data={[
-                                                { value: "internal", label: "WhatsNxt" },
-                                                { value: "external", label: "External" },
-                                            ]}
-                                            onChange={(val) =>
-                                                updateLink(link._id, "type", val ?? "external")
-                                            }
-                                        />
-                                        <ActionIcon
-                                            color="red"
-                                            variant="subtle"
-                                            size="sm"
-                                            onClick={() => removeLink(link._id)}
-                                            mt={1}
-                                        >
-                                            <IconTrash size={13} />
-                                        </ActionIcon>
                                     </div>
-                                ))}
-                            </Stack>
-                        </Box>
+                                </Accordion.Panel>
+                            </Accordion.Item>
+
+                            {/* Architectural Diagram section */}
+                            <Accordion.Item value="diagram">
+                                <div className={styles.diagramAccordionRow}>
+                                    <Accordion.Control className={styles.diagramAccordionControl}>
+                                        <Text size="xs" fw={600} tt="uppercase" c="dimmed">
+                                            Architectural Diagram
+                                        </Text>
+                                    </Accordion.Control>
+                                    <Group gap="xs" className={styles.diagramAccordionActions}>
+                                        {isDiagramValidating && (
+                                            <Tooltip
+                                                label="AI is validating diagram accuracy…"
+                                                withArrow
+                                            >
+                                                <Group gap={4}>
+                                                    <Loader size={12} color="violet" />
+                                                    <Text size="xs" c="dimmed">
+                                                        Validating
+                                                    </Text>
+                                                </Group>
+                                            </Tooltip>
+                                        )}
+                                        <AISuggestionButton
+                                            prompt={getDiagramAIPrompt}
+                                            onSuggestion={handleDiagramAISuggestion}
+                                            label="Generate diagram with AI"
+                                            iconSize={14}
+                                        />
+                                        {diagramState && (
+                                            <ActionIcon
+                                                size="xs"
+                                                variant="subtle"
+                                                color="red"
+                                                title="Clear diagram"
+                                                onClick={() => setDiagramState(null)}
+                                            >
+                                                <IconTrash size={12} />
+                                            </ActionIcon>
+                                        )}
+                                    </Group>
+                                </div>
+                                <Accordion.Panel>
+                                    <Group mb={8} gap="xs" align="center">
+                                        <TextInput
+                                            style={{ flex: 1 }}
+                                            size="xs"
+                                            placeholder="Optional: describe the diagram (overrides content)"
+                                            value={diagramCustomPrompt}
+                                            onChange={(e) =>
+                                                setDiagramCustomPrompt(e.currentTarget.value)
+                                            }
+                                            leftSection={<IconHierarchy2 size={12} />}
+                                        />
+                                    </Group>
+                                    {diagramState ? (
+                                        <div className={styles.diagramWrap}>
+                                            <DiagramEditor
+                                                key={diagramKey}
+                                                initialGraph={diagramState}
+                                                mode="instructor"
+                                                canvasPan
+                                                onGraphChange={handleGraphChange}
+                                                architectureTypes={[architectureType]}
+                                            />
+                                        </div>
+                                    ) : (
+                                        <Box className={styles.diagramEmpty}>
+                                            <IconHierarchy2
+                                                size={24}
+                                                color="var(--mantine-color-violet-4)"
+                                            />
+                                            <Text size="xs" c="dimmed" ta="center" mt={6}>
+                                                Click ✨ to generate an architectural diagram with AI,
+                                                or it will appear here after generation.
+                                            </Text>
+                                        </Box>
+                                    )}
+                                </Accordion.Panel>
+                            </Accordion.Item>
+
+                            {/* Video URL section */}
+                            <Accordion.Item value="video">
+                                <Accordion.Control>
+                                    <Text size="xs" fw={600} tt="uppercase" c="dimmed">
+                                        Video Link
+                                    </Text>
+                                </Accordion.Control>
+                                <Accordion.Panel>
+                                    <TextInput
+                                        placeholder="YouTube or Cloudinary video URL (optional)"
+                                        value={videoUrl}
+                                        onChange={(e) => setVideoUrl(e.currentTarget.value)}
+                                        leftSection={<IconVideo size={14} />}
+                                    />
+                                </Accordion.Panel>
+                            </Accordion.Item>
+
+                            {/* Links section */}
+                            <Accordion.Item value="links">
+                                <div className={styles.diagramAccordionRow}>
+                                    <Accordion.Control className={styles.diagramAccordionControl}>
+                                        <Text size="xs" fw={600} tt="uppercase" c="dimmed">
+                                            Links
+                                        </Text>
+                                    </Accordion.Control>
+                                    <Group gap="xs" className={styles.diagramAccordionActions}>
+                                        <Button
+                                            size="compact-xs"
+                                            variant="subtle"
+                                            color="violet"
+                                            leftSection={<IconPlus size={12} />}
+                                            onClick={addLink}
+                                        >
+                                            Add Link
+                                        </Button>
+                                    </Group>
+                                </div>
+                                <Accordion.Panel>
+                                    {links.length === 0 && (
+                                        <Text size="xs" c="dimmed" pl={2}>
+                                            No links — click "Add Link" to attach a blog post or tutorial.
+                                        </Text>
+                                    )}
+
+                                    <Stack gap="xs">
+                                        {links.map((link) => (
+                                            <div key={link._id} className={styles.linkRow}>
+                                                <TextInput
+                                                    placeholder="Title"
+                                                    size="xs"
+                                                    value={link.title}
+                                                    leftSection={<IconLink size={12} />}
+                                                    onChange={(e) =>
+                                                        updateLink(link._id, "title", e.currentTarget.value)
+                                                    }
+                                                />
+                                                <TextInput
+                                                    placeholder="URL"
+                                                    size="xs"
+                                                    value={link.url}
+                                                    onChange={(e) =>
+                                                        updateLink(link._id, "url", e.currentTarget.value)
+                                                    }
+                                                />
+                                                <Select
+                                                    size="xs"
+                                                    value={link.type}
+                                                    data={[
+                                                        { value: "internal", label: "WhatsNxt" },
+                                                        { value: "external", label: "External" },
+                                                    ]}
+                                                    onChange={(val) =>
+                                                        updateLink(link._id, "type", val ?? "external")
+                                                    }
+                                                />
+                                                <ActionIcon
+                                                    color="red"
+                                                    variant="subtle"
+                                                    size="sm"
+                                                    onClick={() => removeLink(link._id)}
+                                                    mt={1}
+                                                >
+                                                    <IconTrash size={13} />
+                                                </ActionIcon>
+                                            </div>
+                                        ))}
+                                    </Stack>
+                                </Accordion.Panel>
+                            </Accordion.Item>
+                        </Accordion>
 
                         {/* Save row */}
                         <Group justify="flex-end">

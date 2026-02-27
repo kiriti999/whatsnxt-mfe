@@ -37,19 +37,26 @@ import {
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import labApi from "@/apis/lab.api";
+import { AISuggestions } from "@/apis/v1/blog/aiSuggestions";
 import DiagramEditor from "@/components/architecture-lab/DiagramEditor";
 import { AISuggestionButton } from "@/components/Common/AISuggestionButton";
 import { FullPageOverlay } from "@/components/Common/FullPageOverlay";
 import HintsEditor from "@/components/Lab/HintsEditor";
 import { LearningMaterialViewer } from "@/components/Lab/LearningMaterial/LearningMaterialViewer";
 import { StudentTestRunner } from "@/components/Lab/StudentTestRunner";
+import { useAIConfig } from "@/context/AIConfigContext";
 import useAuth from "@/hooks/Authentication/useAuth";
 import { useAutoPageCreation } from "@/hooks/useAutoPageCreation";
 import { usePageMapping } from "@/hooks/usePageMapping";
 import {
-  genericD3Shapes,
+  buildDiagramAIPrompt,
+  buildDiagramValidationPrompt,
+  type DiagramValidationIssue,
+  parseAIDiagramResponse,
+  parseAIValidationResponse,
+} from "@/utils/diagram-ai";
+import {
   getArchitectureSelectOptions,
-  getArchitectureShapes,
   L2_ARCHITECTURE_TYPES,
   L3_ARCHITECTURE_TYPES,
   MAX_ADDITIONAL_SELECTIONS,
@@ -74,256 +81,6 @@ const QUESTION_TYPES = [
   { value: "True/False", label: "True/False" },
   { value: "Fill in the blank", label: "Fill in the blank" },
 ];
-
-/**
- * Build a prompt for the AI to generate architecture diagram JSON.
- * The prompt includes available shape types so the AI uses valid shape IDs.
- */
-const buildDiagramAIPrompt = (
-  userPrompt: string,
-  archType: string,
-  additionalTypes: string[] = [],
-): string => {
-  // Gather available shape IDs for primary + additional architecture types
-  const allTypes = [archType, ...additionalTypes];
-  const archShapes = allTypes.flatMap((t) => getArchitectureShapes(t));
-  const commonShapes = Object.values(genericD3Shapes);
-
-  const archShapeList = archShapes
-    .map((s: any) => `${s.id} (${s.name})`)
-    .join(", ");
-  const commonShapeList = commonShapes
-    .map((s: any) => `${s.id} (${s.name})`)
-    .join(", ");
-
-  return `You are an architecture diagram generator. Generate a clear, logical diagram as JSON based on the following user prompt.
-
-User prompt: "${userPrompt}"
-Architecture type: ${archType}
-
-Available architecture-specific shapes (use these shape IDs for the "shapeId" field):
-${archShapeList || "None available"}
-
-Available common shapes:
-${commonShapeList}
-
-CRITICAL RULES FOR CLARITY:
-1. Respond ONLY with valid JSON, no markdown, no explanation.
-2. Use the exact shape IDs listed above.
-3. Create a CLEAR FLOW - avoid creating multiple overlapping connections between the same components.
-4. LIMIT connections - each node should have 1-3 connections maximum, not connected to everything.
-5. Follow logical patterns based on diagram type:
-   - For lifecycle/flow diagrams: Create a linear or tree-like flow (A→B→C→D)
-   - For architecture diagrams: Use hub-and-spoke or layered patterns
-   - For process diagrams: Show clear sequential steps
-6. Use containers (common-container/common-group) to group related components logically.
-7. Position nodes in organized rows/columns - containers should be large (width: 400+, height: 300+).
-8. SPACING: Keep nodes at least 120-150px apart (center to center) to ensure arrows are clearly visible. Don't place shapes directly adjacent.
-9. AVOID creating bidirectional arrows or multiple arrows between same nodes unless absolutely necessary.
-10. Think about the domain - for example:
-   - Kubernetes: API Server is the hub, other components connect through it
-   - Web apps: Client → Load Balancer → App Servers → Database (layers)
-   - CI/CD: Sequential pipeline stages
-11. Each link should have a clear purpose - don't connect everything to everything.
-
-JSON format:
-{
-  "nodes": [
-    {
-      "id": "unique-id-1",
-      "shapeId": "<shape-id-from-above>",
-      "x": 100,
-      "y": 100,
-      "width": 60,
-      "height": 60,
-      "label": "My Component"
-    }
-  ],
-  "links": [
-    {
-      "source": "unique-id-1",
-      "target": "unique-id-2",
-      "sourceEdge": "right",  // Optional: "top" | "right" | "bottom" | "left"
-      "targetEdge": "left"    // Optional: "top" | "right" | "bottom" | "left"
-    }
-  ]
-}
-
-ARROW ROUTING RULES (CRITICAL for clean diagrams):
-12. Specify sourceEdge and targetEdge for each link to control which side of shapes arrows connect to.
-13. Choose edges that create clean, non-overlapping paths - avoid arrows going behind other shapes.
-14. For left-to-right flows: use sourceEdge="right" and targetEdge="left"
-15. For top-to-bottom flows: use sourceEdge="bottom" and targetEdge="top"
-16. When a node is above another, connect from bottom to top. When beside, connect from side to side.
-17. Think about node positions and choose edges that create the shortest, clearest path without crossing other shapes.
-18. Example: If API Server (center) connects to Controller Manager (left), use sourceEdge="left" and targetEdge="top" or "right" depending on Controller Manager's position.
-
-CONTAINER BOUNDARY RULES (for groups/pools):
-19. Arrows should NEVER route through container borders - always route arrows around containers or connect to nodes fully inside/outside.
-20. If connecting to a node inside a container from outside: position the source node near the container's entry point (e.g., outside-left connecting to inside-right).
-21. If multiple external nodes connect to nodes inside a container: either position external nodes near container boundary OR place them inside the container.
-22. Avoid horizontal/diagonal arrows that cut through container borders - this creates visual confusion.
-
-KUBERNETES ARCHITECTURE EXAMPLE (correct patterns):
-Option A - Flat Layout (PREFERRED for Kubernetes):
-  - User/Client (external, left)
-  - API Server (center hub)
-  - etcd (right of API Server)
-  - Controller Manager (below API Server)
-  - Scheduler (below API Server)
-  - Kubelet nodes (bottom, no container)
-  - Arrows: User→API Server, API Server→etcd, API Server→Controller Manager, API Server→Scheduler, Scheduler→Kubelet
-  - No container borders to violate - clean spatial grouping
-
-Option B - Container Layout (ONLY if necessary):
-  - Put ALL cluster components (API Server, etcd, Controller Manager, Scheduler, Kubelet, Pods) INSIDE one "Kubernetes Cluster" container
-  - OR use TWO separate containers: "Control Plane" (API Server, etcd, Controller Manager, Scheduler) + "Worker Nodes" (Kubelet, Pods)
-  - External components (User, Load Balancer) stay outside and connect to container entry points only
-
-Generate a professional, well-organized architecture diagram with 6-12 nodes and MINIMAL, LOGICAL connections that tell a clear story.`;
-};
-
-/**
- * Parse raw AI text response into diagram state {nodes, links}.
- * The AI response should be JSON, but may be wrapped in markdown code fences.
- */
-/**
- * Spread nodes apart so no two bounding boxes are closer than MIN_NODE_GAP pixels.
- * Runs iteratively until stable or max iterations reached.
- */
-const enforceMinimumSpacing = (nodes: any[]): any[] => {
-  const MIN_NODE_GAP = 30; // minimum px gap between shape edges
-  const MAX_ITERATIONS = 10;
-  const result = nodes.map((n) => ({ ...n }));
-
-  for (let iter = 0; iter < MAX_ITERATIONS; iter++) {
-    let moved = false;
-    for (let i = 0; i < result.length; i++) {
-      for (let j = i + 1; j < result.length; j++) {
-        const a = result[i];
-        const b = result[j];
-        const aRight = a.x + a.width;
-        const aBottom = a.y + a.height;
-        const bRight = b.x + b.width;
-        const bBottom = b.y + b.height;
-
-        const overlapX = Math.min(aRight, bRight) - Math.max(a.x, b.x);
-        const overlapY = Math.min(aBottom, bBottom) - Math.max(a.y, b.y);
-
-        // Check horizontal gap
-        const gapX =
-          b.x > a.x
-            ? b.x - aRight // b is to the right
-            : a.x - bRight; // a is to the right
-        // Check vertical gap
-        const gapY =
-          b.y > a.y
-            ? b.y - aBottom // b is below
-            : a.y - bBottom; // a is below
-
-        const tooClose = overlapX > -MIN_NODE_GAP && overlapY > -MIN_NODE_GAP;
-        if (!tooClose) continue;
-
-        // Push nodes apart along the axis with least separation needed
-        const pushX = MIN_NODE_GAP - gapX;
-        const pushY = MIN_NODE_GAP - gapY;
-
-        if (pushX < pushY) {
-          const half = pushX / 2;
-          if (b.x >= a.x) {
-            b.x += half;
-            a.x -= half;
-          } else {
-            a.x += half;
-            b.x -= half;
-          }
-        } else {
-          const half = pushY / 2;
-          if (b.y >= a.y) {
-            b.y += half;
-            a.y -= half;
-          } else {
-            a.y += half;
-            b.y -= half;
-          }
-        }
-        moved = true;
-      }
-    }
-    if (!moved) break;
-  }
-  return result;
-};
-
-const parseAIDiagramResponse = (
-  rawResponse: string,
-  archType: string,
-): { nodes: any[]; links: any[] } | null => {
-  try {
-    // Strip markdown code fences if present
-    let jsonStr = rawResponse.trim();
-    if (jsonStr.startsWith("```")) {
-      jsonStr = jsonStr.replace(/^```(?:json)?\n?/, "").replace(/\n?```$/, "");
-    }
-
-    const parsed = JSON.parse(jsonStr);
-    if (!parsed.nodes || !Array.isArray(parsed.nodes)) {
-      console.error("AI response missing nodes array");
-      return null;
-    }
-
-    // Gather available shapes for lookup
-    const archShapes = getArchitectureShapes(archType);
-    const commonShapes = Object.values(genericD3Shapes);
-    const allShapes = [...archShapes, ...commonShapes];
-
-    // Transform AI nodes into DiagramEditor NodeType format
-    const nodes = parsed.nodes.map((aiNode: any) => {
-      // Find matching shape definition (cast to any since different architecture
-      // libraries have varying property types)
-      const shapeDef: any = allShapes.find(
-        (s: any) =>
-          s.id === aiNode.shapeId || s.type === aiNode.shapeId?.toLowerCase(),
-      );
-
-      return {
-        id:
-          aiNode.id ||
-          Date.now().toString() + Math.random().toString(36).substr(2, 5),
-        x: aiNode.x ?? 50 + Math.random() * 400,
-        y: aiNode.y ?? 50 + Math.random() * 400,
-        type: shapeDef?.type || "rect",
-        label: aiNode.label || shapeDef?.name || "Node",
-        width: aiNode.width || shapeDef?.width || 60,
-        height: aiNode.height || shapeDef?.height || 60,
-        fill: shapeDef?.fill || "#fff",
-        stroke: shapeDef?.stroke || "#333",
-        strokeWidth: shapeDef?.strokeWidth || 1,
-        rx: shapeDef?.rx,
-        strokeDashArray: shapeDef?.strokeDashArray,
-        pathData: shapeDef?.pathData,
-        shapeId: aiNode.shapeId,
-      };
-    });
-
-    // Transform links with edge routing support
-    const links = (parsed.links || []).map((aiLink: any) => ({
-      source: aiLink.source,
-      target: aiLink.target,
-      sourceEdge: aiLink.sourceEdge, // "top" | "right" | "bottom" | "left"
-      targetEdge: aiLink.targetEdge, // "top" | "right" | "bottom" | "left"
-      waypoints: aiLink.waypoints || [],
-    }));
-
-    // Enforce minimum spacing between nodes to prevent overlapping shapes
-    const spacedNodes = enforceMinimumSpacing(nodes);
-
-    return { nodes: spacedNodes, links };
-  } catch (err) {
-    console.error("Failed to parse AI diagram response:", err, rawResponse);
-    return null;
-  }
-};
 
 /**
  * Build a prompt for the AI to generate answer/options for a question.
@@ -508,6 +265,16 @@ const LabPageEditorPage = () => {
   const [prompt, setPrompt] = useState("");
   const [expectedDiagramState, setExpectedDiagramState] = useState<any>(null);
   const [hints, setHints] = useState<string[]>([]);
+  const [isDiagramValidating, setIsDiagramValidating] = useState(false);
+  const [validationIssues, setValidationIssues] = useState<
+    DiagramValidationIssue[]
+  >([]);
+  const [validationSummary, setValidationSummary] = useState<string>("");
+  const [
+    validationModalOpened,
+    { open: openValidationModal, close: closeValidationModal },
+  ] = useDisclosure(false);
+  const { selectedAI, selectedModel } = useAIConfig();
 
   // Combine primary + additional architecture types for DiagramEditor
   const allArchitectureTypes = [
@@ -1888,44 +1655,126 @@ const LabPageEditorPage = () => {
                       Prompt <span style={{ color: "red" }}>*</span>
                     </Text>
                     {canEditContent && (
-                      <AISuggestionButton
-                        prompt={() =>
-                          buildDiagramAIPrompt(prompt, architectureType, [
-                            ...additionalSubCatArchTypes,
-                            ...additionalNestedArchTypes,
-                          ])
-                        }
-                        label="Generate diagram from prompt with AI"
-                        disabled={!prompt.trim()}
-                        onEmptyPrompt={() => {
-                          notifications.show({
-                            title: "Missing Information",
-                            message: "Please enter a prompt first.",
-                            color: "orange",
-                          });
-                        }}
-                        onSuggestion={(suggestion) => {
-                          const diagramData = parseAIDiagramResponse(
-                            suggestion,
-                            architectureType,
-                          );
-                          if (diagramData) {
-                            setExpectedDiagramState(diagramData);
+                      <>
+                        <AISuggestionButton
+                          prompt={() =>
+                            buildDiagramAIPrompt(prompt, architectureType, [
+                              ...additionalSubCatArchTypes,
+                              ...additionalNestedArchTypes,
+                            ])
+                          }
+                          label="Generate diagram from prompt with AI"
+                          disabled={!prompt.trim() || isDiagramValidating}
+                          onEmptyPrompt={() => {
+                            notifications.show({
+                              title: "Missing Information",
+                              message: "Please enter a prompt first.",
+                              color: "orange",
+                            });
+                          }}
+                          onSuggestion={async (suggestion) => {
+                            // Pass 1: Parse and render immediately
+                            const pass1 = parseAIDiagramResponse(
+                              suggestion,
+                              architectureType,
+                            );
+                            if (!pass1) {
+                              notifications.show({
+                                title: "Generation Failed",
+                                message:
+                                  "Could not parse the AI response into a diagram. Please try again.",
+                                color: "red",
+                              });
+                              return;
+                            }
+                            setExpectedDiagramState(pass1);
                             notifications.show({
                               title: "Diagram Generated",
-                              message: `Created ${diagramData.nodes.length} nodes and ${diagramData.links.length} connections.`,
-                              color: "teal",
+                              message: `Created ${pass1.nodes.length} nodes and ${pass1.links.length} connections. Validating...`,
+                              color: "blue",
                             });
-                          } else {
-                            notifications.show({
-                              title: "Generation Failed",
-                              message:
-                                "Could not parse the AI response into a diagram. Please try again.",
-                              color: "red",
-                            });
-                          }
-                        }}
-                      />
+
+                            // Pass 2: Validate and auto-correct via AI
+                            setIsDiagramValidating(true);
+                            try {
+                              const originalPrompt = buildDiagramAIPrompt(
+                                prompt,
+                                architectureType,
+                                [
+                                  ...additionalSubCatArchTypes,
+                                  ...additionalNestedArchTypes,
+                                ],
+                              );
+                              const messages = buildDiagramValidationPrompt(
+                                originalPrompt,
+                                suggestion,
+                              );
+                              const response =
+                                await AISuggestions.getSuggestionByAI({
+                                  messages,
+                                  aiModel: selectedAI,
+                                  modelVersion: selectedModel,
+                                });
+                              if (
+                                response.status === 200 &&
+                                response.data?.suggestion
+                              ) {
+                                const validationResult =
+                                  parseAIValidationResponse(
+                                    response.data.suggestion,
+                                    architectureType,
+                                  );
+                                if (validationResult) {
+                                  setExpectedDiagramState(
+                                    validationResult.diagram,
+                                  );
+                                  setValidationIssues(validationResult.issues);
+                                  setValidationSummary(
+                                    validationResult.summary,
+                                  );
+
+                                  // Show modal if there are issues
+                                  if (validationResult.issues.length > 0) {
+                                    openValidationModal();
+                                    notifications.show({
+                                      title: "Diagram Validated",
+                                      message: `Found ${validationResult.issues.length} issue(s). Click to review.`,
+                                      color: "yellow",
+                                    });
+                                  } else {
+                                    notifications.show({
+                                      title: "Diagram Validated",
+                                      message:
+                                        "AI reviewed and corrected the diagram for accuracy.",
+                                      color: "teal",
+                                    });
+                                  }
+                                }
+                              }
+                            } catch (err: unknown) {
+                              const msg = (
+                                err as {
+                                  response?: { data?: { message?: string } };
+                                }
+                              )?.response?.data?.message;
+                              notifications.show({
+                                title: "Validation Skipped",
+                                message:
+                                  msg ??
+                                  "Could not run validation pass — diagram may have minor issues.",
+                                color: "yellow",
+                              });
+                            } finally {
+                              setIsDiagramValidating(false);
+                            }
+                          }}
+                        />
+                        {isDiagramValidating && (
+                          <Text size="xs" c="dimmed">
+                            Validating diagram...
+                          </Text>
+                        )}
+                      </>
                     )}
                   </Group>
                   <Textarea
@@ -2200,6 +2049,105 @@ const LabPageEditorPage = () => {
               >
                 Delete Diagram Test
               </Button>
+            </Group>
+          </Stack>
+        </Modal>
+
+        {/* Validation Summary Modal */}
+        <Modal
+          opened={validationModalOpened}
+          onClose={closeValidationModal}
+          title="Diagram Validation Summary"
+          size="lg"
+        >
+          <Stack gap="md">
+            <Alert
+              color={
+                validationIssues.some((i) => i.severity === "error")
+                  ? "red"
+                  : validationIssues.some((i) => i.severity === "warning")
+                    ? "yellow"
+                    : "teal"
+              }
+              title={validationSummary}
+            >
+              {validationIssues.length === 0
+                ? "No issues found. The diagram is ready to use."
+                : `Found ${validationIssues.length} issue(s) during validation.`}
+            </Alert>
+
+            {validationIssues.length > 0 && (
+              <Stack gap="xs">
+                <Text fw={500}>Issues Found:</Text>
+                {validationIssues.map((issue, idx) => (
+                  <Paper
+                    key={`${issue.severity}-${issue.category}-${idx}`}
+                    p="sm"
+                    withBorder
+                    style={{
+                      borderLeft: `4px solid ${issue.severity === "error"
+                        ? "var(--mantine-color-red-6)"
+                        : issue.severity === "warning"
+                          ? "var(--mantine-color-yellow-6)"
+                          : "var(--mantine-color-blue-6)"
+                        }`,
+                    }}
+                  >
+                    <Group gap="xs" mb={4}>
+                      <Badge
+                        size="sm"
+                        color={
+                          issue.severity === "error"
+                            ? "red"
+                            : issue.severity === "warning"
+                              ? "yellow"
+                              : "blue"
+                        }
+                      >
+                        {issue.severity.toUpperCase()}
+                      </Badge>
+                      <Text size="sm" fw={500}>
+                        {issue.category}
+                      </Text>
+                    </Group>
+                    <Text size="sm">{issue.message}</Text>
+                    {issue.affectedNodes && issue.affectedNodes.length > 0 && (
+                      <Text size="xs" c="dimmed" mt={4}>
+                        Affected: {issue.affectedNodes.join(", ")}
+                      </Text>
+                    )}
+                  </Paper>
+                ))}
+              </Stack>
+            )}
+
+            <Group justify="flex-end" mt="md">
+              <Button
+                variant="subtle"
+                onClick={() => {
+                  const issueText = validationIssues
+                    .map(
+                      (i) =>
+                        `[${i.severity.toUpperCase()}] ${i.category}: ${i.message}${i.affectedNodes?.length
+                          ? ` (Nodes: ${i.affectedNodes.join(", ")})`
+                          : ""
+                        }`,
+                    )
+                    .join("\n");
+                  navigator.clipboard.writeText(
+                    `Validation Summary: ${validationSummary}\n\n${issueText || "No issues found."}`,
+                  );
+                  notifications.show({
+                    title: "Copied",
+                    message: "Validation summary copied to clipboard",
+                    color: "teal",
+                  });
+                }}
+                leftSection={<IconDeviceDesktop size={16} />}
+              >
+                Copy to Clipboard
+              </Button>
+              <Button onClick={closeValidationModal}>Close</Button>
             </Group>
           </Stack>
         </Modal>

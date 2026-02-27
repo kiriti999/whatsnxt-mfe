@@ -1,6 +1,6 @@
 'use client';
 
-import { Anchor, Badge, Box, Stack, Text } from '@mantine/core';
+import { Anchor, Badge, Box, Collapse, Group, Stack, Text, UnstyledButton } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import {
     IconBooks,
@@ -12,6 +12,7 @@ import {
 } from '@tabler/icons-react';
 import type { LearningLink } from '@whatsnxt/core-types';
 import dynamic from 'next/dynamic';
+import type React from 'react';
 import { useMemo } from 'react';
 import type { DiagramState } from '@/utils/diagram-ai';
 import { LexicalEditor } from '../../StructuredTutorial/Editor/LexicalEditor';
@@ -21,6 +22,39 @@ const DiagramEditor = dynamic(
     () => import('../../architecture-lab/DiagramEditor'),
     { ssr: false },
 );
+
+interface SubSectionProps {
+    icon: React.ReactNode;
+    title: string;
+    defaultOpen?: boolean;
+    children: React.ReactNode;
+}
+
+function SubSection({ icon, title, defaultOpen = false, children }: SubSectionProps) {
+    const [opened, { toggle }] = useDisclosure(defaultOpen);
+
+    return (
+        <Box className={styles.subCard}>
+            <UnstyledButton onClick={toggle} className={styles.subHeader}>
+                <Group gap="xs" wrap="nowrap">
+                    {icon}
+                    <Text size="xs" fw={600} c="violet.6" tt="uppercase" style={{ letterSpacing: '0.5px' }}>
+                        {title}
+                    </Text>
+                </Group>
+                <IconChevronRight
+                    size={14}
+                    className={`${styles.subChevron} ${opened ? styles.subChevronOpen : ''}`}
+                />
+            </UnstyledButton>
+            <Collapse in={opened}>
+                <Box className={styles.subBody}>
+                    {children}
+                </Box>
+            </Collapse>
+        </Box>
+    );
+}
 
 export interface LearningMaterialViewerProps {
     learningContent?: string;
@@ -117,45 +151,42 @@ export function LearningMaterialViewer({
             {/* Body */}
             {opened && (
                 <div className={styles.body}>
-                    <Stack gap="xl">
-                        {/* Rich text content */}
+                    <Stack gap="sm">
+                        {/* Explanation sub-section */}
                         {learningContent && (
-                            <Box>
-                                <div className={styles.sectionTitle}>Explanation</div>
+                            <SubSection
+                                icon={<IconBooks size={14} color="var(--mantine-color-violet-5)" />}
+                                title="Explanation"
+                            >
                                 <div className={styles.contentWrap}>
-                                    <LexicalEditor
-                                        value={learningContent}
-                                        readOnly
-                                    />
+                                    <LexicalEditor value={learningContent} readOnly />
                                 </div>
-                            </Box>
+                            </SubSection>
                         )}
 
-                        {/* Architectural Diagram */}
+                        {/* Architecture Diagram sub-section */}
                         {parsedDiagram && (
-                            <Box>
-                                <div className={styles.sectionTitle}>
-                                    <IconHierarchy2 size={12} style={{ verticalAlign: 'middle', marginRight: 4 }} />
-                                    Architecture Diagram
-                                </div>
+                            <SubSection
+                                icon={<IconHierarchy2 size={14} color="var(--mantine-color-violet-5)" />}
+                                title="Architecture Diagram"
+                            >
                                 <div className={styles.diagramViewWrap}>
                                     <DiagramEditor
                                         initialGraph={parsedDiagram}
                                         mode="instructor"
+                                        viewOnly
                                         architectureTypes={[]}
                                     />
                                 </div>
-                            </Box>
+                            </SubSection>
                         )}
 
-                        {/* Video */}
+                        {/* Video sub-section */}
                         {learningVideoUrl && (
-                            <Box>
-                                <div className={styles.sectionTitle}>
-                                    <IconVideo size={12} style={{ verticalAlign: 'middle', marginRight: 4 }} />
-                                    Video
-                                </div>
-
+                            <SubSection
+                                icon={<IconVideo size={14} color="var(--mantine-color-violet-5)" />}
+                                title="Video"
+                            >
                                 {youtubeEmbedUrl ? (
                                     <div className={styles.videoWrap}>
                                         <iframe
@@ -183,16 +214,15 @@ export function LearningMaterialViewer({
                                         </div>
                                     </Anchor>
                                 )}
-                            </Box>
+                            </SubSection>
                         )}
 
-                        {/* Links */}
+                        {/* Resources sub-section */}
                         {learningLinks && learningLinks.length > 0 && (
-                            <Box>
-                                <div className={styles.sectionTitle}>
-                                    <IconLink size={12} style={{ verticalAlign: 'middle', marginRight: 4 }} />
-                                    Resources
-                                </div>
+                            <SubSection
+                                icon={<IconLink size={14} color="var(--mantine-color-violet-5)" />}
+                                title="Resources"
+                            >
                                 <Stack gap="xs">
                                     {learningLinks.map((link, idx) => (
                                         <Anchor
@@ -202,6 +232,11 @@ export function LearningMaterialViewer({
                                             rel="noopener noreferrer"
                                             className={styles.linkItem}
                                             underline="never"
+                                            onClick={(e) => {
+                                                // Ensure the link opens in a new tab
+                                                e.preventDefault();
+                                                window.open(link.url, '_blank', 'noopener,noreferrer');
+                                            }}
                                         >
                                             {link.type === 'internal' ? (
                                                 <IconBooks size={15} color="var(--mantine-color-violet-5)" />
@@ -217,7 +252,7 @@ export function LearningMaterialViewer({
                                         </Anchor>
                                     ))}
                                 </Stack>
-                            </Box>
+                            </SubSection>
                         )}
                     </Stack>
                 </div>
