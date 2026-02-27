@@ -1,0 +1,104 @@
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    padding: 10px 14px;
+    border-radius: var(--mantine-radius-sm);
+    background: light-dark(var(--mantine-color-violet-0), var(--mantine-color-dark-6));
+    border: 1px solid light-dark(var(--mantine-color-violet-2), var(--mantine-color-dark-4));
+    transition: background 150ms ease;
+    user-select: none;
+    width: 100%;
+    text-align: left;
+    font: inherit;
+    outline: none;
+}
+
+.header:hover {
+    background: light-dark(var(--mantine-color-violet-1), var(--mantine-color-dark-5));
+}
+
+.header:focus-visible {
+    outline: 2px solid var(--mantine-color-violet-5);
+    outline-offset: 2px;
+}
+
+.headerLeft {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.chevron {
+    transition: transform 200ms ease;
+    color: light-dark(var(--mantine-color-violet-6), var(--mantine-color-violet-4));
+    flex-shrink: 0;
+}
+
+.chevronOpen {
+    transform: rotate(90deg);
+}
+
+.editorWrap {
+    border: 1px solid light-dark(var(--mantine-color-gray-3), var(--mantine-color-dark-4));
+    border-radius: var(--mantine-radius-sm);
+    overflow: hidden;
+    min-height: 180px;
+}
+
+.sectionLabel {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.linkRow {
+    display: grid;
+    grid-template-columns: 1fr 1fr 110px 32px;
+    gap: 8px;
+    align-items: flex-end;
+}
+
+@media (max-width: 640px) {
+    .linkRow {
+        grid-template-columns: 1fr 32px;
+        grid-template-rows: auto auto auto;
+    }
+}
+
+.diagramWrap {
+    border: 1px solid light-dark(var(--mantine-color-gray-3), var(--mantine-color-dark-4));
+    border-radius: var(--mantine-radius-sm);
+    overflow: hidden;
+    height: 400px;
+    position: relative;
+}
+
+.diagramEmpty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 16px;
+    border: 1px dashed light-dark(var(--mantine-color-violet-3), var(--mantine-color-dark-4));
+    border-radius: var(--mantine-radius-sm);
+    background: light-dark(var(--mantine-color-violet-0), var(--mantine-color-dark-7));
+    min-height: 100px;
+}
+
+.savedBadge {
+    animation: fadeIn 300ms ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}

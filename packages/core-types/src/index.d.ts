@@ -20,11 +20,22 @@ export interface Lab extends BaseEntity {
   defaultPageId?: string; // Optional: ID of auto-created default page (present only in creation response)
 }
 
+export interface LearningLink {
+  title: string;
+  url: string;
+  type: 'internal' | 'external';
+}
+
 export interface LabPage extends BaseEntity {
   labId: string;
   pageNumber: number;
   hasQuestion: boolean;
   hasDiagramTest: boolean;
+  hasLearningMaterial: boolean;
+  learningContent?: string;
+  learningVideoUrl?: string;
+  learningLinks?: LearningLink[];
+  learningDiagramState?: string; // JSON string of {nodes, links} for architectural diagram
   question?: Question; // Optional: can be embedded or linked
   diagramTest?: DiagramTest; // Optional: can be embedded or linked
 }

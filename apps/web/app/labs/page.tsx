@@ -30,6 +30,25 @@ import { useEffect, useState } from "react";
 import labApi from "@/apis/lab.api";
 import useAuth from "@/hooks/Authentication/useAuth";
 
+/** Extract plain text from a Lexical SerializedEditorState JSON string, or return as-is if not JSON. */
+function labDescriptionText(description: string): string {
+  try {
+    const parsed = JSON.parse(description) as { root?: { children?: unknown[] } };
+    if (!parsed?.root) return description;
+    const extractText = (node: unknown): string => {
+      const n = node as Record<string, unknown>;
+      if (typeof n.__text === "string") return n.__text;
+      if (Array.isArray(n.children)) {
+        return (n.children as unknown[]).map(extractText).join("");
+      }
+      return "";
+    };
+    return extractText(parsed.root).trim();
+  } catch {
+    return description;
+  }
+}
+
 interface LabWithProgress extends Lab {
   progress?: {
     totalPages: number;
@@ -501,7 +520,7 @@ const LabsPage = () => {
                           <Button
                             variant="filled"
                             color="teal"
-                            size="sm"
+                            size="xs"
                             style={{ flexShrink: 0 }}
                             leftSection={<IconPlayerPlay size={14} />}
                             onClick={() => router.push(`/labs/${lab.id}?tab=tests`)}
@@ -512,7 +531,7 @@ const LabsPage = () => {
                           <Button
                             variant="filled"
                             color="orange"
-                            size="sm"
+                            size="xs"
                             style={{ flexShrink: 0 }}
                             leftSection={isPaid ? <IconLock size={14} /> : undefined}
                             onClick={() => router.push(`/labs/${lab.id}?tab=tests`)}
@@ -525,7 +544,7 @@ const LabsPage = () => {
                       {/* Description */}
                       {lab.description && (
                         <Text size="sm" c="dimmed" lineClamp={2}>
-                          {lab.description}
+                          {labDescriptionText(lab.description)}
                         </Text>
                       )}
 

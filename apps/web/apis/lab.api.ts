@@ -7,18 +7,18 @@
  * NO MOCK DATA - All requests go to real backend
  */
 
-import { HttpClient } from '@whatsnxt/http-client';
+import { HttpClient } from "@whatsnxt/http-client";
 
 const http = new HttpClient(process.env.NEXT_PUBLIC_BFF_HOST_LAB_API);
 
 import type {
+  DiagramShape,
+  DiagramTest,
   Lab,
   LabPage,
-  Question,
-  DiagramTest,
-  DiagramShape,
   PaginatedResponse,
-} from '@whatsnxt/core-types';
+  Question,
+} from "@whatsnxt/core-types";
 
 /**
  * Request DTOs
@@ -51,12 +51,25 @@ export interface CreateLabPageRequest {
 }
 
 export interface CreateQuestionRequest {
-  type: 'MCQ' | 'True/False' | 'Fill in the blank';
+  type: "MCQ" | "True/False" | "Fill in the blank";
   questionText: string;
   options?: Array<{ text: string }>;
   correctAnswer: string;
   questionId?: string; // For updates
   isPreview?: boolean; // Whether this question is available as a free preview
+}
+
+export interface LearningLinkRequest {
+  title: string;
+  url: string;
+  type: "internal" | "external";
+}
+
+export interface SaveLearningMaterialRequest {
+  learningContent?: string;
+  learningVideoUrl?: string;
+  learningLinks?: LearningLinkRequest[];
+  learningDiagramState?: string; // JSON string of {nodes, links}
 }
 
 export interface CreateDiagramTestRequest {
@@ -100,8 +113,8 @@ const labApi = {
    * @returns Paginated draft labs
    */
   getDraftLabs: (instructorId: string, page?: number, perPage?: number) =>
-    http.get<PaginatedResponse<Lab>>('/labs', {
-      params: { instructorId, page, perPage, status: 'draft' },
+    http.get<PaginatedResponse<Lab>>("/labs", {
+      params: { instructorId, page, perPage, status: "draft" },
     }),
 
   /**
@@ -111,8 +124,8 @@ const labApi = {
    * @returns Paginated published labs
    */
   getPublishedLabs: (page?: number, perPage?: number) =>
-    http.get<PaginatedResponse<Lab>>('/labs', {
-      params: { page, perPage, status: 'published' },
+    http.get<PaginatedResponse<Lab>>("/labs", {
+      params: { page, perPage, status: "published" },
     }),
 
   /**
@@ -121,7 +134,7 @@ const labApi = {
    * @returns All labs owned by the instructor
    */
   getLabsByInstructor: (instructorId: string) =>
-    http.get<{ data: Lab[] }>('/labs', {
+    http.get<{ data: Lab[] }>("/labs", {
       params: { instructorId, perPage: 1000 }, // Get all labs
     }),
 
@@ -130,14 +143,16 @@ const labApi = {
    * @param data - Lab creation data
    * @returns Created lab
    */
-  createLab: (data: CreateLabRequest) => http.post<{ message: string; data: Lab }>('/labs', data),
+  createLab: (data: CreateLabRequest) =>
+    http.post<{ message: string; data: Lab }>("/labs", data),
 
   /**
    * Get a lab by ID with all pages
    * @param labId - Lab UUID
    * @returns Lab with populated pages
    */
-  getLabById: (labId: string) => http.get<{ data: Lab & { pages: LabPage[] } }>(`/labs/${labId}`),
+  getLabById: (labId: string) =>
+    http.get<{ data: Lab & { pages: LabPage[] } }>(`/labs/${labId}`),
 
   /**
    * Update a draft lab
@@ -154,7 +169,8 @@ const labApi = {
    * Cannot delete published labs
    * @param labId - Lab UUID
    */
-  deleteLab: (labId: string) => http.delete<{ message: string }>(`/labs/${labId}`),
+  deleteLab: (labId: string) =>
+    http.delete<{ message: string }>(`/labs/${labId}`),
 
   /**
    * Publish a lab
@@ -170,7 +186,8 @@ const labApi = {
    * @param labId - Lab UUID
    * @returns Array of lab pages
    */
-  getLabPages: (labId: string) => http.get<{ data: LabPage[] }>(`/labs/${labId}/pages`),
+  getLabPages: (labId: string) =>
+    http.get<{ data: LabPage[] }>(`/labs/${labId}/pages`),
 
   /**
    * Create a new lab page
@@ -192,7 +209,7 @@ const labApi = {
     http.get<{
       data: LabPage & { question?: Question; diagramTest?: DiagramTest };
     }>(`/labs/${labId}/pages/${pageId}`, {
-      params: preview ? { preview: 'true' } : undefined,
+      params: preview ? { preview: "true" } : undefined,
     }),
 
   /**
@@ -205,8 +222,12 @@ const labApi = {
   updateLabPage: (
     labId: string,
     pageId: string,
-    data: { hasQuestion?: boolean; hasDiagramTest?: boolean }
-  ) => http.put<{ message: string; data: LabPage }>(`/labs/${labId}/pages/${pageId}`, data),
+    data: { hasQuestion?: boolean; hasDiagramTest?: boolean },
+  ) =>
+    http.put<{ message: string; data: LabPage }>(
+      `/labs/${labId}/pages/${pageId}`,
+      data,
+    ),
 
   /**
    * Delete a lab page
@@ -225,7 +246,10 @@ const labApi = {
    * @returns Created/updated question
    */
   saveQuestion: (labId: string, pageId: string, data: CreateQuestionRequest) =>
-    http.post<{ message: string; data: Question }>(`/labs/${labId}/pages/${pageId}/question`, data),
+    http.post<{ message: string; data: Question }>(
+      `/labs/${labId}/pages/${pageId}/question`,
+      data,
+    ),
 
   /**
    * Delete a question from a lab page
@@ -237,7 +261,7 @@ const labApi = {
     http.delete<{ message: string }>(
       questionId
         ? `/labs/${labId}/pages/${pageId}/question/${questionId}`
-        : `/labs/${labId}/pages/${pageId}/question`
+        : `/labs/${labId}/pages/${pageId}/question`,
     ),
 
   /**
@@ -248,10 +272,14 @@ const labApi = {
    * @param data - Diagram test data
    * @returns Created/updated diagram test
    */
-  saveDiagramTest: (labId: string, pageId: string, data: CreateDiagramTestRequest) =>
+  saveDiagramTest: (
+    labId: string,
+    pageId: string,
+    data: CreateDiagramTestRequest,
+  ) =>
     http.post<{ message: string; data: DiagramTest }>(
       `/labs/${labId}/pages/${pageId}/diagram-test`,
-      data
+      data,
     ),
 
   /**
@@ -260,7 +288,9 @@ const labApi = {
    * @param pageId - Page UUID
    */
   deleteDiagramTest: (labId: string, pageId: string) =>
-    http.delete<{ message: string }>(`/labs/${labId}/pages/${pageId}/diagram-test`),
+    http.delete<{ message: string }>(
+      `/labs/${labId}/pages/${pageId}/diagram-test`,
+    ),
 
   /**
    * Get diagram shapes
@@ -269,7 +299,7 @@ const labApi = {
    * @returns Array of diagram shapes
    */
   getDiagramShapes: (architectureType?: string) =>
-    http.get<{ data: DiagramShape[] }>('/diagram-shapes', {
+    http.get<{ data: DiagramShape[] }>("/diagram-shapes", {
       params: architectureType ? { architectureType } : undefined,
     }),
 
@@ -289,12 +319,14 @@ const labApi = {
       diagramAnswer?: any;
       score: number;
       passed: boolean;
-    }
+    },
   ) =>
-    http.post<{ message: string; submissionId: string; score: number; passed: boolean }>(
-      `/labs/${labId}/pages/${pageId}/submit`,
-      submission
-    ),
+    http.post<{
+      message: string;
+      submissionId: string;
+      score: number;
+      passed: boolean;
+    }>(`/labs/${labId}/pages/${pageId}/submit`, submission),
 
   /**
    * Get student's previous submission
@@ -304,7 +336,9 @@ const labApi = {
    * @returns Previous submission if exists
    */
   getSubmission: (labId: string, pageId: string, studentId: string) =>
-    http.get<{ data: any }>(`/labs/${labId}/pages/${pageId}/submit?studentId=${studentId}`),
+    http.get<{ data: any }>(
+      `/labs/${labId}/pages/${pageId}/submit?studentId=${studentId}`,
+    ),
 
   /**
    * Get student's progress in a lab
@@ -313,9 +347,9 @@ const labApi = {
    * @returns Progress statistics (totalPages, passedPages, percentage)
    */
   getStudentProgress: (labId: string, studentId: string) =>
-    http.get<{ data: { totalPages: number; passedPages: number; percentage: number } }>(
-      `/labs/${labId}/progress?studentId=${studentId}`
-    ),
+    http.get<{
+      data: { totalPages: number; passedPages: number; percentage: number };
+    }>(`/labs/${labId}/progress?studentId=${studentId}`),
 
   /**
    * Clone a published lab to an editable draft version
@@ -327,7 +361,10 @@ const labApi = {
    * @throws 409 if draft clone already exists
    */
   cloneLab: (labId: string) =>
-    http.post<{ success: boolean; data: { lab: Lab } }>(`/labs/${labId}/clone`, {}),
+    http.post<{ success: boolean; data: { lab: Lab } }>(
+      `/labs/${labId}/clone`,
+      {},
+    ),
 
   /**
    * Republish a draft clone back to the original published lab
@@ -339,14 +376,43 @@ const labApi = {
    * @throws 404 if lab or original not found
    */
   republishLab: (labId: string) =>
-    http.post<{ success: boolean; data: { lab: Lab } }>(`/labs/${labId}/republish`, {}),
+    http.post<{ success: boolean; data: { lab: Lab } }>(
+      `/labs/${labId}/republish`,
+      {},
+    ),
 
   /**
    * Get all lab categories (IT categories for lab type selection)
    * @returns Array of categories with subcategories
    */
   getCategories: () =>
-    http.get<{ categories: Array<{ categoryName: string; subcategories: Array<{ name: string; subcategories?: Array<{ name: string }> }> }> }>('/labs/categories'),
+    http.get<{
+      categories: Array<{
+        categoryName: string;
+        subcategories: Array<{
+          name: string;
+          subcategories?: Array<{ name: string }>;
+        }>;
+      }>;
+    }>("/labs/categories"),
+
+  /**
+   * Save learning material for a lab page (trainer/owner only)
+   * Works on both draft and published labs
+   * @param labId - Lab UUID
+   * @param pageId - Page UUID
+   * @param data - Learning material data
+   * @returns Updated lab page
+   */
+  saveLearningMaterial: (
+    labId: string,
+    pageId: string,
+    data: SaveLearningMaterialRequest,
+  ) =>
+    http.put<{ message: string; data: LabPage }>(
+      `/labs/${labId}/pages/${pageId}/learning`,
+      data,
+    ),
 };
 
 export default labApi;

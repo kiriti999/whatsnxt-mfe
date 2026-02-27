@@ -41,6 +41,7 @@ import DiagramEditor from "@/components/architecture-lab/DiagramEditor";
 import { AISuggestionButton } from "@/components/Common/AISuggestionButton";
 import { FullPageOverlay } from "@/components/Common/FullPageOverlay";
 import HintsEditor from "@/components/Lab/HintsEditor";
+import { LearningMaterialViewer } from "@/components/Lab/LearningMaterial/LearningMaterialViewer";
 import { StudentTestRunner } from "@/components/Lab/StudentTestRunner";
 import useAuth from "@/hooks/Authentication/useAuth";
 import { useAutoPageCreation } from "@/hooks/useAutoPageCreation";
@@ -220,8 +221,7 @@ const enforceMinimumSpacing = (nodes: any[]): any[] => {
             ? b.y - aBottom // b is below
             : a.y - bBottom; // a is below
 
-        const tooClose =
-          overlapX > -MIN_NODE_GAP && overlapY > -MIN_NODE_GAP;
+        const tooClose = overlapX > -MIN_NODE_GAP && overlapY > -MIN_NODE_GAP;
         if (!tooClose) continue;
 
         // Push nodes apart along the axis with least separation needed
@@ -463,6 +463,16 @@ const LabPageEditorPage = () => {
     isSaved: boolean;
   } | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [learningData, setLearningData] = useState<{
+    learningContent?: string;
+    learningVideoUrl?: string;
+    learningLinks?: Array<{
+      title: string;
+      url: string;
+      type: "internal" | "external";
+    }>;
+    learningDiagramState?: string;
+  } | null>(null);
 
   const QUESTIONS_PER_PAGE = 3;
 
@@ -627,6 +637,16 @@ const LabPageEditorPage = () => {
       // If no diagram test exists yet, use derived architecture from lab sub-category
       if (!pageData.diagramTest) {
         setArchitectureType(derivedArchType);
+      }
+
+      // Extract learning material data for student viewer
+      if (pageData.hasLearningMaterial) {
+        setLearningData({
+          learningContent: pageData.learningContent,
+          learningVideoUrl: pageData.learningVideoUrl,
+          learningLinks: pageData.learningLinks,
+          learningDiagramState: pageData.learningDiagramState,
+        });
       }
     } catch (error: any) {
       console.error("Failed to load page data:", error);
@@ -1199,7 +1219,7 @@ const LabPageEditorPage = () => {
       question.questionText.toLowerCase().includes(query) ||
       question.type.toLowerCase().includes(query) ||
       question.correctAnswer.toLowerCase().includes(query) ||
-      (question.options?.some((opt) => opt.toLowerCase().includes(query)))
+      question.options?.some((opt) => opt.toLowerCase().includes(query))
     );
   });
 
@@ -1259,7 +1279,9 @@ const LabPageEditorPage = () => {
       questionText: q.questionText,
       type: q.type,
       options: q.options
-        ? q.options.filter((opt) => opt.trim()).map((opt) => ({ text: opt.trim() }))
+        ? q.options
+          .filter((opt) => opt.trim())
+          .map((opt) => ({ text: opt.trim() }))
         : [],
       correctAnswer: q.correctAnswer,
       isPreview: q.isPreview ?? false,
@@ -1277,14 +1299,26 @@ const LabPageEditorPage = () => {
       : undefined;
 
     return (
-      <StudentTestRunner
-        labId={labId}
-        pageId={pageId}
-        questions={transformedQuestions}
-        diagramTest={diagramTestForStudent}
-        isPreviewMode={isPreviewRequest}
-        onSubmit={handleStudentSubmit}
-      />
+      <>
+        {learningData && (
+          <Container size="xl" pt="xl" pb={0}>
+            <LearningMaterialViewer
+              learningContent={learningData.learningContent}
+              learningVideoUrl={learningData.learningVideoUrl}
+              learningLinks={learningData.learningLinks}
+              learningDiagramState={learningData.learningDiagramState}
+            />
+          </Container>
+        )}
+        <StudentTestRunner
+          labId={labId}
+          pageId={pageId}
+          questions={transformedQuestions}
+          diagramTest={diagramTestForStudent}
+          isPreviewMode={isPreviewRequest}
+          onSubmit={handleStudentSubmit}
+        />
+      </>
     );
   }
 
@@ -1442,9 +1476,7 @@ const LabPageEditorPage = () => {
                           p="lg"
                           withBorder
                           data-testid={
-                            !question.isSaved
-                              ? "auto-question-form"
-                              : undefined
+                            !question.isSaved ? "auto-question-form" : undefined
                           }
                           data-auto-displayed={
                             !question.isSaved ? "true" : undefined
@@ -1454,20 +1486,12 @@ const LabPageEditorPage = () => {
                             <Group gap="xs">
                               <Text fw={600}>Question {questionNumber}</Text>
                               {question.isSaved && (
-                                <Badge
-                                  size="sm"
-                                  color="green"
-                                  variant="light"
-                                >
+                                <Badge size="sm" color="green" variant="light">
                                   Saved
                                 </Badge>
                               )}
                               {question.isSaved && question.isPreview && (
-                                <Badge
-                                  size="sm"
-                                  color="orange"
-                                  variant="light"
-                                >
+                                <Badge size="sm" color="orange" variant="light">
                                   👁 Preview
                                 </Badge>
                               )}
@@ -1496,8 +1520,7 @@ const LabPageEditorPage = () => {
                                           .map((opt) => ({
                                             text: opt.trim(),
                                           }))
-                                        : updatedQuestion.type ===
-                                          "True/False"
+                                        : updatedQuestion.type === "True/False"
                                           ? [
                                             { text: "True" },
                                             { text: "False" },
@@ -1593,10 +1616,8 @@ const LabPageEditorPage = () => {
                                         // the same snapshot, so sequential calls drop earlier updates)
                                         setQuestions((prev) =>
                                           prev.map((q) => {
-                                            if (q.id !== question.id)
-                                              return q;
-                                            const updates: Partial<Question> =
-                                            {
+                                            if (q.id !== question.id) return q;
+                                            const updates: Partial<Question> = {
                                               correctAnswer:
                                                 result.correctAnswer,
                                             };
@@ -1604,13 +1625,15 @@ const LabPageEditorPage = () => {
                                               question.type === "MCQ" &&
                                               result.options
                                             ) {
-                                              updates.options =
-                                                result.options;
+                                              updates.options = result.options;
                                             }
                                             if (
                                               question.type === "True/False"
                                             ) {
-                                              updates.options = ["True", "False"];
+                                              updates.options = [
+                                                "True",
+                                                "False",
+                                              ];
                                             }
                                             return { ...q, ...updates };
                                           }),
@@ -1673,37 +1696,47 @@ const LabPageEditorPage = () => {
                                 <Group justify="space-between" mb={8}>
                                   <Box>
                                     <Text size="sm" fw={500}>
-                                      Options <span style={{ color: "red" }}>*</span>
+                                      Options{" "}
+                                      <span style={{ color: "red" }}>*</span>
                                     </Text>
                                     <Text size="xs" c="dimmed">
                                       Enter at least 2 options
                                     </Text>
                                   </Box>
-                                  {isEditable && question.options.length < 10 && (
-                                    <Button
-                                      size="xs"
-                                      variant="subtle"
-                                      onClick={() => {
-                                        const newOptions = [...question.options, ""];
-                                        updateQuestion(
-                                          question.id,
-                                          "options",
-                                          newOptions,
-                                        );
-                                      }}
-                                    >
-                                      + Add Option
-                                    </Button>
-                                  )}
+                                  {isEditable &&
+                                    question.options.length < 10 && (
+                                      <Button
+                                        size="xs"
+                                        variant="subtle"
+                                        onClick={() => {
+                                          const newOptions = [
+                                            ...question.options,
+                                            "",
+                                          ];
+                                          updateQuestion(
+                                            question.id,
+                                            "options",
+                                            newOptions,
+                                          );
+                                        }}
+                                      >
+                                        + Add Option
+                                      </Button>
+                                    )}
                                 </Group>
                                 <Stack gap="xs">
                                   {question.options.map((option, index) => (
-                                    <Group key={`${question.id}-option-${index}`} gap="xs">
+                                    <Group
+                                      key={`${question.id}-option-${index}`}
+                                      gap="xs"
+                                    >
                                       <TextInput
                                         placeholder={`Option ${index + 1}`}
                                         value={option}
                                         onChange={(e) => {
-                                          const newOptions = [...question.options];
+                                          const newOptions = [
+                                            ...question.options,
+                                          ];
                                           newOptions[index] = e.target.value;
                                           updateQuestion(
                                             question.id,
@@ -1715,25 +1748,27 @@ const LabPageEditorPage = () => {
                                         disabled={!isEditable}
                                         style={{ flex: 1 }}
                                       />
-                                      {isEditable && question.options.length > 2 && (
-                                        <ActionIcon
-                                          color="red"
-                                          variant="subtle"
-                                          onClick={() => {
-                                            const newOptions = question.options.filter(
-                                              (_, i) => i !== index,
-                                            );
-                                            updateQuestion(
-                                              question.id,
-                                              "options",
-                                              newOptions,
-                                            );
-                                          }}
-                                          title="Remove option"
-                                        >
-                                          <IconX size={16} />
-                                        </ActionIcon>
-                                      )}
+                                      {isEditable &&
+                                        question.options.length > 2 && (
+                                          <ActionIcon
+                                            color="red"
+                                            variant="subtle"
+                                            onClick={() => {
+                                              const newOptions =
+                                                question.options.filter(
+                                                  (_, i) => i !== index,
+                                                );
+                                              updateQuestion(
+                                                question.id,
+                                                "options",
+                                                newOptions,
+                                              );
+                                            }}
+                                            title="Remove option"
+                                          >
+                                            <IconX size={16} />
+                                          </ActionIcon>
+                                        )}
                                     </Group>
                                   ))}
                                 </Stack>

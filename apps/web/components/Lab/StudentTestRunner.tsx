@@ -521,7 +521,7 @@ export const StudentTestRunner: React.FC<StudentTestRunnerProps> = ({
                   )}
                 </Box>
 
-                <Group justify="space-between" mt="md">
+                <Group justify="space-between" mt="lg">
                   {hasQuestions && (
                     <Button
                       variant="default"

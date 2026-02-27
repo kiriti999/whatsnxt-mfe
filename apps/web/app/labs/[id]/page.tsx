@@ -16,7 +16,6 @@ import {
   SimpleGrid,
   Stack,
   Text,
-  Textarea,
   TextInput,
   ThemeIcon,
   Title,
@@ -39,10 +38,13 @@ import type { Lab, LabPage } from "@whatsnxt/core-types";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import React, { useCallback, useEffect, useState } from "react";
 import labApi from "@/apis/lab.api";
+import { AISuggestionButton } from "@/components/Common/AISuggestionButton";
 import { FullPageOverlay } from "@/components/Common/FullPageOverlay";
 import CloneLabButton from "@/components/Lab/CloneLabButton";
 import { LabAccessButton } from "@/components/Lab/LabAccessButton";
+import { LearningMaterialEditor } from "@/components/Lab/LearningMaterial/LearningMaterialEditor";
 import RepublishModal from "@/components/Lab/RepublishModal";
+import { LexicalEditor } from "@/components/StructuredTutorial/Editor/LexicalEditor";
 import useAuth from "@/hooks/Authentication/useAuth";
 
 const LabDetailPage = () => {
@@ -57,6 +59,7 @@ const LabDetailPage = () => {
 
   const [lab, setLab] = useState<Lab | null>(null);
   const [pages, setPages] = useState<LabPage[]>([]);
+  const [descriptionEditorKey, setDescriptionEditorKey] = useState(0);
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -613,11 +616,30 @@ const LabDetailPage = () => {
                     {...form.getInputProps("name")}
                     required
                   />
-                  <Textarea
-                    label="Description"
-                    placeholder="Brief description of the lab"
-                    {...form.getInputProps("description")}
-                  />
+                  <Box>
+                    <Group mb={6} justify="space-between" align="center">
+                      <Text size="sm" fw={500}>
+                        Description
+                      </Text>
+                      <AISuggestionButton
+                        prompt={`Write a concise, engaging lab description (2-4 sentences) for a technical lab titled: "${form.values.name}". Focus on what students will learn and practise.`}
+                        onSuggestion={(suggestion) => {
+                          form.setFieldValue("description", suggestion);
+                          setDescriptionEditorKey((k) => k + 1);
+                        }}
+                        label="Generate description with AI"
+                        iconSize={14}
+                      />
+                    </Group>
+                    <LexicalEditor
+                      key={descriptionEditorKey}
+                      value={form.values.description}
+                      onChange={(value) =>
+                        form.setFieldValue("description", value)
+                      }
+                      placeholder="Brief description of the lab"
+                    />
+                  </Box>
                   <Select
                     label="Category"
                     placeholder="Select category"
@@ -676,7 +698,13 @@ const LabDetailPage = () => {
                   <Text size="sm" c="dimmed">
                     Description
                   </Text>
-                  <Text>{lab.description || "No description"}</Text>
+                  {lab.description ? (
+                    <LexicalEditor value={lab.description} readOnly />
+                  ) : (
+                    <Text c="dimmed" fs="italic">
+                      No description
+                    </Text>
+                  )}
                 </Box>
                 <Group>
                   <Box>
@@ -1108,6 +1136,11 @@ const LabDetailPage = () => {
                                 👁 Preview
                               </Badge>
                             )}
+                          {(page as any).hasLearningMaterial && (
+                            <Badge size="md" color="violet" variant="light">
+                              📚 Learning
+                            </Badge>
+                          )}
                           {!page.hasQuestion && !page.hasDiagramTest && (
                             <Badge size="md" color="gray" variant="light">
                               No Tests
@@ -1212,6 +1245,25 @@ const LabDetailPage = () => {
                         </Paper>
                       )}
                     </Stack>
+
+                    {(isOwner || isTrainer) && (
+                      <LearningMaterialEditor
+                        labId={labId}
+                        pageId={page.id}
+                        labType={lab.labType}
+                        subCategory={lab.subCategory}
+                        nestedSubCategory={lab.nestedSubCategory}
+                        diagramTestPrompt={(page as any).diagramTest?.prompt}
+                        initialData={page as any}
+                        onSaved={(updated) => {
+                          setPages((prev) =>
+                            prev.map((p) =>
+                              p.id === updated.id ? { ...p, ...updated } : p,
+                            ),
+                          );
+                        }}
+                      />
+                    )}
                   </Paper>
                 ))}
 
