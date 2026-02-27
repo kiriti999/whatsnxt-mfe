@@ -24,8 +24,10 @@ import {
     calculateConnectionPoints,
     createArrowMarkers,
     type EdgeSide,
+    getArrowheadPoints,
     renderLink,
     renderWaypointHandles,
+    spreadOverlappingEdges,
 } from "../../utils/d3-link-renderers";
 import { renderShape } from "../../utils/d3-shape-renderers";
 import { architecturalShapes, type NodeType } from "../../utils/lab-utils";
@@ -104,6 +106,10 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
     // Ref to always have access to latest nodes (for D3 drag callbacks)
     const nodesRef = useRef<NodeType[]>(nodes);
     nodesRef.current = nodes;
+
+    // Ref to always have access to latest links (for occupied-dot detection)
+    const linksRef = useRef<LinkType[]>(links);
+    linksRef.current = links;
 
     // Interaction State
     const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
@@ -214,9 +220,17 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
         const width = 800; // Fixed inner width or dynamic
         const height = 600;
 
-        // Define Arrow Markers
+        // Define Arrow Markers (this also creates the grid pattern)
         // Arrow markers using isolated renderer
         createArrowMarkers(svg, computedColorScheme);
+
+        // Add grid background rect (uses grid pattern from defs)
+        svg
+            .append("rect")
+            .attr("width", "100%")
+            .attr("height", "100%")
+            .attr("fill", "url(#grid)")
+            .attr("opacity", 0.5);
 
         // Main Group for Zoom
         const g = svg.append("g");
@@ -306,7 +320,9 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
 
         // State for drag
         let dragStartPos = { x: 0, y: 0 };
+        let containerStartPos = { x: 0, y: 0 }; // Track container's starting position
         let hasDragged = false;
+        // Store original positions of contained nodes to avoid mutating React state
         let containedNodesState: { id: string; startX: number; startY: number }[] =
             [];
 
@@ -318,22 +334,38 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
                 event.sourceEvent.stopPropagation();
                 event.sourceEvent.preventDefault();
                 dragStartPos = { x: event.x, y: event.y };
+                containerStartPos = { x: d.x || 0, y: d.y || 0 }; // Capture container's original position
                 hasDragged = false;
                 d3.select(event.sourceEvent.target).attr("cursor", "grabbing");
 
-                // If container, identify contained nodes
+                // If container, identify contained nodes and store their ORIGINAL positions
                 const currentNodes = nodesRef.current;
                 containedNodesState = [];
 
-                if (["pool", "group", "zone", "container"].includes(d.type || "")) {
+                // Container types - includes all shapes that can contain other shapes
+                const containerTypes = [
+                    "pool",
+                    "group",
+                    "zone",
+                    "container",
+                    "namespace",
+                    "vpc",
+                    "node",
+                    "virtualnetwork",
+                ];
+                if (containerTypes.includes(d.type || "")) {
                     const containerRect = {
                         x: d.x || 0,
                         y: d.y || 0,
                         w: d.width,
                         h: d.height,
                     };
+                    // Only consider non-container nodes as children to prevent
+                    // containers from being dragged together when they overlap
                     currentNodes.forEach((n) => {
-                        if (n.id !== d.id && n.x && n.y) {
+                        // Skip other containers - they should not be treated as children
+                        if (containerTypes.includes(n.type || "")) return;
+                        if (n.id !== d.id && n.x !== undefined && n.y !== undefined) {
                             const isInside =
                                 n.x >= containerRect.x &&
                                 n.y >= containerRect.y &&
@@ -359,35 +391,40 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
                 const dy = Math.abs(event.y - dragStartPos.y);
                 if (dx > 3 || dy > 3) hasDragged = true;
 
-                const moveDx = event.dx;
-                const moveDy = event.dy;
+                // Calculate total delta from start position (NOT incremental moveDx/moveDy)
+                const totalDeltaX = event.x - dragStartPos.x;
+                const totalDeltaY = event.y - dragStartPos.y;
 
-                // Update data model immediately (needed for correct delta calculations)
-                d.x = event.x;
-                d.y = event.y;
+                // Calculate new container position (for D3 DOM only)
+                const newContainerX = containerStartPos.x + totalDeltaX;
+                const newContainerY = containerStartPos.y + totalDeltaY;
 
-                // Collect contained node updates
+                // Store the new position on d for canvas expansion checks
+                // (This is a D3 datum mutation, not React state mutation)
+                d.x = newContainerX;
+                d.y = newContainerY;
+
+                // Collect contained node updates - calculate from ORIGINAL positions + delta
+                // Do NOT mutate React state (nodesRef.current) during drag
                 const containedUpdates: { id: string; x: number; y: number }[] = [];
                 if (containedNodesState.length > 0) {
                     containedNodesState.forEach((item) => {
-                        const childNode = nodesRef.current.find((n) => n.id === item.id);
-                        if (childNode) {
-                            childNode.x = (childNode.x || 0) + moveDx;
-                            childNode.y = (childNode.y || 0) + moveDy;
-                            containedUpdates.push({
-                                id: childNode.id!,
-                                x: childNode.x,
-                                y: childNode.y,
-                            });
-                        }
+                        // Calculate new position from stored original position + total delta
+                        const newX = item.startX + totalDeltaX;
+                        const newY = item.startY + totalDeltaY;
+                        containedUpdates.push({
+                            id: item.id,
+                            x: newX,
+                            y: newY,
+                        });
                     });
                 }
 
                 // Store pending drag update
                 pendingDragRef.current = {
                     nodeId: d.id!,
-                    x: d.x,
-                    y: d.y,
+                    x: newContainerX,
+                    y: newContainerY,
                     containedUpdates,
                 };
 
@@ -539,10 +576,22 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
                         setSelectedNodeId((prev) => (prev === d.id ? null : d.id!));
                     }
                 } else {
+                    // Calculate final total delta for state update
+                    const finalDeltaX = (d.x ?? 0) - containerStartPos.x;
+                    const finalDeltaY = (d.y ?? 0) - containerStartPos.y;
+
                     const updatedNodes = nodesRef.current.map((n) => {
+                        // Update the dragged container node
                         if (n.id === d.id) return { ...n, x: d.x, y: d.y };
+                        // Update contained nodes using their original positions + total delta
                         const contained = containedNodesState.find((c) => c.id === n.id);
-                        if (contained && n.x && n.y) return { ...n, x: n.x, y: n.y };
+                        if (contained) {
+                            return {
+                                ...n,
+                                x: contained.startX + finalDeltaX,
+                                y: contained.startY + finalDeltaY,
+                            };
+                        }
                         return n;
                     });
                     setNodes(updatedNodes);
@@ -552,9 +601,15 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
             });
 
         // 2. Link Drag Definition
-        // We use a local variable to hold the temp line, NOT React state
+        // We use local variables for the temp line + arrowhead, NOT React state
         let tempLinkLine: d3.Selection<
             SVGLineElement,
+            unknown,
+            null,
+            undefined
+        > | null = null;
+        let tempLinkArrow: d3.Selection<
+            SVGPolygonElement,
             unknown,
             null,
             undefined
@@ -585,7 +640,11 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
                     .attr("stroke", "blue")
                     .attr("stroke-width", 2)
                     .attr("stroke-dasharray", "5,5")
-                    .attr("marker-end", "url(#arrow-temp)")
+                    .style("pointer-events", "none");
+                tempLinkArrow = linkLayer
+                    .append("polygon")
+                    .attr("points", getArrowheadPoints(startX, startY, startX, startY))
+                    .attr("fill", "blue")
                     .style("pointer-events", "none");
             })
             .on("drag", function (event, d) {
@@ -602,6 +661,9 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
                     .attr("y1", startY)
                     .attr("x2", mx)
                     .attr("y2", my);
+                if (tempLinkArrow) {
+                    tempLinkArrow.attr("points", getArrowheadPoints(mx, my, startX, startY));
+                }
             })
             .on("end", function (event, d) {
                 event.sourceEvent.stopPropagation();
@@ -611,6 +673,10 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
                 if (tempLinkLine) {
                     tempLinkLine.remove();
                     tempLinkLine = null;
+                }
+                if (tempLinkArrow) {
+                    tempLinkArrow.remove();
+                    tempLinkArrow = null;
                 }
 
                 const [mx, my] = d3.pointer(event, g.node());
@@ -642,31 +708,60 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
                 const targetNode = candidates.length > 0 ? candidates[0] : undefined;
 
                 if (targetNode) {
-                    // Detect which edge of the target the user dropped nearest to
+                    // Detect which of the 12 anchor points on the target node is closest
                     const tnx = targetNode.x || 0;
                     const tny = targetNode.y || 0;
-                    const distToTop = Math.abs(my - tny);
-                    const distToBottom = Math.abs(my - (tny + targetNode.height));
-                    const distToLeft = Math.abs(mx - tnx);
-                    const distToRight = Math.abs(mx - (tnx + targetNode.width));
-                    const minDist = Math.min(
-                        distToTop,
-                        distToBottom,
-                        distToLeft,
-                        distToRight,
+                    const S = 0.25;
+                    const C = 0.5;
+                    const E = 0.75;
+
+                    // Calculate all 12 anchor point positions
+                    const anchorPoints: { edge: EdgeSide; x: number; y: number }[] = [
+                        { edge: "top-start", x: tnx + targetNode.width * S, y: tny },
+                        { edge: "top-center", x: tnx + targetNode.width * C, y: tny },
+                        { edge: "top-end", x: tnx + targetNode.width * E, y: tny },
+                        { edge: "right-start", x: tnx + targetNode.width, y: tny + targetNode.height * S },
+                        { edge: "right-center", x: tnx + targetNode.width, y: tny + targetNode.height * C },
+                        { edge: "right-end", x: tnx + targetNode.width, y: tny + targetNode.height * E },
+                        { edge: "bottom-start", x: tnx + targetNode.width * S, y: tny + targetNode.height },
+                        { edge: "bottom-center", x: tnx + targetNode.width * C, y: tny + targetNode.height },
+                        { edge: "bottom-end", x: tnx + targetNode.width * E, y: tny + targetNode.height },
+                        { edge: "left-start", x: tnx, y: tny + targetNode.height * S },
+                        { edge: "left-center", x: tnx, y: tny + targetNode.height * C },
+                        { edge: "left-end", x: tnx, y: tny + targetNode.height * E },
+                    ];
+
+                    // Collect already-occupied target dots on this node
+                    const currentLinks = linksRef.current;
+                    const occupiedTargetEdges = new Set(
+                        currentLinks
+                            .filter((l) => l.target === targetNode.id && l.targetEdge)
+                            .map((l) => l.targetEdge),
+                    );
+                    const occupiedSourceEdges = new Set(
+                        currentLinks
+                            .filter((l) => l.source === targetNode.id && l.sourceEdge)
+                            .map((l) => l.sourceEdge),
                     );
 
-                    let targetEdge: EdgeSide = "left";
-                    if (minDist === distToTop) targetEdge = "top";
-                    else if (minDist === distToBottom) targetEdge = "bottom";
-                    else if (minDist === distToRight) targetEdge = "right";
-                    else targetEdge = "left";
+                    // Sort anchors by distance to drop position
+                    const sorted = [...anchorPoints].sort((a, b) => {
+                        const da = (mx - a.x) ** 2 + (my - a.y) ** 2;
+                        const db = (mx - b.x) ** 2 + (my - b.y) ** 2;
+                        return da - db;
+                    });
+
+                    // Pick closest unoccupied dot; fall back to closest if all occupied
+                    const closestAnchor =
+                        sorted.find(
+                            (a) => !occupiedTargetEdges.has(a.edge) && !occupiedSourceEdges.has(a.edge),
+                        ) || sorted[0];
 
                     const newLink: LinkType = {
                         source: d.id!,
                         target: targetNode.id!,
                         sourceEdge,
-                        targetEdge,
+                        targetEdge: closestAnchor.edge,
                     };
                     if (
                         !links.some(
@@ -801,7 +896,7 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
         ) => {
             const selection = targetLayer
                 .selectAll<SVGGElement, NodeType>("g")
-                .data(batchNodes)
+                .data(batchNodes, (d: NodeType) => d.id || "") // Key function to prevent duplicate elements
                 .enter()
                 .append("g")
                 .attr("id", (d) => `node-${d.id}`)
@@ -865,22 +960,15 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
                         renderResizeHandles(el, d);
                     }
 
-                    // Add link handle for non-containers
-                    if (!["pool", "group", "zone"].includes(d.type || "")) {
-                        renderLinkHandle(el, d);
-                        el.on("mouseenter", () => {
-                            el.selectAll(".link-handle").attr("opacity", 1);
-                            delIcon.style("display", "block");
-                        }).on("mouseleave", () => {
-                            el.selectAll(".link-handle").attr("opacity", 0);
-                            delIcon.style("display", "none");
-                        });
-                    } else {
-                        el.on("mouseenter", () => delIcon.style("display", "block")).on(
-                            "mouseleave",
-                            () => delIcon.style("display", "none"),
-                        );
-                    }
+                    // Add link handle for all shapes (including containers)
+                    renderLinkHandle(el, d);
+                    el.on("mouseenter", () => {
+                        el.selectAll(".link-handle").attr("opacity", 1);
+                        delIcon.style("display", "block");
+                    }).on("mouseleave", () => {
+                        el.selectAll(".link-handle").attr("opacity", 0);
+                        delIcon.style("display", "none");
+                    });
 
                     // Render delete icon
                     const delIcon = renderDeleteIcon(el, d, () => {
@@ -903,11 +991,23 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
         };
 
         // 5. Execution
+        // Container types that should be rendered in the container layer (behind other nodes)
+        // Includes Kubernetes namespace, AWS VPC, Azure virtualnetwork, and GCP node
+        const renderContainerTypes = [
+            "pool",
+            "group",
+            "zone",
+            "container",
+            "namespace",
+            "vpc",
+            "node",
+            "virtualnetwork",
+        ];
         const containerNodes = nodes.filter((n) =>
-            ["pool", "group", "zone"].includes(n.type || ""),
+            renderContainerTypes.includes(n.type || ""),
         );
         const regularNodes = nodes.filter(
-            (n) => !["pool", "group", "zone"].includes(n.type || ""),
+            (n) => !renderContainerTypes.includes(n.type || ""),
         );
 
         renderNodeBatch(containerLayer, containerNodes);
@@ -915,17 +1015,20 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
         // We need to re-implement link rendering here or copy it back.
         // Wait, I removed the link logic in Chunk 1. I need to put it back here!
 
+        // Spread overlapping edges so links sharing the same node + side
+        // use different anchor positions (start / center / end)
+        const spreadLinks = spreadOverlappingEdges(links, nodes);
+
         // Calculate offsets for overlapping arrows
         // Group links by source-target pairs
         const linkOffsets = new Map<number, number>();
         const linkGroups = new Map<string, number[]>();
 
-        links.forEach((link, i) => {
+        spreadLinks.forEach((link, i) => {
             const key = `${link.source}-${link.target}`;
-            if (!linkGroups.has(key)) {
-                linkGroups.set(key, []);
-            }
-            linkGroups.get(key)!.push(i);
+            const group = linkGroups.get(key) ?? [];
+            group.push(i);
+            linkGroups.set(key, group);
         });
 
         // Assign offsets to links in the same group
@@ -946,7 +1049,7 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
 
         // Link Rendering using isolated renderer
         const linkGroup = linkLayer; // Alias for consistency
-        links.forEach((link, i) => {
+        spreadLinks.forEach((link, i) => {
             const sourceNode = nodes.find((n) => n.id === link.source);
             const targetNode = nodes.find((n) => n.id === link.target);
             if (!sourceNode || !targetNode) return;
@@ -1416,27 +1519,7 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
                                         minHeight: "100%",
                                     }}
                                 >
-                                    <defs>
-                                        <pattern
-                                            id="grid"
-                                            width="20"
-                                            height="20"
-                                            patternUnits="userSpaceOnUse"
-                                        >
-                                            <path
-                                                d="M 20 0 L 0 0 0 20"
-                                                fill="none"
-                                                stroke="#e0e0e0"
-                                                strokeWidth="0.5"
-                                            />
-                                        </pattern>
-                                    </defs>
-                                    <rect
-                                        width={canvasSize.width}
-                                        height={canvasSize.height}
-                                        fill="url(#grid)"
-                                        opacity={0.5}
-                                    />
+                                    {/* D3 manages all SVG content - defs, markers, grid, layers, nodes, links */}
                                 </svg>
 
                                 {/* Floating Controls */}
@@ -1540,22 +1623,7 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
                             minHeight: "100%",
                         }}
                     >
-                        <defs>
-                            <pattern
-                                id="grid"
-                                width="20"
-                                height="20"
-                                patternUnits="userSpaceOnUse"
-                            >
-                                <path
-                                    d="M 20 0 L 0 0 0 20"
-                                    fill="none"
-                                    stroke="#e0e0e0"
-                                    strokeWidth="0.5"
-                                />
-                            </pattern>
-                        </defs>
-                        <rect width="100%" height="100%" fill="url(#grid)" opacity={0.5} />
+                        {/* D3 manages all SVG content - defs, markers, grid, layers, nodes, links */}
                     </svg>
 
                     {/* Floating zoom controls for viewOnly mode */}
@@ -1597,22 +1665,7 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
                                 computedColorScheme === "dark" ? "#1A1B1E" : "#f8f9fa",
                         }}
                     >
-                        <defs>
-                            <pattern
-                                id="grid"
-                                width="20"
-                                height="20"
-                                patternUnits="userSpaceOnUse"
-                            >
-                                <path
-                                    d="M 20 0 L 0 0 0 20"
-                                    fill="none"
-                                    stroke="#e0e0e0"
-                                    strokeWidth="0.5"
-                                />
-                            </pattern>
-                        </defs>
-                        <rect width="100%" height="100%" fill="url(#grid)" opacity={0.5} />
+                        {/* D3 manages all SVG content - defs, markers, grid, layers, nodes, links */}
                     </svg>
 
                     {/* Floating Controls */}

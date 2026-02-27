@@ -4,7 +4,7 @@
  * Non-shape utilities for diagram interaction: selection, handles, labels, etc.
  */
 
-import * as d3 from 'd3';
+import type * as d3 from 'd3';
 import type { NodeType } from '../../utils/lab-utils';
 
 /**
@@ -87,38 +87,57 @@ export function renderShapeLabel(
 
 /**
  * Render link handles on all 4 sides of a shape for creating connections.
- * Each handle stores a `data-edge` attribute: 'top' | 'right' | 'bottom' | 'left'
+ * Each edge has 3 handle positions: start (25%), center (50%), end (75%)
+ * Each handle stores a `data-edge` attribute like 'top-start', 'top-center', 'top-end', etc.
+ * Total: 12 handles (3 per edge)
  */
 export function renderLinkHandle(
   element: d3.Selection<SVGGElement, NodeType, null, undefined>,
   shape: NodeType
 ): d3.Selection<SVGCircleElement, unknown, null, undefined> {
+  // Position ratios: start=25%, center=50%, end=75%
+  const START = 0.25;
+  const CENTER = 0.5;
+  const END = 0.75;
+
   const handles = [
-    { cx: shape.width / 2, cy: 0, edge: 'top' },
-    { cx: shape.width, cy: shape.height / 2, edge: 'right' },
-    { cx: shape.width / 2, cy: shape.height, edge: 'bottom' },
-    { cx: 0, cy: shape.height / 2, edge: 'left' },
+    // Top edge (horizontal positions)
+    { cx: shape.width * START, cy: 0, edge: 'top-start' },
+    { cx: shape.width * CENTER, cy: 0, edge: 'top-center' },
+    { cx: shape.width * END, cy: 0, edge: 'top-end' },
+    // Right edge (vertical positions)
+    { cx: shape.width, cy: shape.height * START, edge: 'right-start' },
+    { cx: shape.width, cy: shape.height * CENTER, edge: 'right-center' },
+    { cx: shape.width, cy: shape.height * END, edge: 'right-end' },
+    // Bottom edge (horizontal positions)
+    { cx: shape.width * START, cy: shape.height, edge: 'bottom-start' },
+    { cx: shape.width * CENTER, cy: shape.height, edge: 'bottom-center' },
+    { cx: shape.width * END, cy: shape.height, edge: 'bottom-end' },
+    // Left edge (vertical positions)
+    { cx: 0, cy: shape.height * START, edge: 'left-start' },
+    { cx: 0, cy: shape.height * CENTER, edge: 'left-center' },
+    { cx: 0, cy: shape.height * END, edge: 'left-end' },
   ];
 
   let lastHandle: d3.Selection<SVGCircleElement, unknown, null, undefined> | null = null;
 
-  handles.forEach(h => {
-    const handle = element.append('circle')
+  for (const h of handles) {
+    lastHandle = element.append('circle')
       .classed('link-handle', true)
       .attr('cx', h.cx)
       .attr('cy', h.cy)
-      .attr('r', 6)
+      .attr('r', 5)
       .attr('fill', 'blue')
       .attr('stroke', 'white')
-      .attr('stroke-width', 2)
+      .attr('stroke-width', 1.5)
       .attr('opacity', 0)
       .attr('cursor', 'crosshair')
       .attr('data-edge', h.edge);
-    lastHandle = handle;
-  });
+  }
 
-  // Return the last handle for compatibility (though all 4 are added)
-  return lastHandle!;
+  // Return the last handle for compatibility (though all 12 are added)
+  // Safe assertion: handles array always has 12 elements
+  return lastHandle as d3.Selection<SVGCircleElement, unknown, null, undefined>;
 }
 
 /**

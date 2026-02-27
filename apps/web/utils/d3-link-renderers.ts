@@ -8,7 +8,28 @@
 import * as d3 from "d3";
 import type { NodeType } from "./lab-utils";
 
-export type EdgeSide = "top" | "right" | "bottom" | "left";
+/**
+ * Edge positions for connection points.
+ * Each edge has 3 positions: start (25%), center (50%), end (75%)
+ * Legacy values (top, right, bottom, left) are aliases for center positions.
+ */
+export type EdgeSide =
+  | "top"
+  | "top-start"
+  | "top-center"
+  | "top-end"
+  | "right"
+  | "right-start"
+  | "right-center"
+  | "right-end"
+  | "bottom"
+  | "bottom-start"
+  | "bottom-center"
+  | "bottom-end"
+  | "left"
+  | "left-start"
+  | "left-center"
+  | "left-end";
 
 export interface LinkType {
   source: string; // Node ID
@@ -26,17 +47,43 @@ export function createArrowMarkers(
   svg: d3.Selection<SVGSVGElement, unknown, null, undefined>,
   colorScheme: "light" | "dark",
 ): void {
-  const defs = svg.append("defs");
+  // Get or create defs element (don't remove it - shapes might need other defs)
+  let defs = svg.select("defs");
+  if (defs.empty()) {
+    defs = svg.append("defs");
+  }
 
-  // Standard arrow marker
+  // Remove only our specific markers and grid pattern to prevent duplicates
+  defs.select("#arrow").remove();
+  defs.select("#arrow-temp").remove();
+  defs.select("#grid").remove();
+
+  // Create the grid pattern
+  const pattern = defs
+    .append("pattern")
+    .attr("id", "grid")
+    .attr("width", 20)
+    .attr("height", 20)
+    .attr("patternUnits", "userSpaceOnUse");
+
+  pattern
+    .append("path")
+    .attr("d", "M 20 0 L 0 0 0 20")
+    .attr("fill", "none")
+    .attr("stroke", colorScheme === "dark" ? "#333" : "#e0e0e0")
+    .attr("stroke-width", 0.5);
+
+  // Standard arrow marker with larger size for visibility
   defs
     .append("marker")
     .attr("id", "arrow")
     .attr("viewBox", "0 -5 10 10")
-    .attr("refX", 10)
+    .attr("refX", 8)
     .attr("refY", 0)
-    .attr("markerWidth", 6)
-    .attr("markerHeight", 6)
+    .attr("markerWidth", 8)
+    .attr("markerHeight", 8)
+    // .attr("markerUnits", "userSpaceOnUse")
+    // .attr("overflow", "visible")
     .attr("orient", "auto")
     .append("path")
     .attr("d", "M0,-5L10,0L0,5")
@@ -47,10 +94,12 @@ export function createArrowMarkers(
     .append("marker")
     .attr("id", "arrow-temp")
     .attr("viewBox", "0 -5 10 10")
-    .attr("refX", 10)
+    .attr("refX", 8)
     .attr("refY", 0)
-    .attr("markerWidth", 6)
-    .attr("markerHeight", 6)
+    .attr("markerWidth", 8)
+    .attr("markerHeight", 8)
+    // .attr("markerUnits", "userSpaceOnUse")
+    // .attr("overflow", "visible")
     .attr("orient", "auto")
     .append("path")
     .attr("d", "M0,-5L10,0L0,5")
@@ -67,6 +116,94 @@ export function updateArrowMarkerColors(
   svg
     .select("#arrow path")
     .attr("fill", colorScheme === "dark" ? "#FFF" : "#333");
+}
+
+/**
+ * Detect which side (top/right/bottom/left) of fromNode faces toNode.
+ */
+function detectSide(
+  from: NodeType,
+  to: NodeType,
+): "top" | "right" | "bottom" | "left" {
+  const fcx = (from.x || 0) + from.width / 2;
+  const fcy = (from.y || 0) + from.height / 2;
+  const tcx = (to.x || 0) + to.width / 2;
+  const tcy = (to.y || 0) + to.height / 2;
+  const dx = tcx - fcx;
+  const dy = tcy - fcy;
+  if (Math.abs(dx) > Math.abs(dy)) {
+    return dx > 0 ? "right" : "left";
+  }
+  return dy > 0 ? "bottom" : "top";
+}
+
+/**
+ * Pre-process links so that multiple arrows sharing the same node + same edge
+ * side are spread across the 3 anchor positions (start / center / end).
+ * This prevents arrows from merging on the same dot and overlapping.
+ */
+export function spreadOverlappingEdges(
+  links: LinkType[],
+  nodes: NodeType[],
+): LinkType[] {
+  const result: LinkType[] = links.map((l) => ({ ...l }));
+  const nodeMap = new Map(nodes.map((n) => [n.id, n]));
+  const POSITIONS: ["start", "center", "end"] = ["start", "center", "end"];
+
+  // Compute effective side for each link endpoint
+  const effectiveSrcSide: string[] = [];
+  const effectiveTgtSide: string[] = [];
+  for (const link of result) {
+    const src = nodeMap.get(link.source);
+    const tgt = nodeMap.get(link.target);
+    if (!src || !tgt) {
+      effectiveSrcSide.push("right");
+      effectiveTgtSide.push("left");
+      continue;
+    }
+    effectiveSrcSide.push(
+      link.sourceEdge ? link.sourceEdge.split("-")[0] : detectSide(src, tgt),
+    );
+    effectiveTgtSide.push(
+      link.targetEdge ? link.targetEdge.split("-")[0] : detectSide(tgt, src),
+    );
+  }
+
+  // Spread source edges: group by sourceNode + side
+  const srcGroups = new Map<string, number[]>();
+  result.forEach((link, i) => {
+    const key = `src:${link.source}:${effectiveSrcSide[i]}`;
+    const group = srcGroups.get(key) ?? [];
+    group.push(i);
+    srcGroups.set(key, group);
+  });
+  srcGroups.forEach((indices) => {
+    if (indices.length <= 1) return;
+    const side = effectiveSrcSide[indices[0]];
+    indices.forEach((idx, pos) => {
+      result[idx].sourceEdge =
+        `${side}-${POSITIONS[pos % 3]}` as EdgeSide;
+    });
+  });
+
+  // Spread target edges: group by targetNode + side
+  const tgtGroups = new Map<string, number[]>();
+  result.forEach((link, i) => {
+    const key = `tgt:${link.target}:${effectiveTgtSide[i]}`;
+    const group = tgtGroups.get(key) ?? [];
+    group.push(i);
+    tgtGroups.set(key, group);
+  });
+  tgtGroups.forEach((indices) => {
+    if (indices.length <= 1) return;
+    const side = effectiveTgtSide[indices[0]];
+    indices.forEach((idx, pos) => {
+      result[idx].targetEdge =
+        `${side}-${POSITIONS[pos % 3]}` as EdgeSide;
+    });
+  });
+
+  return result;
 }
 
 /**
@@ -132,8 +269,41 @@ export function getWaypointPath(
 // The SVG arrowhead marker (refX=10) puts the tip precisely at the path endpoint.
 
 /**
- * Find the closest link handle position for auto-detected connections.
- * Returns the handle position (top/right/bottom/left) that's closest to the target direction.
+ * Position ratios for 12-anchor system: start=25%, center=50%, end=75%
+ */
+const ANCHOR_START = 0.25;
+const ANCHOR_CENTER = 0.5;
+const ANCHOR_END = 0.75;
+
+/**
+ * Build all 12 anchor positions for a given node rectangle.
+ */
+function getAll12Anchors(
+  nodeX: number,
+  nodeY: number,
+  nodeW: number,
+  nodeH: number,
+): { edge: EdgeSide; x: number; y: number }[] {
+  return [
+    { edge: "top-start", x: nodeX + nodeW * ANCHOR_START, y: nodeY },
+    { edge: "top-center", x: nodeX + nodeW * ANCHOR_CENTER, y: nodeY },
+    { edge: "top-end", x: nodeX + nodeW * ANCHOR_END, y: nodeY },
+    { edge: "right-start", x: nodeX + nodeW, y: nodeY + nodeH * ANCHOR_START },
+    { edge: "right-center", x: nodeX + nodeW, y: nodeY + nodeH * ANCHOR_CENTER },
+    { edge: "right-end", x: nodeX + nodeW, y: nodeY + nodeH * ANCHOR_END },
+    { edge: "bottom-start", x: nodeX + nodeW * ANCHOR_START, y: nodeY + nodeH },
+    { edge: "bottom-center", x: nodeX + nodeW * ANCHOR_CENTER, y: nodeY + nodeH },
+    { edge: "bottom-end", x: nodeX + nodeW * ANCHOR_END, y: nodeY + nodeH },
+    { edge: "left-start", x: nodeX, y: nodeY + nodeH * ANCHOR_START },
+    { edge: "left-center", x: nodeX, y: nodeY + nodeH * ANCHOR_CENTER },
+    { edge: "left-end", x: nodeX, y: nodeY + nodeH * ANCHOR_END },
+  ];
+}
+
+/**
+ * Find the closest of all 12 anchor positions to a given point.
+ * Considers all 12 dots instead of just 4 center positions.
+ * If isTargetNode is true, nudges the final point outward for arrowhead visibility.
  */
 function getRectEdgePoint(
   nodeX: number,
@@ -144,45 +314,30 @@ function getRectEdgePoint(
   targetY: number,
   isTargetNode = false,
 ): { x: number; y: number } {
-  const cx = nodeX + nodeW / 2;
-  const cy = nodeY + nodeH / 2;
+  const anchors = getAll12Anchors(nodeX, nodeY, nodeW, nodeH);
 
-  const dx = targetX - cx;
-  const dy = targetY - cy;
-
-  // If centers overlap, default to right edge handle
-  if (dx === 0 && dy === 0) return { x: nodeX + nodeW, y: cy };
-
-  // Determine which handle to use based on direction
-  // Use the handle that's most aligned with the target direction
-  const absDx = Math.abs(dx);
-  const absDy = Math.abs(dy);
-
-  let handlePos: { x: number; y: number };
-
-  if (absDx > absDy) {
-    // Horizontal direction dominates - use left or right handle
-    if (dx > 0) {
-      handlePos = { x: nodeX + nodeW, y: cy }; // right
-    } else {
-      handlePos = { x: nodeX, y: cy }; // left
-    }
-  } else {
-    // Vertical direction dominates - use top or bottom handle
-    if (dy > 0) {
-      handlePos = { x: cx, y: nodeY + nodeH }; // bottom
-    } else {
-      handlePos = { x: cx, y: nodeY }; // top
+  let closest = anchors[0];
+  let minDist = Number.MAX_VALUE;
+  for (const a of anchors) {
+    const dist = (targetX - a.x) ** 2 + (targetY - a.y) ** 2;
+    if (dist < minDist) {
+      minDist = dist;
+      closest = a;
     }
   }
 
+  const handlePos = { x: closest.x, y: closest.y };
+
   if (isTargetNode) {
+    const cx = nodeX + nodeW / 2;
+    const cy = nodeY + nodeH / 2;
+    const dx = targetX - cx;
+    const dy = targetY - cy;
     const dist = Math.sqrt(dx * dx + dy * dy);
     if (dist > 0) {
-      // Move endpoint 2px inside the shape edge so the arrowhead tip sits right on the border
-      const nudge = 2;
-      handlePos.x -= (dx / dist) * nudge;
-      handlePos.y -= (dy / dist) * nudge;
+      const nudge = 8;
+      handlePos.x += (dx / dist) * nudge;
+      handlePos.y += (dy / dist) * nudge;
     }
   }
 
@@ -192,7 +347,7 @@ function getRectEdgePoint(
 /**
  * Get the exact position of link handle on a specific edge.
  * These positions match the blue dot handles rendered on shapes.
- * For bottom edge of source nodes, add extra offset to clear the label area.
+ * Each edge has 3 positions: start (25%), center (50%), end (75%)
  */
 function getEdgeMidpoint(
   nodeX: number,
@@ -200,18 +355,64 @@ function getEdgeMidpoint(
   nodeW: number,
   nodeH: number,
   edge: EdgeSide,
-  _isSourceNode = false, // retained for API compat, no longer used
 ): { x: number; y: number } {
   switch (edge) {
+    // Top edge (horizontal: left to right)
     case "top":
-      return { x: nodeX + nodeW / 2, y: nodeY };
+    case "top-center":
+      return { x: nodeX + nodeW * ANCHOR_CENTER, y: nodeY };
+    case "top-start":
+      return { x: nodeX + nodeW * ANCHOR_START, y: nodeY };
+    case "top-end":
+      return { x: nodeX + nodeW * ANCHOR_END, y: nodeY };
+
+    // Bottom edge (horizontal: left to right)
     case "bottom":
-      return { x: nodeX + nodeW / 2, y: nodeY + nodeH };
+    case "bottom-center":
+      return { x: nodeX + nodeW * ANCHOR_CENTER, y: nodeY + nodeH };
+    case "bottom-start":
+      return { x: nodeX + nodeW * ANCHOR_START, y: nodeY + nodeH };
+    case "bottom-end":
+      return { x: nodeX + nodeW * ANCHOR_END, y: nodeY + nodeH };
+
+    // Left edge (vertical: top to bottom)
     case "left":
-      return { x: nodeX, y: nodeY + nodeH / 2 };
+    case "left-center":
+      return { x: nodeX, y: nodeY + nodeH * ANCHOR_CENTER };
+    case "left-start":
+      return { x: nodeX, y: nodeY + nodeH * ANCHOR_START };
+    case "left-end":
+      return { x: nodeX, y: nodeY + nodeH * ANCHOR_END };
+
+    // Right edge (vertical: top to bottom)
     case "right":
-      return { x: nodeX + nodeW, y: nodeY + nodeH / 2 };
+    case "right-center":
+      return { x: nodeX + nodeW, y: nodeY + nodeH * ANCHOR_CENTER };
+    case "right-start":
+      return { x: nodeX + nodeW, y: nodeY + nodeH * ANCHOR_START };
+    case "right-end":
+      return { x: nodeX + nodeW, y: nodeY + nodeH * ANCHOR_END };
   }
+}
+
+/**
+ * Calculate SVG polygon points string for an arrowhead triangle.
+ * Draws a filled triangle at (endX, endY) pointing from (prevX, prevY) → (endX, endY).
+ */
+export function getArrowheadPoints(
+  endX: number,
+  endY: number,
+  prevX: number,
+  prevY: number,
+  size = 10,
+): string {
+  const angle = Math.atan2(endY - prevY, endX - prevX);
+  const halfAngle = Math.PI / 7;
+  const lx = endX - size * Math.cos(angle - halfAngle);
+  const ly = endY - size * Math.sin(angle - halfAngle);
+  const rx = endX - size * Math.cos(angle + halfAngle);
+  const ry = endY - size * Math.sin(angle + halfAngle);
+  return `${endX},${endY} ${lx},${ly} ${rx},${ry}`;
 }
 
 /**
@@ -259,8 +460,8 @@ export function calculateConnectionPoints(
   }
 
   if (targetEdge) {
-    // Use the specified edge midpoint directly — refX=10 on the marker places the arrowhead
-    // tip exactly at the endpoint, so no pullback is needed.
+    // Place endpoint slightly outside target edge so marker remains visible
+    // even when nodes are rendered above links.
     tgtPt = getEdgeMidpoint(
       tx,
       ty,
@@ -343,8 +544,18 @@ export function renderLink(
     .attr("class", "visible-path")
     .attr("stroke", strokeColor)
     .attr("stroke-width", isSelected ? 3 : 2)
-    .attr("fill", "none")
-    .attr("marker-end", "url(#arrow)");
+    .attr("fill", "none");
+
+  // Explicit arrowhead polygon (replaces unreliable SVG marker system)
+  const prevPoint =
+    pathResult.waypoints.length > 0
+      ? pathResult.waypoints[pathResult.waypoints.length - 1]
+      : { x: x1, y: y1 };
+  const ah = lw
+    .append("polygon")
+    .attr("points", getArrowheadPoints(x2, y2, prevPoint.x, prevPoint.y))
+    .attr("fill", strokeColor)
+    .attr("class", "arrow-head");
 
   // Invisible wider path for easier clicking
   lw.append("path")
@@ -388,14 +599,14 @@ export function renderLink(
   lw.on("mouseenter", () => {
     if (!isSelected) {
       vp.attr("stroke", "#3498db").attr("stroke-width", 3);
+      ah.attr("fill", "#3498db");
     }
     di.style("display", "block");
   }).on("mouseleave", () => {
     if (!isSelected) {
-      vp.attr("stroke", colorScheme === "dark" ? "#FFF" : "#333").attr(
-        "stroke-width",
-        2,
-      );
+      const defaultColor = colorScheme === "dark" ? "#FFF" : "#333";
+      vp.attr("stroke", defaultColor).attr("stroke-width", 2);
+      ah.attr("fill", defaultColor);
     }
     di.style("display", "none");
   });
@@ -473,16 +684,19 @@ export function renderTempLink(
   x2: number,
   y2: number,
 ): d3.Selection<SVGPathElement, unknown, null, undefined> {
-  return svg
-    .append("path")
-    .attr("class", "temp-link")
+  const g = svg.append("g").attr("class", "temp-link");
+  g.append("path")
     .attr("d", `M ${x1} ${y1} L ${x2} ${y2}`)
     .attr("stroke", "blue")
     .attr("stroke-width", 2)
     .attr("stroke-dasharray", "5,5")
     .attr("fill", "none")
-    .attr("marker-end", "url(#arrow-temp)")
     .attr("pointer-events", "none");
+  g.append("polygon")
+    .attr("points", getArrowheadPoints(x2, y2, x1, y1))
+    .attr("fill", "blue")
+    .attr("class", "arrow-head");
+  return g as unknown as d3.Selection<SVGPathElement, unknown, null, undefined>;
 }
 
 /**

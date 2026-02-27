@@ -1,27 +1,29 @@
-import type { AppState, BinaryFiles, ExcalidrawInitialDataState } from '@excalidraw/excalidraw/types';
-import type { NodeKey } from 'lexical';
-
-import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import { useLexicalNodeSelection } from '@lexical/react/useLexicalNodeSelection';
-import { mergeRegister } from '@lexical/utils';
+import type {
+    AppState,
+    BinaryFiles,
+    ExcalidrawInitialDataState,
+} from "@excalidraw/excalidraw/types";
+import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
+import { useLexicalNodeSelection } from "@lexical/react/useLexicalNodeSelection";
+import { mergeRegister } from "@lexical/utils";
+import { ActionIcon, Box, useMantineColorScheme } from "@mantine/core";
+import { IconEdit } from "@tabler/icons-react";
+import type { NodeKey } from "lexical";
 import {
     $getNodeByKey,
     CLICK_COMMAND,
     COMMAND_PRIORITY_LOW,
-    KEY_DELETE_COMMAND,
     KEY_BACKSPACE_COMMAND,
-} from 'lexical';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+    KEY_DELETE_COMMAND,
+} from "lexical";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import styles from "./ExcalidrawComponent.module.css";
+import { ExcalidrawFullscreen } from "./ExcalidrawFullscreen";
+import ExcalidrawModal from "./ExcalidrawModal";
 // Use type import only to avoid circular dependency
-import type { ExcalidrawNode } from './ExcalidrawNode';
-import ExcalidrawModal from './ExcalidrawModal';
-import { exportToSvg } from '@excalidraw/excalidraw';
-import { ActionIcon, Box, useMantineColorScheme } from '@mantine/core';
-import { IconEdit } from '@tabler/icons-react';
-import styles from './ExcalidrawComponent.module.css';
-import { ExcalidrawFullscreen } from './ExcalidrawFullscreen';
+import type { ExcalidrawNode } from "./ExcalidrawNode";
 
-export type ExcalidrawInitialElements = ExcalidrawInitialDataState['elements'];
+export type ExcalidrawInitialElements = ExcalidrawInitialDataState["elements"];
 
 export default function ExcalidrawComponent({
     nodeKey,
@@ -29,18 +31,23 @@ export default function ExcalidrawComponent({
 }: {
     data: string;
     nodeKey: NodeKey;
-    width: 'inherit' | number;
-    height: 'inherit' | number;
+    width: "inherit" | number;
+    height: "inherit" | number;
 }) {
     const [editor] = useLexicalComposerContext();
     const { colorScheme } = useMantineColorScheme();
     const [isModalOpen, setModalOpen] = useState<boolean>(
-        data === '[]' && editor.isEditable(),
+        data === "[]" && editor.isEditable(),
     );
-    const [isSelected, setSelected, clearSelection] = useLexicalNodeSelection(nodeKey);
+    const [isSelected, setSelected, clearSelection] =
+        useLexicalNodeSelection(nodeKey);
     const [svg, setSvg] = useState<SVGElement | null>(null);
 
-    const { elements = [], files = {}, appState = {} } = useMemo(() => {
+    const {
+        elements = [],
+        files = {},
+        appState = {},
+    } = useMemo(() => {
         try {
             return JSON.parse(data);
         } catch {
@@ -48,20 +55,22 @@ export default function ExcalidrawComponent({
         }
     }, [data]);
 
-    // Generate SVG preview
+    // Generate SVG preview - using dynamic import to avoid SSR issues
     useEffect(() => {
         if (elements.length > 0) {
-            exportToSvg({
-                elements,
-                files,
-                exportBackground: false,
-                appState: {
-                    ...appState,
-                    exportWithDarkMode: colorScheme === 'dark',
-                    viewBackgroundColor: 'transparent',
-                } as AppState,
-            }).then((svg) => {
-                setSvg(svg);
+            import("@excalidraw/excalidraw").then(({ exportToSvg }) => {
+                exportToSvg({
+                    elements,
+                    files,
+                    exportBackground: false,
+                    appState: {
+                        ...appState,
+                        exportWithDarkMode: colorScheme === "dark",
+                        viewBackgroundColor: "transparent",
+                    } as AppState,
+                }).then((svg) => {
+                    setSvg(svg);
+                });
             });
         }
     }, [elements, files, appState, colorScheme]);
@@ -135,7 +144,7 @@ export default function ExcalidrawComponent({
         return editor.update(() => {
             const node = $getNodeByKey(nodeKey);
             // Check type specifically to avoid runtime circular dependency with ExcalidrawNode import
-            if (node && node.getType() === 'excalidraw') {
+            if (node && node.getType() === "excalidraw") {
                 const excalidrawNode = node as ExcalidrawNode;
                 if ((els && els.length > 0) || Object.keys(fls).length > 0) {
                     excalidrawNode.setData(
@@ -187,7 +196,7 @@ export default function ExcalidrawComponent({
             )}
             {elements.length > 0 && svg && (
                 <Box
-                    className={`${styles.excalidrawWrapper} ${isSelected ? styles.selected : ''}`}
+                    className={`${styles.excalidrawWrapper} ${isSelected ? styles.selected : ""}`}
                     data-excalidraw-key={nodeKey}
                 >
                     <div

@@ -1,11 +1,17 @@
 import type { AppState, BinaryFiles, ExcalidrawImperativeAPI, ExcalidrawInitialDataState } from '@excalidraw/excalidraw/types';
 
 import '@excalidraw/excalidraw/index.css';
-import { Excalidraw } from '@excalidraw/excalidraw';
 import { Button, Group } from '@mantine/core';
+import dynamic from 'next/dynamic';
 import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import styles from './ExcalidrawModal.module.css';
+
+// Dynamic import with SSR disabled to avoid "window is not defined" error
+const Excalidraw = dynamic(
+    () => import('@excalidraw/excalidraw').then((mod) => mod.Excalidraw),
+    { ssr: false }
+);
 
 export type ExcalidrawInitialElements = ExcalidrawInitialDataState['elements'];
 

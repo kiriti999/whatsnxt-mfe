@@ -161,18 +161,21 @@ JSON format:
     {
       "source": "unique-id-1",
       "target": "unique-id-2",
-      "sourceEdge": "right",
-      "targetEdge": "left"
+      "sourceEdge": "right-center",
+      "targetEdge": "left-center"
     }
   ]
 }
 
 ARROW ROUTING RULES (CRITICAL for clean diagrams):
-12. Specify sourceEdge and targetEdge for each link to control which side of shapes arrows connect to.
-13. Choose edges that create clean, non-overlapping paths.
-14. For left-to-right flows: use sourceEdge="right" and targetEdge="left"
-15. For top-to-bottom flows: use sourceEdge="bottom" and targetEdge="top"
-16. When a node is above another, connect from bottom to top. When beside, connect from side to side.
+12. Each edge has 3 connection points: start (25%), center (50%), end (75%).
+    Valid edge values: top-start, top-center, top-end, right-start, right-center, right-end, 
+    bottom-start, bottom-center, bottom-end, left-start, left-center, left-end
+13. Use different positions on the same edge to avoid overlapping arrows:
+    - If two arrows exit from the right side, use right-start for one and right-end for the other.
+14. For left-to-right flows: use sourceEdge="right-center" and targetEdge="left-center"
+15. For top-to-bottom flows: use sourceEdge="bottom-center" and targetEdge="top-center"
+16. When multiple arrows connect to the same edge, spread them across start/center/end positions.
 
 CONTAINER BOUNDARY RULES:
 17. Child nodes INSIDE a container should stay within the container's x/y/width/height bounds.
