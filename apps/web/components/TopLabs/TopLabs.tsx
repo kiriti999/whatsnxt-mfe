@@ -17,6 +17,25 @@ import type { Lab } from '@whatsnxt/core-types';
 import { useRouter } from 'next/navigation';
 import styles from './TopLabs.module.css';
 
+/** Extract plain text from a Lexical SerializedEditorState JSON string, or return as-is if not JSON. */
+function labDescriptionText(description: string): string {
+    try {
+        const parsed = JSON.parse(description) as { root?: { children?: unknown[] } };
+        if (!parsed?.root) return description;
+        const extractText = (node: unknown): string => {
+            const n = node as Record<string, unknown>;
+            if (typeof n.text === "string") return n.text;
+            if (Array.isArray(n.children)) {
+                return (n.children as unknown[]).map(extractText).join("");
+            }
+            return "";
+        };
+        return extractText(parsed.root).trim();
+    } catch {
+        return description;
+    }
+}
+
 interface LabWithCounts extends Lab {
     questionCount?: number;
     diagramTestCount?: number;
@@ -142,7 +161,7 @@ const TopLabs = ({ labs }: TopLabsProps) => {
                                     </Text>
                                     {lab.description && (
                                         <Text size="xs" c="dimmed" lineClamp={2} mt={4}>
-                                            {lab.description}
+                                            {labDescriptionText(lab.description)}
                                         </Text>
                                     )}
                                     {lab.subCategory && (

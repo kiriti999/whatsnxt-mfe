@@ -709,9 +709,6 @@ const LabDetailPage = () => {
             ) : (
               <Stack>
                 <Box>
-                  <Text size="sm" c="dimmed">
-                    Name
-                  </Text>
                   <Title order={5}>{lab.name}</Title>
                 </Box>
                 <Box>
@@ -759,16 +756,10 @@ const LabDetailPage = () => {
                 </Box>
                 <Group>
                   <Box>
-                    <Text size="sm" c="dimmed">
-                      Category
-                    </Text>
                     <Badge size="lg">{lab.labType}</Badge>
                   </Box>
                   {lab.subCategory && (
                     <Box>
-                      <Text size="sm" c="dimmed">
-                        Sub Category
-                      </Text>
                       <Badge size="lg" color="grape">
                         {lab.subCategory}
                       </Badge>
@@ -776,9 +767,6 @@ const LabDetailPage = () => {
                   )}
                   {lab.nestedSubCategory && (
                     <Box>
-                      <Text size="sm" c="dimmed">
-                        Topic
-                      </Text>
                       <Badge size="lg" color="violet">
                         {lab.nestedSubCategory}
                       </Badge>
