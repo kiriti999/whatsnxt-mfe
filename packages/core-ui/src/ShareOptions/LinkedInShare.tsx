@@ -144,9 +144,12 @@ const LinkedInShare: React.FC<LinkedInShareProps> = ({ url, title, thumbnailUrn,
                 }
             } else {
                 // Default LinkedIn share functionality for non-admin users
+                // Strip HTML and truncate to avoid exceeding URL length limits
+                const cleanSummary = stripHtmlForLinkedIn(description);
+                const truncatedSummary = truncateLinkedInText(cleanSummary, 256);
                 const shareUrl = `https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(
                     url
-                )}${title ? `&title=${encodeURIComponent(title)}` : ''}${description ? `&summary=${encodeURIComponent(description)}` : ''}`;
+                )}${title ? `&title=${encodeURIComponent(title)}` : ''}${truncatedSummary ? `&summary=${encodeURIComponent(truncatedSummary)}` : ''}`;
                 window.open(shareUrl, '_blank');
             }
         } catch (error) {
