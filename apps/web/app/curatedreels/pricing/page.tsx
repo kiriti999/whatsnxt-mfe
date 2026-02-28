@@ -48,8 +48,7 @@ const plans = [
             "3 Deployment Licenses",
             "Priority Support",
             "Lifetime Validity",
-            "Advanced features",
-            "White-label options"
+            "Advanced features"
         ],
         color: "grape",
         highlight: true
@@ -63,8 +62,7 @@ const plans = [
             "Unlimited Deployments",
             "Dedicated Support",
             "Lifetime Validity",
-            "Custom Branding",
-            "SLA"
+            "Custom Branding"
         ],
         color: "dark"
     }
