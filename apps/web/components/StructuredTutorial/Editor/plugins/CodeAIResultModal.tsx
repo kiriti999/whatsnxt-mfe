@@ -28,7 +28,6 @@ interface Message {
 
 export interface AIUsageStats {
     isPremium: boolean;
-    premiumPlan?: string | null;
     monthly: {
         used: number;
         limit: number | "unlimited";
@@ -47,7 +46,7 @@ export interface AIUsageStats {
 }
 
 export interface LimitError {
-    reason: "daily_limit_exceeded_free" | "hourly_limit_exceeded" | "daily_limit_exceeded";
+    reason: "monthly_limit_exceeded" | "hourly_limit_exceeded" | "daily_limit_exceeded";
     message: string;
     resetDate: string;
     isPremium: boolean;
@@ -61,8 +60,6 @@ interface CodeAIResultModalProps {
     isCodeResult?: boolean;
     usageStats?: AIUsageStats | null;
     limitError?: LimitError | null;
-    /** User role for role-based UI ("student" sees upgrade, "trainer" sees config) */
-    userRole?: string;
     onReply?: (
         replyText: string,
         conversationHistory: Array<{ role: "user" | "assistant"; content: string }>
@@ -84,7 +81,6 @@ export function CodeAIResultModal({
     isCodeResult = false,
     usageStats: initialUsageStats = null,
     limitError: initialLimitError = null,
-    userRole = "",
     onReply,
 }: CodeAIResultModalProps): React.JSX.Element {
     const [replyText, setReplyText] = useState("");
@@ -338,7 +334,7 @@ export function CodeAIResultModal({
                 {limitError && (
                     <Alert
                         icon={<IconAlertCircle size={18} />}
-                        title={userRole === "student" ? "Free Tier Limit Reached" : "Rate Limit Reached"}
+                        title={limitError.isPremium ? "Rate Limit Reached" : "Free Tier Limit Reached"}
                         color="orange"
                         mt="md"
                     >
@@ -346,7 +342,7 @@ export function CodeAIResultModal({
                         <Text size="xs" c="dimmed" mt={4}>
                             Resets: {new Date(limitError.resetDate).toLocaleString()}
                         </Text>
-                        {userRole === "student" && (
+                        {!limitError.isPremium && (
                             <Anchor
                                 href="/premium"
                                 size="sm"
@@ -354,7 +350,7 @@ export function CodeAIResultModal({
                                 mt="sm"
                                 style={{ display: "block" }}
                             >
-                                Upgrade to Premium for unlimited AI Tutor access →
+                                Upgrade to Premium for unlimited access →
                             </Anchor>
                         )}
                     </Alert>
@@ -375,45 +371,47 @@ export function CodeAIResultModal({
                             <Group gap={4}>
                                 <IconSparkles size={14} style={{ color: "#228be6" }} />
                                 <Text size="xs" fw={600} c="dimmed">
-                                    AI Usage {userRole === "student" ? "(Free Tier)" : "(Premium)"}
+                                    AI Usage {usageStats.isPremium ? "(Premium)" : "(Free Tier)"}
                                 </Text>
                             </Group>
-                            {userRole === "student" && (
+                            {!usageStats.isPremium && (
                                 <Anchor href="/premium" size="xs" fw={600}>
                                     Upgrade
                                 </Anchor>
                             )}
                         </Group>
 
-                        {/* Daily usage for students */}
-                        {userRole === "student" && usageStats.daily && (
+                        {/* Monthly usage for free users */}
+                        {!usageStats.isPremium && (
                             <>
                                 <Group justify="space-between" mb={2}>
                                     <Text size="xs" c="dimmed">
-                                        Requests used
+                                        Requests this month
                                     </Text>
                                     <Text size="xs" fw={600}>
-                                        {usageStats.daily.used} / {usageStats.daily.limit}
+                                        {usageStats.monthly.used} / {usageStats.monthly.limit}
                                     </Text>
                                 </Group>
                                 <Progress
                                     value={
-                                        (usageStats.daily.used /
-                                            (usageStats.daily.limit || 5)) *
+                                        (usageStats.monthly.used /
+                                            (usageStats.monthly.limit === "unlimited"
+                                                ? 100
+                                                : usageStats.monthly.limit)) *
                                         100
                                     }
                                     size="xs"
-                                    color={usageStats.daily.used >= 4 ? "orange" : "blue"}
+                                    color={usageStats.monthly.used >= 4 ? "orange" : "blue"}
                                     mb={4}
                                 />
                                 <Text size="xs" c="dimmed">
-                                    Resets: {new Date(usageStats.daily.resetDate).toLocaleDateString()}
+                                    Resets: {new Date(usageStats.monthly.resetDate).toLocaleDateString()}
                                 </Text>
                             </>
                         )}
 
-                        {/* Premium/Trainer users: show hourly and daily limits */}
-                        {userRole !== "student" && usageStats.hourly && usageStats.daily && (
+                        {/* Premium users: show hourly and daily limits */}
+                        {usageStats.isPremium && usageStats.hourly && usageStats.daily && (
                             <>
                                 <Group justify="space-between" mb={2}>
                                     <Text size="xs" c="dimmed">
@@ -441,7 +439,7 @@ export function CodeAIResultModal({
                                 <Progress
                                     value={(usageStats.daily.used / (usageStats.daily.limit || 50)) * 100}
                                     size="xs"
-                                    color={usageStats.daily.used >= (usageStats.daily.limit || 50) * 0.8 ? "orange" : "green"}
+                                    color={usageStats.daily.used >= 40 ? "orange" : "green"}
                                 />
                             </>
                         )}

@@ -65,15 +65,14 @@ const sanitizeOptions = {
   allowedSchemes: ['http', 'https', 'data']
 };
 
-export const useAddIdsToHeadings = (desc: string, isAuthenticated: boolean = false, userRole: string = "") => {
+export const useAddIdsToHeadings = (desc: string, isAuthenticated: boolean = false) => {
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!containerRef.current || !desc) return;
 
-    // Set auth status and role as data attributes for code enhancement
+    // Set auth status as data attribute for code enhancement
     containerRef.current.dataset.authenticated = String(isAuthenticated);
-    containerRef.current.dataset.userRole = userRole;
 
     // Safely decode the description or use it as-is if decoding fails
     let decodedDescription: any;
@@ -197,7 +196,7 @@ export const useAddIdsToHeadings = (desc: string, isAuthenticated: boolean = fal
             // Enhance code blocks with action buttons after highlight.js finishes
             import('../components/StructuredTutorial/Editor/plugins/CodeBlockEnhancer')
               .then((mod) => {
-                mod.enhanceCodeBlocks(contentEl, isAuthenticated, userRole);
+                mod.enhanceCodeBlocks(contentEl, isAuthenticated);
               })
               .catch((err) => {
                 console.warn('CodeBlockEnhancer import failed:', err);
@@ -210,7 +209,7 @@ export const useAddIdsToHeadings = (desc: string, isAuthenticated: boolean = fal
         // ignore
       }
     }
-  }, [desc, containerRef, isAuthenticated, userRole]);
+  }, [desc, containerRef, isAuthenticated]);
 
   return { containerRef };
 }

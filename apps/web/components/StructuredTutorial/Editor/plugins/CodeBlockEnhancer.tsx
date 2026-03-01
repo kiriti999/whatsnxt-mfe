@@ -24,7 +24,6 @@ import {
     useAIConfig,
 } from "../../../../context/AIConfigContext";
 import { AIConfigModal } from "../../../Common/AIConfigModal";
-import { AIUpgradeModal } from "../../../Common/AIUpgradeModal";
 import type { AIUsageStats, LimitError } from "./CodeAIResultModal";
 import { CodeAIResultModal } from "./CodeAIResultModal";
 import { useCodeAI } from "./useCodeAI";
@@ -58,16 +57,7 @@ function CodeBlockActions({
         configModalOpened,
         { open: openConfigModal, close: closeConfigModal },
     ] = useDisclosure(false);
-    const [
-        upgradeModalOpened,
-        { open: openUpgradeModal, close: closeUpgradeModal },
-    ] = useDisclosure(false);
     const [apiKeyError, setApiKeyError] = useState("");
-    const [upgradeInfo, setUpgradeInfo] = useState({
-        dailyUsed: 0,
-        dailyLimit: 5,
-        resetDate: "",
-    });
     const hasUserInteractedRef = useRef(false); // Track if user has clicked AI button
 
     // AI hook
@@ -92,24 +82,6 @@ function CodeBlockActions({
     // Open config modal when there's an auth error (only after user interaction)
     useEffect(() => {
         if (aiError && aiConfig.loaded && hasUserInteractedRef.current) {
-            const isStudent = aiConfig.userRole === "student";
-
-            // Check if it's a rate limit error for students — show upgrade modal
-            const isRateLimit =
-                aiError.includes("daily limit") ||
-                aiError.includes("rate limit") ||
-                aiError.includes("429");
-
-            if (isRateLimit && isStudent) {
-                setUpgradeInfo({
-                    dailyUsed: 5,
-                    dailyLimit: 5,
-                    resetDate: "",
-                });
-                openUpgradeModal();
-                return;
-            }
-
             // Check if it's an authentication/API key error
             const isAuthError =
                 aiError.includes("API key") ||
@@ -121,10 +93,14 @@ function CodeBlockActions({
                 aiError.includes("Incorrect API key") ||
                 aiError.includes("Invalid API key");
 
-            // Show config modal for trainers if:
+            // Check if it's a rate limit error (temporary issue, don't show modal)
+            const isRateLimit =
+                aiError.includes("rate limit") || aiError.includes("429");
+
+            // Show modal if:
             // 1. It's an auth error AND
             // 2. Either the key is invalid OR user doesn't have a key saved AND
-            // 3. It's NOT a temporary rate limit error
+            // 3. It's NOT a rate limit error (temporary issue)
             if (
                 isAuthError &&
                 !isRateLimit &&
@@ -134,7 +110,7 @@ function CodeBlockActions({
                 openConfigModal();
             }
         }
-    }, [aiError, openConfigModal, openUpgradeModal, aiConfig]);
+    }, [aiError, openConfigModal, aiConfig]);
 
     const handleCloseResultModal = () => {
         setAiResultModalOpen(false);
@@ -200,21 +176,10 @@ function CodeBlockActions({
                         setUsageStats(usageStats);
                     }
 
-                    // Student hit daily limit — show upgrade modal instead
-                    if (aiConfig.userRole === "student") {
-                        setUpgradeInfo({
-                            dailyUsed: usageStats?.daily?.used || 5,
-                            dailyLimit: usageStats?.daily?.limit || 5,
-                            resetDate: limitInfo?.resetDate || "",
-                        });
-                        openUpgradeModal();
-                        return { response: "" };
-                    }
-
                     const limitError: LimitError = {
                         reason:
                             (limitInfo?.reason as LimitError["reason"]) ||
-                            "daily_limit_exceeded_free",
+                            "monthly_limit_exceeded",
                         message: axiosError.response.data.message || "Rate limit exceeded",
                         resetDate: limitInfo?.resetDate || new Date().toISOString(),
                         isPremium: limitInfo?.isPremium || false,
@@ -505,19 +470,9 @@ function CodeBlockActions({
                     }
                     usageStats={usageStats}
                     limitError={limitError}
-                    userRole={aiConfig.userRole}
                     onReply={handleReply}
                 />
             )}
-
-            {/* AI Upgrade Modal for free users */}
-            <AIUpgradeModal
-                opened={upgradeModalOpened}
-                onClose={closeUpgradeModal}
-                dailyUsed={upgradeInfo.dailyUsed}
-                dailyLimit={upgradeInfo.dailyLimit}
-                resetDate={upgradeInfo.resetDate}
-            />
         </>
     );
 }
@@ -531,14 +486,12 @@ function CodeBlockActions({
 export function enhanceCodeBlocks(
     containerElement: HTMLElement | null,
     isAuthenticatedContext?: boolean,
-    userRoleContext?: string,
 ) {
     if (!containerElement || typeof window === "undefined") return;
 
     // Read auth status from container's data attribute (set by parent component with context)
     const isAuthenticated = isAuthenticatedContext ??
         containerElement.dataset?.authenticated === "true";
-    const userRole = userRoleContext ?? containerElement.dataset?.userRole ?? "";
 
     const codeBlocks = containerElement.querySelectorAll("pre code");
 
@@ -571,7 +524,7 @@ export function enhanceCodeBlocks(
         const root = createRoot(actionsWrapper);
         root.render(
             <MantineProvider>
-                <AIConfigProvider isAuthenticated={isAuthenticated} userRole={userRole}>
+                <AIConfigProvider isAuthenticated={isAuthenticated}>
                     <CodeBlockActions
                         code={code}
                         language={language}
@@ -587,26 +540,23 @@ export function enhanceCodeBlocks(
  * Hook to enhance code blocks in a container
  * @param containerRef - Reference to the container element
  * @param isAuthenticated - Auth status from parent context
- * @param userRole - User role from parent context
  * @param dependencies - Additional dependencies for the effect
  */
 export function useEnhancedCodeBlocks(
     containerRef: React.RefObject<HTMLElement>,
     isAuthenticated: boolean = false,
-    userRole: string = "",
     dependencies: unknown[] = [],
 ) {
     useEffect(() => {
         if (containerRef.current) {
-            // Set auth status and role as data attributes for code enhancement
+            // Set auth status as data attribute for code enhancement
             containerRef.current.dataset.authenticated = String(isAuthenticated);
-            containerRef.current.dataset.userRole = userRole;
             // Wait for highlight.js to finish
             const timer = setTimeout(() => {
-                enhanceCodeBlocks(containerRef.current, isAuthenticated, userRole);
+                enhanceCodeBlocks(containerRef.current, isAuthenticated);
             }, 100);
 
             return () => clearTimeout(timer);
         }
-    }, [containerRef, isAuthenticated, userRole, ...dependencies]);
+    }, [containerRef, isAuthenticated, ...dependencies]);
 }

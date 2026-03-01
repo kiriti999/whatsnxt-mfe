@@ -206,7 +206,7 @@ export default function AppProvider({
       <MantineProvider theme={theme}>
         <QueryClientProvider client={queryClient}>
           <AuthProvider userData={user}>
-            <AIConfigProvider isAuthenticated={!!user?.isAuthenticated} userRole={user?.role || ""}>
+            <AIConfigProvider isAuthenticated={!!user?.isAuthenticated}>
               <FilterStore>
                 <Notifications position="top-left" zIndex={1000} />
                 <ModalsProvider>

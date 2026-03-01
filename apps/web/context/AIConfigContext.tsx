@@ -27,8 +27,6 @@ interface AIConfigContextType extends AIConfigState {
   hasApiKey: (provider: string) => boolean;
   /** Whether the user is authenticated (from AuthContext) */
   isAuthenticated: boolean;
-  /** User role from AuthContext (e.g., "student", "trainer", "admin") */
-  userRole: string;
 }
 
 const AIConfigContext = createContext<AIConfigContextType | null>(null);
@@ -36,11 +34,9 @@ const AIConfigContext = createContext<AIConfigContextType | null>(null);
 export function AIConfigProvider({
   children,
   isAuthenticated,
-  userRole = "",
 }: {
   children: React.ReactNode;
   isAuthenticated: boolean;
-  userRole?: string;
 }) {
   const [state, setState] = useState<AIConfigState>({
     selectedAI: "openai",
@@ -217,9 +213,8 @@ export function AIConfigProvider({
       updateConfig,
       hasApiKey,
       isAuthenticated,
-      userRole,
     }),
-    [state, setSelectedAI, setSelectedModel, updateConfig, hasApiKey, isAuthenticated, userRole],
+    [state, setSelectedAI, setSelectedModel, updateConfig, hasApiKey, isAuthenticated],
   );
 
   return (

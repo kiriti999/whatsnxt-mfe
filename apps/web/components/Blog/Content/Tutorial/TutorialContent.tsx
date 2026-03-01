@@ -87,7 +87,6 @@ const TutorialContent = (props: PROPS) => {
   const { containerRef } = useAddIdsToHeadings(
     description,
     !!user?.isAuthenticated,
-    user?.role || "",
   );
   const contentRef = useContentRefAndHeadings(
     loading,
