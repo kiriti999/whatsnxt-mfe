@@ -170,6 +170,7 @@ const BlogContent = ({
   const { containerRef } = useAddIdsToHeadings(
     description,
     !!user?.isAuthenticated,
+    user?.role || "",
   );
 
   const onHeadingsExtractedCallback = useCallback(

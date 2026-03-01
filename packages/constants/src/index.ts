@@ -194,5 +194,28 @@ export const CONTENT_PLAN_VALIDATION = {
   RATE_LIMIT_COOLDOWN_HOURS: 24,
 } as const;
 
+// AI Usage Limits
+export const AI_USAGE_LIMITS = {
+  FREE_DAILY_LIMIT: 5,
+  PREMIUM_HOURLY_LIMIT: 10,
+  PREMIUM_MONTHLY_DAILY_LIMIT: 50,
+  PREMIUM_ANNUAL_DAILY_LIMIT: 100,
+  PREMIUM_LIFETIME_DAILY_LIMIT: 150,
+} as const;
+
+// Premium plan daily limits map
+export const PREMIUM_PLAN_DAILY_LIMITS: Record<string, number> = {
+  monthly: 50,
+  annual: 100,
+  lifetime: 150,
+} as const;
+
+// AI Limit Exceeded Reasons
+export const AI_LIMIT_REASONS = {
+  DAILY_LIMIT_EXCEEDED_FREE: 'daily_limit_exceeded_free',
+  HOURLY_LIMIT_EXCEEDED: 'hourly_limit_exceeded',
+  DAILY_LIMIT_EXCEEDED: 'daily_limit_exceeded',
+} as const;
+
 // Lab-specific constants (feature 003-auto-page-creation)
 export * from './lab.constants';

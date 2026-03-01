@@ -1,0 +1,28 @@
+.sparkleIcon {
+    color: light-dark(var(--mantine-color-violet-6), var(--mantine-color-violet-4));
+}
+
+.featureList {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.featureItem {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.featureCheck {
+    color: light-dark(var(--mantine-color-teal-6), var(--mantine-color-teal-4));
+    flex-shrink: 0;
+}
+
+.usageBar {
+    margin-top: 0.25rem;
+}
+
+.resetText {
+    margin-top: 0.25rem;
+}

@@ -6,7 +6,7 @@ const TermsOfService = () => {
     <Container size="lg" py="xl">
       <Stack gap="lg">
         <Text fs="italic" c="dimmed">
-          This Terms of Service was last updated on July 6, 2025.
+          This Terms of Service was last updated on March 2, 2026.
         </Text>
 
         <Title order={3}>1. Our website</Title>
@@ -109,6 +109,38 @@ const TermsOfService = () => {
         <Title order={3}>7. Back Links Policy</Title>
         <Text fw={600} c="red">
           Back links are not allowed.
+        </Text>
+
+        <Title order={3}>8. AI Tutor Fair Usage Policy</Title>
+        <Text>
+          WhatsnXT provides an AI Tutor feature powered by third-party AI models. Access to
+          the AI Tutor is subject to the following fair usage limits, which apply on a per-day
+          (calendar day, UTC) basis and reset at midnight UTC:
+        </Text>
+        <Stack gap="sm">
+          <Text>
+            <Text span fw={600}>Free (Student) Tier:</Text> 5 AI requests per day. Once the daily limit is
+            reached, further requests will be blocked until the next calendar day.
+          </Text>
+          <Text>
+            <Text span fw={600}>Monthly Premium:</Text> 50 AI requests per day, with a maximum of 10 requests
+            per hour.
+          </Text>
+          <Text>
+            <Text span fw={600}>Annual Premium:</Text> 100 AI requests per day, with a maximum of 10 requests
+            per hour.
+          </Text>
+          <Text>
+            <Text span fw={600}>Lifetime Premium:</Text> 150 AI requests per day, with a maximum of 10 requests
+            per hour.
+          </Text>
+        </Stack>
+        <Text>
+          These limits are enforced automatically. WhatsnXT reserves the right to modify
+          fair usage limits at any time with reasonable notice. Abuse or automated exploitation
+          of the AI Tutor (including but not limited to scripting, bots, or circumventing
+          rate limits) may result in temporary or permanent suspension of AI access
+          and/or your account.
         </Text>
       </Stack>
     </Container>

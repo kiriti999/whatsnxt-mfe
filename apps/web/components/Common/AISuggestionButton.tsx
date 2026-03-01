@@ -5,8 +5,10 @@ import { ActionIcon, Loader, Tooltip } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { IconSparkles } from '@tabler/icons-react';
+import { AI_USAGE_LIMITS } from '@whatsnxt/constants';
 import { AISuggestions } from '../../apis/v1/blog/aiSuggestions';
 import { AIConfigModal } from './AIConfigModal';
+import { AIUpgradeModal } from './AIUpgradeModal';
 import { useAIConfig } from '../../context/AIConfigContext';
 
 export interface AISuggestionButtonProps {
@@ -37,7 +39,14 @@ export function AISuggestionButton({
     const aiConfig = useAIConfig();
     const [isFetching, setIsFetching] = useState(false);
     const [modalOpened, { open: openModal, close: closeModal }] = useDisclosure(false);
+    const [upgradeModalOpened, { open: openUpgradeModal, close: closeUpgradeModal }] =
+        useDisclosure(false);
     const [apiKeyError, setApiKeyError] = useState('');
+    const [upgradeInfo, setUpgradeInfo] = useState({
+        dailyUsed: 0,
+        dailyLimit: AI_USAGE_LIMITS.FREE_DAILY_LIMIT,
+        resetDate: '',
+    });
 
     const fetchSuggestion = useCallback(async () => {
         const resolvedPrompt = typeof prompt === 'function' ? prompt() : prompt;
@@ -82,6 +91,22 @@ export function AISuggestionButton({
         } catch (error: any) {
             console.error('Error fetching suggestion:', error);
 
+            // Check if it's a rate limit error — route to role-appropriate modal
+            const isRateLimitError = error?.response?.status === 429;
+            const limitInfo = error?.response?.data?.limitInfo;
+            const isStudent = aiConfig.userRole === 'student';
+
+            if (isRateLimitError && isStudent) {
+                // Students see upgrade modal — do NOT show API key config modal
+                setUpgradeInfo({
+                    dailyUsed: limitInfo?.used || AI_USAGE_LIMITS.FREE_DAILY_LIMIT,
+                    dailyLimit: limitInfo?.limit || AI_USAGE_LIMITS.FREE_DAILY_LIMIT,
+                    resetDate: limitInfo?.resetDate || '',
+                });
+                openUpgradeModal();
+                return;
+            }
+
             let errorMessage = 'Failed to fetch AI suggestions. Please provide your API key.';
 
             if (error?.response?.data?.message) {
@@ -93,9 +118,9 @@ export function AISuggestionButton({
             }
 
             if (!error?.response?.data?.message && !error?.response?.data?.error) {
-                if (error?.response?.status === 429) {
+                if (isRateLimitError) {
                     errorMessage =
-                        'API rate limit exceeded. Please provide your own API key to continue.';
+                        'API rate limit exceeded. Please try again later or provide your own API key.';
                 } else if (error?.response?.status === 401) {
                     errorMessage =
                         error?.message || 'Authentication failed. Please provide a valid API key.';
@@ -158,6 +183,14 @@ export function AISuggestionButton({
                     });
                 }}
                 error={apiKeyError}
+            />
+
+            <AIUpgradeModal
+                opened={upgradeModalOpened}
+                onClose={closeUpgradeModal}
+                dailyUsed={upgradeInfo.dailyUsed}
+                dailyLimit={upgradeInfo.dailyLimit}
+                resetDate={upgradeInfo.resetDate}
             />
         </>
     );

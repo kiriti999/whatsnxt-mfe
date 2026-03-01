@@ -147,8 +147,9 @@ export function useCodeAI(): UseCodeAIReturn {
                     } else if (error.response?.data?.error) {
                         errorMessage = error.response.data.error;
                     } else if (error.response?.status === 429) {
-                        errorMessage =
-                            "Rate limit exceeded. Please use your own API key in AI Settings.";
+                        // Preserve the server message which differentiates free vs premium rate limits
+                        errorMessage = error.response?.data?.message ||
+                            "Rate limit exceeded. Please try again later.";
                     } else if (error.response?.status === 401) {
                         errorMessage =
                             "Authentication failed. Please configure your API key in AI Settings.";

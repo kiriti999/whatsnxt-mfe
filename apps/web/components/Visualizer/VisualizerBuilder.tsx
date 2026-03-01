@@ -101,6 +101,7 @@ export function VisualizerBuilder() {
                 err?.response?.data?.message ||
                 err?.response?.data?.error ||
                 '';
+            const limitInfo = err?.response?.data?.limitInfo;
 
             if (backendMsg) errorMessage = backendMsg;
 
@@ -128,7 +129,7 @@ export function VisualizerBuilder() {
                 } else if (status === 429) {
                     displayMsg =
                         backendMsg ||
-                        'API rate limit exceeded. Please provide your own API key or try a different provider.';
+                        'API rate limit exceeded. Please try again later or provide your own API key.';
                 } else if (status === 401) {
                     displayMsg =
                         backendMsg ||
