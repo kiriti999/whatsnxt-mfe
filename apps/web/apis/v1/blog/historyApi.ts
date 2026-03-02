@@ -56,6 +56,14 @@ export const HistoryAPI = {
     return data.data ? data.data.generatePPT : '';
   },
 
+  downloadMarkdown: async function (id: string) {
+    const { data } = await articleApiClient.get('/history/downloadMarkdown', {
+      params: { id }
+    }) as { data: any };
+
+    return data.data ? data.data.generateMarkdown : '';
+  },
+
   publishDraft: async function (id: string, shouldPublish: boolean) {
     const { data } = await articleApiClient.put('/history/publishDraft', {
       postId: id,

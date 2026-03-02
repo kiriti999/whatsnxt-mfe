@@ -14,6 +14,7 @@ import {
   IconEdit,
   IconEye,
   IconEyeOff,
+  IconMarkdown,
   IconPlus,
   IconSearch,
   IconTrash,
@@ -132,6 +133,25 @@ const HistoryTable = ({ open, close }: HistoryTableProps) => {
       notifications.show({
         title: "Error",
         message: "Error downloading PowerPoint",
+        color: "red",
+      });
+    }
+  };
+
+  const handleDownloadMarkdown = async (rowData: HistoryRecord) => {
+    try {
+      const { filename, fileContent, mimeType } = await HistoryAPI.downloadMarkdown(
+        rowData._id,
+      );
+      downloadBase64File(fileContent, filename, mimeType || "text/markdown");
+      notifications.show({
+        message: "Markdown downloaded successfully",
+        color: "green",
+      });
+    } catch {
+      notifications.show({
+        title: "Error",
+        message: "Error downloading Markdown",
         color: "red",
       });
     }
@@ -339,55 +359,20 @@ const HistoryTable = ({ open, close }: HistoryTableProps) => {
       ),
     },
     {
-      accessor: "ebook",
-      title: "Ebook",
-      width: 100,
-      render: (record) =>
-        record.tutorial ? (
-          <Tooltip label="Download ebook">
-            <ActionIcon
-              variant="subtle"
-              onClick={() => handleDownloadEbook(record)}
-              aria-label="Download ebook"
-            >
-              <IconDownload size={20} />
-            </ActionIcon>
-          </Tooltip>
-        ) : null,
-    },
-    {
-      accessor: "pdf",
-      title: "PDF",
-      width: 100,
-      render: (record) =>
-        record.tutorial ? (
-          <Tooltip label="Download PDF">
-            <ActionIcon
-              variant="subtle"
-              onClick={() => handleDownloadPDF(record)}
-              aria-label="Download PDF"
-            >
-              <IconDownload size={20} />
-            </ActionIcon>
-          </Tooltip>
-        ) : null,
-    },
-    {
-      accessor: "ppt",
-      title: "PPT",
-      width: 100,
-      render: (record) =>
-        record.tutorial ? (
-          <Tooltip label="Download PPT">
-            <ActionIcon
-              variant="subtle"
-              onClick={() => handleDownloadPPT(record)}
-              aria-label="Download PPT"
-            >
-              <IconDownload size={20} />
-            </ActionIcon>
-          </Tooltip>
-        ) : null,
+      accessor: "markdown",
+      title: "MD",
+      width: 80,
+      render: (record) => (
+        <Tooltip label="Download Markdown">
+          <ActionIcon
+            variant="subtle"
+            onClick={() => handleDownloadMarkdown(record)}
+            aria-label="Download Markdown"
+          >
+            <IconMarkdown size={20} />
+          </ActionIcon>
+        </Tooltip>
+      ),
     },
     {
       accessor: "delete",
