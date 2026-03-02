@@ -152,6 +152,20 @@ export const useAddIdsToHeadings = (desc: string, isAuthenticated: boolean = fal
 
     // Set the modified HTML string to the container
     containerRef.current.innerHTML = modifiedDescription;
+
+    // Backward compat: wrap bare <pre> blocks (old content without <code> wrapper)
+    Array.from(containerRef.current.querySelectorAll('pre')).forEach((pre) => {
+      if (pre.querySelector('code')) return;
+      const lang = pre.getAttribute('data-language') || '';
+      const code = document.createElement('code');
+      if (lang) code.className = `language-${lang}`;
+      // Convert <br> to \n before moving children, then set as textContent
+      pre.querySelectorAll('br').forEach((br) => br.replaceWith('\n'));
+      code.textContent = pre.textContent || '';
+      pre.textContent = '';
+      pre.appendChild(code);
+    });
+
     // Client-side: run highlight.js on any <pre><code> blocks so they get span classes
     if (typeof window !== 'undefined') {
       try {
@@ -211,6 +225,15 @@ export const useAddIdsToHeadings = (desc: string, isAuthenticated: boolean = fal
               })
               .catch((err) => {
                 console.warn('CodeBlockEnhancer import failed:', err);
+              });
+
+            // Enhance SVG diagram figures with action buttons
+            import('../components/StructuredTutorial/Editor/plugins/DiagramEnhancer')
+              .then((mod) => {
+                mod.enhanceDiagrams(contentEl, isAuthenticated);
+              })
+              .catch((err) => {
+                console.warn('DiagramEnhancer import failed:', err);
               });
           })
           .catch((err) => {

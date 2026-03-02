@@ -131,6 +131,7 @@ import {
 } from "./nodes/CollapsibleNodes";
 import { $createDateNode, DateNode } from "./nodes/DateNode";
 import { ExcalidrawNode } from "./nodes/ExcalidrawNode";
+import { ExtendedCodeNode } from "./nodes/ExtendedCodeNode";
 import { ImageNode } from "./nodes/ImageNode";
 import { InlineSvgNode } from "./nodes/InlineSvgNode";
 import {

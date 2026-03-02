@@ -56,10 +56,16 @@ const codeBlockStyles = `
   #blog-content .rte figure {
     max-height: 55vh;
     overflow: auto;
+    position: relative;
   }
 
   #blog-content .rte figure svg {
     max-height: 52vh;
+  }
+
+  /* DiagramEnhancer action icons positioning */
+  #blog-content .rte figure[data-diagram-enhanced="true"] {
+    padding-top: 3rem;
   }
 
   /* Force theme-aware text colors on blog content (overrides AI-generated inline styles) */
