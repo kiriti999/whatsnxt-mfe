@@ -1,61 +1,20 @@
-.widget {
-    margin-bottom: 40px;
+.widgetTagCloud {
+    margin-top: var(--mantine-spacing-lg);
+    margin-bottom: var(--mantine-spacing-lg);
 }
 
-.widget:last-child {
-    margin-bottom: 0;
+.tagsTitle {
+    margin-bottom: 0.75rem;
 }
 
-.widget-title {
-    margin-top: 25px;
-    margin-bottom: 25px;
-    position: relative;
-    padding-bottom: 7px;
-    border-bottom: 1px solid light-dark(#eeeeee, var(--mantine-color-dark-4));
-    font-size: 1.1rem;
-    font-weight: 800;
-}
-
-.widget-title::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    bottom: 0;
-    width: 50px;
-    height: 1px;
-    bottom: -1px;
-    background-color: #fe4a55;
-}
-
-.widget_tag_cloud .widget-title {
-    margin-bottom: 17px;
-}
-
-.tagcloud a {
-    display: inline-block;
-    background: light-dark(#f5f5f5, var(--mantine-color-dark-6));
-    color: light-dark(#221638, var(--mantine-color-white));
-    padding: 7px 15px;
-    border: none;
-    border-radius: 3px;
-    font-weight: 700;
-    font-size: 14px !important;
-    margin-top: 8px;
-    margin-right: 4px;
-}
-
-.widget_tag_cloud a:hover,
-.widget_tag_cloud a:focus {
-    color: #ffffff;
-    background-color: #fe4a55;
-}
-
-:global(.tag-button) {
+.tagButton {
     transition: all 0.2s ease;
+    white-space: nowrap;
 }
 
-:global(.tag-button-active) {
+.tagButtonActive {
     box-shadow: 0 0 0 2px light-dark(rgba(0, 0, 0, 0.15), rgba(255, 255, 255, 0.3));
     transform: scale(1.05);
     transition: all 0.2s ease;
+    white-space: nowrap;
 }

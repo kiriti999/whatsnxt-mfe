@@ -53,6 +53,15 @@ const codeBlockStyles = `
     overflow: hidden;
   }
 
+  #blog-content .rte figure {
+    max-height: 55vh;
+    overflow: auto;
+  }
+
+  #blog-content .rte figure svg {
+    max-height: 52vh;
+  }
+
   /* Force theme-aware text colors on blog content (overrides AI-generated inline styles) */
   #blog-content .rte h1,
   #blog-content .rte h2,

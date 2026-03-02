@@ -23,6 +23,8 @@ export interface AISuggestionButtonProps {
     /** Additional props */
     disabled?: boolean;
     className?: string;
+    /** Extra params to pass alongside the AI request (e.g. diagram context) */
+    extraParams?: Record<string, unknown>;
 }
 
 export function AISuggestionButton({
@@ -33,6 +35,7 @@ export function AISuggestionButton({
     iconSize = 18,
     disabled,
     className,
+    extraParams,
 }: AISuggestionButtonProps) {
     const aiConfig = useAIConfig();
     const [isFetching, setIsFetching] = useState(false);
@@ -61,6 +64,7 @@ export function AISuggestionButton({
                 question: resolvedPrompt,
                 aiModel: aiConfig.selectedAI,
                 modelVersion: aiConfig.selectedModel,
+                ...extraParams,
             });
 
             if (response.status === 200 && response.data?.suggestion) {
@@ -110,7 +114,7 @@ export function AISuggestionButton({
         } finally {
             setIsFetching(false);
         }
-    }, [prompt, aiConfig.selectedAI, aiConfig.selectedModel, onSuggestion, onEmptyPrompt, openModal]);
+    }, [prompt, aiConfig.selectedAI, aiConfig.selectedModel, onSuggestion, onEmptyPrompt, openModal, extraParams]);
 
     const handleModalGenerate = useCallback(() => {
         setApiKeyError('');

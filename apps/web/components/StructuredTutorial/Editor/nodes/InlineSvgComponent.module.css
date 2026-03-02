@@ -1,0 +1,23 @@
+.inlineSvgFigure {
+    display: block;
+    margin: 1rem 0;
+    text-align: center;
+    width: 100%;
+}
+
+.svgContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    max-height: 55vh;
+    overflow: auto;
+}
+
+.svgContainer :global(svg) {
+    max-width: 100%;
+    max-height: 52vh;
+    font-size: 0.875rem;
+    color: light-dark(rgba(0, 0, 0, 0.6), rgba(255, 255, 255, 0.6));
+    font-style: italic;
+}

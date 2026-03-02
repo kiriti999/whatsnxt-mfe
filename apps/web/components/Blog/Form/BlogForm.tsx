@@ -1,14 +1,15 @@
-import React, { useEffect, useState, useCallback, Suspense, useRef, useMemo } from 'react';
+import React, { useEffect, useState, useCallback, Suspense, useRef } from 'react';
 import { useForm, Controller } from 'react-hook-form';
-import { Box, Button, Container, FileInput, Flex, Grid, Select, Text, TextInput, Title, Loader, Alert, Group } from '@mantine/core';
+import { Box, Button, Container, FileInput, Flex, Grid, Paper, SegmentedControl, Select, Switch, Text, TextInput, Title, Loader, Alert, Group } from '@mantine/core';
 import { useRouter } from 'next/navigation';
 import { notifications } from '@mantine/notifications';
 import { modals } from '@mantine/modals';
 import { BlogFormProps } from '../../../types/blogs';
 import { FormAPI, HistoryAPI } from '../../../apis/v1/blog';
 import { getCategoryId } from '../../../utils/form';
-import { IconUpload, IconAlertCircle, IconCheck } from '@tabler/icons-react';
+import { IconUpload, IconAlertCircle, IconCheck, IconSparkles, IconWand, IconLayoutGrid } from '@tabler/icons-react';
 import { LexicalEditor } from '../../StructuredTutorial/Editor/LexicalEditor';
+import type { LexicalEditorHandle } from '../../StructuredTutorial/Editor/LexicalEditor';
 import { lexicalToHtml } from '../../../utils/lexicalToHtml';
 import { useDisclosure } from '@mantine/hooks';
 import { MantineLoader, CategorySearch } from '@whatsnxt/core-ui';
@@ -20,6 +21,9 @@ import { useImageSafety } from '../../../hooks/useImageSafety';
 import { validateFile, formatFileSize, DEFAULT_VALIDATION_OPTIONS } from '../../../utils/imageValidation';
 import { ImageRequirements } from './ImageRequirements';
 import { FullPageOverlay } from '@/components/Common/FullPageOverlay';
+import { DiagramTypePicker } from '../../Visualizer/DiagramTypePicker';
+import type { DiagramType } from '../../Visualizer/types';
+import { wrapSvgsForLexical } from '../../../utils/wrapSvgsForLexical';
 
 const BlogForm: React.FC<BlogFormProps> = ({ categories, edit }) => {
   const [isVisible, { open, close }] = useDisclosure(false);
@@ -31,6 +35,10 @@ const BlogForm: React.FC<BlogFormProps> = ({ categories, edit }) => {
   const [validationSuccess, setValidationSuccess] = useState<string | null>(null);
   const router = useRouter();
   const [wordCount, setWordCount] = useState(0);
+  const [includeDiagram, setIncludeDiagram] = useState(false);
+  const [diagramMode, setDiagramMode] = useState<'auto' | 'manual'>('auto');
+  const [selectedDiagramType, setSelectedDiagramType] = useState<DiagramType | null>(null);
+  const editorRef = useRef<LexicalEditorHandle>(null);
   const lastLoadedId = useRef<string | null>(null);
   // Helper function to get initial description from edit data
   const getInitialDescription = useCallback((editData: any) => {
@@ -161,6 +169,14 @@ const BlogForm: React.FC<BlogFormProps> = ({ categories, edit }) => {
         if (edit.imageUrl) {
           setImagePreview(edit.imageUrl);
         }
+
+        // Restore diagram toggle state if editing
+        if (edit.includeDiagram) {
+          setIncludeDiagram(true);
+          const mode = (edit.diagramMode as 'auto' | 'manual') || 'auto';
+          setDiagramMode(mode);
+          setSelectedDiagramType((edit.diagramType as DiagramType) || null);
+        }
       }
     }
   }, [edit, setValue, getInitialDescription, categories]);
@@ -277,7 +293,10 @@ const BlogForm: React.FC<BlogFormProps> = ({ categories, edit }) => {
       formData.published = false;
 
       // Convert Lexical editor content to HTML and capture JSON state
-      formData.description = lexicalToHtml(description);
+      // Use Lexical's native $generateHtmlFromNodes (via editorRef) which properly
+      // handles ExcalidrawNode SVGs and other decorator nodes, with fallback to
+      // the custom lexicalToHtml converter.
+      formData.description = editorRef.current?.getHtml() || lexicalToHtml(description);
       formData.contentFormat = 'LEXICAL';
       try {
         formData.lexicalState = JSON.parse(description);
@@ -309,7 +328,10 @@ const BlogForm: React.FC<BlogFormProps> = ({ categories, edit }) => {
         contentFormat: formData.contentFormat,
         imageUrl,
         cloudinaryAssets,
-        wordCount
+        wordCount,
+        includeDiagram,
+        diagramMode: includeDiagram ? diagramMode : null,
+        diagramType: includeDiagram && diagramMode === 'manual' ? selectedDiagramType : null,
       };
 
       // Call FormAPI for creating or updating blog
@@ -381,7 +403,78 @@ const BlogForm: React.FC<BlogFormProps> = ({ categories, edit }) => {
                 {errors.title && <Text c="red">{errors.title.message}</Text>}
               </Grid.Col>
 
-              {/* Content Format Switch */}
+              {/* AI Diagram Toggle */}
+              <Grid.Col span={12}>
+                <Switch
+                  label="Include AI Diagram"
+                  description="AI will generate a visual diagram alongside the blog content"
+                  checked={includeDiagram}
+                  onChange={(e) => {
+                    setIncludeDiagram(e.currentTarget.checked);
+                    if (!e.currentTarget.checked) {
+                      setSelectedDiagramType(null);
+                      setDiagramMode('auto');
+                    }
+                  }}
+                  thumbIcon={<IconSparkles size={12} />}
+                  size="md"
+                />
+              </Grid.Col>
+
+              {/* Diagram Mode + Type Picker */}
+              {includeDiagram && (
+                <Grid.Col span={12}>
+                  <SegmentedControl
+                    value={diagramMode}
+                    onChange={(val) => {
+                      setDiagramMode(val as 'auto' | 'manual');
+                      if (val === 'auto') setSelectedDiagramType(null);
+                    }}
+                    data={[
+                      {
+                        value: 'auto',
+                        label: (
+                          <Flex align="center" gap={6}>
+                            <IconWand size={16} />
+                            <span>AI Auto</span>
+                          </Flex>
+                        ),
+                      },
+                      {
+                        value: 'manual',
+                        label: (
+                          <Flex align="center" gap={6}>
+                            <IconLayoutGrid size={16} />
+                            <span>Choose Type</span>
+                          </Flex>
+                        ),
+                      },
+                    ]}
+                    mb="md"
+                  />
+
+                  {diagramMode === 'auto' && (
+                    <Paper p="md" withBorder radius="md">
+                      <Flex align="center" gap="sm">
+                        <IconSparkles size={20} color="#7c3aed" />
+                        <Box>
+                          <Text size="sm" fw={600}>AI will choose the best diagram type</Text>
+                          <Text size="xs" c="dimmed">
+                            Based on your blog title and content, AI will automatically select and generate the most suitable diagram
+                          </Text>
+                        </Box>
+                      </Flex>
+                    </Paper>
+                  )}
+
+                  {diagramMode === 'manual' && (
+                    <DiagramTypePicker
+                      selectedType={selectedDiagramType}
+                      onSelect={setSelectedDiagramType}
+                    />
+                  )}
+                </Grid.Col>
+              )}
 
               {/* Description */}
               <Grid.Col span={12}>
@@ -390,12 +483,23 @@ const BlogForm: React.FC<BlogFormProps> = ({ categories, edit }) => {
                   <AISuggestionButton
                     prompt={() => titleValue || ''}
                     onSuggestion={(suggestion) => {
-                      setValue('description', suggestion);
-                      setDescription(suggestion);
+                      const processed = includeDiagram
+                        ? wrapSvgsForLexical(suggestion)
+                        : suggestion;
+                      setValue('description', processed);
+                      setDescription(processed);
                     }}
+                    extraParams={includeDiagram ? {
+                      diagramContext: {
+                        includeDiagram,
+                        diagramMode,
+                        diagramType: diagramMode === 'manual' ? selectedDiagramType : undefined,
+                      },
+                    } : undefined}
                   />
                 </Flex>
                 <LexicalEditor
+                  ref={editorRef}
                   value={description}
                   onChange={setDescription}
                   onWordCountChange={handleWordCountChange}

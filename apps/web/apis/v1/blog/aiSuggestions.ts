@@ -6,6 +6,11 @@ export const AISuggestions = {
         aiModel?: string;
         modelVersion?: string;
         messages?: Array<{ role: 'user' | 'assistant'; content: string }>;
+        diagramContext?: {
+            includeDiagram?: boolean;
+            diagramMode?: string;
+            diagramType?: string;
+        };
     }) => {
         const response = await articleApiClient.post('/post/suggestionByAI', params);
         return response;

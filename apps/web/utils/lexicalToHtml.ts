@@ -165,6 +165,24 @@ const nodeToHtml = (node: LexicalNode): string => {
       return `<img src="${src}" alt="${alt}"${width}${height} />`;
     }
 
+    case 'excalidraw': {
+      // Fallback: preserve the Excalidraw data as a data attribute.
+      // The full SVG is only available via Lexical's $generateHtmlFromNodes (EditorRefPlugin).
+      // This fallback ensures data isn't silently lost when lexicalToHtml is used directly.
+      const data = node.data || '[]';
+      const width = node.width === undefined || node.width === 'inherit' ? 'inherit' : `${node.width}px`;
+      const height = node.height === undefined || node.height === 'inherit' ? 'inherit' : `${node.height}px`;
+      return `<span style="display:inline-block;width:${width};height:${height}" data-lexical-excalidraw-json="${escapeHtml(data)}"></span>`;
+    }
+
+    case 'inline-svg': {
+      // Fallback: output the raw SVG wrapped in a figure element.
+      // Primary path uses $generateHtmlFromNodes via EditorRefPlugin which calls InlineSvgNode.exportDOM().
+      const svg = node.svg || '';
+      const caption = node.caption ? `<figcaption>${escapeHtml(node.caption)}</figcaption>` : '';
+      return `<figure data-lexical-inline-svg="true">${svg}${caption}</figure>`;
+    }
+
     case 'code-highlight': {
       return escapeHtml(node.text || '');
     }

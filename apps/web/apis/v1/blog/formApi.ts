@@ -13,7 +13,10 @@ export const FormAPI = {
       nestedSubCategory: payload.nestedSubCategory || null,
       cloudinaryAssets: payload.cloudinaryAssets || null,
       imageUrl: payload.imageUrl || null,
-      wordCount: payload.wordCount
+      wordCount: payload.wordCount,
+      includeDiagram: payload.includeDiagram || false,
+      diagramMode: payload.diagramMode || null,
+      diagramType: payload.diagramType || null,
     });
     return data ? data : {};
   },
@@ -31,7 +34,10 @@ export const FormAPI = {
       imageUrl: payload.imageUrl || null,
       nestedSubCategory: payload.nestedSubCategory || null,
       cloudinaryAssets: payload.cloudinaryAssets || null,
-      wordCount: payload.wordCount
+      wordCount: payload.wordCount,
+      includeDiagram: payload.includeDiagram || false,
+      diagramMode: payload.diagramMode || null,
+      diagramType: payload.diagramType || null,
     });
     return data ? data : {};
   },

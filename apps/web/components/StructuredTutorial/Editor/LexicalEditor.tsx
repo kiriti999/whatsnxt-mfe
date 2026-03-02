@@ -6,7 +6,7 @@ import {
   CodeHighlightNode,
   CodeNode,
 } from "@lexical/code";
-import { $generateNodesFromDOM } from "@lexical/html";
+import { $generateHtmlFromNodes, $generateNodesFromDOM } from "@lexical/html";
 import { AutoLinkNode, LinkNode, TOGGLE_LINK_COMMAND } from "@lexical/link";
 import {
   INSERT_ORDERED_LIST_COMMAND,
@@ -119,7 +119,7 @@ import {
   UNDO_COMMAND,
 } from "lexical";
 import type React from "react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from "react";
 import { getCodeLanguageOptions, lexicalTheme } from "./lexical-config";
 import {
   $createCollapsibleContainerNode,
@@ -132,6 +132,7 @@ import {
 import { $createDateNode, DateNode } from "./nodes/DateNode";
 import { ExcalidrawNode } from "./nodes/ExcalidrawNode";
 import { ImageNode } from "./nodes/ImageNode";
+import { InlineSvgNode } from "./nodes/InlineSvgNode";
 import {
   $createLayoutContainerNode,
   $createLayoutItemNode,
@@ -151,6 +152,11 @@ import { INSERT_YOUTUBE_COMMAND, YouTubePlugin } from "./plugins/YouTubePlugin";
 import "./LexicalTheme.css"; // Global styles for Lexical theme classes
 import { unifiedUploadWebWorker } from "../../../utils/worker/assetManager";
 import styles from "./LexicalEditor.module.css";
+
+export interface LexicalEditorHandle {
+  /** Returns HTML using Lexical's native exportDOM for all nodes (including Excalidraw SVGs) */
+  getHtml: () => string;
+}
 
 interface LexicalEditorProps {
   value?: string; // Serialized Lexical state JSON
@@ -1109,6 +1115,27 @@ const ToolbarPlugin: React.FC = () => {
   );
 };
 
+/**
+ * Plugin that exposes the editor instance via a ref handle for external HTML generation.
+ * Uses Lexical's native $generateHtmlFromNodes which properly calls each node's exportDOM(),
+ * ensuring ExcalidrawNode SVGs and other decorator nodes are included in the output.
+ */
+const EditorRefPlugin: React.FC<{ editorRef: React.Ref<LexicalEditorHandle> }> = ({ editorRef }) => {
+  const [editor] = useLexicalComposerContext();
+
+  useImperativeHandle(editorRef, () => ({
+    getHtml: () => {
+      let html = '';
+      editor.read(() => {
+        html = $generateHtmlFromNodes(editor);
+      });
+      return html;
+    },
+  }), [editor]);
+
+  return null;
+};
+
 const OnChangePluginWrapper: React.FC<{
   onChange?: (state: string) => void;
   onWordCountChange?: (count: number) => void;
@@ -1210,13 +1237,13 @@ const InitialStatePlugin: React.FC<{ value?: string }> = ({ value }) => {
   return null;
 };
 
-export const LexicalEditor: React.FC<LexicalEditorProps> = ({
+export const LexicalEditor = forwardRef<LexicalEditorHandle, LexicalEditorProps>(({
   value,
   onChange,
   onWordCountChange,
   placeholder = "Start typing...",
   readOnly = false,
-}) => {
+}, ref) => {
   const editorStateRef = useRef<string | undefined>(value);
 
   const initialConfig = {
@@ -1237,6 +1264,7 @@ export const LexicalEditor: React.FC<LexicalEditorProps> = ({
       ImageNode,
       YouTubeNode,
       ExcalidrawNode,
+      InlineSvgNode,
       TableNode,
       TableCellNode,
       TableRowNode,
@@ -1293,9 +1321,12 @@ export const LexicalEditor: React.FC<LexicalEditorProps> = ({
           <YouTubePlugin />
           <ExcalidrawPlugin />
           <HorizontalRulePlugin />
+          <EditorRefPlugin editorRef={ref} />
           <InitialStatePlugin value={value} />
         </Paper>
       </Stack>
     </LexicalComposer>
   );
-};
+});
+
+LexicalEditor.displayName = 'LexicalEditor';

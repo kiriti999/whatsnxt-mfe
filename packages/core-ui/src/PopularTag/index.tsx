@@ -1,7 +1,7 @@
 "use client"
-import { Button, Title, Box } from '@mantine/core';
+import { Button, Title, Box, Flex } from '@mantine/core';
 import { IMemoStore } from './interfaces';
-import './tags.module.css'
+import styles from './tags.module.css'
 
 interface Props {
     categoryStore: IMemoStore;
@@ -14,10 +14,12 @@ export default function PopularTag(props: Props) {
     const { categoryStore, activeTag, onClick } = props;
 
     return (
-        <Box className='widget widget_tag_cloud' my={'lg'}>
-            {categoryStore?.categoryCount?.length > 0 && <Title order={5} mb={'0.5rem'}>Popular Tags</Title>}
+        <Box className={styles.widgetTagCloud}>
+            {categoryStore?.categoryCount?.length > 0 && (
+                <Title order={5} className={styles.tagsTitle}>Popular Tags</Title>
+            )}
             {categoryStore.categoryCount && categoryStore.categoryCount.length > 0 && (
-                <div>
+                <Flex wrap="wrap" gap="xs">
                     {categoryStore.categoryCount.map((item, index) => {
                         if (item.count > 0) {
                             const isActive = activeTag === item.categoryName;
@@ -25,20 +27,17 @@ export default function PopularTag(props: Props) {
                                 <Button
                                     size='xs'
                                     key={index}
-                                    mr={5}
-                                    mb={5}
                                     variant={isActive ? 'filled' : 'light'}
-                                    className={isActive ? 'tag-button-active' : 'tag-button'}
+                                    className={isActive ? styles.tagButtonActive : styles.tagButton}
                                     onClick={() => onClick(item.categoryName)}
                                 >
-                                    <Title order={6} className="tag-link"> {item.categoryName} </Title>
-                                    <Title order={6} className="tag-link-count">({item.count})</Title>
+                                    {item.categoryName}({item.count})
                                 </Button>
                             );
                         }
                         return null;
                     })}
-                </div>
+                </Flex>
             )}
         </Box>
     )
