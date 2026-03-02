@@ -9,15 +9,18 @@ import {
   Group,
   Input,
   Loader,
+  Paper,
+  SegmentedControl,
   Select,
   Stack,
+  Switch,
   Text,
   Title,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { modals } from "@mantine/modals";
 import { notifications } from "@mantine/notifications";
-import { IconAlertCircle, IconCheck, IconUpload } from "@tabler/icons-react";
+import { IconAlertCircle, IconCheck, IconLayoutGrid, IconSparkles, IconUpload, IconWand } from "@tabler/icons-react";
 import type { CategoryPath } from "@whatsnxt/core-ui";
 import {
   CategorySearch,
@@ -54,6 +57,9 @@ import Pagination from "../../Common/Pagination";
 import { LexicalEditor } from "../../StructuredTutorial/Editor/LexicalEditor";
 import { ImageRequirements } from "./ImageRequirements";
 import { uploadImage } from "./util";
+import { DiagramTypePicker } from "../../Visualizer/DiagramTypePicker";
+import type { DiagramType } from "../../Visualizer/types";
+import { wrapSvgsForLexical } from "../../../utils/wrapSvgsForLexical";
 
 interface TutorialFormProps {
   categories: Category[];
@@ -76,6 +82,9 @@ interface TutorialFormProps {
     }[]
     | null;
     lexicalState?: Record<string, any> | null;
+    includeDiagram?: boolean;
+    diagramMode?: string;
+    diagramType?: string;
   };
 }
 
@@ -109,6 +118,9 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
   const [validationSuccess, setValidationSuccess] = useState<string | null>(
     null,
   );
+  const [includeDiagram, setIncludeDiagram] = useState(false);
+  const [diagramMode, setDiagramMode] = useState<"auto" | "manual">("auto");
+  const [selectedDiagramType, setSelectedDiagramType] = useState<DiagramType | null>(null);
 
   // Image safety hook
   const {
@@ -205,6 +217,14 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
       // Set existing image preview if editing
       if (edit.imageUrl) {
         setImagePreview(edit.imageUrl);
+      }
+
+      // Restore diagram toggle state if editing
+      if (edit.includeDiagram) {
+        setIncludeDiagram(true);
+        const mode = (edit.diagramMode as "auto" | "manual") || "auto";
+        setDiagramMode(mode);
+        setSelectedDiagramType((edit.diagramType as DiagramType) || null);
       }
 
       // Set description for first page - load lexicalState if available from top-level edit prop
@@ -534,6 +554,9 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
         imageUrl: imageUrl,
         published: false,
         cloudinaryAssets,
+        includeDiagram,
+        diagramMode: includeDiagram ? diagramMode : null,
+        diagramType: includeDiagram && diagramMode === "manual" ? selectedDiagramType : null,
       };
 
       setUnsaved(false);
@@ -718,6 +741,77 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
                 )}
               </Stack>
 
+              {/* AI Diagram Toggle */}
+              <Switch
+                label="Include AI Diagram"
+                description="AI will generate a visual diagram alongside the blog content"
+                checked={includeDiagram}
+                onChange={(e) => {
+                  setIncludeDiagram(e.currentTarget.checked);
+                  if (!e.currentTarget.checked) {
+                    setSelectedDiagramType(null);
+                    setDiagramMode("auto");
+                  }
+                }}
+                thumbIcon={<IconSparkles size={12} />}
+                size="md"
+              />
+
+              {/* Diagram Mode + Type Picker */}
+              {includeDiagram && (
+                <Box>
+                  <SegmentedControl
+                    value={diagramMode}
+                    onChange={(val) => {
+                      setDiagramMode(val as "auto" | "manual");
+                      if (val === "auto") setSelectedDiagramType(null);
+                    }}
+                    data={[
+                      {
+                        value: "auto",
+                        label: (
+                          <Flex align="center" gap={6}>
+                            <IconWand size={16} />
+                            <span>AI Auto</span>
+                          </Flex>
+                        ),
+                      },
+                      {
+                        value: "manual",
+                        label: (
+                          <Flex align="center" gap={6}>
+                            <IconLayoutGrid size={16} />
+                            <span>Choose Type</span>
+                          </Flex>
+                        ),
+                      },
+                    ]}
+                    mb="md"
+                  />
+
+                  {diagramMode === "auto" && (
+                    <Paper p="md" withBorder radius="md">
+                      <Flex align="center" gap="sm">
+                        <IconSparkles size={20} color="#7c3aed" />
+                        <Box>
+                          <Text size="sm" fw={600}>AI will choose the best diagram type</Text>
+                          <Text size="xs" c="dimmed">
+                            Based on your content, AI will automatically select and generate the most suitable diagram
+                          </Text>
+                        </Box>
+                      </Flex>
+                    </Paper>
+                  )}
+
+                  {diagramMode === "manual" && (
+                    <DiagramTypePicker
+                      selectedType={selectedDiagramType}
+                      onSelect={setSelectedDiagramType}
+                    />
+                  )}
+                </Box>
+              )}
+
               {detailed && (
                 <Stack gap="xs">
                   <Flex align="center" gap={4}>
@@ -726,7 +820,19 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
                     </Text>
                     <AISuggestionButton
                       prompt={() => getValues("title") || ""}
-                      onSuggestion={(text) => setDescription(text)}
+                      onSuggestion={(suggestion) => {
+                        const processed = includeDiagram
+                          ? wrapSvgsForLexical(suggestion)
+                          : suggestion;
+                        setDescription(processed);
+                      }}
+                      extraParams={includeDiagram ? {
+                        diagramContext: {
+                          includeDiagram,
+                          diagramMode,
+                          diagramType: diagramMode === "manual" ? selectedDiagramType : undefined,
+                        },
+                      } : undefined}
                     />
                   </Flex>
                   <LexicalEditor

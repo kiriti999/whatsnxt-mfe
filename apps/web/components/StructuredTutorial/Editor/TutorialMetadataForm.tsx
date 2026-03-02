@@ -6,19 +6,24 @@ import {
     FileInput,
     Flex,
     Group,
+    Paper,
+    SegmentedControl,
     Select,
     Stack,
     Switch,
     Text,
     TextInput,
 } from "@mantine/core";
-import { IconCrown, IconDeviceFloppy, IconUpload } from "@tabler/icons-react";
+import { IconCrown, IconDeviceFloppy, IconLayoutGrid, IconSparkles, IconUpload, IconWand } from "@tabler/icons-react";
 import type { CategoryPath } from "@whatsnxt/core-ui";
 import { CategorySearch } from "@whatsnxt/core-ui";
 import Image from "next/image";
 import React, { useEffect, useMemo } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { AISuggestionButton } from "../../Common/AISuggestionButton";
+import { DiagramTypePicker } from "../../Visualizer/DiagramTypePicker";
+import type { DiagramType } from "../../Visualizer/types";
+import { wrapSvgsForLexical } from "../../../utils/wrapSvgsForLexical";
 import { IconPicker } from "../Form/IconPicker";
 import { LexicalEditor } from "./LexicalEditor";
 
@@ -32,6 +37,9 @@ interface TutorialFormData {
     icon: string;
     imageUrl?: string;
     isPremium?: boolean;
+    includeDiagram?: boolean;
+    diagramMode?: string | null;
+    diagramType?: string | null;
 }
 
 interface Category {
@@ -79,6 +87,15 @@ export const TutorialMetadataForm: React.FC<TutorialMetadataFormProps> = ({
     const [tutorialImage, setTutorialImage] = React.useState<File | null>(null);
     const [imagePreview, setImagePreview] = React.useState<string | null>(
         initialData?.imageUrl || null,
+    );
+    const [includeDiagram, setIncludeDiagram] = React.useState(
+        initialData?.includeDiagram ?? false,
+    );
+    const [diagramMode, setDiagramMode] = React.useState<"auto" | "manual">(
+        (initialData?.diagramMode as "auto" | "manual") || "auto",
+    );
+    const [selectedDiagramType, setSelectedDiagramType] = React.useState<DiagramType | null>(
+        (initialData?.diagramType as DiagramType) || null,
     );
 
     const selectedCategory = watch("categoryName");
@@ -179,7 +196,15 @@ export const TutorialMetadataForm: React.FC<TutorialMetadataFormProps> = ({
     };
 
     const onSubmit = async (data: TutorialFormData) => {
-        await onSave(data, tutorialImage);
+        await onSave(
+            {
+                ...data,
+                includeDiagram,
+                diagramMode: includeDiagram ? diagramMode : null,
+                diagramType: includeDiagram && diagramMode === "manual" ? selectedDiagramType : null,
+            },
+            tutorialImage,
+        );
     };
 
     return (
@@ -198,6 +223,75 @@ export const TutorialMetadataForm: React.FC<TutorialMetadataFormProps> = ({
                     {...register("title", { required: "Title is required" })}
                 />
 
+                <Switch
+                    label="Include AI Diagram"
+                    description="AI will generate a visual diagram alongside the content"
+                    checked={includeDiagram}
+                    onChange={(e) => {
+                        setIncludeDiagram(e.currentTarget.checked);
+                        if (!e.currentTarget.checked) {
+                            setSelectedDiagramType(null);
+                            setDiagramMode("auto");
+                        }
+                    }}
+                    thumbIcon={<IconSparkles size={12} />}
+                    size="md"
+                />
+
+                {includeDiagram && (
+                    <Box>
+                        <SegmentedControl
+                            value={diagramMode}
+                            onChange={(val) => {
+                                setDiagramMode(val as "auto" | "manual");
+                                if (val === "auto") setSelectedDiagramType(null);
+                            }}
+                            data={[
+                                {
+                                    value: "auto",
+                                    label: (
+                                        <Flex align="center" gap={6}>
+                                            <IconWand size={16} />
+                                            <span>AI Auto</span>
+                                        </Flex>
+                                    ),
+                                },
+                                {
+                                    value: "manual",
+                                    label: (
+                                        <Flex align="center" gap={6}>
+                                            <IconLayoutGrid size={16} />
+                                            <span>Choose Type</span>
+                                        </Flex>
+                                    ),
+                                },
+                            ]}
+                            mb="md"
+                        />
+
+                        {diagramMode === "auto" && (
+                            <Paper p="md" withBorder radius="md">
+                                <Flex align="center" gap="sm">
+                                    <IconSparkles size={20} color="#7c3aed" />
+                                    <Box>
+                                        <Text size="sm" fw={600}>AI will choose the best diagram type</Text>
+                                        <Text size="xs" c="dimmed">
+                                            Based on your content, AI will automatically select and generate the most suitable diagram
+                                        </Text>
+                                    </Box>
+                                </Flex>
+                            </Paper>
+                        )}
+
+                        {diagramMode === "manual" && (
+                            <DiagramTypePicker
+                                selectedType={selectedDiagramType}
+                                onSelect={setSelectedDiagramType}
+                            />
+                        )}
+                    </Box>
+                )}
+
                 <Controller
                     name="description"
                     control={control}
@@ -209,7 +303,19 @@ export const TutorialMetadataForm: React.FC<TutorialMetadataFormProps> = ({
                                 </Text>
                                 <AISuggestionButton
                                     prompt={() => watch("title") || ""}
-                                    onSuggestion={(text) => field.onChange(text)}
+                                    onSuggestion={(suggestion) => {
+                                        const processed = includeDiagram
+                                            ? wrapSvgsForLexical(suggestion)
+                                            : suggestion;
+                                        field.onChange(processed);
+                                    }}
+                                    extraParams={includeDiagram ? {
+                                        diagramContext: {
+                                            includeDiagram,
+                                            diagramMode,
+                                            diagramType: diagramMode === "manual" ? selectedDiagramType : undefined,
+                                        },
+                                    } : undefined}
                                 />
                             </Flex>
                             <LexicalEditor
