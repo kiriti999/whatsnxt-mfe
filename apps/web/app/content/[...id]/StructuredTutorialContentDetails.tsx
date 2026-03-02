@@ -334,7 +334,7 @@ export default function StructuredTutorialContentDetails({
     }, [tutorialId, details.slug, sidebarCache]);
 
     return (
-        <Container fluid>
+        <Container fluid mb={'7rem'}>
             <Box>
                 {loading ? (
                     <SkeletonBlogContent />
