@@ -4,6 +4,7 @@ import { ActionIcon, Tooltip } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { CourseAPI } from '../../apis/v1/courses/course/course';
 import { IconWorld, IconWorldOff } from '@tabler/icons-react';
+import { revalidate } from '../../server-actions';
 
 const CoursePublishButton = ({
     _id,
@@ -59,6 +60,8 @@ const CoursePublishButton = ({
                     };
                     console.log(' handlePublish :: record:', record)
                     await indexRecord(record, 'course');
+                    // Revalidate landing page to show newly published course
+                    await revalidate('/');
                     notifications.show({
                         position: 'bottom-right',
                         title: 'Course Published successfully',
@@ -68,6 +71,8 @@ const CoursePublishButton = ({
                 } else {
                     // Remove from Algolia if unpublishing
                     await deleteIndex(_id, 'course');
+                    // Revalidate landing page to remove unpublished course
+                    await revalidate('/');
                     notifications.show({
                         position: 'bottom-right',
                         title: 'Course Unpublished successfully',
