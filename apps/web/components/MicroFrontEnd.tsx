@@ -1,4 +1,3 @@
-import { Button, Container, Grid } from "@mantine/core";
 import { Footer } from "@whatsnxt/core-ui";
 import type { CourseType } from "@whatsnxt/core-util";
 import React, { type ReactElement } from "react";
@@ -28,23 +27,7 @@ export default function MicroFrontend({
 }: MicroFrontendProps): ReactElement {
   return (
     <>
-      <TopCourses courses={courses || []} total={total || 0} />
-      <Container size="xl" mt="md" mb="3.5rem">
-        <Grid justify="center" align="center">
-          <Grid.Col span={12} style={{ textAlign: "center" }}>
-            <Button
-              component="a"
-              href="/courses"
-              size="md"
-              c="white"
-              fw={500}
-              style={{ textDecoration: "none" }}
-            >
-              Explore Our Courses
-            </Button>
-          </Grid.Col>
-        </Grid>
-      </Container>
+      {courses && courses.length > 0 && <TopCourses courses={courses || []} total={total || 0} />}
 
       <TopTutorials tutorials={tutorials || []} total={totalTutorials || 0} />
 
