@@ -87,11 +87,11 @@ const TopTutorials = ({ tutorials }: { tutorials: Tutorial[], total: any }) => {
                                         }
                                     >
                                         <Group justify="space-between" mt="xs">
-                                            <Box>
+                                            {/* <Box>
                                                 <Text size="sm" className={styles.topCoursesFreeText}>
                                                     Free Tutorial
                                                 </Text>
-                                            </Box>
+                                            </Box> */}
                                             {tutorial.categoryName && (
                                                 <Text size="xs" c="dimmed">
                                                     {tutorial.categoryName}
