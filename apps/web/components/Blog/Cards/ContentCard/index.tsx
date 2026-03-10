@@ -5,6 +5,7 @@ import { FullPageOverlay } from '@/components/Common/FullPageOverlay';
 import { Card, Text, Badge, Group } from '@mantine/core';
 import { IconCrown } from '@tabler/icons-react';
 import { useState } from 'react';
+import styles from './ContentCard.module.css';
 
 interface ContentCardProps {
     content: {
@@ -131,7 +132,7 @@ function ContentCard({ content }: ContentCardProps) {
                                 {content.title}
                             </Text>
 
-                            <Text size="sm" c="dimmed" mb="md" lineClamp={4} h={77}>
+                            <Text size="sm" className={styles.descriptionText} mb="md" lineClamp={4} h={77}>
                                 {content.description ? getPlainText(content.description) : 'No description available'}
                             </Text>
                         </Card>

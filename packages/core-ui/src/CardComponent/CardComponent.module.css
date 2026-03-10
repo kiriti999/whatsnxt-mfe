@@ -1,0 +1,9 @@
+.cardTitleLink {
+    text-decoration: none;
+    flex: 1;
+    color: light-dark(rgba(0, 0, 0, 0.9), #ffffff);
+}
+
+.cardTitleLink:hover {
+    text-decoration: none;
+}

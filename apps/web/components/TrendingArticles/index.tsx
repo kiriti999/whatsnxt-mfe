@@ -142,7 +142,7 @@ const TrendingArticles = ({ articles, total }: TrendingArticlesProps) => {
                 </Badge>
 
                 {article.description && (
-                  <Text size="xs" c="dimmed" lineClamp={2} mb="xs">
+                  <Text size="xs" className={styles.descriptionText} lineClamp={2} mb="xs">
                     {createExcerpt(article.description)}
                   </Text>
                 )}
@@ -151,7 +151,7 @@ const TrendingArticles = ({ articles, total }: TrendingArticlesProps) => {
                   <Avatar size="xs" radius="xl" color="indigo">
                     <IconUser size={rem(10)} color="#ffffff" />
                   </Avatar>
-                  <Text size="xs" c="dimmed" suppressHydrationWarning>
+                  <Text size="xs" className={styles.dateText} suppressHydrationWarning>
                     {formatDate(article.updatedAt)}
                   </Text>
                 </Group>

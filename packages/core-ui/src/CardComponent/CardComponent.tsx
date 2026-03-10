@@ -2,6 +2,7 @@ import { Anchor, Card, Flex, Group, Text, Tooltip } from "@mantine/core";
 import { IconPhotoVideo, IconUserCheck } from "@tabler/icons-react";
 import Link from "next/link";
 import type React from "react";
+import styles from "./CardComponent.module.css";
 
 export const CardComponent = ({
   image,
@@ -38,7 +39,7 @@ export const CardComponent = ({
           underline="never"
           style={{ textDecoration: "none", flex: 1, color: "inherit" }}
         >
-          <Text fw={500} lineClamp={2} title={courseName}>
+          <Text fw={500} lineClamp={2} title={courseName} className={styles.cardTitleLink}>
             {courseName}
           </Text>
         </Anchor>

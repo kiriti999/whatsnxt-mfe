@@ -11,3 +11,12 @@
 .image {
     object-fit: cover;
 }
+
+/* High-contrast text for both light and dark mode */
+.descriptionText {
+    color: light-dark(rgba(0, 0, 0, 0.6), rgba(255, 255, 255, 0.65));
+}
+
+.dateText {
+    color: light-dark(rgba(0, 0, 0, 0.55), rgba(255, 255, 255, 0.6));
+}

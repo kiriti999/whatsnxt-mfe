@@ -93,12 +93,12 @@ const TopTutorials = ({ tutorials }: { tutorials: Tutorial[], total: any }) => {
                                                 </Text>
                                             </Box> */}
                                             {tutorial.categoryName && (
-                                                <Text size="xs" c="dimmed">
+                                                <Text size="xs" className={styles.topCoursesCategoryText}>
                                                     {tutorial.categoryName}
                                                 </Text>
                                             )}
                                         </Group>
-                                        <Text lineClamp={2} size="sm" mt="xs" c="dimmed">
+                                        <Text lineClamp={2} size="sm" mt="xs" className={styles.topCoursesDescriptionText}>
                                             {tutorial.description?.replace(/<[^>]*>?/gm, "") || "Start learning now"}
                                         </Text>
                                     </CardComponent>
