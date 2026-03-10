@@ -207,7 +207,10 @@ export const StructuredTutorialEditor: React.FC = () => {
         });
     };
 
-    const handleSaveTutorial = async (data: any, imageFile?: File | null) => {
+    const handleSaveTutorial = async (data: any, imageFile?: File | null, aiImageAsset?: {
+        imageUrl: string;
+        cloudinaryAsset: { public_id: string; url: string; secure_url: string; format: string; resource_type: string };
+    } | null) => {
         setIsSaving(true);
         try {
             let imageUrl = tutorialData?.imageUrl || "";
@@ -225,6 +228,9 @@ export const StructuredTutorialEditor: React.FC = () => {
                     imageUrl = secure_url;
                     cloudinaryAssets = [asset];
                 }
+            } else if (aiImageAsset) {
+                imageUrl = aiImageAsset.imageUrl;
+                cloudinaryAssets = [aiImageAsset.cloudinaryAsset];
             }
 
             let response;

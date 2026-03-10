@@ -212,6 +212,7 @@ const createApiClient = (type: ApiClientType) => {
                 const isLongRunningEndpoint = requestConfig.url && (
                     requestConfig.url.includes('/post/suggestionByChatGpt') ||
                     requestConfig.url.includes('/post/suggestionByAI') ||
+                    requestConfig.url.includes('/post/generateTutorialImage') ||
                     requestConfig.url.includes('/visualizer/generate') ||
                     requestConfig.url.includes('/visualizer/regenerate') ||
                     requestConfig.url.includes('/linkedin/share')

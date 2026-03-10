@@ -15,6 +15,10 @@ export const AISuggestions = {
         const response = await articleApiClient.post('/post/suggestionByAI', params);
         return response;
     },
+    generateTutorialImage: async (params: { title: string }) => {
+        const response = await articleApiClient.post('/post/generateTutorialImage', params);
+        return response;
+    },
     saveAIConfig: async (params: { apiKey: string; aiModel: string; modelVersion?: string }) => {
         const response = await articleApiClient.post('/post/saveKey', params);
         return response;

@@ -1,11 +1,13 @@
 "use client";
 
 import {
+    ActionIcon,
     Box,
     Button,
     FileInput,
     Flex,
     Group,
+    Loader,
     Paper,
     SegmentedControl,
     Select,
@@ -13,13 +15,19 @@ import {
     Switch,
     Text,
     TextInput,
+    Tooltip,
 } from "@mantine/core";
+import { useDisclosure } from "@mantine/hooks";
+import { notifications } from "@mantine/notifications";
 import { IconCrown, IconDeviceFloppy, IconLayoutGrid, IconSparkles, IconUpload, IconWand } from "@tabler/icons-react";
 import type { CategoryPath } from "@whatsnxt/core-ui";
 import { CategorySearch } from "@whatsnxt/core-ui";
 import Image from "next/image";
 import React, { useEffect, useMemo } from "react";
 import { Controller, useForm } from "react-hook-form";
+import { AISuggestions } from "../../../apis/v1/blog/aiSuggestions";
+import { useAIConfig } from "../../../context/AIConfigContext";
+import { AIConfigModal } from "../../Common/AIConfigModal";
 import { AISuggestionButton } from "../../Common/AISuggestionButton";
 import { DiagramTypePicker } from "../../Visualizer/DiagramTypePicker";
 import type { DiagramType } from "../../Visualizer/types";
@@ -59,7 +67,10 @@ interface TutorialMetadataFormProps {
     initialData?: Partial<TutorialFormData>;
     categories: Category[];
     categoriesData: CategoryData[]; // Raw category data with subcategories
-    onSave: (data: TutorialFormData, imageFile?: File | null) => Promise<void>;
+    onSave: (data: TutorialFormData, imageFile?: File | null, aiImageAsset?: {
+        imageUrl: string;
+        cloudinaryAsset: { public_id: string; url: string; secure_url: string; format: string; resource_type: string };
+    } | null) => Promise<void>;
     isSaving?: boolean;
 }
 
@@ -88,6 +99,15 @@ export const TutorialMetadataForm: React.FC<TutorialMetadataFormProps> = ({
     const [imagePreview, setImagePreview] = React.useState<string | null>(
         initialData?.imageUrl || null,
     );
+    const [isGeneratingImage, setIsGeneratingImage] = React.useState(false);
+    const [aiGeneratedAsset, setAiGeneratedAsset] = React.useState<{
+        imageUrl: string;
+        cloudinaryAsset: { public_id: string; url: string; secure_url: string; format: string; resource_type: string };
+    } | null>(null);
+    const [configModalOpened, { open: openConfigModal, close: closeConfigModal }] =
+        useDisclosure(false);
+    const [apiKeyError, setApiKeyError] = React.useState("");
+    const aiConfig = useAIConfig();
     const [includeDiagram, setIncludeDiagram] = React.useState(
         initialData?.includeDiagram ?? false,
     );
@@ -181,6 +201,7 @@ export const TutorialMetadataForm: React.FC<TutorialMetadataFormProps> = ({
     }, [initialData, reset]);
 
     const handleImageChange = (file: File | null) => {
+        setAiGeneratedAsset(null);
         if (!file) {
             setTutorialImage(null);
             setImagePreview(null);
@@ -195,6 +216,70 @@ export const TutorialMetadataForm: React.FC<TutorialMetadataFormProps> = ({
         reader.readAsDataURL(file);
     };
 
+    const handleGenerateAIImage = React.useCallback(async () => {
+        const title = watch("title");
+        if (!title?.trim()) {
+            notifications.show({
+                position: "bottom-right",
+                color: "orange",
+                title: "Missing Title",
+                message: "Please enter a tutorial title first",
+            });
+            return;
+        }
+
+        setIsGeneratingImage(true);
+        try {
+            const response = await AISuggestions.generateTutorialImage({ title });
+            if (response?.data?.success && response.data.imageUrl) {
+                setImagePreview(response.data.imageUrl);
+                setAiGeneratedAsset({
+                    imageUrl: response.data.imageUrl,
+                    cloudinaryAsset: response.data.cloudinaryAsset,
+                });
+                setTutorialImage(null);
+                notifications.show({
+                    position: "bottom-right",
+                    color: "green",
+                    title: "Image Generated",
+                    message: "AI-generated image is ready",
+                });
+            } else {
+                notifications.show({
+                    position: "bottom-right",
+                    color: "red",
+                    title: "Generation Failed",
+                    message: response?.data?.message || "Failed to generate image",
+                });
+            }
+        } catch (error: unknown) {
+            const errorMessage =
+                (error as { response?: { data?: { message?: string } } })?.response?.data?.message ||
+                (error as Error)?.message ||
+                "Failed to generate AI image";
+            const isAuthError =
+                errorMessage.includes("API key") ||
+                errorMessage.includes("401") ||
+                errorMessage.includes("Incorrect API key");
+
+            if (isAuthError) {
+                setApiKeyError("Image generation requires an Anthropic API key. Please enter a valid Anthropic key.");
+                aiConfig.setSelectedAI("anthropic");
+                aiConfig.setSelectedModel("claude-haiku-4-5");
+                openConfigModal();
+            } else {
+                notifications.show({
+                    position: "bottom-right",
+                    color: "red",
+                    title: "Error",
+                    message: errorMessage,
+                });
+            }
+        } finally {
+            setIsGeneratingImage(false);
+        }
+    }, [watch]);
+
     const onSubmit = async (data: TutorialFormData) => {
         await onSave(
             {
@@ -204,6 +289,7 @@ export const TutorialMetadataForm: React.FC<TutorialMetadataFormProps> = ({
                 diagramType: includeDiagram && diagramMode === "manual" ? selectedDiagramType : null,
             },
             tutorialImage,
+            aiGeneratedAsset,
         );
     };
 
@@ -409,11 +495,31 @@ export const TutorialMetadataForm: React.FC<TutorialMetadataFormProps> = ({
                 />
 
                 <FileInput
-                    label="Tutorial Image"
-                    placeholder="Upload an image"
+                    label={
+                        <Flex align="center" gap={4}>
+                            <Text fw={500} size="sm">Tutorial Image</Text>
+                            <Tooltip label="Generate image with AI" withArrow>
+                                <ActionIcon
+                                    variant="subtle"
+                                    color="violet"
+                                    size="sm"
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        handleGenerateAIImage();
+                                    }}
+                                    disabled={isGeneratingImage}
+                                >
+                                    {isGeneratingImage ? <Loader size={14} /> : <IconSparkles size={16} />}
+                                </ActionIcon>
+                            </Tooltip>
+                        </Flex>
+                    }
+                    placeholder={isGeneratingImage ? "Generating image with AI..." : "Upload an image"}
                     accept="image/*"
-                    leftSection={<IconUpload size={16} />}
+                    leftSection={isGeneratingImage ? <Loader size={16} /> : <IconUpload size={16} />}
                     onChange={handleImageChange}
+                    disabled={isGeneratingImage}
                 />
 
                 <Controller
@@ -458,6 +564,35 @@ export const TutorialMetadataForm: React.FC<TutorialMetadataFormProps> = ({
                     </Button>
                 </Group>
             </Stack>
+
+            <AIConfigModal
+                opened={configModalOpened}
+                onClose={closeConfigModal}
+                selectedAI="anthropic"
+                selectedModel="claude-haiku-4-5"
+                onProviderChange={aiConfig.setSelectedAI}
+                onModelChange={aiConfig.setSelectedModel}
+                onGenerate={() => {
+                    setApiKeyError("");
+                    closeConfigModal();
+                    handleGenerateAIImage();
+                }}
+                onSaveKeyAndGenerate={() => {
+                    setApiKeyError("");
+                    aiConfig.updateConfig(aiConfig.selectedAI, aiConfig.selectedModel);
+                    closeConfigModal();
+                    handleGenerateAIImage();
+                }}
+                onNotification={(n) => {
+                    notifications.show({
+                        position: "bottom-right",
+                        color: n.color,
+                        title: "API Key Saved",
+                        message: n.message,
+                    });
+                }}
+                error={apiKeyError}
+            />
         </form>
     );
 };

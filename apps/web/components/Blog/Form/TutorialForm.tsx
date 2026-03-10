@@ -1,4 +1,5 @@
 import {
+  ActionIcon,
   Alert,
   Box,
   Button,
@@ -16,6 +17,7 @@ import {
   Switch,
   Text,
   Title,
+  Tooltip,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { modals } from "@mantine/modals";
@@ -37,6 +39,7 @@ import {
   cloudinaryAssetsUploadCleanupForUpdate,
 } from "@/components/RichTextEditor/common";
 import { FormAPI, HistoryAPI } from "../../../apis/v1/blog";
+import { AISuggestions } from "../../../apis/v1/blog/aiSuggestions";
 import { useSaved } from "../../../hooks/saved";
 import { useImageSafety } from "../../../hooks/useImageSafety";
 import type {
@@ -118,6 +121,11 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
   const [validationSuccess, setValidationSuccess] = useState<string | null>(
     null,
   );
+  const [isGeneratingImage, setIsGeneratingImage] = useState(false);
+  const [aiGeneratedAsset, setAiGeneratedAsset] = useState<{
+    imageUrl: string;
+    cloudinaryAsset: { public_id: string; url: string; secure_url: string; format: string; resource_type: string };
+  } | null>(null);
   const [includeDiagram, setIncludeDiagram] = useState(false);
   const [diagramMode, setDiagramMode] = useState<"auto" | "manual">("auto");
   const [selectedDiagramType, setSelectedDiagramType] = useState<DiagramType | null>(null);
@@ -288,10 +296,59 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
     description: { required: "Description is required" },
   };
 
+  const handleGenerateAIImage = useCallback(async () => {
+    const title = getValues("tutorialName");
+    if (!title?.trim()) {
+      notifications.show({
+        position: "bottom-right",
+        color: "orange",
+        title: "Missing Title",
+        message: "Please enter a tutorial name first",
+      });
+      return;
+    }
+
+    setIsGeneratingImage(true);
+    setValidationError(null);
+    setValidationSuccess(null);
+
+    try {
+      const response = await AISuggestions.generateTutorialImage({ title });
+
+      if (response?.data?.success && response.data.imageUrl) {
+        setImagePreview(response.data.imageUrl);
+        setAiGeneratedAsset({
+          imageUrl: response.data.imageUrl,
+          cloudinaryAsset: response.data.cloudinaryAsset,
+        });
+        setTutorialImage(null);
+        setValidationSuccess("AI image generated and uploaded to Cloudinary");
+        notifications.show({
+          position: "bottom-right",
+          color: "green",
+          title: "Image Generated",
+          message: "AI-generated image is ready. It will be used as the tutorial image.",
+        });
+      } else {
+        const errorMsg = response?.data?.message || "Failed to generate image";
+        setValidationError(errorMsg);
+      }
+    } catch (error: unknown) {
+      const errorMessage =
+        (error as { response?: { data?: { message?: string } } })?.response?.data?.message ||
+        (error as Error)?.message ||
+        "Failed to generate AI image";
+      setValidationError(errorMessage);
+    } finally {
+      setIsGeneratingImage(false);
+    }
+  }, [getValues, notifications]);
+
   const handleImageChange = async (file: File | null) => {
     // Clear previous states
     setValidationError(null);
     setValidationSuccess(null);
+    setAiGeneratedAsset(null);
     clearError();
 
     if (!file) {
@@ -540,6 +597,10 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
           imageUrl = secure_url;
           cloudinaryAssets = [asset];
         }
+      } else if (aiGeneratedAsset) {
+        // Use AI-generated image that was already uploaded to Cloudinary
+        imageUrl = aiGeneratedAsset.imageUrl;
+        cloudinaryAssets = [aiGeneratedAsset.cloudinaryAsset];
       }
 
       const details = {
@@ -636,6 +697,7 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
       getValues,
       submitDetails,
       tutorialImage,
+      aiGeneratedAsset,
     ],
   );
 
@@ -975,19 +1037,36 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
                   name="tutorialImagePreview"
                   control={control}
                   rules={{
-                    required: edit ? false : "Tutorial Image is required",
+                    required: (edit || aiGeneratedAsset) ? false : "Tutorial Image is required",
                   }}
                   render={({ field }) => (
                     <Box>
                       <FileInput
                         clearable
                         label={
-                          <Text fw={500} size="sm">
-                            Tutorial Image{" "}
-                            <Text component="span" c="red" fw={600}>
-                              *
+                          <Flex align="center" gap={4}>
+                            <Text fw={500} size="sm">
+                              Tutorial Image{" "}
+                              <Text component="span" c="red" fw={600}>
+                                *
+                              </Text>
                             </Text>
-                          </Text>
+                            <Tooltip label="Generate image with AI" withArrow>
+                              <ActionIcon
+                                variant="subtle"
+                                color="violet"
+                                size="sm"
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  handleGenerateAIImage();
+                                }}
+                                disabled={isGeneratingImage || isScanning || isModelLoading}
+                              >
+                                {isGeneratingImage ? <Loader size={14} /> : <IconSparkles size={16} />}
+                              </ActionIcon>
+                            </Tooltip>
+                          </Flex>
                         }
                         placeholder={
                           isScanning
@@ -1042,6 +1121,16 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
                           <Loader size="xs" />
                           <Text size="xs" c="blue">
                             Running AI safety scan...
+                          </Text>
+                        </Group>
+                      )}
+
+                      {/* AI image generation status */}
+                      {isGeneratingImage && (
+                        <Group gap="xs" mt="xs">
+                          <Loader size="xs" />
+                          <Text size="xs" c="violet">
+                            Generating image with AI...
                           </Text>
                         </Group>
                       )}
@@ -1148,6 +1237,7 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
                         isAssetsUploading ||
                         isScanning ||
                         isModelLoading ||
+                        isGeneratingImage ||
                         validationError !== null ||
                         scanError !== null
                       }
