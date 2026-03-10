@@ -128,7 +128,7 @@ function ContentCard({ content }: ContentCardProps) {
                                 </Badge>
                             </Group>
 
-                            <Text fw={600} size="md" mb="xs" lineClamp={2} h={22}>
+                            <Text fw={600} size="md" mb="xs" lineClamp={2} h={22} className={styles.titleText}>
                                 {content.title}
                             </Text>
 

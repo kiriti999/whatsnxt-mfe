@@ -1,5 +1,9 @@
 /* ContentCard.module.css */
 
+.titleText {
+    color: light-dark(rgba(0, 0, 0, 0.9), #ffffff);
+}
+
 .categoryText {
     color: light-dark(rgba(0, 0, 0, 0.65), rgba(255, 255, 255, 0.7));
 }
