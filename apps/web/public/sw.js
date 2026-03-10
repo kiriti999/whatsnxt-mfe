@@ -1,8 +1,8 @@
 // public/sw.js
 // Service Worker for caching critical resources
 
-const CACHE_NAME = 'whatsnxt-v1';
-const STATIC_CACHE_NAME = 'whatsnxt-static-v1';
+const CACHE_NAME = 'whatsnxt-v2';
+const STATIC_CACHE_NAME = 'whatsnxt-static-v2';
 
 // Critical resources to cache immediately
 const CRITICAL_RESOURCES = [
@@ -60,7 +60,10 @@ self.addEventListener('fetch', (event) => {
   }
 
   // Handle different types of requests
-  if (isStaticAsset(request)) {
+  if (isDynamicImage(request)) {
+    // Next.js optimized images: Stale while revalidate (content can change)
+    event.respondWith(staleWhileRevalidate(request));
+  } else if (isStaticAsset(request)) {
     // Static assets: Cache first, fallback to network
     event.respondWith(cacheFirst(request));
   } else if (isCriticalResource(request)) {
@@ -75,13 +78,17 @@ self.addEventListener('fetch', (event) => {
   }
 });
 
+// Helper function to check if request is for dynamic images (Next.js optimized)
+function isDynamicImage(request) {
+  return request.url.includes('/_next/image');
+}
+
 // Helper function to check if request is for static assets
 function isStaticAsset(request) {
   return (
     request.destination === 'script' ||
     request.destination === 'style' ||
     request.destination === 'font' ||
-    request.destination === 'image' ||
     request.url.includes('/_next/static/') ||
     request.url.includes('/static/') ||
     request.url.includes('/fonts/') ||
