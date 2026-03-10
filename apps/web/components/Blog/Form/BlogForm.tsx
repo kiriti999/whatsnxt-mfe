@@ -1,11 +1,12 @@
 import React, { useEffect, useState, useCallback, Suspense, useRef } from 'react';
 import { useForm, Controller } from 'react-hook-form';
-import { Box, Button, Container, FileInput, Flex, Grid, Paper, SegmentedControl, Select, Switch, Text, TextInput, Title, Loader, Alert, Group } from '@mantine/core';
+import { ActionIcon, Box, Button, Container, FileInput, Flex, Grid, Group, Paper, SegmentedControl, Select, Switch, Text, TextInput, Title, Loader, Alert, Tooltip } from '@mantine/core';
 import { useRouter } from 'next/navigation';
 import { notifications } from '@mantine/notifications';
 import { modals } from '@mantine/modals';
 import { BlogFormProps } from '../../../types/blogs';
 import { FormAPI, HistoryAPI } from '../../../apis/v1/blog';
+import { AISuggestions } from '../../../apis/v1/blog/aiSuggestions';
 import { getCategoryId } from '../../../utils/form';
 import { IconUpload, IconAlertCircle, IconCheck, IconSparkles, IconWand, IconLayoutGrid } from '@tabler/icons-react';
 import { LexicalEditor } from '../../StructuredTutorial/Editor/LexicalEditor';
@@ -38,6 +39,11 @@ const BlogForm: React.FC<BlogFormProps> = ({ categories, edit }) => {
   const [includeDiagram, setIncludeDiagram] = useState(false);
   const [diagramMode, setDiagramMode] = useState<'auto' | 'manual'>('auto');
   const [selectedDiagramType, setSelectedDiagramType] = useState<DiagramType | null>(null);
+  const [isGeneratingImage, setIsGeneratingImage] = useState(false);
+  const [aiGeneratedAsset, setAiGeneratedAsset] = useState<{
+    imageUrl: string;
+    cloudinaryAsset: { public_id: string; url: string; secure_url: string; format: string; resource_type: string };
+  } | null>(null);
   const editorRef = useRef<LexicalEditorHandle>(null);
   const lastLoadedId = useRef<string | null>(null);
   // Helper function to get initial description from edit data
@@ -223,10 +229,59 @@ const BlogForm: React.FC<BlogFormProps> = ({ categories, edit }) => {
     [subCategories]
   );
 
+  const handleGenerateAIImage = useCallback(async () => {
+    const title = watch('title');
+    if (!title?.trim()) {
+      notifications.show({
+        position: 'bottom-right',
+        color: 'orange',
+        title: 'Missing Title',
+        message: 'Please enter a blog title first',
+      });
+      return;
+    }
+
+    setIsGeneratingImage(true);
+    setValidationError(null);
+    setValidationSuccess(null);
+
+    try {
+      const response = await AISuggestions.generateTutorialImage({ title });
+
+      if (response?.data?.success && response.data.imageUrl) {
+        setImagePreview(response.data.imageUrl);
+        setAiGeneratedAsset({
+          imageUrl: response.data.imageUrl,
+          cloudinaryAsset: response.data.cloudinaryAsset,
+        });
+        setCourseImage(null);
+        setValidationSuccess('AI image generated and uploaded to Cloudinary');
+        notifications.show({
+          position: 'bottom-right',
+          color: 'green',
+          title: 'Image Generated',
+          message: 'AI-generated image is ready. It will be used as the blog image.',
+        });
+      } else {
+        const errorMsg = response?.data?.message || 'Failed to generate image';
+        setValidationError(errorMsg);
+      }
+    } catch (error: unknown) {
+      const errorMessage =
+        (error as { response?: { data?: { message?: string } } })?.response?.data?.message ||
+        (error as Error)?.message ||
+        'Failed to generate AI image';
+      setValidationError(errorMessage);
+    } finally {
+      setIsGeneratingImage(false);
+    }
+  }, [watch]);
+
   const handleImageChange = async (file: File | null) => {
     // Clear previous states
     setValidationError(null);
     setValidationSuccess(null);
+    setAiGeneratedAsset(null);
     clearError();
 
     if (!file) {
@@ -317,6 +372,10 @@ const BlogForm: React.FC<BlogFormProps> = ({ categories, edit }) => {
           imageUrl = secure_url;
           cloudinaryAssets = [asset];
         }
+      } else if (aiGeneratedAsset) {
+        // Use AI-generated image that was already uploaded to Cloudinary
+        imageUrl = aiGeneratedAsset.imageUrl;
+        cloudinaryAssets = [aiGeneratedAsset.cloudinaryAsset];
       }
 
       // Construct payload with nested categories
@@ -600,12 +659,34 @@ const BlogForm: React.FC<BlogFormProps> = ({ categories, edit }) => {
             <Controller
               name="blogImagePreview"
               control={control}
-              rules={{ required: edit ? false : 'Blog Image is required' }}
+              rules={{ required: (edit || aiGeneratedAsset) ? false : 'Blog Image is required' }}
               render={({ field }) => (
                 <div>
                   <FileInput
                     clearable
-                    label={<Text size='sm' mt={'2rem'}>Blog Image <Text component="span" size='lg' c="red">*</Text></Text>}
+                    label={
+                      <Flex align="center" gap={4} mt="2rem">
+                        <Text size="sm">
+                          Blog Image{' '}
+                          <Text component="span" size="lg" c="red">*</Text>
+                        </Text>
+                        <Tooltip label="Generate image with AI" withArrow>
+                          <ActionIcon
+                            variant="subtle"
+                            color="violet"
+                            size="sm"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              handleGenerateAIImage();
+                            }}
+                            disabled={isGeneratingImage || isScanning || isModelLoading}
+                          >
+                            {isGeneratingImage ? <Loader size={14} /> : <IconSparkles size={16} />}
+                          </ActionIcon>
+                        </Tooltip>
+                      </Flex>
+                    }
                     placeholder={
                       isScanning ? "🔍 Scanning image..." :
                         isModelLoading ? "🤖 Loading AI model..." :
@@ -656,6 +737,16 @@ const BlogForm: React.FC<BlogFormProps> = ({ categories, edit }) => {
                       <Loader size="xs" />
                       <Text size="xs" c="blue">
                         Running AI safety scan...
+                      </Text>
+                    </Group>
+                  )}
+
+                  {/* AI image generation status */}
+                  {isGeneratingImage && (
+                    <Group gap="xs" mt="xs">
+                      <Loader size="xs" />
+                      <Text size="xs" c="violet">
+                        Generating image with AI...
                       </Text>
                     </Group>
                   )}
