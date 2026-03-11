@@ -42,7 +42,6 @@ function HomeContent(props: ContentProps) {
         queryKey: ['/blog-tutorial/lists', type],
         queryFn: async ({ pageParam = 1 }: any) => {
             const response = await ContentAPI.getPosts(pageParam, 10, type);
-            console.log('🔍 ContentAPI.getPosts response:', response);
 
             // Backend returns: { data: [], totalCount, currentPage, limit }
             // Frontend expects: { posts: [], totalRecords }
@@ -60,16 +59,14 @@ function HomeContent(props: ContentProps) {
             const nextOffset = allPages.length * 10;
             return nextOffset < totalRecords ? allPages.length + 1 : undefined;
         },
-        initialPageParam: undefined
+        initialPageParam: 1
     });
-    console.log('🚀 :: HomeContent :: postsQuery:', postsQuery)
 
     // Fetch structured tutorials
     const structuredTutorialsQuery = useInfiniteQuery({
         queryKey: ['/structured-tutorials/lists'],
         queryFn: async ({ pageParam = 1 }: any) => {
             const response = await StructuredTutorialAPI.getAll(pageParam, 10, true);
-            console.log('🔍 StructuredTutorialAPI.getAll response:', response);
 
             // StructuredTutorialAPI returns { success, data: { tutorials, totalRecords, ... } }
             if (response.success && response.data) {
@@ -89,7 +86,7 @@ function HomeContent(props: ContentProps) {
             const nextOffset = allPages.length * 10;
             return nextOffset < totalRecords ? allPages.length + 1 : undefined;
         },
-        initialPageParam: undefined
+        initialPageParam: 1
     });
 
     // Combine data from both queries
@@ -97,7 +94,6 @@ function HomeContent(props: ContentProps) {
         const regularPosts = postsQuery.data?.pages.flatMap(page => page.posts) || [];
         const structuredPosts = structuredTutorialsQuery.data?.pages.flatMap(page => page.posts) || [];
 
-        // Interleave or combine as needed - here we put structured tutorials first
         return [...structuredPosts, ...regularPosts] as any[];
     }, [postsQuery.data, structuredTutorialsQuery.data]);
 
