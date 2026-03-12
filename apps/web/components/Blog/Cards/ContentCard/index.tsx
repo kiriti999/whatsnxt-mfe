@@ -87,20 +87,15 @@ function ContentCard({ content }: ContentCardProps) {
                             w={350}
                         >
                             <Card.Section>
-                                <Box pos="relative">
+                                <Box pos="relative" className={styles.imageContainer}>
                                     <Image
                                         priority
                                         src={imageSrc}
                                         alt={content.title}
-                                        width={300}
-                                        height={200}
-                                        sizes="(max-width: 480px) 300px, (max-width: 768px) 280px, 300px"
-                                        style={{
-                                            width: '100%',
-                                            height: '245px',
-                                            display: 'block',
-                                            objectFit: 'cover'
-                                        }}
+                                        width={1200}
+                                        height={630}
+                                        sizes="(max-width: 480px) 350px, (max-width: 768px) 350px, 350px"
+                                        className={styles.cardImage}
                                     />
                                     {content.isPremium && (
                                         <Badge

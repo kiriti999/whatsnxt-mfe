@@ -1,5 +1,19 @@
 /* ContentCard.module.css */
 
+.imageContainer {
+    aspect-ratio: 1200 / 630;
+    /* Matches AI-generated SVG viewBox */
+    width: 100%;
+    overflow: hidden;
+}
+
+.cardImage {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: cover;
+}
+
 .titleText {
     color: light-dark(rgba(0, 0, 0, 0.9), #ffffff);
 }
