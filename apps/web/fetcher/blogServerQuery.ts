@@ -40,7 +40,7 @@ export const fetchGATrendingContent = async (
     const response = await serverFetcher(
       BASEURL,
       `/post/getGATrending?limit=${limit}&type=${type}`,
-      { next: { revalidate: 3600 } }, // 1-hour cache matching Redis TTL
+      { next: { revalidate: 300 } }, // 5-minute cache matching Redis TTL
     );
     return {
       articles: response?.data || [],
