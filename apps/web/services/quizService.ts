@@ -64,6 +64,29 @@ export const createMCQPost = async (
 };
 
 /**
+ * Update an existing MCQ post
+ */
+export const updateMCQPost = async (
+    sectionId: string,
+    postId: string,
+    data: CreateMCQPostRequest
+): Promise<any> => {
+    const response = await articleApiClient.put(
+        `/structured-tutorial/section/${sectionId}/post/${postId}`,
+        {
+            title: data.title,
+            mcqData: {
+                question: data.question,
+                options: data.options,
+                explanation: data.explanation || '',
+                difficulty: data.difficulty || 'MEDIUM',
+            },
+        }
+    );
+    return response.data;
+};
+
+/**
  * Submit an answer to a quiz
  */
 export const submitQuizAnswer = async (

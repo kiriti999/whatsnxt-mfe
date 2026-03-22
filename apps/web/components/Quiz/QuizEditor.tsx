@@ -26,34 +26,110 @@ import {
 } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
 import { MCQPost } from './MCQPost';
-import { createMCQPost, MCQOption } from '../../services/quizService';
+import { createMCQPost, updateMCQPost, MCQOption } from '../../services/quizService';
 import useAuth from '../../hooks/Authentication/useAuth';
+import { AISuggestionButton } from '../Common/AISuggestionButton';
+
+const MIN_TITLE_LENGTH = 10;
+
+const buildMCQPrompt = (quizTitle: string): string => {
+    return `You are an educational assessment expert. Generate a Multiple Choice Question based on the following quiz title/topic.
+
+Quiz Title: "${quizTitle}"
+
+Generate a clear, educational MCQ question with 4 plausible options (one correct, three distractors), the correct answer, and a brief explanation.
+
+Respond ONLY with valid JSON in this exact format:
+{
+  "question": "Your generated question here?",
+  "options": ["Option A", "Option B", "Option C", "Option D"],
+  "correctAnswer": "Option A",
+  "explanation": "Brief explanation of why this is correct."
+}
+
+Rules:
+- The question should be directly related to the quiz title/topic.
+- The correct answer must exactly match one of the options.
+- Distractors should be plausible but clearly wrong.
+- Keep options concise (under 100 characters each).
+- The explanation should be 1-2 sentences.
+
+IMPORTANT: Respond ONLY with the JSON object. No markdown, no extra text.`;
+};
+
+const parseAIMCQResponse = (
+    rawResponse: string,
+): { question: string; options: string[]; correctAnswer: string; explanation: string } | null => {
+    try {
+        let jsonStr = rawResponse.trim();
+        if (jsonStr.startsWith('```')) {
+            jsonStr = jsonStr.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '');
+        }
+        const parsed = JSON.parse(jsonStr);
+        if (!parsed.question || !parsed.options || !parsed.correctAnswer) return null;
+        if (!Array.isArray(parsed.options) || parsed.options.length < 2) return null;
+        return {
+            question: parsed.question,
+            options: parsed.options,
+            correctAnswer: parsed.correctAnswer,
+            explanation: parsed.explanation || '',
+        };
+    } catch {
+        return null;
+    }
+};
 
 interface QuizEditorProps {
     sectionId: string;
+    postId?: string;
+    initialData?: {
+        title?: string;
+        mcqData?: {
+            question: string;
+            options: Array<{ id: string; label: string; text: string; isCorrect: boolean }>;
+            explanation?: string;
+            difficulty?: 'EASY' | 'MEDIUM' | 'HARD';
+        };
+    };
     onSave?: (postId: string, result?: any) => void;
     onCancel?: () => void;
 }
 
 const OPTION_LABELS = ['A', 'B', 'C', 'D', 'E', 'F'];
 
+const DEFAULT_OPTIONS: MCQOption[] = [
+    { id: 'a', label: 'A', text: '', isCorrect: false },
+    { id: 'b', label: 'B', text: '', isCorrect: false },
+    { id: 'c', label: 'C', text: '', isCorrect: false },
+    { id: 'd', label: 'D', text: '', isCorrect: false },
+];
+
 export const QuizEditor: React.FC<QuizEditorProps> = ({
     sectionId,
+    postId,
+    initialData,
     onSave,
     onCancel,
 }) => {
+    const isEditing = !!postId && !postId.startsWith('temp-');
     const router = useRouter();
     const { isAuthenticated } = useAuth();
-    const [title, setTitle] = useState('');
-    const [question, setQuestion] = useState('');
-    const [options, setOptions] = useState<MCQOption[]>([
-        { id: 'a', label: 'A', text: '', isCorrect: false },
-        { id: 'b', label: 'B', text: '', isCorrect: false },
-        { id: 'c', label: 'C', text: '', isCorrect: false },
-        { id: 'd', label: 'D', text: '', isCorrect: false },
-    ]);
-    const [explanation, setExplanation] = useState('');
-    const [difficulty, setDifficulty] = useState<'EASY' | 'MEDIUM' | 'HARD'>('MEDIUM');
+    const [title, setTitle] = useState(initialData?.title || '');
+    const [question, setQuestion] = useState(initialData?.mcqData?.question || '');
+    const [options, setOptions] = useState<MCQOption[]>(
+        initialData?.mcqData?.options?.length
+            ? initialData.mcqData.options.map((opt, i) => ({
+                id: opt.id || OPTION_LABELS[i].toLowerCase(),
+                label: opt.label || OPTION_LABELS[i],
+                text: opt.text,
+                isCorrect: opt.isCorrect,
+            }))
+            : DEFAULT_OPTIONS,
+    );
+    const [explanation, setExplanation] = useState(initialData?.mcqData?.explanation || '');
+    const [difficulty, setDifficulty] = useState<'EASY' | 'MEDIUM' | 'HARD'>(
+        initialData?.mcqData?.difficulty || 'MEDIUM',
+    );
     const [showPreview, setShowPreview] = useState(false);
     const [saving, setSaving] = useState(false);
 
@@ -149,16 +225,10 @@ export const QuizEditor: React.FC<QuizEditorProps> = ({
         setSaving(true);
 
         try {
-            const result = await createMCQPost(
-                sectionId,
-                {
-                    title,
-                    question,
-                    options,
-                    explanation,
-                    difficulty,
-                }
-            );
+            const payload = { title, question, options, explanation, difficulty };
+            const result = isEditing
+                ? await updateMCQPost(sectionId, postId!, payload)
+                : await createMCQPost(sectionId, payload);
 
             // Handle potential redirect to new draft
             if (result.newTutorialId) {
@@ -172,7 +242,7 @@ export const QuizEditor: React.FC<QuizEditorProps> = ({
                 return;
             }
 
-            onSave?.(result.data._id, result);
+            onSave?.(isEditing ? postId! : result.data._id, result);
         } catch (error: any) {
             console.error('Error creating quiz:', error);
             notifications.show({
@@ -205,7 +275,7 @@ export const QuizEditor: React.FC<QuizEditorProps> = ({
                     <Group justify="space-between" mb="lg">
                         <Group gap="sm">
                             <IconCircleDot size={24} color="var(--mantine-primary-color-filled)" />
-                            <Text size="lg" fw={700}>Create MCQ Quiz</Text>
+                            <Text size="lg" fw={700}>{isEditing ? 'Edit MCQ Quiz' : 'Create MCQ Quiz'}</Text>
                         </Group>
                         <Badge color={getDifficultyColor(difficulty)} variant="light">
                             {difficulty}
@@ -214,14 +284,57 @@ export const QuizEditor: React.FC<QuizEditorProps> = ({
 
                     <Stack gap="md">
                         {/* Title */}
-                        <TextInput
-                            label="Quiz Title"
-                            placeholder="Enter a descriptive title for this quiz"
-                            value={title}
-                            onChange={(e) => setTitle(e.target.value)}
-                            required
-                            size="md"
-                        />
+                        <Box>
+                            <Group gap="xs" mb={4}>
+                                <Text size="sm" fw={500}>
+                                    Quiz Title <Text component="span" c="red">*</Text>
+                                </Text>
+                                <AISuggestionButton
+                                    prompt={() => buildMCQPrompt(title)}
+                                    label="Generate MCQ from title"
+                                    disabled={!title.trim() || title.trim().length < MIN_TITLE_LENGTH}
+                                    onEmptyPrompt={() => {
+                                        notifications.show({
+                                            title: 'Title Required',
+                                            message: `Please enter a Quiz Title (at least ${MIN_TITLE_LENGTH} characters) before generating.`,
+                                            color: 'orange',
+                                        });
+                                    }}
+                                    onSuggestion={(suggestion) => {
+                                        const result = parseAIMCQResponse(suggestion);
+                                        if (result) {
+                                            setQuestion(result.question);
+                                            const newOptions = result.options.map((text, i) => ({
+                                                id: OPTION_LABELS[i].toLowerCase(),
+                                                label: OPTION_LABELS[i],
+                                                text,
+                                                isCorrect: text === result.correctAnswer,
+                                            }));
+                                            setOptions(newOptions);
+                                            if (result.explanation) setExplanation(result.explanation);
+                                            notifications.show({
+                                                title: 'MCQ Generated',
+                                                message: 'AI generated the question, options, and correct answer.',
+                                                color: 'teal',
+                                            });
+                                        } else {
+                                            notifications.show({
+                                                title: 'Generation Failed',
+                                                message: 'Could not parse the AI response. Please try again.',
+                                                color: 'red',
+                                            });
+                                        }
+                                    }}
+                                />
+                            </Group>
+                            <TextInput
+                                placeholder="Enter a descriptive title for this quiz of 10 characters or more to enable AI generation"
+                                value={title}
+                                onChange={(e) => setTitle(e.target.value)}
+                                required
+                                size="md"
+                            />
+                        </Box>
 
                         {/* Difficulty */}
                         <Select

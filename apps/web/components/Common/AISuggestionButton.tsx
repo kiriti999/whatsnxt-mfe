@@ -69,12 +69,6 @@ export function AISuggestionButton({
 
             if (response.status === 200 && response.data?.suggestion) {
                 onSuggestion(response.data.suggestion);
-                notifications.show({
-                    position: 'bottom-right',
-                    color: 'green',
-                    title: 'Success',
-                    message: `AI suggestions loaded using ${response.data.model || aiConfig.selectedAI}`,
-                });
             } else {
                 const errorMsg =
                     response.data?.message ||

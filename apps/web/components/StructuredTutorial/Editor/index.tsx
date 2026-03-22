@@ -186,7 +186,7 @@ export const StructuredTutorialEditor: React.FC = () => {
             order: section.order,
             children: section.posts.map((post) => ({
                 id: post.id!,
-                type: "post",
+                type: post.postType === "MCQ" ? "mcq" : "post",
                 title: post.title,
                 isReused: post.isReused,
                 order: post.order,
@@ -832,7 +832,7 @@ export const StructuredTutorialEditor: React.FC = () => {
 
     const getCurrentPostData = () => {
         if (
-            selectedNode.type !== "post" ||
+            (selectedNode.type !== "post" && selectedNode.type !== "mcq") ||
             !selectedNode.id ||
             !selectedNode.sectionId
         )
@@ -961,10 +961,12 @@ export const StructuredTutorialEditor: React.FC = () => {
                             {selectedNode.type === "mcq" && selectedNode.sectionId && (
                                 <>
                                     <Title order={4} mb="md">
-                                        Create MCQ Quiz
+                                        {selectedNode.id?.startsWith('temp-') ? 'Create MCQ Quiz' : 'Edit MCQ Quiz'}
                                     </Title>
                                     <QuizEditor
                                         sectionId={selectedNode.sectionId}
+                                        postId={selectedNode.id || undefined}
+                                        initialData={getCurrentPostData()}
                                         onSave={(postId) => {
                                             // Update the local state with the saved post ID
                                             setSections((prev) =>

@@ -1423,7 +1423,7 @@ const LabPageEditorPage = () => {
                                 )}
                               </Group>
                               <Textarea
-                                placeholder="Enter question text (minimum 10 characters)"
+                                placeholder="Enter question text (minimum 10 characters) to enable the AI suggestion feature"
                                 value={question.questionText}
                                 onChange={(e) =>
                                   updateQuestion(

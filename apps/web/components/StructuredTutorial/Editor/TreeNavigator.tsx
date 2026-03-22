@@ -20,6 +20,7 @@ import {
     IconFile,
     IconFolder,
     IconLink,
+    IconListCheck,
     IconPlus,
     IconTrash,
 } from "@tabler/icons-react";
@@ -210,10 +211,10 @@ export const TreeNavigator: React.FC<TreeNavigatorProps> = ({
                                             key={post.id || postIndex}
                                             p="sm"
                                             withBorder
-                                            className={`${styles.postCard} ${isSelected("post", post.id) ? styles.postCardSelected : ""}`}
+                                            className={`${styles.postCard} ${(isSelected("post", post.id) || isSelected("mcq", post.id)) ? styles.postCardSelected : ""}`}
                                             onClick={() =>
                                                 onSelectNode({
-                                                    type: "post",
+                                                    type: post.type === "mcq" ? "mcq" : "post",
                                                     id: post.id,
                                                     sectionId: section.id,
                                                 })
@@ -221,7 +222,11 @@ export const TreeNavigator: React.FC<TreeNavigatorProps> = ({
                                         >
                                             <Group justify="space-between" wrap="nowrap">
                                                 <Group gap="xs" style={{ flex: 1, minWidth: 0 }}>
-                                                    <IconFile size={16} className={styles.postIcon} />
+                                                    {post.type === "mcq" ? (
+                                                        <IconListCheck size={16} className={styles.postIcon} />
+                                                    ) : (
+                                                        <IconFile size={16} className={styles.postIcon} />
+                                                    )}
                                                     <Text size="sm" truncate className={styles.postTitle}>
                                                         {post.title}
                                                     </Text>
