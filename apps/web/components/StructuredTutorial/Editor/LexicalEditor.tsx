@@ -14,7 +14,6 @@ import {
   ListItemNode,
   ListNode,
 } from "@lexical/list";
-import { AutoFocusPlugin } from "@lexical/react/LexicalAutoFocusPlugin";
 import { ClearEditorPlugin } from "@lexical/react/LexicalClearEditorPlugin";
 import { LexicalComposer } from "@lexical/react/LexicalComposer";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
@@ -131,7 +130,6 @@ import {
 } from "./nodes/CollapsibleNodes";
 import { $createDateNode, DateNode } from "./nodes/DateNode";
 import { ExcalidrawNode } from "./nodes/ExcalidrawNode";
-import { ExtendedCodeNode } from "./nodes/ExtendedCodeNode";
 import { ImageNode } from "./nodes/ImageNode";
 import { InlineSvgNode } from "./nodes/InlineSvgNode";
 import {
@@ -1306,7 +1304,6 @@ export const LexicalEditor = forwardRef<LexicalEditorHandle, LexicalEditorProps>
           {!readOnly && (
             <>
               <HistoryPlugin />
-              <AutoFocusPlugin />
               <DraggableBlockPlugin />
               <OnChangePluginWrapper
                 onChange={onChange}
