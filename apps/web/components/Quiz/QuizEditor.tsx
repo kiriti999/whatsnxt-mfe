@@ -43,7 +43,7 @@ Respond ONLY with valid JSON in this exact format:
 {
   "question": "Your generated question here?",
   "options": ["Option A", "Option B", "Option C", "Option D"],
-  "correctAnswer": "Option A",
+  "correctAnswer": "Option B",
   "explanation": "Brief explanation of why this is correct."
 }
 
@@ -53,6 +53,7 @@ Rules:
 - Distractors should be plausible but clearly wrong.
 - Keep options concise (under 100 characters each).
 - The explanation should be 1-2 sentences.
+- IMPORTANT: Randomize the position of the correct answer among the options. Do NOT always place it first.
 
 IMPORTANT: Respond ONLY with the JSON object. No markdown, no extra text.`;
 };
@@ -304,7 +305,8 @@ export const QuizEditor: React.FC<QuizEditorProps> = ({
                                         const result = parseAIMCQResponse(suggestion);
                                         if (result) {
                                             setQuestion(result.question);
-                                            const newOptions = result.options.map((text, i) => ({
+                                            const shuffled = [...result.options].sort(() => Math.random() - 0.5);
+                                            const newOptions = shuffled.map((text, i) => ({
                                                 id: OPTION_LABELS[i].toLowerCase(),
                                                 label: OPTION_LABELS[i],
                                                 text,
