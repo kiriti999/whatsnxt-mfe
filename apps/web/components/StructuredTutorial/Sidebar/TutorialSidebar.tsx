@@ -20,6 +20,7 @@ import {
     IconChevronsUp,
     IconEye,
     IconLayoutSidebarLeftCollapse,
+    IconListCheck,
     IconLock,
     IconSearch,
 } from "@tabler/icons-react";
@@ -329,6 +330,14 @@ export function TutorialSidebar({
                                                                 <IconLock
                                                                     size={12}
                                                                     color="var(--mantine-color-yellow-6)"
+                                                                />
+                                                            )}
+                                                            {post.postType === "MCQ" && (
+                                                                <IconListCheck
+                                                                    size={14}
+                                                                    color="var(--mantine-color-teal-6)"
+                                                                    style={{ flexShrink: 0 }}
+                                                                    aria-label="MCQ"
                                                                 />
                                                             )}
                                                             <Text

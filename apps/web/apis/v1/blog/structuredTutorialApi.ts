@@ -110,6 +110,7 @@ export interface SidebarPost {
     title: string;
     slug: string;
     order: number;
+    postType?: "CONTENT" | "MCQ";
 }
 
 export interface PaginatedResponse<T> {
