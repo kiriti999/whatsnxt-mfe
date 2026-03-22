@@ -6,12 +6,10 @@ import {
     Stack,
     TextInput,
     Textarea,
-    Button,
-    Group,
     Text,
     Switch,
 } from '@mantine/core';
-import { IconDeviceFloppy, IconEye } from '@tabler/icons-react';
+import { IconEye } from '@tabler/icons-react';
 import { IconPicker } from '../Form/IconPicker';
 
 interface SectionFormData {

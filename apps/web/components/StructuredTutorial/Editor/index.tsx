@@ -316,9 +316,9 @@ export const StructuredTutorialEditor: React.FC = () => {
         );
     };
 
-    const handlePostChange = (data: Partial<any>) => {
-        const postId = selectedNode.id;
-        const sectionId = selectedNode.sectionId;
+    const handlePostChange = (data: Partial<any>, targetSectionId?: string, targetPostId?: string) => {
+        const postId = targetPostId || selectedNode.id;
+        const sectionId = targetSectionId || selectedNode.sectionId;
         if (!postId || !sectionId) return;
 
         // Update local state in real-time (optimistic update)
@@ -569,11 +569,13 @@ export const StructuredTutorialEditor: React.FC = () => {
         return realId;
     };
 
-    const handleSavePost = async (data: any) => {
-        if (!selectedNode.sectionId) return;
+    const handleSavePost = async (data: any, targetSectionId?: string, targetPostId?: string) => {
+        const resolvedSectionId = targetSectionId || selectedNode.sectionId;
+        const resolvedPostId = targetPostId || selectedNode.id;
+        if (!resolvedSectionId) return;
 
-        let sectionId = selectedNode.sectionId;
-        const postId = selectedNode.id;
+        let sectionId = resolvedSectionId;
+        const postId = resolvedPostId;
         const isNew = !postId || postId.startsWith("temp-");
 
         setIsSaving(true);
@@ -948,11 +950,12 @@ export const StructuredTutorialEditor: React.FC = () => {
                                 />
                             )}
 
-                            {selectedNode.type === "post" && (
+                            {selectedNode.type === "post" && selectedNode.sectionId && (
                                 <PostForm
+                                    key={selectedNode.id || selectedNode.sectionId}
                                     initialData={getCurrentPostData()}
-                                    onSave={handleSavePost}
-                                    onChange={handlePostChange}
+                                    onSave={(data) => handleSavePost(data, selectedNode.sectionId, selectedNode.id)}
+                                    onChange={(data) => handlePostChange(data, selectedNode.sectionId!, selectedNode.id!)}
                                     isSaving={isSaving}
                                     isNew={selectedNode.id?.startsWith("temp-")}
                                 />
