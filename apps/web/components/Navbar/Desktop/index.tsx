@@ -145,7 +145,7 @@ export const NavbarDesktop = ({ links, cartItems, loginMenuLinks, drawerOpened, 
               Search trainer
             </Anchor> */}
             {!isAuthenticated && (
-              <Anchor href='/become-a-trainer' component={Link} className={classes.link}>
+              <Anchor href='/authentication?returnto=/become-a-trainer' component={Link} className={classes.link}>
                 Become a trainer
               </Anchor>
             )}

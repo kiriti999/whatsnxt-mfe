@@ -357,7 +357,7 @@ export const NavbarMobile = ({
                     label="Become a Trainer"
                     leftSection={<IconSchool size="1.1rem" stroke={1.5} />}
                     component={Link}
-                    href="/become-a-trainer"
+                    href="/authentication?returnto=/become-a-trainer"
                     onClick={closeDrawer}
                     variant="light"
                     color="teal"
