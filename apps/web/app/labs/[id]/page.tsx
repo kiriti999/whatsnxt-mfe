@@ -1228,54 +1228,78 @@ const LabDetailPage = () => {
                       </Group>
                     </Group>
 
-                    <Stack gap="sm">
+                    <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="sm">
                       {page.hasQuestion ? (
-                        <Paper p="md" radius="sm" className="bg-green-light">
-                          <Stack gap="sm">
-                            <Text size="sm" fw={600} c="green.9" mb={0}>
-                              ✓ Question Test
+                        <Paper p="md" radius="md" withBorder
+                          style={{ borderLeft: '3px solid var(--mantine-color-green-6)' }}
+                          className="bg-green-light"
+                        >
+                          <Group gap="xs" mb={4}>
+                            <ThemeIcon size="sm" color="green" variant="filled" radius="xl">
+                              <IconBrain size={14} />
+                            </ThemeIcon>
+                            <Text size="sm" fw={600} c="green.9">
+                              Question Test
                             </Text>
-                            {page.question?.questionText && (
-                              <Text size="sm" c="green.8" lineClamp={2} pl="md">
-                                {page.question.questionText}
-                              </Text>
-                            )}
-                          </Stack>
+                            <Badge size="xs" color="green" variant="filled" ml="auto">
+                              Active
+                            </Badge>
+                          </Group>
+                          {page.question?.questionText && (
+                            <Text size="xs" c="green.8" lineClamp={2} pl={30}>
+                              {page.question.questionText}
+                            </Text>
+                          )}
                         </Paper>
                       ) : (
-                        <Paper p="md" radius="sm" className="border-dashed">
-                          <Stack gap="sm">
-                            <Text size="sm" c="dimmed" mb={0}>
-                              ○ Question Test
+                        <Paper p="md" radius="md" className="border-dashed">
+                          <Group gap="xs" mb={4}>
+                            <ThemeIcon size="sm" color="gray" variant="light" radius="xl">
+                              <IconBrain size={14} />
+                            </ThemeIcon>
+                            <Text size="sm" c="dimmed">
+                              Question Test
                             </Text>
-                            <Text size="sm" c="dimmed" pl="md">
-                              not configured
-                            </Text>
-                          </Stack>
+                          </Group>
+                          <Text size="xs" c="dimmed" pl={30}>
+                            Not configured
+                          </Text>
                         </Paper>
                       )}
 
                       {page.hasDiagramTest ? (
-                        <Paper p="md" radius="sm" className="bg-blue-light">
-                          <Stack gap="sm">
-                            <Text size="sm" fw={600} c="blue.9" mb={0}>
-                              ✓ Diagram Test
+                        <Paper p="md" radius="md" withBorder
+                          style={{ borderLeft: '3px solid var(--mantine-color-blue-6)' }}
+                          className="bg-blue-light"
+                        >
+                          <Group gap="xs" mb={4}>
+                            <ThemeIcon size="sm" color="blue" variant="filled" radius="xl">
+                              <IconTopologyStarRing3 size={14} />
+                            </ThemeIcon>
+                            <Text size="sm" fw={600} c="blue.9">
+                              Diagram Test
                             </Text>
-                          </Stack>
+                            <Badge size="xs" color="blue" variant="filled" ml="auto">
+                              Active
+                            </Badge>
+                          </Group>
                         </Paper>
                       ) : (
-                        <Paper p="md" radius="sm" className="border-dashed">
-                          <Stack gap="sm">
-                            <Text size="sm" c="dimmed" mb={0}>
-                              ○ Diagram Test
+                        <Paper p="md" radius="md" className="border-dashed">
+                          <Group gap="xs" mb={4}>
+                            <ThemeIcon size="sm" color="gray" variant="light" radius="xl">
+                              <IconTopologyStarRing3 size={14} />
+                            </ThemeIcon>
+                            <Text size="sm" c="dimmed">
+                              Diagram Test
                             </Text>
-                            <Text size="sm" c="dimmed" pl="md">
-                              not configured
-                            </Text>
-                          </Stack>
+                          </Group>
+                          <Text size="xs" c="dimmed" pl={30}>
+                            Not configured
+                          </Text>
                         </Paper>
                       )}
-                    </Stack>
+                    </SimpleGrid>
 
                     {(isOwner || isTrainer) && (
                       <LearningMaterialEditor
