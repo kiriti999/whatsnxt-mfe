@@ -17,8 +17,18 @@
     background-color: light-dark(var(--mantine-color-white), var(--mantine-color-dark-7));
 }
 
+.sectionHeader {
+    width: 100%;
+    cursor: pointer;
+}
+
+.sectionHeader:hover .sectionTitle {
+    color: light-dark(var(--mantine-color-blue-7), var(--mantine-color-blue-4));
+}
+
 .sectionTitle {
     color: light-dark(var(--mantine-color-dark-6), var(--mantine-color-gray-3));
+    transition: color 150ms ease;
 }
 
 .diagramPanel {
