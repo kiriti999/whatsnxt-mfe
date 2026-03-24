@@ -1,6 +1,7 @@
 "use client";
 import {
   ActionIcon,
+  Badge,
   Button,
   Group,
   Modal,
@@ -29,6 +30,7 @@ import {
   HistoryAPI,
   StructuredTutorialAPI,
 } from "../../../apis/v1/index";
+import { SystemDesignAPI } from "../../../apis/v1/systemDesign";
 import { downloadBase64File } from "../../../utils/downloadFile";
 import { unifiedDeleteWebWorker } from "../../../utils/worker/assetManager";
 
@@ -36,6 +38,8 @@ interface HistoryTableProps {
   open: () => void;
   close: () => void;
 }
+
+type ContentType = "blog" | "tutorial" | "structured" | "system-design";
 
 interface HistoryRecord {
   _id: string;
@@ -47,6 +51,7 @@ interface HistoryRecord {
   tutorial?: boolean;
   source?: string;
   cloudinaryAssets?: string[];
+  contentType: ContentType;
 }
 
 const PAGE_SIZES = [5, 10, 15];
@@ -68,7 +73,9 @@ const HistoryTable = ({ open, close }: HistoryTableProps) => {
   const router = useRouter();
 
   const handleEditButtonClick = (rowData: HistoryRecord) => {
-    if (rowData?.source === "structured") {
+    if (rowData.contentType === "system-design") {
+      router.push(`/form/system-design?id=${rowData._id}`);
+    } else if (rowData?.source === "structured") {
       router.push(`/form/structured-tutorial?id=${rowData._id}`);
     } else {
       router.push(
@@ -161,6 +168,12 @@ const HistoryTable = ({ open, close }: HistoryTableProps) => {
     const rowData = records.find((f) => f._id === id);
     if (!rowData) return;
 
+    if (rowData.contentType === "system-design") {
+      await SystemDesignAPI.delete(rowData._id);
+      await load();
+      return;
+    }
+
     let deleteResult: unknown;
     if (rowData.source === "structured") {
       deleteResult = await StructuredTutorialAPI.delete(rowData._id);
@@ -236,6 +249,15 @@ const HistoryTable = ({ open, close }: HistoryTableProps) => {
     try {
       open();
       const publish = !rowData.published;
+
+      if (rowData.contentType === "system-design") {
+        await SystemDesignAPI.update(rowData._id, {
+          status: publish ? "published" : "draft",
+        });
+        await load();
+        return;
+      }
+
       let publishRes: unknown;
 
       if (rowData.source === "structured") {
@@ -303,19 +325,41 @@ const HistoryTable = ({ open, close }: HistoryTableProps) => {
     }
   };
 
+  const typeLabel: Record<ContentType, { label: string; color: string }> = {
+    blog: { label: "Blog", color: "blue" },
+    tutorial: { label: "Tutorial", color: "teal" },
+    structured: { label: "Structured", color: "violet" },
+    "system-design": { label: "System Design", color: "cyan" },
+  };
+
   const columns: DataTableColumn<HistoryRecord>[] = [
     {
       accessor: "title",
       title: "Title",
-      render: (record) => (
-        <a
-          href={`/content/${decodeURIComponent(record.slug)}`}
-          style={{ textDecoration: "none" }}
-        >
-          {record.title.substring(0, 50)}
-          {record.title.length > 50 ? "..." : ""}
-        </a>
-      ),
+      render: (record) => {
+        const href = record.contentType === "system-design"
+          ? `/form/system-design?id=${record._id}&mode=view`
+          : `/content/${decodeURIComponent(record.slug)}`;
+        return (
+          <a href={href} style={{ textDecoration: "none" }}>
+            {record.title.substring(0, 50)}
+            {record.title.length > 50 ? "..." : ""}
+          </a>
+        );
+      },
+    },
+    {
+      accessor: "contentType",
+      title: "Type",
+      width: 130,
+      render: (record) => {
+        const info = typeLabel[record.contentType];
+        return (
+          <Badge size="sm" variant="light" color={info.color}>
+            {info.label}
+          </Badge>
+        );
+      },
     },
     {
       accessor: "categoryName",
@@ -362,17 +406,18 @@ const HistoryTable = ({ open, close }: HistoryTableProps) => {
       accessor: "markdown",
       title: "MD",
       width: 80,
-      render: (record) => (
-        <Tooltip label="Download Markdown">
-          <ActionIcon
-            variant="subtle"
-            onClick={() => handleDownloadMarkdown(record)}
-            aria-label="Download Markdown"
-          >
-            <IconMarkdown size={20} />
-          </ActionIcon>
-        </Tooltip>
-      ),
+      render: (record) =>
+        record.contentType === "system-design" ? null : (
+          <Tooltip label="Download Markdown">
+            <ActionIcon
+              variant="subtle"
+              onClick={() => handleDownloadMarkdown(record)}
+              aria-label="Download Markdown"
+            >
+              <IconMarkdown size={20} />
+            </ActionIcon>
+          </Tooltip>
+        ),
     },
     {
       accessor: "delete",
@@ -391,22 +436,48 @@ const HistoryTable = ({ open, close }: HistoryTableProps) => {
     },
   ];
 
+  const deriveContentType = (rec: Omit<HistoryRecord, "contentType">): ContentType => {
+    if (rec.source === "structured") return "structured";
+    if (rec.tutorial) return "tutorial";
+    return "blog";
+  };
+
   const load = useCallback(async () => {
     setFetching(true);
-    const fetchedData = await HistoryAPI.getHistory(
-      page,
-      recordsPerPage,
-      debouncedSearch,
-      {
+    const [fetchedData, sdResult] = await Promise.all([
+      HistoryAPI.getHistory(page, recordsPerPage, debouncedSearch, {
         startDateParam: null,
         endDateParam: null,
         searchInput: "",
         selectedOptions: [],
-      },
+      }),
+      SystemDesignAPI.list(),
+    ]);
+
+    const blogRecords: HistoryRecord[] = (fetchedData.posts || []).map(
+      (r: Omit<HistoryRecord, "contentType">) => ({ ...r, contentType: deriveContentType(r) }),
     );
+
+    const sdCourses = sdResult?.data || [];
+    const sdRecords: HistoryRecord[] = sdCourses
+      .filter((c) => !debouncedSearch || c.title.toLowerCase().includes(debouncedSearch.toLowerCase()))
+      .map((c) => ({
+        _id: c._id,
+        title: c.title,
+        slug: c.slug,
+        categoryName: c.category,
+        updatedAt: c.updatedAt,
+        published: c.status === "published",
+        contentType: "system-design" as ContentType,
+      }));
+
+    const merged = [...blogRecords, ...sdRecords].sort(
+      (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
+    );
+
+    setRecords(merged);
+    setTotalRecords((fetchedData?.totalRecords || 0) + sdRecords.length);
     setFetching(false);
-    setRecords(fetchedData.posts || []);
-    setTotalRecords(fetchedData?.totalRecords || 0);
   }, [page, recordsPerPage, debouncedSearch]);
 
   useEffect(() => {

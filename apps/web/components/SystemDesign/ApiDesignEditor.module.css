@@ -1,0 +1,136 @@
+.apiEditor {
+    padding: var(--mantine-spacing-sm);
+    border: 1px solid light-dark(var(--mantine-color-gray-3), var(--mantine-color-dark-4));
+    border-radius: var(--mantine-radius-md);
+    background: light-dark(var(--mantine-color-gray-0), var(--mantine-color-dark-8));
+}
+
+.swaggerTitle {
+    color: light-dark(var(--mantine-color-dark-7), var(--mantine-color-gray-2));
+}
+
+/* Endpoint card */
+.endpointCard {
+    border: 1px solid light-dark(var(--mantine-color-gray-3), var(--mantine-color-dark-4));
+    border-radius: var(--mantine-radius-sm);
+    overflow: hidden;
+    transition: border-color 150ms ease;
+}
+
+.endpointCard[data-method="get"] {
+    border-left: 4px solid var(--mantine-color-blue-5);
+}
+
+.endpointCard[data-method="post"] {
+    border-left: 4px solid var(--mantine-color-green-5);
+}
+
+.endpointCard[data-method="put"] {
+    border-left: 4px solid var(--mantine-color-orange-5);
+}
+
+.endpointCard[data-method="patch"] {
+    border-left: 4px solid var(--mantine-color-yellow-5);
+}
+
+.endpointCard[data-method="delete"] {
+    border-left: 4px solid var(--mantine-color-red-5);
+}
+
+/* Endpoint header — clickable row */
+.endpointHeader {
+    padding: var(--mantine-spacing-xs) var(--mantine-spacing-sm);
+    cursor: pointer;
+    justify-content: space-between;
+    align-items: center;
+    transition: background-color 150ms ease;
+}
+
+.endpointHeader[data-method="get"] {
+    background: light-dark(rgba(51, 154, 240, 0.06), rgba(51, 154, 240, 0.08));
+}
+
+.endpointHeader[data-method="post"] {
+    background: light-dark(rgba(64, 192, 87, 0.06), rgba(64, 192, 87, 0.08));
+}
+
+.endpointHeader[data-method="put"] {
+    background: light-dark(rgba(255, 146, 43, 0.06), rgba(255, 146, 43, 0.08));
+}
+
+.endpointHeader[data-method="patch"] {
+    background: light-dark(rgba(252, 196, 25, 0.06), rgba(252, 196, 25, 0.08));
+}
+
+.endpointHeader[data-method="delete"] {
+    background: light-dark(rgba(250, 82, 82, 0.06), rgba(250, 82, 82, 0.08));
+}
+
+.endpointHeader:hover {
+    filter: brightness(0.97);
+}
+
+.methodBadge {
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    min-width: 64px;
+    text-align: center;
+}
+
+.pathText {
+    font-family: monospace;
+    color: light-dark(var(--mantine-color-dark-7), var(--mantine-color-gray-1));
+}
+
+.summaryText {
+    max-width: 300px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Endpoint expanded body */
+.endpointBody {
+    padding: var(--mantine-spacing-sm);
+    border-top: 1px solid light-dark(var(--mantine-color-gray-2), var(--mantine-color-dark-5));
+    background: light-dark(#ffffff, var(--mantine-color-dark-7));
+}
+
+/* Field sections */
+.fieldSection {
+    padding: var(--mantine-spacing-xs);
+    border: 1px solid light-dark(var(--mantine-color-gray-2), var(--mantine-color-dark-5));
+    border-radius: var(--mantine-radius-xs);
+    background: light-dark(var(--mantine-color-gray-0), var(--mantine-color-dark-8));
+}
+
+.fieldRow {
+    padding: 2px 0;
+}
+
+.fieldName {
+    flex: 0 0 120px;
+}
+
+.fieldType {
+    flex: 0 0 110px;
+}
+
+.requiredBadge {
+    cursor: pointer;
+    flex: 0 0 70px;
+    text-align: center;
+}
+
+.fieldDesc {
+    flex: 1;
+}
+
+.addEndpointBtn {
+    align-self: flex-start;
+}
+
+.jsonEditor textarea {
+    font-family: monospace;
+    font-size: 13px;
+}

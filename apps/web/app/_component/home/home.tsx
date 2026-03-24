@@ -20,9 +20,10 @@ interface HomeProps {
     total: number;
   };
   labs: any[];
+  systemDesigns: any[];
 }
 
-function Home({ data, articles, tutorialsData, labs }: HomeProps) {
+function Home({ data, articles, tutorialsData, labs, systemDesigns }: HomeProps) {
   return (
     <div>
       <MainBanner />
@@ -34,6 +35,7 @@ function Home({ data, articles, tutorialsData, labs }: HomeProps) {
         tutorials={tutorialsData?.tutorials || []}
         totalTutorials={tutorialsData?.total || 0}
         labs={labs || []}
+        systemDesigns={systemDesigns || []}
       />
     </div>
   );

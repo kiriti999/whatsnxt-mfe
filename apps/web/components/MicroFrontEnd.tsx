@@ -4,6 +4,7 @@ import React, { type ReactElement } from "react";
 import TopCourses from "./TopCourses/TopCourses";
 import TopLabs from "./TopLabs/TopLabs";
 import TopTutorials from "./TopTutorials/TopTutorials";
+import TopSystemDesign from "./TopSystemDesign/TopSystemDesign";
 import TrendingArticles from "./TrendingArticles";
 
 interface MicroFrontendProps {
@@ -14,6 +15,7 @@ interface MicroFrontendProps {
   tutorials: any[];
   totalTutorials: number;
   labs: any[];
+  systemDesigns: any[];
 }
 
 export default function MicroFrontend({
@@ -24,6 +26,7 @@ export default function MicroFrontend({
   tutorials,
   totalTutorials,
   labs,
+  systemDesigns,
 }: MicroFrontendProps): ReactElement {
   return (
     <>
@@ -32,6 +35,8 @@ export default function MicroFrontend({
       <TopTutorials tutorials={tutorials || []} total={totalTutorials || 0} />
 
       <TopLabs labs={labs || []} />
+
+      <TopSystemDesign systemDesigns={systemDesigns || []} />
 
       <TrendingArticles articles={articles || []} total={totalArticles || 0} />
       <Footer />
