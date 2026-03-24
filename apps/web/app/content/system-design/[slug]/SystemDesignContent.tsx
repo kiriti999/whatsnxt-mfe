@@ -1,9 +1,11 @@
 "use client";
 
 import { useCallback, useState } from "react";
+import Link from "next/link";
 import {
     Badge,
     Box,
+    Button,
     Collapse,
     Container,
     Divider,
@@ -15,11 +17,25 @@ import {
     Title,
     UnstyledButton,
 } from "@mantine/core";
-import { IconChevronDown, IconChevronRight, IconServer2 } from "@tabler/icons-react";
+import { IconChevronDown, IconChevronRight, IconMessages, IconPencilCheck, IconServer2 } from "@tabler/icons-react";
+import BlogComment from "@whatsnxt/blogcomments/src";
+import { CommentContextProvider } from "@whatsnxt/blogcomments/src/contexts/comment-context";
+import { CommentReplyContextProvider } from "@whatsnxt/blogcomments/src/contexts/comment-reply-context";
+import useCommentHandlers from "@whatsnxt/blogcomments/src/hooks/useCommentHandlers";
 import { LexicalEditor } from "../../../../components/StructuredTutorial/Editor/LexicalEditor";
 import { ApiDesignEditor } from "../../../../components/SystemDesign/ApiDesignEditor";
 import { MermaidDiagram } from "../../../../components/SystemDesign/MermaidDiagram";
+import useAuth from "../../../../hooks/Authentication/useAuth";
 import classes from "./SystemDesignContent.module.css";
+
+interface CommentNode {
+    id: string;
+    text: string;
+    email: string;
+    parents: string[];
+    items: CommentNode[];
+    [key: string]: unknown;
+}
 
 interface Section {
     key: string;
@@ -52,9 +68,26 @@ interface SystemDesignContentProps {
 }
 
 const SystemDesignContent = ({ course }: SystemDesignContentProps) => {
+    const { user } = useAuth();
     const sectionsWithContent = course.sections.filter((s) => s.content?.trim());
     const diagramsWithContent = course.diagrams.filter((d) => d.content?.trim());
     const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
+    const [comments, setComments] = useState<{ id: number; items: CommentNode[] }>({
+        id: 1,
+        items: [],
+    });
+
+    const {
+        handleInsertNode,
+        handleEditNode,
+        handleDeleteNode,
+        handleComments,
+        handleSubComment,
+    } = useCommentHandlers({
+        contentId: course._id,
+        comments,
+        setComments,
+    });
 
     const toggleSection = useCallback((key: string) => {
         setOpenSections((prev) => ({ ...prev, [key]: !prev[key] }));
@@ -84,6 +117,18 @@ const SystemDesignContent = ({ course }: SystemDesignContentProps) => {
                             {diagramsWithContent.length} diagrams
                         </Badge>
                     </Group>
+                    <Button
+                        component={Link}
+                        href={`/practice/system-design/${course.slug}`}
+                        leftSection={<IconPencilCheck size={18} />}
+                        variant="gradient"
+                        gradient={{ from: "blue", to: "cyan" }}
+                        size="md"
+                        radius="md"
+                        mt="sm"
+                    >
+                        Practice This Course
+                    </Button>
                 </Stack>
 
                 {sectionsWithContent.length > 0 && (
@@ -152,6 +197,36 @@ const SystemDesignContent = ({ course }: SystemDesignContentProps) => {
                         </Tabs>
                     </>
                 )}
+            </Paper>
+
+            <Paper radius="md" p="xl" mt="lg" className={classes.paper}>
+                <Group gap="sm" mb="md">
+                    <IconMessages size={20} color="var(--mantine-color-blue-6)" />
+                    <Title order={4}>Discussion</Title>
+                </Group>
+                <CommentReplyContextProvider
+                    email={user?.email}
+                    contentId={course._id}
+                    handleComments={handleComments}
+                    comments={comments}
+                >
+                    <CommentContextProvider>
+                        <BlogComment
+                            userId={user?._id}
+                            email={user?.email}
+                            comment={comments}
+                            item={course}
+                            root
+                            rootDepth={1}
+                            contentId={course._id}
+                            handleInsertNode={handleInsertNode}
+                            handleEditNode={handleEditNode}
+                            handleDeleteNode={handleDeleteNode}
+                            handleComments={handleComments}
+                            handleSubComment={handleSubComment}
+                        />
+                    </CommentContextProvider>
+                </CommentReplyContextProvider>
             </Paper>
         </Container>
     );

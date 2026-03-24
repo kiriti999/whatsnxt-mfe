@@ -1,0 +1,109 @@
+.wrapper {
+    min-height: 80vh;
+}
+
+.paper {
+    border: 1px solid light-dark(var(--mantine-color-gray-2), var(--mantine-color-dark-5));
+}
+
+.sectionCard {
+    padding: var(--mantine-spacing-md);
+    border: 1px solid light-dark(var(--mantine-color-gray-2), var(--mantine-color-dark-5));
+    border-radius: var(--mantine-radius-md);
+    background-color: light-dark(var(--mantine-color-white), var(--mantine-color-dark-7));
+}
+
+.sectionHeader {
+    width: 100%;
+    cursor: pointer;
+}
+
+.sectionHeader:hover .sectionTitle {
+    color: light-dark(var(--mantine-color-blue-7), var(--mantine-color-blue-4));
+}
+
+.sectionTitle {
+    color: light-dark(var(--mantine-color-dark-6), var(--mantine-color-gray-3));
+    transition: color 150ms ease;
+}
+
+.diagramCanvas {
+    height: 500px;
+    position: relative;
+    border: 1px solid light-dark(var(--mantine-color-gray-3), var(--mantine-color-dark-4));
+    border-radius: var(--mantine-radius-md);
+    overflow: visible;
+}
+
+.diagramCanvas :global(.excalidraw) {
+    height: 100%;
+    width: 100%;
+}
+
+.feedbackCard {
+    border-left: 4px solid;
+    border-radius: var(--mantine-radius-md);
+}
+
+.feedbackPassed {
+    border-left-color: var(--mantine-color-green-6);
+    background-color: light-dark(var(--mantine-color-green-0), rgba(64, 192, 87, 0.1));
+}
+
+.feedbackFailed {
+    border-left-color: var(--mantine-color-orange-6);
+    background-color: light-dark(var(--mantine-color-orange-0), rgba(255, 146, 43, 0.1));
+}
+
+.feedbackContent {
+    font-size: var(--mantine-font-size-sm);
+    line-height: 1.6;
+    color: light-dark(var(--mantine-color-dark-6), var(--mantine-color-gray-3));
+}
+
+.feedbackContent h2,
+.feedbackContent h3 {
+    font-size: var(--mantine-font-size-md);
+    font-weight: 600;
+    margin: 0.75rem 0 0.25rem;
+}
+
+.feedbackContent ul,
+.feedbackContent ol {
+    padding-left: 1.25rem;
+    margin: 0.25rem 0;
+}
+
+.feedbackContent li {
+    margin-bottom: 0.25rem;
+}
+
+.feedbackContent p {
+    margin: 0.25rem 0;
+}
+
+.scoreCircle {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+.scorePassed {
+    background-color: light-dark(var(--mantine-color-green-1), rgba(64, 192, 87, 0.2));
+    color: var(--mantine-color-green-7);
+}
+
+.scoreFailed {
+    background-color: light-dark(var(--mantine-color-orange-1), rgba(255, 146, 43, 0.2));
+    color: var(--mantine-color-orange-7);
+}
+
+.loginMessage {
+    text-align: center;
+    padding: var(--mantine-spacing-xl);
+}
