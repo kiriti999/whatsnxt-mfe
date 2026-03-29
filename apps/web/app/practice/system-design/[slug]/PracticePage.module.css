@@ -40,6 +40,27 @@
     width: 100%;
 }
 
+.diagramCanvasFullscreen {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    background-color: light-dark(var(--mantine-color-white), var(--mantine-color-dark-7));
+    border: none;
+    border-radius: 0;
+}
+
+.diagramCanvasFullscreen :global(.excalidraw) {
+    height: 100%;
+    width: 100%;
+}
+
+.fullscreenToggle {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 1001;
+}
+
 .feedbackCard {
     border-left: 4px solid;
     border-radius: var(--mantine-radius-md);

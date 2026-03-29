@@ -1,8 +1,8 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import { Box, Button, Group, Text } from "@mantine/core";
-import { IconSparkles } from "@tabler/icons-react";
+import { ActionIcon, Box, Button, Group, Text } from "@mantine/core";
+import { IconArrowsMaximize, IconArrowsMinimize, IconSparkles } from "@tabler/icons-react";
 import dynamic from "next/dynamic";
 import "@excalidraw/excalidraw/index.css";
 import type { DiagramAttempt, EvaluationResult } from "../../../../apis/v1/practice";
@@ -45,6 +45,8 @@ const DiagramPractice = ({
     evaluating,
     evaluationResult,
 }: DiagramPracticeProps) => {
+    const [isFullscreen, setIsFullscreen] = useState(false);
+
     const [elements, setElements] = useState(() => {
         if (diagram.content) {
             try {
@@ -76,11 +78,22 @@ const DiagramPractice = ({
 
     return (
         <Box>
-            <Text size="xs" c="dimmed" mb="xs">
-                Create your {diagram.title} diagram using the canvas below. Save your work, then
-                click Evaluate.
-            </Text>
-            <Box className={classes.diagramCanvas}>
+            <Group justify="flex-start" mb="xs">
+                <Text size="xs" c="dimmed">
+                    Create your {diagram.title} diagram using the canvas below. Save your work, then
+                    click Evaluate.
+                </Text>
+            </Group>
+            <Box className={isFullscreen ? classes.diagramCanvasFullscreen : classes.diagramCanvas}>
+                <ActionIcon
+                    className={classes.fullscreenToggle}
+                    variant="filled"
+                    size="md"
+                    onClick={() => setIsFullscreen((prev) => !prev)}
+                    title={isFullscreen ? "Exit fullscreen" : "Fullscreen"}
+                >
+                    {isFullscreen ? <IconArrowsMinimize size={16} /> : <IconArrowsMaximize size={16} />}
+                </ActionIcon>
                 <Excalidraw
                     initialData={{
                         elements,

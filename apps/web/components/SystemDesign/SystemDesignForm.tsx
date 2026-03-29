@@ -101,6 +101,9 @@ export function SystemDesignForm() {
     const [isContentCreated, setIsContentCreated] = useState(false);
     const [activeDiagramTab, setActiveDiagramTab] = useState<string | null>(DIAGRAM_TABS[0].key);
     const [diagramViewMode, setDiagramViewMode] = useState<Record<string, "preview" | "code">>({});
+    const [practiceModes, setPracticeModes] = useState<Record<string, string>>(
+        () => Object.fromEntries(DIAGRAM_TABS.map((d) => [d.key, "starter-blocks"])),
+    );
 
     React.useEffect(() => {
         if (!editId) return;
@@ -122,10 +125,13 @@ export function SystemDesignForm() {
             setSectionContents(contents);
 
             const diagrams: Record<string, string> = {};
+            const modes: Record<string, string> = {};
             for (const diagram of course.diagrams) {
                 diagrams[diagram.key] = diagram.content;
+                modes[diagram.key] = diagram.practiceMode || "starter-blocks";
             }
             setDiagramContents(diagrams);
+            setPracticeModes((prev) => ({ ...prev, ...modes }));
             setIsContentCreated(true);
         } catch {
             notifications.show({
@@ -199,8 +205,9 @@ export function SystemDesignForm() {
             title: d.title,
             content: diagramContents[d.key] || "",
             sortOrder: idx,
+            practiceMode: (practiceModes[d.key] || "starter-blocks") as "starter-blocks" | "blank-canvas",
         }));
-    }, [diagramContents]);
+    }, [diagramContents, practiceModes]);
 
     const handleSave = useCallback(async () => {
         if (!title.trim() || !category) {
@@ -336,7 +343,7 @@ export function SystemDesignForm() {
     }, []);
 
     return (
-        <Container size="md" py={{ base: "xl", sm: "3rem" }}>
+        <Container size="xl" py={{ base: "xl", sm: "3rem" }}>
             <Stack gap="xl" align="center">
                 {/* Header */}
                 <Stack gap="xs" align="center" className={classes.header}>
@@ -595,6 +602,32 @@ export function SystemDesignForm() {
                                                     )}
                                                 </Group>
                                             </Flex>
+                                            {!isViewMode && (
+                                                <Flex align="center" gap="xs" mb="xs">
+                                                    <Text size="xs" c="dimmed">Practice Mode:</Text>
+                                                    <Select
+                                                        size="xs"
+                                                        w={200}
+                                                        value={practiceModes[tab.key] || "starter-blocks"}
+                                                        onChange={(val) =>
+                                                            setPracticeModes((prev) => ({ ...prev, [tab.key]: val || "starter-blocks" }))
+                                                        }
+                                                        data={[
+                                                            { label: "Starter Blocks", value: "starter-blocks" },
+                                                            { label: "Blank Canvas", value: "blank-canvas" },
+                                                            { label: "Scrambled Diagram", value: "scrambled-diagram" },
+                                                            { label: "Progressive (Easy)", value: "progressive-easy" },
+                                                            { label: "Progressive (Hard)", value: "progressive-hard" },
+                                                        ]}
+                                                        allowDeselect={false}
+                                                    />
+                                                </Flex>
+                                            )}
+                                            {isViewMode && (
+                                                <Text size="xs" c="dimmed" mb="xs">
+                                                    Practice Mode: {practiceModes[tab.key] || "starter-blocks"}
+                                                </Text>
+                                            )}
                                             {(isViewMode || getDiagramViewMode(tab.key) === "preview") &&
                                                 diagramContents[tab.key] ? (
                                                 <MermaidDiagram code={diagramContents[tab.key]} />

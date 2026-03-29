@@ -13,6 +13,7 @@ export interface SystemDesignDiagram {
     title: string;
     content: string;
     sortOrder: number;
+    practiceMode?: "starter-blocks" | "blank-canvas";
 }
 
 export interface SystemDesignCourse {
