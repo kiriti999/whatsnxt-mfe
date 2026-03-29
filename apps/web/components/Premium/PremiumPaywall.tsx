@@ -51,8 +51,10 @@ export function PremiumPaywall({
 
         setPurchasing(true);
         try {
-            const { data: orderData } =
-                await premiumAPI.initiateTutorialPurchase(tutorialId);
+            const initiatePurchase = contentType === "course"
+                ? premiumAPI.initiateCoursePurchase
+                : premiumAPI.initiateTutorialPurchase;
+            const { data: orderData } = await initiatePurchase(tutorialId);
 
             if (!window.Razorpay) {
                 notifications.show({
@@ -79,7 +81,10 @@ export function PremiumPaywall({
                     razorpay_signature: string;
                 }) => {
                     try {
-                        await premiumAPI.verifyTutorialPurchase(
+                        const verifyPurchase = contentType === "course"
+                            ? premiumAPI.verifyCoursePurchase
+                            : premiumAPI.verifyTutorialPurchase;
+                        await verifyPurchase(
                             tutorialId,
                             response.razorpay_order_id,
                             response.razorpay_payment_id,
@@ -141,7 +146,7 @@ export function PremiumPaywall({
             }
             setPurchasing(false);
         }
-    }, [isAuthenticated, tutorialId, tutorialTitle, user, onAccessGranted]);
+    }, [isAuthenticated, tutorialId, tutorialTitle, contentType, label, user, onAccessGranted]);
 
     return (
         <Center py={60}>

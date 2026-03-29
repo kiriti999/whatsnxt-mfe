@@ -221,9 +221,8 @@ const PracticePageClient = ({ slug }: PracticePageClientProps) => {
             setCourse(courseRes.data);
 
             if (courseRes.data.isPremium) {
-                const statusRes = await premiumAPI.getStatus();
-                const hasAccess = statusRes.data.isActive;
-                if (!hasAccess) {
+                const accessRes = await premiumAPI.checkCourseAccess(courseRes.data._id);
+                if (!accessRes.data.hasAccess) {
                     setPremiumLocked(true);
                     return;
                 }

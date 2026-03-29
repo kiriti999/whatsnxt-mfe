@@ -131,6 +131,37 @@ export const premiumAPI = {
         );
     },
 
+    /** Initiate one-off course purchase — returns Razorpay order */
+    initiateCoursePurchase: async (
+        courseId: string,
+    ): Promise<ApiResponse<RazorpayOrderData>> => {
+        return http.post<ApiResponse<RazorpayOrderData>>(
+            `/premium/course/${courseId}/purchase/initiate`,
+        );
+    },
+
+    /** Verify one-off course purchase */
+    verifyCoursePurchase: async (
+        courseId: string,
+        razorpayOrderId: string,
+        razorpayPaymentId: string,
+        razorpaySignature: string,
+    ): Promise<ApiResponse<{ success: boolean }>> => {
+        return http.post<ApiResponse<{ success: boolean }>>(
+            `/premium/course/${courseId}/purchase/verify`,
+            { razorpayOrderId, razorpayPaymentId, razorpaySignature },
+        );
+    },
+
+    /** Check access for a specific course */
+    checkCourseAccess: async (
+        courseId: string,
+    ): Promise<ApiResponse<PremiumAccessResult>> => {
+        return http.get<ApiResponse<PremiumAccessResult>>(
+            `/premium/course-access/${courseId}`,
+        );
+    },
+
     /** Get user's premium subscription status */
     getStatus: async (): Promise<ApiResponse<PremiumStatusData>> => {
         return http.get<ApiResponse<PremiumStatusData>>("/premium/status");
