@@ -17,7 +17,7 @@ import {
     Title,
     UnstyledButton,
 } from "@mantine/core";
-import { IconChevronDown, IconChevronRight, IconMessages, IconPencilCheck, IconServer2 } from "@tabler/icons-react";
+import { IconChevronDown, IconChevronRight, IconCrown, IconLock, IconMessages, IconPencilCheck, IconServer2 } from "@tabler/icons-react";
 import BlogComment from "@whatsnxt/blogcomments/src";
 import { CommentContextProvider } from "@whatsnxt/blogcomments/src/contexts/comment-context";
 import { CommentReplyContextProvider } from "@whatsnxt/blogcomments/src/contexts/comment-reply-context";
@@ -56,6 +56,7 @@ interface SystemDesignCourse {
     title: string;
     slug: string;
     category: string;
+    isPremium?: boolean;
     sections: Section[];
     diagrams: Diagram[];
     status: string;
@@ -110,6 +111,15 @@ const SystemDesignContent = ({ course }: SystemDesignContentProps) => {
                         <Badge variant="light" color="blue">
                             {course.category}
                         </Badge>
+                        {course.isPremium && (
+                            <Badge
+                                variant="gradient"
+                                gradient={{ from: "yellow", to: "orange" }}
+                                leftSection={<IconCrown size={14} />}
+                            >
+                                Premium
+                            </Badge>
+                        )}
                         <Badge variant="light" color="gray">
                             {sectionsWithContent.length} sections
                         </Badge>
@@ -120,14 +130,14 @@ const SystemDesignContent = ({ course }: SystemDesignContentProps) => {
                     <Button
                         component={Link}
                         href={`/practice/system-design/${course.slug}`}
-                        leftSection={<IconPencilCheck size={18} />}
+                        leftSection={course.isPremium ? <IconLock size={18} /> : <IconPencilCheck size={18} />}
                         variant="gradient"
-                        gradient={{ from: "blue", to: "cyan" }}
+                        gradient={course.isPremium ? { from: "yellow", to: "orange" } : { from: "blue", to: "cyan" }}
                         size="md"
                         radius="md"
                         mt="sm"
                     >
-                        Practice This Course
+                        {course.isPremium ? "Unlock & Practice" : "Practice This Course"}
                     </Button>
                 </Stack>
 

@@ -21,6 +21,7 @@ import styles from "./PremiumPaywall.module.css";
 interface PremiumPaywallProps {
     tutorialId: string;
     tutorialTitle?: string;
+    contentType?: "tutorial" | "course";
     onAccessGranted?: () => void;
 }
 
@@ -31,16 +32,18 @@ interface PremiumPaywallProps {
 export function PremiumPaywall({
     tutorialId,
     tutorialTitle,
+    contentType = "tutorial",
     onAccessGranted,
 }: PremiumPaywallProps) {
     const { user, isAuthenticated } = useAuth();
     const [purchasing, setPurchasing] = useState(false);
+    const label = contentType === "course" ? "course" : "tutorial";
 
     const handleBuyTutorial = useCallback(async () => {
         if (!isAuthenticated) {
             notifications.show({
                 title: "Sign in required",
-                message: "Please sign in to purchase this tutorial.",
+                message: `Please sign in to purchase this ${label}.`,
                 color: "yellow",
             });
             return;
@@ -69,7 +72,7 @@ export function PremiumPaywall({
                 name: "WhatsNxt",
                 description: tutorialTitle
                     ? `Unlock: ${tutorialTitle}`
-                    : "Tutorial Purchase",
+                    : `${label.charAt(0).toUpperCase()}${label.slice(1)} Purchase`,
                 handler: async (response: {
                     razorpay_payment_id: string;
                     razorpay_order_id: string;
@@ -84,7 +87,7 @@ export function PremiumPaywall({
                         );
                         notifications.show({
                             title: "Purchase successful!",
-                            message: "You now have access to this tutorial.",
+                            message: `You now have access to this ${label}.`,
                             color: "green",
                         });
                         onAccessGranted?.();
@@ -125,7 +128,7 @@ export function PremiumPaywall({
             if (status === 409) {
                 notifications.show({
                     title: "Already purchased",
-                    message: "You already have access to this tutorial.",
+                    message: `You already have access to this ${label}.`,
                     color: "green",
                 });
                 onAccessGranted?.();
@@ -150,8 +153,8 @@ export function PremiumPaywall({
                             Premium Content
                         </Title>
                         <Text c="dimmed" ta="center" size="sm">
-                            This section is part of our premium content. Unlock it with a
-                            one-time purchase or subscribe for full access to all tutorials.
+                            This {label} is part of our premium content. Unlock it with a
+                            one-time purchase or subscribe for full access to all {label}s.
                         </Text>
 
                         {/* One-off purchase CTA */}
@@ -163,7 +166,7 @@ export function PremiumPaywall({
                             loading={purchasing}
                             onClick={handleBuyTutorial}
                         >
-                            Buy this tutorial — ₹199
+                            Buy this {label} — ₹199
                         </Button>
 
                         <Divider
@@ -188,7 +191,7 @@ export function PremiumPaywall({
                         </Button>
 
                         <Text size="xs" c="dimmed" ta="center">
-                            Subscribers get unlimited access to all premium tutorials.
+                            Subscribers get unlimited access to all premium {label}s.
                         </Text>
                     </Stack>
                 </Paper>

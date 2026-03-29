@@ -13,7 +13,7 @@ export interface SystemDesignDiagram {
     title: string;
     content: string;
     sortOrder: number;
-    practiceMode?: "starter-blocks" | "blank-canvas";
+    practiceMode?: "starter-blocks" | "blank-canvas" | "scrambled-diagram" | "progressive-easy" | "progressive-hard";
 }
 
 export interface SystemDesignCourse {
@@ -25,6 +25,7 @@ export interface SystemDesignCourse {
     sections: SystemDesignSection[];
     diagrams: SystemDesignDiagram[];
     status: "draft" | "published" | "archived";
+    isPremium?: boolean;
     createdAt: string;
     updatedAt: string;
 }
@@ -34,6 +35,7 @@ export interface SystemDesignCreatePayload {
     category: string;
     sections: SystemDesignSection[];
     diagrams: SystemDesignDiagram[];
+    isPremium?: boolean;
 }
 
 export interface SystemDesignUpdatePayload {
@@ -42,6 +44,7 @@ export interface SystemDesignUpdatePayload {
     sections?: SystemDesignSection[];
     diagrams?: SystemDesignDiagram[];
     status?: string;
+    isPremium?: boolean;
 }
 
 export const SystemDesignAPI = {

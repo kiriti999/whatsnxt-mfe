@@ -18,9 +18,10 @@ import {
     Checkbox,
     Tabs,
     Divider,
+    Switch,
 } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
-import { IconServer2, IconSparkles, IconHistory, IconCode, IconEye } from "@tabler/icons-react";
+import { IconServer2, IconSparkles, IconHistory, IconCode, IconEye, IconCrown } from "@tabler/icons-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { LexicalEditor } from "../StructuredTutorial/Editor/LexicalEditor";
@@ -98,6 +99,7 @@ export function SystemDesignForm() {
     const [sectionContents, setSectionContents] = useState<Record<string, string>>({});
     const [diagramContents, setDiagramContents] = useState<Record<string, string>>({});
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isPremium, setIsPremium] = useState(false);
     const [isContentCreated, setIsContentCreated] = useState(false);
     const [activeDiagramTab, setActiveDiagramTab] = useState<string | null>(DIAGRAM_TABS[0].key);
     const [diagramViewMode, setDiagramViewMode] = useState<Record<string, "preview" | "code">>({});
@@ -116,6 +118,7 @@ export function SystemDesignForm() {
             const course = response.data;
             setTitle(course.title);
             setCategory(course.category);
+            setIsPremium(course.isPremium ?? false);
             setSelectedKeys(course.sections.map((s) => s.key));
 
             const contents: Record<string, string> = {};
@@ -227,6 +230,7 @@ export function SystemDesignForm() {
                 category,
                 sections: buildSectionsPayload(),
                 diagrams: buildDiagramsPayload(),
+                isPremium,
             };
 
             if (editId) {
@@ -262,7 +266,7 @@ export function SystemDesignForm() {
         } finally {
             setIsSubmitting(false);
         }
-    }, [title, category, editId, buildSectionsPayload, buildDiagramsPayload, router]);
+    }, [title, category, editId, buildSectionsPayload, buildDiagramsPayload, isPremium, router]);
 
     const categoryOptions = useMemo(
         () => CATEGORIES.map((c) => ({ value: c, label: c })),
@@ -435,6 +439,20 @@ export function SystemDesignForm() {
                                 />
                             )}
                         </Flex>
+
+                        {/* Premium Toggle */}
+                        <Switch
+                            label={
+                                <Group gap={6}>
+                                    <IconCrown size={16} color="var(--mantine-color-yellow-6)" />
+                                    <Text size="sm" fw={500}>Premium Course</Text>
+                                </Group>
+                            }
+                            description="Students must purchase or subscribe to practice this course"
+                            checked={isPremium}
+                            onChange={(e) => setIsPremium(e.currentTarget.checked)}
+                            disabled={isViewMode}
+                        />
 
                         {/* Topic Section Checkboxes — hidden in view mode */}
                         {!isViewMode && (

@@ -32,6 +32,7 @@ import {
 } from "@tabler/icons-react";
 import { LexicalEditor } from "../../../../components/StructuredTutorial/Editor/LexicalEditor";
 import { AIConfigModal } from "../../../../components/Common/AIConfigModal";
+import { PremiumPaywall } from "../../../../components/Premium/PremiumPaywall";
 import { useAIConfig } from "../../../../context/AIConfigContext";
 import useAuth from "../../../../hooks/Authentication/useAuth";
 import type {
@@ -40,6 +41,7 @@ import type {
     SectionAttempt,
 } from "../../../../apis/v1/practice";
 import { PracticeAPI } from "../../../../apis/v1/practice";
+import { premiumAPI } from "../../../../apis/v1/premium";
 import { SystemDesignAPI } from "../../../../apis/v1/systemDesign";
 import type { SystemDesignCourse } from "../../../../apis/v1/systemDesign";
 import DiagramPractice from "./DiagramPractice";
@@ -201,6 +203,7 @@ const PracticePageClient = ({ slug }: PracticePageClientProps) => {
     const [evaluationResults, setEvaluationResults] = useState<Record<string, EvaluationResult>>({});
     const [modalOpened, { open: openModal, close: closeModal }] = useDisclosure(false);
     const [apiKeyError, setApiKeyError] = useState("");
+    const [premiumLocked, setPremiumLocked] = useState(false);
     const pendingEvaluateRef = useRef<PendingEvaluate | null>(null);
 
     useEffect(() => {
@@ -216,6 +219,16 @@ const PracticePageClient = ({ slug }: PracticePageClientProps) => {
             setLoading(true);
             const courseRes = await SystemDesignAPI.getBySlug(slug);
             setCourse(courseRes.data);
+
+            if (courseRes.data.isPremium) {
+                const statusRes = await premiumAPI.getStatus();
+                const hasAccess = statusRes.data.isActive;
+                if (!hasAccess) {
+                    setPremiumLocked(true);
+                    return;
+                }
+            }
+
             const attemptRes = await PracticeAPI.getOrCreate(courseRes.data._id);
             setAttempt(attemptRes.data);
         } catch {
@@ -334,6 +347,22 @@ const PracticePageClient = ({ slug }: PracticePageClientProps) => {
                 <Group justify="center" py="xl">
                     <Loader size="lg" />
                 </Group>
+            </Container>
+        );
+    }
+
+    if (premiumLocked && course) {
+        return (
+            <Container size="sm" py="xl">
+                <PremiumPaywall
+                    tutorialId={course._id}
+                    tutorialTitle={course.title}
+                    contentType="course"
+                    onAccessGranted={() => {
+                        setPremiumLocked(false);
+                        loadData();
+                    }}
+                />
             </Container>
         );
     }
