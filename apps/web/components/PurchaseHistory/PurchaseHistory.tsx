@@ -5,9 +5,10 @@ import { useQuery } from "@tanstack/react-query";
 import React, { useEffect, useState } from "react";
 import { type LabPurchase, labPurchaseAPI } from "../../apis/v1/labPurchases";
 import { orderAPI } from "../../apis/v1/orders";
-import { premiumAPI, type TutorialPurchaseItem } from "../../apis/v1/premium";
+import { premiumAPI, type CoursePurchaseItem, type TutorialPurchaseItem } from "../../apis/v1/premium";
 import { trainerContactedPaymentAPI } from "../../apis/v1/trainer-contacted-payment";
 import useAuth from "../../hooks/Authentication/useAuth";
+import CoursePurchaseTable from "./CoursePurchaseTable";
 import CourseTable from "./CourseTable";
 import LabTable from "./LabTable";
 import TeacherTable from "./TeacherTable";
@@ -19,6 +20,9 @@ const PurchaseHistory = () => {
     const [labPurchases, setLabPurchases] = useState<LabPurchase[]>([]);
     const [tutorialPurchases, setTutorialPurchases] = useState<
         TutorialPurchaseItem[]
+    >([]);
+    const [coursePurchases, setCoursePurchases] = useState<
+        CoursePurchaseItem[]
     >([]);
     const [totalCount, setTotalCount] = useState(0);
     const [paymentsTotal, setPaymentsTotal] = useState(0);
@@ -97,6 +101,7 @@ const PurchaseHistory = () => {
     useEffect(() => {
         if (!isPremiumFetching && premiumPurchasesData) {
             setTutorialPurchases(premiumPurchasesData.tutorialPurchases || []);
+            setCoursePurchases(premiumPurchasesData.coursePurchases || []);
         }
     }, [isPremiumFetching, premiumPurchasesData]);
 
@@ -109,6 +114,7 @@ const PurchaseHistory = () => {
                 <Divider my="sm" />
                 <CourseTable orders={orders} totalCount={totalCount} />
                 <TutorialPurchaseTable purchases={tutorialPurchases} />
+                <CoursePurchaseTable purchases={coursePurchases} />
                 <LabTable
                     purchases={labPurchases}
                     totalCount={labPurchasesTotal}

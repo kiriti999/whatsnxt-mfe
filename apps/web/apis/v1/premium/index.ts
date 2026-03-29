@@ -53,6 +53,20 @@ export interface TutorialPurchaseItem {
     createdAt: string;
 }
 
+export interface CoursePurchaseItem {
+    _id: string;
+    courseId: {
+        _id: string;
+        title: string;
+        slug: string;
+    } | string;
+    amountPaid: number;
+    currency: string;
+    status: string;
+    transactionId: string;
+    createdAt: string;
+}
+
 export interface PurchaseHistoryData {
     subscriptions: Array<{
         plan: string;
@@ -62,6 +76,7 @@ export interface PurchaseHistoryData {
         expiresAt: string | null;
     }>;
     tutorialPurchases: TutorialPurchaseItem[];
+    coursePurchases: CoursePurchaseItem[];
 }
 
 interface ApiResponse<T> {
