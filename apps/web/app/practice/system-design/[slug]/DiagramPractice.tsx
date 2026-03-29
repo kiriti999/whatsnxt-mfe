@@ -32,7 +32,10 @@ function FeedbackDisplay({ result }: { result: EvaluationResult | null }) {
                     {result.passed ? "Passed" : "Needs Improvement"} — {result.score}%
                 </Text>
             </Group>
-            <Text size="sm">{result.feedback}</Text>
+            <div
+                className={classes.feedbackContent}
+                dangerouslySetInnerHTML={{ __html: result.feedback }}
+            />
         </Box>
     );
 }
