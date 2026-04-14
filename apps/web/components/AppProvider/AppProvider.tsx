@@ -7,6 +7,7 @@ import {
   IconAddressBook,
   IconBell,
   IconCertificate,
+  IconFileDescription,
   IconFlask,
   IconHistoryToggle,
   IconPalette,
@@ -134,6 +135,11 @@ export default function AppProvider({
           },
         ]
         : []),
+      {
+        title: "Resume Builder",
+        url: `${domain}/resume-builder`,
+        icon: IconFileDescription,
+      },
       // Show Become a Trainer for non-admin and non-trainer users
       ...(user?.role !== "admin" && user?.role !== "trainer"
         ? [

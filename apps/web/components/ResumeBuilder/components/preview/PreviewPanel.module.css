@@ -1,0 +1,202 @@
+.pagesWrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    align-items: center;
+    padding-bottom: 24px;
+    position: relative;
+}
+
+.measureContainer {
+    position: absolute;
+    visibility: hidden;
+    pointer-events: none;
+    width: 210mm;
+    box-sizing: border-box;
+    padding-left: 40px;
+    padding-right: 40px;
+    left: -9999px;
+    top: 0;
+    font-size: 13px;
+    line-height: 1.5;
+    color: #1a1a1a;
+    z-index: -1;
+}
+
+.previewContainer {
+    width: 210mm;
+    height: 297mm;
+    background: white;
+    box-shadow: 0 2px 16px rgba(0, 0, 0, 0.1);
+    color: #1a1a1a;
+    overflow: hidden;
+    position: relative;
+    flex-shrink: 0;
+    border: none;
+}
+
+.pageViewport {
+    position: absolute;
+    left: 40px;
+    right: 40px;
+    overflow: hidden;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.pageNumber {
+    position: absolute;
+    bottom: 8px;
+    right: 16px;
+    font-size: 10px;
+    color: #999;
+    font-family: sans-serif;
+    z-index: 1;
+}
+
+/* Personal Info Header */
+.headerSection {
+    text-align: center;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid var(--resume-accent, #2563eb);
+}
+
+.fullName {
+    font-size: 28px;
+    font-weight: 700;
+    margin: 0 0 4px;
+    color: #111;
+}
+
+.jobTitle {
+    font-size: 16px;
+    color: #555;
+    margin: 0 0 8px;
+}
+
+.contactRow {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+    font-size: 12px;
+    color: #666;
+}
+
+.contactItem {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.summary {
+    margin-top: 12px;
+    font-size: 13px;
+    color: #333;
+    text-align: left;
+}
+
+/* Section */
+.sectionBlock {
+    margin-bottom: 16px;
+}
+
+.sectionTitle {
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--resume-accent, #2563eb);
+    border-bottom: 1px solid var(--resume-accent, #2563eb);
+    padding-bottom: 4px;
+    margin-bottom: 10px;
+}
+
+/* Experience / Education Items */
+.itemHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 2px;
+}
+
+.itemTitle {
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.itemSubtitle {
+    color: #555;
+    font-size: 13px;
+}
+
+.itemDate {
+    font-size: 12px;
+    color: #777;
+    white-space: nowrap;
+}
+
+.itemDescription {
+    font-size: 12.5px;
+    color: #444;
+    margin-top: 4px;
+    white-space: pre-line;
+}
+
+/* Skills */
+.skillRow {
+    margin-bottom: 6px;
+}
+
+.skillCategory {
+    font-weight: 600;
+    font-size: 13px;
+}
+
+.skillList {
+    color: #555;
+    font-size: 12.5px;
+}
+
+/* Languages */
+.languageRow {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.languageItem {
+    font-size: 13px;
+}
+
+.languageName {
+    font-weight: 600;
+}
+
+.languageLevel {
+    color: #777;
+    font-size: 12px;
+}
+
+/* Projects */
+.projectLink {
+    font-size: 12px;
+    color: var(--resume-accent, #2563eb);
+    text-decoration: none;
+}
+
+.techTags {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: 4px;
+}
+
+.techTag {
+    font-size: 11px;
+    background: #f0f0f0;
+    padding: 2px 8px;
+    border-radius: 4px;
+    color: #555;
+}

@@ -1,0 +1,27 @@
+.builderLayout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.editorPanel {
+    overflow-y: auto;
+    border-right: 1px solid light-dark(var(--mantine-color-gray-3), var(--mantine-color-dark-4));
+    background: light-dark(var(--mantine-color-gray-0), var(--mantine-color-dark-7));
+}
+
+.previewPanel {
+    overflow-y: auto;
+    background: light-dark(var(--mantine-color-gray-1), var(--mantine-color-dark-8));
+    display: flex;
+    justify-content: center;
+    padding: var(--mantine-spacing-lg);
+}
+
+@media (max-width: 768px) {
+    .builderLayout {
+        grid-template-columns: 1fr;
+        grid-template-rows: 1fr 1fr;
+    }
+}
