@@ -1,8 +1,8 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import { ActionIcon, Box, Button, Group, Text } from "@mantine/core";
-import { IconArrowsMaximize, IconArrowsMinimize, IconSparkles } from "@tabler/icons-react";
+import { ActionIcon, Box, Button, Group, Text, Tooltip } from "@mantine/core";
+import { IconArrowsMaximize, IconArrowsMinimize, IconExternalLink, IconSparkles } from "@tabler/icons-react";
 import dynamic from "next/dynamic";
 import "@excalidraw/excalidraw/index.css";
 import type { DiagramAttempt, EvaluationResult } from "../../../../apis/v1/practice";
@@ -15,6 +15,7 @@ const Excalidraw = dynamic(
 
 interface DiagramPracticeProps {
     diagram: DiagramAttempt;
+    courseSlug: string;
     onSave: (key: string, content: string) => void;
     onEvaluate: (key: string, content: string) => void;
     saving: boolean;
@@ -42,6 +43,7 @@ function FeedbackDisplay({ result }: { result: EvaluationResult | null }) {
 
 const DiagramPractice = ({
     diagram,
+    courseSlug,
     onSave,
     onEvaluate,
     saving,
@@ -81,12 +83,26 @@ const DiagramPractice = ({
 
     return (
         <Box>
-            <Group justify="flex-start" mb="xs">
+            <Group justify="space-between" mb="xs">
                 <Text size="xs" c="dimmed">
                     {diagram.key === "High Level Architecture"
                         ? "Re-arrange and connect the blocks to create your High Level Architecture on the canvas below or you can create one from scratch. Save your work, then click Evaluate."
                         : `Creating ${diagram.title} diagram is OPTIONAL but you can choose to practice it if you want.`}
                 </Text>
+                <Tooltip label="View reference solution (opens in new tab)" position="left">
+                    <Button
+                        component="a"
+                        href={`/content/system-design/${courseSlug}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        size="xs"
+                        variant="light"
+                        color="blue"
+                        leftSection={<IconExternalLink size={14} />}
+                    >
+                        View Reference
+                    </Button>
+                </Tooltip>
             </Group>
             <Box className={isFullscreen ? classes.diagramCanvasFullscreen : classes.diagramCanvas}>
                 <ActionIcon

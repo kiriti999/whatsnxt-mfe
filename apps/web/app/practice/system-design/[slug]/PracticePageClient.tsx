@@ -466,6 +466,7 @@ const PracticePageClient = ({ slug }: PracticePageClientProps) => {
                                 <Tabs.Panel key={d.key} value={d.key} pt="md">
                                     <DiagramPractice
                                         diagram={d}
+                                        courseSlug={slug}
                                         onSave={handleSaveDiagram}
                                         onEvaluate={handleEvaluateDiagram}
                                         saving={savingKey === d.key}
