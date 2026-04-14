@@ -376,10 +376,12 @@ const PracticePageClient = ({ slug }: PracticePageClientProps) => {
         );
     }
 
-    const totalItems = attempt.sections.length + attempt.diagrams.length;
+    // Only count required items: all sections + High Level Architecture diagram
+    const requiredDiagrams = attempt.diagrams.filter((d) => d.key === "High Level Architecture");
+    const totalItems = attempt.sections.length + requiredDiagrams.length;
     const evaluatedItems = [
         ...attempt.sections.filter((s) => s.evaluated),
-        ...attempt.diagrams.filter((d) => d.evaluated),
+        ...requiredDiagrams.filter((d) => d.evaluated),
     ].length;
     const progressPercent = totalItems > 0 ? Math.round((evaluatedItems / totalItems) * 100) : 0;
 
