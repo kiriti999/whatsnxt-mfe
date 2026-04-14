@@ -12,6 +12,7 @@ export interface SystemDesignDiagram {
     key: string;
     title: string;
     content: string;
+    isRequired?: boolean;
     sortOrder: number;
     practiceMode?: "starter-blocks" | "blank-canvas" | "scrambled-diagram" | "progressive-easy" | "progressive-hard";
 }

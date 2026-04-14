@@ -83,8 +83,9 @@ const DiagramPractice = ({
         <Box>
             <Group justify="flex-start" mb="xs">
                 <Text size="xs" c="dimmed">
-                    Create your {diagram.title} diagram using the canvas below. Save your work, then
-                    click Evaluate.
+                    {diagram.key === "High Level Architecture"
+                        ? "Re-arrange and connect the blocks to create your High Level Architecture on the canvas below or you can create one from scratch. Save your work, then click Evaluate."
+                        : `Creating ${diagram.title} diagram is OPTIONAL but you can choose to practice it if you want.`}
                 </Text>
             </Group>
             <Box className={isFullscreen ? classes.diagramCanvasFullscreen : classes.diagramCanvas}>

@@ -444,6 +444,11 @@ const PracticePageClient = ({ slug }: PracticePageClientProps) => {
                                     <Tabs.Tab key={d.key} value={d.key}>
                                         <Group gap={6}>
                                             {d.title}
+                                            {d.key !== "High Level Architecture" && (
+                                                <Badge size="xs" variant="light" color="gray">
+                                                    Optional
+                                                </Badge>
+                                            )}
                                             {d.evaluated && (
                                                 <Badge
                                                     size="xs"

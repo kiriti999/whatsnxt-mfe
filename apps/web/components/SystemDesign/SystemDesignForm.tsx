@@ -77,10 +77,10 @@ const ML_SECTIONS = [
 ];
 
 const DIAGRAM_TABS = [
-    { key: "High Level Architecture", title: "High Level Architecture" },
-    { key: "Request Flow Sequence", title: "Request Flow Sequence" },
-    { key: "API Design", title: "API Design" },
-    { key: "Database Design", title: "Database Design" },
+    { key: "High Level Architecture", title: "High Level Architecture", isRequired: true },
+    { key: "Request Flow Sequence", title: "Request Flow Sequence", isRequired: false },
+    { key: "API Design", title: "API Design", isRequired: false },
+    { key: "Database Design", title: "Database Design", isRequired: false },
 ];
 
 
@@ -207,6 +207,7 @@ export function SystemDesignForm() {
             key: d.key,
             title: d.title,
             content: diagramContents[d.key] || "",
+            isRequired: d.isRequired,
             sortOrder: idx,
             practiceMode: (practiceModes[d.key] || "starter-blocks") as "starter-blocks" | "blank-canvas",
         }));
