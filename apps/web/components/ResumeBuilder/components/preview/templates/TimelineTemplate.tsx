@@ -1,5 +1,6 @@
 "use client";
 
+import { IconMapPin, IconMail, IconPhone } from "@tabler/icons-react";
 import type { ResumeData } from "../../../types";
 import classes from "../PreviewPanel.module.css";
 
@@ -84,10 +85,10 @@ function EnhHeader({ personalInfo }: { personalInfo: ResumeData["personalInfo"] 
         );
     }
 
-    const contactItems: { icon: string; value: string }[] = [];
-    if (phone) contactItems.push({ icon: "✆", value: phone });
-    if (email) contactItems.push({ icon: "✉", value: email });
-    if (location) contactItems.push({ icon: "●", value: location });
+    const contactItems: { icon: React.ReactNode; value: string }[] = [];
+    if (phone) contactItems.push({ icon: <IconPhone size={12} stroke={1.8} />, value: phone });
+    if (email) contactItems.push({ icon: <IconMail size={12} stroke={1.8} />, value: email });
+    if (location) contactItems.push({ icon: <IconMapPin size={12} stroke={1.8} />, value: location });
 
     return (
         <div className={classes.enhHeader} data-breakable>

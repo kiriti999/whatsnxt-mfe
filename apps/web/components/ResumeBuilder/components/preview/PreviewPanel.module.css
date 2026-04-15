@@ -268,8 +268,17 @@
 }
 
 .enhContactIcon {
-    font-size: 14px;
     color: #E87722;
+    display: flex;
+    align-items: center;
+    line-height: 1;
+}
+
+.enhContactIcon svg {
+    width: 12px !important;
+    height: 12px !important;
+    min-width: 12px !important;
+    min-height: 12px !important;
 }
 
 /* Enhancv Section */
