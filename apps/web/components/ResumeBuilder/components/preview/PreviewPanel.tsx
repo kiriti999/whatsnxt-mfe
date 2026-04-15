@@ -3,8 +3,25 @@
 import { useRef, useState, useEffect, useCallback } from "react";
 import { useResumeStore } from "../../store";
 import { TEMPLATES } from "../../types";
+import type { ResumeData } from "../../types";
 import { ClassicTemplate } from "./templates/ClassicTemplate";
+import { TimelineTemplate } from "./templates/TimelineTemplate";
+import { ElegantTemplate } from "./templates/ElegantTemplate";
+import { PolishedTemplate } from "./templates/PolishedTemplate";
 import classes from "./PreviewPanel.module.css";
+
+function TemplateRenderer({ resume }: { resume: ResumeData }) {
+    switch (resume.templateId) {
+        case "timeline":
+            return <TimelineTemplate resume={resume} />;
+        case "elegant":
+            return <ElegantTemplate resume={resume} />;
+        case "polished":
+            return <PolishedTemplate resume={resume} />;
+        default:
+            return <ClassicTemplate resume={resume} />;
+    }
+}
 
 // Page layout constants (px at 96 dpi)
 const FIRST_PAGE_TOP = 24;
@@ -41,30 +58,20 @@ function computeBreakOffsets(
     let pageStart = 0;
     let pageLimit = firstUsable;
 
-     
-    console.log("[PageBreak] pageH:", pageH, "firstUsable:", firstUsable, "restUsable:", restUsable, "contentH:", contentH);
-    console.log("[PageBreak] blocks:", positions.map((p, i) => `#${i} top=${p.top} bot=${p.bottom}`));
-
     for (const pos of positions) {
         if (pos.bottom - pageStart > pageLimit) {
-            console.log("[PageBreak] OVERFLOW block top=", pos.top, "bot=", pos.bottom, "pageStart=", pageStart, "pageLimit=", pageLimit, "overflow=", pos.bottom - pageStart);
             if (pos.top > pageStart) {
                 pageStart = pos.top;
                 offsets.push(pageStart);
                 pageLimit = restUsable;
-                console.log("[PageBreak] -> break at", pageStart);
             }
             if (pos.bottom - pageStart > pageLimit) {
                 pageStart = pos.bottom;
                 offsets.push(pageStart);
                 pageLimit = restUsable;
-                console.log("[PageBreak] -> big block, break after at", pageStart);
             }
         }
     }
-     
-
-    console.log("[PageBreak] final offsets:", offsets);
 
     return offsets;
 }
@@ -113,7 +120,7 @@ export function PreviewPanel() {
         <div className={classes.pagesWrapper}>
             {/* Measurement container — same width as pageViewport for accurate measurement */}
             <div ref={measureRef} className={classes.measureContainer} style={cssVars}>
-                <ClassicTemplate resume={resume} />
+                <TemplateRenderer resume={resume} />
             </div>
 
             {Array.from({ length: pageCount }, (_, i) => {
@@ -139,7 +146,7 @@ export function PreviewPanel() {
                             style={{ top, height: viewportHeight }}
                         >
                             <div style={{ transform: `translateY(-${contentStart}px)` }}>
-                                <ClassicTemplate resume={resume} />
+                                <TemplateRenderer resume={resume} />
                             </div>
                         </div>
                         {pageCount > 1 && (

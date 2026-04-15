@@ -29,8 +29,8 @@ function PersonalInfoHeader({ personalInfo }: { personalInfo: ResumeData["person
     if (!hasContent) {
         return (
             <div className={classes.headerSection} data-breakable>
-                <h1 className={classes.fullName}>Your Name</h1>
-                <p className={classes.jobTitle}>Job Title</p>
+                <div className={classes.fullName}>Your Name</div>
+                <div className={classes.jobTitle}>Job Title</div>
             </div>
         );
     }
@@ -39,8 +39,8 @@ function PersonalInfoHeader({ personalInfo }: { personalInfo: ResumeData["person
 
     return (
         <div className={classes.headerSection} data-breakable>
-            {fullName && <h1 className={classes.fullName}>{fullName}</h1>}
-            {jobTitle && <p className={classes.jobTitle}>{jobTitle}</p>}
+            {fullName && <div className={classes.fullName}>{fullName}</div>}
+            {jobTitle && <div className={classes.jobTitle}>{jobTitle}</div>}
             {contactItems.length > 0 && (
                 <div className={classes.contactRow}>
                     {contactItems.map((item) => (
@@ -50,7 +50,7 @@ function PersonalInfoHeader({ personalInfo }: { personalInfo: ResumeData["person
                     ))}
                 </div>
             )}
-            {summary && <p className={classes.summary}>{summary}</p>}
+            {summary && <div className={classes.summary}>{summary}</div>}
         </div>
     );
 }
@@ -223,7 +223,8 @@ function ProjectItem({ item }: { item: ResumeData["projects"][number] }) {
                 </div>
                 <span className={classes.itemDate}>
                     {item.startDate}
-                    {item.endDate && ` — ${item.endDate}`}
+                    {(item.endDate || item.current) &&
+                        ` — ${item.current ? "Present" : item.endDate}`}
                 </span>
             </div>
             {item.description && (

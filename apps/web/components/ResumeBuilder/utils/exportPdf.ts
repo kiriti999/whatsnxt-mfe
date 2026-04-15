@@ -38,12 +38,27 @@ export async function exportToPdf(): Promise<void> {
 		clonedPages.push(clone.outerHTML);
 	}
 
-	// Remove page-break-after from the last page
+	// Remove page-break-after from the last page and inject branding
 	const lastIdx = clonedPages.length - 1;
 	if (lastIdx >= 0) {
 		clonedPages[lastIdx] = clonedPages[lastIdx].replace(
 			/page-break-after:\s*always;?/,
 			"page-break-after: auto;",
+		);
+
+		// Inject "Powered by WhatsNxt" branding into last page
+		const brandingHtml = `
+			<a href="https://whatsnxt.in" target="_blank" rel="noopener noreferrer"
+				onclick="window.open('https://whatsnxt.in','_blank');return false;"
+				style="position:absolute;bottom:8mm;right:8mm;display:inline-flex;align-items:center;gap:6px;text-decoration:none;font-family:system-ui,sans-serif;z-index:9999;cursor:pointer;">
+				<span style="font-size:11px;color:#888;letter-spacing:0.3px;">Powered by</span>
+				<span style="font-size:14px;font-weight:700;background:linear-gradient(90deg,#5DE0E6,#004AAD);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:0.5px;">whatsnxt</span>
+			</a>`;
+
+		// Insert branding before the closing tag of the last page's container
+		clonedPages[lastIdx] = clonedPages[lastIdx].replace(
+			/<\/div>\s*$/,
+			`${brandingHtml}</div>`,
 		);
 	}
 

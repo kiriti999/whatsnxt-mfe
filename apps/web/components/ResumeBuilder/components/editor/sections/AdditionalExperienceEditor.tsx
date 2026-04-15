@@ -17,8 +17,9 @@ import { IconPlus, IconTrash } from "@tabler/icons-react";
 import { useResumeStore } from "../../../store";
 import type { ProjectItem } from "../../../types";
 
-export function ProjectsEditor() {
-    const { resume, addProject, updateProject, removeProject } = useResumeStore();
+export function AdditionalExperienceEditor() {
+    const { resume, addAdditionalExperience, updateAdditionalExperience, removeAdditionalExperience } =
+        useResumeStore();
 
     const handleAdd = () => {
         const item: ProjectItem = {
@@ -31,37 +32,37 @@ export function ProjectsEditor() {
             description: "",
             technologies: [],
         };
-        addProject(item);
+        addAdditionalExperience(item);
     };
 
     return (
         <Stack gap="md">
             <Group justify="space-between">
-                <Title order={4}>Projects</Title>
+                <Title order={4}>Additional Experience</Title>
                 <Button leftSection={<IconPlus size={16} />} size="xs" onClick={handleAdd}>
-                    Add Project
+                    Add Item
                 </Button>
             </Group>
 
-            {resume.projects.map((item) => (
-                <ProjectItemEditor
+            {resume.additionalExperience.map((item) => (
+                <AdditionalExpItemEditor
                     key={item.id}
                     item={item}
-                    onUpdate={(patch) => updateProject(item.id, patch)}
-                    onRemove={() => removeProject(item.id)}
+                    onUpdate={(patch) => updateAdditionalExperience(item.id, patch)}
+                    onRemove={() => removeAdditionalExperience(item.id)}
                 />
             ))}
 
-            {resume.projects.length === 0 && (
+            {resume.additionalExperience.length === 0 && (
                 <Paper p="xl" ta="center" c="dimmed" withBorder>
-                    No projects added yet. Click "Add Project" to showcase your work.
+                    No items added yet. Click "Add Item" to add side projects or personal work.
                 </Paper>
             )}
         </Stack>
     );
 }
 
-function ProjectItemEditor({
+function AdditionalExpItemEditor({
     item,
     onUpdate,
     onRemove,
@@ -74,21 +75,21 @@ function ProjectItemEditor({
         <Paper p="md" withBorder>
             <Stack gap="sm">
                 <Group justify="space-between">
-                    <Title order={6}>{item.name || "New Project"}</Title>
+                    <Title order={6}>{item.name || "New Item"}</Title>
                     <ActionIcon variant="subtle" color="red" onClick={onRemove} title="Remove">
                         <IconTrash size={16} />
                     </ActionIcon>
                 </Group>
                 <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="sm">
                     <TextInput
-                        label="Project Name"
-                        placeholder="My Awesome Project"
+                        label="Name"
+                        placeholder="Project or Side Work"
                         value={item.name}
                         onChange={(e) => onUpdate({ name: e.currentTarget.value })}
                     />
                     <TextInput
                         label="URL"
-                        placeholder="https://github.com/user/project"
+                        placeholder="https://example.com"
                         value={item.url}
                         onChange={(e) => onUpdate({ url: e.currentTarget.value })}
                     />
@@ -118,7 +119,7 @@ function ProjectItemEditor({
                 />
                 <Textarea
                     label="Description"
-                    placeholder="What does this project do? What problems does it solve?"
+                    placeholder="Describe this experience..."
                     minRows={3}
                     autosize
                     value={item.description}

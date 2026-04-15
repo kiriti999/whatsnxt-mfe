@@ -46,6 +46,7 @@ export interface ProjectItem {
     url: string;
     startDate: string;
     endDate: string;
+    current: boolean;
     description: string;
     technologies: string[];
 }
@@ -94,8 +95,10 @@ export type SectionType =
     | "education"
     | "skills"
     | "projects"
+    | "additional-experience"
     | "certifications"
     | "languages"
+    | "find-me-online"
     | "custom";
 
 export interface SectionConfig {
@@ -115,6 +118,7 @@ export interface ResumeData {
     education: EducationItem[];
     skills: SkillCategory[];
     projects: ProjectItem[];
+    additionalExperience: ProjectItem[];
     certifications: CertificationItem[];
     languages: LanguageItem[];
     customSections: CustomSection[];

@@ -54,6 +54,34 @@
     z-index: 1;
 }
 
+.branding {
+    position: absolute;
+    bottom: 10px;
+    right: 16px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    text-decoration: none;
+    font-family: system-ui, sans-serif;
+    z-index: 2;
+}
+
+.brandingLabel {
+    font-size: 11px;
+    color: #888;
+    letter-spacing: 0.3px;
+}
+
+.brandingName {
+    font-size: 14px;
+    font-weight: 700;
+    background: linear-gradient(90deg, #5DE0E6, #004AAD);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: 0.5px;
+}
+
 /* Personal Info Header */
 .headerSection {
     text-align: center;
@@ -99,7 +127,7 @@
 
 /* Section */
 .sectionBlock {
-    margin-bottom: 16px;
+    margin-bottom: 22px;
 }
 
 .sectionTitle {
@@ -199,4 +227,608 @@
     padding: 2px 8px;
     border-radius: 4px;
     color: #555;
+}
+
+/* ===== Enhancv Template ===== */
+
+.enhHeader {
+    margin-bottom: 16px;
+}
+
+.enhName {
+    font-size: 34px;
+    font-weight: 800;
+    margin: 0 0 4px;
+    color: #1B365D;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    line-height: 1.15;
+}
+
+.enhTitle {
+    font-size: 20px;
+    font-weight: 700;
+    color: #E87722;
+    margin: 0 0 10px;
+}
+
+.enhContact {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    font-size: 11.5px;
+    color: #333;
+}
+
+.enhContactItem {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+}
+
+.enhContactIcon {
+    font-size: 14px;
+    color: #E87722;
+}
+
+/* Enhancv Section */
+.enhSection {
+    margin-bottom: 20px;
+}
+
+.enhSectionTitle {
+    font-size: 20px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #1B365D;
+    border-bottom: 2.5px solid #1B365D;
+    padding-bottom: 3px;
+    margin-bottom: 10px;
+}
+
+/* Enhancv Skill Tags */
+.enhSkillTags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.enhSkillTag {
+    font-size: 12px;
+    padding: 5px 14px;
+    border: 1.5px solid #ccc;
+    border-radius: 4px;
+    color: #333;
+    background: transparent;
+    font-weight: 500;
+}
+
+/* Enhancv Summary */
+.enhSummary {
+    font-size: 12.5px;
+    color: #333;
+    line-height: 1.55;
+    font-style: italic;
+}
+
+/* Enhancv Timeline (Experience/Education) */
+.enhTimeline {
+    display: grid;
+    grid-template-columns: 130px 20px 1fr;
+    gap: 0;
+    font-size: 12.5px;
+}
+
+.enhTimelineMeta {
+    text-align: right;
+    padding-right: 8px;
+    padding-top: 2px;
+}
+
+.enhTimelineDates {
+    font-size: 12px;
+    font-weight: 700;
+    color: #1B365D;
+    line-height: 1.4;
+}
+
+.enhTimelineLocation {
+    font-size: 11px;
+    color: #777;
+    margin-top: 2px;
+}
+
+.enhTimelineDot {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+}
+
+.enhTimelineDot::before {
+    content: "";
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #1B365D;
+    margin-top: 5px;
+    flex-shrink: 0;
+}
+
+.enhTimelineDot::after {
+    content: "";
+    width: 2px;
+    flex: 1;
+    background: #ddd;
+    margin-top: 4px;
+}
+
+.enhTimelineContent {
+    padding-left: 10px;
+    padding-bottom: 14px;
+}
+
+.enhTimelineRole {
+    font-size: 14px;
+    font-weight: 600;
+    color: #3B6FA0;
+}
+
+.enhTimelineCompany {
+    font-size: 12.5px;
+    font-weight: 700;
+    color: #E87722;
+}
+
+.enhTimelineDesc {
+    font-size: 12px;
+    color: #444;
+    margin-top: 4px;
+    white-space: pre-line;
+    line-height: 1.5;
+}
+
+/* Enhancv Projects / Certs */
+.enhItemHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 2px;
+}
+
+.enhItemTitle {
+    font-weight: 700;
+    font-size: 13px;
+    color: #1B365D;
+}
+
+.enhItemDate {
+    font-size: 11.5px;
+    color: #1B365D;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.enhItemDesc {
+    font-size: 12px;
+    color: #444;
+    margin-top: 2px;
+    white-space: pre-line;
+}
+
+/* Enhancv Languages */
+.enhLanguageRow {
+    display: flex;
+    gap: 18px;
+    flex-wrap: wrap;
+    font-size: 12.5px;
+}
+
+.enhLanguageName {
+    font-weight: 600;
+}
+
+.enhLanguageLevel {
+    color: #777;
+    font-size: 11.5px;
+}
+
+/* ===== Elegant Template (right dark sidebar) ===== */
+
+.elegantLayout {
+    display: grid;
+    grid-template-columns: 1fr 200px;
+    min-height: 100%;
+}
+
+.elegantMain {
+    padding-right: 16px;
+}
+
+.elegantSidebar {
+    background: #1a2744;
+    color: #fff;
+    padding: 20px 14px;
+    border-radius: 0;
+}
+
+.elegantHeader {
+    margin-bottom: 14px;
+}
+
+.elegantName {
+    font-size: 24px;
+    font-weight: 800;
+    color: #1a2a44;
+    margin: 0 0 2px;
+}
+
+.elegantTitle {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--resume-accent, #0891b2);
+    margin: 0 0 6px;
+}
+
+.elegantContact {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    font-size: 11px;
+    color: #666;
+}
+
+.elegantContactIcon {
+    color: var(--resume-accent, #0891b2);
+    margin-right: 3px;
+}
+
+.elegantSectionTitle {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #1a2a44;
+    border-bottom: 2px solid #1a2a44;
+    padding-bottom: 3px;
+    margin-bottom: 8px;
+    margin-top: 14px;
+}
+
+.elegantSidebarTitle {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--resume-accent, #0891b2);
+    border-bottom: 1.5px solid rgba(255, 255, 255, 0.2);
+    padding-bottom: 3px;
+    margin-bottom: 8px;
+    margin-top: 16px;
+}
+
+.elegantSidebarTitle:first-child {
+    margin-top: 0;
+}
+
+/* Elegant Experience */
+.elegantExpHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 1px;
+}
+
+.elegantExpRole {
+    font-size: 13px;
+    font-weight: 600;
+    color: #222;
+}
+
+.elegantExpDate {
+    font-size: 11px;
+    color: #777;
+    white-space: nowrap;
+}
+
+.elegantExpCompany {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--resume-accent, #0891b2);
+}
+
+.elegantExpLocation {
+    font-size: 11px;
+    color: #888;
+    margin-left: 8px;
+}
+
+.elegantExpDesc {
+    font-size: 11.5px;
+    color: #444;
+    margin-top: 3px;
+    white-space: pre-line;
+    line-height: 1.45;
+}
+
+.elegantExpItem {
+    margin-bottom: 12px;
+}
+
+/* Elegant Education */
+.elegantEduItem {
+    margin-bottom: 10px;
+}
+
+.elegantEduDegree {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: #222;
+}
+
+.elegantEduSchool {
+    font-size: 11.5px;
+    color: var(--resume-accent, #0891b2);
+    font-weight: 600;
+}
+
+/* Elegant Sidebar Content */
+.elegantSidebarSkills {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.85);
+    line-height: 1.5;
+}
+
+.elegantSidebarItem {
+    margin-bottom: 10px;
+}
+
+.elegantSidebarItemTitle {
+    font-size: 11.5px;
+    font-weight: 700;
+    color: #fff;
+}
+
+.elegantSidebarItemDesc {
+    font-size: 10.5px;
+    color: rgba(255, 255, 255, 0.7);
+    line-height: 1.4;
+    margin-top: 2px;
+}
+
+/* Elegant Summary */
+.elegantSummary {
+    font-size: 11.5px;
+    color: #444;
+    line-height: 1.5;
+    margin-bottom: 4px;
+}
+
+/* Elegant Languages */
+.elegantLangRow {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    font-size: 12px;
+}
+
+.elegantLangDots {
+    display: inline-flex;
+    gap: 3px;
+    margin-left: 6px;
+}
+
+.elegantDot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--resume-accent, #0891b2);
+}
+
+.elegantDotEmpty {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #ddd;
+}
+
+/* ===== Polished Template (left colored sidebar) ===== */
+
+.polishedLayout {
+    display: grid;
+    grid-template-columns: 195px 1fr;
+    min-height: 100%;
+}
+
+.polishedSidebar {
+    background: var(--resume-accent, #0d9488);
+    color: #fff;
+    padding: 24px 14px;
+}
+
+.polishedMain {
+    padding-left: 18px;
+}
+
+.polishedSidebarName {
+    font-size: 22px;
+    font-weight: 800;
+    color: #fff;
+    margin: 0 0 20px;
+    line-height: 1.2;
+}
+
+.polishedSidebarTitle {
+    font-size: 11.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.6);
+    border-bottom: 1.5px solid rgba(255, 255, 255, 0.2);
+    padding-bottom: 3px;
+    margin-bottom: 8px;
+    margin-top: 16px;
+}
+
+.polishedSidebarTitle:first-of-type {
+    margin-top: 0;
+}
+
+.polishedSidebarSkills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+.polishedSidebarTag {
+    font-size: 10px;
+    padding: 3px 8px;
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    border-radius: 3px;
+    color: #fff;
+}
+
+.polishedSidebarItem {
+    margin-bottom: 10px;
+}
+
+.polishedSidebarItemTitle {
+    font-size: 11px;
+    font-weight: 700;
+    color: #fff;
+}
+
+.polishedSidebarItemDesc {
+    font-size: 10px;
+    color: rgba(255, 255, 255, 0.7);
+    line-height: 1.4;
+    margin-top: 1px;
+}
+
+.polishedSidebarLang {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+    font-size: 11px;
+}
+
+.polishedSidebarLangLevel {
+    font-size: 10px;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+/* Polished Main Area */
+.polishedMainHeader {
+    margin-bottom: 14px;
+}
+
+.polishedMainTitle {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--resume-accent, #0d9488);
+    margin: 0 0 4px;
+}
+
+.polishedMainContact {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    font-size: 11px;
+    color: #666;
+}
+
+.polishedMainContactIcon {
+    color: var(--resume-accent, #0d9488);
+    margin-right: 3px;
+}
+
+.polishedSectionTitle {
+    font-size: 14px;
+    font-weight: 700;
+    color: #333;
+    border-bottom: 2px solid #e0e0e0;
+    padding-bottom: 3px;
+    margin-bottom: 8px;
+    margin-top: 14px;
+}
+
+.polishedSummary {
+    font-size: 11.5px;
+    color: #444;
+    line-height: 1.5;
+}
+
+.polishedExpItem {
+    margin-bottom: 12px;
+}
+
+.polishedExpHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+}
+
+.polishedExpRole {
+    font-size: 13px;
+    font-weight: 600;
+    color: #222;
+}
+
+.polishedExpDate {
+    font-size: 11px;
+    color: #777;
+    white-space: nowrap;
+}
+
+.polishedExpCompany {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--resume-accent, #0d9488);
+}
+
+.polishedExpLocation {
+    font-size: 11px;
+    color: #888;
+    margin-left: 8px;
+}
+
+.polishedExpDesc {
+    font-size: 11.5px;
+    color: #444;
+    margin-top: 3px;
+    white-space: pre-line;
+    line-height: 1.45;
+}
+
+.polishedEduItem {
+    margin-bottom: 8px;
+}
+
+.polishedEduHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+}
+
+.polishedEduDegree {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: #222;
+}
+
+.polishedEduSchool {
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--resume-accent, #0d9488);
+}
+
+.polishedSkillTags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    font-size: 11.5px;
+    color: #444;
+}
+
+.polishedSkillSep {
+    color: #ccc;
 }

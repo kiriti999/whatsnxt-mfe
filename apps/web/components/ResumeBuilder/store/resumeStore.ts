@@ -41,6 +41,10 @@ interface ResumeStore {
     updateProject: (id: string, item: Partial<ProjectItem>) => void;
     removeProject: (id: string) => void;
 
+    addAdditionalExperience: (item: ProjectItem) => void;
+    updateAdditionalExperience: (id: string, item: Partial<ProjectItem>) => void;
+    removeAdditionalExperience: (id: string) => void;
+
     addCertification: (item: CertificationItem) => void;
     updateCertification: (id: string, item: Partial<CertificationItem>) => void;
     removeCertification: (id: string) => void;
@@ -190,6 +194,28 @@ export const useResumeStore = create<ResumeStore>()(
                     resume: withTimestamp({
                         ...s.resume,
                         projects: removeFromArray(s.resume.projects, id),
+                    }),
+                })),
+
+            addAdditionalExperience: (item) =>
+                set((s) => ({
+                    resume: withTimestamp({
+                        ...s.resume,
+                        additionalExperience: [...s.resume.additionalExperience, item],
+                    }),
+                })),
+            updateAdditionalExperience: (id, item) =>
+                set((s) => ({
+                    resume: withTimestamp({
+                        ...s.resume,
+                        additionalExperience: updateArray(s.resume.additionalExperience, id, item),
+                    }),
+                })),
+            removeAdditionalExperience: (id) =>
+                set((s) => ({
+                    resume: withTimestamp({
+                        ...s.resume,
+                        additionalExperience: removeFromArray(s.resume.additionalExperience, id),
                     }),
                 })),
 

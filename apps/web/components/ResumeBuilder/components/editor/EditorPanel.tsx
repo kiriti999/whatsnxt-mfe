@@ -17,6 +17,7 @@ import { SkillsEditor } from "./sections/SkillsEditor";
 import { ProjectsEditor } from "./sections/ProjectsEditor";
 import { CertificationsEditor } from "./sections/CertificationsEditor";
 import { LanguagesEditor } from "./sections/LanguagesEditor";
+import { AdditionalExperienceEditor } from "./sections/AdditionalExperienceEditor";
 import { SectionOrderPanel } from "./SectionOrderPanel";
 import { TemplateSelector } from "./TemplateSelector";
 import classes from "./EditorPanel.module.css";
@@ -147,10 +148,14 @@ function ActiveSectionEditor({ sectionId }: { sectionId: string }) {
             return <SkillsEditor />;
         case "projects":
             return <ProjectsEditor />;
+        case "additional-experience":
+            return <AdditionalExperienceEditor />;
         case "certifications":
             return <CertificationsEditor />;
         case "languages":
             return <LanguagesEditor />;
+        case "find-me-online":
+            return <PersonalInfoEditor />;
         default:
             return null;
     }
