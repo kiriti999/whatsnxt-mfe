@@ -1162,6 +1162,93 @@ const OnChangePluginWrapper: React.FC<{
   return <OnChangePlugin onChange={handleChange} />;
 };
 
+/**
+ * Convert markdown syntax to HTML so DOMParser can handle mixed markdown+HTML content.
+ * Handles: headings, bold, italic, bullet lists, numbered lists.
+ */
+function convertMarkdownToHTML(text: string): string {
+  const lines = text.split("\n");
+  const htmlLines: string[] = [];
+  let inList = false;
+  let listType: "ul" | "ol" | null = null;
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+
+    // Headings: # through ######
+    const headingMatch = trimmed.match(/^(#{1,6})\s+(.+)/);
+    if (headingMatch) {
+      if (inList) { htmlLines.push(`</${listType}>`); inList = false; listType = null; }
+      const level = headingMatch[1].length;
+      const content = convertInlineMarkdown(headingMatch[2]);
+      htmlLines.push(`<h${level}>${content}</h${level}>`);
+      continue;
+    }
+
+    // Bullet list items: - , * , •
+    const bulletMatch = trimmed.match(/^[-*•]\s+(.+)/);
+    if (bulletMatch) {
+      if (!inList || listType !== "ul") {
+        if (inList) htmlLines.push(`</${listType}>`);
+        htmlLines.push("<ul>");
+        inList = true;
+        listType = "ul";
+      }
+      htmlLines.push(`<li>${convertInlineMarkdown(bulletMatch[1])}</li>`);
+      continue;
+    }
+
+    // Numbered list items: 1. or 1)
+    const numMatch = trimmed.match(/^\d+[.)]\s+(.+)/);
+    if (numMatch) {
+      if (!inList || listType !== "ol") {
+        if (inList) htmlLines.push(`</${listType}>`);
+        htmlLines.push("<ol>");
+        inList = true;
+        listType = "ol";
+      }
+      htmlLines.push(`<li>${convertInlineMarkdown(numMatch[1])}</li>`);
+      continue;
+    }
+
+    // Close any open list on non-list line
+    if (inList && trimmed === "") {
+      htmlLines.push(`</${listType}>`);
+      inList = false;
+      listType = null;
+      continue;
+    }
+
+    if (inList && trimmed !== "") {
+      htmlLines.push(`</${listType}>`);
+      inList = false;
+      listType = null;
+    }
+
+    // Non-empty plain text → paragraph (only if not already HTML)
+    if (trimmed && !trimmed.startsWith("<")) {
+      htmlLines.push(`<p>${convertInlineMarkdown(trimmed)}</p>`);
+    } else if (trimmed) {
+      htmlLines.push(convertInlineMarkdown(trimmed));
+    }
+  }
+
+  if (inList) htmlLines.push(`</${listType}>`);
+  return htmlLines.join("\n");
+}
+
+/** Convert inline markdown: **bold**, *italic* */
+function convertInlineMarkdown(text: string): string {
+  return text
+    .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+    .replace(/\*(.+?)\*/g, "<em>$1</em>");
+}
+
+/** Check if a string contains markdown syntax that needs conversion */
+function containsMarkdown(text: string): boolean {
+  return /(?:^|\n)\s*#{1,6}\s+/.test(text) || /\*\*[^*]+\*\*/.test(text);
+}
+
 const InitialStatePlugin: React.FC<{ value?: string }> = ({ value }) => {
   const [editor] = useLexicalComposerContext();
   const hasLoadedInitialState = useRef(false);
@@ -1203,17 +1290,21 @@ const InitialStatePlugin: React.FC<{ value?: string }> = ({ value }) => {
       editor.setEditorState(editorState);
       hasLoadedInitialState.current = true;
     } catch (e) {
-      // Not valid Lexical JSON — try HTML or plain text
-      const containsHTML = /<[a-z][\s\S]*>/i.test(value);
-      if (containsHTML) {
+      // Not valid Lexical JSON — try HTML (with markdown conversion) or plain text
+      const hasHTML = /<[a-z][\s\S]*>/i.test(value);
+      const hasMD = containsMarkdown(value);
+
+      if (hasHTML || hasMD) {
+        // Convert any markdown to HTML first, then parse as DOM
+        const htmlContent = hasMD ? convertMarkdownToHTML(value) : value;
+
         editor.update(
           () => {
             const root = $getRoot();
             root.clear();
             const parser = new DOMParser();
-            // Wrap in <body> to ensure proper DOM parsing of mixed content
             const dom = parser.parseFromString(
-              `<!DOCTYPE html><html><body>${value}</body></html>`,
+              `<!DOCTYPE html><html><body>${htmlContent}</body></html>`,
               "text/html",
             );
             const nodes = $generateNodesFromDOM(editor, dom.body);
