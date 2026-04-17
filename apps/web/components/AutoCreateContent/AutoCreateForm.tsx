@@ -140,27 +140,31 @@ export function AutoCreateForm() {
         if (!descriptionValue) return [];
         const titles: string[] = [];
 
-        // Try parsing as HTML for <li> items
-        const liMatches = descriptionValue.match(/<li[^>]*>(.*?)<\/li>/gi) || [];
-        for (const match of liMatches) {
-            const text = match.replace(/<[^>]*>/g, '').trim();
-            if (text) titles.push(text);
-        }
-
-        // Also extract headings
-        const headingMatches = descriptionValue.match(/<h[23][^>]*>(.*?)<\/h[23]>/gi) || [];
-        for (const match of headingMatches) {
-            const text = match.replace(/<[^>]*>/g, '').trim();
-            if (text && !titles.includes(text)) titles.push(text);
-        }
-
-        // Try parsing as Lexical JSON for text nodes
-        if (titles.length === 0 && descriptionValue.trim().startsWith('{')) {
+        // Try parsing as Lexical JSON first
+        if (descriptionValue.trim().startsWith('{')) {
             try {
                 const parsed = JSON.parse(descriptionValue);
                 extractLexicalListItems(parsed, titles);
             } catch {
                 // Not valid JSON, skip
+            }
+        }
+
+        // Try parsing as HTML for <li> items (use [\s\S]*? for multiline)
+        if (titles.length === 0) {
+            const liMatches = descriptionValue.match(/<li[^>]*>([\s\S]*?)<\/li>/gi) || [];
+            for (const match of liMatches) {
+                const text = match.replace(/<[^>]*>/g, '').trim();
+                if (text) titles.push(text);
+            }
+        }
+
+        // Also extract headings
+        if (titles.length === 0) {
+            const headingMatches = descriptionValue.match(/<h[23][^>]*>([\s\S]*?)<\/h[23]>/gi) || [];
+            for (const match of headingMatches) {
+                const text = match.replace(/<[^>]*>/g, '').trim();
+                if (text && !titles.includes(text)) titles.push(text);
             }
         }
 
@@ -407,18 +411,28 @@ export function AutoCreateForm() {
 }
 
 /**
+ * Recursively extract all text from a Lexical node.
+ */
+function extractNodeText(node: any): string {
+    if (!node) return '';
+    if (node.type === 'text') return node.text || '';
+    if (node.type === 'linebreak') return '';
+    if (Array.isArray(node.children)) {
+        return node.children.map((c: any) => extractNodeText(c)).join('');
+    }
+    return '';
+}
+
+/**
  * Recursively extract list item text from a Lexical editor JSON state.
  */
 function extractLexicalListItems(node: any, titles: string[]): void {
     if (!node) return;
 
-    if (node.type === 'listitem' && node.children) {
-        const text = node.children
-            .filter((child: any) => child.type === 'text')
-            .map((child: any) => child.text)
-            .join('')
-            .trim();
+    if (node.type === 'listitem') {
+        const text = extractNodeText(node).trim();
         if (text) titles.push(text);
+        return;
     }
 
     if (node.children && Array.isArray(node.children)) {

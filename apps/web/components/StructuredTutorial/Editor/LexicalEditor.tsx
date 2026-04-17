@@ -1165,19 +1165,27 @@ const OnChangePluginWrapper: React.FC<{
 const InitialStatePlugin: React.FC<{ value?: string }> = ({ value }) => {
   const [editor] = useLexicalComposerContext();
   const hasLoadedInitialState = useRef(false);
+  const lastSetValue = useRef<string | undefined>(undefined);
 
   useEffect(() => {
     if (value === undefined || value === null) return;
 
-    // Skip if we've already loaded the initial state and value hasn't meaningfully changed
+    // Skip if we've already loaded and the incoming value matches what we last set
     if (hasLoadedInitialState.current) {
+      // If the value is exactly what the editor serialized (from OnChange), skip
       const currentSerialized = JSON.stringify(
         editor.getEditorState().toJSON(),
       );
       if (value === currentSerialized) {
         return;
       }
+      // Also skip if this is the same external value we already processed
+      if (value === lastSetValue.current) {
+        return;
+      }
     }
+
+    lastSetValue.current = value;
 
     try {
       // If value is empty string, just clear
@@ -1195,25 +1203,30 @@ const InitialStatePlugin: React.FC<{ value?: string }> = ({ value }) => {
       editor.setEditorState(editorState);
       hasLoadedInitialState.current = true;
     } catch (e) {
-      // Not valid Lexical JSON
-      // Check if it looks like HTML (contains tags)
-      const isHTML = /<[a-z][\s\S]*>/i.test(value.trim());
-      if (isHTML) {
-        editor.update(() => {
-          const root = $getRoot();
-          root.clear();
-          const parser = new DOMParser();
-          const dom = parser.parseFromString(value, "text/html");
-          const nodes = $generateNodesFromDOM(editor, dom.body);
-          if (nodes && nodes.length > 0) {
-            root.append(...nodes);
-          } else {
-            // Fallback to text if generation failed
-            const p = $createParagraphNode();
-            p.append($createTextNode(value));
-            root.append(p);
-          }
-        });
+      // Not valid Lexical JSON — try HTML or plain text
+      const containsHTML = /<[a-z][\s\S]*>/i.test(value);
+      if (containsHTML) {
+        editor.update(
+          () => {
+            const root = $getRoot();
+            root.clear();
+            const parser = new DOMParser();
+            // Wrap in <body> to ensure proper DOM parsing of mixed content
+            const dom = parser.parseFromString(
+              `<!DOCTYPE html><html><body>${value}</body></html>`,
+              "text/html",
+            );
+            const nodes = $generateNodesFromDOM(editor, dom.body);
+            if (nodes && nodes.length > 0) {
+              root.append(...nodes);
+            } else {
+              const p = $createParagraphNode();
+              p.append($createTextNode(value));
+              root.append(p);
+            }
+          },
+          { discrete: true },
+        );
         hasLoadedInitialState.current = true;
       } else {
         // Fallback to plain text
