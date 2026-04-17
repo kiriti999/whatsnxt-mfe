@@ -107,6 +107,8 @@ import {
   $createTextNode,
   $getRoot,
   $getSelection,
+  $isDecoratorNode,
+  $isElementNode,
   $isRangeSelection,
   $isTextNode,
   type EditorState,
@@ -1309,7 +1311,15 @@ const InitialStatePlugin: React.FC<{ value?: string }> = ({ value }) => {
             );
             const nodes = $generateNodesFromDOM(editor, dom.body);
             if (nodes && nodes.length > 0) {
-              root.append(...nodes);
+              for (const node of nodes) {
+                if ($isElementNode(node) || $isDecoratorNode(node)) {
+                  root.append(node);
+                } else {
+                  const p = $createParagraphNode();
+                  p.append(node);
+                  root.append(p);
+                }
+              }
             } else {
               const p = $createParagraphNode();
               p.append($createTextNode(value));
