@@ -125,7 +125,7 @@ const LinkedInShare: React.FC<LinkedInShareProps> = ({ url, title, thumbnailUrn,
                     if (shareResult) {
                         notifications.show({
                             title: 'Success',
-                            message: 'Shared to the company page on LinkedIn!',
+                            message: 'Shared to your LinkedIn profile!',
                             color: 'green',
                         });
                         router.push(url);
@@ -143,14 +143,10 @@ const LinkedInShare: React.FC<LinkedInShareProps> = ({ url, title, thumbnailUrn,
                     localStorage.removeItem('linkedinShareData');
                 }
             } else {
-                // Default LinkedIn share functionality for non-admin users
-                // Strip HTML and truncate to avoid exceeding URL length limits
-                const cleanSummary = stripHtmlForLinkedIn(description);
-                const truncatedSummary = truncateLinkedInText(cleanSummary, 256);
-                const shareUrl = `https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(
-                    url
-                )}${title ? `&title=${encodeURIComponent(title)}` : ''}${truncatedSummary ? `&summary=${encodeURIComponent(truncatedSummary)}` : ''}`;
-                window.open(shareUrl, '_blank');
+                // Default LinkedIn share for non-admin users
+                // Uses sharing/share-offsite which renders OG meta tags (image + description)
+                const shareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`;
+                window.open(shareUrl, '_blank', 'noopener,noreferrer');
             }
         } catch (error) {
             console.error('Unexpected error during LinkedIn share:', error);

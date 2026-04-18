@@ -1,26 +1,50 @@
 // Update the content page to use the new fetcher
-import { createExcerpt } from "@whatsnxt/core-util/src/GenerateMetaTags";
+import type { Metadata } from "next";
+import {
+  createExcerpt,
+  generateMetadata as generateOGMetadata,
+} from "@whatsnxt/core-util/src/GenerateMetaTags";
 import { getPostBySlugServer } from "../../../fetcher/serverFetcher";
 import ContentWrapper from "./ContentWrapper";
 
-const ContentPage = async (props: any) => {
-  const params = await props.params;
-
-  // Handle various URL structures:
-  // 1. /content/slug -> lookup 'slug'
-  // 2. /content/tutorial/post -> lookup 'tutorial-post'
-  let lookupSlug = "";
-  if (Array.isArray(params.id)) {
-    // If length >= 2, we have tutorial/post structure. Pass as 'tutorial/post'
-    // serverFetcher can parse this pattern to call the scoped API.
-    if (params.id.length >= 2) {
-      lookupSlug = `${params.id[0]}/${params.id[1]}`;
-    } else {
-      lookupSlug = params.id[0];
-    }
-  } else {
-    lookupSlug = params.id;
+function resolveSlug(idSegments: string | string[]): string {
+  if (Array.isArray(idSegments)) {
+    return idSegments.length >= 2
+      ? `${idSegments[0]}/${idSegments[1]}`
+      : idSegments[0];
   }
+  return idSegments;
+}
+
+export async function generateMetadata(props: {
+  params: Promise<{ id: string[] }>;
+}): Promise<Metadata> {
+  const params = await props.params;
+  const lookupSlug = resolveSlug(params.id);
+  const slugData = await getPostBySlugServer(lookupSlug);
+
+  if (!slugData) {
+    return { title: "Content not found | whatsnxt.in" };
+  }
+
+  const canonical = `https://www.whatsnxt.in/content/${params.id.join("/")}`;
+
+  return generateOGMetadata({
+    title: `${slugData.title} | whatsnxt.in`,
+    description: createExcerpt(slugData.description, 155),
+    image: slugData.imageUrl || undefined,
+    canonical,
+    type: "article",
+    publishedDate: slugData.createdAt,
+    modifiedDate: slugData.updatedAt,
+    section: slugData.categoryName,
+    tags: slugData.tags,
+  });
+}
+
+const ContentPage = async (props: { params: Promise<{ id: string[] }> }) => {
+  const params = await props.params;
+  const lookupSlug = resolveSlug(params.id);
 
   // Use REST API instead of GraphQL for SSR
   const slugData = await getPostBySlugServer(lookupSlug);
