@@ -15,7 +15,7 @@ interface FetcherOptions {
 
 export const serverFetcher = async (BASEURL: string, URL: string, options: FetcherOptions = {}): Promise<any> => {
     try {
-        const tokenKeyName = process.env.NEXT_PUBLIC_COOKIES_ACCESS_TOKEN || 'whatsnxt_access_token';
+        const tokenKeyName = process.env.NEXT_PUBLIC_COOKIES_ACCESS_TOKEN as string;
         const cookieStore = await cookies();
         const token = cookieStore.get(tokenKeyName)?.value;
 

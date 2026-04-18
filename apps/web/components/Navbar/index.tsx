@@ -37,7 +37,7 @@ const Navbar = ({ loginMenuLinks, links }: headerProps) => {
         if (authUser?.role === 'admin') {
             const adminLink = {
                 title: 'Admin view',
-                url: `${process.env.NEXT_PUBLIC_MFE_HOST || ''}/admin/course-review-request`,
+                url: `${process.env.NEXT_PUBLIC_MFE_HOST}/admin/course-review-request`,
                 linkType: '_self',
                 icon: IconUserHeart
             };

@@ -3,7 +3,7 @@ import type { AuthenticatedUserType } from "./authTypes";
 
 // Fetch user from cookies
 export const fetchUserFromCookies = (): AuthenticatedUserType | null => {
-  const storedUser = getCookie(process.env.NEXT_PUBLIC_COOKIES_USER || "");
+  const storedUser = getCookie(process.env.NEXT_PUBLIC_COOKIES_USER as string);
   return storedUser ? JSON.parse(storedUser as string) : null;
 };
 

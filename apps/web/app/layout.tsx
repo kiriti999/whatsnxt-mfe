@@ -1,4 +1,6 @@
 // layout.tsx - CLEANED VERSION (remove unnecessary scripts)
+// Validate environment variables at startup (fail fast)
+import "../lib/env";
 // Global Styles
 import "./globals.css";
 import "@mantine/core/styles.css";

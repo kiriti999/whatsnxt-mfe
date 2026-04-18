@@ -75,9 +75,7 @@ Keep the language simple and accessible.
 SVG content:
 ${svgHtml.substring(0, 4000)}`; // Trim to avoid token overflow
 
-                const baseUrl =
-                    process.env.NEXT_PUBLIC_BFF_HOST_COMMON_API ||
-                    `${process.env.NEXT_PUBLIC_API_URL}/common`;
+                const baseUrl = process.env.NEXT_PUBLIC_BFF_HOST_COMMON_API as string;
 
                 const response = await fetch(`${baseUrl}/ai/suggestion`, {
                     method: "POST",

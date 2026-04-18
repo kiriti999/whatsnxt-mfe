@@ -5,7 +5,7 @@ import { cookies } from 'next/headers';
 export async function GET() {
     try {
         const BASEURL = process.env.BFF_HOST_LAB_API as string;
-        const tokenKeyName = process.env.NEXT_PUBLIC_COOKIES_ACCESS_TOKEN || 'whatsnxt_access_token';
+        const tokenKeyName = process.env.NEXT_PUBLIC_COOKIES_ACCESS_TOKEN as string;
         const cookieStore = await cookies();
         const token = cookieStore.get(tokenKeyName)?.value;
 
