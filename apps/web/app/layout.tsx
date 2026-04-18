@@ -241,6 +241,7 @@ async function RootLayout({ children }: { children: ReactNode }) {
         />
         <link rel="preconnect" href="https://res.cloudinary.com" />
         <link rel="preconnect" href="https://api.cloudinary.com" />
+        <link rel="preconnect" href="https://whatsnxt-app-images.s3.ap-south-1.amazonaws.com" />
 
         {/* FIXED: Use your actual Algolia App ID */}
         <link rel="preconnect" href="https://PG9F4BSTTH-dsn.algolia.net" />

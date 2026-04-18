@@ -163,21 +163,25 @@ export function generateMetadata({
     return metadata;
 }
 
-// ✅ Function to optimize images for LinkedIn using Cloudinary
+// ✅ Function to optimize images for LinkedIn using pre-generated OG variants
 function optimizeImageForLinkedIn(imageUrl: string): string {
-    // Check if it's a Cloudinary URL
-    if (imageUrl.includes('cloudinary.com')) {
-        // Extract the base URL and add LinkedIn-optimized transformations
-        const cloudinaryOptimizations = 'w_1200,h_630,c_fill,f_auto,q_auto,dpr_1.0';
+    // For S3/CloudFront URLs, use the pre-generated _og.webp variant
+    if (imageUrl.includes('whatsnxt-app-images') || imageUrl.includes('cloudfront.net')) {
+        const dotIndex = imageUrl.lastIndexOf('.');
+        if (dotIndex !== -1) {
+            return `${imageUrl.substring(0, dotIndex)}_og.webp`;
+        }
+    }
 
-        // Insert transformations into Cloudinary URL
+    // Legacy: Cloudinary URL transformation
+    if (imageUrl.includes('cloudinary.com')) {
+        const cloudinaryOptimizations = 'w_1200,h_630,c_fill,f_auto,q_auto,dpr_1.0';
         return imageUrl.replace(
             /\/upload\//,
             `/upload/${cloudinaryOptimizations}/`
         );
     }
 
-    // For non-Cloudinary images, return as-is
     return imageUrl;
 }
 

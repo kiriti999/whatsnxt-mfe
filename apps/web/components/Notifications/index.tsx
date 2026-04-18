@@ -235,7 +235,7 @@ const Notifications = () => {
             >
               <Box className="floating-animation">
                 <Image
-                  src="https://ik.imagekit.io/freecodez/bell.webp"
+                  src="/images/static/bell.webp"
                   alt="empty-notification"
                   width={150}
                   height={150}

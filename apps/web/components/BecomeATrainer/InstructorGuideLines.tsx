@@ -9,7 +9,7 @@ const InstructorGuideLines = () => {
   return (
     <Paper shadow="xs" p="xl" withBorder>
       <Title order={2} mb="sm">Apply As Instructor</Title>
-      <Image width={418} height={500} src="https://ik.imagekit.io/whatsnxt/teacher.png" alt="image" />
+      <Image width={418} height={500} src="/images/static/teacher.png" alt="image" />
 
       <div className={styles['apply-instructor-content']}>
         <Tabs unstyled={true} defaultValue="become-instructor" className={styles['react-tabs__tab--selected']}>

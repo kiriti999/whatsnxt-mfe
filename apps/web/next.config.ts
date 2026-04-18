@@ -82,7 +82,12 @@ const nextConfig: NextConfig = {
             },
             {
                 protocol: 'https',
-                hostname: 'ik.imagekit.io',
+                hostname: '*.s3.ap-south-1.amazonaws.com',
+                pathname: '/**',
+            },
+            {
+                protocol: 'https',
+                hostname: '*.cloudfront.net',
                 pathname: '/**',
             },
             // Add other domains if you use them for images
@@ -283,7 +288,6 @@ const nextConfig: NextConfig = {
             process.env.BFF_HOST_COURSE_API,
             process.env.BFF_HOST_COMMON_API,
             process.env.BFF_HOST_CLOUDINARY_API,
-            process.env.BFF_HOST_IMAGEKIT_API,
             process.env.BFF_ARTICLE_HOST_API,
             process.env.GOOGLE_LOGIN_URL,
         ].filter(Boolean); // Remove undefined values
@@ -304,7 +308,6 @@ const nextConfig: NextConfig = {
             'https://res.cloudinary.com',
             'https://api.cloudinary.com',
             'https://*.cloudinary.com',
-            'https://ik.imagekit.io',
             // Payment services - Razorpay
             'https://api.razorpay.com',
             'https://checkout.razorpay.com',
@@ -368,9 +371,9 @@ const nextConfig: NextConfig = {
                             "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com https://www.googletagmanager.com https://www.google-analytics.com https://checkout.razorpay.com https://www.youtube.com https://s.ytimg.com data: blob:",
                             "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
                             "font-src 'self' https://fonts.gstatic.com",
-                            // Updated img-src to specifically include Cloudinary domains and localhost for development
-                            `img-src 'self' data: https: blob: https://res.cloudinary.com https://*.cloudinary.com https://api.cloudinary.com https://ik.imagekit.io https://*.imagekit.io https://img.youtube.com https://i.ytimg.com${isDevelopment ? ' http://localhost:*' : ''}`,
-                            `media-src 'self' https: blob: https://res.cloudinary.com https://*.cloudinary.com https://api.cloudinary.com${isDevelopment ? ' http://localhost:*' : ''}`,
+                            // Updated img-src to include S3/CloudFront and Cloudinary domains
+                            `img-src 'self' data: https: blob: https://*.s3.ap-south-1.amazonaws.com https://*.cloudfront.net https://res.cloudinary.com https://*.cloudinary.com https://api.cloudinary.com https://img.youtube.com https://i.ytimg.com${isDevelopment ? ' http://localhost:*' : ''}`,
+                            `media-src 'self' https: blob: https://*.s3.ap-south-1.amazonaws.com https://*.cloudfront.net https://res.cloudinary.com https://*.cloudinary.com https://api.cloudinary.com${isDevelopment ? ' http://localhost:*' : ''}`,
                             `connect-src ${connectSrc}`,
                             "frame-src 'self' https://api.razorpay.com https://www.youtube.com https://youtube.com",
                             // PARTYTOWN SPECIFIC: Essential for web workers and service workers
@@ -506,7 +509,6 @@ const nextConfig: NextConfig = {
         NEXT_PUBLIC_BFF_HOST_COURSE_API: process.env.BFF_HOST_COURSE_API,
         NEXT_PUBLIC_BFF_HOST_COMMON_API: process.env.BFF_HOST_COMMON_API,
         NEXT_PUBLIC_BFF_HOST_CLOUDINARY_API: process.env.BFF_HOST_CLOUDINARY_API,
-        NEXT_PUBLIC_BFF_HOST_IMAGEKIT_API: process.env.BFF_HOST_IMAGEKIT_API,
         NEXT_PUBLIC_COOKIES_ACCESS_TOKEN: process.env.COOKIES_ACCESS_TOKEN,
         NEXT_PUBLIC_GA_ID: process.env.GA_ID,
 

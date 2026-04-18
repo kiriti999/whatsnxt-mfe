@@ -15,9 +15,9 @@
 }
 
 .four_zero_four_bg {
-    background-image: url('https://ik.imagekit.io/kiriti369/whatsnxt-blog/404.gif');
     height: 400px;
     background-position: center;
+    background-color: light-dark(#f8f9fa, var(--mantine-color-dark-6));
 }
 
 
