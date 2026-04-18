@@ -215,7 +215,8 @@ const createApiClient = (type: ApiClientType) => {
                     requestConfig.url.includes('/post/generateTutorialImage') ||
                     requestConfig.url.includes('/visualizer/generate') ||
                     requestConfig.url.includes('/visualizer/regenerate') ||
-                    requestConfig.url.includes('/linkedin/share')
+                    requestConfig.url.includes('/linkedin/share') ||
+                    requestConfig.url.includes('/linkedin/callback')
                 );
 
                 // Only apply timeout for non-long-running endpoints
