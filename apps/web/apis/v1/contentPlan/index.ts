@@ -34,6 +34,7 @@ export interface ContentPlanCreatePayload {
     categoryName: string;
     subCategory?: string;
     nestedSubCategory?: string;
+    generateDiagrams?: boolean;
 }
 
 export const ContentPlanAPI = {

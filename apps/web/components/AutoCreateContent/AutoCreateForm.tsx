@@ -16,9 +16,10 @@ import {
     Title,
     ThemeIcon,
     Badge,
+    Switch,
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
-import { IconRocket, IconSparkles, IconList } from '@tabler/icons-react';
+import { IconRocket, IconSparkles, IconList, IconChartDots3 } from '@tabler/icons-react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { CategoryAPI } from '../../apis/v1/blog/categoryApi';
@@ -36,6 +37,7 @@ interface AutoCreateFormData {
     categoryName: string;
     subCategory: string;
     nestedSubCategory: string;
+    generateDiagrams: boolean;
 }
 
 interface CategoryOption {
@@ -64,6 +66,7 @@ export function AutoCreateForm() {
             categoryName: '',
             subCategory: '',
             nestedSubCategory: '',
+            generateDiagrams: true,
         },
     });
 
@@ -180,6 +183,7 @@ export function AutoCreateForm() {
                 categoryName: data.categoryName,
                 subCategory: data.subCategory || undefined,
                 nestedSubCategory: data.nestedSubCategory || undefined,
+                generateDiagrams: data.generateDiagrams,
             };
 
             await ContentPlanAPI.create(payload);
@@ -388,6 +392,22 @@ export function AutoCreateForm() {
                                     )}
                                 />
                             )}
+
+                            {/* Generate Diagrams Toggle */}
+                            <Controller
+                                name="generateDiagrams"
+                                control={control}
+                                render={({ field }) => (
+                                    <Switch
+                                        label="Generate diagrams for each topic"
+                                        description="AI will create SVG diagrams embedded in each blog post"
+                                        checked={field.value}
+                                        onChange={field.onChange}
+                                        thumbIcon={<IconChartDots3 size={12} />}
+                                        size="md"
+                                    />
+                                )}
+                            />
 
                             {/* Submit */}
                             <Group justify="flex-end" mt="md">
