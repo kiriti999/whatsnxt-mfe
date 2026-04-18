@@ -102,6 +102,12 @@ const nextConfig: NextConfig = {
                 hostname: 'images.unsplash.com',
                 pathname: '/**',
             },
+            // Placeholder images for local development
+            {
+                protocol: 'https',
+                hostname: 'placehold.co',
+                pathname: '/**',
+            },
         ],
         // Next.js 15 image optimization
         formats: ['image/webp', 'image/avif'],
