@@ -4,19 +4,19 @@
  */
 
 const requiredClientVars = [
-    "NEXT_PUBLIC_MFE_HOST",
     "NEXT_PUBLIC_API_URL",
     "NEXT_PUBLIC_BFF_HOST_COMMON_API",
     "NEXT_PUBLIC_COOKIES_ACCESS_TOKEN",
     "NEXT_PUBLIC_COOKIES_USER",
     "NEXT_PUBLIC_DEFAULT_MODEL_VERSION",
+    "NEXT_PUBLIC_MFE_HOST",
 ] as const;
 
 const requiredServerVars = [
-    "BFF_HOST_COURSE_API",
     "BFF_ARTICLE_HOST_API",
-    "BFF_HOST_COMMON_API",
     "BFF_HOST_CLOUDINARY_API",
+    "BFF_HOST_COMMON_API",
+    "BFF_HOST_COURSE_API",
 ] as const;
 
 function validateVars(vars: readonly string[], label: string) {
