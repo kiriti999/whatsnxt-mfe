@@ -265,7 +265,7 @@ export const TutorialMetadataForm: React.FC<TutorialMetadataFormProps> = ({
             if (isAuthError) {
                 setApiKeyError("Image generation requires an Anthropic API key. Please enter a valid Anthropic key.");
                 aiConfig.setSelectedAI("anthropic");
-                aiConfig.setSelectedModel("claude-haiku-4-5");
+                aiConfig.setSelectedModel(process.env.NEXT_PUBLIC_DEFAULT_MODEL_VERSION || "claude-haiku-4-5");
                 openConfigModal();
             } else {
                 notifications.show({
@@ -569,7 +569,7 @@ export const TutorialMetadataForm: React.FC<TutorialMetadataFormProps> = ({
                 opened={configModalOpened}
                 onClose={closeConfigModal}
                 selectedAI="anthropic"
-                selectedModel="claude-haiku-4-5"
+                selectedModel={process.env.NEXT_PUBLIC_DEFAULT_MODEL_VERSION || "claude-haiku-4-5"}
                 onProviderChange={aiConfig.setSelectedAI}
                 onModelChange={aiConfig.setSelectedModel}
                 onGenerate={() => {

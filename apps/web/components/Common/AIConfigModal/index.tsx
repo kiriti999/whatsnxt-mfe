@@ -30,7 +30,7 @@ const AI_MODELS: Record<string, { value: string; label: string }[]> = {
     ],
     anthropic: [
         { value: "claude-sonnet-4-5", label: "Claude Sonnet 4.5 (Balanced)" },
-        { value: "claude-haiku-4-5", label: "Claude Haiku 4.5 (Fast)" },
+        { value: process.env.NEXT_PUBLIC_DEFAULT_MODEL_VERSION || "claude-haiku-4-5", label: "Claude Haiku 4.5 (Fast)" },
         { value: "claude-opus-4-6", label: "Claude Opus 4.6 (Most Capable)" },
     ],
     gemini: [
