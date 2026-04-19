@@ -42,13 +42,12 @@ const LinkedInCallback = () => {
             const truncatedDescription = description && description.length > 1900
                 ? description.substring(0, 1897) + '...'
                 : description;
-            const descriptionWithLink = `${truncatedDescription}\n\nRead more at: ${url}`;
 
             const shareResult = await LinkedInAPI.sharePost({
                 url,
                 title,
                 email,
-                text: descriptionWithLink,
+                text: truncatedDescription,
                 thumbnailUrn,
                 media: media?.filter(Boolean) ?? [], // Ensure media is non-nullable
             });

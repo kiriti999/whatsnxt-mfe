@@ -110,13 +110,12 @@ const LinkedInShare: React.FC<LinkedInShareProps> = ({ url, title, thumbnailUrn,
                 try {
                     const cleanText = stripHtmlForLinkedIn(description);
                     const truncatedText = truncateLinkedInText(cleanText);
-                    const descriptionWithLink = `${truncatedText}\n\nRead more at: ${url}`;
 
                     const shareResult = await LinkedInAPI.sharePost({
                         url,
                         title,
                         email,
-                        text: descriptionWithLink,
+                        text: truncatedText,
                         thumbnailUrn,
                         media: media?.filter(Boolean) ?? [],
                     });
