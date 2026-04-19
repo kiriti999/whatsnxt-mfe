@@ -116,8 +116,8 @@ function DiagramActions({ svgContent, figureElement }: DiagramActionsProps) {
 
     const handleAIAction = (actionType: string) => {
         if (!aiConfig.isAuthenticated) {
-            const returnUrl = encodeURIComponent(window.location.pathname);
-            window.location.href = `/authentication?returnUrl=${returnUrl}`;
+            const returnto = encodeURIComponent(window.location.pathname);
+            window.location.href = `/authentication?returnto=${returnto}`;
             return;
         }
         hasUserInteractedRef.current = true;

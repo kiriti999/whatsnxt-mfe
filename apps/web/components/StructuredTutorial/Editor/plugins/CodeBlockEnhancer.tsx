@@ -210,8 +210,8 @@ function CodeBlockActions({
         // Check authentication first - redirect to login if not authenticated
         console.log('🚀 :: handleAIAction :: aiConfig:', aiConfig)
         if (!aiConfig.isAuthenticated) {
-            const returnUrl = encodeURIComponent(window.location.pathname);
-            window.location.href = `/authentication?returnUrl=${returnUrl}`;
+            const returnto = encodeURIComponent(window.location.pathname);
+            window.location.href = `/authentication?returnto=${returnto}`;
             return;
         }
 
