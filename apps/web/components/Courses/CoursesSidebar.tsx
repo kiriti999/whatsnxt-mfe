@@ -1,5 +1,5 @@
 import { Badge, Card, Group, Skeleton, Stack, Text } from "@mantine/core";
-import type { Lab } from "@whatsnxt/core-types";
+import type { Lab } from "@whatsnxt/types";
 import PopularPost from "@whatsnxt/core-ui/src/PopularPost";
 import type { Category, CourseType } from "@whatsnxt/core-util";
 import styles from "./Widget.module.css";

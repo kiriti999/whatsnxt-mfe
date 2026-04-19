@@ -19,8 +19,8 @@ import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { notifications } from '@mantine/notifications';
 import labApi from '@/apis/lab.api';
-import type { Question } from '@whatsnxt/core-types';
-import { 
+import type { Question } from '@whatsnxt/types';
+import {
   QUESTIONS_PER_PAGE_THRESHOLD,
   AUTO_PAGE_CREATION_MESSAGES,
   NOTIFICATION_DURATIONS,
@@ -93,7 +93,7 @@ export function useAutoPageCreation({
         const response = await labApi.getLabPageById(labId, currentPageId);
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const page = response.data as any;
-        
+
         // Count existing questions on the page
         let count = 0;
         if (page.questions && Array.isArray(page.questions)) {
@@ -103,7 +103,7 @@ export function useAutoPageCreation({
           count = 1;
         }
         // Note: Diagram tests don't count toward the threshold
-        
+
         setQuestionCount(count);
       } catch (error) {
         console.error('Failed to fetch initial question count:', error);

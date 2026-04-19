@@ -36,7 +36,7 @@ import {
   IconX,
 } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
-import type { Lab, LabPage } from "@whatsnxt/core-types";
+import type { Lab, LabPage } from "@whatsnxt/types";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import React, { useCallback, useEffect, useState } from "react";
 import labApi from "@/apis/lab.api";

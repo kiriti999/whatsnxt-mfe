@@ -1,5 +1,5 @@
 {
-  "name": "@whatsnxt/core-types",
+  "name": "@whatsnxt/types",
   "version": "1.0.0",
   "description": "Shared TypeScript type definitions for WhatsNxt MFE",
   "main": "src/index.d.ts",

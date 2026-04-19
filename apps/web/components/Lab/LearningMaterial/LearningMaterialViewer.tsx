@@ -10,7 +10,7 @@ import {
     IconLink,
     IconVideo,
 } from '@tabler/icons-react';
-import type { LearningLink } from '@whatsnxt/core-types';
+import type { LearningLink } from '@whatsnxt/types';
 import dynamic from 'next/dynamic';
 import type React from 'react';
 import { useMemo } from 'react';

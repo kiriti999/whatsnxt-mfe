@@ -1,4 +1,4 @@
-// packages/core-types/src/Purchase.ts
+// packages/types/src/Purchase.ts
 
 export type PurchaseStatus = 'completed' | 'refunded';
 export type PurchaseReason = 'purchase' | 'free_to_paid_conversion';

@@ -4,7 +4,7 @@ import React from 'react';
 import { Box, TextInput, Select, Textarea, Button, Group, Title } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
-import { Question, QuestionType } from '@whatsnxt/core-types';
+import { Question, QuestionType } from '@whatsnxt/types';
 
 interface QuestionEditorProps {
   initialQuestion?: Partial<Question>;

@@ -9,7 +9,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import labApi from '@/apis/lab.api';
 import type { PageMapping } from '@/types/pagination';
-import type { LabPage } from '@whatsnxt/core-types';
+import type { LabPage } from '@whatsnxt/types';
 
 interface UsePageMappingResult {
   pageMapping: PageMapping;
@@ -53,7 +53,7 @@ export const usePageMapping = (labId: string): UsePageMappingResult => {
 
       // Fetch lab data with all pages
       const response = await labApi.getLabById(labId);
-      
+
       if (!response?.data?.pages) {
         throw new Error('Lab pages data not found in response');
       }

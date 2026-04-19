@@ -11,7 +11,7 @@ Auto-generated from all feature plans. Last updated: 2025-12-15
 - MongoDB (backend API at localhost:4444), existing Lab and LabPage collections (001-streamline-lab-creation)
 - TypeScript 5.8.2, React 19.1.0, Next.js 16.0.7 (App Router) + Mantine UI v8.3.10 (components, notifications, modals), styled-components v6.1.19, custom HttpClient for API calls (002-auto-show-question-form)
 - REST API backend (`labApi.getLabPageById`, `labApi.saveQuestion`) - no direct client-side storage (002-auto-show-question-form)
-- TypeScript 5.8.2, Node.js 24 LTS + Next.js 16.0.7, React 19.1.0, Mantine UI 8.3.10, @whatsnxt/http-client (workspace), @whatsnxt/core-types (workspace) (003-auto-page-creation)
+- TypeScript 5.8.2, Node.js 24 LTS + Next.js 16.0.7, React 19.1.0, Mantine UI 8.3.10, @whatsnxt/http-client (workspace), @whatsnxt/types (workspace) (003-auto-page-creation)
 - Backend PostgreSQL (via Express.js v5 BFF at apps/whatsnxt-bff) (003-auto-page-creation)
 - TypeScript 5.8.2, Node.js 22.12.0 (runtime), React 19.1.0 (004-page-editor-pagination)
 - Existing PostgreSQL database via Express.js v5 backend APIs (no schema changes required) (004-page-editor-pagination)

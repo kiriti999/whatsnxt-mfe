@@ -18,7 +18,7 @@ import type {
   LabPage,
   PaginatedResponse,
   Question,
-} from "@whatsnxt/core-types";
+} from "@whatsnxt/types";
 
 /**
  * Request DTOs

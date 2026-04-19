@@ -1,4 +1,4 @@
-// packages/core-types/src/LabPricing.ts
+// packages/types/src/LabPricing.ts
 
 export type PurchaseType = 'free' | 'paid';
 export type Currency = 'INR';

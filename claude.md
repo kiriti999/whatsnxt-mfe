@@ -39,7 +39,7 @@ WhatsNxt is a Turbo monorepo with:
 | `@whatsnxt/constants` | All app constants | Import, never use string literals |
 | `@whatsnxt/errors` | Error classes | Extend base errors, no local classes |
 | `@whatsnxt/http-client` | HTTP communication | Configured axios instance |
-| `@whatsnxt/core-types` | Shared TypeScript interfaces | Import all shared types |
+| `@whatsnxt/types` | Shared TypeScript interfaces | Import all shared types |
 
 **Prohibited**: Creating local utilities, constants, error classes, or axios instances when workspace packages exist.
 

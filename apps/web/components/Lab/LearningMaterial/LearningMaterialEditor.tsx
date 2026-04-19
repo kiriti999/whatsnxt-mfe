@@ -25,7 +25,7 @@ import {
     IconTrash,
     IconVideo,
 } from "@tabler/icons-react";
-import type { LabPage } from "@whatsnxt/core-types";
+import type { LabPage } from "@whatsnxt/types";
 import dynamic from "next/dynamic";
 import { useCallback, useState } from "react";
 import {

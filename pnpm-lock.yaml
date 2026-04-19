@@ -395,19 +395,6 @@ importers:
         specifier: ^5.0.0
         version: 5.8.2
 
-  packages/core-types:
-    dependencies:
-      uuid:
-        specifier: ^10.0.0
-        version: 10.0.0
-    devDependencies:
-      '@types/node':
-        specifier: ^24.0.1
-        version: 24.0.14
-      typescript:
-        specifier: ^5.8.2
-        version: 5.8.2
-
   packages/core-ui:
     dependencies:
       '@mantine/carousel':
@@ -569,6 +556,19 @@ importers:
       axios:
         specifier: ^1.15.0
         version: 1.15.0
+
+  packages/types:
+    dependencies:
+      uuid:
+        specifier: ^10.0.0
+        version: 10.0.0
+    devDependencies:
+      '@types/node':
+        specifier: ^24.0.1
+        version: 24.0.14
+      typescript:
+        specifier: ^5.8.2
+        version: 5.8.2
 
   packages/typescript-config: {}
 

@@ -2,7 +2,7 @@
 
 import { Box, Button, Group, Stepper, Text, Title } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
-import type { LabPage } from "@whatsnxt/core-types";
+import type { LabPage } from "@whatsnxt/types";
 import type React from "react";
 import { useState } from "react";
 import labApi from "../apis/lab.api";

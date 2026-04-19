@@ -1,4 +1,4 @@
-// packages/core-types/src/Transaction.ts
+// packages/types/src/Transaction.ts
 
 export type TransactionType = 'purchase_attempt' | 'purchase_success' | 'purchase_failed';
 export type TransactionStatus = 'pending' | 'success' | 'failed' | 'cancelled';

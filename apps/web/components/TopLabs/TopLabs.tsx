@@ -13,7 +13,7 @@ import {
     IconShield,
     IconTerminal2,
 } from '@tabler/icons-react';
-import type { Lab } from '@whatsnxt/core-types';
+import type { Lab } from '@whatsnxt/types';
 import { useRouter } from 'next/navigation';
 import styles from './TopLabs.module.css';
 
