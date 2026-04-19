@@ -16,6 +16,7 @@ interface UseDiagramAIReturn {
     loading: boolean;
     result: string | null;
     error: string | null;
+    usingUserKey: boolean; // True if error was from user's own API key
     executeAction: (params: AIDiagramAction) => Promise<void>;
     clearResult: () => void;
 }
@@ -42,10 +43,12 @@ export function useDiagramAI(): UseDiagramAIReturn {
     const [loading, setLoading] = useState(false);
     const [result, setResult] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
+    const [usingUserKey, setUsingUserKey] = useState(false);
 
     const clearResult = useCallback(() => {
         setResult(null);
         setError(null);
+        setUsingUserKey(false);
     }, []);
 
     const executeAction = useCallback(
@@ -63,6 +66,7 @@ export function useDiagramAI(): UseDiagramAIReturn {
             setLoading(true);
             setError(null);
             setResult(null);
+            setUsingUserKey(false);
 
             try {
                 const prompt = ACTION_PROMPTS[action](svgContent);
@@ -88,6 +92,13 @@ export function useDiagramAI(): UseDiagramAIReturn {
                 }
             } catch (err: unknown) {
                 const msg = err instanceof Error ? err.message : "Unexpected error";
+                // Track if error was from user's own key
+                if (err && typeof err === "object") {
+                    const axiosError = err as {
+                        response?: { data?: { usingUserKey?: boolean } };
+                    };
+                    setUsingUserKey(axiosError.response?.data?.usingUserKey ?? false);
+                }
                 setError(msg);
                 showErrorNotification(msg);
             } finally {
@@ -97,7 +108,7 @@ export function useDiagramAI(): UseDiagramAIReturn {
         [aiConfig.selectedAI, aiConfig.selectedModel],
     );
 
-    return { loading, result, error, executeAction, clearResult };
+    return { loading, result, error, usingUserKey, executeAction, clearResult };
 }
 
 function extractErrorMessage(response: {

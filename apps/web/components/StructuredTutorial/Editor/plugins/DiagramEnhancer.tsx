@@ -55,6 +55,7 @@ function DiagramActions({ svgContent, figureElement }: DiagramActionsProps) {
         loading: aiLoading,
         result: aiResult,
         error: aiError,
+        usingUserKey,
         executeAction,
         clearResult,
     } = useDiagramAI();
@@ -73,17 +74,28 @@ function DiagramActions({ svgContent, figureElement }: DiagramActionsProps) {
             aiError.includes("API key") ||
             aiError.includes("Authentication") ||
             aiError.includes("401");
-        const isInvalidKey =
-            aiError.includes("Incorrect API key") ||
-            aiError.includes("Invalid API key");
         const isRateLimit =
             aiError.includes("rate limit") || aiError.includes("429");
 
-        if (isAuthError && !isRateLimit && (isInvalidKey || !aiConfig.hasApiKey(aiConfig.selectedAI))) {
-            setApiKeyError(aiError);
-            openConfigModal();
+        // Only show config modal if user's own key failed (not system key)
+        if (isAuthError && !isRateLimit) {
+            if (usingUserKey) {
+                // User's own key failed - let them configure a new one
+                setApiKeyError(aiError);
+                openConfigModal();
+            } else {
+                // System key failed - not user's fault
+                notifications.show({
+                    position: "top-right",
+                    color: "orange",
+                    title: "AI Service Temporarily Unavailable",
+                    message:
+                        "The AI service is currently experiencing issues. Please try again later or configure your own API key in settings.",
+                    autoClose: 10000,
+                });
+            }
         }
-    }, [aiError, openConfigModal, aiConfig]);
+    }, [aiError, usingUserKey, openConfigModal, aiConfig]);
 
     const handleCloseResultModal = () => {
         setAiResultModalOpen(false);

@@ -66,6 +66,7 @@ function CodeBlockActions({
         loading: aiLoading,
         result: aiResult,
         error: aiError,
+        usingUserKey,
         executeAction,
         clearResult,
     } = useCodeAI();
@@ -97,20 +98,29 @@ function CodeBlockActions({
             const isRateLimit =
                 aiError.includes("rate limit") || aiError.includes("429");
 
-            // Show modal if:
-            // 1. It's an auth error AND
-            // 2. Either the key is invalid OR user doesn't have a key saved AND
-            // 3. It's NOT a rate limit error (temporary issue)
-            if (
-                isAuthError &&
-                !isRateLimit &&
-                (isInvalidKey || !aiConfig.hasApiKey(aiConfig.selectedAI))
-            ) {
-                setApiKeyError(aiError);
-                openConfigModal();
+            // Only show config modal if:
+            // 1. It's an auth error AND user was using their OWN key (not system key)
+            // 2. It's NOT a rate limit error
+            // If system key failed, show notification instead (service issue, not user's fault)
+            if (isAuthError && !isRateLimit) {
+                if (usingUserKey) {
+                    // User's own key failed - let them configure a new one
+                    setApiKeyError(aiError);
+                    openConfigModal();
+                } else {
+                    // System key failed - not user's fault, show service unavailable message
+                    notifications.show({
+                        position: "top-right",
+                        color: "orange",
+                        title: "AI Service Temporarily Unavailable",
+                        message:
+                            "The AI service is currently experiencing issues. Please try again later or configure your own API key in settings.",
+                        autoClose: 10000,
+                    });
+                }
             }
         }
-    }, [aiError, openConfigModal, aiConfig]);
+    }, [aiError, usingUserKey, openConfigModal, aiConfig]);
 
     const handleCloseResultModal = () => {
         setAiResultModalOpen(false);

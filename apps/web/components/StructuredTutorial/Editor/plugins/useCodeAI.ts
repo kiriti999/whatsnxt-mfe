@@ -19,6 +19,7 @@ interface UseCodeAIReturn {
     loading: boolean;
     result: string | null;
     error: string | null;
+    usingUserKey: boolean; // True if error was from user's own API key
     executeAction: (params: AICodeAction) => Promise<void>;
     clearResult: () => void;
 }
@@ -60,6 +61,7 @@ export function useCodeAI(): UseCodeAIReturn {
     const [loading, setLoading] = useState(false);
     const [result, setResult] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
+    const [usingUserKey, setUsingUserKey] = useState(false);
 
     const executeAction = useCallback(
         async ({ action, code, language }: AICodeAction) => {
@@ -76,6 +78,7 @@ export function useCodeAI(): UseCodeAIReturn {
             setLoading(true);
             setError(null);
             setResult(null);
+            setUsingUserKey(false);
 
             console.log('[useCodeAI] Executing AI action:', {
                 action,
@@ -155,6 +158,10 @@ export function useCodeAI(): UseCodeAIReturn {
                     } else if (error.message) {
                         errorMessage = error.message;
                     }
+
+                    // Track if error was from user's own key
+                    const isUserKey = (error.response?.data as { usingUserKey?: boolean })?.usingUserKey ?? false;
+                    setUsingUserKey(isUserKey);
                 }
 
                 setError(errorMessage);
@@ -184,12 +191,14 @@ export function useCodeAI(): UseCodeAIReturn {
     const clearResult = useCallback(() => {
         setResult(null);
         setError(null);
+        setUsingUserKey(false);
     }, []);
 
     return {
         loading,
         result,
         error,
+        usingUserKey,
         executeAction,
         clearResult,
     };
