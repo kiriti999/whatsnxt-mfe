@@ -96,8 +96,7 @@ export function AIConfigProvider({
               selectedAI: lastUsed.provider,
               selectedModel:
                 lastUsed.model ||
-                DEFAULT_MODELS[lastUsed.provider] ||
-                "gpt-4.1-mini",
+                DEFAULT_MODELS[lastUsed.provider] || defaultProvider,
               loaded: true,
               savedProviders: providersWithKeys,
             });
@@ -144,8 +143,7 @@ export function AIConfigProvider({
                 selectedAI: latestProvider,
                 selectedModel:
                   entry?.modelVersion ||
-                  DEFAULT_MODELS[latestProvider] ||
-                  "gpt-4.1-mini",
+                  DEFAULT_MODELS[latestProvider] || defaultProvider,
                 loaded: true,
                 savedProviders: providersWithKeys,
               });
