@@ -374,7 +374,7 @@ const nextConfig: NextConfig = {
                         value: [
                             "default-src 'self'",
                             // PARTYTOWN: Allow all Partytown scripts and external analytics
-                            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com https://www.googletagmanager.com https://www.google-analytics.com https://checkout.razorpay.com https://www.youtube.com https://s.ytimg.com data: blob:",
+                            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com https://www.googletagmanager.com https://www.google-analytics.com https://checkout.razorpay.com https://cdn.razorpay.com https://www.youtube.com https://s.ytimg.com data: blob:",
                             "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
                             "font-src 'self' https://fonts.gstatic.com",
                             // Updated img-src to include S3/CloudFront and Cloudinary domains

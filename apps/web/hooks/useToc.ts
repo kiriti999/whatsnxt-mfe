@@ -89,8 +89,7 @@ export const useAddIdsToHeadings = (desc: string, isAuthenticated: boolean = fal
     let decodedDescription: any;
     try {
       decodedDescription = decodeURI(desc);
-    } catch (error) {
-      console.warn('Failed to decode description URI, using as-is:', error);
+    } catch {
       decodedDescription = desc;
     }
 
