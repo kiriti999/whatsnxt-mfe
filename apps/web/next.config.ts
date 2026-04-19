@@ -521,6 +521,10 @@ const nextConfig: NextConfig = {
         // Razorpay Configuration
         NEXT_PUBLIC_RAZORPAY_KEY: process.env.RAZOR_PAY_KEY,
         NEXT_PUBLIC_RAZORPAY_LOGO: process.env.RAZORPAY_LOGO,
+
+        // Default AI Provider Configuration
+        NEXT_PUBLIC_DEFAULT_AI_PROVIDER: process.env.DEFAULT_AI_PROVIDER,
+        NEXT_PUBLIC_DEFAULT_AI_MODEL: process.env.DEFAULT_AI_MODEL,
     },
 
     // NEXT.JS 16: Output configuration

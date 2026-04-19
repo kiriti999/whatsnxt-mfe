@@ -38,9 +38,13 @@ export function AIConfigProvider({
   children: React.ReactNode;
   isAuthenticated: boolean;
 }) {
+  // Default AI provider/model set at build time in next.config.ts
+  const defaultProvider = process.env.NEXT_PUBLIC_DEFAULT_AI_PROVIDER as string;
+  const defaultModel = process.env.NEXT_PUBLIC_DEFAULT_AI_MODEL as string;
+
   const [state, setState] = useState<AIConfigState>({
-    selectedAI: "openai",
-    selectedModel: "gpt-4.1-mini",
+    selectedAI: defaultProvider,
+    selectedModel: defaultModel,
     loaded: false,
     savedProviders: new Set(),
   });
