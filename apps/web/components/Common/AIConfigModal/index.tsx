@@ -104,9 +104,10 @@ export function AIConfigModal({
 
     const handleProviderChange = useCallback(
         (value: string | null) => {
-            const provider = value || "openai";
+            const defaultProvider = process.env.NEXT_PUBLIC_DEFAULT_AI_PROVIDER || "anthropic";
+            const provider = value || defaultProvider;
             onProviderChange(provider);
-            onModelChange(DEFAULT_MODELS[provider] || "gpt-4.1-mini");
+            onModelChange(DEFAULT_MODELS[provider]);
         },
         [onProviderChange, onModelChange],
     );
@@ -224,7 +225,7 @@ export function AIConfigModal({
                     placeholder="Choose model"
                     value={selectedModel}
                     onChange={(value) => onModelChange(value || selectedModel)}
-                    data={AI_MODELS[selectedAI] || AI_MODELS.openai}
+                    data={AI_MODELS[selectedAI] || AI_MODELS.anthropic}
                     comboboxProps={{ withinPortal: false }}
                 />
 
