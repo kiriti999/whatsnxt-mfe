@@ -83,7 +83,35 @@ function parseApiSpec(raw: string): ApiSpec {
     if (!raw.trim()) return createEmptySpec();
     try {
         const parsed = JSON.parse(extractJson(raw));
+
+        // If AI already returned our expected shape
         if (parsed.endpoints) return parsed as ApiSpec;
+
+        // If AI returned an array of endpoints directly
+        if (Array.isArray(parsed)) {
+            return { title: "", basePath: "/api", endpoints: parsed } as ApiSpec;
+        }
+
+        // Support OpenAPI / Swagger style objects with `paths`
+        if (parsed.paths && typeof parsed.paths === "object") {
+            const endpoints: ApiEndpoint[] = [];
+            for (const p of Object.keys(parsed.paths)) {
+                const methods = parsed.paths[p] || {};
+                for (const m of Object.keys(methods)) {
+                    const op = methods[m] || {};
+                    endpoints.push({
+                        method: m.toUpperCase(),
+                        path: p,
+                        summary: op.summary || op.operationId || "",
+                        description: op.description || "",
+                        requestBody: [],
+                        responseBody: [],
+                        responseStatus: 200,
+                    });
+                }
+            }
+            return { title: parsed.info?.title || "", basePath: parsed.basePath || "/api", endpoints };
+        }
     } catch {
         /* not JSON */
     }
