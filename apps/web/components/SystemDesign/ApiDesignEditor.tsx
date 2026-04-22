@@ -40,6 +40,10 @@ interface ApiEndpoint {
     requestBody: ApiField[];
     responseBody: ApiField[];
     responseStatus: number;
+    queryParameters?: ApiField[];
+    pathParameters?: ApiField[];
+    queryParameters?: ApiField[];
+    pathParameters?: ApiField[];
 }
 
 interface ApiSpec {
