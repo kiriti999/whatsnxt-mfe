@@ -10,8 +10,8 @@ export const fetchTrendingArticles = async (start: number, limit: number, type: 
     });
     return response?.data || [];
   } catch (error) {
-    console.log(' fetchTrendingArticles :: error:', error)
-
+    console.error('Error fetching trending articles:', error);
+    return [];
   }
 };
 
@@ -22,7 +22,7 @@ export const fetchStructuredTutorials = async (page: number, limit: number) => {
     });
     return response?.data || { tutorials: [], total: 0 };
   } catch (error) {
-    console.log(' fetchStructuredTutorials :: error:', error);
+    console.error('Error fetching structured tutorials:', error);
     return { tutorials: [], total: 0 };
   }
 };
@@ -47,7 +47,7 @@ export const fetchGATrendingContent = async (
       total: response?.total || 0,
     };
   } catch (error) {
-    console.log('fetchGATrendingContent :: error:', error);
+    console.error('Error fetching GA trending content:', error);
     return { articles: [], total: 0 };
   }
 };

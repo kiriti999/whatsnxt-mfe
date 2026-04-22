@@ -3,7 +3,6 @@ import { CourseType } from '@whatsnxt/core-util';
 import { serverFetcher } from './serverFetcher';
 
 const BASEURL = process.env.BFF_HOST_COURSE_API as string;
-console.log('🚀 :: BASEURL:', BASEURL)
 
 export const fetchCourses = async (limit = 30, offset = 0) => {
   try {
@@ -20,31 +19,56 @@ export const fetchCourses = async (limit = 30, offset = 0) => {
 };
 
 export const fetchPopularCourses = async () => {
-  const response = await serverFetcher(BASEURL, '/courses/popularity') as any;
-  return response?.enrolled || [];
+  try {
+    const response = await serverFetcher(BASEURL, '/courses/popularity') as any;
+    return response?.enrolled || [];
+  } catch (error) {
+    console.error('Error fetching popular courses:', error);
+    return [];
+  }
 };
 
 // Retain existing export
 export const fetchCategoriesByCount = async () => {
-  const response = await serverFetcher(BASEURL, '/courses/categories/categoryByCount') as any;
-  return response?.data?.categoriesCount || [];
+  try {
+    const response = await serverFetcher(BASEURL, '/courses/categories/categoryByCount') as any;
+    return response?.data?.categoriesCount || [];
+  } catch (error) {
+    console.error('Error fetching categories by count:', error);
+    return [];
+  }
 };
 
 export const fetchCategories = async () => {
-  const response = await serverFetcher(BASEURL, '/courses/categories') as any;
-  return response?.categories || [];
+  try {
+    const response = await serverFetcher(BASEURL, '/courses/categories') as any;
+    return response?.categories || [];
+  } catch (error) {
+    console.error('Error fetching categories:', error);
+    return [];
+  }
 };
 
-export const fetchCourseBySlug = async (slug: string): Promise<CourseType> => {
-  const response = await serverFetcher(BASEURL, `/courses/course/slug/${slug}`, {
-    cache: 'no-store' // Prevent caching for admin review
-  }) as any;
-  return response.course as CourseType;
+export const fetchCourseBySlug = async (slug: string): Promise<CourseType | null> => {
+  try {
+    const response = await serverFetcher(BASEURL, `/courses/course/slug/${slug}`, {
+      cache: 'no-store' // Prevent caching for admin review
+    }) as any;
+    return response.course as CourseType;
+  } catch (error) {
+    console.error('Error fetching course by slug:', error);
+    return null;
+  }
 };
 
 export const fetchCourseReviews = async (courseId: string, page = 1) => {
-  const response = await serverFetcher(BASEURL, `/course/feedback/${courseId}/reviews?page=${page}`) as any;
-  return { feedbackComments: response.feedbackComments, total: response.total };
+  try {
+    const response = await serverFetcher(BASEURL, `/course/feedback/${courseId}/reviews?page=${page}`) as any;
+    return { feedbackComments: response.feedbackComments, total: response.total };
+  } catch (error) {
+    console.error('Error fetching course reviews:', error);
+    return { feedbackComments: [], total: 0 };
+  }
 };
 
 export const fetchVideosBySection = async (sectionId: string) => {

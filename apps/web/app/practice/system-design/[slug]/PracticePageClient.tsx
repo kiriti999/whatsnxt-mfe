@@ -230,7 +230,15 @@ const PracticePageClient = ({ slug }: PracticePageClientProps) => {
 
             const attemptRes = await PracticeAPI.getOrCreate(courseRes.data._id);
             setAttempt(attemptRes.data);
-        } catch {
+        } catch (error) {
+            const errorMsg = extractErrorMessage(error);
+            console.error('Error loading practice course:', errorMsg);
+            notifications.show({
+                title: 'Error Loading Course',
+                message: errorMsg,
+                color: 'red',
+                autoClose: 5000,
+            });
             setCourse(null);
         } finally {
             setLoading(false);
