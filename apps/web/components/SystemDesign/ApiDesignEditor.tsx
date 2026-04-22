@@ -42,8 +42,6 @@ interface ApiEndpoint {
     responseStatus: number;
     queryParameters?: ApiField[];
     pathParameters?: ApiField[];
-    queryParameters?: ApiField[];
-    pathParameters?: ApiField[];
 }
 
 interface ApiSpec {
@@ -78,47 +76,78 @@ function createEmptySpec(): ApiSpec {
     return { title: "", basePath: "/api", endpoints: [] };
 }
 
-function extractJson(raw: string): string {
-    const fenceMatch = raw.match(/```(?:json)?\s*\n([\s\S]*?)```/);
-    return fenceMatch ? fenceMatch[1].trim() : raw.trim();
+function extractJsonObject(raw: string): string {
+    const firstBrace = raw.indexOf("{");
+    const lastBrace = raw.lastIndexOf("}");
+    if (firstBrace !== -1 && lastBrace > firstBrace) {
+        return raw.substring(firstBrace, lastBrace + 1);
+    }
+    return raw.trim();
 }
 
-function parseApiSpec(raw: string): ApiSpec {
-    if (!raw.trim()) return createEmptySpec();
-    try {
-        const parsed = JSON.parse(extractJson(raw));
+function repairJson(raw: string): string {
+    let cleaned = raw.replace(/^\uFEFF/, "").trim();
+    cleaned = cleaned.replace(/,\s*([}\]])/g, "$1");
 
-        // If AI already returned our expected shape
-        if (parsed.endpoints) return parsed as ApiSpec;
+    let openBraces = 0;
+    let openBrackets = 0;
+    let inString = false;
+    let escape = false;
 
-        // If AI returned an array of endpoints directly
-        if (Array.isArray(parsed)) {
-            return { title: "", basePath: "/api", endpoints: parsed } as ApiSpec;
-        }
-
-        // Support OpenAPI / Swagger style objects with `paths`
-        if (parsed.paths && typeof parsed.paths === "object") {
-            const endpoints: ApiEndpoint[] = [];
-            for (const p of Object.keys(parsed.paths)) {
-                const methods = parsed.paths[p] || {};
-                for (const m of Object.keys(methods)) {
-                    const op = methods[m] || {};
-                    endpoints.push({
-                        method: m.toUpperCase(),
-                        path: p,
-                        summary: op.summary || op.operationId || "",
-                        description: op.description || "",
-                        requestBody: [],
-                        responseBody: [],
-                        responseStatus: 200,
-                    });
-                }
-            }
-            return { title: parsed.info?.title || "", basePath: parsed.basePath || "/api", endpoints };
-        }
-    } catch {
-        /* not JSON */
+    for (const ch of cleaned) {
+        if (escape) { escape = false; continue; }
+        if (ch === "\\") { escape = true; continue; }
+        if (ch === '"') { inString = !inString; continue; }
+        if (inString) continue;
+        if (ch === "{") openBraces++;
+        if (ch === "}") openBraces--;
+        if (ch === "[") openBrackets++;
+        if (ch === "]") openBrackets--;
     }
+
+    while (openBrackets > 0) { cleaned += "]"; openBrackets--; }
+    while (openBraces > 0) { cleaned += "}"; openBraces--; }
+
+    return cleaned;
+}
+
+function tryParseJson(raw: string): Record<string, unknown> | null {
+    try {
+        return JSON.parse(raw);
+    } catch (e) {
+        console.log("tryParseJson :: error:", (e as Error).message, ":: last 50:", raw.slice(-50));
+        return null;
+    }
+}
+
+function normalizeSpec(parsed: Record<string, unknown>): ApiSpec {
+    return {
+        title: typeof parsed.title === "string" ? parsed.title : "",
+        basePath: typeof parsed.basePath === "string" ? parsed.basePath : "/api",
+        endpoints: Array.isArray(parsed.endpoints) ? (parsed.endpoints as ApiEndpoint[]) : [],
+    };
+}
+
+// biome-ignore lint/suspicious/noExplicitAny: value may be string or object at runtime
+function parseApiSpec(raw: any): ApiSpec {
+    if (typeof raw === "object" && raw !== null) {
+        if (raw.endpoints) return normalizeSpec(raw);
+        return createEmptySpec();
+    }
+
+    if (typeof raw !== "string" || !raw.trim()) return createEmptySpec();
+
+    const directParse = tryParseJson(raw.trim());
+    if (directParse?.endpoints) return normalizeSpec(directParse);
+
+    const extracted = extractJsonObject(raw);
+    const extractedParse = tryParseJson(extracted);
+    if (extractedParse?.endpoints) return normalizeSpec(extractedParse);
+
+    const repaired = repairJson(extracted);
+    const repairedParse = tryParseJson(repaired);
+    if (repairedParse?.endpoints) return normalizeSpec(repairedParse);
+
     return createEmptySpec();
 }
 
