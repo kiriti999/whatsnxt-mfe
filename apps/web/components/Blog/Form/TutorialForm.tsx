@@ -25,9 +25,9 @@ import { notifications } from "@mantine/notifications";
 import { IconAlertCircle, IconCheck, IconLayoutGrid, IconSparkles, IconUpload, IconWand } from "@tabler/icons-react";
 import type { CategoryPath } from "@whatsnxt/core-ui";
 import {
-  CategorySearch,
-  LoadingOverlay as CustomLoadingOverlay,
+  CategorySearch
 } from "@whatsnxt/core-ui";
+import { LoadingOverlay as CustomLoadingOverlay } from "@mantine/core";
 import { default as NextImage } from "next/image";
 import { useRouter } from "next/navigation";
 import type React from "react";
