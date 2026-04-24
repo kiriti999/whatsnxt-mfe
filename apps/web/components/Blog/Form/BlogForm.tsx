@@ -42,6 +42,7 @@ const BlogForm: React.FC<BlogFormProps> = ({ categories, edit }) => {
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
   const [aiGeneratedAsset, setAiGeneratedAsset] = useState<{
     imageUrl: string;
+    pngImageUrl?: string;
     cloudinaryAsset: { public_id: string; url: string; secure_url: string; format: string; resource_type: string };
   } | null>(null);
   const editorRef = useRef<LexicalEditorHandle>(null);
@@ -252,6 +253,7 @@ const BlogForm: React.FC<BlogFormProps> = ({ categories, edit }) => {
         setImagePreview(response.data.imageUrl);
         setAiGeneratedAsset({
           imageUrl: response.data.imageUrl,
+          pngImageUrl: response.data.pngImageUrl,
           cloudinaryAsset: response.data.cloudinaryAsset,
         });
         setCourseImage(null);
@@ -373,7 +375,7 @@ const BlogForm: React.FC<BlogFormProps> = ({ categories, edit }) => {
           cloudinaryAssets = [asset];
         }
       } else if (aiGeneratedAsset) {
-        // Use AI-generated image that was already uploaded to Cloudinary
+        // Use AI-generated image that was already uploaded
         imageUrl = aiGeneratedAsset.imageUrl;
         cloudinaryAssets = [aiGeneratedAsset.cloudinaryAsset];
       }
@@ -391,6 +393,7 @@ const BlogForm: React.FC<BlogFormProps> = ({ categories, edit }) => {
         includeDiagram,
         diagramMode: includeDiagram ? diagramMode : null,
         diagramType: includeDiagram && diagramMode === 'manual' ? selectedDiagramType : null,
+        ...(aiGeneratedAsset?.pngImageUrl && { pngImageUrl: aiGeneratedAsset.pngImageUrl }),
       };
 
       // Call FormAPI for creating or updating blog
