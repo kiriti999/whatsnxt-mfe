@@ -13,6 +13,7 @@ export interface BlogFormProps {
     contentFormat?: string;
     lexicalState?: Record<string, any> | null;
     imageUrl?: string;
+    pngImageUrl?: string;
     includeDiagram?: boolean;
     diagramMode?: 'auto' | 'manual' | null;
     diagramType?: string | null;

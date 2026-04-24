@@ -320,7 +320,7 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
         existingPublicId = edit.cloudinaryAssets[0].public_id;
       }
 
-      const response = await AISuggestions.generateTutorialImage({ 
+      const response = await AISuggestions.generateTutorialImage({
         title,
         publicId: existingPublicId
       });
@@ -353,7 +353,7 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
     } finally {
       setIsGeneratingImage(false);
     }
-  }, [getValues, notifications]);
+  }, [getValues, notifications, edit, aiGeneratedAsset]);
 
   const handleImageChange = async (file: File | null) => {
     // Clear previous states

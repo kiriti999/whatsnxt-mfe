@@ -32,6 +32,7 @@ export const FormAPI = {
       categoryId: payload.categoryId,
       subCategory: payload.subCategory || null,
       imageUrl: payload.imageUrl || null,
+      pngImageUrl: payload.pngImageUrl || null,
       nestedSubCategory: payload.nestedSubCategory || null,
       cloudinaryAssets: payload.cloudinaryAssets || null,
       wordCount: payload.wordCount,

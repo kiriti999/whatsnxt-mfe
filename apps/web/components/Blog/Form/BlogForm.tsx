@@ -252,12 +252,10 @@ const BlogForm: React.FC<BlogFormProps> = ({ categories, edit }) => {
       if (!existingPublicId && edit?.cloudinaryAssets?.length) {
         existingPublicId = edit.cloudinaryAssets[0].public_id;
       }
-      // If publicId includes the folder name, strip it because the backend handles it or leave it if backend handles it
-      // Our backend handles `whatsnxt-tutorial/` cleanly.
 
-      const response = await AISuggestions.generateTutorialImage({ 
-        title, 
-        publicId: existingPublicId 
+      const response = await AISuggestions.generateTutorialImage({
+        title,
+        publicId: existingPublicId
       });
 
       if (response?.data?.success && response.data.imageUrl) {
@@ -288,7 +286,7 @@ const BlogForm: React.FC<BlogFormProps> = ({ categories, edit }) => {
     } finally {
       setIsGeneratingImage(false);
     }
-  }, [watch]);
+  }, [watch, edit, aiGeneratedAsset]);
 
   const handleImageChange = async (file: File | null) => {
     // Clear previous states
@@ -373,6 +371,7 @@ const BlogForm: React.FC<BlogFormProps> = ({ categories, edit }) => {
       }
 
       let imageUrl = edit?.imageUrl || '';
+      let pngImageUrl = edit?.pngImageUrl || '';
       let cloudinaryAssets = edit?.cloudinaryAssets || [];
 
       // Only upload new image if one was selected
@@ -388,6 +387,7 @@ const BlogForm: React.FC<BlogFormProps> = ({ categories, edit }) => {
       } else if (aiGeneratedAsset) {
         // Use AI-generated image that was already uploaded
         imageUrl = aiGeneratedAsset.imageUrl;
+        pngImageUrl = aiGeneratedAsset.pngImageUrl;
         cloudinaryAssets = [aiGeneratedAsset.cloudinaryAsset];
       }
 
@@ -399,6 +399,7 @@ const BlogForm: React.FC<BlogFormProps> = ({ categories, edit }) => {
         nestedSubCategory: formData.nestedSubCategory,
         contentFormat: formData.contentFormat,
         imageUrl,
+        pngImageUrl,
         cloudinaryAssets,
         wordCount,
         includeDiagram,
