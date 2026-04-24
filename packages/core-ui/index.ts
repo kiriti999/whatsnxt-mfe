@@ -6,9 +6,7 @@ export * from './src/MainBanner'
 export * from './src/ReviewForm'
 export * from './src/RatingBars'
 export * from './src/InstructorAvatar'
-export * from './src/SocialLinks'
 export * from './src/LoadingSpinner'
-export * from './src/LoadingSkeleton'
 export * from './src/PageBanner'
 export * from './src/SortByComponent'
 export * from './src/Amount'
@@ -22,7 +20,6 @@ export * from './src/SocialShare'
 
 export { default as PopularTag } from './src/PopularTag/index';
 export { default as PopularPost } from './src/PopularPost/index';
-export { default as LoadingOverlay } from './src/LoadingOverlay';
 export { default as MantineLoader } from './src/MentineLoader';
 export {
     SkeletonRectangle,
