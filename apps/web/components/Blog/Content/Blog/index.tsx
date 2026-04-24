@@ -17,6 +17,7 @@ interface BlogContentProps {
   views: any;
   title: string;
   thumbnailUrn: string;
+  pngImageUrl: string;
   timeToRead: string;
   updatedAt: string;
   loading: boolean;
@@ -171,6 +172,7 @@ const BlogContent = ({
   url,
   title,
   thumbnailUrn,
+  pngImageUrl,
   timeToRead,
   updatedAt,
   loading,
@@ -244,6 +246,7 @@ const BlogContent = ({
               url={url}
               title={title}
               thumbnailUrn={thumbnailUrn}
+              pngImageUrl={pngImageUrl}
               email={user?.email}
               description={description}
             />

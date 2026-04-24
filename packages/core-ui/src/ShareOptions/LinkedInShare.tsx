@@ -8,7 +8,7 @@ import { LinkedInAPI } from '../../../../apps/web/apis/v1/blog/linkedInApi';
 interface LinkedInShareProps {
     url: string;
     title?: string;
-    thumbnailUrn?: string;
+    pngImageUrl?: string;
     description?: string;
     email?: string;
     media?: string[];
@@ -39,7 +39,7 @@ const truncateLinkedInText = (text: string, maxLength = 1900): string => {
     return text.substring(0, truncateAt) + '...';
 };
 
-const LinkedInShare: React.FC<LinkedInShareProps> = ({ url, title, thumbnailUrn, description, email, media }: any) => {
+const LinkedInShare: React.FC<LinkedInShareProps> = ({ url, title, pngImageUrl, description, email, media }: any) => {
     const style = { cursor: 'pointer' };
     const router = useRouter();
     const [tokenAvailable, setTokenAvailable] = useState<boolean>(false);
@@ -48,8 +48,8 @@ const LinkedInShare: React.FC<LinkedInShareProps> = ({ url, title, thumbnailUrn,
     // Strip HTML and store clean text in localStorage for OAuth callback flow
     useEffect(() => {
         const cleanDescription = stripHtmlForLinkedIn(description);
-        localStorage.setItem('linkedinShareData', JSON.stringify({ url, title, thumbnailUrn, description: cleanDescription, email }));
-    }, [url, title, thumbnailUrn, description, email]);
+        localStorage.setItem('linkedinShareData', JSON.stringify({ url, title, pngImageUrl, description: cleanDescription, email }));
+    }, [url, title, pngImageUrl, description, email]);
 
     // Check token on component mount
     useEffect(() => {
@@ -116,7 +116,7 @@ const LinkedInShare: React.FC<LinkedInShareProps> = ({ url, title, thumbnailUrn,
                         title,
                         email,
                         text: truncatedText,
-                        thumbnailUrn,
+                        pngImageUrl,
                         media: media?.filter(Boolean) ?? [],
                     });
                     console.log('🚀 :: handleShare :: shareResult:', shareResult)

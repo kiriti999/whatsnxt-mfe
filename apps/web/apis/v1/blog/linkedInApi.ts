@@ -46,17 +46,17 @@ export const LinkedInAPI = {
      * @param {string} postData.title - Post title
      * @param {string} postData.email - User email
      * @param {string} postData.text - Post text content
-     * @param {string} postData.thumbnailUrn - Optional thumbnail URN
+     * @param {string} postData.pngImageUrl - Optional thumbnail URN
      * @param {string[]} postData.media - Array of media URLs
      * @returns {Promise<any>} Response data
      */
-    sharePost: async function ({ url, title, email, text, thumbnailUrn, media }) {
+    sharePost: async function ({ url, title, email, text, pngImageUrl, media }) {
         const { data } = await articleApiClient.post('/linkedin/share', {
             url,
             title,
             email,
             text,
-            thumbnailUrn,
+            pngImageUrl,
             media: media || [],
         });
         return data.data;

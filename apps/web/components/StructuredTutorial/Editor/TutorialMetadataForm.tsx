@@ -102,6 +102,7 @@ export const TutorialMetadataForm: React.FC<TutorialMetadataFormProps> = ({
     const [isGeneratingImage, setIsGeneratingImage] = React.useState(false);
     const [aiGeneratedAsset, setAiGeneratedAsset] = React.useState<{
         imageUrl: string;
+        pngImageUrl?: string;
         cloudinaryAsset: { public_id: string; url: string; secure_url: string; format: string; resource_type: string };
     } | null>(null);
     const [configModalOpened, { open: openConfigModal, close: closeConfigModal }] =
@@ -230,11 +231,32 @@ export const TutorialMetadataForm: React.FC<TutorialMetadataFormProps> = ({
 
         setIsGeneratingImage(true);
         try {
-            const response = await AISuggestions.generateTutorialImage({ title });
+            // Find existing publicId to overwrite it instead of creating orphans
+            let existingPublicId = aiGeneratedAsset?.cloudinaryAsset?.public_id;
+            if (!existingPublicId && initialData?.imageUrl) {
+                // Extract publicId roughly from URL like "https://bucket.s3.region.amazonaws.com/whatsnxt-tutorial/filename.svg"
+                try {
+                    const urlPath = new URL(initialData.imageUrl).pathname; // e.g. "/whatsnxt-tutorial/upload_hash.svg"
+                    const parts = urlPath.split('/').filter(Boolean); // ["whatsnxt-tutorial", "upload_hash.svg"]
+                    if (parts.length >= 2) {
+                        const filenameWithoutExt = parts.pop()?.split('.')[0];
+                        const folder = parts.pop();
+                        existingPublicId = `${folder}/${filenameWithoutExt}`;
+                    }
+                } catch (e) {
+                    console.warn("Failed to extract publicId from URL", e);
+                }
+            }
+
+            const response = await AISuggestions.generateTutorialImage({ 
+                title,
+                publicId: existingPublicId 
+            });
             if (response?.data?.success && response.data.imageUrl) {
                 setImagePreview(response.data.imageUrl);
                 setAiGeneratedAsset({
                     imageUrl: response.data.imageUrl,
+                    pngImageUrl: response.data.pngImageUrl,
                     cloudinaryAsset: response.data.cloudinaryAsset,
                 });
                 setTutorialImage(null);

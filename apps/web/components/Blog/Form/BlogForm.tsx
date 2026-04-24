@@ -247,7 +247,18 @@ const BlogForm: React.FC<BlogFormProps> = ({ categories, edit }) => {
     setValidationSuccess(null);
 
     try {
-      const response = await AISuggestions.generateTutorialImage({ title });
+      // Find existing publicId to overwrite it instead of creating orphans
+      let existingPublicId = aiGeneratedAsset?.cloudinaryAsset?.public_id;
+      if (!existingPublicId && edit?.cloudinaryAssets?.length) {
+        existingPublicId = edit.cloudinaryAssets[0].public_id;
+      }
+      // If publicId includes the folder name, strip it because the backend handles it or leave it if backend handles it
+      // Our backend handles `whatsnxt-tutorial/` cleanly.
+
+      const response = await AISuggestions.generateTutorialImage({ 
+        title, 
+        publicId: existingPublicId 
+      });
 
       if (response?.data?.success && response.data.imageUrl) {
         setImagePreview(response.data.imageUrl);

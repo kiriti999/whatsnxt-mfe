@@ -168,6 +168,7 @@ function TutorialContentDetails({ details }: any) {
                         url={url}
                         title={item.title}
                         thumbnailUrn={item.imageUrl}
+                        pngImageUrl={item.pngImageUrl}
                         description={item.description}
                         email={email}
                       />
@@ -237,6 +238,7 @@ interface ShareOptionsWithViewsProps {
   url: string;
   title?: string;
   thumbnailUrn?: string;
+  pngImageUrl?: string;
   description?: string;
   email?: string;
 }
@@ -245,6 +247,7 @@ const ShareOptionsWithViews: React.FC<ShareOptionsWithViewsProps> = ({
   url,
   title,
   thumbnailUrn,
+  pngImageUrl,
   description,
   email,
 }) => {
@@ -259,6 +262,7 @@ const ShareOptionsWithViews: React.FC<ShareOptionsWithViewsProps> = ({
             url={url}
             title={title}
             thumbnailUrn={thumbnailUrn || ""}
+            pngImageUrl={pngImageUrl}
             description={description}
             email={email}
           />

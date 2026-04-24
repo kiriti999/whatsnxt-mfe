@@ -55,6 +55,7 @@ export interface PostSlugResponse {
   categoryName: string;
   timeToRead: string;
   imageUrl: string;
+  pngImageUrl: string;
   subCategory: string | null;
   nestedSubCategory: string | null;
   published: boolean;
@@ -158,6 +159,7 @@ function BlogContentDetails({ details }: BlogContentDetailsProps) {
                       views={views}
                       title={item.title}
                       thumbnailUrn={item.imageUrl}
+                      pngImageUrl={item.pngImageUrl}
                       updatedAt={item.updatedAt}
                       timeToRead={item.timeToRead}
                       loading={loading}

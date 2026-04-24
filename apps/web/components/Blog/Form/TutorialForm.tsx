@@ -124,6 +124,7 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
   const [aiGeneratedAsset, setAiGeneratedAsset] = useState<{
     imageUrl: string;
+    pngImageUrl?: string;
     cloudinaryAsset: { public_id: string; url: string; secure_url: string; format: string; resource_type: string };
   } | null>(null);
   const [includeDiagram, setIncludeDiagram] = useState(false);
@@ -313,12 +314,22 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
     setValidationSuccess(null);
 
     try {
-      const response = await AISuggestions.generateTutorialImage({ title });
+      // Find existing publicId to overwrite it instead of creating orphans
+      let existingPublicId = aiGeneratedAsset?.cloudinaryAsset?.public_id;
+      if (!existingPublicId && edit?.cloudinaryAssets?.length) {
+        existingPublicId = edit.cloudinaryAssets[0].public_id;
+      }
+
+      const response = await AISuggestions.generateTutorialImage({ 
+        title,
+        publicId: existingPublicId
+      });
 
       if (response?.data?.success && response.data.imageUrl) {
         setImagePreview(response.data.imageUrl);
         setAiGeneratedAsset({
           imageUrl: response.data.imageUrl,
+          pngImageUrl: response.data.pngImageUrl,
           cloudinaryAsset: response.data.cloudinaryAsset,
         });
         setTutorialImage(null);

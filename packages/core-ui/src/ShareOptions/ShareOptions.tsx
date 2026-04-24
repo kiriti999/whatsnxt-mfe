@@ -12,11 +12,12 @@ interface ShareOptionsProps {
   url: string;
   title?: string;
   thumbnailUrn: string;
+  pngImageUrl?: string;
   description?: string;
   email?: string;
 }
 
-export const ShareOptions: React.FC<ShareOptionsProps> = ({ url, title, thumbnailUrn, email, description }) => {
+export const ShareOptions: React.FC<ShareOptionsProps> = ({ url, title, thumbnailUrn, pngImageUrl, email, description }) => {
   const [opened, setOpened] = useState(false);
 
   return (
@@ -48,7 +49,7 @@ export const ShareOptions: React.FC<ShareOptionsProps> = ({ url, title, thumbnai
             <FacebookShare url={url} />
 
             {/* LinkedIn Share */}
-            <LinkedInShare url={url} email={email} title={title} thumbnailUrn={thumbnailUrn} description={description} />
+            <LinkedInShare url={url} email={email} title={title} pngImageUrl={pngImageUrl} description={description} />
 
             {/* Clipboard Copy */}
             < ClipboardCopy url={url} />

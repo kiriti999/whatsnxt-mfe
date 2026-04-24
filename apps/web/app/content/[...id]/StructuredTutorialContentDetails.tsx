@@ -42,6 +42,7 @@ interface StructuredTutorialContentDetailsProps {
         slug: string;
         description: string;
         imageUrl?: string;
+        pngImageUrl?: string;
         contentFormat?: "HTML" | "MARKDOWN" | "LEXICAL";
         lexicalState?: Record<string, unknown> | null;
         timeToRead?: string;
@@ -371,6 +372,7 @@ export default function StructuredTutorialContentDetails({
                                                 views={0}
                                                 title={item.title}
                                                 thumbnailUrn={item.imageUrl || ""}
+                                                pngImageUrl={item.pngImageUrl || ""}
                                                 updatedAt={item.updatedAt || ""}
                                                 timeToRead={item.timeToRead || ""}
                                                 loading={loading}
