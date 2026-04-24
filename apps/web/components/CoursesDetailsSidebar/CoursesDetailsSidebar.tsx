@@ -3,9 +3,9 @@ import styles from './CoursesDetailsSidebar.module.css';
 import { notifications } from '@mantine/notifications';
 import { useSelector } from 'react-redux';
 import { useAppDispatch } from '../../store/hooks'; // Create this hook
-import { Anchor, Text, Group, Paper, Stack, ActionIcon } from '@mantine/core';
+import { Text, Group } from '@mantine/core';
 import { FullPageOverlay } from '@/components/Common/FullPageOverlay';
-import Link from 'next/link';
+import { SocialShare } from "@whatsnxt/core-ui";
 import ReactPlayer from 'react-player';
 import ActionButtons from './ActionButtons';
 
@@ -17,13 +17,10 @@ import {
 } from '../../store/slices/cartSlice';
 
 import {
-  IconCopy,
-  IconBrandWhatsapp,
   IconUser,
   IconTimeDuration90,
   IconClock,
-  IconTags,
-  IconShare,
+  IconTags
 } from "@tabler/icons-react";
 
 import { useIsEnrolled } from '../../hooks/useIsEnrolled';
@@ -225,57 +222,7 @@ export const CoursesDetailsSidebar: FC<CoursesDetailsSidebarProps> = ({
               open={open}
             />
 
-            <Paper
-              p="xs"
-              radius="md"
-              withBorder
-              mt="md"
-              style={{
-                borderColor: 'var(--mantine-color-gray-3)'
-              }}
-            >
-              <Group gap="md" justify="center" align="center">
-                <Group gap="xs">
-                  <IconShare size={20} />
-                  <Text fw={600} size="sm">Share this course</Text>
-                </Group>
-
-                <Group gap="xs">
-                  <ActionIcon
-                    variant="subtle"
-                    color="gray"
-                    size="lg"
-                    radius="md"
-                    onClick={(event) => {
-                      event.preventDefault();
-                      navigator.clipboard.writeText(url);
-                      notifications.show({
-                        position: 'bottom-right',
-                        title: 'Link Copied',
-                        message: 'Course link copied to clipboard!',
-                        color: 'green'
-                      });
-                    }}
-                    title="Copy link"
-                  >
-                    <IconCopy size={20} stroke={1.5} />
-                  </ActionIcon>
-
-                  <ActionIcon
-                    component={Link}
-                    href={`https://wa.me/?text=${encodeURIComponent(url)}`}
-                    target="_blank"
-                    variant="subtle"
-                    color="teal"
-                    size="xl"
-                    radius="md"
-                    title="Share on WhatsApp"
-                  >
-                    <IconBrandWhatsapp size={20} stroke={1.5} />
-                  </ActionIcon>
-                </Group>
-              </Group>
-            </Paper>
+            <SocialShare url={`https://wa.me/?text=${encodeURIComponent(url)}`} />
           </>
         )}
       </div>

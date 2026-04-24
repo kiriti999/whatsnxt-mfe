@@ -1,8 +1,0 @@
-.social-link {
-    display: grid;
-    list-style: none;
-    grid-template-columns: repeat(3, 3rem);
-    grid-auto-flow: column;
-    padding: 0 !important;
-    margin-top: 1rem;
-}
