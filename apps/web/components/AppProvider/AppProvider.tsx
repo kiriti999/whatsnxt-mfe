@@ -114,7 +114,7 @@ export default function AppProvider({
   const headerProps = {
     links: [
       { title: "Home", url: `${domain}/`, linkType: "_self" },
-      { title: "Blogs", url: `${domain}/blogs`, linkType: "_self" },
+      { title: "Reads", url: `${domain}/reads`, linkType: "_self" },
       // { title: "Learn AI", url: `${domain}/learn-ai`, linkType: "_self" },
       { title: "Courses", url: `${domain}/courses`, linkType: "_self" },
     ],
@@ -167,7 +167,7 @@ export default function AppProvider({
         ],
       },
       {
-        title: "Blogs",
+        title: "Content",
         url: "",
         children: [
           {

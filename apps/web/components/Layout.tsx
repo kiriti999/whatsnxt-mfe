@@ -1,6 +1,5 @@
 import React from 'react';
 import Navbar from './Navbar';
-import { Footer } from '@whatsnxt/core-ui/src/Footer';
 import { GoTop } from '@whatsnxt/core-util';
 import CookieConsent from 'react-cookie-consent';
 import { Box } from '@mantine/core';
