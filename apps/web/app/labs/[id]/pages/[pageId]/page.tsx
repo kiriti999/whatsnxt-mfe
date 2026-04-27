@@ -180,7 +180,12 @@ Generate a prompt (10-2000 characters) that instructs students to create a diagr
 4. Reference the lab title and category naturally
 5. Include any specific requirements or constraints
 
-Respond ONLY with the prompt text, no JSON, no markdown, no extra explanation.`;
+CRITICAL OUTPUT FORMAT:
+- Return PLAIN TEXT ONLY. Absolutely no HTML tags (no h1, p, h2, br, ul, li tags).
+- No markdown formatting (no #, *, **, code fences, lists, etc.).
+- No JSON, no code fences, no extra explanation, no preamble.
+- Just the prompt sentences a student would read directly.
+- Maximum 2000 characters.`;
 };
 
 /**
@@ -1918,11 +1923,27 @@ const LabPageEditorPage = () => {
                           });
 
                           if (response.status === 200 && response.data?.suggestion) {
-                            // The response is plain text, not JSON
-                            setPrompt(response.data.suggestion.trim());
+                            // Strip HTML tags and clean up
+                            let cleanPrompt = response.data.suggestion
+                              .replace(/<[^>]+>/g, '')
+                              .replace(/&nbsp;/g, ' ')
+                              .replace(/&amp;/g, '&')
+                              .replace(/&lt;/g, '<')
+                              .replace(/&gt;/g, '>')
+                              .replace(/&quot;/g, '"')
+                              .replace(/&#39;/g, "'")
+                              .replace(/\n{3,}/g, '\n\n')
+                              .trim();
+
+                            // Enforce 2000 character limit
+                            if (cleanPrompt.length > 2000) {
+                              cleanPrompt = cleanPrompt.slice(0, 2000).trim();
+                            }
+
+                            setPrompt(cleanPrompt);
                             notifications.show({
                               title: "Prompt Generated",
-                              message: "AI generated a diagram test prompt based on your lab context.",
+                              message: `AI generated a diagram test prompt (${cleanPrompt.length}/2000 chars).`,
                               color: "teal",
                             });
                           }
