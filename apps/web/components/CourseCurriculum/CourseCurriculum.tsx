@@ -4,6 +4,7 @@ import { useDisclosure } from '@mantine/hooks';
 import { Modal, Group, Paper, Text, Button, Accordion, Title } from '@mantine/core';
 import { HireTrainerModal } from '../HireTrainerModal';
 import VideosPanel from './VideosPanel';
+import { labDescriptionText } from '../../utils/lab-utils';
 
 type CourseCurriculumProps = {
   courseId: string;
@@ -199,7 +200,7 @@ const CourseCurriculum: FC<CourseCurriculumProps> = ({
                       </Text>
                       {lab.description && (
                         <Text size="xs" c="dimmed" lineClamp={2}>
-                          {lab.description}
+                          {labDescriptionText(lab.description)}
                         </Text>
                       )}
                       <Group gap="xs" mt="xs">

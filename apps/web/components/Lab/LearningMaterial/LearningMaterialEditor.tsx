@@ -22,6 +22,7 @@ import {
     IconHierarchy2,
     IconLink,
     IconPlus,
+    IconSparkles,
     IconTrash,
     IconVideo,
 } from "@tabler/icons-react";
@@ -80,6 +81,23 @@ function buildAIPrompt(topic: string): string {
         "5. Common pitfalls to avoid\n\n" +
         "Use clear headings and bullet points."
     );
+}
+
+function buildTopicGenerationPrompt(labType: string, subCategory?: string, nestedSubCategory?: string): string {
+    const context = [nestedSubCategory, subCategory, labType].filter(Boolean).join(" > ");
+    return `You are an expert educational content creator. Generate ONE relevant learning topic for a lab on: ${context}
+
+The topic should be:
+1. Specific and focused (not too broad, not too narrow)
+2. Directly related to the lab subject matter
+3. Educational and engaging
+4. Suitable for students to learn about
+5. 3-10 words in length
+
+CRITICAL OUTPUT FORMAT:
+- Return ONLY the topic text, nothing else
+- No JSON, no markdown, no explanation, no preamble
+- Just the topic sentence that could be used as a learning title`;
 }
 
 function createEmptyLink(): LinkRow {
@@ -142,6 +160,7 @@ export function LearningMaterialEditor({
         }
     });
     const [contentAITopic, setContentAITopic] = useState("");
+    const [isGeneratingContentAI, setIsGeneratingContentAI] = useState(false);
     const [diagramCustomPrompt, setDiagramCustomPrompt] = useState("");
     const [isDiagramValidating, setIsDiagramValidating] = useState(false);
     const [diagramKey, setDiagramKey] = useState(0);
@@ -253,6 +272,62 @@ export function LearningMaterialEditor({
         setDiagramState(json);
     }, []);
 
+    const handleGenerateContentAI = useCallback(async () => {
+        setIsGeneratingContentAI(true);
+        try {
+            // Step 1: Generate topic from lab context
+            const topicPrompt = buildTopicGenerationPrompt(labType, subCategory, nestedSubCategory);
+            const topicResponse = await AISuggestions.getSuggestionByAI({
+                question: topicPrompt,
+                aiModel: aiConfig.selectedAI || 'openai',
+                modelVersion: aiConfig.selectedModel || 'gpt-4-turbo',
+            });
+
+            if (topicResponse.status !== 200 || !topicResponse.data?.suggestion) {
+                notifications.show({
+                    position: "bottom-right",
+                    color: "red",
+                    title: "Topic generation failed",
+                    message: "Could not generate a topic. Please try again.",
+                });
+                return;
+            }
+
+            const generatedTopic = topicResponse.data.suggestion.trim();
+            setContentAITopic(generatedTopic);
+
+            // Step 2: Generate content from the generated topic
+            const contentPrompt = buildAIPrompt(generatedTopic);
+            const contentResponse = await AISuggestions.getSuggestionByAI({
+                question: contentPrompt,
+                aiModel: aiConfig.selectedAI || 'openai',
+                modelVersion: aiConfig.selectedModel || 'gpt-4-turbo',
+            });
+
+            if (contentResponse.status === 200 && contentResponse.data?.suggestion) {
+                setEditorInitialValue(contentResponse.data.suggestion);
+                setEditorKey((k) => k + 1);
+                setLearningContent(contentResponse.data.suggestion);
+                notifications.show({
+                    position: "bottom-right",
+                    color: "teal",
+                    title: "Content generated",
+                    message: `Generated topic: "${generatedTopic}"`,
+                });
+            }
+        } catch (error: any) {
+            const msg = error?.response?.data?.message || error?.message || "Failed to generate content";
+            notifications.show({
+                position: "bottom-right",
+                color: "red",
+                title: "Generation failed",
+                message: msg,
+            });
+        } finally {
+            setIsGeneratingContentAI(false);
+        }
+    }, [labType, subCategory, nestedSubCategory, aiConfig]);
+
     const handleSave = useCallback(async () => {
         setIsSaving(true);
         try {
@@ -346,6 +421,17 @@ export function LearningMaterialEditor({
                                             value={contentAITopic}
                                             onChange={(e) => setContentAITopic(e.currentTarget.value)}
                                         />
+                                        <ActionIcon
+                                            size="xs"
+                                            variant="subtle"
+                                            color="violet"
+                                            loading={isGeneratingContentAI}
+                                            disabled={isGeneratingContentAI}
+                                            onClick={handleGenerateContentAI}
+                                            title="Generate topic and content with AI"
+                                        >
+                                            <IconSparkles size={14} />
+                                        </ActionIcon>
                                         <AISuggestionButton
                                             prompt={() => buildAIPrompt(contentAITopic)}
                                             onSuggestion={handleAISuggestion}

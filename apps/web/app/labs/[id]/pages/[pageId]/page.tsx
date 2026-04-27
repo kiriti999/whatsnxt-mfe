@@ -31,6 +31,7 @@ import { notifications } from "@mantine/notifications";
 import {
   IconDeviceDesktop,
   IconSearch,
+  IconSparkles,
   IconTrash,
   IconX,
 } from "@tabler/icons-react";
@@ -51,6 +52,7 @@ import { usePageMapping } from "@/hooks/usePageMapping";
 import {
   buildDiagramAIPrompt,
   buildDiagramValidationPrompt,
+  buildDiagramIssueFixPrompt,
   type DiagramValidationIssue,
   parseAIDiagramResponse,
   parseAIValidationResponse,
@@ -81,6 +83,135 @@ const QUESTION_TYPES = [
   { value: "True/False", label: "True/False" },
   { value: "Fill in the blank", label: "Fill in the blank" },
 ];
+
+/**
+ * Build a prompt for the AI to generate the entire question (text + options + answer) based on lab context.
+ * Adapts based on question type (MCQ, True/False, Fill in the blank).
+ */
+const buildQuestionFromContextAIPrompt = (
+  questionType: string,
+  labTitle: string,
+  labDescription: string,
+  category: string,
+): string => {
+  const typeInstructions: Record<string, string> = {
+    MCQ: `This is a Multiple Choice Question.
+Generate a relevant question about the topic and provide 4 plausible options (one correct, three distractors).
+
+Respond ONLY with valid JSON in this exact format:
+{
+  "questionText": "A clear question related to the topic",
+  "options": ["Option A", "Option B", "Option C", "Option D"],
+  "correctAnswer": "Option A"
+}
+
+Rules:
+- The correct answer must exactly match one of the options.
+- Distractors should be plausible but clearly wrong.
+- Keep options concise (under 100 characters each).
+- Question should be specific and directly testable.`,
+
+    "True/False": `This is a True/False Question.
+Generate a statement that is either True or False related to the topic.
+
+Respond ONLY with valid JSON in this exact format:
+{
+  "questionText": "A statement related to the topic",
+  "options": ["True", "False"],
+  "correctAnswer": "True"
+}
+
+Rules:
+- The correctAnswer must be exactly "True" or "False".
+- The statement should be clear and unambiguous.`,
+
+    "Fill in the blank": `This is a Fill in the Blank Question.
+Generate a sentence with a blank that students must fill with the correct term from the topic.
+
+Respond ONLY with valid JSON in this exact format:
+{
+  "questionText": "A sentence with a blank, like: The process of _____ is essential in [topic].",
+  "options": [],
+  "correctAnswer": "the correct term"
+}
+
+Rules:
+- Keep the answer concise and precise (1-3 words maximum).
+- No options are needed for fill-in-the-blank.
+- The blank should be clearly indicated with underscores or [blank].`,
+  };
+
+  const instructions =
+    typeInstructions[questionType] || typeInstructions["MCQ"];
+
+  return `You are an expert educational assessment creator. Generate a ${questionType} question for a lab about "${labTitle}".
+
+Lab Context:
+- Title: ${labTitle}
+- Description: ${labDescription}
+- Category: ${category}
+
+Create a ${questionType} question that tests understanding of the core concepts. The question should be relevant to the lab topic and moderately challenging.
+
+${instructions}
+
+IMPORTANT: Respond ONLY with the JSON object. No markdown, no explanation, no extra text.`;
+};
+
+/**
+ * Build a prompt for generating a diagram test prompt based on lab context.
+ */
+const buildDiagramTestPromptAIPrompt = (
+  labTitle: string,
+  labDescription: string,
+  category: string,
+): string => {
+  return `You are an expert in creating architecture/system design exercises. Generate a clear, concise prompt for a diagram test exercise.
+
+Lab Context:
+- Title: ${labTitle}
+- Description: ${labDescription}
+- Category: ${category}
+
+Generate a prompt (10-2000 characters) that instructs students to create a diagram. The prompt should:
+1. Clearly describe what diagram students should create
+2. Be specific about the components or architecture to include
+3. Be achievable within a reasonable time frame
+4. Reference the lab title and category naturally
+5. Include any specific requirements or constraints
+
+Respond ONLY with the prompt text, no JSON, no markdown, no extra explanation.`;
+};
+
+/**
+ * Build a prompt for the AI to generate hints for a diagram test.
+ */
+const buildHintsGenerationPrompt = (
+  diagramPrompt: string,
+): string => {
+  return `You are an expert educational instructor. Generate 3-5 progressive hints to help students complete a diagram test exercise.
+
+Diagram Test Prompt:
+"${diagramPrompt}"
+
+Generate helpful hints that guide students without giving away the complete solution. The hints should:
+1. Start with general guidance (Hint 1)
+2. Progress to more specific hints (Hints 2-4)
+3. Each hint should be concise (1-2 sentences, max 500 characters)
+4. Not reveal the exact answer but point toward the right approach
+5. Help students who are stuck understand what they might be missing
+
+Respond ONLY with a JSON array of hints in this exact format:
+{
+  "hints": [
+    "First hint text here",
+    "Second hint text here",
+    "Third hint text here"
+  ]
+}
+
+No markdown, no explanation, just the JSON.`;
+};
 
 /**
  * Build a prompt for the AI to generate answer/options for a question.
@@ -145,11 +276,14 @@ IMPORTANT: Respond ONLY with the JSON object. No markdown, no explanation, no ex
 };
 
 /**
- * Parse the AI response for a question answer into { options, correctAnswer }.
+ * Parse the AI response for a question into { questionText?, options, correctAnswer }.
+ * `questionText` is only present when the prompt asked the AI to generate the
+ * question itself (lab-context flow); the per-question sparkle prompt only
+ * asks for options + answer and returns it undefined.
  */
 const parseAIQuestionResponse = (
   rawResponse: string,
-): { options: string[]; correctAnswer: string } | null => {
+): { questionText?: string; options: string[]; correctAnswer: string } | null => {
   try {
     // Strip markdown code fences if present
     let jsonStr = rawResponse.trim();
@@ -164,10 +298,12 @@ const parseAIQuestionResponse = (
       return null;
     }
 
-    // Options: return as array
     const options = Array.isArray(parsed.options) ? parsed.options : [];
+    const questionText =
+      typeof parsed.questionText === "string" ? parsed.questionText : undefined;
 
     return {
+      questionText,
       options,
       correctAnswer: parsed.correctAnswer,
     };
@@ -199,9 +335,16 @@ const LabPageEditorPage = () => {
   const [saving, setSaving] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [savingQuestionId, setSavingQuestionId] = useState<string | null>(null);
+  const [generatingQuestionIds, setGeneratingQuestionIds] = useState<Set<string>>(new Set());
   const [searchQuery, setSearchQuery] = useState("");
   const [labStatus, setLabStatus] = useState<"draft" | "published">("draft");
   const [diagramTestData, setDiagramTestData] = useState<any>(null);
+  const [labMetadata, setLabMetadata] = useState<{
+    title: string;
+    description: string;
+    categoryName: string;
+    subCategory?: string;
+  } | null>(null);
   const [isPreviewDiagram, setIsPreviewDiagram] = useState(false);
   const [isFormCancelled, setIsFormCancelled] = useState(false);
   const [currentPageNumber, setCurrentPageNumber] = useState(1);
@@ -266,6 +409,9 @@ const LabPageEditorPage = () => {
   const [expectedDiagramState, setExpectedDiagramState] = useState<any>(null);
   const [hints, setHints] = useState<string[]>([]);
   const [isDiagramValidating, setIsDiagramValidating] = useState(false);
+  const [isFixingDiagram, setIsFixingDiagram] = useState(false);
+  const [isGeneratingDiagramPrompt, setIsGeneratingDiagramPrompt] = useState(false);
+  const [isGeneratingHints, setIsGeneratingHints] = useState(false);
   const [validationIssues, setValidationIssues] = useState<
     DiagramValidationIssue[]
   >([]);
@@ -295,6 +441,14 @@ const LabPageEditorPage = () => {
       const labResponse = await labApi.getLabById(labId);
       const labData = labResponse.data;
       setLabStatus(labData.status || "draft");
+
+      // Store lab metadata for AI prompts
+      setLabMetadata({
+        title: labData.name || labData.title || "",
+        description: labData.description || "",
+        categoryName: labData.labType || labData.categoryName || "",
+        subCategory: labData.subCategory || "",
+      });
 
       // Derive architecture type from lab's sub-category and nested sub-category
       const derivedArchType = mapSubCategoryToArchitecture(
@@ -1347,13 +1501,117 @@ const LabPageEditorPage = () => {
                           </Group>
 
                           <Stack gap="md">
+                            {/* Question Type Selection - First */}
+                            <Select
+                              label="Question Type"
+                              data={QUESTION_TYPES}
+                              value={question.type}
+                              onChange={(value) =>
+                                updateQuestion(
+                                  question.id,
+                                  "type",
+                                  value || "MCQ",
+                                )
+                              }
+                              required
+                              disabled={!isEditable}
+                              placeholder="Select a question type first"
+                            />
+
+                            {/* AI Generate Question from Context - After question type is selected */}
+                            {isEditable && !question.isSaved && labMetadata && question.type && (
+                              <Box>
+                                <Button
+                                  variant="light"
+                                  color="cyan"
+                                  fullWidth
+                                  loading={generatingQuestionIds.has(question.id)}
+                                  disabled={generatingQuestionIds.has(question.id)}
+                                  onClick={async () => {
+                                    setGeneratingQuestionIds((prev) => {
+                                      const next = new Set(prev);
+                                      next.add(question.id);
+                                      return next;
+                                    });
+                                    try {
+                                      const prompt = buildQuestionFromContextAIPrompt(
+                                        question.type,
+                                        labMetadata.title,
+                                        labMetadata.description,
+                                        labMetadata.categoryName,
+                                      );
+
+                                      const response = await AISuggestions.getSuggestionByAI({
+                                        question: prompt,
+                                        aiModel: selectedAI || 'openai',
+                                        modelVersion: selectedModel || 'gpt-4-turbo',
+                                      });
+
+                                      if (response.status === 200 && response.data?.suggestion) {
+                                        const result = parseAIQuestionResponse(response.data.suggestion);
+                                        if (result) {
+                                          // Update question with AI-generated content
+                                          setQuestions((prev) =>
+                                            prev.map((q) => {
+                                              if (q.id !== question.id) return q;
+                                              const updates: Partial<Question> = {
+                                                questionText: result.questionText || '',
+                                                correctAnswer: result.correctAnswer,
+                                              };
+                                              if (question.type === "MCQ" && result.options) {
+                                                updates.options = result.options;
+                                              }
+                                              if (question.type === "True/False") {
+                                                updates.options = ["True", "False"];
+                                              }
+                                              return { ...q, ...updates };
+                                            }),
+                                          );
+                                          notifications.show({
+                                            title: "Question Generated",
+                                            message: "AI generated question text and options. Review and save when ready.",
+                                            color: "teal",
+                                          });
+                                        } else {
+                                          notifications.show({
+                                            title: "Generation Failed",
+                                            message: "Could not parse the AI response. Please try again.",
+                                            color: "red",
+                                          });
+                                        }
+                                      }
+                                    } catch (error: any) {
+                                      const msg = error?.response?.data?.message || error?.message || "Failed to generate question";
+                                      notifications.show({
+                                        title: "Generation Failed",
+                                        message: msg,
+                                        color: "red",
+                                      });
+                                    } finally {
+                                      setGeneratingQuestionIds((prev) => {
+                                        const next = new Set(prev);
+                                        next.delete(question.id);
+                                        return next;
+                                      });
+                                    }
+                                  }}
+                                >
+                                  ✨ Generate Question from Lab Context
+                                </Button>
+                                <Text size="xs" c="dimmed" mt={4}>
+                                  AI will generate a {question.type} question based on your lab's title, description, and category.
+                                </Text>
+                              </Box>
+                            )}
+
+                            {/* Question Text Input - Second */}
                             <Box>
                               <Group gap="xs" mb={4}>
                                 <Text size="sm" fw={500}>
                                   Question Text{" "}
                                   <span style={{ color: "red" }}>*</span>
                                 </Text>
-                                {isEditable && (
+                                {isEditable && question.isSaved && (
                                   <AISuggestionButton
                                     prompt={() =>
                                       buildQuestionAIPrompt(
@@ -1442,21 +1700,6 @@ const LabPageEditorPage = () => {
                                 description="Must be unique within this lab - less than 85% similar to other questions (10-1000 characters)"
                               />
                             </Box>
-
-                            <Select
-                              label="Question Type"
-                              data={QUESTION_TYPES}
-                              value={question.type}
-                              onChange={(value) =>
-                                updateQuestion(
-                                  question.id,
-                                  "type",
-                                  value || "MCQ",
-                                )
-                              }
-                              required
-                              disabled={!isEditable}
-                            />
 
                             {question.type === "MCQ" && (
                               <Box>
@@ -1650,12 +1893,122 @@ const LabPageEditorPage = () => {
                 </Group>
 
                 <Box>
+                  {/* AI Generate Diagram Prompt from Lab Context - Button Above */}
+                  {canEditContent && labMetadata && (
+                    <Button
+                      variant="light"
+                      color="cyan"
+                      size="sm"
+                      mb="md"
+                      loading={isGeneratingDiagramPrompt}
+                      disabled={isGeneratingDiagramPrompt}
+                      onClick={async () => {
+                        setIsGeneratingDiagramPrompt(true);
+                        try {
+                          const promptText = buildDiagramTestPromptAIPrompt(
+                            labMetadata.title,
+                            labMetadata.description,
+                            labMetadata.categoryName,
+                          );
+
+                          const response = await AISuggestions.getSuggestionByAI({
+                            question: promptText,
+                            aiModel: selectedAI || 'openai',
+                            modelVersion: selectedModel || 'gpt-4-turbo',
+                          });
+
+                          if (response.status === 200 && response.data?.suggestion) {
+                            // The response is plain text, not JSON
+                            setPrompt(response.data.suggestion.trim());
+                            notifications.show({
+                              title: "Prompt Generated",
+                              message: "AI generated a diagram test prompt based on your lab context.",
+                              color: "teal",
+                            });
+                          }
+                        } catch (error: any) {
+                          const msg = error?.response?.data?.message || error?.message || "Failed to generate prompt";
+                          notifications.show({
+                            title: "Generation Failed",
+                            message: msg,
+                            color: "red",
+                          });
+                        } finally {
+                          setIsGeneratingDiagramPrompt(false);
+                        }
+                      }}
+                    >
+                      ✨ Generate Prompt from Lab Context
+                    </Button>
+                  )}
+
                   <Group gap="xs" mb={4}>
                     <Text size="sm" fw={500}>
                       Prompt <span style={{ color: "red" }}>*</span>
                     </Text>
-                    {canEditContent && (
+                    {canEditContent && labMetadata && (
                       <>
+                        <ActionIcon
+                          size="xs"
+                          variant="subtle"
+                          color="violet"
+                          loading={isGeneratingHints}
+                          disabled={!prompt.trim() || isGeneratingHints}
+                          onClick={async () => {
+                            setIsGeneratingHints(true);
+                            try {
+                              const promptText = buildHintsGenerationPrompt(prompt);
+                              const response = await AISuggestions.getSuggestionByAI({
+                                question: promptText,
+                                aiModel: selectedAI || 'openai',
+                                modelVersion: selectedModel || 'gpt-4-turbo',
+                              });
+
+                              if (response.status === 200 && response.data?.suggestion) {
+                                try {
+                                  let jsonStr = response.data.suggestion.trim();
+                                  if (jsonStr.startsWith('```')) {
+                                    jsonStr = jsonStr.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '');
+                                  }
+                                  const parsed = JSON.parse(jsonStr);
+                                  if (Array.isArray(parsed.hints) && parsed.hints.length > 0) {
+                                    const newHints = parsed.hints.slice(0, 5).map((h: any) =>
+                                      (typeof h === 'string' ? h : '').slice(0, 500)
+                                    ).filter((h: string) => h.trim().length > 0);
+
+                                    if (newHints.length > 0) {
+                                      setHints(newHints);
+                                      notifications.show({
+                                        title: "Hints Generated",
+                                        message: `Generated ${newHints.length} hint(s) for this prompt.`,
+                                        color: "teal",
+                                      });
+                                    }
+                                  }
+                                } catch (parseErr) {
+                                  console.error("Failed to parse hints response:", parseErr);
+                                  notifications.show({
+                                    title: "Parse Error",
+                                    message: "Could not parse the AI response. Please try again.",
+                                    color: "red",
+                                  });
+                                }
+                              }
+                            } catch (error: any) {
+                              const msg = error?.response?.data?.message || error?.message || "Failed to generate hints";
+                              notifications.show({
+                                title: "Generation Failed",
+                                message: msg,
+                                color: "red",
+                              });
+                            } finally {
+                              setIsGeneratingHints(false);
+                            }
+                          }}
+                          title="Generate hints from prompt"
+                        >
+                          <IconSparkles size={16} />
+                        </ActionIcon>
                         <AISuggestionButton
                           prompt={() =>
                             buildDiagramAIPrompt(prompt, architectureType, [
@@ -2147,6 +2500,71 @@ const LabPageEditorPage = () => {
               >
                 Copy to Clipboard
               </Button>
+              {validationIssues.some((i) => i.severity === "error" || i.severity === "warning") && (
+                <Button
+                  color="orange"
+                  loading={isFixingDiagram}
+                  disabled={isFixingDiagram}
+                  onClick={async () => {
+                    if (!expectedDiagramState) return;
+                    setIsFixingDiagram(true);
+                    try {
+                      const currentJSON = JSON.stringify(expectedDiagramState);
+                      // Pass the full built prompt (with shape catalog) so AI knows valid shapeIds
+                      const builtPrompt = buildDiagramAIPrompt(prompt, architectureType, [
+                        ...additionalSubCatArchTypes,
+                        ...additionalNestedArchTypes,
+                      ]);
+                      const messages = buildDiagramIssueFixPrompt(
+                        builtPrompt,
+                        currentJSON,
+                        validationIssues.filter((i) => i.severity === "error" || i.severity === "warning"),
+                      );
+                      const response = await AISuggestions.getSuggestionByAI({
+                        messages,
+                        aiModel: selectedAI || 'openai',
+                        modelVersion: selectedModel || 'gpt-4-turbo',
+                      });
+                      if (response.status === 200 && response.data?.suggestion) {
+                        const fixed = parseAIValidationResponse(response.data.suggestion, architectureType);
+                        if (fixed) {
+                          setExpectedDiagramState(fixed.diagram);
+                          setValidationIssues(fixed.issues);
+                          setValidationSummary(fixed.summary);
+                          notifications.show({
+                            title: "Diagram Fixed",
+                            message: fixed.issues.length === 0
+                              ? "All issues resolved successfully."
+                              : `Fixed. ${fixed.issues.length} remaining issue(s).`,
+                            color: fixed.issues.length === 0 ? "teal" : "yellow",
+                          });
+                          closeValidationModal();
+                        } else {
+                          notifications.show({
+                            title: "Fix Failed",
+                            message: "AI returned an unreadable response. Please try again.",
+                            color: "red",
+                          });
+                        }
+                      }
+                    } catch (err: unknown) {
+                      const msg =
+                        (err as any)?.response?.data?.message ||
+                        (err as any)?.message ||
+                        "Could not fix diagram issues. Please try again.";
+                      notifications.show({
+                        title: "Fix Failed",
+                        message: msg,
+                        color: "red",
+                      });
+                    } finally {
+                      setIsFixingDiagram(false);
+                    }
+                  }}
+                >
+                  Fix Issues
+                </Button>
+              )}
               <Button onClick={closeValidationModal}>Close</Button>
             </Group>
           </Stack>

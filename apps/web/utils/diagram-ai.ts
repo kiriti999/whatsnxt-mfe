@@ -243,6 +243,59 @@ Return ONLY valid JSON in this exact format (no markdown, no code fences):
         },
     ];
 
+/**
+ * Build a messages array to fix a diagram based on known validation issues.
+ * Uses the original user prompt + current diagram JSON + issues list to guide AI correction.
+ */
+export const buildDiagramIssueFixPrompt = (
+    originalUserPrompt: string,
+    currentDiagramJSON: string,
+    issues: DiagramValidationIssue[],
+): Array<{ role: "user" | "assistant"; content: string }> => {
+    const issuesList = issues
+        .map(
+            (i, idx) =>
+                `${idx + 1}. [${i.severity.toUpperCase()}] ${i.category}: ${i.message}${i.affectedNodes?.length ? ` (Affected: ${i.affectedNodes.join(", ")})` : ""}`,
+        )
+        .join("\n");
+
+    return [
+        {
+            role: "user",
+            content: originalUserPrompt,
+        },
+        {
+            role: "assistant",
+            content: currentDiagramJSON,
+        },
+        {
+            role: "user",
+            content: `The diagram above has the following validation issues that must be fixed:
+
+${issuesList}
+
+Please fix ALL of the above issues in the diagram. Apply these rules:
+- For "Missing Component" errors: add the missing node with a valid shapeId from the same architecture type, connect it properly.
+- For "Container Integrity" warnings: move any out-of-bounds nodes inside their parent container bounds.
+- For "Arrow Routing" warnings: fix sourceEdge/targetEdge so arrows route cleanly without crossing container borders.
+- For "Dead References": remove any link whose source or target doesn't exist in the nodes array.
+- For "No Orphan Nodes": ensure every node has at least one connection.
+- Keep all currently correct nodes and connections unchanged.
+- Maintain the same overall layout and architecture intent from the original prompt.
+
+Return ONLY valid JSON in this exact format (no markdown, no code fences):
+{
+  "nodes": [...],
+  "links": [...],
+  "validationReport": {
+    "summary": "Brief summary of what was fixed",
+    "issues": []
+  }
+}`,
+        },
+    ];
+};
+
 /** Container-type node types that are meant to hold other nodes inside them. */
 const CONTAINER_TYPES = new Set(["container", "group", "pool"]);
 
@@ -459,7 +512,9 @@ export const parseAIValidationResponse = (
             issues?: DiagramValidationIssue[];
         } | undefined;
 
-        const issues: DiagramValidationIssue[] = validationReport?.issues ?? [];
+        const VALID_SEVERITIES = new Set(["error", "warning", "info"]);
+        const issues: DiagramValidationIssue[] = (validationReport?.issues ?? [])
+            .filter((i): i is DiagramValidationIssue => !!i && VALID_SEVERITIES.has(i.severity));
         const summary = validationReport?.summary ?? "Validation completed";
 
         return {

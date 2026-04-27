@@ -15,26 +15,8 @@ import {
 } from '@tabler/icons-react';
 import type { Lab } from '@whatsnxt/types';
 import { useRouter } from 'next/navigation';
+import { labDescriptionText } from '@/utils/lab-utils';
 import styles from './TopLabs.module.css';
-
-/** Extract plain text from a Lexical SerializedEditorState JSON string, or return as-is if not JSON. */
-function labDescriptionText(description: string): string {
-    try {
-        const parsed = JSON.parse(description) as { root?: { children?: unknown[] } };
-        if (!parsed?.root) return description;
-        const extractText = (node: unknown): string => {
-            const n = node as Record<string, unknown>;
-            if (typeof n.text === "string") return n.text;
-            if (Array.isArray(n.children)) {
-                return (n.children as unknown[]).map(extractText).join("");
-            }
-            return "";
-        };
-        return extractText(parsed.root).trim();
-    } catch {
-        return description;
-    }
-}
 
 interface LabWithCounts extends Lab {
     questionCount?: number;

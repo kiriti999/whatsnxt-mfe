@@ -6,6 +6,7 @@ import { IconPlus, IconCode, IconCloud, IconBrandNextjs, IconServer, IconBox, Ic
 import Link from 'next/link';
 import { Lab } from '../../types/lab';
 import useAuth from '../../hooks/Authentication/useAuth';
+import { labDescriptionText } from '../../utils/lab-utils';
 
 export const LabList = () => {
   const [labs, setLabs] = useState<Lab[]>([]);
@@ -113,7 +114,7 @@ export const LabList = () => {
                 </Group>
 
                 <Text size="sm" c="dimmed" lineClamp={3} mb="md" h={60}>
-                  {lab.description}
+                  {labDescriptionText(lab.description)}
                 </Text>
 
                 <Button

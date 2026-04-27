@@ -1,10 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useForm, useFieldArray, Controller } from 'react-hook-form';
 import {
   TextInput,
-  Textarea,
   Select,
   MultiSelect,
   Button,
@@ -19,6 +18,7 @@ import {
   Container,
   Text,
   Modal,
+  Flex,
 } from '@mantine/core';
 import { IconTrash, IconPlus } from '@tabler/icons-react';
 import { useDisclosure } from '@mantine/hooks';
@@ -28,8 +28,17 @@ import { useRouter } from 'next/navigation';
 import DiagramEditor from '../architecture-lab/DiagramEditor';
 import { getAvailableArchitectures, getArchitectureMetadata } from '../../utils/shape-libraries';
 import { LabPricingForm } from './LabPricingForm';
+import { AISuggestionButton } from '../Common/AISuggestionButton';
+import { CategorySearch, type CategoryPath } from '@whatsnxt/core-ui';
+import { LexicalEditor } from '../StructuredTutorial/Editor/LexicalEditor';
+import { VALIDATION } from '@whatsnxt/constants';
 
-export const LabForm = ({ initialData }: { initialData?: Lab }) => {
+interface LabFormProps {
+  initialData?: Lab;
+  categories?: any[];
+}
+
+export const LabForm = ({ initialData, categories = [] }: LabFormProps) => {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [architectureDropdownOpened, setArchitectureDropdownOpened] = useState(false);
@@ -38,8 +47,10 @@ export const LabForm = ({ initialData }: { initialData?: Lab }) => {
     purchaseType: initialData?.pricing?.purchaseType || 'free',
     price: initialData?.pricing?.price
   });
+  const [descriptionEditorKey, setDescriptionEditorKey] = useState(0);
 
   const { control, register, handleSubmit, watch, setValue, formState: { errors } } = useForm<Lab>({
+    mode: 'onChange',
     defaultValues: initialData ? {
       title: initialData.title || '',
       description: initialData.description || '',
@@ -255,14 +266,64 @@ export const LabForm = ({ initialData }: { initialData?: Lab }) => {
               error={errors.title?.message}
             />
 
-            <Textarea
-              label="Description"
-              placeholder="Enter lab description"
-              minRows={3}
-              required
-              {...register('description', { required: 'Description is required' })}
-              error={errors.description?.message}
-            />
+            {/* Description with AI Sparkle Button */}
+            <div>
+              <Flex align="center" gap={4} mb={4}>
+                <Text size="sm" className='required'>Description</Text>
+                <AISuggestionButton
+                  prompt={() => {
+                    const title = watch('title');
+                    return title
+                      ? `Write a concise lab description for "${title}". Hard limit: keep the response under ${VALIDATION.MAX_DESCRIPTION_LENGTH} characters total (including any HTML markup). Do not return a full HTML document — only the inner content.`
+                      : '';
+                  }}
+                  onSuggestion={(suggestion) => {
+                    setValue('description', suggestion, { shouldValidate: true });
+                    setDescriptionEditorKey((k) => k + 1);
+                  }}
+                />
+              </Flex>
+              <Controller
+                control={control}
+                name="description"
+                rules={{ required: 'Description is required' }}
+                render={({ field, fieldState }) => (
+                  <>
+                    <LexicalEditor
+                      key={descriptionEditorKey}
+                      value={field.value}
+                      onChange={field.onChange}
+                      placeholder="Enter lab description"
+                    />
+                    {fieldState.error?.message && (
+                      <Text size="xs" c="red" mt={4}>
+                        {fieldState.error.message}
+                      </Text>
+                    )}
+                  </>
+                )}
+              />
+            </div>
+
+            {/* Category Search */}
+            {categories.length > 0 && (
+              <CategorySearch
+                categories={categories}
+                onSelect={(path: CategoryPath) => {
+                  // Map category to type if needed
+                  const categoryToTypeMap: Record<string, 'programming' | 'cloud' | 'framework' | 'architecture'> = {
+                    'Programming': 'programming',
+                    'Cloud': 'cloud',
+                    'Framework': 'framework',
+                    'Architecture': 'architecture',
+                  };
+                  const mappedType = categoryToTypeMap[path.category];
+                  if (mappedType) {
+                    setValue('type', mappedType);
+                  }
+                }}
+              />
+            )}
 
             <Group grow>
               <Controller

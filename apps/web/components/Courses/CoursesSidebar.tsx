@@ -2,26 +2,8 @@ import { Badge, Card, Group, Skeleton, Stack, Text } from "@mantine/core";
 import type { Lab } from "@whatsnxt/types";
 import PopularPost from "@whatsnxt/core-ui/src/PopularPost";
 import type { Category, CourseType } from "@whatsnxt/core-util";
+import { labDescriptionText } from "@/utils/lab-utils";
 import styles from "./Widget.module.css";
-
-/** Extract plain text from a Lexical SerializedEditorState JSON string, or return as-is if not JSON. */
-function labDescriptionText(description: string): string {
-  try {
-    const parsed = JSON.parse(description) as { root?: { children?: unknown[] } };
-    if (!parsed?.root) return description;
-    const extractText = (node: unknown): string => {
-      const n = node as Record<string, unknown>;
-      if (typeof n.text === "string") return n.text;
-      if (Array.isArray(n.children)) {
-        return (n.children as unknown[]).map(extractText).join("");
-      }
-      return "";
-    };
-    return extractText(parsed.root).trim();
-  } catch {
-    return description;
-  }
-}
 
 interface CoursesSidebarProps {
   courses: CourseType[];

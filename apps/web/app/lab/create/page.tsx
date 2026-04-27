@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { Container, Title, Button, Group, Box, TextInput, Textarea, Select } from '@mantine/core';
+import { useState, useCallback } from 'react';
+import { Container, Title, Button, Group, Box, TextInput, Select, Flex, Text } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
 import { useRouter } from 'next/navigation';
@@ -9,7 +9,10 @@ import { useQuery } from '@tanstack/react-query';
 import labApi from '@/apis/lab.api';
 import useAuth from '@/hooks/Authentication/useAuth';
 import { LabPricingForm } from '@/components/Lab/LabPricingForm';
-import { SUCCESS_MESSAGES, ERROR_MESSAGES, ROUTE_PATHS } from '@whatsnxt/constants';
+import { SUCCESS_MESSAGES, ERROR_MESSAGES, ROUTE_PATHS, VALIDATION } from '@whatsnxt/constants';
+import { AISuggestionButton } from '@/components/Common/AISuggestionButton';
+import { CategorySearch, type CategoryPath } from '@whatsnxt/core-ui';
+import { LexicalEditor } from '@/components/StructuredTutorial/Editor/LexicalEditor';
 
 function LabCreationPage() {
   const router = useRouter();
@@ -23,6 +26,7 @@ function LabCreationPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [subCategories, setSubCategories] = useState<Array<{ name: string; subcategories?: Array<{ name: string }> }>>([]);
   const [nestedSubCategories, setNestedSubCategories] = useState<Array<{ name: string }>>([]);
+  const [descriptionEditorKey, setDescriptionEditorKey] = useState(0);
 
   const { data: categories = [] } = useQuery({
     queryKey: ['labCategories'],
@@ -62,6 +66,13 @@ function LabCreationPage() {
       labType: (value) => (value ? null : 'Category is required'),
     },
   });
+
+  const handleCategorySearch = useCallback((path: CategoryPath) => {
+    form.setFieldValue('labType', path.category);
+    form.setFieldValue('subCategory', path.subCategory);
+    form.setFieldValue('nestedSubCategory', path.nestedSubCategory);
+    handleCategoryChange(path.category);
+  }, [form]);
 
   const handleCategoryChange = (value: string | null) => {
     form.setFieldValue('labType', value || '');
@@ -166,12 +177,41 @@ function LabCreationPage() {
             required
             mb="md"
           />
-          <Textarea
-            label="Description"
-            placeholder="Brief description of the lab"
-            {...form.getInputProps('description')}
-            mb="md"
-          />
+
+          {/* Description with AI Sparkle Button */}
+          <Box mb="md">
+            <Flex align="center" gap={4} mb={4}>
+              <Text size="sm" fw={500}>Description <Text component="span" c="red">*</Text></Text>
+              <AISuggestionButton
+                prompt={() =>
+                  form.values.name
+                    ? `Write a concise lab description for "${form.values.name}". Hard limit: keep the response under ${VALIDATION.MAX_DESCRIPTION_LENGTH} characters total (including any HTML markup). Do not return a full HTML document — only the inner content.`
+                    : ''
+                }
+                onSuggestion={(suggestion) => {
+                  form.setFieldValue('description', suggestion);
+                  setDescriptionEditorKey((k) => k + 1);
+                }}
+              />
+            </Flex>
+            <LexicalEditor
+              key={descriptionEditorKey}
+              value={form.values.description}
+              onChange={(value) => form.setFieldValue('description', value)}
+              placeholder="Brief description of the lab"
+            />
+          </Box>
+
+          {/* Category Search */}
+          {categories.length > 0 && (
+            <Box mb="md">
+              <CategorySearch
+                categories={categories as any}
+                onSelect={handleCategorySearch}
+              />
+            </Box>
+          )}
+
           <Select
             label="Category"
             placeholder="Select category"

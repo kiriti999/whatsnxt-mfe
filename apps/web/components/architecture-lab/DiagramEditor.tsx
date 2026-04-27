@@ -235,10 +235,18 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
         // Main Group for Zoom
         const g = svg.append("g");
 
-        // Layers
+        // Layers (render order: bottom → top)
+        // - containerLayer: VPC / namespace / subnet shapes (below everything so other nodes stack on top)
+        // - linkLayer:      arrows / connections
+        // - nodeLayer:      regular shapes + their labels (above arrows so arrows clip cleanly at shape boundaries)
+        // - containerLabelLayer: container labels ONLY, lifted above linkLayer so arrows
+        //                   don't cross over text like "VPC (10.0.0.0/16)" or "Public Subnet AZ1".
+        //                   Sits above nodeLayer too so labels remain readable even when a
+        //                   container's bottom edge is occluded by an inner shape.
         const containerLayer = g.append("g").attr("class", "layer-containers");
         const linkLayer = g.append("g").attr("class", "layer-links");
         const nodeLayer = g.append("g").attr("class", "layer-nodes");
+        const containerLabelLayer = g.append("g").attr("class", "layer-container-labels");
 
         // Zoom Behavior - Only zoom with Ctrl+wheel or pinch, disable pan on drag
         const zoom = d3
@@ -439,10 +447,21 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
                                 "transform",
                                 `translate(${x},${y})`,
                             );
+                            // Keep the container's label (in containerLabelLayer)
+                            // in sync — no-op if this node isn't a container.
+                            d3.select(`#container-label-${nodeId}`).attr(
+                                "transform",
+                                `translate(${x},${y})`,
+                            );
 
                             // Update contained nodes transforms
                             containedUpdates.forEach((update) => {
                                 d3.select(`#node-${update.id}`).attr(
+                                    "transform",
+                                    `translate(${update.x},${update.y})`,
+                                );
+                                // Same sync for any contained container (nested case)
+                                d3.select(`#container-label-${update.id}`).attr(
                                     "transform",
                                     `translate(${update.x},${update.y})`,
                                 );
@@ -846,6 +865,12 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
                 resizeStartInfo.finalY = newY;
                 const nodeGroup = d3.select(`#node-${resizeStartInfo.nodeId}`);
                 nodeGroup.attr("transform", `translate(${newX},${newY})`);
+                // Container labels live in a separate top layer; keep their
+                // transform in lock-step with the resized node.
+                d3.select(`#container-label-${resizeStartInfo.nodeId}`).attr(
+                    "transform",
+                    `translate(${newX},${newY})`,
+                );
                 nodeGroup
                     .select('rect[stroke="blue"]')
                     .attr("width", newWidth + 10)
@@ -985,8 +1010,32 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
                     });
                 }
 
-                // Render shape label (always show, even in viewOnly)
-                renderShapeLabel(el, d, computedColorScheme);
+                // Render shape label (always show, even in viewOnly).
+                // Container labels are rendered in a separate top-layer pass below
+                // (so they sit above arrows). Skip them here to avoid double-render.
+                const isContainerType = renderContainerTypes.includes(d.type || "");
+                if (!isContainerType) {
+                    renderShapeLabel(el, d, computedColorScheme);
+                }
+            });
+        };
+
+        /**
+         * Render container labels into `containerLabelLayer` (above linkLayer).
+         * Each label group gets id `container-label-${nodeId}` so drag handlers
+         * can keep its transform in sync with the container's group.
+         */
+        const renderContainerLabels = (containers: NodeType[]) => {
+            containers.forEach((d) => {
+                const labelG = containerLabelLayer
+                    .append("g")
+                    .attr("id", `container-label-${d.id}`)
+                    .attr("transform", `translate(${d.x || 0},${d.y || 0})`);
+                renderShapeLabel(
+                    labelG as unknown as d3.Selection<SVGGElement, NodeType, null, undefined>,
+                    d,
+                    computedColorScheme,
+                );
             });
         };
 
@@ -1115,6 +1164,11 @@ const DiagramEditor: React.FC<DiagramEditorProps> = ({
         });
 
         renderNodeBatch(nodeLayer, regularNodes);
+
+        // Render container labels last, into the top label layer so they sit
+        // above arrows. Done AFTER linkLayer is populated so the layer ordering
+        // is correct in the SVG tree.
+        renderContainerLabels(containerNodes);
 
         // Only apply drag behaviors if NOT in viewOnly mode
         if (!viewOnly) {

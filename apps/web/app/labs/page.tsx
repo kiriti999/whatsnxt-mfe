@@ -29,25 +29,7 @@ import type React from "react";
 import { useEffect, useState } from "react";
 import labApi from "@/apis/lab.api";
 import useAuth from "@/hooks/Authentication/useAuth";
-
-/** Extract plain text from a Lexical SerializedEditorState JSON string, or return as-is if not JSON. */
-function labDescriptionText(description: string): string {
-  try {
-    const parsed = JSON.parse(description) as { root?: { children?: unknown[] } };
-    if (!parsed?.root) return description;
-    const extractText = (node: unknown): string => {
-      const n = node as Record<string, unknown>;
-      if (typeof n.__text === "string") return n.__text;
-      if (Array.isArray(n.children)) {
-        return (n.children as unknown[]).map(extractText).join("");
-      }
-      return "";
-    };
-    return extractText(parsed.root).trim();
-  } catch {
-    return description;
-  }
-}
+import { labDescriptionText } from "@/utils/lab-utils";
 
 interface LabWithProgress extends Lab {
   progress?: {

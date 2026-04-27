@@ -37,6 +37,7 @@ import {
 } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
 import type { Lab, LabPage } from "@whatsnxt/types";
+import { VALIDATION } from "@whatsnxt/constants";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import React, { useCallback, useEffect, useState } from "react";
 import labApi from "@/apis/lab.api";
@@ -642,7 +643,7 @@ const LabDetailPage = () => {
                         Description
                       </Text>
                       <AISuggestionButton
-                        prompt={`Write a concise, engaging lab description (2-4 sentences) for a technical lab titled: "${form.values.name}". Focus on what students will learn and practise.`}
+                        prompt={`Write a concise, engaging lab description (2-4 sentences) for a technical lab titled: "${form.values.name}". Focus on what students will learn and practise. Hard limit: keep the response under ${VALIDATION.MAX_DESCRIPTION_LENGTH} characters total (including any HTML markup). Do not return a full HTML document — only the inner content.`}
                         onSuggestion={(suggestion) => {
                           form.setFieldValue("description", suggestion);
                           setDescriptionEditorKey((k) => k + 1);

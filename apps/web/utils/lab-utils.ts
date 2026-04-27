@@ -1,3 +1,30 @@
+/**
+ * Extract a plain-text preview from a lab description.
+ * Handles serialized Lexical JSON, HTML markup, and plain text uniformly so
+ * card/list views can render a clean snippet regardless of how the
+ * description was authored.
+ */
+export function labDescriptionText(description: string): string {
+    if (!description) return "";
+    try {
+        const parsed = JSON.parse(description) as { root?: { children?: unknown[] } };
+        if (parsed?.root) {
+            const extractText = (node: unknown): string => {
+                const n = node as Record<string, unknown>;
+                if (typeof n.text === "string") return n.text;
+                if (Array.isArray(n.children)) {
+                    return (n.children as unknown[]).map(extractText).join("");
+                }
+                return "";
+            };
+            return extractText(parsed.root).trim();
+        }
+    } catch {
+        // Not Lexical JSON — fall through to HTML/plain handling below.
+    }
+    return description.replace(/<[^>]*>/g, "").trim();
+}
+
 // Shape Data Definitions for D3
 export interface NodeType {
     id?: string;

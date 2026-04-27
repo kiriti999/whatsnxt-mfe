@@ -55,7 +55,22 @@ export function renderResizeHandles(
 }
 
 /**
- * Render shape label (below the shape)
+ * Render shape label (below the shape).
+ *
+ * The label uses SVG `paint-order: stroke fill` to render a same-color-as-canvas
+ * "halo" stroke FIRST, then the text fill on top. This creates a thin buffer
+ * around each character that masks anything in the SAME render layer behind the
+ * label (arrow lines passing through gaps between letters, faint grid lines,
+ * container borders, etc.) — making text crisp and readable on busy diagrams.
+ *
+ * The halo is the standard SVG legibility pattern; it adds zero layout cost
+ * (text remains in the node group so it auto-syncs on drag/resize) and works
+ * across all browsers that support `paint-order` (Chrome 35+, Firefox 60+, Safari 8+).
+ *
+ * Note: paint-order only masks within the SAME render layer. Container labels in
+ * `containerLayer` (below `linkLayer`) will still have arrow lines drawn entirely
+ * over them — those need a separate top-level label layer. Regular node labels
+ * (in `nodeLayer`, above `linkLayer`) benefit fully from the halo here.
  */
 export function renderShapeLabel(
   element: d3.Selection<SVGGElement, NodeType, null, undefined>,
@@ -69,7 +84,11 @@ export function renderShapeLabel(
 
   const fontSize = '12px';
   const labelY = shape.height + 5; // Position below the shape
-  const textFill = colorScheme === 'dark' ? '#E0E0E0' : '#333';
+  const isDark = colorScheme === 'dark';
+  const textFill = isDark ? '#E0E0E0' : '#333';
+  // Halo color matches Mantine's body bg so it visually disappears against
+  // the canvas while still masking lines behind text characters.
+  const haloFill = isDark ? '#1a1b1e' : '#ffffff';
 
   element.append('text')
     .classed('shape-label', true)
@@ -80,6 +99,10 @@ export function renderShapeLabel(
     .style('font-size', fontSize)
     .style('font-weight', '500')
     .style('fill', textFill)
+    .style('stroke', haloFill)
+    .style('stroke-width', '4px')
+    .style('stroke-linejoin', 'round')
+    .style('paint-order', 'stroke fill')
     .style('pointer-events', 'none')
     .style('user-select', 'none')
     .text(shape.label || shape.type);
