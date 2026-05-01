@@ -473,7 +473,10 @@ export const NavbarMobile = ({
                               label={child.title}
                               component={Link}
                               href={child.url}
-                              onClick={closeDrawer}
+                              onClick={(e: any) => {
+                                e.stopPropagation();
+                                closeDrawer();
+                              }}
                               leftSection={
                                 child.icon ? (
                                   <child.icon size="0.9rem" />
