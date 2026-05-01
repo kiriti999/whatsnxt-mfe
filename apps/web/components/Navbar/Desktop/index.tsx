@@ -298,8 +298,8 @@ export const NavbarDesktop = ({ links, cartItems, loginMenuLinks, drawerOpened, 
                       );
                     }
 
-                    // Handle Blogs with Menu.Sub for proper submenu
-                    if (link.title === 'Blogs' && link.children) {
+                    // Handle Content with Menu.Sub for proper submenu
+                    if (link.title === 'Content' && link.children) {
                       return (
                         <Menu key={index} trigger="hover" openDelay={100} closeDelay={200} position="left-start" withArrow>
                           <Menu.Target>
@@ -322,7 +322,7 @@ export const NavbarDesktop = ({ links, cartItems, loginMenuLinks, drawerOpened, 
                               const ChildIcon = child.icon;
                               return (
                                 <Menu.Item
-                                  key={`blog-${childIndex}`}
+                                  key={`content-${childIndex}`}
                                   component="a"
                                   href={child.url}
                                   leftSection={ChildIcon ? <ChildIcon style={{ width: rem(14), height: rem(14) }} /> : null}
