@@ -1,6 +1,6 @@
 /**
- * Mermaid classDiagram treats `{` as nested-member syntax. OpenAPI-style `{param}` in
- * REST paths must become `:param` (or similar) for valid diagrams.
+ * Mermaid render fixes: classDiagram path `{param}` → `:param`, and sequenceDiagram
+ * orphan/duplicate `deactivate` lines removed (match activate/deactivate depth per id).
  */
 
 export function extractMermaidCode(text: string): string {
@@ -38,10 +38,64 @@ export function sanitizeClassDiagramPathTemplateBraces(source: string): string {
 		.join("\n");
 }
 
-/** Code passed to `mermaid.render` (strip fences, then sanitize classDiagram paths). */
+const ACTIVATE_LINE_RE = /^\s*activate\s+(.+?)\s*$/i;
+const DEACTIVATE_LINE_RE = /^\s*deactivate\s+(.+?)\s*$/i;
+
+function normalizeSeqParticipantId(raw: string): string {
+	const t = raw.trim();
+	if (
+		(t.startsWith('"') && t.endsWith('"')) ||
+		(t.startsWith("'") && t.endsWith("'"))
+	) {
+		return t.slice(1, -1).trim();
+	}
+	return t;
+}
+
+/**
+ * Mermaid errors if `deactivate X` runs when X has no matching active span (duplicate or
+ * orphan deactivate). Track nesting depth per participant id.
+ */
+export function sanitizeSequenceDiagramActivateDeactivate(
+	source: string,
+): string {
+	const trimmed = source.trim();
+	if (!/^\s*sequenceDiagram\b/i.test(trimmed)) {
+		return source;
+	}
+
+	const depths = new Map<string, number>();
+	const lines = source.split("\n");
+
+	const nextLines = lines.map((rawLine) => {
+		const line = rawLine.replace(/\r$/, "");
+		const act = line.match(ACTIVATE_LINE_RE);
+		if (act) {
+			const id = normalizeSeqParticipantId(act[1]);
+			depths.set(id, (depths.get(id) ?? 0) + 1);
+			return rawLine;
+		}
+		const deact = line.match(DEACTIVATE_LINE_RE);
+		if (deact) {
+			const id = normalizeSeqParticipantId(deact[1]);
+			const d = depths.get(id) ?? 0;
+			if (d > 0) {
+				depths.set(id, d - 1);
+				return rawLine;
+			}
+			return null;
+		}
+		return rawLine;
+	});
+
+	return nextLines.filter((l): l is string => l !== null).join("\n");
+}
+
+/** Code passed to `mermaid.render` (strip fences, then diagram-specific fixes). */
 export function prepareMermaidRenderSource(text: string): string {
 	const extracted = extractMermaidCode(text);
-	return sanitizeClassDiagramPathTemplateBraces(extracted);
+	const afterClass = sanitizeClassDiagramPathTemplateBraces(extracted);
+	return sanitizeSequenceDiagramActivateDeactivate(afterClass);
 }
 
 const FULL_DOCUMENT_FENCE = /^```(?:mermaid)?\s*\n([\s\S]*?)```\s*$/i;
@@ -58,6 +112,26 @@ export function normalizeClassDiagramForPersist(raw: string): string {
 		return raw;
 	}
 	const nextBody = sanitizeClassDiagramPathTemplateBraces(body);
+	if (nextBody === body) {
+		return raw;
+	}
+	if (fence) {
+		return `\`\`\`mermaid\n${nextBody}\n\`\`\``;
+	}
+	return nextBody;
+}
+
+/**
+ * Canonical sequenceDiagram for storage (drops orphan `deactivate` lines).
+ */
+export function normalizeSequenceDiagramForPersist(raw: string): string {
+	const trimmed = raw.trim();
+	const fence = FULL_DOCUMENT_FENCE.exec(trimmed);
+	const body = fence ? fence[1].trim() : trimmed;
+	if (!/^\s*sequenceDiagram\b/i.test(body)) {
+		return raw;
+	}
+	const nextBody = sanitizeSequenceDiagramActivateDeactivate(body);
 	if (nextBody === body) {
 		return raw;
 	}
