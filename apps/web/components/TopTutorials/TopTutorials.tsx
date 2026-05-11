@@ -124,14 +124,14 @@ const TopTutorials = ({ tutorials }: { tutorials: Tutorial[], total: any }) => {
                 )}
 
                 {/* View All Button */}
-                <Box mt="xl" ta="center">
+                {/* <Box mt="xl" ta="center">
                     <Button
                         variant="outline"
-                        onClick={() => router.push('/blogs?type=tutorial')}
+                        onClick={() => router.push('/reads?type=tutorial')}
                     >
                         View All Tutorials & Articles
                     </Button>
-                </Box>
+                </Box> */}
 
             </Container>
         </Box>

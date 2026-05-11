@@ -1,4 +1,4 @@
-/** biome-ignore-all lint/a11y/noSvgWithoutTitle: <explanation> */
+/** biome-ignore-all lint/a11y/noSvgWithoutTitle: SVGs use Tabler icons with implicit a11y from parent controls */
 "use client";
 
 import {
@@ -8,6 +8,7 @@ import {
 	Button,
 	Container,
 	Group,
+	Modal,
 	Pagination,
 	Paper,
 	Stack,
@@ -21,6 +22,7 @@ import {
 	IconLock,
 	IconPlayerPlay,
 	IconSchema,
+	IconTrash,
 	IconTrophy,
 } from "@tabler/icons-react";
 import { PAGINATION } from "@whatsnxt/constants";
@@ -33,6 +35,7 @@ import useAuth from "@/hooks/Authentication/useAuth";
 import { labDescriptionText } from "@/utils/lab-utils";
 
 interface LabWithProgress extends Lab {
+	instructorId?: string;
 	progress?: {
 		totalPages: number;
 		passedPages: number;
@@ -43,6 +46,11 @@ interface LabWithProgress extends Lab {
 	previewCount?: number;
 }
 
+type DeleteDialogState = {
+	lab: LabWithProgress | Lab;
+	list: "published" | "draft";
+} | null;
+
 const LabsPage = () => {
 	const [publishedLabs, setPublishedLabs] = useState<LabWithProgress[]>([]);
 	const [draftLabs, setDraftLabs] = useState<Lab[]>([]);
@@ -51,14 +59,24 @@ const LabsPage = () => {
 	const [publishedTotal, setPublishedTotal] = useState(0);
 	const [draftTotal, setDraftTotal] = useState(0);
 	const [loading, setLoading] = useState(true);
+	const [deleteDialog, setDeleteDialog] = useState<DeleteDialogState>(null);
+	const [isDeletingLab, setIsDeletingLab] = useState(false);
 	const router = useRouter();
 	const { user, isAuthenticated } = useAuth();
 
 	const isTrainer = isAuthenticated && user?.role === "trainer";
+	const isAdmin = isAuthenticated && user?.role === "admin";
 	const isStudent = isAuthenticated && user?.role !== "trainer";
 	const studentId = user?._id || "";
 	const instructorId = user?._id || "";
 	const pageSize = PAGINATION.LAB_DIRECTORY_PAGE_SIZE;
+
+	const canDeleteLab = (lab: { instructorId?: string }) => {
+		if (!isAuthenticated) return false;
+		if (isAdmin) return true;
+		if (!isTrainer || !lab.instructorId || !instructorId) return false;
+		return lab.instructorId === instructorId;
+	};
 
 	const fetchPublishedLabs = async (page: number) => {
 		try {
@@ -126,6 +144,44 @@ const LabsPage = () => {
 				color: "red",
 			});
 			console.error("Failed to load draft labs:", error);
+		}
+	};
+
+	const handleConfirmDeleteLab = async () => {
+		if (!deleteDialog) return;
+		const { lab, list } = deleteDialog;
+		const id = lab.id;
+		if (!id) return;
+
+		setIsDeletingLab(true);
+		try {
+			await labApi.deleteLab(id);
+			notifications.show({
+				title: "Lab deleted",
+				message: `"${lab.name}" was removed.`,
+				color: "green",
+			});
+			setDeleteDialog(null);
+			if (list === "published") {
+				await fetchPublishedLabs(publishedPage);
+			} else {
+				await fetchDraftLabs(draftPage);
+			}
+		} catch (error: unknown) {
+			const err = error as {
+				response?: { data?: { message?: string } };
+				message?: string;
+			};
+			const errorMessage =
+				err?.response?.data?.message || err?.message || "Failed to delete lab.";
+			notifications.show({
+				title: "Error",
+				message: errorMessage,
+				color: "red",
+			});
+			console.error("Failed to delete lab:", error);
+		} finally {
+			setIsDeletingLab(false);
 		}
 	};
 
@@ -500,35 +556,49 @@ const LabsPage = () => {
 														</Badge>
 													)}
 												</Group>
-												{hasPreview ? (
-													<Button
-														variant="filled"
-														color="teal"
-														size="xs"
-														style={{ flexShrink: 0 }}
-														leftSection={<IconPlayerPlay size={14} />}
-														onClick={() =>
-															router.push(`/labs/${lab.id}?tab=tests`)
-														}
-													>
-														Try Now
-													</Button>
-												) : (
-													<Button
-														variant="filled"
-														color="orange"
-														size="xs"
-														style={{ flexShrink: 0 }}
-														leftSection={
-															isPaid ? <IconLock size={14} /> : undefined
-														}
-														onClick={() =>
-															router.push(`/labs/${lab.id}?tab=tests`)
-														}
-													>
-														Access
-													</Button>
-												)}
+												<Group gap={6} wrap="nowrap" style={{ flexShrink: 0 }}>
+													{canDeleteLab(lab) && (
+														<ActionIcon
+															variant="subtle"
+															color="red"
+															size="lg"
+															aria-label={`Delete lab ${lab.name}`}
+															title="Delete lab"
+															onClick={() =>
+																setDeleteDialog({ lab, list: "published" })
+															}
+														>
+															<IconTrash size={18} />
+														</ActionIcon>
+													)}
+													{hasPreview ? (
+														<Button
+															variant="filled"
+															color="teal"
+															size="xs"
+															leftSection={<IconPlayerPlay size={14} />}
+															onClick={() =>
+																router.push(`/labs/${lab.id}?tab=tests`)
+															}
+														>
+															Try Now
+														</Button>
+													) : (
+														<Button
+															variant="filled"
+															color="orange"
+															size="xs"
+															leftSection={
+																isPaid ? <IconLock size={14} /> : undefined
+															}
+															onClick={() =>
+																router.push(`/labs/${lab.id}?tab=tests`)
+															}
+														>
+															Access
+														</Button>
+													)}
+												</Group>
 											</Group>
 
 											{/* Description */}
@@ -660,15 +730,31 @@ const LabsPage = () => {
 													</Badge>
 												</Group>
 											</Box>
-											<ActionIcon
-												variant="subtle"
-												color="blue"
-												size="lg"
-												onClick={() => router.push(`/labs/${lab.id}`)}
-												title="Edit Lab"
-											>
-												<IconEdit size={20} />
-											</ActionIcon>
+											<Group gap={4} wrap="nowrap">
+												{canDeleteLab(lab) && (
+													<ActionIcon
+														variant="subtle"
+														color="red"
+														size="lg"
+														aria-label={`Delete draft ${lab.name}`}
+														title="Delete draft"
+														onClick={() =>
+															setDeleteDialog({ lab, list: "draft" })
+														}
+													>
+														<IconTrash size={20} />
+													</ActionIcon>
+												)}
+												<ActionIcon
+													variant="subtle"
+													color="blue"
+													size="lg"
+													onClick={() => router.push(`/labs/${lab.id}`)}
+													title="Edit Lab"
+												>
+													<IconEdit size={20} />
+												</ActionIcon>
+											</Group>
 										</Group>
 									</Paper>
 								))}
@@ -686,6 +772,42 @@ const LabsPage = () => {
 					)}
 				</Box>
 			)}
+
+			<Modal
+				opened={deleteDialog !== null}
+				onClose={() => {
+					if (!isDeletingLab) setDeleteDialog(null);
+				}}
+				title="Delete lab?"
+				centered
+			>
+				<Stack gap="md">
+					<Text size="sm">
+						This permanently deletes{" "}
+						<Text span inherit fw={600}>
+							{deleteDialog?.lab.name}
+						</Text>{" "}
+						and all of its pages, questions, and diagram tests. This cannot be
+						undone.
+					</Text>
+					<Group justify="flex-end" gap="sm">
+						<Button
+							variant="default"
+							onClick={() => setDeleteDialog(null)}
+							disabled={isDeletingLab}
+						>
+							Cancel
+						</Button>
+						<Button
+							color="red"
+							onClick={handleConfirmDeleteLab}
+							loading={isDeletingLab}
+						>
+							Delete
+						</Button>
+					</Group>
+				</Stack>
+			</Modal>
 		</Container>
 	);
 };
