@@ -1,3 +1,4 @@
+import { PAGINATION } from "@whatsnxt/constants";
 import type { Lab } from "../types/lab";
 import { serverFetcher } from "./serverFetcher";
 
@@ -8,58 +9,62 @@ import { serverFetcher } from "./serverFetcher";
  * Strip a trailing `/lab` so callers hit `/api/v1/labs` whether the env was `.../v1` or `.../v1/lab`.
  */
 export function getLabServerBaseUrl(): string {
-    const raw =
-        process.env.BFF_HOST_LAB_API ||
-        process.env.NEXT_PUBLIC_BFF_HOST_LAB_API ||
-        process.env.NEXT_PUBLIC_API_URL ||
-        "";
-    return raw.replace(/\/lab$/, "");
+	const raw =
+		process.env.BFF_HOST_LAB_API ||
+		process.env.NEXT_PUBLIC_BFF_HOST_LAB_API ||
+		process.env.NEXT_PUBLIC_API_URL ||
+		"";
+	return raw.replace(/\/lab$/, "");
 }
 
 export const fetchLabs = async (): Promise<Lab[]> => {
-    const response = await serverFetcher(getLabServerBaseUrl(), "/labs");
-    return response?.data || [];
+	const response = await serverFetcher(getLabServerBaseUrl(), "/labs");
+	return response?.data || [];
 };
 
 export const fetchLabById = async (id: string): Promise<Lab | null> => {
-    const response = await serverFetcher(getLabServerBaseUrl(), `/labs/${id}`);
-    return response?.data || null;
+	const response = await serverFetcher(getLabServerBaseUrl(), `/labs/${id}`);
+	return response?.data || null;
 };
 
 export const createLab = async (labData: Lab): Promise<Lab> => {
-    const response = await serverFetcher(getLabServerBaseUrl(), "/labs", {
-        method: "POST",
-        body: labData,
-    });
-    return response?.data;
+	const response = await serverFetcher(getLabServerBaseUrl(), "/labs", {
+		method: "POST",
+		body: labData,
+	});
+	return response?.data;
 };
 
 export const updateLab = async (id: string, labData: Lab): Promise<Lab> => {
-    const response = await serverFetcher(getLabServerBaseUrl(), `/labs/${id}`, {
-        method: "PUT",
-        body: labData,
-    });
-    return response?.data;
+	const response = await serverFetcher(getLabServerBaseUrl(), `/labs/${id}`, {
+		method: "PUT",
+		body: labData,
+	});
+	return response?.data;
 };
 
 export const deleteLabPage = async (
-    labId: string,
-    pageId: string,
+	labId: string,
+	pageId: string,
 ): Promise<Lab> => {
-    const response = await serverFetcher(
-        getLabServerBaseUrl(),
-        `/labs/${labId}/pages/${pageId}`,
-        {
-            method: "DELETE",
-        },
-    );
-    return response?.data;
+	const response = await serverFetcher(
+		getLabServerBaseUrl(),
+		`/labs/${labId}/pages/${pageId}`,
+		{
+			method: "DELETE",
+		},
+	);
+	return response?.data;
 };
 
-export const fetchPublishedLabs = async (perPage = 6): Promise<Lab[]> => {
-    const response = await serverFetcher(
-        getLabServerBaseUrl(),
-        `/labs?status=published&perPage=${perPage}`,
-    );
-    return response?.data || [];
+export const fetchPublishedLabs = async (
+	perPage: number = PAGINATION.HOMEPAGE_LABS_PREVIEW,
+): Promise<Lab[]> => {
+	const response = await serverFetcher(
+		getLabServerBaseUrl(),
+		`/labs?status=published&perPage=${perPage}`,
+		{ cache: "no-store" },
+	);
+	const rows = response?.data ?? response?.labs;
+	return Array.isArray(rows) ? rows : [];
 };

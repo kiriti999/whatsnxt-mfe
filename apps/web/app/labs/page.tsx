@@ -23,6 +23,7 @@ import {
 	IconSchema,
 	IconTrophy,
 } from "@tabler/icons-react";
+import { PAGINATION } from "@whatsnxt/constants";
 import type { Lab } from "@whatsnxt/types";
 import { useRouter } from "next/navigation";
 import type React from "react";
@@ -57,7 +58,7 @@ const LabsPage = () => {
 	const isStudent = isAuthenticated && user?.role !== "trainer";
 	const studentId = user?._id || "";
 	const instructorId = user?._id || "";
-	const pageSize = 6;
+	const pageSize = PAGINATION.LAB_DIRECTORY_PAGE_SIZE;
 
 	const fetchPublishedLabs = async (page: number) => {
 		try {
