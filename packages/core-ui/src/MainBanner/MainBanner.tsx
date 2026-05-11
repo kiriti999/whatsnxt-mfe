@@ -100,10 +100,10 @@ export const MainBanner = ({ stats, LinkComponent, popularThemes }: MainBannerPr
                     Interview-ready learning
                   </Badge>
                   <div style={{ textAlign: 'center' }}>
-                    <Title order={2} fw={800} className={styles.richHeroTitle}>
+                    {/* <Title order={2} fw={800} className={styles.richHeroTitle}>
                       Empower your learning journey
-                    </Title>
-                    <Text
+                    </Title> */}
+                    {/* <Text
                       mt="md"
                       className={styles.richHeroSubhead}
                       c="dimmed"
@@ -112,12 +112,12 @@ export const MainBanner = ({ stats, LinkComponent, popularThemes }: MainBannerPr
                     >
                       System design depth, hands-on labs, and interview stories — structured the way
                       big-tech loops expect: requirements, scale, APIs, trade-offs, and failure modes.
-                    </Text>
+                    </Text> */}
                   </div>
-                  <Text className={styles.richHeroBody} c="dimmed" ta="center" mx="auto" px="md">
+                  {/* <Text className={styles.richHeroBody} c="dimmed" ta="center" mx="auto" px="md">
                     Discover courses in every genre — live or recorded — plus tutorials and reads to
                     grow your skills.
-                  </Text>
+                  </Text> */}
                   <Group justify="center" gap="sm" wrap="wrap" px="md">
                     <HeroInlineLink href="/courses" LinkComponent={LinkComponent}>
                       <Button component="span" size="md" radius="md" variant="gradient" gradient={{ from: 'cyan', to: 'blue', deg: 105 }}>
@@ -140,8 +140,8 @@ export const MainBanner = ({ stats, LinkComponent, popularThemes }: MainBannerPr
                       </Button>
                     </HeroInlineLink>
                   </Group>
-                  <Stack gap="xs" align="center" w="100%" maw={720}>
-                    <Text size="xs" fw={700} tt="uppercase" c="dimmed" style={{ letterSpacing: '0.06em' }}>
+                  <Stack gap="xs" align="center" w="100%" maw={1024}>
+                    <Text size="xs" fw={700} tt="uppercase" c="gray" style={{ letterSpacing: '0.06em' }}>
                       Popular design systems
                     </Text>
                     <Group justify="center" gap="xs" wrap="wrap">
@@ -162,29 +162,35 @@ export const MainBanner = ({ stats, LinkComponent, popularThemes }: MainBannerPr
                     </Group>
                   </Stack>
                   <SimpleGrid cols={{ base: 1, sm: 3 }} spacing="md" w="100%" maw={920} px="md">
-                    <Paper withBorder shadow="xs" p="md" radius="md">
-                      <Text size="xs" c="dimmed" tt="uppercase" fw={700}>
-                        Published system design courses
-                      </Text>
-                      <Title order={3} mt={4}>
-                        {stats.publishedCourses.toLocaleString()}
-                      </Title>
+                    <Paper withBorder shadow="xs" p="md" radius="md" h="100%">
+                      <Stack gap={4} justify="space-between" h={84}>
+                        <Text size="xs" c="dimmed" tt="uppercase" fw={700}>
+                          Published system design courses
+                        </Text>
+                        <Title order={3}>
+                          {stats.publishedCourses.toLocaleString()}
+                        </Title>
+                      </Stack>
                     </Paper>
-                    <Paper withBorder shadow="xs" p="md" radius="md">
-                      <Text size="xs" c="dimmed" tt="uppercase" fw={700}>
-                        Interview experiences
-                      </Text>
-                      <Title order={3} mt={4}>
-                        {stats.publishedInterviewExperiences.toLocaleString()}
-                      </Title>
+                    <Paper withBorder shadow="xs" p="md" radius="md" h="100%">
+                      <Stack gap={4} justify="space-between" h={84}>
+                        <Text size="xs" c="dimmed" tt="uppercase" fw={700}>
+                          Interview experiences
+                        </Text>
+                        <Title order={3}>
+                          {stats.publishedInterviewExperiences.toLocaleString()}
+                        </Title>
+                      </Stack>
                     </Paper>
-                    <Paper withBorder shadow="xs" p="md" radius="md">
-                      <Text size="xs" c="dimmed" tt="uppercase" fw={700}>
-                        Completed practice sessions
-                      </Text>
-                      <Title order={3} mt={4}>
-                        {stats.completedPracticeSessions.toLocaleString()}
-                      </Title>
+                    <Paper withBorder shadow="xs" p="md" radius="md" h="100%">
+                      <Stack gap={4} justify="space-between" h={84}>
+                        <Text size="xs" c="dimmed" tt="uppercase" fw={700}>
+                          Completed practice sessions
+                        </Text>
+                        <Title order={3}>
+                          {stats.completedPracticeSessions.toLocaleString()}
+                        </Title>
+                      </Stack>
                     </Paper>
                   </SimpleGrid>
                 </>

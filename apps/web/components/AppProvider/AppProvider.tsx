@@ -116,8 +116,7 @@ export default function AppProvider({
       { title: "Home", url: `${domain}/`, linkType: "_self" },
       { title: "Reads", url: `${domain}/reads`, linkType: "_self" },
       // { title: "Learn AI", url: `${domain}/learn-ai`, linkType: "_self" },
-      { title: "Courses", url: `${domain}/courses`, linkType: "_self" },
-      { title: "Interview Prep", url: `${domain}/interview-experiences`, linkType: "_self" },
+      { title: "Courses", url: `${domain}/courses`, linkType: "_self" }
     ],
     loginMenuLinks: [
       {
