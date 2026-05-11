@@ -68,7 +68,8 @@ export const SHAPE_TYPES = {
 export const PAGINATION = {
 	DEFAULT_PAGE: 1,
 	DEFAULT_LIMIT: 10,
-	LABS_PER_PAGE: 3,
+	/** Align with BFF lab listing default when perPage is omitted */
+	LABS_PER_PAGE: 12,
 	MAX_LIMIT: 100,
 	/** Landing TopLabs — keep ≤ BFF `MAX_LIMIT` */
 	HOMEPAGE_LABS_PREVIEW: 24,
