@@ -93,44 +93,33 @@ export const MainBanner = ({ stats, LinkComponent, popularThemes }: MainBannerPr
       <Container fluid style={{ position: 'relative', zIndex: 1 }}>
         <Grid justify="center" align="center">
           <Grid.Col span={12}>
-            <Stack gap="lg" align="center">
+            <Stack gap="md" align="center">
               {showRich && stats ? (
                 <>
-                  <Badge variant="light" color="cyan" size="lg" radius="sm" tt="uppercase" fw={700}>
+                  <Badge
+                    variant="light"
+                    color="cyan"
+                    size="xl"
+                    radius="sm"
+                    tt="uppercase"
+                    fw={800}
+                    style={{ fontSize: "0.9rem", letterSpacing: "0.045em" }}
+                  >
                     Interview-ready learning
                   </Badge>
-                  <div style={{ textAlign: 'center' }}>
-                    {/* <Title order={2} fw={800} className={styles.richHeroTitle}>
-                      Empower your learning journey
-                    </Title> */}
-                    {/* <Text
-                      mt="md"
-                      className={styles.richHeroSubhead}
-                      c="dimmed"
-                      ta="center"
-                      mx="auto"
-                    >
-                      System design depth, hands-on labs, and interview stories — structured the way
-                      big-tech loops expect: requirements, scale, APIs, trade-offs, and failure modes.
-                    </Text> */}
-                  </div>
-                  {/* <Text className={styles.richHeroBody} c="dimmed" ta="center" mx="auto" px="md">
-                    Discover courses in every genre — live or recorded — plus tutorials and reads to
-                    grow your skills.
-                  </Text> */}
                   <Group justify="center" gap="sm" wrap="wrap" px="md">
                     <HeroInlineLink href="/courses" LinkComponent={LinkComponent}>
-                      <Button component="span" size="md" radius="md" variant="gradient" gradient={{ from: 'cyan', to: 'blue', deg: 105 }}>
+                      <Button component="span" variant="default" size="md" radius="md">
                         Browse courses
                       </Button>
                     </HeroInlineLink>
                     <HeroInlineLink href="/system-design/topics" LinkComponent={LinkComponent}>
-                      <Button component="span" variant="light" size="md" radius="md">
+                      <Button component="span" variant="default" size="md" radius="md">
                         System design topics
                       </Button>
                     </HeroInlineLink>
                     <HeroInlineLink href="/interview-experiences" LinkComponent={LinkComponent}>
-                      <Button component="span" variant="light" size="md" radius="md">
+                      <Button component="span" variant="default" size="md" radius="md">
                         Interview experiences
                       </Button>
                     </HeroInlineLink>
@@ -140,59 +129,69 @@ export const MainBanner = ({ stats, LinkComponent, popularThemes }: MainBannerPr
                       </Button>
                     </HeroInlineLink>
                   </Group>
-                  <Stack gap="xs" align="center" w="100%" maw={1024}>
-                    <Text size="xs" fw={700} tt="uppercase" c="gray" style={{ letterSpacing: '0.06em' }}>
-                      Popular design systems
-                    </Text>
-                    <Group justify="center" gap="xs" wrap="wrap">
-                      {chips.map((t) => (
-                        <HeroInlineLink key={t.href} href={t.href} LinkComponent={LinkComponent}>
-                          <Badge
-                            component="span"
-                            variant="outline"
-                            color="cyan"
-                            size="lg"
-                            radius="md"
-                            style={{ cursor: 'pointer' }}
-                          >
-                            {t.label}
-                          </Badge>
-                        </HeroInlineLink>
-                      ))}
-                    </Group>
-                  </Stack>
-                  <SimpleGrid cols={{ base: 1, sm: 3 }} spacing="md" w="100%" maw={920} px="md">
+                  <Group justify="center" gap="xs" wrap="wrap" w="100%" maw={1024} px="md" mt={6}>
+                    {chips.map((t) => (
+                      <HeroInlineLink key={t.href} href={t.href} LinkComponent={LinkComponent}>
+                        <Badge
+                          component="span"
+                          variant="outline"
+                          color="cyan"
+                          size="md"
+                          radius="md"
+                          style={{ cursor: 'pointer' }}
+                        >
+                          {t.label}
+                        </Badge>
+                      </HeroInlineLink>
+                    ))}
+                  </Group>
+                  {/* <SimpleGrid cols={{ base: 1, sm: 3 }} spacing="md" w="100%" maw={960} px="md" mt={8}>
                     <Paper withBorder shadow="xs" p="md" radius="md" h="100%">
-                      <Stack gap={4} justify="space-between" h={84}>
-                        <Text size="xs" c="dimmed" tt="uppercase" fw={700}>
+                      <Stack gap={8} justify="space-between" h={60}>
+                        <Text
+                          size="xs"
+                          fw={600}
+                          lh={1.35}
+                          style={{ color: 'light-dark(rgba(0, 0, 0, 0.62), rgba(255, 255, 255, 0.78))' }}
+                        >
                           Published system design courses
                         </Text>
-                        <Title order={3}>
+                        <Title order={2} lh={1} fw={700} style={{ fontSize: 'clamp(2rem, 3.2vw, 2rem)' }}>
                           {stats.publishedCourses.toLocaleString()}
                         </Title>
                       </Stack>
                     </Paper>
                     <Paper withBorder shadow="xs" p="md" radius="md" h="100%">
-                      <Stack gap={4} justify="space-between" h={84}>
-                        <Text size="xs" c="dimmed" tt="uppercase" fw={700}>
+                      <Stack gap={8} justify="space-between" h={60}>
+                        <Text
+                          size="xs"
+                          fw={600}
+                          lh={1.35}
+                          style={{ color: 'light-dark(rgba(0, 0, 0, 0.62), rgba(255, 255, 255, 0.78))' }}
+                        >
                           Interview experiences
                         </Text>
-                        <Title order={3}>
+                        <Title order={2} lh={1} fw={700} style={{ fontSize: 'clamp(2rem, 3.2vw, 2rem)' }}>
                           {stats.publishedInterviewExperiences.toLocaleString()}
                         </Title>
                       </Stack>
                     </Paper>
                     <Paper withBorder shadow="xs" p="md" radius="md" h="100%">
-                      <Stack gap={4} justify="space-between" h={84}>
-                        <Text size="xs" c="dimmed" tt="uppercase" fw={700}>
+                      <Stack gap={8} justify="space-between" h={50}>
+                        <Text
+                          size="xs"
+                          fw={600}
+                          lh={1.35}
+                          style={{ color: 'light-dark(rgba(0, 0, 0, 0.62), rgba(255, 255, 255, 0.78))' }}
+                        >
                           Completed practice sessions
                         </Text>
-                        <Title order={3}>
+                        <Title order={2} lh={1} fw={700} style={{ fontSize: 'clamp(2rem, 3.2vw, 2rem)' }}>
                           {stats.completedPracticeSessions.toLocaleString()}
                         </Title>
                       </Stack>
                     </Paper>
-                  </SimpleGrid>
+                  </SimpleGrid> */}
                 </>
               ) : (
                 <div style={{ textAlign: 'center' }}>
