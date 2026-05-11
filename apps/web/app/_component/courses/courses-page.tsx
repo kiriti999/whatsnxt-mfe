@@ -48,7 +48,7 @@ export default function CoursePage({ courses, enrolled, categories }: { courses:
   const { data: labsData } = useQuery({
     queryKey: ["latestLabs"],
     queryFn: async () => {
-      const response = await labApi.getPublishedLabs(1, 3);
+      const response = await labApi.getPublishedLabs(1, 24);
       return response?.data || [];
     }
   })
