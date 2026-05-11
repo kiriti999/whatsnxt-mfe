@@ -1,20 +1,33 @@
 import type { Lab } from "../types/lab";
 import { serverFetcher } from "./serverFetcher";
 
-const BASEURL = process.env.BFF_HOST_LAB_API as string;
+/**
+ * Lab BFF base for server-side fetches (no trailing `/labs`).
+ * Prefer BFF_HOST_LAB_API when set; otherwise match the client (`NEXT_PUBLIC_BFF_HOST_LAB_API`
+ * from next.config) so the homepage RSC can load labs without a separate server-only env.
+ * Strip a trailing `/lab` so callers hit `/api/v1/labs` whether the env was `.../v1` or `.../v1/lab`.
+ */
+export function getLabServerBaseUrl(): string {
+    const raw =
+        process.env.BFF_HOST_LAB_API ||
+        process.env.NEXT_PUBLIC_BFF_HOST_LAB_API ||
+        process.env.NEXT_PUBLIC_API_URL ||
+        "";
+    return raw.replace(/\/lab$/, "");
+}
 
 export const fetchLabs = async (): Promise<Lab[]> => {
-    const response = await serverFetcher(BASEURL, "/labs");
+    const response = await serverFetcher(getLabServerBaseUrl(), "/labs");
     return response?.data || [];
 };
 
 export const fetchLabById = async (id: string): Promise<Lab | null> => {
-    const response = await serverFetcher(BASEURL, `/labs/${id}`);
+    const response = await serverFetcher(getLabServerBaseUrl(), `/labs/${id}`);
     return response?.data || null;
 };
 
 export const createLab = async (labData: Lab): Promise<Lab> => {
-    const response = await serverFetcher(BASEURL, "/labs", {
+    const response = await serverFetcher(getLabServerBaseUrl(), "/labs", {
         method: "POST",
         body: labData,
     });
@@ -22,7 +35,7 @@ export const createLab = async (labData: Lab): Promise<Lab> => {
 };
 
 export const updateLab = async (id: string, labData: Lab): Promise<Lab> => {
-    const response = await serverFetcher(BASEURL, `/labs/${id}`, {
+    const response = await serverFetcher(getLabServerBaseUrl(), `/labs/${id}`, {
         method: "PUT",
         body: labData,
     });
@@ -34,7 +47,7 @@ export const deleteLabPage = async (
     pageId: string,
 ): Promise<Lab> => {
     const response = await serverFetcher(
-        BASEURL,
+        getLabServerBaseUrl(),
         `/labs/${labId}/pages/${pageId}`,
         {
             method: "DELETE",
@@ -44,10 +57,8 @@ export const deleteLabPage = async (
 };
 
 export const fetchPublishedLabs = async (perPage = 6): Promise<Lab[]> => {
-    // BFF_HOST_LAB_API ends with /lab — strip it to get the api/v1 base
-    const base = (process.env.BFF_HOST_LAB_API as string)?.replace(/\/lab$/, "") ?? "";
     const response = await serverFetcher(
-        base,
+        getLabServerBaseUrl(),
         `/labs?status=published&perPage=${perPage}`,
     );
     return response?.data || [];

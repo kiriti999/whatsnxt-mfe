@@ -1,10 +1,11 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
+import { getLabServerBaseUrl } from '../../../../fetcher/labServerQuery';
 
 // Note: API routes with cookies() are automatically dynamic - no config needed
 export async function GET() {
     try {
-        const BASEURL = process.env.BFF_HOST_LAB_API as string;
+        const BASEURL = getLabServerBaseUrl();
         const tokenKeyName = process.env.NEXT_PUBLIC_COOKIES_ACCESS_TOKEN as string;
         const cookieStore = await cookies();
         const token = cookieStore.get(tokenKeyName)?.value;
