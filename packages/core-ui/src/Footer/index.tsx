@@ -44,7 +44,7 @@ const footerSections = [
   {
     title: 'Resources',
     links: [
-      { icon: <IconArticle size={16} stroke={1.5} />, text: 'Blogs', link: 'https://www.whatsnxt.in/blogs' },
+      { icon: <IconArticle size={16} stroke={1.5} />, text: 'Reads', link: '/reads' },
       { icon: <IconNotebook size={16} stroke={1.5} />, text: 'Tutorials', link: 'https://www.whatsnxt.in/tutorials' },
       { icon: <IconMail size={16} />, text: 'Contact', link: '/contact-us' }
     ],
@@ -74,8 +74,8 @@ const DesktopFooter = () => (
         <Logo
           color="white"
           variant="footer"
-          width={560}
-          height={138}
+          width={1040}
+          height={256}
           className={classes.footerLogoLink}
         />
         <Text size="md" className={classes['brand-blurb']}>

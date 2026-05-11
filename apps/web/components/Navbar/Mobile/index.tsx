@@ -55,6 +55,8 @@ const getIconForLink = (title: string) => {
     return <IconBook size="1.1rem" stroke={1.5} />;
   if (normalizedTitle.includes("course"))
     return <IconSchool size="1.1rem" stroke={1.5} />;
+  if (normalizedTitle.includes("interview"))
+    return <IconMessages size="1.1rem" stroke={1.5} />;
   if (normalizedTitle.includes("ai") || normalizedTitle.includes("learn"))
     return <IconCpu size="1.1rem" stroke={1.5} />;
   if (normalizedTitle.includes("dashboard"))
@@ -301,25 +303,6 @@ export const NavbarMobile = ({
                   leftSection={<IconFlask size="1.1rem" stroke={1.5} />}
                   component={Link}
                   href="/labs"
-                  onClick={closeDrawer}
-                  styles={{
-                    root: {
-                      borderRadius: "var(--mantine-radius-md)",
-                      transition: "all 0.2s ease",
-                      "&:hover": {
-                        backgroundColor: "var(--mantine-color-cyan-0)",
-                        transform: "translateX(4px)",
-                      },
-                    },
-                    label: { fontWeight: 500, fontSize: "0.9rem" },
-                  }}
-                />
-
-                <NavLink
-                  label="Interview prep"
-                  leftSection={<IconMessages size="1.1rem" stroke={1.5} />}
-                  component={Link}
-                  href="/interview-experiences"
                   onClick={closeDrawer}
                   styles={{
                     root: {

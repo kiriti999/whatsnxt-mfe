@@ -1,5 +1,6 @@
 import { Avatar, Badge, Container, Group, Paper, SimpleGrid, Stack, Text, Title } from "@mantine/core";
 import Link from "next/link";
+import { InterviewExperienceWriteCta } from "../../components/InterviewExperience/InterviewExperienceWriteCta";
 import { TextNavLink } from "../../components/TextNavLink";
 import { fetchPublishedInterviewExperiences } from "../../fetcher/interviewExperienceServerQuery";
 
@@ -8,23 +9,31 @@ export default async function InterviewExperiencesListPage() {
 
     return (
         <Container size="xl" py="xl">
-            <Stack gap="md" mb="xl">
-                <Title order={2}>Interview experiences</Title>
-                <Text c="dimmed" maw={720}>
-                    Real-style interview write-ups tagged by company and round type. Pair with{" "}
-                    <TextNavLink href="/system-design/topics" fw="inherit">
-                        the topic map
-                    </TextNavLink>{" "}
-                    and{" "}
-                    <TextNavLink href="/system-design/browse" fw="inherit">
-                        course browse
-                    </TextNavLink>
-                    .
-                </Text>
-            </Stack>
+            <Group justify="space-between" align="flex-start" wrap="wrap" gap="md" mb="xl">
+                <Stack gap="md" maw={720}>
+                    <Title order={2}>Interview experiences</Title>
+                    <Text c="dimmed">
+                        Real-style interview write-ups tagged by company and round type. Pair with{" "}
+                        <TextNavLink href="/system-design/topics" fw="inherit">
+                            the topic map
+                        </TextNavLink>{" "}
+                        and{" "}
+                        <TextNavLink href="/system-design/browse" fw="inherit">
+                            course browse
+                        </TextNavLink>
+                        .
+                    </Text>
+                </Stack>
+                <InterviewExperienceWriteCta />
+            </Group>
 
             {items.length === 0 ? (
-                <Text c="dimmed">No published experiences yet.</Text>
+                <Stack gap="sm">
+                    <Text c="dimmed">No published experiences yet.</Text>
+                    <Text size="sm" c="dimmed">
+                        Be the first to publish—opens the editor where you can save a draft or mark as published when ready.
+                    </Text>
+                </Stack>
             ) : (
                 <SimpleGrid cols={{ base: 1, sm: 2, md: 3 }} spacing="md">
                     {items.map((row: { _id: string; slug: string; title: string; companyName: string; companyLogoUrl?: string; role?: string; tags?: string[] }) => (

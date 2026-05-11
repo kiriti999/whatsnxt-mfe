@@ -46,7 +46,7 @@
 .footerLogoLink {
     display: block;
     width: fit-content;
-    max-width: 100%;
+    max-width: min(1000px, 100%);
     margin-bottom: 1rem;
 }
 
@@ -313,7 +313,7 @@
 @media (min-width: 1024px) {
     .footer-grid-container {
         display: grid;
-        grid-template-columns: minmax(360px, 2.25fr) repeat(3, minmax(120px, 0.78fr));
+        grid-template-columns: minmax(440px, 2.92fr) repeat(3, minmax(96px, 0.675fr));
         align-items: start;
         justify-items: start;
         column-gap: clamp(2rem, 4.5vw, 3.25rem);
