@@ -5,7 +5,7 @@ import { SearchForm, SearchBarResult } from '@whatsnxt/core-ui';
 import { useAlgoliaSearch } from '@whatsnxt/core-util';
 import { useSearchContext } from '../context/SearchContext';
 
-function Search() {
+function Search({ variant = "default" }: { variant?: "default" | "toolbar" }) {
     const router = useRouter();
     const [search, setSearch] = useState('');
     const [show, setShow] = useState(true);
@@ -55,6 +55,7 @@ function Search() {
             data={data}
             isLoading={isLoading}
             SearchResultComponent={SearchBarResult}
+            variant={variant}
         />
     )
 }

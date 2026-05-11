@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { useDispatch } from 'react-redux';
 import { Cart, Logo, MobileLogo } from '@whatsnxt/core-ui';
 import { useMediaQuery } from '@mantine/hooks';
-import { Button, rem, Space, Anchor, Box, Menu, ActionIcon, useMantineColorScheme, useComputedColorScheme } from '@mantine/core';
+import { Avatar, Button, rem, Space, Anchor, Box, Menu, ActionIcon, Text, useMantineColorScheme, useComputedColorScheme } from '@mantine/core';
 import { IconLogin, IconLogout, IconSearch, IconX, IconSun, IconMoon, IconMenu2 } from '@tabler/icons-react';
 import type { Link as NavLink } from '../types';
 import { NavbarNotification } from '../NavbarNotification/index';
@@ -36,16 +36,20 @@ export const NavbarDesktop = ({ links, cartItems, loginMenuLinks, drawerOpened, 
   const isLargerThanIpadPro = useMediaQuery("(min-width: 1367px)");
   const dispatch = useDispatch();
 
-  // Update usernameLabel whenever user changes
+  // Update usernameLabel whenever user changes (always up to 2 chars for legibility in small circles)
   useEffect(() => {
-    if (user?.name) {
-      const usernameInitials = user.name.split(' ').map(n => n.charAt(0).toUpperCase());
-      setUsernameLabel(
-        usernameInitials.length > 1 ? `${usernameInitials[0]}${usernameInitials[1]}` : usernameInitials[0]
-      );
-    } else {
+    if (!user?.name?.trim()) {
       setUsernameLabel(null);
+      return;
     }
+    const parts = user.name.trim().split(/\s+/).filter(Boolean);
+    let label: string;
+    if (parts.length >= 2) {
+      label = `${parts[0].charAt(0)}${parts[1].charAt(0)}`;
+    } else {
+      label = parts[0].slice(0, 2);
+    }
+    setUsernameLabel(label.toUpperCase());
   }, [user]);
 
   function appLogout(e: any) {
@@ -94,15 +98,30 @@ export const NavbarDesktop = ({ links, cartItems, loginMenuLinks, drawerOpened, 
       {shouldUseDesktopLayout ? (
         // Desktop view for screens larger than iPad Pro (>1366px)
         <Box
-          h={"100%"}
-          style={{ alignItems: "center", justifyContent: "space-between", flexWrap: "wrap" }}
-          display={"flex"}
+          h="100%"
+          display="grid"
           px={isXL ? 0 : 20}
+          style={{
+            gridTemplateColumns: "minmax(0, 1fr) minmax(260px, min(36vw, 440px)) minmax(0, 1fr)",
+            columnGap: "clamp(2.5rem, 6vw, 4.75rem)",
+            alignItems: "stretch",
+          }}
         >
-          <Box style={{ alignItems: "center", flex: 1, minWidth: 0 }} display={"flex"} h="100%">
-            <Logo />
-            <Space w={'xl'} />
-            <Box style={{ display: "flex", flex: 1 }}>
+          <Box display="flex" alignItems="center" h="100%" gap="md" style={{ minWidth: 0 }}>
+            <Box style={{ display: "flex", alignItems: "center", flexShrink: 0 }}>
+              <Logo />
+            </Box>
+            <Box
+              component="nav"
+              aria-label="Primary navigation"
+              h="100%"
+              style={{
+                display: "flex",
+                flexWrap: "nowrap",
+                alignItems: "center",
+                minWidth: 0,
+              }}
+            >
               {links.map((link, index) => (
                 <Anchor
                   href={link.url}
@@ -110,18 +129,39 @@ export const NavbarDesktop = ({ links, cartItems, loginMenuLinks, drawerOpened, 
                   className={classes.link}
                   key={index}
                   target={link.linkType}
-                  style={{ whiteSpace: 'nowrap' }}
+                  style={{ whiteSpace: "nowrap" }}
                 >
                   {link.title}
                 </Anchor>
               ))}
             </Box>
-            <Space w={'xl'} />
-            <Box style={{ width: "35%", minWidth: 200 }}><Search /></Box>
           </Box>
 
-          <Space w="md" mr={'xl'} />
-          <Box style={{ alignItems: "center" }} h="100%" display={"flex"}>
+          <Box
+            w="100%"
+            h="100%"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              minWidth: 0,
+              paddingLeft: "clamp(2.25rem, 5vw, 4rem)",
+            }}
+          >
+            <Box style={{ width: "100%", minWidth: 0 }}>
+              <Search variant="toolbar" />
+            </Box>
+          </Box>
+
+          <Box
+            h="100%"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "flex-end",
+              flexWrap: "nowrap",
+              minWidth: 0,
+            }}
+          >
             <ActionIcon
               onClick={() => setColorScheme(computedColorScheme === 'light' ? 'dark' : 'light')}
               variant="transparent"
@@ -188,29 +228,44 @@ export const NavbarDesktop = ({ links, cartItems, loginMenuLinks, drawerOpened, 
                 }}
               >
                 <Menu.Target>
-                  <Button
-                    loading={loading}
-                    variant='gradient'
+                  <Avatar
+                    component="button"
+                    type="button"
+                    radius={999}
+                    size={42}
+                    variant="gradient"
                     gradient={{ from: 'indigo', to: 'cyan', deg: 45 }}
-                    size="md"
-                    radius="xl"
+                    loading={loading}
+                    aria-label={user?.name ? `Account menu for ${user.name}` : 'Account menu'}
                     styles={{
                       root: {
-                        fontWeight: 700,
-                        fontSize: '1rem',
-                        minWidth: 50,
-                        height: 42,
+                        cursor: 'pointer',
+                        flexShrink: 0,
+                        border: 'none',
                         boxShadow: '0 2px 8px rgba(99, 102, 241, 0.25)',
-                        transition: 'all 0.2s ease',
+                        transition: 'transform 0.2s ease, box-shadow 0.2s ease',
                         '&:hover': {
                           transform: 'translateY(-2px)',
-                          boxShadow: '0 4px 12px rgba(99, 102, 241, 0.35)'
-                        }
-                      }
+                          boxShadow: '0 4px 12px rgba(99, 102, 241, 0.35)',
+                        },
+                      },
                     }}
                   >
-                    {usernameLabel}
-                  </Button>
+                    <Text
+                      component="span"
+                      fw={800}
+                      fz={usernameLabel && usernameLabel.length > 1 ? rem(13) : rem(15)}
+                      lh={1}
+                      c="white"
+                      style={{
+                        WebkitFontSmoothing: 'antialiased',
+                        MozOsxFontSmoothing: 'grayscale',
+                        letterSpacing: usernameLabel && usernameLabel.length > 1 ? '0.05em' : 0,
+                      }}
+                    >
+                      {usernameLabel}
+                    </Text>
+                  </Avatar>
                 </Menu.Target>
                 <Menu.Dropdown>
                   {/* User Info Header */}
