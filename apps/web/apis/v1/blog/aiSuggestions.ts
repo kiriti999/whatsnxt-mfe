@@ -1,5 +1,11 @@
 import { articleApiClient, commonApiClient } from '@whatsnxt/core-util';
 
+/** Reference image for AI content generation (raw base64, no data: prefix). */
+export type AiSuggestionContextImage = {
+    mimeType: string;
+    dataBase64: string;
+};
+
 export const AISuggestions = {
     getSuggestionByAI: async (params: {
         question?: string;
@@ -11,6 +17,8 @@ export const AISuggestions = {
             diagramMode?: string;
             diagramType?: string;
         };
+        /** Optional images sent as multimodal context (e.g. diagrams, screenshots). */
+        contextImages?: AiSuggestionContextImage[];
     }) => {
         const response = await articleApiClient.post('/post/suggestionByAI', params);
         return response;

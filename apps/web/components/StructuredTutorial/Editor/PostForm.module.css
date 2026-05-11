@@ -1,0 +1,19 @@
+.aiContextPreview {
+    max-height: 160px;
+    border-radius: 8px;
+    object-fit: contain;
+    border: 1px solid light-dark(var(--mantine-color-gray-4), var(--mantine-color-dark-4));
+}
+
+.aiPasteZone {
+    padding: var(--mantine-spacing-sm);
+    border-radius: var(--mantine-radius-md);
+    border: 1px dashed light-dark(var(--mantine-color-gray-5), var(--mantine-color-dark-3));
+    background-color: light-dark(var(--mantine-color-gray-0), var(--mantine-color-dark-6));
+    outline: none;
+}
+
+.aiPasteZone:focus-visible {
+    border-color: var(--mantine-color-blue-filled);
+    box-shadow: 0 0 0 2px light-dark(rgba(34, 139, 230, 0.25), rgba(51, 154, 240, 0.35));
+}

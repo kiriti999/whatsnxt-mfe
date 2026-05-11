@@ -18,7 +18,7 @@ import { IconArrowLeft, IconCheck } from "@tabler/icons-react";
 import { MantineLoader } from "@whatsnxt/core-ui";
 import { useRouter, useSearchParams } from "next/navigation";
 import type React from "react";
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { FullPageOverlay } from "@/components/Common/FullPageOverlay";
 import { CategoryAPI } from "../../../apis/v1/blog";
 import {
@@ -27,7 +27,7 @@ import {
 } from "../../../apis/v1/blog/structuredTutorialApi";
 import { uploadImage } from "../../Blog/Form/util";
 import { QuizEditor } from "../../Quiz/QuizEditor";
-import { PostForm } from "./PostForm";
+import { PostForm, type PostFormAiContext } from "./PostForm";
 import { ReusePostDialog } from "./ReusePostDialog";
 import { ReuseSectionDialog } from "./ReuseSectionDialog";
 import { SectionForm } from "./SectionForm";
@@ -843,6 +843,31 @@ export const StructuredTutorialEditor: React.FC = () => {
         return section?.posts.find((p) => p.id === selectedNode.id);
     };
 
+    const postAiContext: PostFormAiContext | undefined = useMemo(() => {
+        if (selectedNode.type !== "post" || !selectedNode.sectionId) return undefined;
+        const section = sections.find((s) => s.id === selectedNode.sectionId);
+        const categoryPath = [
+            tutorialData?.categoryName,
+            tutorialData?.subCategory,
+            tutorialData?.nestedSubCategory,
+        ]
+            .filter((x): x is string => typeof x === "string" && x.trim().length > 0)
+            .join(" › ");
+        return {
+            tutorialTitle: typeof tutorialData?.title === "string" ? tutorialData.title : "",
+            categoryPath,
+            sectionTitle: section?.title ?? "",
+        };
+    }, [
+        selectedNode.type,
+        selectedNode.sectionId,
+        sections,
+        tutorialData?.title,
+        tutorialData?.categoryName,
+        tutorialData?.subCategory,
+        tutorialData?.nestedSubCategory,
+    ]);
+
     return (
         <Suspense fallback={<MantineLoader />}>
             <FullPageOverlay visible={isVisible} />
@@ -958,6 +983,7 @@ export const StructuredTutorialEditor: React.FC = () => {
                                     onChange={(data) => handlePostChange(data, selectedNode.sectionId!, selectedNode.id!)}
                                     isSaving={isSaving}
                                     isNew={selectedNode.id?.startsWith("temp-")}
+                                    aiContext={postAiContext}
                                 />
                             )}
 

@@ -25,6 +25,8 @@ export interface AISuggestionButtonProps {
     className?: string;
     /** Extra params to pass alongside the AI request (e.g. diagram context) */
     extraParams?: Record<string, unknown>;
+    /** Resolved at click time (e.g. async base64 image reads); merged over extraParams */
+    getExtraParams?: () => Record<string, unknown> | Promise<Record<string, unknown>>;
 }
 
 export function AISuggestionButton({
@@ -36,6 +38,7 @@ export function AISuggestionButton({
     disabled,
     className,
     extraParams,
+    getExtraParams,
 }: AISuggestionButtonProps) {
     const aiConfig = useAIConfig();
     const [isFetching, setIsFetching] = useState(false);
@@ -60,11 +63,13 @@ export function AISuggestionButton({
 
         setIsFetching(true);
         try {
+            const dynamicExtra = getExtraParams ? await getExtraParams() : {};
             const response = await AISuggestions.getSuggestionByAI({
                 question: resolvedPrompt,
                 aiModel: aiConfig.selectedAI,
                 modelVersion: aiConfig.selectedModel,
-                ...extraParams,
+                ...(extraParams || {}),
+                ...dynamicExtra,
             });
 
             if (response.status === 200 && response.data?.suggestion) {
@@ -108,7 +113,16 @@ export function AISuggestionButton({
         } finally {
             setIsFetching(false);
         }
-    }, [prompt, aiConfig.selectedAI, aiConfig.selectedModel, onSuggestion, onEmptyPrompt, openModal, extraParams]);
+    }, [
+        prompt,
+        aiConfig.selectedAI,
+        aiConfig.selectedModel,
+        onSuggestion,
+        onEmptyPrompt,
+        openModal,
+        extraParams,
+        getExtraParams,
+    ]);
 
     const handleModalGenerate = useCallback(() => {
         setApiKeyError('');
