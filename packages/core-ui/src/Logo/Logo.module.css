@@ -33,3 +33,19 @@
         height: auto;
     }
 }
+
+/* Larger wordmark in footer — overrides responsive caps above */
+.logoFooter {
+    min-width: 240px !important;
+    max-width: min(580px, 100%) !important;
+    width: min(580px, 100%) !important;
+    height: auto !important;
+}
+
+@media (max-width: 767px) {
+    .logoFooter {
+        min-width: 180px !important;
+        max-width: min(420px, 92vw) !important;
+        width: min(420px, 92vw) !important;
+    }
+}

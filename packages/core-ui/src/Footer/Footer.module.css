@@ -2,12 +2,139 @@
     background-color: #100f1f;
     position: relative;
     z-index: 1;
-    padding-top: 75px;
+    padding-top: clamp(3.5rem, 8vw, 5rem);
     padding-bottom: 0;
 }
 
+/* Widen usable row vs default `.container` so columns breathe on large screens */
+.footer-inner {
+    max-width: min(1320px, 96vw) !important;
+    width: 100%;
+}
+
 .single-footer-widget {
-    margin-bottom: 30px;
+    margin-bottom: 0;
+}
+
+.brand-column {
+    padding-right: clamp(0.75rem, 3vw, 2.25rem);
+    /* Fill grid track so copy isn’t artificially narrower than the column */
+    width: 100%;
+    min-width: 0;
+}
+
+.brand-column .brand-blurb {
+    max-width: none;
+    width: 100%;
+    text-align: justify;
+    text-wrap: pretty;
+    hyphens: auto;
+    -webkit-hyphens: auto;
+}
+
+.link-column {
+    min-width: 0;
+}
+
+.brand-blurb {
+    color: rgba(237, 237, 237, 0.92);
+    line-height: 1.65;
+    letter-spacing: 0.012em;
+    font-size: clamp(0.9375rem, 0.35vw + 0.88rem, 1.0625rem);
+}
+
+.footerLogoLink {
+    display: block;
+    width: fit-content;
+    max-width: 100%;
+    margin-bottom: 1rem;
+}
+
+/* Mobile footer: single `.footer-area` on parent — avoids doubled padding */
+.mobileFooterInner {
+    width: 100%;
+}
+
+.mobileBrandBlock {
+    width: 100%;
+    max-width: 100%;
+}
+
+.mobileBrandBlurb {
+    text-align: center;
+    text-wrap: pretty;
+    max-width: min(36rem, 100%);
+    width: 100%;
+}
+
+.accordion-wrapper {
+    width: 100%;
+}
+
+.column-heading {
+    margin: 0 0 1rem;
+    padding: 0;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.88);
+}
+
+.footer-link-icon {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    margin-top: 0.125rem;
+    opacity: 0.88;
+    color: rgba(255, 255, 255, 0.75);
+}
+
+.footer-link-anchor {
+    color: rgba(237, 237, 237, 0.95);
+    font-size: 0.9375rem;
+    line-height: 1.45;
+}
+
+.footer-link-anchor:hover {
+    color: #fe4a55;
+}
+
+.footer-link-row {
+    padding: 0.35rem 0;
+}
+
+.footer-copyright-main {
+    color: rgba(255, 255, 255, 0.94);
+    font-size: 0.9375rem;
+}
+
+.footer-copyright-sub {
+    color: rgba(200, 210, 235, 0.92);
+    font-size: 0.8125rem;
+}
+
+.footer-bottom-icon {
+    color: rgba(255, 255, 255, 0.62);
+}
+
+.footer-policy-row {
+    padding-top: 0.125rem;
+}
+
+.footer-policy-sep {
+    color: rgba(255, 255, 255, 0.28);
+    font-size: 0.8125rem;
+    user-select: none;
+}
+
+.footer-policy-link {
+    color: rgba(237, 237, 237, 0.9);
+    font-size: 0.8125rem;
+}
+
+.footer-policy-link:hover {
+    color: #fe4a55;
 }
 
 .single-footer-widget .logo {
@@ -70,7 +197,7 @@
 }
 
 .single-footer-widget .footer-contact-info li {
-    margin-bottom: 13px;
+    margin-bottom: 0;
     color: #ededed;
     position: relative;
 }
@@ -85,8 +212,9 @@
 }
 
 .footer-bottom-area {
-    border-top: 2px solid #181726;
-    padding: 0.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 1rem 0.5rem 1.35rem;
+    margin-top: 0.5rem;
 }
 
 .footer-bottom-area p {
@@ -173,8 +301,7 @@
 }
 
 .footer-contact-info li {
-    margin-bottom: 12px;
-    /* Add some space between items */
+    margin-bottom: 0;
 }
 
 .footer-contact-info li a:hover {
@@ -186,9 +313,11 @@
 @media (min-width: 1024px) {
     .footer-grid-container {
         display: grid;
-        grid-template-columns: 36% 18% 23% 23%;
-        justify-items: center;
-        grid-gap: 2%;
+        grid-template-columns: minmax(360px, 2.25fr) repeat(3, minmax(120px, 0.78fr));
+        align-items: start;
+        justify-items: start;
+        column-gap: clamp(2rem, 4.5vw, 3.25rem);
+        row-gap: 2rem;
     }
 }
 
@@ -212,18 +341,22 @@
 @media (min-width: 768px) and (max-width: 1023px) {
     .footer-grid-container {
         display: grid;
-        grid-template-columns: 30% 15% 23% 25%;
-        justify-items: center;
-        gap: 5%;
+        grid-template-columns: minmax(300px, 1.95fr) repeat(3, minmax(104px, 0.82fr));
+        align-items: start;
+        justify-items: start;
+        column-gap: clamp(1.5rem, 4vw, 2.25rem);
+        row-gap: 1.75rem;
     }
 }
 
 @media (min-width: 768px) and (max-width: 1024px) {
     .footer-grid-container {
         display: grid;
-        grid-template-columns: 30% 15% 23% 25%;
-        justify-items: center;
-        gap: 3%;
+        grid-template-columns: minmax(300px, 1.95fr) repeat(3, minmax(104px, 0.82fr));
+        align-items: start;
+        justify-items: start;
+        column-gap: clamp(1.5rem, 3vw, 2rem);
+        row-gap: 1.75rem;
     }
 }
 

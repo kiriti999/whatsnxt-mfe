@@ -1,4 +1,4 @@
-import { Accordion, ActionIcon, Anchor, Box, Group, List, Text, Skeleton, Flex } from '@mantine/core';
+import { Accordion, ActionIcon, Anchor, Box, Group, List, ListItem, Skeleton, Stack, Text, Flex } from '@mantine/core';
 import classes from './Footer.module.css';
 import { MobileLogo } from '../Logo';
 
@@ -8,14 +8,19 @@ export const MobileFooter = ({ footerSections, socialMediaPlatforms, isLoading }
             return (
                 <List className={classes['footer-contact-info']}>
                     {section.links?.map((info: any, i: number) => (
-                        <List.Item key={i}>
+                        <ListItem key={i}>
                             <Flex>
                                 {info.icon && <Box mr="sm">{info.icon}</Box>}
-                                <Anchor className="text-decoration-none" href={info.link} target="_blank" c={'white'}>
+                                <Anchor
+                                    className="text-decoration-none"
+                                    href={info.link}
+                                    c="white"
+                                    {...(info.link.startsWith('http') ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+                                >
                                     {info.text}
                                 </Anchor>
                             </Flex>
-                        </List.Item>
+                        </ListItem>
                     ))}
                 </List>
             );
@@ -23,12 +28,12 @@ export const MobileFooter = ({ footerSections, socialMediaPlatforms, isLoading }
             return (
                 <List className={classes['footer-contact-info']}>
                     {section.links?.map((link: any, i: number) => (
-                        <List.Item key={i}>
+                        <ListItem key={i}>
                             <Flex>
                                 {link.icon && <Box mr="sm">{link.icon}</Box>}
                                 <Anchor className="text-decoration-none" href={link.link}>{link.text}</Anchor>
                             </Flex>
-                        </List.Item>
+                        </ListItem>
                     ))}
                 </List>
             );
@@ -36,19 +41,24 @@ export const MobileFooter = ({ footerSections, socialMediaPlatforms, isLoading }
     };
 
     return (
-        <Box className={classes['footer-area']}>
-            {/* Logo and Social Media (for Mobile) */}
-            <section>
-                <Box style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
-                    <MobileLogo color="white" className="mb-3" />
-                </Box>
-                <Text>
+        <Box className={classes.mobileFooterInner}>
+            {/* Logo + blurb + social: one centered column */}
+            <Stack gap="md" align="center" component="section" className={classes.mobileBrandBlock}>
+                <MobileLogo color="white" variant="footer" width={420} height={104} />
+                <Text size="md" className={`${classes['brand-blurb']} ${classes.mobileBrandBlurb}`}>
                     Working to bring significant changes in online-based learning by
                     doing extensive research for course curriculum preparation,
                     student engagements, and looking forward to the flexible
                     education!
                 </Text>
-                <Group gap={10} className={classes.social} justify="flex-start" wrap="nowrap">
+                <Group
+                    gap={12}
+                    className={classes.social}
+                    justify="center"
+                    wrap="nowrap"
+                    w="100%"
+                    aria-label="Social links"
+                >
                     {socialMediaPlatforms.map((smp: any, i: number) => (
                         <Anchor key={i} href={smp.url} target="_blank" rel="noopener noreferrer">
                             <ActionIcon size="lg" color="white" variant="subtle" className={classes.socialIcon}>
@@ -57,7 +67,7 @@ export const MobileFooter = ({ footerSections, socialMediaPlatforms, isLoading }
                         </Anchor>
                     ))}
                 </Group>
-            </section>
+            </Stack>
 
             {/* Accordion Sections */}
             {!footerSections || footerSections.length === 0 ? (
@@ -81,6 +91,6 @@ export const MobileFooter = ({ footerSections, socialMediaPlatforms, isLoading }
                     ))}
                 </Accordion>
             )}
-        </Box >
+        </Box>
     );
 };

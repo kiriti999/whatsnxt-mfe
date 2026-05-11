@@ -1,7 +1,7 @@
 "use client"
 import React, { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
-import { Text, Container, ActionIcon, Group, Anchor, Box, List, Skeleton, Flex } from '@mantine/core';
+import { Text, Container, ActionIcon, Group, Anchor, Box, List, ListItem, Skeleton, Flex } from '@mantine/core';
 import {
   IconCopyright,
   IconBrandFacebook,
@@ -12,9 +12,10 @@ import {
   IconPhoneCall,
   IconMail,
   IconHome,
-  IconBook,
+  IconSchool,
   IconInfoCircle,
-  IconArticle
+  IconArticle,
+  IconNotebook,
 } from "@tabler/icons-react";
 import { Logo } from '../Logo';
 import classes from './Footer.module.css';
@@ -37,14 +38,14 @@ const footerSections = [
     links: [
       { icon: <IconHome size={16} />, text: 'Home', link: '/' },
       { icon: <IconInfoCircle size={16} />, text: 'About', link: '/about' },
-      { icon: <IconBook size={16} />, text: 'Courses', link: '/courses' },
+      { icon: <IconSchool size={16} stroke={1.5} />, text: 'Courses', link: '/courses' },
     ],
   },
   {
     title: 'Resources',
     links: [
-      { icon: <IconArticle size={16} />, text: 'Blogs', link: 'https://www.whatsnxt.in/blogs' },
-      { icon: <IconBook size={16} />, text: 'Tutorials', link: 'https://www.whatsnxt.in/tutorials' },
+      { icon: <IconArticle size={16} stroke={1.5} />, text: 'Blogs', link: 'https://www.whatsnxt.in/blogs' },
+      { icon: <IconNotebook size={16} stroke={1.5} />, text: 'Tutorials', link: 'https://www.whatsnxt.in/tutorials' },
       { icon: <IconMail size={16} />, text: 'Contact', link: '/contact-us' }
     ],
   },
@@ -68,16 +69,22 @@ const socialMediaPlatforms = [
 // Desktop Footer Component
 const DesktopFooter = () => (
   <div className={classes['footer-grid-container']}>
-    <section>
+    <section className={classes['brand-column']}>
       <div className={classes['single-footer-widget']}>
-        <Logo color="white" className="w-75 mb-3" />
-        <Text>
+        <Logo
+          color="white"
+          variant="footer"
+          width={560}
+          height={138}
+          className={classes.footerLogoLink}
+        />
+        <Text size="md" className={classes['brand-blurb']}>
           Working to bring significant changes in online-based learning by
           doing extensive research for course curriculum preparation,
           student engagements, and looking forward to the flexible
           education!
         </Text>
-        <Group gap={10} className={classes.social} justify="flex-start" wrap="nowrap" mt={10}>
+        <Group gap={10} className={classes.social} justify="flex-start" wrap="nowrap" mt="md">
           {socialMediaPlatforms.map((smp, i) => (
             <Anchor
               href={smp.url}
@@ -95,23 +102,28 @@ const DesktopFooter = () => (
     </section>
 
     {footerSections.map((section, index) => (
-      <Box key={index}>
+      <Box key={index} className={classes['link-column']}>
         <div className={classes['single-footer-widget']}>
-          <Text size="xl" fw={800}>{section.title}</Text>
-          <List className={`${classes['footer-contact-info']}`}>
+          <Text component="h3" className={classes['column-heading']}>
+            {section.title}
+          </Text>
+          <List className={`${classes['footer-contact-info']}`} listStyleType="none">
             {section.links?.map((link, i) => (
-              <List.Item key={i} mt={20}>
-                <Flex gap="sm" align="center">
-                  {link.icon}
+              <ListItem key={i} className={classes['footer-link-row']}>
+                <Flex gap="sm" align="flex-start" wrap="nowrap">
+                  <Box className={classes['footer-link-icon']} aria-hidden>
+                    {link.icon}
+                  </Box>
                   <Anchor
                     td="none"
-                    mx={section.title === 'Address' ? 'sm' : 0}
+                    className={classes['footer-link-anchor']}
                     href={link.link}
+                    {...(section.title === 'Address' && link.link.startsWith('http') ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
                   >
                     {link.text}
                   </Anchor>
                 </Flex>
-              </List.Item>
+              </ListItem>
             ))}
           </List>
         </div>
@@ -142,7 +154,7 @@ export const Footer = () => {
   if (!mounted) {
     return (
       <Box className={classes['footer-area']}>
-        <Container className="container">
+        <Container className={`container ${classes['footer-inner']}`}>
           <Skeleton height={300} radius="sm" />
         </Container>
       </Box>
@@ -151,7 +163,7 @@ export const Footer = () => {
 
   return (
     <Box className={classes['footer-area']}>
-      <Container className="container">
+      <Container className={`container ${classes['footer-inner']}`}>
         {isMobile ? (
           <MobileFooter
             footerSections={footerSections}
@@ -163,7 +175,7 @@ export const Footer = () => {
       </Container>
 
       <Box className={classes['footer-bottom-area']}>
-        <Container className="container">
+        <Container className={`container ${classes['footer-inner']}`}>
           <Box
             className={classes['footer-bottom-wrapper']}
             style={{
@@ -174,31 +186,38 @@ export const Footer = () => {
               textAlign: 'center'
             }}
           >
-            <Group gap="xs" mb="sm" align="center">
-              <IconCopyright size={18} />
-              <Text component="span">
+            <Group gap={6} mb="sm" align="center" justify="center" wrap="wrap">
+              <IconCopyright size={18} className={classes['footer-bottom-icon']} />
+              <Text component="span" className={classes['footer-copyright-main']}>
                 {currentYear} whatsnxt
               </Text>
-              <Text c={'blue'}>
-                Copyright reserved
+              <Text component="span" className={classes['footer-copyright-sub']}>
+                All rights reserved
               </Text>
             </Group>
-            <List className='p-0 m-0'>
-              <Flex wrap='wrap' justify='center'>
-                {termsLinks.map((link, i) => (
-                  <List.Item key={i}>
-                    <Flex align="baseline">
-                      <Anchor
-                        td="none"
-                        href={link.link}
-                      >
-                        {link.text}
-                      </Anchor>
-                    </Flex>
-                  </List.Item>
-                ))}
-              </Flex>
-            </List>
+            <Flex
+              component="nav"
+              aria-label="Legal links"
+              wrap="wrap"
+              justify="center"
+              align="center"
+              gap={10}
+              rowGap={6}
+              className={classes['footer-policy-row']}
+            >
+              {termsLinks.map((link, i) => (
+                <React.Fragment key={link.link}>
+                  {i > 0 ? (
+                    <Text component="span" className={classes['footer-policy-sep']} aria-hidden>
+                      |
+                    </Text>
+                  ) : null}
+                  <Anchor td="none" href={link.link} className={classes['footer-policy-link']}>
+                    {link.text}
+                  </Anchor>
+                </React.Fragment>
+              ))}
+            </Flex>
           </Box>
         </Container>
       </Box>
