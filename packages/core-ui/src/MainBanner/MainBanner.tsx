@@ -86,14 +86,14 @@ export const MainBanner = ({ stats, LinkComponent, popularThemes }: MainBannerPr
         backgroundSize: '40px 40px',
         borderRadius: 'var(--mantine-radius-lg)',
         position: 'relative',
-        padding: '2rem 0',
+        padding: '2.8rem 0',
         marginBottom: '0.8rem',
       }}
     >
       <Container fluid style={{ position: 'relative', zIndex: 1 }}>
         <Grid justify="center" align="center">
           <Grid.Col span={12}>
-            <Stack gap="md" align="center">
+            <Stack gap="lg" align="center">
               {showRich && stats ? (
                 <>
                   <Badge
@@ -107,7 +107,7 @@ export const MainBanner = ({ stats, LinkComponent, popularThemes }: MainBannerPr
                   >
                     Interview-ready learning
                   </Badge>
-                  <Group justify="center" gap="sm" wrap="wrap" px="md">
+                  <Group justify="center" gap="md" wrap="wrap" px="md">
                     <HeroInlineLink href="/courses" LinkComponent={LinkComponent}>
                       <Button component="span" variant="default" size="md" radius="md">
                         Browse courses
@@ -129,7 +129,7 @@ export const MainBanner = ({ stats, LinkComponent, popularThemes }: MainBannerPr
                       </Button>
                     </HeroInlineLink>
                   </Group>
-                  <Group justify="center" gap="xs" wrap="wrap" w="100%" maw={1024} px="md" mt={6}>
+                  <Group justify="center" gap="md" wrap="wrap" w="100%" maw={1024} px="md" mt={12}>
                     {chips.map((t) => (
                       <HeroInlineLink key={t.href} href={t.href} LinkComponent={LinkComponent}>
                         <Badge
