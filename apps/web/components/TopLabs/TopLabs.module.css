@@ -2,120 +2,118 @@
 
 /* ── Section wrapper ─────────────────────────────────── */
 .section {
-    padding: 0;
+	padding: 0;
 }
-
 
 /* ── Card ────────────────────────────────────────────── */
 .card {
-    border-radius: var(--mantine-radius-md);
-    overflow: hidden;
-    cursor: pointer;
-    transition: transform 180ms ease, box-shadow 180ms ease;
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    border: 1px solid light-dark(#e9ecef, var(--mantine-color-dark-4));
-    background: light-dark(#fff, var(--mantine-color-dark-7));
-    text-align: left;
-    padding: 0;
-    width: 100%;
-    appearance: none;
-    -webkit-appearance: none;
+	border-radius: var(--mantine-radius-md);
+	overflow: hidden;
+	cursor: pointer;
+	transition:
+		transform 180ms ease,
+		box-shadow 180ms ease;
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	border: 1px solid light-dark(#e9ecef, var(--mantine-color-dark-4));
+	background: light-dark(#fff, var(--mantine-color-dark-7));
+	text-align: left;
+	padding: 0;
+	width: 100%;
+	appearance: none;
+	-webkit-appearance: none;
 }
 
 .card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 10px 24px -4px rgba(0, 0, 0, 0.18);
+	transform: translateY(-4px);
+	box-shadow: 0 12px 28px -6px rgba(0, 0, 0, 0.15);
 }
 
 /* ── Colored top accent bar ──────────────────────────── */
 .cardTop {
-    display: flex;
-    align-items: center;
-    gap: 0.625rem;
-    padding: 0.7rem 0.9rem;
-    border-bottom: 1px solid light-dark(#f0f0f0, rgba(255, 255, 255, 0.06));
+	display: flex;
+	align-items: center;
+	flex-wrap: nowrap;
+	gap: 0.625rem;
+	padding: 0.7rem 0.9rem;
+	border-bottom: 1px solid light-dark(#f0f0f0, rgba(255, 255, 255, 0.06));
+}
+
+.cardTopIcon {
+	flex-shrink: 0;
+}
+
+.cardTopLabel {
+	flex: 1;
+	min-width: 0;
+}
+
+/* Footer MCQ / diagram rows: center SVGs with adjacent text */
+.footerStat {
+	display: flex;
+	align-items: center;
+	flex-wrap: nowrap;
+	gap: 0.25rem;
+}
+
+.footerStat svg {
+	display: block;
+	flex-shrink: 0;
 }
 
 .cardTopTeal {
-    background: light-dark(rgba(32, 178, 170, 0.1), rgba(32, 178, 170, 0.15));
+	background: light-dark(rgba(32, 178, 170, 0.1), rgba(32, 178, 170, 0.15));
 }
 
 .cardTopCyan {
-    background: light-dark(rgba(6, 194, 252, 0.1), rgba(6, 194, 252, 0.15));
+	background: light-dark(rgba(6, 194, 252, 0.1), rgba(6, 194, 252, 0.15));
 }
 
 .cardTopRed {
-    background: light-dark(rgba(239, 68, 68, 0.1), rgba(239, 68, 68, 0.15));
+	background: light-dark(rgba(239, 68, 68, 0.1), rgba(239, 68, 68, 0.15));
 }
 
 .cardTopGrape {
-    background: light-dark(rgba(174, 62, 201, 0.1), rgba(174, 62, 201, 0.15));
+	background: light-dark(rgba(174, 62, 201, 0.1), rgba(174, 62, 201, 0.15));
 }
 
 .cardTopIndigo {
-    background: light-dark(rgba(79, 70, 229, 0.1), rgba(79, 70, 229, 0.15));
+	background: light-dark(rgba(79, 70, 229, 0.1), rgba(79, 70, 229, 0.15));
 }
 
 .cardTopViolet {
-    background: light-dark(rgba(124, 58, 237, 0.1), rgba(124, 58, 237, 0.15));
+	background: light-dark(rgba(124, 58, 237, 0.1), rgba(124, 58, 237, 0.15));
 }
 
 .cardTopOrange {
-    background: light-dark(rgba(249, 115, 22, 0.1), rgba(249, 115, 22, 0.15));
+	background: light-dark(rgba(249, 115, 22, 0.1), rgba(249, 115, 22, 0.15));
 }
-
 
 /* ── Card body ───────────────────────────────────────── */
 .cardBody {
-    padding: 0.875rem 0.9rem 0;
-    flex: 1;
+	padding: 0.875rem 0.9rem 0;
+	flex: 1;
 }
 
 .cardName {
-    font-weight: 700;
-    font-size: 0.9rem;
-    line-height: 1.35;
-    color: light-dark(#111827, var(--mantine-color-white));
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
+	font-weight: 700;
+	font-size: 0.9rem;
+	line-height: 1.35;
+	color: light-dark(#111827, var(--mantine-color-white));
+	display: -webkit-box;
+	-webkit-line-clamp: 2;
+	line-clamp: 2;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
 }
 
 /* ── Card footer: stats stacked above full-width CTA ── */
 .cardFooter {
-    display: flex;
-    flex-direction: column;
-    gap: 0.625rem;
-    padding: 0.625rem 0.9rem 0.85rem;
-    margin-top: 0.625rem;
-    border-top: 1px solid light-dark(#f3f4f6, rgba(255, 255, 255, 0.06));
-}
-
-
-
-/* ── Card ────────────────────────────────────────────── */
-.card {
-    border-radius: var(--mantine-radius-md);
-    overflow: hidden;
-    cursor: pointer;
-    transition: transform 180ms ease, box-shadow 180ms ease;
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    border: 1px solid light-dark(#e9ecef, var(--mantine-color-dark-4));
-    background: light-dark(#fff, var(--mantine-color-dark-7));
-    text-align: left;
-    padding: 0;
-    width: 100%;
-    appearance: none;
-    -webkit-appearance: none;
-}
-
-.card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 28px -6px rgba(0, 0, 0, 0.15);
+	display: flex;
+	flex-direction: column;
+	gap: 0.625rem;
+	padding: 0.625rem 0.9rem 0.85rem;
+	margin-top: 0.625rem;
+	border-top: 1px solid light-dark(#f3f4f6, rgba(255, 255, 255, 0.06));
 }
