@@ -51,6 +51,7 @@ import type {
 	SystemDesignSection,
 } from "../../apis/v1/systemDesign";
 import { SystemDesignAPI } from "../../apis/v1/systemDesign";
+import { normalizeClassDiagramForPersist } from "../../utils/mermaidClassDiagramSanitize";
 import { AISuggestionButton } from "../Common/AISuggestionButton";
 import { LexicalEditor } from "../StructuredTutorial/Editor/LexicalEditor";
 import { ApiDesignEditor } from "./ApiDesignEditor";
@@ -397,16 +398,21 @@ export function SystemDesignForm() {
 	}, [selectedSections, sectionContents]);
 
 	const buildDiagramsPayload = useCallback((): SystemDesignDiagram[] => {
-		return DIAGRAM_TABS.map((d, idx) => ({
-			key: d.key,
-			title: d.title,
-			content: diagramContents[d.key] || "",
-			isRequired: d.isRequired,
-			sortOrder: idx,
-			practiceMode: (practiceModes[d.key] || "starter-blocks") as
-				| "starter-blocks"
-				| "blank-canvas",
-		}));
+		return DIAGRAM_TABS.map((d, idx) => {
+			const raw = diagramContents[d.key] || "";
+			const content =
+				d.key === "API Design" ? normalizeClassDiagramForPersist(raw) : raw;
+			return {
+				key: d.key,
+				title: d.title,
+				content,
+				isRequired: d.isRequired,
+				sortOrder: idx,
+				practiceMode: (practiceModes[d.key] || "starter-blocks") as
+					| "starter-blocks"
+					| "blank-canvas",
+			};
+		});
 	}, [diagramContents, practiceModes]);
 
 	const handleSave = useCallback(async () => {
@@ -632,7 +638,7 @@ export function SystemDesignForm() {
 				const promptMap: Record<string, string> = {
 					"High Level Architecture": `${base}Generate a Mermaid flowchart (graph TD) for the high-level architecture of "${title}". Show main components (Client, Load Balancer, API Gateway, Services, Databases, Cache, Message Queue, etc.) as nodes. Connect them with labeled arrows showing data flow. Use subgraph blocks to group related components (e.g., "Backend Services", "Data Layer"). Keep it clear and readable.`,
 					"Request Flow Sequence": `${base}Generate a Mermaid sequence diagram (sequenceDiagram) for "${title}". Show participants: Client, API Gateway, Service, Database, Cache, etc. Show numbered request/response flows with descriptive labels. Use activate/deactivate for processing spans. Use alt/opt blocks for conditional flows.`,
-					"API Design": `${base}Generate a Mermaid class diagram (classDiagram) for the API design of "${title}". Show API resource classes with methods formatted as "METHOD /path : ResponseType". Show request/response DTO classes with typed fields. Connect resources to DTOs with associations. Use stereotypes like <<Resource>> and <<DTO>>.`,
+					"API Design": `${base}Generate a Mermaid class diagram (classDiagram) for the API design of "${title}". Show API resource classes with methods formatted as "METHOD /path : ResponseType". Use colon path params (e.g. /users/:userId or /feed/:userId) — never use curly braces like {userId} in paths because Mermaid treats { as class-body syntax. Show request/response DTO classes with typed fields. Connect resources to DTOs with associations. Use stereotypes like <<Resource>> and <<DTO>>.`,
 					"Database Design": `${base}Generate a Mermaid ER diagram (erDiagram) for "${title}". Show entity tables with their columns and types using Mermaid ER syntax (string, int, boolean, datetime, etc.). Show relationships between tables using proper cardinality notation (||--o{, }|--|{, etc.). Add relationship labels.`,
 				};
 				return promptMap[diagramType] || "";
@@ -643,7 +649,9 @@ export function SystemDesignForm() {
 
 	const handleDiagramSuggestion = useCallback(
 		(key: string, text: string) => {
-			updateDiagramContent(key, text);
+			const next =
+				key === "API Design" ? normalizeClassDiagramForPersist(text) : text;
+			updateDiagramContent(key, next);
 		},
 		[updateDiagramContent],
 	);
@@ -974,10 +982,10 @@ export function SystemDesignForm() {
 													<Select
 														size="xs"
 														w={150}
-														label="SVG icon style"
+														label="Logo style"
 														data={[
-															{ value: "color", label: "Color badge" },
-															{ value: "mono", label: "Mono badge" },
+															{ value: "color", label: "Brand color" },
+															{ value: "mono", label: "Mono on plate" },
 														]}
 														value={row.variant}
 														onChange={(val) => {
