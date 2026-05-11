@@ -103,11 +103,11 @@ export const NavbarDesktop = ({ links, cartItems, loginMenuLinks, drawerOpened, 
           px={isXL ? 0 : 20}
           style={{
             gridTemplateColumns: "minmax(0, 1fr) minmax(260px, min(36vw, 440px)) minmax(0, 1fr)",
-            columnGap: "clamp(2.5rem, 6vw, 4.75rem)",
+            columnGap: "clamp(0rem, 6vw, 0rem)",
             alignItems: "stretch",
           }}
         >
-          <Box display="flex" alignItems="center" h="100%" gap="md" style={{ minWidth: 0 }}>
+          <Box display="flex" h="100%" w={"100%"} style={{ minWidth: 0, alignItems: "center", gap: "var(--mantine-spacing-xl)" }}>
             <Box style={{ display: "flex", alignItems: "center", flexShrink: 0 }}>
               <Logo />
             </Box>
@@ -175,9 +175,7 @@ export const NavbarDesktop = ({ links, cartItems, loginMenuLinks, drawerOpened, 
                 <IconMoon />
               )}
             </ActionIcon>
-            <Anchor href='/labs' className={classes.link} component={Link}>
-              Labs
-            </Anchor>
+
             <Anchor href='/consulting' className={classes.link} component={Link}>
               Consulting
             </Anchor>
