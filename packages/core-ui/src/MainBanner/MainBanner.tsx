@@ -142,7 +142,7 @@ export const MainBanner = ({ stats, LinkComponent, popularThemes }: MainBannerPr
                   </Group>
                   <Stack gap="xs" align="center" w="100%" maw={720}>
                     <Text size="xs" fw={700} tt="uppercase" c="dimmed" style={{ letterSpacing: '0.06em' }}>
-                      Popular design themes
+                      Popular design systems
                     </Text>
                     <Group justify="center" gap="xs" wrap="wrap">
                       {chips.map((t) => (
