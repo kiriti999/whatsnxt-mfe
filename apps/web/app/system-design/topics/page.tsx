@@ -1,5 +1,16 @@
-import { Anchor, Badge, Container, Divider, Group, List, Paper, Stack, Text, Title } from "@mantine/core";
-import Link from "next/link";
+import {
+    Badge,
+    Container,
+    Divider,
+    Group,
+    List,
+    ListItem,
+    Paper,
+    Stack,
+    Text,
+    Title,
+} from "@mantine/core";
+import { TextNavLink } from "../../../components/TextNavLink";
 import { FAANG_SYSTEM_DESIGN_PILLARS } from "../../../lib/faangSystemDesignTopics";
 
 export default function SystemDesignTopicsPage() {
@@ -11,12 +22,8 @@ export default function SystemDesignTopicsPage() {
                     These pillars mirror what large tech companies probe in system design interviews. Each tag links to
                     the browse view filtered by that topic slug — tag your courses in the editor so they appear here.
                 </Text>
-                <Anchor component={Link} href="/system-design/browse" fw={600}>
-                    Open full browse →
-                </Anchor>
-                <Anchor component={Link} href="/interview-experiences" fw={600}>
-                    Read interview experiences →
-                </Anchor>
+                <TextNavLink href="/system-design/browse">Open full browse →</TextNavLink>
+                <TextNavLink href="/interview-experiences">Read interview experiences →</TextNavLink>
             </Stack>
 
             <Stack gap="xl">
@@ -30,11 +37,11 @@ export default function SystemDesignTopicsPage() {
                             <Divider />
                             <List spacing="xs" size="sm" withPadding>
                                 {pillar.topics.map((t) => (
-                                    <List.Item key={t.id}>
+                                    <ListItem key={t.id}>
                                         <Group gap="xs" wrap="wrap">
-                                            <Anchor component={Link} href={`/system-design/browse?topic=${encodeURIComponent(t.id)}`} fw={600}>
+                                            <TextNavLink href={`/system-design/browse?topic=${encodeURIComponent(t.id)}`}>
                                                 {t.label}
-                                            </Anchor>
+                                            </TextNavLink>
                                             <Text c="dimmed" span>
                                                 — {t.blurb}
                                             </Text>
@@ -42,7 +49,7 @@ export default function SystemDesignTopicsPage() {
                                                 tag: {t.id}
                                             </Badge>
                                         </Group>
-                                    </List.Item>
+                                    </ListItem>
                                 ))}
                             </List>
                         </Stack>

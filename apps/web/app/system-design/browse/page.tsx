@@ -1,7 +1,10 @@
 import { Container, Group, Stack, Text, Title } from "@mantine/core";
-import Link from "next/link";
+import { TextNavLink } from "../../../components/TextNavLink";
 import { fetchPublishedSystemDesigns } from "../../../fetcher/systemDesignServerQuery";
 import { SystemDesignBrowseClient } from "./SystemDesignBrowseClient";
+
+/** Query-string filters must hit the server each request (avoid stale cached empty lists). */
+export const dynamic = "force-dynamic";
 
 interface PageProps {
     searchParams: Promise<{ topic?: string; company?: string; difficulty?: string }>;
@@ -24,8 +27,10 @@ export default async function SystemDesignBrowsePage(props: PageProps) {
                     system design editor.
                 </Text>
                 <Group gap="md">
-                    <Link href="/system-design/topics">Topic map</Link>
-                    <Link href="/interview-experiences">Interview experiences</Link>
+                    <TextNavLink href="/system-design/topics">Topic map</TextNavLink>
+                    <TextNavLink href="/courses">Browse courses</TextNavLink>
+                    <TextNavLink href="/interview-experiences">Interview experiences</TextNavLink>
+                    <TextNavLink href="/labs">Hands-on labs</TextNavLink>
                 </Group>
             </Stack>
             <SystemDesignBrowseClient initialCourses={courses} initialFilters={sp} />

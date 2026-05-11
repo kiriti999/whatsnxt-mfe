@@ -139,6 +139,13 @@ const SystemDesignContent = ({ course, stats }: SystemDesignContentProps) => {
                         {course.title}
                     </Title>
                     <Group gap="sm">
+                        {course.status && course.status.toLowerCase() !== "published" && (
+                            <Badge variant="filled" color="orange">
+                                {course.status.toLowerCase() === "archived"
+                                    ? "Archived (owner preview)"
+                                    : "Draft — only visible when signed in as owner"}
+                            </Badge>
+                        )}
                         <Badge variant="light" color="blue">
                             {course.category}
                         </Badge>
@@ -173,10 +180,17 @@ const SystemDesignContent = ({ course, stats }: SystemDesignContentProps) => {
                             <Text size="xs" fw={700} tt="uppercase" c="dimmed" mb={6}>
                                 Platform activity
                             </Text>
+                            <Text size="xs" c="dimmed" mb="md" ta="center" lh={1.5}>
+                                Whole-platform totals (all creators). The first figure counts courses stored as{" "}
+                                <Text span fw={600}>
+                                    published
+                                </Text>{" "}
+                                — drafts are excluded.
+                            </Text>
                             <Group grow>
                                 <Stack gap={2}>
                                     <Text size="xs" c="dimmed">
-                                        Published SD courses
+                                        Published system design courses
                                     </Text>
                                     <Title order={4}>{stats.publishedCourses}</Title>
                                 </Stack>
@@ -234,17 +248,25 @@ const SystemDesignContent = ({ course, stats }: SystemDesignContentProps) => {
                             ))}
                         </Group>
                     )}
-                    <Group justify="center" gap="md" mt="xs">
-                        <Button component={Link} href="/system-design/topics" variant="subtle" size="xs" color="blue">
-                            Topic map
-                        </Button>
-                        <Button component={Link} href="/system-design/browse" variant="subtle" size="xs" color="blue">
-                            Browse courses
-                        </Button>
-                        <Button component={Link} href="/interview-experiences" variant="subtle" size="xs" color="blue">
-                            Interview experiences
-                        </Button>
-                    </Group>
+                    <Stack gap="xs" align="center" mt="md" maw={640} mx="auto">
+                        <Text size="xs" c="dimmed" ta="center">
+                            Explore more prep resources
+                        </Text>
+                        <Group justify="center" gap="sm" wrap="wrap">
+                            <Button component={Link} prefetch href="/system-design/topics" variant="light" size="sm" radius="md">
+                                Topic map
+                            </Button>
+                            <Button component={Link} prefetch href="/courses" variant="light" size="sm" radius="md">
+                                All courses
+                            </Button>
+                            <Button component={Link} prefetch href="/system-design/browse" variant="light" size="sm" radius="md">
+                                System design library
+                            </Button>
+                            <Button component={Link} prefetch href="/interview-experiences" variant="light" size="sm" radius="md">
+                                Interview experiences
+                            </Button>
+                        </Group>
+                    </Stack>
                     {course.relatedSlugs && course.relatedSlugs.length > 0 && (
                         <Group justify="center" gap="xs" wrap="wrap">
                             <Text size="xs" c="dimmed">

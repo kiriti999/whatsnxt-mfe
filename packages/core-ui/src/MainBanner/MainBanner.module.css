@@ -8,6 +8,26 @@
     font-size: 1.3rem !important; /* Mobile: 24px */
 }
 
+.richHeroTitle {
+    font-size: clamp(1.5rem, 2.5vw + 0.75rem, 2.25rem) !important;
+    line-height: 1.25 !important;
+    letter-spacing: -0.02em;
+}
+
+.richHeroSubhead {
+    font-size: clamp(0.95rem, 0.6vw + 0.85rem, 1.1rem) !important;
+    line-height: 1.55 !important;
+    max-width: 38rem;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.richHeroBody {
+    font-size: clamp(0.875rem, 0.35vw + 0.8rem, 1rem) !important;
+    line-height: 1.65 !important;
+    max-width: 42rem;
+}
+
 @media (min-width: 48em) {
     .mainBannerTitle {
         font-size: 1.625rem !important; /* Tablet: 26px */

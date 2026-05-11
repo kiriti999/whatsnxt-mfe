@@ -2,8 +2,10 @@
 
 import { MainBanner } from "@whatsnxt/core-ui";
 import dynamic from "next/dynamic";
+import Link from "next/link";
 import React from "react";
 import PartyTownScripts from "../../../components/PartyTownScripts";
+import { POPULAR_DESIGN_THEME_CHIPS } from "../../../lib/faangSystemDesignTopics";
 
 const DynamicComponent = dynamic(() =>
   import("../../../components/MicroFrontEnd").then((mfe) => mfe),
@@ -28,10 +30,15 @@ interface HomeProps {
   };
 }
 
+const popularDesignThemes = POPULAR_DESIGN_THEME_CHIPS.map((t) => ({
+  label: t.label,
+  href: `/system-design/browse?topic=${encodeURIComponent(t.topicId)}`,
+}));
+
 function Home({ data, articles, tutorialsData, labs, systemDesigns, systemDesignStats }: HomeProps) {
   return (
     <div>
-      <MainBanner />
+      <MainBanner stats={systemDesignStats} LinkComponent={Link} popularThemes={popularDesignThemes} />
       <DynamicComponent
         courses={data?.courses || []}
         total={data?.total || 0}
@@ -41,7 +48,6 @@ function Home({ data, articles, tutorialsData, labs, systemDesigns, systemDesign
         totalTutorials={tutorialsData?.total || 0}
         labs={labs || []}
         systemDesigns={systemDesigns || []}
-        systemDesignStats={systemDesignStats}
       />
     </div>
   );

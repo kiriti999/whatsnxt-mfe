@@ -36,12 +36,18 @@ export const serverFetcher = async (BASEURL: string, URL: string, options: Fetch
             fetchOptions.body = JSON.stringify(options.body);
         }
 
-        const URI = BASEURL ? `${BASEURL}${URL}` : `undefined`;
+        const normalizedBase = String(BASEURL ?? "")
+            .trim()
+            .replace(/\/$/, "");
+        const path = URL.startsWith("/") ? URL : `/${URL}`;
+        const URI = normalizedBase ? `${normalizedBase}${path}` : "";
 
-        const response = await fetch(
-            `${URI}`,
-            fetchOptions
-        );
+        if (!URI) {
+            console.error("Server Fetcher - missing BASEURL:", { URL });
+            return {};
+        }
+
+        const response = await fetch(URI, fetchOptions);
 
         if (!response.ok) {
             console.error('🔍 Server Fetcher - Response not OK:', {

@@ -1,5 +1,6 @@
-import { Anchor, Avatar, Badge, Container, Group, Paper, SimpleGrid, Stack, Text, Title } from "@mantine/core";
+import { Avatar, Badge, Container, Group, Paper, SimpleGrid, Stack, Text, Title } from "@mantine/core";
 import Link from "next/link";
+import { TextNavLink } from "../../components/TextNavLink";
 import { fetchPublishedInterviewExperiences } from "../../fetcher/interviewExperienceServerQuery";
 
 export default async function InterviewExperiencesListPage() {
@@ -11,13 +12,13 @@ export default async function InterviewExperiencesListPage() {
                 <Title order={2}>Interview experiences</Title>
                 <Text c="dimmed" maw={720}>
                     Real-style interview write-ups tagged by company and round type. Pair with{" "}
-                    <Anchor component={Link} href="/system-design/topics">
+                    <TextNavLink href="/system-design/topics" fw="inherit">
                         the topic map
-                    </Anchor>{" "}
+                    </TextNavLink>{" "}
                     and{" "}
-                    <Anchor component={Link} href="/system-design/browse">
+                    <TextNavLink href="/system-design/browse" fw="inherit">
                         course browse
-                    </Anchor>
+                    </TextNavLink>
                     .
                 </Text>
             </Stack>

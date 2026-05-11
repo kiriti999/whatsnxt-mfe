@@ -15,6 +15,16 @@ export type FaangPillar = {
     topics: FaangTopic[];
 };
 
+/** Homepage hero — IDs match `SystemDesignCourse.topics[]` slugs from the topic map. */
+export const POPULAR_DESIGN_THEME_CHIPS: readonly { topicId: string; label: string }[] = [
+    { topicId: "load-balancing", label: "Load balancing" },
+    { topicId: "caching", label: "Caching" },
+    { topicId: "message-queues", label: "Messaging" },
+    { topicId: "sharding", label: "Sharding" },
+    { topicId: "cap-theorem", label: "CAP trade-offs" },
+    { topicId: "qps", label: "Estimation" },
+];
+
 export const FAANG_SYSTEM_DESIGN_PILLARS: FaangPillar[] = [
     {
         id: "core-scale",

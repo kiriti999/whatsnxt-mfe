@@ -1,6 +1,6 @@
-import { Anchor, Avatar, Badge, Container, Divider, Group, Paper, Stack, Text, Title } from "@mantine/core";
-import Link from "next/link";
+import { Avatar, Badge, Container, Divider, Group, Paper, Stack, Text, Title } from "@mantine/core";
 import { notFound } from "next/navigation";
+import { TextNavLink } from "../../../components/TextNavLink";
 import { fetchInterviewExperienceBySlug } from "../../../fetcher/interviewExperienceServerQuery";
 
 interface PageProps {
@@ -46,16 +46,16 @@ export default async function InterviewExperienceDetailPage(props: PageProps) {
                             <Divider label="Related system design courses" />
                             <Group gap="xs">
                                 {doc.relatedCourseSlugs.map((s: string) => (
-                                    <Anchor key={s} component={Link} href={`/content/system-design/${s}`} size="sm">
+                                    <TextNavLink key={s} href={`/content/system-design/${s}`} size="sm" fw={500}>
                                         {s}
-                                    </Anchor>
+                                    </TextNavLink>
                                 ))}
                             </Group>
                         </>
                     ) : null}
-                    <Anchor component={Link} href="/interview-experiences" size="sm">
+                    <TextNavLink href="/interview-experiences" size="sm" fw={500}>
                         ← All experiences
-                    </Anchor>
+                    </TextNavLink>
                 </Stack>
             </Paper>
         </Container>
