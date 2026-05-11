@@ -84,6 +84,13 @@
     height: auto;
 }
 
+.companyBadgeThumb {
+    width: 52px;
+    height: 26px;
+    object-fit: contain;
+    border-radius: var(--mantine-radius-sm);
+}
+
 .diagramCodeEditor {
     width: 100%;
     min-height: 250px;

@@ -196,3 +196,6 @@ export const CONTENT_PLAN_VALIDATION = {
 
 // Lab-specific constants (feature 003-auto-page-creation)
 export * from './lab.constants';
+
+// System design course authoring (companies + SVG badge presets)
+export * from './systemDesignCompanies.constants';

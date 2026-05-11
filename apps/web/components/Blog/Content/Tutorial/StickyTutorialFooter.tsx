@@ -1,4 +1,6 @@
-import { Box, Button, Group, useMantineColorScheme } from "@mantine/core";
+"use client";
+
+import { Box, Button, Group, Tooltip, useMantineColorScheme } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
 import {
     IconCheck,
@@ -8,6 +10,8 @@ import {
     IconHome,
 } from "@tabler/icons-react";
 import Link from "next/link";
+import { type RefObject, useLayoutEffect, useRef, useState } from "react";
+import styles from "./StickyTutorialFooter.module.css";
 
 interface NavItem {
     label: string;
@@ -23,6 +27,93 @@ interface StickyTutorialFooterProps {
     onPurchaseClick?: () => void;
 }
 
+function useTruncatedLabel(ref: RefObject<HTMLSpanElement | null>, text: string) {
+    const [truncated, setTruncated] = useState(false);
+
+    useLayoutEffect(() => {
+        const el = ref.current;
+        if (!el) {
+            setTruncated(false);
+            return;
+        }
+
+        const measure = () => {
+            setTruncated(el.scrollWidth > el.clientWidth + 1);
+        };
+
+        measure();
+        const ro = new ResizeObserver(measure);
+        ro.observe(el);
+        return () => ro.disconnect();
+    }, [text]);
+
+    return truncated;
+}
+
+const navButtonStyles = {
+    root: {
+        flex: "1 1 0",
+        minWidth: 0,
+        maxWidth: "calc(50% - var(--mantine-spacing-xs))",
+        padding: "12px 16px",
+    },
+    inner: {
+        flex: 1,
+        minWidth: 0,
+    },
+} as const;
+
+function FooterNavButton({ item, isNext }: { item: NavItem; isNext: boolean }) {
+    const labelRef = useRef<HTMLSpanElement>(null);
+    const truncated = useTruncatedLabel(labelRef, item.label);
+
+    const labelEl = (
+        <span ref={labelRef} className={styles.navLabel}>
+            {item.label}
+        </span>
+    );
+
+    if (item.href) {
+        const btn = (
+            <Button
+                size="md"
+                component={Link}
+                href={item.href}
+                variant="default"
+                leftSection={!isNext ? <IconChevronLeft size={20} /> : undefined}
+                rightSection={isNext ? <IconChevronRight size={20} /> : undefined}
+                styles={navButtonStyles}
+            >
+                {labelEl}
+            </Button>
+        );
+        return (
+            <Tooltip label={item.label} disabled={!truncated} position="top" withArrow>
+                {btn}
+            </Tooltip>
+        );
+    }
+
+    const btn = (
+        <Button
+            size="md"
+            onClick={item.onClick}
+            variant="default"
+            leftSection={!isNext ? <IconChevronLeft size={20} /> : undefined}
+            rightSection={isNext ? <IconChevronRight size={20} /> : undefined}
+            styles={navButtonStyles}
+        >
+            {labelEl}
+        </Button>
+    );
+
+    return (
+        <Tooltip label={item.label} disabled={!truncated} position="top" withArrow>
+            {btn}
+        </Tooltip>
+    );
+}
+
 export const StickyTutorialFooter = ({
     prev,
     next,
@@ -30,56 +121,6 @@ export const StickyTutorialFooter = ({
 }: StickyTutorialFooterProps) => {
     const { colorScheme } = useMantineColorScheme();
     const isMobile = useMediaQuery("(max-width: 768px)");
-
-    const renderButton = (item: NavItem, isNext: boolean) => {
-        if (item.href) {
-            return (
-                <Button
-                    size='md'
-                    component={Link}
-                    href={item.href}
-                    variant="default"
-                    leftSection={!isNext ? <IconChevronLeft size={20} /> : undefined}
-                    rightSection={isNext ? <IconChevronRight size={20} /> : undefined}
-                    styles={{
-                        root: {
-                            padding: "12px 16px",
-                        },
-                        label: {
-                            maxWidth: "200px",
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                            whiteSpace: "nowrap",
-                        },
-                    }}
-                >
-                    {item.label}
-                </Button>
-            );
-        }
-
-        return (
-            <Button size='md'
-                onClick={item.onClick}
-                variant="default"
-                leftSection={!isNext ? <IconChevronLeft size={20} /> : undefined}
-                rightSection={isNext ? <IconChevronRight size={20} /> : undefined}
-                styles={{
-                    root: {
-                        padding: "12px 16px",
-                    },
-                    label: {
-                        maxWidth: "200px",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                        whiteSpace: "nowrap",
-                    },
-                }}
-            >
-                {item.label}
-            </Button>
-        );
-    };
 
     return (
         <Box
@@ -100,10 +141,11 @@ export const StickyTutorialFooter = ({
                 justify="space-between"
                 mx="auto"
                 px="md"
+                wrap="nowrap"
                 style={{ maxWidth: isMobile ? "100%" : "62.5%" }}
             >
                 {prev ? (
-                    renderButton(prev, false)
+                    <FooterNavButton item={prev} isNext={false} />
                 ) : (
                     <Button
                         component={Link}
@@ -122,7 +164,8 @@ export const StickyTutorialFooter = ({
 
                 {next ? (
                     next.isLocked ? (
-                        <Button size='md'
+                        <Button
+                            size="md"
                             onClick={onPurchaseClick}
                             variant="filled"
                             color="teal"
@@ -130,10 +173,17 @@ export const StickyTutorialFooter = ({
                             rightSection={<IconChevronRight size={20} />}
                             styles={{
                                 root: {
+                                    flex: "1 1 0",
+                                    minWidth: 0,
+                                    maxWidth: "calc(50% - var(--mantine-spacing-xs))",
                                     padding: "12px 16px",
                                 },
+                                inner: {
+                                    flex: 1,
+                                    minWidth: 0,
+                                },
                                 label: {
-                                    maxWidth: "200px",
+                                    minWidth: 0,
                                     overflow: "hidden",
                                     textOverflow: "ellipsis",
                                     whiteSpace: "nowrap",
@@ -143,10 +193,11 @@ export const StickyTutorialFooter = ({
                             Purchase to Continue
                         </Button>
                     ) : (
-                        renderButton(next, true)
+                        <FooterNavButton item={next} isNext />
                     )
                 ) : (
-                    <Button size='md'
+                    <Button
+                        size="md"
                         variant="filled"
                         color="cyan"
                         rightSection={<IconCheck size={20} />}
