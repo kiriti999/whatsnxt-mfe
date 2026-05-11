@@ -22,6 +22,7 @@ import {
 	ThemeIcon,
 	Title,
 } from "@mantine/core";
+import { useDebouncedCallback } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
 import {
 	IconCode,
@@ -44,9 +45,10 @@ import {
 } from "@whatsnxt/constants";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import React, { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type {
 	SystemDesignCompanyRef,
+	SystemDesignCreatePayload,
 	SystemDesignDiagram,
 	SystemDesignSection,
 } from "../../apis/v1/systemDesign";
@@ -274,6 +276,31 @@ export function SystemDesignForm() {
 	const [estimatedMinutes, setEstimatedMinutes] = useState<string>("");
 	const [relatedSlugs, setRelatedSlugs] = useState<string[]>([]);
 	const [outcomeHighlight, setOutcomeHighlight] = useState("");
+	/** False while loading an existing course from `?id=`; avoids autosaving stale empty state. */
+	const [hydratedFromServer, setHydratedFromServer] = useState(() => !editId);
+	const [draftCourseId, setDraftCourseId] = useState<string | null>(null);
+	const [autoSaveState, setAutoSaveState] = useState<
+		"idle" | "saving" | "saved" | "error"
+	>("idle");
+	const [lastAutoSavedAt, setLastAutoSavedAt] = useState<Date | null>(null);
+	const autoSaveGenRef = useRef(0);
+	const persistSilentlyRef = useRef<
+		(patches?: {
+			sections?: Record<string, string>;
+			diagrams?: Record<string, string>;
+		}) => Promise<boolean>
+	>(async () => false);
+
+	const effectiveCourseId = editId ?? draftCourseId;
+
+	useEffect(() => {
+		if (editId) {
+			setDraftCourseId(null);
+			setHydratedFromServer(false);
+		} else {
+			setHydratedFromServer(true);
+		}
+	}, [editId]);
 
 	const loadCourse = useCallback(async (id: string) => {
 		try {
@@ -327,6 +354,7 @@ export function SystemDesignForm() {
 			);
 			setRelatedSlugs(course.relatedSlugs || []);
 			setOutcomeHighlight(course.outcomeHighlight || "");
+			setHydratedFromServer(true);
 		} catch {
 			notifications.show({
 				position: "bottom-right",
@@ -334,10 +362,11 @@ export function SystemDesignForm() {
 				title: "Error",
 				message: "Failed to load course for editing",
 			});
+			setHydratedFromServer(true);
 		}
 	}, []);
 
-	React.useEffect(() => {
+	useEffect(() => {
 		if (!editId) return;
 		loadCourse(editId);
 	}, [editId, loadCourse]);
@@ -390,37 +419,222 @@ export function SystemDesignForm() {
 		setDiagramContents((prev) => ({ ...prev, [key]: content }));
 	}, []);
 
-	const buildSectionsPayload = useCallback((): SystemDesignSection[] => {
-		return selectedSections.map((s) => ({
-			key: s.key,
-			title: s.title,
-			content: sectionContents[s.key] || "",
-			isRequired: s.isRequired,
-			sortOrder: s.sortOrder,
-		}));
-	}, [selectedSections, sectionContents]);
+	const buildSectionsPayloadFromMaps = useCallback(
+		(contents: Record<string, string>): SystemDesignSection[] => {
+			return selectedSections.map((s) => ({
+				key: s.key,
+				title: s.title,
+				content: contents[s.key] || "",
+				isRequired: s.isRequired,
+				sortOrder: s.sortOrder,
+			}));
+		},
+		[selectedSections],
+	);
 
-	const buildDiagramsPayload = useCallback((): SystemDesignDiagram[] => {
-		return DIAGRAM_TABS.map((d, idx) => {
-			const raw = diagramContents[d.key] || "";
-			let content = raw;
-			if (d.key === "API Design") {
-				content = normalizeClassDiagramForPersist(raw);
-			} else if (d.key === "Request Flow Sequence") {
-				content = normalizeSequenceDiagramForPersist(raw);
-			}
+	const buildDiagramsPayloadFromMaps = useCallback(
+		(diagrams: Record<string, string>): SystemDesignDiagram[] => {
+			return DIAGRAM_TABS.map((d, idx) => {
+				const raw = diagrams[d.key] || "";
+				let content = raw;
+				if (d.key === "API Design") {
+					content = normalizeClassDiagramForPersist(raw);
+				} else if (d.key === "Request Flow Sequence") {
+					content = normalizeSequenceDiagramForPersist(raw);
+				}
+				return {
+					key: d.key,
+					title: d.title,
+					content,
+					isRequired: d.isRequired,
+					sortOrder: idx,
+					practiceMode: (practiceModes[d.key] ||
+						"starter-blocks") as SystemDesignDiagram["practiceMode"],
+				};
+			});
+		},
+		[practiceModes],
+	);
+
+	const buildCompaniesPayload = useCallback((): SystemDesignCompanyRef[] => {
+		const libraryCompanies = libraryCompanyRows
+			.map((row) => {
+				const entry = SYSTEM_DESIGN_COMPANY_BY_KEY[row.companyKey];
+				if (!entry) return null;
+				return {
+					name: entry.name,
+					logoUrl: systemDesignCompanyBadgeDataUri(entry, row.variant),
+				};
+			})
+			.filter(Boolean) as SystemDesignCompanyRef[];
+
+		const legacyPayload = legacyCompanies
+			.map((c) => ({
+				name: c.name.trim(),
+				logoUrl: (c.logoUrl || "").trim(),
+			}))
+			.filter((c) => c.name.length > 0);
+
+		return [...libraryCompanies, ...legacyPayload];
+	}, [libraryCompanyRows, legacyCompanies]);
+
+	const buildCoursePayload = useCallback(
+		(
+			sectionPatch?: Record<string, string>,
+			diagramPatch?: Record<string, string>,
+		): SystemDesignCreatePayload => {
+			const secMap = { ...sectionContents, ...sectionPatch };
+			const diaMap = { ...diagramContents, ...diagramPatch };
 			return {
-				key: d.key,
-				title: d.title,
-				content,
-				isRequired: d.isRequired,
-				sortOrder: idx,
-				practiceMode: (practiceModes[d.key] || "starter-blocks") as
-					| "starter-blocks"
-					| "blank-canvas",
+				title: title.trim(),
+				category,
+				sections: buildSectionsPayloadFromMaps(secMap),
+				diagrams: buildDiagramsPayloadFromMaps(diaMap),
+				isPremium,
+				topics: topics.map((t) => t.trim().toLowerCase()).filter(Boolean),
+				companies: buildCompaniesPayload(),
+				difficulty: difficulty || "",
+				interviewFrequency: interviewFrequency || "",
+				estimatedMinutes:
+					estimatedMinutes.trim() === ""
+						? undefined
+						: Number(estimatedMinutes.trim()),
+				relatedSlugs: relatedSlugs.map((s) => s.trim()).filter(Boolean),
+				outcomeHighlight: outcomeHighlight.trim(),
 			};
-		});
-	}, [diagramContents, practiceModes]);
+		},
+		[
+			title,
+			category,
+			sectionContents,
+			diagramContents,
+			buildSectionsPayloadFromMaps,
+			buildDiagramsPayloadFromMaps,
+			buildCompaniesPayload,
+			isPremium,
+			topics,
+			difficulty,
+			interviewFrequency,
+			estimatedMinutes,
+			relatedSlugs,
+			outcomeHighlight,
+		],
+	);
+
+	const persistSilently = useCallback(
+		async (patches?: {
+			sections?: Record<string, string>;
+			diagrams?: Record<string, string>;
+		}): Promise<boolean> => {
+			if (
+				isViewMode ||
+				!isContentCreated ||
+				!title.trim() ||
+				!category ||
+				!hydratedFromServer
+			) {
+				return false;
+			}
+
+			const payload = buildCoursePayload(patches?.sections, patches?.diagrams);
+			const gen = ++autoSaveGenRef.current;
+			setAutoSaveState("saving");
+
+			try {
+				let nextId = effectiveCourseId;
+				if (nextId) {
+					await SystemDesignAPI.update(nextId, payload);
+				} else {
+					const res = await SystemDesignAPI.create(payload);
+					nextId = res.data._id;
+					setDraftCourseId(nextId);
+					router.replace(`/form/system-design?id=${nextId}`, {
+						scroll: false,
+					});
+				}
+
+				if (gen !== autoSaveGenRef.current) {
+					return false;
+				}
+				setAutoSaveState("saved");
+				setLastAutoSavedAt(new Date());
+				return true;
+			} catch (error: unknown) {
+				if (gen === autoSaveGenRef.current) {
+					setAutoSaveState("error");
+					const message =
+						(error as { response?: { data?: { message?: string } } })?.response
+							?.data?.message ||
+						(error as Error)?.message ||
+						"Auto-save failed";
+					notifications.show({
+						position: "bottom-right",
+						color: "red",
+						title: "Auto-save failed",
+						message,
+					});
+				}
+				return false;
+			}
+		},
+		[
+			isViewMode,
+			isContentCreated,
+			title,
+			category,
+			hydratedFromServer,
+			buildCoursePayload,
+			effectiveCourseId,
+			router,
+		],
+	);
+
+	persistSilentlyRef.current = persistSilently;
+
+	const scheduleDebouncedAutoSave = useDebouncedCallback(() => {
+		void persistSilentlyRef.current();
+	}, 2000);
+
+	// biome-ignore lint/correctness/useExhaustiveDependencies: schedule debounce intentionally omitted — stable via ref; list all fields that affect the persisted payload
+	useEffect(() => {
+		if (
+			isViewMode ||
+			!isContentCreated ||
+			!title.trim() ||
+			!category ||
+			!hydratedFromServer
+		) {
+			return;
+		}
+		scheduleDebouncedAutoSave();
+	}, [
+		isViewMode,
+		isContentCreated,
+		title,
+		category,
+		hydratedFromServer,
+		sectionContents,
+		diagramContents,
+		practiceModes,
+		selectedKeys,
+		isPremium,
+		topics,
+		libraryCompanyRows,
+		legacyCompanies,
+		difficulty,
+		interviewFrequency,
+		estimatedMinutes,
+		relatedSlugs,
+		outcomeHighlight,
+	]);
+
+	useEffect(() => {
+		if (autoSaveState !== "saved" || !lastAutoSavedAt) {
+			return;
+		}
+		const t = window.setTimeout(() => setAutoSaveState("idle"), 2500);
+		return () => window.clearTimeout(t);
+	}, [autoSaveState, lastAutoSavedAt]);
 
 	const handleSave = useCallback(async () => {
 		if (!title.trim() || !category) {
@@ -435,46 +649,10 @@ export function SystemDesignForm() {
 
 		setIsSubmitting(true);
 		try {
-			const libraryCompanies = libraryCompanyRows
-				.map((row) => {
-					const entry = SYSTEM_DESIGN_COMPANY_BY_KEY[row.companyKey];
-					if (!entry) return null;
-					return {
-						name: entry.name,
-						logoUrl: systemDesignCompanyBadgeDataUri(entry, row.variant),
-					};
-				})
-				.filter(Boolean) as SystemDesignCompanyRef[];
+			const payload = buildCoursePayload();
 
-			const legacyPayload = legacyCompanies
-				.map((c) => ({
-					name: c.name.trim(),
-					logoUrl: (c.logoUrl || "").trim(),
-				}))
-				.filter((c) => c.name.length > 0);
-
-			const companiesPayload = [...libraryCompanies, ...legacyPayload];
-
-			const payload = {
-				title: title.trim(),
-				category,
-				sections: buildSectionsPayload(),
-				diagrams: buildDiagramsPayload(),
-				isPremium,
-				topics: topics.map((t) => t.trim().toLowerCase()).filter(Boolean),
-				companies: companiesPayload,
-				difficulty: difficulty || "",
-				interviewFrequency: interviewFrequency || "",
-				estimatedMinutes:
-					estimatedMinutes.trim() === ""
-						? undefined
-						: Number(estimatedMinutes.trim()),
-				relatedSlugs: relatedSlugs.map((s) => s.trim()).filter(Boolean),
-				outcomeHighlight: outcomeHighlight.trim(),
-			};
-
-			if (editId) {
-				await SystemDesignAPI.update(editId, payload);
+			if (effectiveCourseId) {
+				await SystemDesignAPI.update(effectiveCourseId, payload);
 				notifications.show({
 					position: "bottom-right",
 					color: "green",
@@ -482,7 +660,11 @@ export function SystemDesignForm() {
 					message: "System design course updated successfully",
 				});
 			} else {
-				await SystemDesignAPI.create(payload);
+				const res = await SystemDesignAPI.create(payload);
+				setDraftCourseId(res.data._id);
+				router.replace(`/form/system-design?id=${res.data._id}`, {
+					scroll: false,
+				});
 				notifications.show({
 					position: "bottom-right",
 					color: "green",
@@ -507,23 +689,7 @@ export function SystemDesignForm() {
 		} finally {
 			setIsSubmitting(false);
 		}
-	}, [
-		title,
-		category,
-		editId,
-		buildSectionsPayload,
-		buildDiagramsPayload,
-		isPremium,
-		topics,
-		libraryCompanyRows,
-		legacyCompanies,
-		difficulty,
-		interviewFrequency,
-		estimatedMinutes,
-		relatedSlugs,
-		outcomeHighlight,
-		router,
-	]);
+	}, [title, category, effectiveCourseId, buildCoursePayload, router]);
 
 	const categoryOptions = useMemo(
 		() => CATEGORIES.map((c) => ({ value: c, label: c })),
@@ -663,6 +829,7 @@ export function SystemDesignForm() {
 				next = normalizeSequenceDiagramForPersist(text);
 			}
 			updateDiagramContent(key, next);
+			void persistSilentlyRef.current({ diagrams: { [key]: next } });
 		},
 		[updateDiagramContent],
 	);
@@ -1218,9 +1385,12 @@ export function SystemDesignForm() {
 											{!isViewMode && (
 												<AISuggestionButton
 													prompt={buildSectionPrompt(section.title)}
-													onSuggestion={(text) =>
-														updateSectionContent(section.key, text)
-													}
+													onSuggestion={(text) => {
+														updateSectionContent(section.key, text);
+														void persistSilentlyRef.current({
+															sections: { [section.key]: text },
+														});
+													}}
 													label={`Generate ${section.title} with AI`}
 													onEmptyPrompt={() => {
 														notifications.show({
@@ -1392,7 +1562,27 @@ export function SystemDesignForm() {
 
 								{/* Save Button — hidden in view mode */}
 								{!isViewMode && (
-									<Group justify="flex-end" mt="md">
+									<Group
+										justify="space-between"
+										align="center"
+										mt="md"
+										wrap="wrap"
+									>
+										<Text size="xs" c="dimmed">
+											{autoSaveState === "saving" && "Saving draft…"}
+											{autoSaveState === "saved" &&
+												lastAutoSavedAt &&
+												`Draft saved ${lastAutoSavedAt.toLocaleTimeString()}`}
+											{autoSaveState === "error" && "Draft could not be saved"}
+											{autoSaveState === "idle" &&
+												effectiveCourseId &&
+												"Changes save automatically every few seconds."}
+											{autoSaveState === "idle" &&
+												!effectiveCourseId &&
+												title.trim() &&
+												category &&
+												"Draft will be created when you edit or generate content."}
+										</Text>
 										<Button
 											onClick={handleSave}
 											loading={isSubmitting}
@@ -1401,7 +1591,7 @@ export function SystemDesignForm() {
 											gradient={{ from: "blue", to: "cyan", deg: 135 }}
 											size="md"
 										>
-											{editId ? "Update" : "Save"} System Design
+											{effectiveCourseId ? "Update" : "Save"} System Design
 										</Button>
 									</Group>
 								)}
