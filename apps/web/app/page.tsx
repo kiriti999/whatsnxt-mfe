@@ -6,19 +6,21 @@ import {
 } from "../fetcher/blogServerQuery";
 import { fetchCourses } from "../fetcher/courseServerQuery";
 import { fetchPublishedLabs } from "../fetcher/labServerQuery";
-import { fetchPublishedSystemDesigns } from "../fetcher/systemDesignServerQuery";
+import { fetchPublishedSystemDesigns, fetchSystemDesignPublicStats } from "../fetcher/systemDesignServerQuery";
 import Home from "./_component/home/home";
 
 async function Page() {
   // Fetch all data in parallel; GA trending runs alongside others
-  const [data, fallbackArticles, tutorialsData, labs, gaResult, systemDesigns] = await Promise.all([
-    fetchCourses(30, 0),
-    fetchTrendingArticles(1, 15, "both"),
-    fetchStructuredTutorials(1, 16),
-    fetchPublishedLabs(8),
-    fetchGATrendingContent(8, "all"),
-    fetchPublishedSystemDesigns(8),
-  ]);
+  const [data, fallbackArticles, tutorialsData, labs, gaResult, systemDesigns, systemDesignStats] =
+    await Promise.all([
+      fetchCourses(30, 0),
+      fetchTrendingArticles(1, 15, "both"),
+      fetchStructuredTutorials(1, 16),
+      fetchPublishedLabs(8),
+      fetchGATrendingContent(8, "all"),
+      fetchPublishedSystemDesigns(8),
+      fetchSystemDesignPublicStats(),
+    ]);
 
   // Prefer GA-ordered articles (by real page views); fall back to time-based
   const articles = gaResult.articles.length >= 4 ? gaResult.articles : fallbackArticles;
@@ -31,6 +33,7 @@ async function Page() {
         tutorialsData={tutorialsData}
         labs={labs}
         systemDesigns={systemDesigns}
+        systemDesignStats={systemDesignStats}
       />
     </Box>
   );

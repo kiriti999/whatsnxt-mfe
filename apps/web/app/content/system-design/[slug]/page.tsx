@@ -1,4 +1,4 @@
-import { fetchSystemDesignBySlug } from "../../../../fetcher/systemDesignServerQuery";
+import { fetchSystemDesignBySlug, fetchSystemDesignPublicStats } from "../../../../fetcher/systemDesignServerQuery";
 import SystemDesignContent from "./SystemDesignContent";
 
 interface PageProps {
@@ -7,7 +7,7 @@ interface PageProps {
 
 const SystemDesignPage = async (props: PageProps) => {
     const { slug } = await props.params;
-    const course = await fetchSystemDesignBySlug(slug);
+    const [course, stats] = await Promise.all([fetchSystemDesignBySlug(slug), fetchSystemDesignPublicStats()]);
 
     if (!course) {
         return (
@@ -38,7 +38,7 @@ const SystemDesignPage = async (props: PageProps) => {
                     }),
                 }}
             />
-            <SystemDesignContent course={course} />
+            <SystemDesignContent course={course} stats={stats} />
         </>
     );
 };

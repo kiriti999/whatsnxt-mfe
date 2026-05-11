@@ -3,6 +3,7 @@
 import { useCallback, useState } from "react";
 import Link from "next/link";
 import {
+    Avatar,
     Badge,
     Box,
     Button,
@@ -11,13 +12,22 @@ import {
     Divider,
     Group,
     Paper,
+    Progress,
     Stack,
     Tabs,
     Text,
     Title,
     UnstyledButton,
 } from "@mantine/core";
-import { IconChevronDown, IconChevronRight, IconCrown, IconLock, IconMessages, IconPencilCheck, IconServer2 } from "@tabler/icons-react";
+import {
+    IconChevronDown,
+    IconChevronRight,
+    IconCrown,
+    IconLock,
+    IconMessages,
+    IconPencilCheck,
+    IconServer2,
+} from "@tabler/icons-react";
 import BlogComment from "@whatsnxt/blogcomments/src";
 import { CommentContextProvider } from "@whatsnxt/blogcomments/src/contexts/comment-context";
 import { CommentReplyContextProvider } from "@whatsnxt/blogcomments/src/contexts/comment-reply-context";
@@ -26,6 +36,7 @@ import { LexicalEditor } from "../../../../components/StructuredTutorial/Editor/
 import { ApiDesignEditor } from "../../../../components/SystemDesign/ApiDesignEditor";
 import { MermaidDiagram } from "../../../../components/SystemDesign/MermaidDiagram";
 import useAuth from "../../../../hooks/Authentication/useAuth";
+import type { SystemDesignPublicStats } from "../../../../components/SystemDesign/LearningStatsStrip";
 import classes from "./SystemDesignContent.module.css";
 
 interface CommentNode {
@@ -51,6 +62,11 @@ interface Diagram {
     sortOrder: number;
 }
 
+interface CompanyRef {
+    name: string;
+    logoUrl?: string;
+}
+
 interface SystemDesignCourse {
     _id: string;
     title: string;
@@ -62,13 +78,28 @@ interface SystemDesignCourse {
     status: string;
     createdAt: string;
     updatedAt: string;
+    topics?: string[];
+    companies?: CompanyRef[];
+    difficulty?: string;
+    interviewFrequency?: string;
+    estimatedMinutes?: number;
+    relatedSlugs?: string[];
+    outcomeHighlight?: string;
 }
 
 interface SystemDesignContentProps {
     course: SystemDesignCourse;
+    stats?: SystemDesignPublicStats;
 }
 
-const SystemDesignContent = ({ course }: SystemDesignContentProps) => {
+const frequencyToProgress = (f?: string) => {
+    if (f === "high") return 100;
+    if (f === "medium") return 66;
+    if (f === "low") return 33;
+    return 0;
+};
+
+const SystemDesignContent = ({ course, stats }: SystemDesignContentProps) => {
     const { user } = useAuth();
     const sectionsWithContent = course.sections.filter((s) => s.content?.trim());
     const diagramsWithContent = course.diagrams.filter((d) => d.content?.trim());
@@ -120,6 +151,16 @@ const SystemDesignContent = ({ course }: SystemDesignContentProps) => {
                                 Premium
                             </Badge>
                         )}
+                        {course.difficulty ? (
+                            <Badge variant="light" color="grape">
+                                {course.difficulty}
+                            </Badge>
+                        ) : null}
+                        {course.estimatedMinutes ? (
+                            <Badge variant="light" color="teal">
+                                ~{course.estimatedMinutes} min read
+                            </Badge>
+                        ) : null}
                         <Badge variant="light" color="gray">
                             {sectionsWithContent.length} sections
                         </Badge>
@@ -127,6 +168,95 @@ const SystemDesignContent = ({ course }: SystemDesignContentProps) => {
                             {diagramsWithContent.length} diagrams
                         </Badge>
                     </Group>
+                    {stats && (
+                        <Paper withBorder radius="md" p="md" w="100%" maw={720} mt="sm">
+                            <Text size="xs" fw={700} tt="uppercase" c="dimmed" mb={6}>
+                                Platform activity
+                            </Text>
+                            <Group grow>
+                                <Stack gap={2}>
+                                    <Text size="xs" c="dimmed">
+                                        Published SD courses
+                                    </Text>
+                                    <Title order={4}>{stats.publishedCourses}</Title>
+                                </Stack>
+                                <Stack gap={2}>
+                                    <Text size="xs" c="dimmed">
+                                        Interview write-ups
+                                    </Text>
+                                    <Title order={4}>{stats.publishedInterviewExperiences}</Title>
+                                </Stack>
+                                <Stack gap={2}>
+                                    <Text size="xs" c="dimmed">
+                                        Completed practice sessions
+                                    </Text>
+                                    <Title order={4}>{stats.completedPracticeSessions}</Title>
+                                </Stack>
+                            </Group>
+                        </Paper>
+                    )}
+                    {course.outcomeHighlight ? (
+                        <Text size="sm" ta="center" maw={720} c="dimmed">
+                            {course.outcomeHighlight}
+                        </Text>
+                    ) : null}
+                    {course.companies && course.companies.filter((c) => c.name).length > 0 && (
+                        <Group justify="center" gap="xs">
+                            <Text size="xs" c="dimmed" tt="uppercase" fw={700}>
+                                Asked at
+                            </Text>
+                            <Avatar.Group spacing="sm">
+                                {course.companies
+                                    .filter((c) => c.name)
+                                    .slice(0, 8)
+                                    .map((c) => (
+                                        <Avatar key={c.name} src={c.logoUrl || undefined} radius="xl" size="md">
+                                            {c.name.slice(0, 1)}
+                                        </Avatar>
+                                    ))}
+                            </Avatar.Group>
+                        </Group>
+                    )}
+                    {course.interviewFrequency ? (
+                        <Box w="100%" maw={480}>
+                            <Text size="xs" c="dimmed" mb={4}>
+                                Editorial interview frequency
+                            </Text>
+                            <Progress value={frequencyToProgress(course.interviewFrequency)} color="cyan" size="sm" />
+                        </Box>
+                    ) : null}
+                    {course.topics && course.topics.length > 0 && (
+                        <Group justify="center" gap={6} wrap="wrap">
+                            {course.topics.map((t) => (
+                                <Badge key={t} component={Link} href={`/system-design/browse?topic=${encodeURIComponent(t)}`} variant="dot" color="cyan" style={{ cursor: "pointer" }}>
+                                    {t}
+                                </Badge>
+                            ))}
+                        </Group>
+                    )}
+                    <Group justify="center" gap="md" mt="xs">
+                        <Button component={Link} href="/system-design/topics" variant="subtle" size="xs" color="blue">
+                            Topic map
+                        </Button>
+                        <Button component={Link} href="/system-design/browse" variant="subtle" size="xs" color="blue">
+                            Browse courses
+                        </Button>
+                        <Button component={Link} href="/interview-experiences" variant="subtle" size="xs" color="blue">
+                            Interview experiences
+                        </Button>
+                    </Group>
+                    {course.relatedSlugs && course.relatedSlugs.length > 0 && (
+                        <Group justify="center" gap="xs" wrap="wrap">
+                            <Text size="xs" c="dimmed">
+                                Related:
+                            </Text>
+                            {course.relatedSlugs.map((s) => (
+                                <Button key={s} component={Link} href={`/content/system-design/${s}`} variant="light" size="xs" color="gray">
+                                    {s}
+                                </Button>
+                            ))}
+                        </Group>
+                    )}
                     <Button
                         component={Link}
                         href={`/practice/system-design/${course.slug}`}

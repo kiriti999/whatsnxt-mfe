@@ -1,7 +1,7 @@
 'use client'
 import { Container, Text, SimpleGrid, Paper, Stack, ThemeIcon, Box, Title, Group } from '@mantine/core'
 import { MantineLoader } from '@whatsnxt/core-ui'
-import { IconArticle, IconBook, IconSparkles, IconLayoutList, IconPalette, IconRocket, IconServer2 } from '@tabler/icons-react'
+import { IconArticle, IconBook, IconSparkles, IconLayoutList, IconPalette, IconRocket, IconServer2, IconMessages } from '@tabler/icons-react'
 import Link from 'next/link'
 import React, { Suspense, useMemo } from 'react'
 import useAuth from '../../../hooks/Authentication/useAuth'
@@ -54,6 +54,14 @@ const contentTypes = [
         description: 'Create structured system design courses with AI-assisted architecture',
         gradient: 'linear-gradient(135deg, #0093E9 0%, #80D0C7 100%)',
         color: '#0093E9'
+    },
+    {
+        href: '/form/interview-experience',
+        icon: IconMessages,
+        title: 'Interview Experience',
+        description: 'Publish FAANG-style interview write-ups with tags and links to courses',
+        gradient: 'linear-gradient(135deg, #5b86e5 0%, #36d1dc 100%)',
+        color: '#5b86e5'
     }
 ]
 
@@ -67,7 +75,7 @@ export function ContentTypeForm() {
     const { user } = useAuth()
 
     const visibleContentTypes = useMemo(() => {
-        const gatedRoutes = ['/form/visualizer', '/form/auto-create', '/form/system-design']
+        const gatedRoutes = ['/form/visualizer', '/form/auto-create', '/form/system-design', '/form/interview-experience']
         if (isPrivilegedUser(user?.role, user?.email)) {
             return contentTypes
         }

@@ -138,6 +138,9 @@ export const NavbarDesktop = ({ links, cartItems, loginMenuLinks, drawerOpened, 
             <Anchor href='/labs' className={classes.link} component={Link}>
               Labs
             </Anchor>
+            <Anchor href='/interview-experiences' className={classes.link} component={Link}>
+              Interviews
+            </Anchor>
             <Anchor href='/consulting' className={classes.link} component={Link}>
               Consulting
             </Anchor>

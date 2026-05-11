@@ -202,12 +202,6 @@ export const Footer = () => {
           </Box>
         </Container>
       </Box>
-
-      <div className={classes.lines}>
-        <div className={classes.line}></div>
-        <div className={classes.line}></div>
-        <div className={classes.line}></div>
-      </div>
     </Box>
   );
 };

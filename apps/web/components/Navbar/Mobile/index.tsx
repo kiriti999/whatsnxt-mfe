@@ -23,6 +23,7 @@ import {
   IconHome,
   IconLogin,
   IconLogout,
+  IconMessages,
   IconSchool,
   IconSearch,
   IconTrash,
@@ -300,6 +301,25 @@ export const NavbarMobile = ({
                   leftSection={<IconFlask size="1.1rem" stroke={1.5} />}
                   component={Link}
                   href="/labs"
+                  onClick={closeDrawer}
+                  styles={{
+                    root: {
+                      borderRadius: "var(--mantine-radius-md)",
+                      transition: "all 0.2s ease",
+                      "&:hover": {
+                        backgroundColor: "var(--mantine-color-cyan-0)",
+                        transform: "translateX(4px)",
+                      },
+                    },
+                    label: { fontWeight: 500, fontSize: "0.9rem" },
+                  }}
+                />
+
+                <NavLink
+                  label="Interview prep"
+                  leftSection={<IconMessages size="1.1rem" stroke={1.5} />}
+                  component={Link}
+                  href="/interview-experiences"
                   onClick={closeDrawer}
                   styles={{
                     root: {

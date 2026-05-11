@@ -21,9 +21,14 @@ interface HomeProps {
   };
   labs: any[];
   systemDesigns: any[];
+  systemDesignStats?: {
+    publishedCourses: number;
+    publishedInterviewExperiences: number;
+    completedPracticeSessions: number;
+  };
 }
 
-function Home({ data, articles, tutorialsData, labs, systemDesigns }: HomeProps) {
+function Home({ data, articles, tutorialsData, labs, systemDesigns, systemDesignStats }: HomeProps) {
   return (
     <div>
       <MainBanner />
@@ -36,6 +41,7 @@ function Home({ data, articles, tutorialsData, labs, systemDesigns }: HomeProps)
         totalTutorials={tutorialsData?.total || 0}
         labs={labs || []}
         systemDesigns={systemDesigns || []}
+        systemDesignStats={systemDesignStats}
       />
     </div>
   );

@@ -19,9 +19,11 @@ import {
     Tabs,
     Divider,
     Switch,
+    TagsInput,
+    Textarea,
 } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
-import { IconServer2, IconSparkles, IconHistory, IconCode, IconEye, IconCrown } from "@tabler/icons-react";
+import { IconServer2, IconSparkles, IconHistory, IconCode, IconEye, IconCrown, IconPlus, IconTrash } from "@tabler/icons-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { LexicalEditor } from "../StructuredTutorial/Editor/LexicalEditor";
@@ -31,6 +33,7 @@ import { SystemDesignAPI } from "../../apis/v1/systemDesign";
 import type {
     SystemDesignSection,
     SystemDesignDiagram,
+    SystemDesignCompanyRef,
 } from "../../apis/v1/systemDesign";
 import { MermaidDiagram } from "./MermaidDiagram";
 import classes from "./SystemDesignForm.module.css";
@@ -106,6 +109,13 @@ export function SystemDesignForm() {
     const [practiceModes, setPracticeModes] = useState<Record<string, string>>(
         () => Object.fromEntries(DIAGRAM_TABS.map((d) => [d.key, "starter-blocks"])),
     );
+    const [topics, setTopics] = useState<string[]>([]);
+    const [companies, setCompanies] = useState<SystemDesignCompanyRef[]>([{ name: "", logoUrl: "" }]);
+    const [difficulty, setDifficulty] = useState<string | null>(null);
+    const [interviewFrequency, setInterviewFrequency] = useState<string | null>(null);
+    const [estimatedMinutes, setEstimatedMinutes] = useState<string>("");
+    const [relatedSlugs, setRelatedSlugs] = useState<string[]>([]);
+    const [outcomeHighlight, setOutcomeHighlight] = useState("");
 
     React.useEffect(() => {
         if (!editId) return;
@@ -136,6 +146,20 @@ export function SystemDesignForm() {
             setDiagramContents(diagrams);
             setPracticeModes((prev) => ({ ...prev, ...modes }));
             setIsContentCreated(true);
+            setTopics(course.topics || []);
+            const co = course.companies?.length
+                ? course.companies.map((c) => ({ name: c.name || "", logoUrl: c.logoUrl || "" }))
+                : [{ name: "", logoUrl: "" }];
+            setCompanies(co);
+            setDifficulty(course.difficulty || null);
+            setInterviewFrequency(course.interviewFrequency || null);
+            setEstimatedMinutes(
+                course.estimatedMinutes !== undefined && course.estimatedMinutes !== null
+                    ? String(course.estimatedMinutes)
+                    : "",
+            );
+            setRelatedSlugs(course.relatedSlugs || []);
+            setOutcomeHighlight(course.outcomeHighlight || "");
         } catch {
             notifications.show({
                 position: "bottom-right",
@@ -226,12 +250,24 @@ export function SystemDesignForm() {
 
         setIsSubmitting(true);
         try {
+            const companiesPayload = companies
+                .map((c) => ({ name: c.name.trim(), logoUrl: (c.logoUrl || "").trim() }))
+                .filter((c) => c.name.length > 0);
+
             const payload = {
                 title: title.trim(),
                 category,
                 sections: buildSectionsPayload(),
                 diagrams: buildDiagramsPayload(),
                 isPremium,
+                topics: topics.map((t) => t.trim().toLowerCase()).filter(Boolean),
+                companies: companiesPayload,
+                difficulty: difficulty || "",
+                interviewFrequency: interviewFrequency || "",
+                estimatedMinutes:
+                    estimatedMinutes.trim() === "" ? undefined : Number(estimatedMinutes.trim()),
+                relatedSlugs: relatedSlugs.map((s) => s.trim()).filter(Boolean),
+                outcomeHighlight: outcomeHighlight.trim(),
             };
 
             if (editId) {
@@ -267,7 +303,22 @@ export function SystemDesignForm() {
         } finally {
             setIsSubmitting(false);
         }
-    }, [title, category, editId, buildSectionsPayload, buildDiagramsPayload, isPremium, router]);
+    }, [
+        title,
+        category,
+        editId,
+        buildSectionsPayload,
+        buildDiagramsPayload,
+        isPremium,
+        topics,
+        companies,
+        difficulty,
+        interviewFrequency,
+        estimatedMinutes,
+        relatedSlugs,
+        outcomeHighlight,
+        router,
+    ]);
 
     const categoryOptions = useMemo(
         () => CATEGORIES.map((c) => ({ value: c, label: c })),
@@ -454,6 +505,130 @@ export function SystemDesignForm() {
                             onChange={(e) => setIsPremium(e.currentTarget.checked)}
                             disabled={isViewMode}
                         />
+
+                        <Divider label="Interview prep & discoverability" labelPosition="center" />
+                        <Text size="sm" c="dimmed">
+                            Tag topics (e.g. load-balancing, cap-theorem) and companies so learners can filter
+                            browse pages and see how this design shows up in big-tech interviews.
+                        </Text>
+                        <TagsInput
+                            label="FAANG-style topic tags"
+                            placeholder="Type and press Enter — e.g. consistent-hashing"
+                            value={topics}
+                            onChange={setTopics}
+                            readOnly={isViewMode}
+                            maxTags={40}
+                        />
+                        <Group grow align="flex-start">
+                            <Select
+                                label="Difficulty (editorial)"
+                                placeholder="Optional"
+                                clearable
+                                data={[
+                                    { value: "easy", label: "Easy" },
+                                    { value: "medium", label: "Medium" },
+                                    { value: "hard", label: "Hard" },
+                                ]}
+                                value={difficulty}
+                                onChange={setDifficulty}
+                                disabled={isViewMode}
+                            />
+                            <Select
+                                label="Interview frequency (editorial)"
+                                placeholder="Optional"
+                                clearable
+                                data={[
+                                    { value: "low", label: "Low" },
+                                    { value: "medium", label: "Medium" },
+                                    { value: "high", label: "High" },
+                                ]}
+                                value={interviewFrequency}
+                                onChange={setInterviewFrequency}
+                                disabled={isViewMode}
+                            />
+                            <TextInput
+                                label="Est. study time (minutes)"
+                                placeholder="e.g. 45"
+                                value={estimatedMinutes}
+                                onChange={(e) => setEstimatedMinutes(e.currentTarget.value.replace(/[^\d]/g, ""))}
+                                disabled={isViewMode}
+                            />
+                        </Group>
+                        <TagsInput
+                            label="Related course slugs"
+                            description="Other published system design slugs to cross-link"
+                            placeholder="design-url-shortener"
+                            value={relatedSlugs}
+                            onChange={setRelatedSlugs}
+                            readOnly={isViewMode}
+                        />
+                        <Textarea
+                            label="Outcome / social proof (one line)"
+                            placeholder="e.g. Maps to typical L5 system design depth — load, cache, and consistency trade-offs."
+                            value={outcomeHighlight}
+                            onChange={(e) => setOutcomeHighlight(e.currentTarget.value)}
+                            readOnly={isViewMode}
+                            maxLength={500}
+                            autosize
+                            minRows={2}
+                        />
+                        <Text size="sm" fw={600}>
+                            Companies (optional logos)
+                        </Text>
+                        <Stack gap="xs">
+                            {companies.map((c, idx) => (
+                                <Group key={idx} align="flex-end" wrap="nowrap">
+                                    <TextInput
+                                        label={idx === 0 ? "Company name" : undefined}
+                                        placeholder="Amazon"
+                                        value={c.name}
+                                        onChange={(e) => {
+                                            const next = [...companies];
+                                            next[idx] = { ...next[idx], name: e.currentTarget.value };
+                                            setCompanies(next);
+                                        }}
+                                        readOnly={isViewMode}
+                                        style={{ flex: 1 }}
+                                    />
+                                    <TextInput
+                                        label={idx === 0 ? "Logo URL" : undefined}
+                                        placeholder="https://…"
+                                        value={c.logoUrl}
+                                        onChange={(e) => {
+                                            const next = [...companies];
+                                            next[idx] = { ...next[idx], logoUrl: e.currentTarget.value };
+                                            setCompanies(next);
+                                        }}
+                                        readOnly={isViewMode}
+                                        style={{ flex: 1 }}
+                                    />
+                                    {!isViewMode && (
+                                        <ActionIcon
+                                            color="red"
+                                            variant="subtle"
+                                            onClick={() =>
+                                                setCompanies((prev) =>
+                                                    prev.length > 1 ? prev.filter((_, i) => i !== idx) : prev,
+                                                )
+                                            }
+                                            aria-label="Remove company"
+                                        >
+                                            <IconTrash size={16} />
+                                        </ActionIcon>
+                                    )}
+                                </Group>
+                            ))}
+                            {!isViewMode && (
+                                <Button
+                                    variant="light"
+                                    size="xs"
+                                    leftSection={<IconPlus size={14} />}
+                                    onClick={() => setCompanies((prev) => [...prev, { name: "", logoUrl: "" }])}
+                                >
+                                    Add company
+                                </Button>
+                            )}
+                        </Stack>
 
                         {/* Topic Section Checkboxes — hidden in view mode */}
                         {!isViewMode && (

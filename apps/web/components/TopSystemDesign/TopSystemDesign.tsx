@@ -25,6 +25,8 @@ interface SystemDesignItem {
     sections: { key: string; title: string }[];
     diagrams: { key: string; title: string }[];
     status: string;
+    difficulty?: string;
+    topics?: string[];
 }
 
 interface TopSystemDesignProps {
@@ -52,16 +54,37 @@ const TopSystemDesign = ({ systemDesigns }: TopSystemDesignProps) => {
                     <Title order={5} ta="center" fw={700}>
                         System Design
                     </Title>
-                    <Button
-                        component={Link}
-                        href="/history/table"
-                        variant="subtle"
-                        color="blue"
-                        size="xs"
-                        rightSection={<IconArrowRight size={13} />}
-                    >
-                        View all
-                    </Button>
+                    <Group gap="xs">
+                        <Button
+                            component={Link}
+                            href="/system-design/browse"
+                            variant="light"
+                            color="blue"
+                            size="xs"
+                            rightSection={<IconArrowRight size={13} />}
+                        >
+                            Browse
+                        </Button>
+                        <Button
+                            component={Link}
+                            href="/system-design/topics"
+                            variant="subtle"
+                            color="blue"
+                            size="xs"
+                        >
+                            Topics
+                        </Button>
+                        <Button
+                            component={Link}
+                            href="/history/table"
+                            variant="subtle"
+                            color="blue"
+                            size="xs"
+                            rightSection={<IconArrowRight size={13} />}
+                        >
+                            View all
+                        </Button>
+                    </Group>
                 </Stack>
 
                 {/* Desktop header */}
@@ -83,20 +106,24 @@ const TopSystemDesign = ({ systemDesigns }: TopSystemDesignProps) => {
                             System Design
                         </Title>
                     </Stack>
-                    <Button
-                        component={Link}
-                        href="/history/table"
-                        pos="absolute"
-                        right={0}
-                        top="50%"
-                        style={{ transform: "translateY(-50%)" }}
-                        variant="subtle"
-                        color="blue"
-                        size="xs"
-                        rightSection={<IconArrowRight size={13} />}
-                    >
-                        View all
-                    </Button>
+                    <Group gap="xs" pos="absolute" right={0} top="50%" style={{ transform: "translateY(-50%)" }}>
+                        <Button component={Link} href="/system-design/browse" variant="light" color="blue" size="xs">
+                            Browse
+                        </Button>
+                        <Button component={Link} href="/system-design/topics" variant="subtle" color="blue" size="xs">
+                            Topics
+                        </Button>
+                        <Button
+                            component={Link}
+                            href="/history/table"
+                            variant="subtle"
+                            color="blue"
+                            size="xs"
+                            rightSection={<IconArrowRight size={13} />}
+                        >
+                            View all
+                        </Button>
+                    </Group>
                 </Box>
 
                 <SimpleGrid cols={{ base: 1, xs: 2, sm: 2, md: 3, lg: 4 }} spacing="md">
@@ -119,6 +146,11 @@ const TopSystemDesign = ({ systemDesigns }: TopSystemDesignProps) => {
                             <div className={styles.cardBody}>
                                 <Text className={styles.cardName}>{item.title}</Text>
                                 <Group gap={4} mt={4}>
+                                    {item.difficulty ? (
+                                        <Badge size="xs" variant="light" color="grape">
+                                            {item.difficulty}
+                                        </Badge>
+                                    ) : null}
                                     <Badge size="xs" variant="light" color="gray">
                                         {item.sections?.length || 0} sections
                                     </Badge>
@@ -126,6 +158,15 @@ const TopSystemDesign = ({ systemDesigns }: TopSystemDesignProps) => {
                                         {item.diagrams?.length || 0} diagrams
                                     </Badge>
                                 </Group>
+                                {item.topics && item.topics.length > 0 && (
+                                    <Group gap={4} mt={6}>
+                                        {item.topics.slice(0, 3).map((t) => (
+                                            <Badge key={t} size="xs" variant="dot" color="cyan">
+                                                {t}
+                                            </Badge>
+                                        ))}
+                                    </Group>
+                                )}
                             </div>
 
                             <div className={styles.cardFooter}>

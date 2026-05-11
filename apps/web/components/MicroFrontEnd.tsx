@@ -6,6 +6,7 @@ import TopLabs from "./TopLabs/TopLabs";
 import TopTutorials from "./TopTutorials/TopTutorials";
 import TopSystemDesign from "./TopSystemDesign/TopSystemDesign";
 import TrendingArticles from "./TrendingArticles";
+import { LearningStatsStrip, type SystemDesignPublicStats } from "./SystemDesign/LearningStatsStrip";
 
 interface MicroFrontendProps {
   courses: CourseType[];
@@ -16,6 +17,7 @@ interface MicroFrontendProps {
   totalTutorials: number;
   labs: any[];
   systemDesigns: any[];
+  systemDesignStats?: SystemDesignPublicStats;
 }
 
 export default function MicroFrontend({
@@ -27,6 +29,7 @@ export default function MicroFrontend({
   totalTutorials,
   labs,
   systemDesigns,
+  systemDesignStats,
 }: MicroFrontendProps): ReactElement {
   return (
     <>
@@ -35,6 +38,8 @@ export default function MicroFrontend({
       <TopTutorials tutorials={tutorials || []} total={totalTutorials || 0} />
 
       <TopLabs labs={labs || []} />
+
+      {systemDesignStats && <LearningStatsStrip stats={systemDesignStats} />}
 
       <TopSystemDesign systemDesigns={systemDesigns || []} />
 
