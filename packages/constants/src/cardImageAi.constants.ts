@@ -71,7 +71,7 @@ export const CARD_IMAGE_VISUAL_TYPES = [
 		id: "sequence-diagram",
 		label: "Sequence diagram",
 		promptHint:
-			"UML sequence-diagram aesthetic: vertical lifelines, horizontal message arrows (solid and dashed), optional activation bars; abstract the topic into a short interaction between a few named participants — readable engineering diagram look, not cluttered.",
+			"UML sequence-diagram aesthetic: vertical lifelines, horizontal message arrows (solid and dashed), optional activation bars; abstract the topic into a short interaction between a few named participants — readable engineering diagram look, not cluttered. Use a standard diagram layout across the canvas; render the article title centered over the diagram as transparent overlay text only (bold white/light fill + dark stroke or slight glow for legibility — NO rounded panel, NO backdrop <rect> behind the title), listed after diagram elements in SVG so it paints on top. Not as a top header strip — do not relocate lifelines just to reserve space for the title.",
 	},
 	{
 		id: "whiteboard",
@@ -89,7 +89,7 @@ export const CARD_IMAGE_VISUAL_TYPES = [
 		id: "architecture-blocks",
 		label: "Architecture blocks",
 		promptHint:
-			"Layered system architecture: labeled boxes for client, API, services, queue, database in horizontal bands with arrows between layers — simplified integration or microservices map under the title.",
+			"Layered system architecture: labeled boxes for client, API, services, queue, database in horizontal bands with arrows between layers — simplified integration or microservices map. Put the featured title centered on the canvas as transparent overlay text only (stroke/outline for legibility — no backdrop rect or frosted panel over the map), not only in a narrow top header strip.",
 	},
 	{
 		id: "network-topology",
@@ -105,13 +105,18 @@ export const CARD_IMAGE_VISUAL_TYPES = [
 	},
 ] as const;
 
-export type CardImageVisualTypeId = (typeof CARD_IMAGE_VISUAL_TYPES)[number]["id"];
+export type CardImageVisualTypeId =
+	(typeof CARD_IMAGE_VISUAL_TYPES)[number]["id"];
 
-export function isCardImageVisualTypeAllowed(visualType: string): visualType is CardImageVisualTypeId {
+export function isCardImageVisualTypeAllowed(
+	visualType: string,
+): visualType is CardImageVisualTypeId {
 	return CARD_IMAGE_VISUAL_TYPES.some((t) => t.id === visualType);
 }
 
-export function getCardImageVisualPromptHint(visualType: string): string | undefined {
+export function getCardImageVisualPromptHint(
+	visualType: string,
+): string | undefined {
 	const row = CARD_IMAGE_VISUAL_TYPES.find((t) => t.id === visualType);
 	return row?.promptHint;
 }
