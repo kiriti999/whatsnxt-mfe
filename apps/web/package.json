@@ -24,6 +24,7 @@
     "@mantine/modals": "8.3.10",
     "@mantine/notifications": "8.3.10",
     "@whatsnxt/comments": "workspace:*",
+    "@whatsnxt/constants": "workspace:*",
     "@whatsnxt/core-util": "workspace:*",
     "@whatsnxt/http-client": "workspace:*",
     "clsx": "2.1.1",

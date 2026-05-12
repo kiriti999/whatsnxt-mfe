@@ -1,25 +1,23 @@
-import React from 'react';
-import router from 'next/router';
+import { useEffect } from "react";
 
+/**
+ * Warns when leaving the page with unsaved changes (browser tab close / refresh).
+ * App Router has no `router.events`; do not use `next/router` here.
+ */
 export function useSaved(unsaved: boolean) {
-  React.useEffect(() => {
-    if (unsaved) {
-      window.onbeforeunload = () => true;
-      const changeStart = () => {
-        const yes = confirm('You have unsaved changes');
-        if (!yes) {
-          router.events.emit('routeChangeError');
-          throw 'Ignore error';
-        }
-      };
+	useEffect(() => {
+		if (!unsaved) {
+			return;
+		}
 
-      router.events.on('routeChangeStart', changeStart);
-      return () => {
-        window.onbeforeunload = null;
-        router.events.off('routeChangeStart', changeStart);
-      };
-    } else {
-      window.onbeforeunload = null;
-    }
-  }, [unsaved]);
+		const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+			e.preventDefault();
+			e.returnValue = "";
+		};
+
+		window.addEventListener("beforeunload", handleBeforeUnload);
+		return () => {
+			window.removeEventListener("beforeunload", handleBeforeUnload);
+		};
+	}, [unsaved]);
 }

@@ -27,7 +27,6 @@ import type { CategoryPath } from "@whatsnxt/core-ui";
 import {
   CategorySearch
 } from "@whatsnxt/core-ui";
-import { LoadingOverlay as CustomLoadingOverlay } from "@mantine/core";
 import { default as NextImage } from "next/image";
 import { useRouter } from "next/navigation";
 import type React from "react";
@@ -774,8 +773,7 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
           </Alert>
         )}
 
-        <CustomLoadingOverlay visible={visible}>
-          <form onSubmit={handleSubmit(handleFormSubmit)}>
+        <form onSubmit={handleSubmit(handleFormSubmit)}>
             <Stack gap="lg">
               <Stack gap="xs">
                 <Text fw={500} size="sm">
@@ -1273,8 +1271,7 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
                 </Grid>
               </Box>
             </Stack>
-          </form>
-        </CustomLoadingOverlay>
+        </form>
       </Box>
     </Container>
   );

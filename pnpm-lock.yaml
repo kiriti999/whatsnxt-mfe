@@ -246,6 +246,9 @@ importers:
       '@whatsnxt/comments':
         specifier: workspace:*
         version: link:../../packages/comments
+      '@whatsnxt/constants':
+        specifier: workspace:*
+        version: link:../../packages/constants
       '@whatsnxt/core-util':
         specifier: workspace:*
         version: link:../../packages/core-util

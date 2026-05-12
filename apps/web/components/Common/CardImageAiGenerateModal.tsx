@@ -33,7 +33,9 @@ export type OpenCardImageAiModalParams = {
 
 function ModalBody({ getTitle, missingTitleMessage, onGenerate }: OpenCardImageAiModalParams) {
 	const [mode, setMode] = React.useState<"auto" | "manual">(CARD_IMAGE_GENERATION_MODE.AUTO);
-	const [visualType, setVisualType] = React.useState<string>(CARD_IMAGE_VISUAL_TYPES[0].id);
+	const [visualType, setVisualType] = React.useState<string>(
+		CARD_IMAGE_VISUAL_TYPES[0]?.id ?? "flat-gradients",
+	);
 
 	const handleGenerate = async () => {
 		const title = getTitle()?.trim();
