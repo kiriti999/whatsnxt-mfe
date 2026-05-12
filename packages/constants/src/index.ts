@@ -209,3 +209,6 @@ export * from "./lab.constants";
 
 // System design course authoring (companies + SVG badge presets)
 export * from "./systemDesignCompanies.constants";
+
+// AI card cover images (blog / tutorial)
+export * from "./cardImageAi.constants";

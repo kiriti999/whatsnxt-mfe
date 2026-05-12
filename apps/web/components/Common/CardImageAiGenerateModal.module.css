@@ -1,0 +1,17 @@
+.typeCard {
+	cursor: pointer;
+	border-radius: var(--mantine-radius-md);
+	padding: var(--mantine-spacing-xs);
+	transition: border-color 120ms ease, box-shadow 120ms ease;
+}
+
+.typeCardSelected {
+	box-shadow: 0 0 0 2px var(--mantine-color-violet-filled);
+}
+
+.typeLabel {
+	font-size: var(--mantine-font-size-xs);
+	font-weight: 600;
+	text-align: center;
+	line-height: 1.25;
+}

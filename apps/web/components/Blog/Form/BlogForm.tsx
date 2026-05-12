@@ -25,6 +25,8 @@ import { FullPageOverlay } from '@/components/Common/FullPageOverlay';
 import { DiagramTypePicker } from '../../Visualizer/DiagramTypePicker';
 import type { DiagramType } from '../../Visualizer/types';
 import { wrapSvgsForLexical } from '../../../utils/wrapSvgsForLexical';
+import { openCardImageAiGenerateModal, type CardImageAiGenerateOptions } from '@/components/Common/CardImageAiGenerateModal';
+import { CARD_IMAGE_CONTENT_KIND } from '@whatsnxt/constants';
 
 const BlogForm: React.FC<BlogFormProps> = ({ categories, edit }) => {
   const [isVisible, { open, close }] = useDisclosure(false);
@@ -230,63 +232,65 @@ const BlogForm: React.FC<BlogFormProps> = ({ categories, edit }) => {
     [subCategories]
   );
 
-  const handleGenerateAIImage = useCallback(async () => {
-    const title = watch('title');
-    if (!title?.trim()) {
-      notifications.show({
-        position: 'bottom-right',
-        color: 'orange',
-        title: 'Missing Title',
-        message: 'Please enter a blog title first',
-      });
-      return;
-    }
-
-    setIsGeneratingImage(true);
-    setValidationError(null);
-    setValidationSuccess(null);
-
-    try {
-      // Find existing publicId to overwrite it instead of creating orphans
-      let existingPublicId = aiGeneratedAsset?.cloudinaryAsset?.public_id;
-      if (!existingPublicId && edit?.cloudinaryAssets?.length) {
-        existingPublicId = edit.cloudinaryAssets[0].public_id;
+  const runGenerateAiImage = useCallback(
+    async (
+      genOpts: CardImageAiGenerateOptions,
+      contentKind: typeof CARD_IMAGE_CONTENT_KIND.BLOG | typeof CARD_IMAGE_CONTENT_KIND.TUTORIAL,
+    ) => {
+      const title = watch('title');
+      if (!title?.trim()) {
+        return;
       }
 
-      const response = await AISuggestions.generateTutorialImage({
-        title,
-        publicId: existingPublicId
-      });
+      setIsGeneratingImage(true);
+      setValidationError(null);
+      setValidationSuccess(null);
 
-      if (response?.data?.success && response.data.imageUrl) {
-        setImagePreview(response.data.imageUrl);
-        setAiGeneratedAsset({
-          imageUrl: response.data.imageUrl,
-          pngImageUrl: response.data.pngImageUrl,
-          cloudinaryAsset: response.data.cloudinaryAsset,
+      try {
+        let existingPublicId = aiGeneratedAsset?.cloudinaryAsset?.public_id;
+        if (!existingPublicId && edit?.cloudinaryAssets?.length) {
+          existingPublicId = edit.cloudinaryAssets[0].public_id;
+        }
+
+        const response = await AISuggestions.generateTutorialImage({
+          title,
+          publicId: existingPublicId,
+          imageMode: genOpts.imageMode,
+          visualType: genOpts.visualType,
+          contentKind,
         });
-        setCourseImage(null);
-        setValidationSuccess('AI image generated and uploaded to Cloudinary');
-        notifications.show({
-          position: 'bottom-right',
-          color: 'green',
-          title: 'Image Generated',
-          message: 'AI-generated image is ready. It will be used as the blog image.',
-        });
-      } else {
-        const errorMsg = response?.data?.message || 'Failed to generate image';
-        setValidationError(errorMsg);
+
+        if (response?.data?.success && response.data.imageUrl) {
+          setImagePreview(response.data.imageUrl);
+          setAiGeneratedAsset({
+            imageUrl: response.data.imageUrl,
+            pngImageUrl: response.data.pngImageUrl,
+            cloudinaryAsset: response.data.cloudinaryAsset,
+          });
+          setCourseImage(null);
+          setValidationSuccess('AI image generated and uploaded to Cloudinary');
+          notifications.show({
+            position: 'bottom-right',
+            color: 'green',
+            title: 'Image Generated',
+            message: 'AI-generated image is ready. It will be used as the blog image.',
+          });
+        } else {
+          const errorMsg = response?.data?.message || 'Failed to generate image';
+          setValidationError(errorMsg);
+        }
+      } catch (error: unknown) {
+        const errorMessage =
+          (error as { response?: { data?: { message?: string } } })?.response?.data?.message ||
+          (error as Error)?.message ||
+          'Failed to generate AI image';
+        setValidationError(errorMessage);
+      } finally {
+        setIsGeneratingImage(false);
       }
-    } catch (error: unknown) {
-      const errorMessage =
-        (error as { response?: { data?: { message?: string } } })?.response?.data?.message ||
-        (error as Error)?.message ||
-        'Failed to generate AI image';
-      setValidationError(errorMessage);
-    } finally {
-      setIsGeneratingImage(false);
-    }
-  }, [watch, edit, aiGeneratedAsset]);
+    },
+    [watch, edit, aiGeneratedAsset],
+  );
 
   const handleImageChange = async (file: File | null) => {
     // Clear previous states
@@ -693,7 +697,13 @@ const BlogForm: React.FC<BlogFormProps> = ({ categories, edit }) => {
                             onClick={(e) => {
                               e.preventDefault();
                               e.stopPropagation();
-                              handleGenerateAIImage();
+                              openCardImageAiGenerateModal({
+                                getTitle: () => watch('title'),
+                                missingTitleMessage: 'Please enter a blog title first',
+                                onGenerate: async (genOpts) => {
+                                  await runGenerateAiImage(genOpts, CARD_IMAGE_CONTENT_KIND.BLOG);
+                                },
+                              });
                             }}
                             disabled={isGeneratingImage || isScanning || isModelLoading}
                           >

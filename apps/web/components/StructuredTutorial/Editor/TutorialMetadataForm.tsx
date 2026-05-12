@@ -34,6 +34,8 @@ import type { DiagramType } from "../../Visualizer/types";
 import { wrapSvgsForLexical } from "../../../utils/wrapSvgsForLexical";
 import { IconPicker } from "../Form/IconPicker";
 import { LexicalEditor } from "./LexicalEditor";
+import { openCardImageAiGenerateModal, type CardImageAiGenerateOptions } from "@/components/Common/CardImageAiGenerateModal";
+import { CARD_IMAGE_CONTENT_KIND } from "@whatsnxt/constants";
 
 interface TutorialFormData {
     title: string;
@@ -81,7 +83,7 @@ export const TutorialMetadataForm: React.FC<TutorialMetadataFormProps> = ({
     onSave,
     isSaving,
 }) => {
-    const { register, handleSubmit, control, reset, watch, setValue } =
+    const { register, handleSubmit, control, reset, watch, setValue, getValues } =
         useForm<TutorialFormData>({
             defaultValues: {
                 title: "",
@@ -217,90 +219,90 @@ export const TutorialMetadataForm: React.FC<TutorialMetadataFormProps> = ({
         reader.readAsDataURL(file);
     };
 
-    const handleGenerateAIImage = React.useCallback(async () => {
-        const title = watch("title");
-        if (!title?.trim()) {
-            notifications.show({
-                position: "bottom-right",
-                color: "orange",
-                title: "Missing Title",
-                message: "Please enter a tutorial title first",
-            });
-            return;
-        }
+    const runGenerateAiImage = React.useCallback(
+        async (genOpts: CardImageAiGenerateOptions) => {
+            const title = getValues("title");
+            if (!title?.trim()) {
+                return;
+            }
 
-        setIsGeneratingImage(true);
-        try {
-            // Find existing publicId to overwrite it instead of creating orphans
-            let existingPublicId = aiGeneratedAsset?.cloudinaryAsset?.public_id;
-            if (!existingPublicId && initialData?.imageUrl) {
-                // Extract publicId roughly from URL like "https://bucket.s3.region.amazonaws.com/whatsnxt-tutorial/filename.svg"
-                try {
-                    const urlPath = new URL(initialData.imageUrl).pathname; // e.g. "/whatsnxt-tutorial/upload_hash.svg"
-                    const parts = urlPath.split('/').filter(Boolean); // ["whatsnxt-tutorial", "upload_hash.svg"]
-                    if (parts.length >= 2) {
-                        const filenameWithoutExt = parts.pop()?.split('.')[0];
-                        const folder = parts.pop();
-                        existingPublicId = `${folder}/${filenameWithoutExt}`;
+            setIsGeneratingImage(true);
+            try {
+                let existingPublicId = aiGeneratedAsset?.cloudinaryAsset?.public_id;
+                if (!existingPublicId && initialData?.imageUrl) {
+                    try {
+                        const urlPath = new URL(initialData.imageUrl).pathname;
+                        const parts = urlPath.split("/").filter(Boolean);
+                        if (parts.length >= 2) {
+                            const filenameWithoutExt = parts.pop()?.split(".")[0];
+                            const folder = parts.pop();
+                            existingPublicId = `${folder}/${filenameWithoutExt}`;
+                        }
+                    } catch (e) {
+                        console.warn("Failed to extract publicId from URL", e);
                     }
-                } catch (e) {
-                    console.warn("Failed to extract publicId from URL", e);
                 }
-            }
 
-            const response = await AISuggestions.generateTutorialImage({ 
-                title,
-                publicId: existingPublicId 
-            });
-            if (response?.data?.success && response.data.imageUrl) {
-                setImagePreview(response.data.imageUrl);
-                setAiGeneratedAsset({
-                    imageUrl: response.data.imageUrl,
-                    pngImageUrl: response.data.pngImageUrl,
-                    cloudinaryAsset: response.data.cloudinaryAsset,
+                const response = await AISuggestions.generateTutorialImage({
+                    title,
+                    publicId: existingPublicId,
+                    imageMode: genOpts.imageMode,
+                    visualType: genOpts.visualType,
+                    contentKind: CARD_IMAGE_CONTENT_KIND.TUTORIAL,
                 });
-                setTutorialImage(null);
-                notifications.show({
-                    position: "bottom-right",
-                    color: "green",
-                    title: "Image Generated",
-                    message: "AI-generated image is ready",
-                });
-            } else {
-                notifications.show({
-                    position: "bottom-right",
-                    color: "red",
-                    title: "Generation Failed",
-                    message: response?.data?.message || "Failed to generate image",
-                });
-            }
-        } catch (error: unknown) {
-            const errorMessage =
-                (error as { response?: { data?: { message?: string } } })?.response?.data?.message ||
-                (error as Error)?.message ||
-                "Failed to generate AI image";
-            const isAuthError =
-                errorMessage.includes("API key") ||
-                errorMessage.includes("401") ||
-                errorMessage.includes("Incorrect API key");
+                if (response?.data?.success && response.data.imageUrl) {
+                    setImagePreview(response.data.imageUrl);
+                    setAiGeneratedAsset({
+                        imageUrl: response.data.imageUrl,
+                        pngImageUrl: response.data.pngImageUrl,
+                        cloudinaryAsset: response.data.cloudinaryAsset,
+                    });
+                    setTutorialImage(null);
+                    notifications.show({
+                        position: "bottom-right",
+                        color: "green",
+                        title: "Image Generated",
+                        message: "AI-generated image is ready",
+                    });
+                } else {
+                    notifications.show({
+                        position: "bottom-right",
+                        color: "red",
+                        title: "Generation Failed",
+                        message: response?.data?.message || "Failed to generate image",
+                    });
+                }
+            } catch (error: unknown) {
+                const errorMessage =
+                    (error as { response?: { data?: { message?: string } } })?.response?.data?.message ||
+                    (error as Error)?.message ||
+                    "Failed to generate AI image";
+                const isAuthError =
+                    errorMessage.includes("API key") ||
+                    errorMessage.includes("401") ||
+                    errorMessage.includes("Incorrect API key");
 
-            if (isAuthError) {
-                setApiKeyError("Image generation requires an Anthropic API key. Please enter a valid Anthropic key.");
-                aiConfig.setSelectedAI("anthropic");
-                aiConfig.setSelectedModel(process.env.NEXT_PUBLIC_DEFAULT_AI_MODEL as string);
-                openConfigModal();
-            } else {
-                notifications.show({
-                    position: "bottom-right",
-                    color: "red",
-                    title: "Error",
-                    message: errorMessage,
-                });
+                if (isAuthError) {
+                    setApiKeyError(
+                        "Image generation requires an Anthropic API key. Please enter a valid Anthropic key.",
+                    );
+                    aiConfig.setSelectedAI("anthropic");
+                    aiConfig.setSelectedModel(process.env.NEXT_PUBLIC_DEFAULT_AI_MODEL as string);
+                    openConfigModal();
+                } else {
+                    notifications.show({
+                        position: "bottom-right",
+                        color: "red",
+                        title: "Error",
+                        message: errorMessage,
+                    });
+                }
+            } finally {
+                setIsGeneratingImage(false);
             }
-        } finally {
-            setIsGeneratingImage(false);
-        }
-    }, [watch]);
+        },
+        [getValues, aiGeneratedAsset, initialData?.imageUrl, aiConfig, openConfigModal],
+    );
 
     const onSubmit = async (data: TutorialFormData) => {
         await onSave(
@@ -528,7 +530,13 @@ export const TutorialMetadataForm: React.FC<TutorialMetadataFormProps> = ({
                                     onClick={(e) => {
                                         e.preventDefault();
                                         e.stopPropagation();
-                                        handleGenerateAIImage();
+                                        openCardImageAiGenerateModal({
+                                            getTitle: () => getValues("title"),
+                                            missingTitleMessage: "Please enter a tutorial title first",
+                                            onGenerate: async (genOpts) => {
+                                                await runGenerateAiImage(genOpts);
+                                            },
+                                        });
                                     }}
                                     disabled={isGeneratingImage}
                                 >

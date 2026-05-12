@@ -63,6 +63,8 @@ import { uploadImage } from "./util";
 import { DiagramTypePicker } from "../../Visualizer/DiagramTypePicker";
 import type { DiagramType } from "../../Visualizer/types";
 import { wrapSvgsForLexical } from "../../../utils/wrapSvgsForLexical";
+import { openCardImageAiGenerateModal, type CardImageAiGenerateOptions } from "@/components/Common/CardImageAiGenerateModal";
+import { CARD_IMAGE_CONTENT_KIND } from "@whatsnxt/constants";
 
 interface TutorialFormProps {
   categories: Category[];
@@ -297,63 +299,65 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
     description: { required: "Description is required" },
   };
 
-  const handleGenerateAIImage = useCallback(async () => {
-    const title = getValues("tutorialName");
-    if (!title?.trim()) {
-      notifications.show({
-        position: "bottom-right",
-        color: "orange",
-        title: "Missing Title",
-        message: "Please enter a tutorial name first",
-      });
-      return;
-    }
-
-    setIsGeneratingImage(true);
-    setValidationError(null);
-    setValidationSuccess(null);
-
-    try {
-      // Find existing publicId to overwrite it instead of creating orphans
-      let existingPublicId = aiGeneratedAsset?.cloudinaryAsset?.public_id;
-      if (!existingPublicId && edit?.cloudinaryAssets?.length) {
-        existingPublicId = edit.cloudinaryAssets[0].public_id;
+  const runGenerateAiImage = useCallback(
+    async (
+      genOpts: CardImageAiGenerateOptions,
+      contentKind: typeof CARD_IMAGE_CONTENT_KIND.BLOG | typeof CARD_IMAGE_CONTENT_KIND.TUTORIAL,
+    ) => {
+      const title = getValues("tutorialName");
+      if (!title?.trim()) {
+        return;
       }
 
-      const response = await AISuggestions.generateTutorialImage({
-        title,
-        publicId: existingPublicId
-      });
+      setIsGeneratingImage(true);
+      setValidationError(null);
+      setValidationSuccess(null);
 
-      if (response?.data?.success && response.data.imageUrl) {
-        setImagePreview(response.data.imageUrl);
-        setAiGeneratedAsset({
-          imageUrl: response.data.imageUrl,
-          pngImageUrl: response.data.pngImageUrl,
-          cloudinaryAsset: response.data.cloudinaryAsset,
+      try {
+        let existingPublicId = aiGeneratedAsset?.cloudinaryAsset?.public_id;
+        if (!existingPublicId && edit?.cloudinaryAssets?.length) {
+          existingPublicId = edit.cloudinaryAssets[0].public_id;
+        }
+
+        const response = await AISuggestions.generateTutorialImage({
+          title,
+          publicId: existingPublicId,
+          imageMode: genOpts.imageMode,
+          visualType: genOpts.visualType,
+          contentKind,
         });
-        setTutorialImage(null);
-        setValidationSuccess("AI image generated and uploaded to Cloudinary");
-        notifications.show({
-          position: "bottom-right",
-          color: "green",
-          title: "Image Generated",
-          message: "AI-generated image is ready. It will be used as the tutorial image.",
-        });
-      } else {
-        const errorMsg = response?.data?.message || "Failed to generate image";
-        setValidationError(errorMsg);
+
+        if (response?.data?.success && response.data.imageUrl) {
+          setImagePreview(response.data.imageUrl);
+          setAiGeneratedAsset({
+            imageUrl: response.data.imageUrl,
+            pngImageUrl: response.data.pngImageUrl,
+            cloudinaryAsset: response.data.cloudinaryAsset,
+          });
+          setTutorialImage(null);
+          setValidationSuccess("AI image generated and uploaded to Cloudinary");
+          notifications.show({
+            position: "bottom-right",
+            color: "green",
+            title: "Image Generated",
+            message: "AI-generated image is ready. It will be used as the tutorial image.",
+          });
+        } else {
+          const errorMsg = response?.data?.message || "Failed to generate image";
+          setValidationError(errorMsg);
+        }
+      } catch (error: unknown) {
+        const errorMessage =
+          (error as { response?: { data?: { message?: string } } })?.response?.data?.message ||
+          (error as Error)?.message ||
+          "Failed to generate AI image";
+        setValidationError(errorMessage);
+      } finally {
+        setIsGeneratingImage(false);
       }
-    } catch (error: unknown) {
-      const errorMessage =
-        (error as { response?: { data?: { message?: string } } })?.response?.data?.message ||
-        (error as Error)?.message ||
-        "Failed to generate AI image";
-      setValidationError(errorMessage);
-    } finally {
-      setIsGeneratingImage(false);
-    }
-  }, [getValues, notifications, edit, aiGeneratedAsset]);
+    },
+    [getValues, edit, aiGeneratedAsset],
+  );
 
   const handleImageChange = async (file: File | null) => {
     // Clear previous states
@@ -1070,7 +1074,16 @@ const TutorialForm: React.FC<TutorialFormProps> = (props) => {
                                 onClick={(e) => {
                                   e.preventDefault();
                                   e.stopPropagation();
-                                  handleGenerateAIImage();
+                                  openCardImageAiGenerateModal({
+                                    getTitle: () => getValues("tutorialName"),
+                                    missingTitleMessage: "Please enter a tutorial name first",
+                                    onGenerate: async (genOpts) => {
+                                      await runGenerateAiImage(
+                                        genOpts,
+                                        CARD_IMAGE_CONTENT_KIND.TUTORIAL,
+                                      );
+                                    },
+                                  });
                                 }}
                                 disabled={isGeneratingImage || isScanning || isModelLoading}
                               >

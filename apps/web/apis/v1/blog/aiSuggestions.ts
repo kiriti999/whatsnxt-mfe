@@ -23,7 +23,13 @@ export const AISuggestions = {
         const response = await articleApiClient.post('/post/suggestionByAI', params);
         return response;
     },
-    generateTutorialImage: async (params: { title: string; publicId?: string }) => {
+    generateTutorialImage: async (params: {
+        title: string;
+        publicId?: string;
+        imageMode?: 'auto' | 'manual';
+        visualType?: string;
+        contentKind?: 'blog' | 'tutorial';
+    }) => {
         const response = await articleApiClient.post('/post/generateTutorialImage', params);
         return response;
     },
