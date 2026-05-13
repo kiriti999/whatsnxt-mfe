@@ -14,6 +14,7 @@ import {
 	Stack,
 	Text,
 	Title,
+	useComputedColorScheme,
 } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import {
@@ -70,6 +71,14 @@ const LabsPage = () => {
 	const studentId = user?._id || "";
 	const instructorId = user?._id || "";
 	const pageSize = PAGINATION.LAB_DIRECTORY_PAGE_SIZE;
+
+	const computedColorScheme = useComputedColorScheme("light", {
+		getInitialValueInEffect: true,
+	});
+	/** Filled neutral UI: charcoal in light mode, softer gray in dark (readable on dark cards). */
+	const labsNeutralFilled = computedColorScheme === "dark" ? "gray" : "dark";
+	/** Light variant category chips: gray tint in light, dark-range tint in dark. */
+	const labsNeutralCategory = computedColorScheme === "dark" ? "dark" : "gray";
 
 	const canDeleteLab = (lab: { instructorId?: string }) => {
 		if (!isAuthenticated) return false;
@@ -542,14 +551,19 @@ const LabsPage = () => {
 																: "Paid"}
 														</Badge>
 													) : (
-														<Badge color="teal" size="lg" variant="filled">
+														<Badge
+															color={labsNeutralFilled}
+															size="lg"
+															variant="filled"
+														>
 															Free
 														</Badge>
 													)}
 													{lab.progress && lab.progress.percentage === 100 && (
 														<Badge
-															color="teal"
+															color={labsNeutralFilled}
 															size="sm"
+															variant="filled"
 															leftSection={<IconTrophy size={12} />}
 														>
 															Done
@@ -574,7 +588,7 @@ const LabsPage = () => {
 													{hasPreview ? (
 														<Button
 															variant="filled"
-															color="teal"
+															color={labsNeutralFilled}
 															size="xs"
 															leftSection={<IconPlayerPlay size={14} />}
 															onClick={() =>
@@ -614,7 +628,11 @@ const LabsPage = () => {
 												lab.nestedSubCategory) && (
 												<Group gap="xs">
 													{lab.labType && (
-														<Badge variant="light" color="teal" size="md">
+														<Badge
+															variant="light"
+															color={labsNeutralCategory}
+															size="md"
+														>
 															{lab.labType}
 														</Badge>
 													)}
@@ -655,8 +673,13 @@ const LabsPage = () => {
 														<Badge
 															color={
 																lab.progress.percentage === 100
-																	? "teal"
+																	? labsNeutralFilled
 																	: "blue"
+															}
+															variant={
+																lab.progress.percentage === 100
+																	? "filled"
+																	: "light"
 															}
 															size="md"
 														>
