@@ -14,7 +14,6 @@ import {
 	Stack,
 	Text,
 	Title,
-	useComputedColorScheme,
 } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import {
@@ -35,7 +34,7 @@ import labApi from "@/apis/lab.api";
 import useAuth from "@/hooks/Authentication/useAuth";
 import { labDescriptionText } from "@/utils/lab-utils";
 
-interface LabWithProgress extends Lab {
+interface LabWithProgress extends Omit<Lab, "instructorId"> {
 	instructorId?: string;
 	progress?: {
 		totalPages: number;
@@ -71,14 +70,6 @@ const LabsPage = () => {
 	const studentId = user?._id || "";
 	const instructorId = user?._id || "";
 	const pageSize = PAGINATION.LAB_DIRECTORY_PAGE_SIZE;
-
-	const computedColorScheme = useComputedColorScheme("light", {
-		getInitialValueInEffect: true,
-	});
-	/** Filled neutral UI: charcoal in light mode, softer gray in dark (readable on dark cards). */
-	const labsNeutralFilled = computedColorScheme === "dark" ? "gray" : "dark";
-	/** Light variant category chips: gray tint in light, dark-range tint in dark. */
-	const labsNeutralCategory = computedColorScheme === "dark" ? "dark" : "gray";
 
 	const canDeleteLab = (lab: { instructorId?: string }) => {
 		if (!isAuthenticated) return false;
@@ -551,19 +542,14 @@ const LabsPage = () => {
 																: "Paid"}
 														</Badge>
 													) : (
-														<Badge
-															color={labsNeutralFilled}
-															size="lg"
-															variant="filled"
-														>
+														<Badge color="teal" size="lg" variant="filled">
 															Free
 														</Badge>
 													)}
 													{lab.progress && lab.progress.percentage === 100 && (
 														<Badge
-															color={labsNeutralFilled}
+															color="teal"
 															size="sm"
-															variant="filled"
 															leftSection={<IconTrophy size={12} />}
 														>
 															Done
@@ -588,7 +574,7 @@ const LabsPage = () => {
 													{hasPreview ? (
 														<Button
 															variant="filled"
-															color={labsNeutralFilled}
+															color="teal"
 															size="xs"
 															leftSection={<IconPlayerPlay size={14} />}
 															onClick={() =>
@@ -628,21 +614,17 @@ const LabsPage = () => {
 												lab.nestedSubCategory) && (
 												<Group gap="xs">
 													{lab.labType && (
-														<Badge
-															variant="light"
-															color={labsNeutralCategory}
-															size="md"
-														>
+														<Badge variant="light" color="gray" size="md">
 															{lab.labType}
 														</Badge>
 													)}
 													{lab.subCategory && (
-														<Badge variant="light" color="grape" size="md">
+														<Badge variant="light" color="gray" size="md">
 															{lab.subCategory}
 														</Badge>
 													)}
 													{lab.nestedSubCategory && (
-														<Badge variant="light" color="indigo" size="md">
+														<Badge variant="light" color="gray" size="md">
 															{lab.nestedSubCategory}
 														</Badge>
 													)}
@@ -653,7 +635,7 @@ const LabsPage = () => {
 											<Group gap="xs">
 												<Badge
 													variant="light"
-													color="blue"
+													color="gray"
 													size="md"
 													leftSection={<IconListCheck size={14} />}
 												>
@@ -661,7 +643,7 @@ const LabsPage = () => {
 												</Badge>
 												<Badge
 													variant="light"
-													color="violet"
+													color="gray"
 													size="md"
 													leftSection={<IconSchema size={14} />}
 												>
@@ -673,13 +655,8 @@ const LabsPage = () => {
 														<Badge
 															color={
 																lab.progress.percentage === 100
-																	? labsNeutralFilled
+																	? "teal"
 																	: "blue"
-															}
-															variant={
-																lab.progress.percentage === 100
-																	? "filled"
-																	: "light"
 															}
 															size="md"
 														>
@@ -737,7 +714,7 @@ const LabsPage = () => {
 												<Group gap="xs">
 													<Badge
 														variant="light"
-														color="blue"
+														color="gray"
 														size="sm"
 														leftSection={<IconListCheck size={12} />}
 													>
@@ -745,7 +722,7 @@ const LabsPage = () => {
 													</Badge>
 													<Badge
 														variant="light"
-														color="violet"
+														color="gray"
 														size="sm"
 														leftSection={<IconSchema size={12} />}
 													>
