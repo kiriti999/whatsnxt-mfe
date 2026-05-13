@@ -1,0 +1,274 @@
+{
+  "title": "OIDC vs SSO",
+  "subtitle": "Side-by-side comparison of authentication paradigms",
+  "backgroundColor": "#f3f4f6",
+  "nodes": [
+    {
+      "id": "oidc-root",
+      "label": "OIDC",
+      "description": "OpenID Connect: Authentication protocol layer on OAuth 2.0 that provides identity verification.",
+      "type": "box",
+      "style": {
+        "backgroundColor": "#1e293b",
+        "borderColor": "#3b82f6",
+        "textColor": "#f3f4f6",
+        "fontSize": 16,
+        "borderRadius": 8
+      },
+      "icon": "🔐",
+      "metadata": {
+        "category": "Protocol"
+      }
+    },
+    {
+      "id": "oidc-1",
+      "label": "ID Token",
+      "description": "JWT-based token containing user identity claims verified by signature.",
+      "type": "card",
+      "style": {
+        "backgroundColor": "#eff6ff",
+        "borderColor": "#3b82f6",
+        "textColor": "#1e293b",
+        "borderRadius": 6
+      },
+      "icon": "🎫"
+    },
+    {
+      "id": "oidc-2",
+      "label": "UserInfo Endpoint",
+      "description": "Returns authenticated user profile data as JSON claims.",
+      "type": "card",
+      "style": {
+        "backgroundColor": "#eff6ff",
+        "borderColor": "#3b82f6",
+        "textColor": "#1e293b",
+        "borderRadius": 6
+      },
+      "icon": "👤"
+    },
+    {
+      "id": "oidc-3",
+      "label": "Authorization Code Flow",
+      "description": "Secure multi-step flow with code exchange for token retrieval.",
+      "type": "card",
+      "style": {
+        "backgroundColor": "#eff6ff",
+        "borderColor": "#3b82f6",
+        "textColor": "#1e293b",
+        "borderRadius": 6
+      },
+      "icon": "🔄"
+    },
+    {
+      "id": "oidc-4",
+      "label": "Standardized Claims",
+      "description": "Structured user attributes (sub, email, name) in consistent format.",
+      "type": "card",
+      "style": {
+        "backgroundColor": "#eff6ff",
+        "borderColor": "#3b82f6",
+        "textColor": "#1e293b",
+        "borderRadius": 6
+      },
+      "icon": "📋"
+    },
+    {
+      "id": "oidc-5",
+      "label": "Third-Party Apps",
+      "description": "Enables secure sign-in across multiple integrated applications.",
+      "type": "card",
+      "style": {
+        "backgroundColor": "#eff6ff",
+        "borderColor": "#3b82f6",
+        "textColor": "#1e293b",
+        "borderRadius": 6
+      },
+      "icon": "🔗"
+    },
+    {
+      "id": "sso-root",
+      "label": "SSO",
+      "description": "Single Sign-On: Pattern enabling one login to access multiple related applications.",
+      "type": "box",
+      "style": {
+        "backgroundColor": "#1e293b",
+        "borderColor": "#10b981",
+        "textColor": "#f3f4f6",
+        "fontSize": 16,
+        "borderRadius": 8
+      },
+      "icon": "🔑",
+      "metadata": {
+        "category": "Pattern"
+      }
+    },
+    {
+      "id": "sso-1",
+      "label": "Single Login Point",
+      "description": "User authenticates once, gains access to all federated applications.",
+      "type": "card",
+      "style": {
+        "backgroundColor": "#f0fdf4",
+        "borderColor": "#10b981",
+        "textColor": "#1e293b",
+        "borderRadius": 6
+      },
+      "icon": "✅"
+    },
+    {
+      "id": "sso-2",
+      "label": "Session Management",
+      "description": "Centralized session token shared across applications.",
+      "type": "card",
+      "style": {
+        "backgroundColor": "#f0fdf4",
+        "borderColor": "#10b981",
+        "textColor": "#1e293b",
+        "borderRadius": 6
+      },
+      "icon": "🎟️"
+    },
+    {
+      "id": "sso-3",
+      "label": "App Federation",
+      "description": "Multiple apps trust a central identity provider for credentials.",
+      "type": "card",
+      "style": {
+        "backgroundColor": "#f0fdf4",
+        "borderColor": "#10b981",
+        "textColor": "#1e293b",
+        "borderRadius": 6
+      },
+      "icon": "🏢"
+    },
+    {
+      "id": "sso-4",
+      "label": "Protocol Agnostic",
+      "description": "Can implement with SAML, OAuth, OIDC, or proprietary methods.",
+      "type": "card",
+      "style": {
+        "backgroundColor": "#f0fdf4",
+        "borderColor": "#10b981",
+        "textColor": "#1e293b",
+        "borderRadius": 6
+      },
+      "icon": "📡"
+    },
+    {
+      "id": "sso-5",
+      "label": "Enterprise Adoption",
+      "description": "Common in corporate environments for unified workforce access.",
+      "type": "card",
+      "style": {
+        "backgroundColor": "#f0fdf4",
+        "borderColor": "#10b981",
+        "textColor": "#1e293b",
+        "borderRadius": 6
+      },
+      "icon": "🏭"
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "source": "oidc-root",
+      "target": "oidc-1",
+      "style": {
+        "strokeColor": "#3b82f6",
+        "strokeWidth": 2,
+        "arrowHead": true
+      }
+    },
+    {
+      "id": "e2",
+      "source": "oidc-root",
+      "target": "oidc-2",
+      "style": {
+        "strokeColor": "#3b82f6",
+        "strokeWidth": 2,
+        "arrowHead": true
+      }
+    },
+    {
+      "id": "e3",
+      "source": "oidc-root",
+      "target": "oidc-3",
+      "style": {
+        "strokeColor": "#3b82f6",
+        "strokeWidth": 2,
+        "arrowHead": true
+      }
+    },
+    {
+      "id": "e4",
+      "source": "oidc-root",
+      "target": "oidc-4",
+      "style": {
+        "strokeColor": "#3b82f6",
+        "strokeWidth": 2,
+        "arrowHead": true
+      }
+    },
+    {
+      "id": "e5",
+      "source": "oidc-root",
+      "target": "oidc-5",
+      "style": {
+        "strokeColor": "#3b82f6",
+        "strokeWidth": 2,
+        "arrowHead": true
+      }
+    },
+    {
+      "id": "e6",
+      "source": "sso-root",
+      "target": "sso-1",
+      "style": {
+        "strokeColor": "#10b981",
+        "strokeWidth": 2,
+        "arrowHead": true
+      }
+    },
+    {
+      "id": "e7",
+      "source": "sso-root",
+      "target": "sso-2",
+      "style": {
+        "strokeColor": "#10b981",
+        "strokeWidth": 2,
+        "arrowHead": true
+      }
+    },
+    {
+      "id": "e8",
+      "source": "sso-root",
+      "target": "sso-3",
+      "style": {
+        "strokeColor": "#10b981",
+        "strokeWidth": 2,
+        "arrowHead": true
+      }
+    },
+    {
+      "id": "e9",
+      "source": "sso-root",
+      "target": "sso-4",
+      "style": {
+        "strokeColor": "#10b981",
+        "strokeWidth": 2,
+        "arrowHead": true
+      }
+    },
+    {
+      "id": "e10",
+      "source": "sso-root",
+      "target": "sso-5",
+      "style": {
+        "strokeColor": "#10b981",
+        "strokeWidth": 2,
+        "arrowHead": true
+      }
+    }
+  ],
+  "layout": "free"
+}

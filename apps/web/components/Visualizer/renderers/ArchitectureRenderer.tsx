@@ -90,26 +90,15 @@ export const ArchitectureRenderer: React.FC<ArchitectureRendererProps> = ({ data
             .attr('fill', data.backgroundColor || '#ffffff')
             .attr('rx', 16);
 
-        // --- title -----------------------------------------------------
-        if (data.title) {
+        // --- title (use subtitle as main title, skip diagram type prefix) ---
+        if (data.subtitle) {
             svg.append('text')
                 .attr('x', totalW / 2)
                 .attr('y', 42)
                 .attr('text-anchor', 'middle')
-                .attr('font-size', 26)
-                .attr('font-weight', '800')
+                .attr('font-size', 22)
+                .attr('font-weight', '700')
                 .attr('fill', getTextColor(data.backgroundColor))
-                .attr('font-family', 'Inter, system-ui, sans-serif')
-                .text(data.title);
-        }
-        if (data.subtitle) {
-            svg.append('text')
-                .attr('x', totalW / 2)
-                .attr('y', 64)
-                .attr('text-anchor', 'middle')
-                .attr('font-size', 14)
-                .attr('fill', getTextColor(data.backgroundColor))
-                .attr('opacity', 0.6)
                 .attr('font-family', 'Inter, system-ui, sans-serif')
                 .text(data.subtitle);
         }
@@ -195,7 +184,7 @@ export const ArchitectureRenderer: React.FC<ArchitectureRendererProps> = ({ data
             const cx = midX + perpX;
             const cy = midY + perpY;
 
-            const edgeG = svg.append('g');
+            const edgeG = svg.append('g').attr('data-edge-id', edge.id);
             edgeG.append('path')
                 .attr('d', `M${startX},${startY} Q${cx},${cy} ${endX},${endY}`)
                 .attr('fill', 'none')
@@ -237,6 +226,7 @@ export const ArchitectureRenderer: React.FC<ArchitectureRendererProps> = ({ data
             const nh = nodeH(node);
 
             const group = svg.append('g')
+                .attr('data-node-id', node.id)
                 .attr('transform', `translate(${x}, ${y})`)
                 .attr('filter', 'url(#arch-shadow)')
                 .style('cursor', 'pointer');

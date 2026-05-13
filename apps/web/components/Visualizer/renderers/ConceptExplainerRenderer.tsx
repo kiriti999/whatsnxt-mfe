@@ -97,22 +97,13 @@ export const ConceptExplainerRenderer: React.FC<ConceptExplainerRendererProps> =
             .attr('fill', data.backgroundColor || '#ffffff')
             .attr('rx', 16);
 
-        // Title
-        if (data.title) {
+        // Title - use subtitle as main title (skip diagram type prefix)
+        if (data.subtitle) {
             svg.append('text')
                 .attr('x', canvasW / 2).attr('y', 40)
                 .attr('text-anchor', 'middle')
-                .attr('font-size', 24).attr('font-weight', '800')
+                .attr('font-size', 22).attr('font-weight', '700')
                 .attr('fill', textColor)
-                .attr('font-family', 'Inter, system-ui, sans-serif')
-                .text(data.title);
-        }
-        if (data.subtitle) {
-            svg.append('text')
-                .attr('x', canvasW / 2).attr('y', 62)
-                .attr('text-anchor', 'middle')
-                .attr('font-size', 14)
-                .attr('fill', textColor).attr('opacity', 0.6)
                 .attr('font-family', 'Inter, system-ui, sans-serif')
                 .text(data.subtitle);
         }
@@ -171,7 +162,7 @@ export const ConceptExplainerRenderer: React.FC<ConceptExplainerRendererProps> =
             const perpX = -(endY - startY) / dist * curv;
             const perpY = (endX - startX) / dist * curv;
 
-            const eG = svg.append('g');
+            const eG = svg.append('g').attr('data-edge-id', edge.id);
             eG.append('path')
                 .attr('d', `M${startX},${startY} Q${midX + perpX},${midY + perpY} ${endX},${endY}`)
                 .attr('fill', 'none')
@@ -203,6 +194,7 @@ export const ConceptExplainerRenderer: React.FC<ConceptExplainerRendererProps> =
         {
             const cPos = satPositions.get(centerNode.id)!;
             const cG = svg.append('g')
+                .attr('data-node-id', centerNode.id)
                 .attr('transform', `translate(${cPos.x}, ${cPos.y})`)
                 .attr('filter', 'url(#ce-glow)')
                 .style('cursor', 'pointer');
@@ -260,6 +252,7 @@ export const ConceptExplainerRenderer: React.FC<ConceptExplainerRendererProps> =
         satellites.forEach((node, i) => {
             const pos = satPositions.get(node.id)!;
             const g = svg.append('g')
+                .attr('data-node-id', node.id)
                 .attr('transform', `translate(${pos.x}, ${pos.y})`)
                 .attr('filter', 'url(#ce-shadow)')
                 .style('cursor', 'pointer');

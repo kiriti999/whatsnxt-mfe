@@ -50,3 +50,15 @@ Thumbs.db
 *.d.ts
 d.ts
 *.map
+
+# Claude / Cursor — vendor agent skills (install locally: npx skills add remotion-dev/skills)
+.agents/skills/
+.claude/skills/
+.cursor/skills/
+.cursor/agents/
+.cursor/claude/
+skills-lock.json
+
+# Local agent permission overrides (machine-specific)
+.claude/settings.local.json
+.cursor/settings.local.json

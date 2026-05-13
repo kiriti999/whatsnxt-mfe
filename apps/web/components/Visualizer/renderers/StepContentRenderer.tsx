@@ -45,32 +45,20 @@ export const StepContentRenderer: React.FC<StepContentRendererProps> = ({ data, 
             .attr('fill', data.backgroundColor || '#ffffff')
             .attr('rx', 16);
 
-        // Title
-        if (data.title) {
+        // Title - use subtitle as main title (skip diagram type prefix)
+        if (data.subtitle) {
             svg.append('text')
                 .attr('x', totalWidth / 2)
                 .attr('y', 44)
                 .attr('text-anchor', 'middle')
-                .attr('font-size', 24)
-                .attr('font-weight', '800')
+                .attr('font-size', 22)
+                .attr('font-weight', '700')
                 .attr('fill', '#1a1a2e')
-                .attr('font-family', 'Inter, system-ui, sans-serif')
-                .text(data.title);
-        }
-
-        // Subtitle
-        if (data.subtitle) {
-            svg.append('text')
-                .attr('x', totalWidth / 2)
-                .attr('y', 68)
-                .attr('text-anchor', 'middle')
-                .attr('font-size', 14)
-                .attr('fill', '#6b7280')
                 .attr('font-family', 'Inter, system-ui, sans-serif')
                 .text(data.subtitle);
         }
 
-        const titleOffset = data.subtitle ? 90 : 70;
+        const titleOffset = data.subtitle ? 74 : 44;
 
         // Render cards
         nodes.forEach((node: DiagramNode, index: number) => {
@@ -80,6 +68,7 @@ export const StepContentRenderer: React.FC<StepContentRendererProps> = ({ data, 
             const y = titleOffset + row * (cardHeight + cardGap);
 
             const group = svg.append('g')
+                .attr('data-node-id', node.id)
                 .attr('transform', `translate(${x}, ${y})`)
                 .style('cursor', 'pointer');
 

@@ -57,28 +57,18 @@ export const ComparisonGridRenderer: React.FC<ComparisonGridRendererProps> = ({ 
 
         const textColor = getTextColor(data.backgroundColor);
 
-        // Title
-        if (data.title) {
+        // Title - use subtitle as main title (skip diagram type prefix)
+        if (data.subtitle) {
             svg.append('text')
                 .attr('x', totalW / 2).attr('y', 44)
                 .attr('text-anchor', 'middle')
-                .attr('font-size', 24).attr('font-weight', '800')
+                .attr('font-size', 22).attr('font-weight', '700')
                 .attr('fill', textColor)
-                .attr('font-family', 'Inter, system-ui, sans-serif')
-                .text(data.title);
-        }
-
-        if (data.subtitle) {
-            svg.append('text')
-                .attr('x', totalW / 2).attr('y', 68)
-                .attr('text-anchor', 'middle')
-                .attr('font-size', 14)
-                .attr('fill', textColor).attr('opacity', 0.6)
                 .attr('font-family', 'Inter, system-ui, sans-serif')
                 .text(data.subtitle);
         }
 
-        const titleOff = data.subtitle ? 92 : 74;
+        const titleOff = data.subtitle ? 74 : 44;
 
         // VS divider line (only for 2 columns)
         if (columns === 2) {
@@ -114,6 +104,7 @@ export const ComparisonGridRenderer: React.FC<ComparisonGridRendererProps> = ({ 
             const y = titleOff + row * (cardH + rowGap);
 
             const g = svg.append('g')
+                .attr('data-node-id', node.id)
                 .attr('transform', `translate(${x}, ${y})`)
                 .style('cursor', 'pointer');
 

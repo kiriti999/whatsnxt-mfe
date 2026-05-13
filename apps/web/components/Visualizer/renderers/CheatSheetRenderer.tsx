@@ -128,6 +128,7 @@ export const CheatSheetRenderer: React.FC<CheatSheetRendererProps> = ({ data, wi
                 const y = currentY + row * (cardH + cardGap);
 
                 const g = svg.append('g')
+                    .attr('data-node-id', node.id)
                     .attr('transform', `translate(${x}, ${y})`)
                     .attr('filter', 'url(#cs-shadow)')
                     .style('cursor', 'pointer');
@@ -247,21 +248,13 @@ function renderTitle(
     totalW: number,
     textColor: string,
 ): void {
-    if (data.title) {
+    // Use subtitle as main title (skip diagram type prefix)
+    if (data.subtitle) {
         svg.append('text')
             .attr('x', totalW / 2).attr('y', 44)
             .attr('text-anchor', 'middle')
-            .attr('font-size', 24).attr('font-weight', '800')
+            .attr('font-size', 22).attr('font-weight', '700')
             .attr('fill', textColor)
-            .attr('font-family', 'Inter, system-ui, sans-serif')
-            .text(data.title);
-    }
-    if (data.subtitle) {
-        svg.append('text')
-            .attr('x', totalW / 2).attr('y', 68)
-            .attr('text-anchor', 'middle')
-            .attr('font-size', 14)
-            .attr('fill', textColor).attr('opacity', 0.6)
             .attr('font-family', 'Inter, system-ui, sans-serif')
             .text(data.subtitle);
     }

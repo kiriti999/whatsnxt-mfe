@@ -1,0 +1,24 @@
+{
+  "name": "@whatsnxt/diagram-remotion",
+  "version": "0.1.0",
+  "private": true,
+  "description": "GSAP-driven Remotion composition for diagram animation rendering",
+  "main": "src/index.ts",
+  "scripts": {
+    "studio": "remotion studio src/index.ts",
+    "build": "tsc --noEmit"
+  },
+  "dependencies": {
+    "gsap": "^3.12.5",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "remotion": "^4.0.347",
+    "@remotion/lambda": "^4.0.347"
+  },
+  "devDependencies": {
+    "@remotion/cli": "^4.0.347",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "typescript": "^5.8.3"
+  }
+}

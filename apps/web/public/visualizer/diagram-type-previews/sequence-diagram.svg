@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 200" fill="none">
+  <rect width="320" height="200" fill="#fff1f2"/>
+  <text x="160" y="22" text-anchor="middle" fill="#9f1239" font-family="system-ui,sans-serif" font-size="11" font-weight="600">Lifelines</text>
+  <line x1="64" y1="44" x2="64" y2="176" stroke="#fda4af" stroke-width="3" stroke-dasharray="6 4"/>
+  <line x1="160" y1="44" x2="160" y2="176" stroke="#fda4af" stroke-width="3" stroke-dasharray="6 4"/>
+  <line x1="256" y1="44" x2="256" y2="176" stroke="#fda4af" stroke-width="3" stroke-dasharray="6 4"/>
+  <rect x="48" y="36" width="32" height="22" rx="3" fill="#ffe4e6" stroke="#f43f5e" stroke-width="1.5"/>
+  <rect x="144" y="36" width="32" height="22" rx="3" fill="#ffe4e6" stroke="#f43f5e" stroke-width="1.5"/>
+  <rect x="240" y="36" width="32" height="22" rx="3" fill="#ffe4e6" stroke="#f43f5e" stroke-width="1.5"/>
+  <path d="M64 72h90" stroke="#e11d48" stroke-width="2" marker-end="url(#mseq)"/>
+  <path d="M160 96h-90" stroke="#be123c" stroke-width="1.5" stroke-dasharray="5 3"/>
+  <path d="M160 120h90" stroke="#e11d48" stroke-width="2" marker-end="url(#mseq)"/>
+  <defs><marker id="mseq" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0 0L7 3.5L0 7z" fill="#e11d48"/></marker></defs>
+</svg>

@@ -212,3 +212,6 @@ export * from "./systemDesignCompanies.constants";
 
 // AI card cover images (blog / tutorial)
 export * from "./cardImageAi.constants";
+
+// Visualizer diagram animation (Remotion / Manim)
+export * from "./visualizerAnimation.constants";

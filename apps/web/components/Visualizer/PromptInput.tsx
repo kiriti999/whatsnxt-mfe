@@ -1,246 +1,296 @@
-'use client';
+"use client";
 
-import React, { useState, useCallback, useRef } from 'react';
-import { Select, Stack, Group, Button, Text, Loader } from '@mantine/core';
-import { IconSparkles } from '@tabler/icons-react';
-import dynamic from 'next/dynamic';
-import type { DiagramOptions, DiagramType } from './types';
-import { AISuggestionButton } from '../Common/AISuggestionButton';
-import styles from './visualizer.module.css';
+import { Button, Group, Loader, Select, Stack, Text } from "@mantine/core";
+import { IconSparkles } from "@tabler/icons-react";
+import dynamic from "next/dynamic";
+import type React from "react";
+import { useCallback, useRef, useState } from "react";
+import { AISuggestionButton } from "../Common/AISuggestionButton";
+import type { DiagramOptions, DiagramType } from "./types";
+import styles from "./visualizer.module.css";
 
 const LexicalEditor = dynamic(
-    () =>
-        import('../StructuredTutorial/Editor/LexicalEditor').then((mod) => ({
-            default: mod.LexicalEditor,
-        })),
-    { ssr: false, loading: () => <Loader size="sm" /> },
+	() =>
+		import("../StructuredTutorial/Editor/LexicalEditor").then((mod) => ({
+			default: mod.LexicalEditor,
+		})),
+	{ ssr: false, loading: () => <Loader size="sm" /> },
 );
 
 /** Recursively extract plain text from a Lexical JSON node tree. */
 function getTextFromNode(node: Record<string, unknown>): string {
-    if (node.type === 'text') return (node.text as string) || '';
-    if (!Array.isArray(node.children)) return '';
-    const texts = (node.children as Record<string, unknown>[]).map(getTextFromNode);
-    return node.type === 'root' ? texts.join('\n') : texts.join('');
+	if (node.type === "text") return (node.text as string) || "";
+	if (!Array.isArray(node.children)) return "";
+	const texts = (node.children as Record<string, unknown>[]).map(
+		getTextFromNode,
+	);
+	return node.type === "root" ? texts.join("\n") : texts.join("");
 }
 
 /** Convert serialized Lexical JSON state to plain text. */
 function extractTextContent(json: string): string {
-    try {
-        const state = JSON.parse(json);
-        return getTextFromNode(state.root).trim();
-    } catch {
-        return json;
-    }
+	try {
+		const state = JSON.parse(json);
+		return getTextFromNode(state.root).trim();
+	} catch {
+		return json;
+	}
 }
 
 const THEME_OPTIONS = [
-    { value: 'default', label: '🔵 Default Blue' },
-    { value: 'dark', label: '🌙 Dark Mode' },
-    { value: 'pastel', label: '🎀 Pastel' },
-    { value: 'vibrant', label: '🌈 Vibrant' },
-    { value: 'monochrome', label: '⬛ Monochrome' },
-    { value: 'ocean', label: '🌊 Ocean' },
-    { value: 'sunset', label: '🌅 Sunset' },
-    { value: 'forest', label: '🌲 Forest' },
+	{ value: "default", label: "🔵 Default Blue" },
+	{ value: "dark", label: "🌙 Dark Mode" },
+	{ value: "pastel", label: "🎀 Pastel" },
+	{ value: "vibrant", label: "🌈 Vibrant" },
+	{ value: "monochrome", label: "⬛ Monochrome" },
+	{ value: "ocean", label: "🌊 Ocean" },
+	{ value: "sunset", label: "🌅 Sunset" },
+	{ value: "forest", label: "🌲 Forest" },
 ];
 
 const LAYOUT_OPTIONS = [
-    { value: 'auto', label: 'Auto (AI decides)' },
-    { value: 'grid', label: 'Grid' },
-    { value: 'horizontal', label: 'Horizontal' },
-    { value: 'vertical', label: 'Vertical' },
+	{ value: "auto", label: "Auto (AI decides)" },
+	{ value: "grid", label: "Grid" },
+	{ value: "horizontal", label: "Horizontal" },
+	{ value: "vertical", label: "Vertical" },
 ];
 
 const STYLE_OPTIONS = [
-    { value: 'detailed', label: 'Detailed' },
-    { value: 'minimal', label: 'Minimal' },
-    { value: 'infographic', label: 'Infographic' },
+	{ value: "detailed", label: "Detailed" },
+	{ value: "minimal", label: "Minimal" },
+	{ value: "infographic", label: "Infographic" },
 ];
 
 const TYPE_LABELS: Record<DiagramType, { label: string; icon: string }> = {
-    'step-content': { label: 'Step Content', icon: '📋' },
-    'flow-diagram': { label: 'Flow Diagram', icon: '🔀' },
-    'architecture': { label: 'Architecture', icon: '🏗️' },
-    'comparison-grid': { label: 'Comparison Grid', icon: '⚖️' },
-    'concept-explainer': { label: 'Concept Explainer', icon: '💡' },
-    'pattern-catalog': { label: 'Pattern Catalog', icon: '🧩' },
-    'cheat-sheet': { label: 'Cheat Sheet', icon: '📝' },
-    'timeline': { label: 'Timeline', icon: '⏳' },
-    'mind-map': { label: 'Mind Map', icon: '🧠' },
-    'matrix-table': { label: 'Matrix Table', icon: '📊' },
-    'decision-tree': { label: 'Decision Tree', icon: '🌳' },
-    'hierarchy-chart': { label: 'Hierarchy Chart', icon: '🏛️' },
-    'sequence-diagram': { label: 'Sequence Diagram', icon: '🔄' },
-    'kanban-board': { label: 'Kanban Board', icon: '📌' },
-    'swot-analysis': { label: 'SWOT Analysis', icon: '🎯' },
-    'network-topology': { label: 'Network Topology', icon: '🌐' },
+	"step-content": { label: "Step Content", icon: "📋" },
+	"flow-diagram": { label: "Flow Diagram", icon: "🔀" },
+	architecture: { label: "Architecture", icon: "🏗️" },
+	"comparison-grid": { label: "Comparison Grid", icon: "⚖️" },
+	"concept-explainer": { label: "Concept Explainer", icon: "💡" },
+	"pattern-catalog": { label: "Pattern Catalog", icon: "🧩" },
+	"cheat-sheet": { label: "Cheat Sheet", icon: "📝" },
+	timeline: { label: "Timeline", icon: "⏳" },
+	"mind-map": { label: "Mind Map", icon: "🧠" },
+	"matrix-table": { label: "Matrix Table", icon: "📊" },
+	"decision-tree": { label: "Decision Tree", icon: "🌳" },
+	"hierarchy-chart": { label: "Hierarchy Chart", icon: "🏛️" },
+	"sequence-diagram": { label: "Sequence Diagram", icon: "🔄" },
+	"kanban-board": { label: "Kanban Board", icon: "📌" },
+	"swot-analysis": { label: "SWOT Analysis", icon: "🎯" },
+	"network-topology": { label: "Network Topology", icon: "🌐" },
+	"hub-spoke-reference": { label: "Hub & spoke reference", icon: "🎯" },
+	"vertical-layer-stack": { label: "Layered stack", icon: "🧱" },
+	"microservices-field-guide": {
+		label: "Microservices field guide",
+		icon: "🛰️",
+	},
+	"radial-domain-map": { label: "Radial domain map", icon: "🗺️" },
+	"sectioned-playbook": { label: "Sectioned playbook", icon: "📖" },
+	"parallel-pipelines": { label: "Parallel pipelines", icon: "⚡" },
+	"tier-list-ranking": { label: "Tier list ranking", icon: "🏆" },
+	"poster-blueprint": { label: "Poster blueprint", icon: "🖼️" },
+	"numbered-pattern-sheet": { label: "Numbered pattern sheet", icon: "🔢" },
 };
 
 const PLACEHOLDER_PROMPTS: Record<DiagramType, string> = {
-    'step-content': 'Create a diagram showing 10 coding best practices every developer should follow...',
-    'flow-diagram': 'Show how a request flows through a load balancer to multiple backend servers with caching and database layers...',
-    'architecture': 'Create a Kubernetes architecture showing Pods, ReplicaSets, Deployments, Services, and Ingress...',
-    'comparison-grid': 'Compare SQL vs NoSQL databases across performance, scalability, schema flexibility, and use cases...',
-    'concept-explainer': 'Explain the concept of idempotency in distributed systems with strategies and examples...',
-    'pattern-catalog': 'Show 12 system design patterns including Circuit Breaker, CQRS, Event Sourcing, Saga...',
-    'cheat-sheet': 'Create a cheat sheet of 18 HTTP status codes grouped by Success, Redirection, Client Error, and Server Error...',
-    'timeline': 'Show the evolution of JavaScript frameworks from jQuery to React, Vue, Angular, Svelte, and modern meta-frameworks...',
-    'mind-map': 'Create a mind map of system design concepts branching into scalability, reliability, availability, and performance...',
-    'matrix-table': 'Compare REST vs GraphQL vs gRPC across performance, caching, typing, tooling, and learning curve...',
-    'decision-tree': 'Create a decision tree for choosing the right database: relational vs document vs key-value vs graph based on data model, scale, and consistency needs...',
-    'hierarchy-chart': 'Show a software engineering team hierarchy from CTO to VP Engineering, Engineering Managers, Tech Leads, and Senior/Junior developers...',
-    'sequence-diagram': 'Show the OAuth 2.0 authorization code flow between User, Client App, Auth Server, and Resource Server with all request/response steps...',
-    'kanban-board': 'Create a sprint board with columns for Backlog, To Do, In Progress, Code Review, and Done with sample user story cards...',
-    'swot-analysis': 'Analyze migrating from monolith to microservices — strengths, weaknesses, opportunities, and threats for the engineering team...',
-    'network-topology': 'Show a three-tier web architecture with load balancer, web servers, application servers, database cluster, and CDN with network connections...',
+	"step-content":
+		"Create a diagram showing 10 coding best practices every developer should follow...",
+	"flow-diagram":
+		"Show how a request flows through a load balancer to multiple backend servers with caching and database layers...",
+	architecture:
+		"Create a Kubernetes architecture showing Pods, ReplicaSets, Deployments, Services, and Ingress...",
+	"comparison-grid":
+		"Compare SQL vs NoSQL databases across performance, scalability, schema flexibility, and use cases...",
+	"concept-explainer":
+		"Explain the concept of idempotency in distributed systems with strategies and examples...",
+	"pattern-catalog":
+		"Show 12 system design patterns including Circuit Breaker, CQRS, Event Sourcing, Saga...",
+	"cheat-sheet":
+		"Create a cheat sheet of 18 HTTP status codes grouped by Success, Redirection, Client Error, and Server Error...",
+	timeline:
+		"Show the evolution of JavaScript frameworks from jQuery to React, Vue, Angular, Svelte, and modern meta-frameworks...",
+	"mind-map":
+		"Create a mind map of system design concepts branching into scalability, reliability, availability, and performance...",
+	"matrix-table":
+		"Compare REST vs GraphQL vs gRPC across performance, caching, typing, tooling, and learning curve...",
+	"decision-tree":
+		"Create a decision tree for choosing the right database: relational vs document vs key-value vs graph based on data model, scale, and consistency needs...",
+	"hierarchy-chart":
+		"Show a software engineering team hierarchy from CTO to VP Engineering, Engineering Managers, Tech Leads, and Senior/Junior developers...",
+	"sequence-diagram":
+		"Show the OAuth 2.0 authorization code flow between User, Client App, Auth Server, and Resource Server with all request/response steps...",
+	"kanban-board":
+		"Create a sprint board with columns for Backlog, To Do, In Progress, Code Review, and Done with sample user story cards...",
+	"swot-analysis":
+		"Analyze migrating from monolith to microservices — strengths, weaknesses, opportunities, and threats for the engineering team...",
+	"network-topology":
+		"Show a three-tier web architecture with load balancer, web servers, application servers, database cluster, and CDN with network connections...",
+	"hub-spoke-reference":
+		"Create 15 database-engineering concepts radiating from a central “SQL” hub: index, primary key, foreign key, partitioning, clustering, normalization, denormalization, transaction, ACID, replication, sharding, query optimization, materialized view, CDC, connection pooling — each spoke with use case, common usage, and example...",
+	"vertical-layer-stack":
+		"Diagram the 7-layer architecture of an AI agent from interface through orchestration, memory, tools, model, configuration, and infrastructure — each layer with description and example technologies...",
+	"microservices-field-guide":
+		"Grid of 15 microservices concepts: API gateway, service discovery, load balancing, circuit breaker, event-driven, CQRS, saga, service mesh, distributed tracing, containerization, database per service, bulkhead, BFF, blue-green, strangler fig — each with one-line description...",
+	"radial-domain-map":
+		"Radial map of US visa pathways: family-based green cards, temporary work visas, study & training, extraordinary ability, employment-based green cards, entrepreneur/investor, short-term business/travel — with sub-items per branch...",
+	"sectioned-playbook":
+		"Sectioned guide on staying within LLM usage limits: core habits, model strategy, workflow upgrades, set-once preferences, and a daily checklist — each section with titled tip cards...",
+	"parallel-pipelines":
+		"Three side-by-side event-sourcing style pipelines: (1) CMS → monolog → Kafka denormalizer → Elasticsearch, (2) CDC from database through Kafka to sinks, (3) shopping cart service → event store → fraud/billing/email services...",
+	"tier-list-ranking":
+		"Tier list of 25 system design interview topics across five tiers from warm-ups (TinyURL, rate limiter) through classics, modern systems, heavy hitters, and case studies (Dynamo, Kafka, Cassandra, GFS, BigTable)...",
+	"poster-blueprint":
+		"Large system-design poster: client → load balancer → API gateways → metadata vs block paths → queues, search, feed generation, caches, DBs, CDN, video pipeline, data warehouse, coordination, logging, tracing...",
+	"numbered-pattern-sheet":
+		"Eight numbered system design patterns in one sheet: ambassador, circuit breaker, CQRS, sharding, sidecar, pub/sub, leader election, event sourcing — each with short diagram-style labels and a one-sentence description...",
 };
 
 interface PromptInputProps {
-    diagramType: DiagramType;
-    prompt: string;
-    options: DiagramOptions;
-    isLoading: boolean;
-    onPromptChange: (prompt: string) => void;
-    onOptionsChange: (options: Partial<DiagramOptions>) => void;
-    onGenerate: () => void;
-    onBack: () => void;
+	diagramType: DiagramType;
+	prompt: string;
+	options: DiagramOptions;
+	isLoading: boolean;
+	onPromptChange: (prompt: string) => void;
+	onOptionsChange: (options: Partial<DiagramOptions>) => void;
+	onGenerate: () => void;
+	onBack: () => void;
 }
 
 export function PromptInput({
-    diagramType,
-    prompt,
-    options,
-    isLoading,
-    onPromptChange,
-    onOptionsChange,
-    onGenerate,
-    onBack,
+	diagramType,
+	prompt,
+	options,
+	isLoading,
+	onPromptChange,
+	onOptionsChange,
+	onGenerate,
+	onBack,
 }: PromptInputProps) {
-    const typeInfo = TYPE_LABELS[diagramType];
-    const [editorJson, setEditorJson] = useState('');
-    const promptRef = useRef(prompt);
-    promptRef.current = prompt;
+	const typeInfo = TYPE_LABELS[diagramType];
+	const [editorJson, setEditorJson] = useState("");
+	const promptRef = useRef(prompt);
+	promptRef.current = prompt;
 
-    const handleGenerate = () => {
-        if (prompt.trim().length > 0 && !isLoading) {
-            onGenerate();
-        }
-    };
+	const handleGenerate = () => {
+		if (prompt.trim().length > 0 && !isLoading) {
+			onGenerate();
+		}
+	};
 
-    const handleEditorChange = useCallback(
-        (json: string) => {
-            setEditorJson(json);
-            onPromptChange(extractTextContent(json));
-        },
-        [onPromptChange],
-    );
+	const handleEditorChange = useCallback(
+		(json: string) => {
+			setEditorJson(json);
+			onPromptChange(extractTextContent(json));
+		},
+		[onPromptChange],
+	);
 
-    /** Push AI suggestion into the editor by resetting editorJson so editorValue falls back to the new prompt. */
-    const handleAISuggestion = useCallback(
-        (suggestion: string) => {
-            setEditorJson('');
-            onPromptChange(suggestion);
-        },
-        [onPromptChange],
-    );
+	/** Push AI suggestion into the editor by resetting editorJson so editorValue falls back to the new prompt. */
+	const handleAISuggestion = useCallback(
+		(suggestion: string) => {
+			setEditorJson("");
+			onPromptChange(suggestion);
+		},
+		[onPromptChange],
+	);
 
-    const handleKeyDown = (e: React.KeyboardEvent) => {
-        if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
-            e.preventDefault();
-            handleGenerate();
-        }
-    };
+	const handleKeyDown = (e: React.KeyboardEvent) => {
+		if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
+			e.preventDefault();
+			handleGenerate();
+		}
+	};
 
-    const editorValue = editorJson || prompt;
+	const editorValue = editorJson || prompt;
 
-    return (
-        <div className={`${styles.promptContainer} ${styles.fadeIn}`}>
-            <button type="button" className={styles.backButton} onClick={onBack}>
-                ← Back to diagram types
-            </button>
+	return (
+		<div className={`${styles.promptContainer} ${styles.fadeIn}`}>
+			<button type="button" className={styles.backButton} onClick={onBack}>
+				← Back to diagram types
+			</button>
 
-            <div className={styles.selectedTypeTag}>
-                <span>{typeInfo.icon}</span>
-                <span>{typeInfo.label}</span>
-            </div>
+			<div className={styles.selectedTypeTag}>
+				<span>{typeInfo.icon}</span>
+				<span>{typeInfo.label}</span>
+			</div>
 
-            <Stack gap="md">
-                <div>
-                    <Group gap={4} mb={4}>
-                        <Text component="label" size="sm" fw={500}>
-                            Describe your diagram
-                        </Text>
-                        <AISuggestionButton
-                            prompt={() => promptRef.current}
-                            onSuggestion={handleAISuggestion}
-                            label="AI-generate description from prompt"
-                        />
-                    </Group>
-                    <Text size="xs" c="dimmed" mb={6}>
-                        Be specific about the concepts, number of items, and relationships you want to visualize
-                    </Text>
-                    <div onKeyDown={handleKeyDown}>
-                        <LexicalEditor
-                            value={editorValue}
-                            onChange={handleEditorChange}
-                            placeholder={PLACEHOLDER_PROMPTS[diagramType]}
-                        />
-                    </div>
-                </div>
+			<Stack gap="md">
+				<div>
+					<Group gap={4} mb={4}>
+						<Text component="label" size="sm" fw={500}>
+							Describe your diagram
+						</Text>
+						<AISuggestionButton
+							prompt={() => promptRef.current}
+							onSuggestion={handleAISuggestion}
+							label="AI-generate description from prompt"
+						/>
+					</Group>
+					<Text size="xs" c="dimmed" mb={6}>
+						Be specific about the concepts, number of items, and relationships
+						you want to visualize
+					</Text>
+					<div onKeyDown={handleKeyDown}>
+						<LexicalEditor
+							value={editorValue}
+							onChange={handleEditorChange}
+							placeholder={PLACEHOLDER_PROMPTS[diagramType]}
+						/>
+					</div>
+				</div>
 
-                <div className={styles.optionsGrid}>
-                    <div>
-                        <Select
-                            label="Color Theme"
-                            data={THEME_OPTIONS}
-                            value={options.theme}
-                            onChange={(val) => onOptionsChange({ theme: val ?? 'default' })}
-                            size="sm"
-                        />
-                    </div>
-                    <div>
-                        <Select
-                            label="Layout"
-                            data={LAYOUT_OPTIONS}
-                            value={options.layout}
-                            onChange={(val) => onOptionsChange({ layout: val ?? 'auto' })}
-                            size="sm"
-                        />
-                    </div>
-                    <div>
-                        <Select
-                            label="Visual Style"
-                            data={STYLE_OPTIONS}
-                            value={options.style}
-                            onChange={(val) => onOptionsChange({ style: val ?? 'detailed' })}
-                            size="sm"
-                        />
-                    </div>
-                </div>
+				<div className={styles.optionsGrid}>
+					<div>
+						<Select
+							label="Color Theme"
+							data={THEME_OPTIONS}
+							value={options.theme}
+							onChange={(val) => onOptionsChange({ theme: val ?? "default" })}
+							size="sm"
+						/>
+					</div>
+					<div>
+						<Select
+							label="Layout"
+							data={LAYOUT_OPTIONS}
+							value={options.layout}
+							onChange={(val) => onOptionsChange({ layout: val ?? "auto" })}
+							size="sm"
+						/>
+					</div>
+					<div>
+						<Select
+							label="Visual Style"
+							data={STYLE_OPTIONS}
+							value={options.style}
+							onChange={(val) => onOptionsChange({ style: val ?? "detailed" })}
+							size="sm"
+						/>
+					</div>
+				</div>
 
-                <Group justify="center" mt="md">
-                    <Button
-                        className={styles.generateButton}
-                        onClick={onGenerate}
-                        disabled={!prompt.trim() || isLoading}
-                        loading={isLoading}
-                        leftSection={<IconSparkles size={20} />}
-                        size="lg"
-                        variant="filled"
-                        style={{
-                            background: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
-                            color: '#1a1a2e',
-                        }}
-                    >
-                        {isLoading ? 'Generating...' : 'Generate Diagram ✨'}
-                    </Button>
-                </Group>
+				<Group justify="center" mt="md">
+					<Button
+						className={styles.generateButton}
+						onClick={onGenerate}
+						disabled={!prompt.trim() || isLoading}
+						loading={isLoading}
+						leftSection={<IconSparkles size={20} />}
+						size="lg"
+						variant="filled"
+						style={{
+							background: "linear-gradient(135deg, #fa709a 0%, #fee140 100%)",
+							color: "#1a1a2e",
+						}}
+					>
+						{isLoading ? "Generating..." : "Generate Diagram ✨"}
+					</Button>
+				</Group>
 
-                <Text size="xs" c="dimmed" ta="center" mt="xs">
-                    Press <b>⌘ + Enter</b> to generate quickly
-                </Text>
-            </Stack>
-        </div>
-    );
+				<Text size="xs" c="dimmed" ta="center" mt="xs">
+					Press <b>⌘ + Enter</b> to generate quickly
+				</Text>
+			</Stack>
+		</div>
+	);
 }

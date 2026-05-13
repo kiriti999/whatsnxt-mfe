@@ -127,24 +127,25 @@ export const MatrixTableRenderer: React.FC<MatrixTableRendererProps> = ({ data, 
         rows.forEach((row, ri) => {
             const ry = tableY + headerRowH + ri * cellH;
             const rowNode = row.node;
+            const rowG = svg.append('g').attr('data-node-id', rowNode.id);
 
             // Alternating row bg
             if (ri % 2 === 0) {
-                svg.append('rect')
+                rowG.append('rect')
                     .attr('x', tableX).attr('y', ry)
                     .attr('width', tableW).attr('height', cellH)
                     .attr('fill', textColor).attr('opacity', 0.02);
             }
 
             // Horizontal grid line
-            svg.append('line')
+            rowG.append('line')
                 .attr('x1', tableX).attr('y1', ry)
                 .attr('x2', tableX + tableW).attr('y2', ry)
                 .attr('stroke', textColor).attr('stroke-opacity', 0.08)
                 .attr('stroke-width', 1);
 
             // Row header cell bg
-            svg.append('rect')
+            rowG.append('rect')
                 .attr('x', tableX).attr('y', ry)
                 .attr('width', headerColW).attr('height', cellH)
                 .attr('fill', headerColor).attr('opacity', 0.05);
@@ -152,7 +153,7 @@ export const MatrixTableRenderer: React.FC<MatrixTableRendererProps> = ({ data, 
             // Row header — icon + label
             let labelX = tableX + 12;
             if (rowNode.icon) {
-                svg.append('text')
+                rowG.append('text')
                     .attr('x', tableX + 12).attr('y', ry + cellH / 2 + 1)
                     .attr('dominant-baseline', 'central')
                     .attr('font-size', 16)
@@ -160,7 +161,7 @@ export const MatrixTableRenderer: React.FC<MatrixTableRendererProps> = ({ data, 
                 labelX = tableX + 34;
             }
 
-            svg.append('text')
+            rowG.append('text')
                 .attr('x', labelX)
                 .attr('y', ry + cellH / 2 + 1)
                 .attr('dominant-baseline', 'central')
@@ -179,9 +180,9 @@ export const MatrixTableRenderer: React.FC<MatrixTableRendererProps> = ({ data, 
                 const isCross = cellText === '✗' || cellText === '✘' || cellText === 'No' || cellText === '❌';
 
                 if (isCheck) {
-                    renderCheckMark(svg, cx + cellW / 2, ry + cellH / 2);
+                    renderCheckMark(rowG, cx + cellW / 2, ry + cellH / 2);
                 } else if (isCross) {
-                    renderCrossMark(svg, cx + cellW / 2, ry + cellH / 2);
+                    renderCrossMark(rowG, cx + cellW / 2, ry + cellH / 2);
                 } else {
                     // Wrap text in cell
                     const maxChar = Math.floor((cellW - 16) / 6);
@@ -189,7 +190,7 @@ export const MatrixTableRenderer: React.FC<MatrixTableRendererProps> = ({ data, 
                     const lineCount = Math.min(lines.length, 2);
                     const startY = ry + cellH / 2 - (lineCount - 1) * 7;
                     lines.slice(0, 2).forEach((line, li) => {
-                        svg.append('text')
+                        rowG.append('text')
                             .attr('x', cx + cellW / 2)
                             .attr('y', startY + li * 14)
                             .attr('text-anchor', 'middle')
@@ -277,14 +278,14 @@ function getCellsFromNode(node: DiagramNode): string[] {
 // --- visual helpers ----------------------------------------------------
 
 function renderCheckMark(
-    svg: d3.Selection<SVGSVGElement, unknown, null, undefined>,
+    parent: d3.Selection<SVGSVGElement | SVGGElement, unknown, null, undefined>,
     cx: number,
     cy: number,
 ): void {
-    svg.append('circle')
+    parent.append('circle')
         .attr('cx', cx).attr('cy', cy).attr('r', 10)
         .attr('fill', '#22c55e').attr('opacity', 0.12);
-    svg.append('text')
+    parent.append('text')
         .attr('x', cx).attr('y', cy + 1)
         .attr('text-anchor', 'middle').attr('dominant-baseline', 'central')
         .attr('font-size', 14).attr('fill', '#22c55e')
@@ -292,14 +293,14 @@ function renderCheckMark(
 }
 
 function renderCrossMark(
-    svg: d3.Selection<SVGSVGElement, unknown, null, undefined>,
+    parent: d3.Selection<SVGSVGElement | SVGGElement, unknown, null, undefined>,
     cx: number,
     cy: number,
 ): void {
-    svg.append('circle')
+    parent.append('circle')
         .attr('cx', cx).attr('cy', cy).attr('r', 10)
         .attr('fill', '#ef4444').attr('opacity', 0.12);
-    svg.append('text')
+    parent.append('text')
         .attr('x', cx).attr('y', cy + 1)
         .attr('text-anchor', 'middle').attr('dominant-baseline', 'central')
         .attr('font-size', 14).attr('fill', '#ef4444')
@@ -314,21 +315,13 @@ function renderTitle(
     totalW: number,
     textColor: string,
 ): void {
-    if (data.title) {
+    // Use subtitle as main title (skip diagram type prefix)
+    if (data.subtitle) {
         svg.append('text')
             .attr('x', totalW / 2).attr('y', 44)
             .attr('text-anchor', 'middle')
-            .attr('font-size', 24).attr('font-weight', '800')
+            .attr('font-size', 22).attr('font-weight', '700')
             .attr('fill', textColor)
-            .attr('font-family', 'Inter, system-ui, sans-serif')
-            .text(data.title);
-    }
-    if (data.subtitle) {
-        svg.append('text')
-            .attr('x', totalW / 2).attr('y', 68)
-            .attr('text-anchor', 'middle')
-            .attr('font-size', 14)
-            .attr('fill', textColor).attr('opacity', 0.6)
             .attr('font-family', 'Inter, system-ui, sans-serif')
             .text(data.subtitle);
     }

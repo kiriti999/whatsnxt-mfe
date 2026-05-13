@@ -556,6 +556,7 @@ export function VisualizerBuilder() {
                                 onSave={handleSave}
                                 isLoading={isLoading}
                                 hasDiagram={!!diagramData}
+                                diagramData={diagramData}
                                 diagramTitle={diagramData.title}
                                 prompt={prompt}
                                 email={user?.email}

@@ -1,0 +1,10 @@
+{
+  "name": "@whatsnxt/gsap-svg-player",
+  "version": "1.0.0",
+  "private": true,
+  "description": "GSAP-based SVG animation player with DrawSVG",
+  "scripts": {
+    "serve": "npx serve -p 8080",
+    "open": "open http://localhost:8080"
+  }
+}

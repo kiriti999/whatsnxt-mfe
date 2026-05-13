@@ -1,3 +1,5 @@
+import type { AnimationManifest } from '@whatsnxt/types';
+
 // Diagram Types
 export type DiagramType =
     | 'step-content'
@@ -15,7 +17,16 @@ export type DiagramType =
     | 'sequence-diagram'
     | 'kanban-board'
     | 'swot-analysis'
-    | 'network-topology';
+    | 'network-topology'
+    | 'hub-spoke-reference'
+    | 'vertical-layer-stack'
+    | 'microservices-field-guide'
+    | 'radial-domain-map'
+    | 'sectioned-playbook'
+    | 'parallel-pipelines'
+    | 'tier-list-ranking'
+    | 'poster-blueprint'
+    | 'numbered-pattern-sheet';
 
 // Diagram Data (returned by AI)
 export interface DiagramNode {
@@ -37,7 +48,8 @@ export interface DiagramNode {
     badge?: string;
     badgeColor?: string;
     children?: DiagramNode[];
-    metadata?: Record<string, any>;
+    /** Optional: `category`, `miniFlow: { boxes: string[] }` for pattern-catalog style cards. */
+    metadata?: Record<string, unknown>;
 }
 
 export interface DiagramEdge {
@@ -89,6 +101,7 @@ export interface SaveDiagramPayload {
     diagramData: DiagramData;
     svgContent?: string;
     aiModel?: string;
+    animationManifest?: AnimationManifest;
 }
 
 export interface GenerateDiagramResponse {
@@ -107,6 +120,8 @@ export interface DiagramTypeOption {
     icon: string;
     gradient: string;
     color: string;
+    /** Optional thumbnail under `/public` (e.g. `/visualizer/diagram-type-previews/foo.png`). */
+    previewImage?: string;
 }
 
 // Builder Steps

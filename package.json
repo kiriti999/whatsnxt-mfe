@@ -28,7 +28,8 @@
     "knip": "knip",
     "deploy": "vercel --prod -l",
     "analyze": "cd apps/web && ANALYZE=true next build",
-    "partytown": "npx partytown copylib apps/web/public/~partytown"
+    "partytown": "npx partytown copylib apps/web/public/~partytown",
+    "gsap:serve": "cd tools/gsap-svg-player && npx serve -p 8080"
   },
   "devDependencies": {
     "@types/node": "22.15.31",

@@ -215,6 +215,7 @@ const createApiClient = (type: ApiClientType) => {
                     requestConfig.url.includes('/post/generateTutorialImage') ||
                     requestConfig.url.includes('/visualizer/generate') ||
                     requestConfig.url.includes('/visualizer/regenerate') ||
+                    requestConfig.url.includes('/visualizer/animation-manifest') ||
                     requestConfig.url.includes('/linkedin/share') ||
                     requestConfig.url.includes('/linkedin/callback')
                 );

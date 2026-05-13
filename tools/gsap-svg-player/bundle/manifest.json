@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "compositionDurationInFrames": 180,
+  "segments": [
+    {
+      "id": "intro",
+      "durationInFrames": 60,
+      "effect": "fade",
+      "target": {
+        "kind": "node",
+        "nodeId": "oidc-root"
+      },
+      "label": "OIDC vs SSO"
+    },
+    {
+      "id": "edge-flow",
+      "durationInFrames": 90,
+      "effect": "strokeReveal",
+      "target": {
+        "kind": "edge",
+        "edgeId": "e1"
+      },
+      "label": "Flow"
+    }
+  ]
+}

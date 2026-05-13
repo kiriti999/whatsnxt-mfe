@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SVG Animation Player</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: Inter, system-ui, sans-serif;
+      background: #1a1a2e;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+    
+    h1 {
+      color: #fff;
+      margin-bottom: 20px;
+      font-size: 24px;
+    }
+    
+    .player-container {
+      background: #fff;
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      max-width: 1400px;
+      width: 100%;
+    }
+    
+    #svg-container {
+      width: 100%;
+      min-height: 500px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #f8fafc;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    
+    #svg-container svg {
+      max-width: 100%;
+      max-height: 700px;
+    }
+    
+    .controls {
+      display: flex;
+      gap: 12px;
+      margin-top: 20px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    
+    button {
+      padding: 12px 24px;
+      font-size: 16px;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    button:hover {
+      transform: translateY(-2px);
+    }
+    
+    .btn-primary {
+      background: #3b82f6;
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      background: #2563eb;
+    }
+    
+    .btn-secondary {
+      background: #e5e7eb;
+      color: #374151;
+    }
+    
+    .btn-secondary:hover {
+      background: #d1d5db;
+    }
+    
+    .btn-danger {
+      background: #ef4444;
+      color: white;
+    }
+    
+    .caption-bar {
+      background: #1e293b;
+      color: white;
+      padding: 16px 24px;
+      border-radius: 12px;
+      margin-top: 16px;
+      text-align: center;
+      font-size: 18px;
+      font-weight: 500;
+      min-height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    
+    .caption-bar.visible {
+      opacity: 1;
+    }
+    
+    .status {
+      color: #94a3b8;
+      margin-top: 16px;
+      text-align: center;
+      font-size: 14px;
+    }
+    
+    .progress-bar {
+      width: 100%;
+      height: 6px;
+      background: #e5e7eb;
+      border-radius: 3px;
+      margin-top: 16px;
+      overflow: hidden;
+    }
+    
+    .progress-fill {
+      height: 100%;
+      background: #3b82f6;
+      width: 0%;
+      transition: width 0.1s linear;
+    }
+  </style>
+</head>
+<body>
+  <h1>GSAP SVG Animation Player</h1>
+  
+  <div class="player-container">
+    <div id="svg-container">
+      <p style="color: #64748b;">Loading SVG...</p>
+    </div>
+    
+    <div class="progress-bar">
+      <div class="progress-fill" id="progress"></div>
+    </div>
+    
+    <div class="caption-bar" id="caption"></div>
+    
+    <div class="controls">
+      <button class="btn-primary" id="playBtn" onclick="playAnimation()">▶ Play</button>
+      <button class="btn-secondary" onclick="pauseAnimation()">⏸ Pause</button>
+      <button class="btn-secondary" onclick="resetAnimation()">↺ Reset</button>
+      <button class="btn-secondary" onclick="reloadBundle()">🔄 Reload Bundle</button>
+      <button class="btn-danger" onclick="exportVideo()">⬇ Export (Record Screen)</button>
+    </div>
+    
+    <div class="status" id="status">Ready to play</div>
+  </div>
+
+  <!-- GSAP with DrawSVG plugin -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/DrawSVGPlugin.min.js"></script>
+  
+  <script>
+    let timeline = null;
+    let manifest = null;
+    let svgLoaded = false;
+
+    // Load SVG and manifest
+    async function init() {
+      try {
+        // Cache-busting timestamp
+        const cacheBust = `?t=${Date.now()}`;
+        
+        // Load manifest
+        const manifestRes = await fetch('./bundle/manifest.json' + cacheBust);
+        manifest = await manifestRes.json();
+        console.log('Manifest loaded:', manifest);
+
+        // Load SVG
+        const svgRes = await fetch('./bundle/diagram.svg' + cacheBust);
+        const svgText = await svgRes.text();
+        document.getElementById('svg-container').innerHTML = svgText;
+        svgLoaded = true;
+        console.log('SVG loaded');
+
+        // Initialize elements to hidden state
+        initializeElements();
+        
+        // Build timeline (auto-discovers all nodes/edges)
+        buildTimeline();
+      } catch (e) {
+        console.error('Failed to load:', e);
+        document.getElementById('svg-container').innerHTML = 
+          `<p style="color: #ef4444;">Failed to load files. Make sure bundle/diagram.svg and bundle/manifest.json exist.</p>`;
+      }
+    }
+
+    function initializeElements() {
+      // Hide all nodes initially (fade, not drawSVG - these are filled shapes)
+      document.querySelectorAll('[data-node-id]').forEach(el => {
+        gsap.set(el, { opacity: 0, scale: 0.95, transformOrigin: 'center center' });
+      });
+
+      // Hide all boxes initially
+      document.querySelectorAll('[data-box-id]').forEach(el => {
+        gsap.set(el, { opacity: 0 });
+      });
+
+      // Hide all edges - only apply drawSVG to actual line/path elements with strokes
+      document.querySelectorAll('[data-edge-id]').forEach(el => {
+        gsap.set(el, { opacity: 0 });
+        
+        // Find stroke elements inside (line, path, polyline)
+        const strokeEls = el.querySelectorAll('line, path, polyline');
+        if (strokeEls.length > 0) {
+          strokeEls.forEach(strokeEl => {
+            if (strokeEl.getAttribute('stroke') || getComputedStyle(strokeEl).stroke !== 'none') {
+              gsap.set(strokeEl, { drawSVG: '0%' });
+            }
+          });
+        } else if (el.tagName === 'line' || el.tagName === 'path' || el.tagName === 'polyline') {
+          // The edge itself is a line/path
+          if (el.getAttribute('stroke') || getComputedStyle(el).stroke !== 'none') {
+            gsap.set(el, { drawSVG: '0%' });
+          }
+        }
+      });
+    }
+
+    function buildTimeline() {
+      timeline = gsap.timeline({ 
+        paused: true,
+        onUpdate: updateProgress,
+        onComplete: () => {
+          document.getElementById('status').textContent = 'Animation complete';
+          document.getElementById('playBtn').textContent = '↺ Replay';
+        }
+      });
+
+      // Auto-discover all elements in SVG
+      const allNodes = Array.from(document.querySelectorAll('[data-node-id]'));
+      const allEdges = Array.from(document.querySelectorAll('[data-edge-id]'));
+      
+      // Extract node order from the numbered badge inside each node
+      const getNodeOrder = (el) => {
+        const nodeId = el.getAttribute('data-node-id');
+        // Central nodes come first
+        if (nodeId.includes('central') || nodeId.includes('center')) return -1;
+        // Try to extract number from the node's numbered badge text
+        const numMatch = nodeId.match(/node-(\d+)/);
+        if (numMatch) return parseInt(numMatch[1], 10);
+        // Fallback: look for numbered badge inside the element
+        const badgeText = el.querySelector('text')?.textContent;
+        const badgeNum = badgeText?.match(/^(\d+)$/);
+        if (badgeNum) return parseInt(badgeNum[1], 10);
+        return 999;
+      };
+      
+      // Sort nodes by their number
+      const sortedNodes = allNodes.sort((a, b) => getNodeOrder(a) - getNodeOrder(b));
+      
+      // Extract edge number from edge-id (edge-1, edge-2, etc.)
+      const getEdgeOrder = (el) => {
+        const edgeId = el.getAttribute('data-edge-id');
+        const numMatch = edgeId.match(/edge-(\d+)/);
+        return numMatch ? parseInt(numMatch[1], 10) : 999;
+      };
+      
+      // Sort edges by their number
+      const sortedEdges = allEdges.sort((a, b) => getEdgeOrder(a) - getEdgeOrder(b));
+      
+      console.log('Auto-discovered:', sortedNodes.length, 'nodes,', sortedEdges.length, 'edges');
+
+      // Animation settings
+      const nodeDuration = 0.5;
+      const edgeDuration = 0.6;
+      
+      // Animation order: Arrow 1 → Block 1 → Arrow 2 → Block 2 → ...
+      // Central node appears first (it's the hub)
+      
+      const centralNode = sortedNodes.find(n => {
+        const id = n.getAttribute('data-node-id');
+        return id.includes('central') || id.includes('center');
+      });
+      
+      // Numbered nodes (node-1, node-2, etc.)
+      const numberedNodes = sortedNodes.filter(n => {
+        const id = n.getAttribute('data-node-id');
+        return !id.includes('central') && !id.includes('center');
+      });
+      
+      // First: Show the central node
+      if (centralNode) {
+        const label = getNodeLabel(centralNode);
+        if (label) timeline.call(() => showCaption(label), [], '+=0');
+        
+        timeline.to(centralNode, {
+          opacity: 1,
+          scale: 1,
+          duration: nodeDuration,
+          ease: 'power2.out'
+        });
+        
+        if (label) timeline.call(() => hideCaption(), [], `+=${nodeDuration * 0.3}`);
+        timeline.to({}, { duration: 0.3 });
+      }
+      
+      // Then: For each numbered block, show its arrow first, then the block
+      // Arrow N points to Block N, so: Arrow 1 → Block 1 → Arrow 2 → Block 2...
+      const maxCount = Math.max(numberedNodes.length, sortedEdges.length);
+      
+      for (let i = 0; i < maxCount; i++) {
+        // First: Animate edge (arrow) for this number
+        if (i < sortedEdges.length) {
+          const edge = sortedEdges[i];
+          const edgeLabel = getEdgeLabel(edge);
+          
+          if (edgeLabel) timeline.call(() => showCaption(edgeLabel), [], '+=0');
+          animateEdge(edge, edgeDuration);
+          if (edgeLabel) timeline.call(() => hideCaption(), [], `+=${edgeDuration * 0.1}`);
+        }
+        
+        // Then: Animate the numbered node (block)
+        if (i < numberedNodes.length) {
+          const node = numberedNodes[i];
+          const nodeLabel = getNodeLabel(node);
+          
+          if (nodeLabel) timeline.call(() => showCaption(nodeLabel), [], '+=0');
+          
+          timeline.to(node, {
+            opacity: 1,
+            scale: 1,
+            duration: nodeDuration,
+            ease: 'power2.out'
+          });
+          
+          if (nodeLabel) timeline.call(() => hideCaption(), [], `+=${nodeDuration * 0.2}`);
+          timeline.to({}, { duration: 0.2 });
+        }
+      }
+
+      // Final hold
+      timeline.to({}, { duration: 1.5 });
+      
+      const centralCount = centralNode ? 1 : 0;
+      document.getElementById('status').textContent = 
+        `Ready: ${centralCount} central + ${numberedNodes.length} blocks, ${sortedEdges.length} arrows`;
+    }
+    
+    function getNodeLabel(el) {
+      // Try to get label from font-weight 700 text (title)
+      const titleText = el.querySelector('text[font-weight="700"], text[font-weight="800"]');
+      return titleText?.textContent || null;
+    }
+    
+    function getEdgeLabel(el) {
+      // Try to get label from text inside the edge group
+      const labelText = el.querySelector('text');
+      return labelText?.textContent || null;
+    }
+    
+    function animateEdge(el, duration) {
+      // Find the actual stroke element (path, line, polyline)
+      let strokeEl = el.querySelector('path[stroke], line[stroke], polyline[stroke]');
+      if (!strokeEl) {
+        strokeEl = el.querySelector('path, line, polyline');
+      }
+      
+      const hasStroke = strokeEl && (
+        strokeEl.getAttribute('stroke') || 
+        getComputedStyle(strokeEl).stroke !== 'none'
+      );
+      
+      // Fade in the whole edge group
+      timeline.to(el, { opacity: 1, duration: 0.1 });
+      
+      // Draw the stroke if available
+      if (hasStroke && strokeEl) {
+        timeline.to(strokeEl, { 
+          drawSVG: '100%', 
+          duration: duration * 0.8, 
+          ease: 'power1.inOut' 
+        });
+      }
+      
+      timeline.to({}, { duration: 0.1 });
+    }
+
+    function showCaption(text) {
+      const caption = document.getElementById('caption');
+      caption.textContent = text;
+      caption.classList.add('visible');
+    }
+
+    function hideCaption() {
+      document.getElementById('caption').classList.remove('visible');
+    }
+
+    function updateProgress() {
+      const progress = timeline.progress() * 100;
+      document.getElementById('progress').style.width = progress + '%';
+    }
+
+    function playAnimation() {
+      if (!timeline) return;
+      
+      if (timeline.progress() === 1) {
+        resetAnimation();
+      }
+      
+      timeline.play();
+      document.getElementById('status').textContent = 'Playing...';
+      document.getElementById('playBtn').textContent = '▶ Playing';
+    }
+
+    function pauseAnimation() {
+      if (!timeline) return;
+      timeline.pause();
+      document.getElementById('status').textContent = 'Paused';
+      document.getElementById('playBtn').textContent = '▶ Resume';
+    }
+
+    function resetAnimation() {
+      if (!timeline) return;
+      timeline.pause();
+      timeline.progress(0);
+      initializeElements();
+      hideCaption();
+      document.getElementById('progress').style.width = '0%';
+      document.getElementById('status').textContent = 'Reset - Ready to play';
+      document.getElementById('playBtn').textContent = '▶ Play';
+    }
+
+    function exportVideo() {
+      alert(
+        'To export as video:\n\n' +
+        '1. Use a screen recorder (OBS, QuickTime, etc.)\n' +
+        '2. Record the browser window while animation plays\n' +
+        '3. Or use Puppeteer + ffmpeg for automated recording\n\n' +
+        'Tip: Set browser to fullscreen for best quality.'
+      );
+    }
+
+    async function reloadBundle() {
+      document.getElementById('status').textContent = 'Reloading bundle...';
+      if (timeline) {
+        timeline.kill();
+        timeline = null;
+      }
+      await init();
+      document.getElementById('status').textContent = 'Bundle reloaded - Ready to play';
+    }
+
+    // Initialize on load
+    init();
+  </script>
+</body>
+</html>

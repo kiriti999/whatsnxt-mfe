@@ -3,20 +3,23 @@
 import React, { useCallback, useState } from 'react';
 import { Button, Group, Menu, Text } from '@mantine/core';
 import {
-    IconDownload,
-    IconPhoto,
-    IconRefresh,
-    IconDeviceFloppy,
-    IconBrandLinkedin,
-    IconBrandInstagram,
     IconBrandFacebook,
+    IconBrandInstagram,
+    IconBrandLinkedin,
+    IconChevronDown,
     IconDeviceDesktop,
+    IconDeviceFloppy,
     IconDeviceMobile,
     IconDeviceTablet,
+    IconDownload,
     IconFileTypeSvg,
-    IconChevronDown,
+    IconMovie,
+    IconPhoto,
+    IconRefresh,
 } from '@tabler/icons-react';
 import { ShareOptions } from '@whatsnxt/core-ui';
+import { ExportAnimationModal } from './ExportAnimationModal';
+import type { DiagramData } from './types';
 import styles from './visualizer.module.css';
 
 interface ExportPreset {
@@ -54,6 +57,7 @@ interface ExportToolbarProps {
     onSave?: () => void;
     isLoading: boolean;
     hasDiagram: boolean;
+    diagramData?: DiagramData | null;
     diagramTitle?: string;
     prompt?: string;
     email?: string;
@@ -65,12 +69,14 @@ export function ExportToolbar({
     onSave,
     isLoading,
     hasDiagram,
+    diagramData,
     diagramTitle,
     prompt,
     email,
     savedBlogUrl,
 }: ExportToolbarProps) {
     const [exporting, setExporting] = useState<string | null>(null);
+    const [animationModalOpen, setAnimationModalOpen] = useState(false);
 
     const getSvgElement = useCallback((): SVGSVGElement | null => {
         return document.querySelector('#diagram-canvas svg') as SVGSVGElement | null;
@@ -243,6 +249,16 @@ export function ExportToolbar({
                     PNG
                 </Button>
 
+                <Button
+                    variant="outline"
+                    size="sm"
+                    leftSection={<IconMovie size={16} />}
+                    onClick={() => setAnimationModalOpen(true)}
+                    disabled={!hasDiagram || !diagramData}
+                >
+                    GIF / Video
+                </Button>
+
                 <Menu shadow="md" width={280} position="bottom-end">
                     <Menu.Target>
                         <Button
@@ -299,6 +315,18 @@ export function ExportToolbar({
                     >
                         Save to History
                     </Button>
+                )}
+
+                {hasDiagram && diagramData && (
+                    <ExportAnimationModal
+                        opened={animationModalOpen}
+                        onClose={() => setAnimationModalOpen(false)}
+                        diagramData={diagramData}
+                        getSvgString={() => {
+                            const el = getSvgElement();
+                            return el ? serializeSvg(el) : null;
+                        }}
+                    />
                 )}
 
                 {hasDiagram && (

@@ -54,17 +54,18 @@ export const FlowDiagramRenderer: React.FC<FlowDiagramRendererProps> = ({ data, 
             .attr('fill', data.backgroundColor || '#ffffff')
             .attr('rx', 16);
 
-        // Title
-        if (data.title) {
+        // Title - use subtitle if available (skip diagram type prefix)
+        const displayTitle = data.subtitle || '';
+        if (displayTitle) {
             svg.append('text')
                 .attr('x', totalWidth / 2)
                 .attr('y', 40)
                 .attr('text-anchor', 'middle')
-                .attr('font-size', 24)
-                .attr('font-weight', '800')
+                .attr('font-size', 22)
+                .attr('font-weight', '700')
                 .attr('fill', '#1a1a2e')
                 .attr('font-family', 'Inter, system-ui, sans-serif')
-                .text(data.title);
+                .text(displayTitle);
         }
 
         // Arrow marker
@@ -110,7 +111,7 @@ export const FlowDiagramRenderer: React.FC<FlowDiagramRendererProps> = ({ data, 
             const endY = ty - Math.sin(angle) * (targetH / 2 + 10);
 
             // Draw the edge line
-            const edgeGroup = svg.append('g');
+            const edgeGroup = svg.append('g').attr('data-edge-id', edge.id);
 
             edgeGroup.append('line')
                 .attr('x1', startX)
@@ -157,6 +158,7 @@ export const FlowDiagramRenderer: React.FC<FlowDiagramRendererProps> = ({ data, 
             const nodeH = getNodeHeight(node);
 
             const group = svg.append('g')
+                .attr('data-node-id', node.id)
                 .attr('transform', `translate(${x}, ${y})`)
                 .style('cursor', 'pointer');
 

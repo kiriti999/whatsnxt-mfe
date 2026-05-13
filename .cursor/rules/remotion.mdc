@@ -1,0 +1,22 @@
+---
+description: Remotion video/GIF work — install vendor skill locally + WhatsNxt constraints
+globs: "**/remotion/**/*.{ts,tsx}"
+alwaysApply: false
+---
+
+# Remotion
+
+Official agent skill is **not committed** (minimal git). Install once per clone:
+
+`npx skills add remotion-dev/skills`
+
+That writes **`/.agents/skills/remotion-best-practices/`** with `SKILL.md` and `rules/` (GIFs, Lambda, timing, etc.). Open those files when you need depth beyond this rule.
+
+## Rules
+
+- Animate with `useCurrentFrame`, `interpolate`, `Sequence`, `useVideoConfig` — **no CSS transitions or Tailwind animation classes** in compositions (they do not render reliably in headless Chrome).
+- Prefer **`staticFile()`** for assets under `public/`; use `<Img>`, `<Video>`, `<Audio>` from Remotion packages per Remotion docs / installed SKILL.md.
+- **GIF export**: lower **`fps`** and shorter duration reduce size (~≤1 MB targets often need width scale too); see installed **`rules/gifs.md`** after running the command above.
+- **Lambda / AWS**: prefer `@remotion/lambda`; avoid ad-hoc Chromium on Lambda without Remotion’s packaging.
+- **BFF diagram renders**: set `REMOTION_DIAGRAM_REGION`, `REMOTION_DIAGRAM_FUNCTION_NAME`, `REMOTION_DIAGRAM_SERVE_URL` on the BFF (see `whatsnxt-bff/lambda/diagram-animation/README.md`). Optional fallback: `DIAGRAM_REMOTION_ROOT` for local CLI on the BFF host.
+- Align timelines with the shared **`animationManifest`** contract when animating diagram SVGs.
