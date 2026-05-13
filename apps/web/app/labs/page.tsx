@@ -497,6 +497,7 @@ const LabsPage = () => {
 				<Title order={3}>All Available Labs</Title>
 				{isTrainer && (
 					<Button
+						color="blue"
 						onClick={() => router.push("/lab/create")}
 						leftSection={<IconEdit size={16} />}
 					>
@@ -614,7 +615,7 @@ const LabsPage = () => {
 												lab.nestedSubCategory) && (
 												<Group gap="xs">
 													{lab.labType && (
-														<Badge variant="light" color="teal" size="md">
+														<Badge variant="light" color="blue" size="md">
 															{lab.labType}
 														</Badge>
 													)}
