@@ -34,7 +34,7 @@ import labApi from "@/apis/lab.api";
 import useAuth from "@/hooks/Authentication/useAuth";
 import { labDescriptionText } from "@/utils/lab-utils";
 
-interface LabWithProgress extends Lab {
+interface LabWithProgress extends Omit<Lab, "instructorId"> {
 	instructorId?: string;
 	progress?: {
 		totalPages: number;
@@ -620,12 +620,12 @@ const LabsPage = () => {
 														</Badge>
 													)}
 													{lab.subCategory && (
-														<Badge variant="light" color="grape" size="md">
+														<Badge variant="light" color="gray" size="md">
 															{lab.subCategory}
 														</Badge>
 													)}
 													{lab.nestedSubCategory && (
-														<Badge variant="light" color="indigo" size="md">
+														<Badge variant="light" color="gray" size="md">
 															{lab.nestedSubCategory}
 														</Badge>
 													)}
@@ -636,7 +636,7 @@ const LabsPage = () => {
 											<Group gap="xs">
 												<Badge
 													variant="light"
-													color="blue"
+													color="gray"
 													size="md"
 													leftSection={<IconListCheck size={14} />}
 												>
@@ -644,7 +644,7 @@ const LabsPage = () => {
 												</Badge>
 												<Badge
 													variant="light"
-													color="violet"
+													color="gray"
 													size="md"
 													leftSection={<IconSchema size={14} />}
 												>
@@ -715,7 +715,7 @@ const LabsPage = () => {
 												<Group gap="xs">
 													<Badge
 														variant="light"
-														color="blue"
+														color="gray"
 														size="sm"
 														leftSection={<IconListCheck size={12} />}
 													>
@@ -723,7 +723,7 @@ const LabsPage = () => {
 													</Badge>
 													<Badge
 														variant="light"
-														color="violet"
+														color="gray"
 														size="sm"
 														leftSection={<IconSchema size={12} />}
 													>
